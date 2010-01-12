@@ -3214,7 +3214,7 @@ public abstract class JavafxAbstractTranslation
     class SequenceSliceTranslator extends ExpressionTranslator {
 
         private final Type type;
-        private final JCExpression seq;
+        private final JFXExpression seq;
         private final int endKind;
         private final JFXExpression firstIndex;
         private final JFXExpression lastIndex;
@@ -3222,7 +3222,7 @@ public abstract class JavafxAbstractTranslation
         SequenceSliceTranslator(JFXSequenceSlice tree) {
             super(tree.pos());
             this.type = tree.type;
-            this.seq = translateExpr(tree.getSequence(), null);  //FIXME
+            this.seq = tree.getSequence();
             this.endKind = tree.getEndKind();
             this.firstIndex = tree.getFirstIndex();
             this.lastIndex = tree.getLastIndex();
@@ -3231,7 +3231,7 @@ public abstract class JavafxAbstractTranslation
         JCExpression computeSliceEnd() {
             JCExpression endPos;
             if (lastIndex == null) {
-                endPos = Call(seq, defs.size_SequenceMethodName);
+                endPos = Call(translateExpr(seq, null), defs.size_SequenceMethodName);
                 if (endKind == SequenceSliceTree.END_EXCLUSIVE) {
                     endPos = MINUS(endPos, Int(1));
                 }
@@ -3250,7 +3250,7 @@ public abstract class JavafxAbstractTranslation
 
         protected JCExpression doitExpr() {
             JCExpression tFirstIndex = translateExpr(firstIndex, syms.intType);
-            return Call(seq, defs.getSlice_SequenceMethodName, tFirstIndex, computeSliceEnd());
+            return Call(translateExpr(seq, null), defs.getSlice_SequenceMethodName, tFirstIndex, computeSliceEnd());
         }
     }
 
