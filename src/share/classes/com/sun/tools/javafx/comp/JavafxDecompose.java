@@ -36,7 +36,6 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Type;
-import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.jvm.ClassReader;
@@ -498,70 +497,40 @@ public class JavafxDecompose implements JavafxVisitor {
         result = fxmake.at(tree.pos).TypeTest(expr, clazz);
     }
     
-    private JFXExpression shredThisConditionally(Type selecttype, Type symType) {
-        JFXIdent _this = fxmake.This(selecttype);
-
-        if (types.isSequence(symType) || !bindStatus.isUnidiBind() ||
-            (_this.sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
-            return shred(_this);
-        } else {
-            return _this;
-        }
-    }
-
     public void visitSelect(JFXSelect tree) {
-        JFXExpression selected;
-        Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);        
-        if (selectSym != null && selectSym.kind == Kinds.TYP &&
-               tree.sym.kind != Kinds.MTH) {
-            // This is some outer instance variable access
-            if (bindStatus.isBound()) {
-                selected = shredThisConditionally(selectSym.type, tree.type);
-            } else {
-                selected = decompose(tree.selected);
-            }
-        } else if (selectSym != null && selectSym.name == names._this) {
-            selected = shredThisConditionally(selectSym.type, tree.type);
-        } else if ((selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super))) {
-            // Referenced is static, or qualified super access
-            // then selected is a class reference
-            selected = decompose(tree.selected);
-        } else {
-            selected = shred(tree.selected);
-        }
-        setSelectResult(tree, selected, tree.sym);
-    }
-
-    void setSelectResult(JFXExpression tree, JFXExpression selector, Symbol sym) {
         DiagnosticPosition diagPos = tree.pos();
-        JFXSelect res = fxmake.at(diagPos).Select(selector, sym.name);
-        res.sym = sym;
-        if (bindStatus.isBound() && types.isSequence(tree.type)) {
-            // Add a size field to hold the previous size on selector switch
-            JFXVar v = makeSizeVar(diagPos, 0);
-            v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH | Flags.PRIVATE;
-            res.boundSize = v;
+        Symbol sym = tree.sym;
+        Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);
+        if (selectSym != null
+                && ((selectSym.kind == Kinds.TYP && sym.kind != Kinds.MTH)
+                || selectSym.name == names._this)) {
+            // Select is just via "this" -- make it a simple Ident
+            //TODO: move this to lower
+            JFXIdent res = fxmake.at(diagPos).Ident(sym.name);
+            res.sym = sym;
+            result = res;
+        } else {
+            JFXExpression selected;
+            if ((selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super))) {
+                // Referenced is static, or qualified super access
+                // then selected is a class reference
+                selected = decompose(tree.selected);
+            } else {
+                selected = shred(tree.selected);
+            }
+            JFXSelect res = fxmake.at(diagPos).Select(selected, sym.name);
+            res.sym = sym;
+            if (bindStatus.isBound() && types.isSequence(tree.type)) {
+                // Add a size field to hold the previous size on selector switch
+                JFXVar v = makeSizeVar(diagPos, 0);
+                v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH | Flags.PRIVATE;
+                res.boundSize = v;
+            }
+            result = res;
         }
-        result = res;
     }
 
     public void visitIdent(JFXIdent tree) {
-        boolean isDef = (tree.sym.flags() & JavafxFlags.IS_DEF) != 0;
-        boolean isBound = (tree.sym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0;
-        if (tree.sym.kind == Kinds.VAR &&
-                (!isDef || (isDef && isBound)) &&
-                types.isJFXClass(tree.sym.owner) &&
-                !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectFieldName)) &&
-                bindStatus.isBound()) {
-            if (!tree.sym.isStatic() && tree.sym.name != names._this && tree.sym.name != names._super && !currentClass.isSubClass(tree.sym.owner, types)) {
-                // instance field from outer class. We transform "foo" as "this.foo"
-                // and shred "this" part so that local classes generated for local
-                // binds will have proper dependency.
-                setSelectResult(tree, shredThisConditionally(tree.sym.owner.type, tree.type), tree.sym);
-                return;
-            }
-        }
-
         JFXIdent res = fxmake.at(tree.pos).Ident(tree.getName());
         res.sym = tree.sym;
         result = res;

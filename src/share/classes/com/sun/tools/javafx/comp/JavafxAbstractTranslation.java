@@ -939,8 +939,10 @@ public abstract class JavafxAbstractTranslation
         JCExpression reference(Symbol sym) {
             if (sym.isStatic()) {
                 return Select(staticReference(sym), sym.name);
-            } else {
+            } else if (sym.isLocal()) {
                 return id(sym);
+            } else {
+                return Select(getReceiver(sym), sym.name);
             }
         }
 
@@ -1858,27 +1860,31 @@ public abstract class JavafxAbstractTranslation
             super(tree);
         }
         
-        protected void addStaticInterClassBindee(JavafxVarSymbol vsym) {
-            if (vsym.isStatic() && !vsym.isSpecial()) {
-                JavafxClassSymbol classSym = (JavafxClassSymbol)vsym.owner;
-                JavafxVarSymbol scriptAccess = fxmake.ScriptAccessSymbol(classSym);
-                addInterClassBindee(scriptAccess, vsym);
+        protected void addIdentInterClassBindee(JavafxVarSymbol vsym) {
+            if (vsym.owner.kind == Kinds.TYP && !vsym.isSpecial()) {
+                if (vsym.isStatic()) {
+                    // Script var
+                    JavafxClassSymbol classSym = (JavafxClassSymbol) vsym.owner;
+                    JavafxVarSymbol scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                    addInterClassBindee(scriptAccess, vsym);
+                } else {
+                    // Outer class reference through "this"
+                    addInterClassBindee(fxmake.ThisSymbol(vsym.owner.type), vsym);
+                }
             }
         }
-        
+
         @Override
         protected ExpressionResult doit() {
             if (sym instanceof JavafxVarSymbol) {
                 JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
-                if (currentClass().sym.isSubClass(sym.owner, types)) {
+                boolean isScriptContext = receiverContext() == ReceiverContext.ScriptAsStatic;
+                if ((isScriptContext == sym.isStatic())  && currentClass().sym.isSubClass(sym.owner, types)) {
                     // The var is in our class (or a superclass)
-                    if ((receiverContext() == ReceiverContext.ScriptAsStatic) == sym.isStatic()) {
-                        addBindee(vsym);
-                    } else {
-                        addStaticInterClassBindee(vsym);
-                    }
+                    addBindee(vsym);
                 } else {
-                    addStaticInterClassBindee(vsym);
+                    // Possible script or outer class reference
+                    addIdentInterClassBindee(vsym);
                 }
             }
             return super.doit();
