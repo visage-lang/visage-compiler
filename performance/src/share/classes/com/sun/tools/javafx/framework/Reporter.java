@@ -182,9 +182,7 @@ public class Reporter {
 
     String dashboardTable(String header) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<a href=" + COLOR_KEY_FILE_NAME + ">Color Key</a>");
-        sb.append("\t");
-        sb.append("<a href=hg_tip.html>The mercurial tip</a>");
+        sb.append(legendTable());
         sb.append("  <TABLE BORDER=1 CELLPADDING=4 CELLSPACING=0>");
         sb.append("  <TR VALIGN=\"TOP\">");
         sb.append("     <TH COLSPAN=3><P><B>" + header + "</B></P></TH>");
@@ -270,7 +268,8 @@ public class Reporter {
             Utils.close(dashboardFootprintReport);
         }
     }
-    String combinedHeader() {
+
+    StringBuilder legendTable() {
         StringBuilder sb = new StringBuilder();
         sb.append("<TABLE BORDER=1>\n");
         sb.append("<TR>\n");
@@ -281,14 +280,26 @@ public class Reporter {
         sb.append("</TR>\n");
         sb.append("</TABLE>\n");
         sb.append("<P>\n");
+        return sb;
+    }
+
+    String combinedHeader() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(legendTable());
         sb.append("  <TABLE BORDER=1 CELLPADDING=4 CELLSPACING=0>\n");
         sb.append("  <TR VALIGN=\"TOP\">\n");
         sb.append("     <TH COLSPAN=5><P><B>Performance Report</B></P></TH>\n");
         sb.append("  </TR>\n");
         sb.append("  <TR>\n");
-        sb.append("     <TH COLSPAN=1><P><B>Benchmark</B></P></TH>\n");
+        sb.append("     <TH COLSPAN=1 ROWSPAN=2><P><B>Benchmark</B></P></TH>\n");
         sb.append("     <TH COLSPAN=2><P><B>Timing</B></P></TH>\n");
         sb.append("     <TH COLSPAN=2><P><B>Footprint</B></P></TH>\n");
+        sb.append("  </TR>\n");
+        sb.append("  <TR>\n");
+        sb.append("      <TH COLSPAN=1>Current vs. Goal</TH>\n");
+        sb.append("      <TH COLSPAN=1>Current vs. Last</TH>\n");
+        sb.append("      <TH COLSPAN=1>Current vs. Goal</TH>\n");
+        sb.append("      <TH COLSPAN=1>Current vs. Last</TH>\n");
         sb.append("  </TR>\n");
         return sb.toString();      
     }
