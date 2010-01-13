@@ -433,7 +433,6 @@ public class FXLocal {
             "getDependentsManager$internal$",
             "getListenerCount$",
             "getType$",
-            "initFXBase$",
             "initialize$",
             "isInitialized$",
             "javafx$run$",
@@ -798,9 +797,10 @@ public class FXLocal {
                     Context context =
                         (Context) owner.getReflectionContext();
                     Object val;
-                    if (getter != null)
+                    if (getter != null) {
                         val = getter.invoke(robj, new Object[0]);
-                    else {
+                    } else {
+                        fld.setAccessible(true);
                         val = fld.get(robj);
                     }
                     // FIXME: yet to be implemented for compiled binds
@@ -850,6 +850,7 @@ public class FXLocal {
                     } else {
                         // FIXME: yet to be implemented for compiled binds
                         if (fld != null) {
+                            fld.setAccessible(true);
                             fld.set(robj, ((Value) value).asObject());
                             return;
                         }

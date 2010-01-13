@@ -92,8 +92,6 @@ import com.sun.javafx.runtime.sequence.Sequences;
 //
 //       public int addIt$(int n);
 //
-// All supplementary initialization for FXBase objects should be added to
-// the static version of initFXBase$.
 //
 
 /**
@@ -103,19 +101,6 @@ import com.sun.javafx.runtime.sequence.Sequences;
  * @author Robert Field
  */
  public class FXBase implements FXObject {
-    /**
-     * Initialize for FXBase.
-     */
-    public void initFXBase$() {
-        initFXBase$(this);
-    }
-    public static void initFXBase$(FXObject obj) {
-        // Make sure the var offsets are set.
-        obj.count$();
-        // Initialize the var flags.
-        obj.initVars$();
-    }
-
     // First class count.
     public static final int VCNT$ = 0;
     public int count$() { return VCNT$(); }
@@ -279,8 +264,8 @@ import com.sun.javafx.runtime.sequence.Sequences;
      * Constructor called from Java or from object literal with no instance variable initializers
      */
     public FXBase() {
-      this(false);
-      initialize$();
+        this(false);
+        initialize$();
     }
 
     /**
@@ -288,14 +273,17 @@ import com.sun.javafx.runtime.sequence.Sequences;
      * @param dummy Marker only. Ignored.
      */
     public FXBase(boolean dummy) {
-        initFXBase$();
+        // Make sure offsets are set.
+        count$();
     }
 
     public void initialize$() {
+        initVars$();
         applyDefaults$();
         complete$();
     }
     public static void initialize$(FXObject obj) {
+        obj.initVars$();
         obj.applyDefaults$();
         obj.complete$();
     }

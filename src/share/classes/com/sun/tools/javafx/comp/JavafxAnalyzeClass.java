@@ -280,9 +280,24 @@ class JavafxAnalyzeClass {
         // Predicate for static var test.
         public boolean isStatic() { return sym.isStatic(); }
 
-        // Predicate for private var test.
-        public boolean isPrivateAccess() { return (getFlags() & Flags.PRIVATE) != 0L; }
+        // Predicate for protexted var test.
+        public boolean isProtectedAccess() { return (getFlags() & Flags.PROTECTED) != 0L; }
         
+        // Predicate for public var test.
+        public boolean isPublicAccess() { return (getFlags() & Flags.PUBLIC) != 0L; }
+        
+        // Predicate for public read var test.
+        public boolean isPublicReadAccess() { return (getFlags() & JavafxFlags.PUBLIC_READ) != 0L; }
+        
+        // Predicate for public init var test.
+        public boolean isPublicInitAccess() { return (getFlags() & JavafxFlags.PUBLIC_INIT) != 0L; }
+        
+        // Predicate for is externally seen test.
+        public boolean isExternallySeen() { return sym.isExternallySeen(); }
+        
+        // Predicate for script private var test.
+        public boolean hasScriptOnlyAccess() { return sym.hasScriptOnlyAccess(); }
+
         // Predicate for def (constant) var.
         public boolean isDef() { return sym.isDef(); }
 
@@ -388,7 +403,6 @@ class JavafxAnalyzeClass {
                                ", type=" + getSymbol().type +
                                ", owner=" + getSymbol().owner +
                                (isStatic() ? ", static" : "") +
-                               (isPrivateAccess() ? ", private" : "") +
                                (useAccessors() ? ", useAccessors" : "") +
                                (needsCloning() ? ", clone" : "") +
                                (isDef() ? ", isDef" : "") +
@@ -415,7 +429,9 @@ class JavafxAnalyzeClass {
                                    (((flags & JavafxFlags.VARUSE_NEED_ACCESSOR) != 0)     ? ", VARUSE_NEED_ACCESSOR" : "") +
                                    (((flags & JavafxFlags.VARUSE_NON_LITERAL) != 0)       ? ", VARUSE_NON_LITERAL" : "") +
                                    (((flags & JavafxFlags.VARUSE_BIND_ACCESS) != 0)       ? ", VARUSE_BIND_ACCESS" : "") +
-                                   (((flags & JavafxFlags.VARUSE_VARREF) != 0)            ? ", VARUSE_VARREF" : ""));
+                                   (((flags & JavafxFlags.VARUSE_VARREF) != 0)            ? ", VARUSE_VARREF" : "") +
+                                   (((flags & JavafxFlags.VARUSE_SPECIAL) != 0)           ? ", VARUSE_SPECIAL" : "") +
+                                   (getSymbol().isExternallySeen()                         ? ", EXTERNALLY SEEN" : ""));
                 if (!boundBoundSelects().isEmpty()) {
                     for (DependentPair pair : boundBoundSelects()) {
                         System.err.println("        select=" + pair.instanceSym + " " + pair.referencedSym);

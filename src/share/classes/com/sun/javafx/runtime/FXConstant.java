@@ -94,7 +94,7 @@ public final class FXConstant extends FXBase {
     }
 
     public FXConstant(final boolean dummy) {
-        initFXBase$();
+        count$();
     }
 
     public static FXConstant make() {

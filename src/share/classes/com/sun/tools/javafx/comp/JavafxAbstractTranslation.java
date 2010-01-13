@@ -2690,7 +2690,8 @@ public abstract class JavafxAbstractTranslation
          * it's instance variables are initialized. Override to generate
          * statements/expressions just after new object is created.
          */
-        protected void postInstanceCreation() {
+        protected void postInstanceCreation(Name instName) {
+            makeInitSupportCall(defs.initVars_FXObjectMethodName, instName);
         }
 
         /**
@@ -2864,7 +2865,7 @@ public abstract class JavafxAbstractTranslation
                         m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
 
                 // generate stuff just after new object is created
-                postInstanceCreation();
+                postInstanceCreation(tmpVarName);
 
                 // now initialize it's instance variables
                 initInstanceVariables(tmpVarName);
@@ -2894,8 +2895,14 @@ public abstract class JavafxAbstractTranslation
 
             } else {
                 // this is a Java class or has no instance variable initializers, just instanciate it
-                instExpression = m().NewClass(null, null, classTypeExpr, newClassArgs, null);
-                postInstanceCreation();
+                addPreface(Var(
+                        type,
+                        tmpVarName,
+                        m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
+                if (isFX) {
+                    postInstanceCreation(tmpVarName);
+                }
+                instExpression = id(tmpVarName);
             }
 
             return toResult(instExpression, type);
@@ -3220,7 +3227,7 @@ public abstract class JavafxAbstractTranslation
     class SequenceSliceTranslator extends ExpressionTranslator {
 
         private final Type type;
-        private final JCExpression seq;
+        private final JFXExpression seq;
         private final int endKind;
         private final JFXExpression firstIndex;
         private final JFXExpression lastIndex;
@@ -3228,7 +3235,7 @@ public abstract class JavafxAbstractTranslation
         SequenceSliceTranslator(JFXSequenceSlice tree) {
             super(tree.pos());
             this.type = tree.type;
-            this.seq = translateExpr(tree.getSequence(), null);  //FIXME
+            this.seq = tree.getSequence();
             this.endKind = tree.getEndKind();
             this.firstIndex = tree.getFirstIndex();
             this.lastIndex = tree.getLastIndex();
@@ -3237,7 +3244,7 @@ public abstract class JavafxAbstractTranslation
         JCExpression computeSliceEnd() {
             JCExpression endPos;
             if (lastIndex == null) {
-                endPos = Call(seq, defs.size_SequenceMethodName);
+                endPos = Call(translateExpr(seq, null), defs.size_SequenceMethodName);
                 if (endKind == SequenceSliceTree.END_EXCLUSIVE) {
                     endPos = MINUS(endPos, Int(1));
                 }
@@ -3256,7 +3263,7 @@ public abstract class JavafxAbstractTranslation
 
         protected JCExpression doitExpr() {
             JCExpression tFirstIndex = translateExpr(firstIndex, syms.intType);
-            return Call(seq, defs.getSlice_SequenceMethodName, tFirstIndex, computeSliceEnd());
+            return Call(translateExpr(seq, null), defs.getSlice_SequenceMethodName, tFirstIndex, computeSliceEnd());
         }
     }
 
