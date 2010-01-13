@@ -23,7 +23,6 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
@@ -161,18 +160,6 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                 return Call(Getter(rcvr, sym), defs.get_SequenceMethodName, pos);
         }
 
-        JCExpression Undefined() {
-            return Int(JavafxDefs.UNDEFINED_MARKER_INT);
-        }
-
-        JCStatement CallSeqInvalidateUndefined(Symbol sym) {
-            return CallSeqInvalidate(sym, Int(0), Undefined(), Undefined(), id(defs.phaseTransitionCASCADE_INVALIDATE));
-        }
-
-        JCStatement CallSeqInvalidate(Symbol sym, JCExpression begin, JCExpression end, JCExpression newLen, JCExpression phase) {
-            return CallStmt(attributeInvalidateName(sym), begin, end, newLen, phase);
-        }
-
         /**
          * size$ method
          */
@@ -188,7 +175,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                                         getReceiverOrThis(selectorSym)
                             ),
                             CallSeqInvalidateUndefined(targetSymbol),
-                            CallSeqInvalidate(targetSymbol, Int(0), Int(0), CallSize(concreteSelector(), refSym), id(defs.phaseTransitionCASCADE_TRIGGER))
+                            CallSeqTriggerInitial(targetSymbol, CallSize(concreteSelector(), refSym))
                         )
                     ),
                     Return (CallSize(concreteSelector(), refSym))

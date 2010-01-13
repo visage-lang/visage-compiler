@@ -63,7 +63,6 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.tree.JCTree.JCBlock;
 import com.sun.tools.mjavac.tree.JCTree.JCCatch;
-import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.util.Options;
 import java.util.Set;
 import java.util.HashSet;
@@ -1901,7 +1900,31 @@ public abstract class JavafxTranslationSupport {
         JCStatement CallStmt(RuntimeMethod meth, JCExpression... args) {
             return Stmt(Call(meth, args));
         }
-        
+
+        /**
+         * Sequence invalidation support
+         */
+
+        JCExpression Undefined() {
+            return Int(JavafxDefs.UNDEFINED_MARKER_INT);
+        }
+
+        JCStatement CallSeqInvalidate(Symbol sym, JCExpression begin, JCExpression end, JCExpression newLen) {
+            return CallStmt(attributeInvalidateName(sym), begin, end, newLen, id(defs.phaseTransitionCASCADE_INVALIDATE));
+        }
+
+        JCStatement CallSeqTrigger(Symbol sym, JCExpression begin, JCExpression end, JCExpression newLen) {
+            return CallStmt(attributeInvalidateName(sym), begin, end, newLen, id(defs.phaseTransitionCASCADE_TRIGGER));
+        }
+
+        JCStatement CallSeqInvalidateUndefined(Symbol sym) {
+            return CallSeqInvalidate(sym, Int(0), Undefined(), Undefined());
+        }
+
+        JCStatement CallSeqTriggerInitial(Symbol sym, JCExpression initialSize) {
+            return CallSeqTrigger(sym, Int(0), Int(0), initialSize);
+        }
+
         /**
          * These methods simplify throw statements.
          */
