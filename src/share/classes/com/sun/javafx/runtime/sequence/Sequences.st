@@ -123,10 +123,10 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
         }
         if (preReplaceSlice(oldValue, newValue, startPos, endPos) ||
             wasUninitialized) {
-            instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$IS_INVALID);
+            instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.PHASE_TRANS\$CASCADE_INVALIDATE);
             Sequence<? extends $Tboxed$> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos, true);
             instance.be\$(varNum, arr);
-            instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$NEEDS_TRIGGER);
+            instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.PHASE_TRANS\$CASCADE_TRIGGER);
         }
     }
 

@@ -63,6 +63,12 @@ public interface FXObject {
 
     public static final int VFLGS$ALL_FLAGS = -1;
 
+    //TODO: Transitional values
+    public static final int PHASE_TRANS$CASCADE_INVALIDATE  = VFLGS$IS_INVALID;
+    public static final int PHASE_TRANS$BE_INVALIDATE       = VFLGS$IS_INVALID;
+    public static final int PHASE_TRANS$CASCADE_TRIGGER     = VFLGS$NEEDS_TRIGGER;
+    public static final int PHASE_TRANS$BE_TRIGGER          = VFLGS$NEEDS_TRIGGER;
+
     public void     initFXBase$     ();
 
     public int getFlags$(final int varNum);

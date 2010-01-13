@@ -62,9 +62,9 @@ public final class FXConstant extends FXBase {
 
 
     public Object be$value(final Object varNewValue$) {
-         invalidate$value(VFLGS$IS_INVALID);
+         invalidate$value(PHASE_TRANS$BE_INVALIDATE);
          $value = varNewValue$;
-         invalidate$value(VFLGS$NEEDS_TRIGGER);
+         invalidate$value(PHASE_TRANS$BE_TRIGGER);
          return $value;
     }
 

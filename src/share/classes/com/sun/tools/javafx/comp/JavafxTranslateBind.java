@@ -440,7 +440,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement CallSeqInvalidateUndefined(Symbol sym) {
-            return CallSeqInvalidate(sym, Int(0), Undefined(), Undefined(), id(defs.varFlagIS_INVALID));
+            return CallSeqInvalidate(sym, Int(0), Undefined(), Undefined(), id(defs.phaseTransitionCASCADE_INVALIDATE));
         }
 
         JCStatement CallSeqInvalidate(JCExpression begin, JCExpression end, JCExpression newLen) {
@@ -514,7 +514,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         Block(
                             setSequenceActive(),
                             CallSeqInvalidate(),
-                            CallSeqInvalidate(targetSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER))
+                            CallSeqInvalidate(targetSymbol, Int(0), Int(0), id(vSize), id(defs.phaseTransitionCASCADE_TRIGGER))
                         )
                     ),
                     Return(id(vSize))
@@ -591,7 +591,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             Stmt(m().Assign(id(sizeVar), makeSizeValue())),
                             SetStmt(sizeSym, id(sizeVar)),
                             CallSeqInvalidateUndefined(flagSymbol),
-                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(sizeVar), id(defs.varFlagNEEDS_TRIGGER))
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(sizeVar), id(defs.phaseTransitionCASCADE_TRIGGER))
                         )
                     ),
                     Return(id(sizeVar))
@@ -851,7 +851,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         Block(
                             setSequenceActive(),
                             FlagChangeStmt(selectorSym, defs.varFlagNEEDS_TRIGGER, null),
-                            CallStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
+                            CallStmt(attributeInvalidateName(selectorSym), id(defs.phaseTransitionBE_TRIGGER))
                         )
                     ),
                     callSize
@@ -1156,7 +1156,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             vSize,
                             setSequenceActive(),
                             CallSeqInvalidate(),
-                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER)),
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.phaseTransitionCASCADE_TRIGGER)),
                             Return(id(vSize))
                         )
                     ),
@@ -1736,7 +1736,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         Block(
                             setSequenceActive(),
                             CallSeqInvalidate(),
-                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER))
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.phaseTransitionCASCADE_TRIGGER))
                         )
                     ),
                     Return (id(vSize))
@@ -2295,7 +2295,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 )
                             ),
                             CallSeqInvalidateUndefined(flagSymbol),
-                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), Get(sizeSym), id(defs.varFlagNEEDS_TRIGGER))
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), Get(sizeSym), id(defs.phaseTransitionCASCADE_TRIGGER))
                         ),
                     /*Else (already active)*/
                         Block(

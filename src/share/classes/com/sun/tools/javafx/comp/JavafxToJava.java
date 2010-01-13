@@ -931,8 +931,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 addPreface(newLenVar);
             }
 
-            callInvalidate(defs.varFlagIS_INVALID);
-            callInvalidate(defs.varFlagNEEDS_TRIGGER);
+            callInvalidate(defs.phaseTransitionCASCADE_INVALIDATE);
+            callInvalidate(defs.phaseTransitionCASCADE_TRIGGER);
 
             return toStatementResult();
         }

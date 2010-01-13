@@ -1180,10 +1180,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         } else {
                             init = Block(FlagChangeStmt(varSym, null, defs.varFlagDEFAULT_APPLIED),
                                          CallStmt(attributeInvalidateName(varSym),
-                                                  Int(0), Int(0), Int(0), id(defs.varFlagIS_INVALID)),
+                                                  Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_INVALIDATE)),
                                          FlagChangeStmt(varSym, null, defs.varFlagIS_INVALID),
                                          CallStmt(attributeInvalidateName(varSym),
-                                              Int(0), Int(0), Int(0), id(defs.varFlagNEEDS_TRIGGER)),
+                                              Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_TRIGGER)),
                                          FlagChangeStmt(varSym, null, defs.varFlagNEEDS_TRIGGER)
                                          );
                         }
@@ -1982,13 +1982,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         ListBuffer<JCStatement> body = ListBuffer.<JCStatement>lb();
                         
                         if (needsInvalidate) {
-                            body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
+                            body.append(CallStmt(attributeInvalidateName(varSym), id(defs.phaseTransitionBE_INVALIDATE)));
                         }
                         
                         body.append(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
                         
                         if (needsInvalidate) {
-                            body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
+                            body.append(CallStmt(attributeInvalidateName(varSym), id(defs.phaseTransitionBE_TRIGGER)));
                         }
                          
                         if (needsOnReplace) {

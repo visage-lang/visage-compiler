@@ -166,7 +166,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         }
 
         JCStatement CallSeqInvalidateUndefined(Symbol sym) {
-            return CallSeqInvalidate(sym, Int(0), Undefined(), Undefined(), id(defs.varFlagIS_INVALID));
+            return CallSeqInvalidate(sym, Int(0), Undefined(), Undefined(), id(defs.phaseTransitionCASCADE_INVALIDATE));
         }
 
         JCStatement CallSeqInvalidate(Symbol sym, JCExpression begin, JCExpression end, JCExpression newLen, JCExpression phase) {
@@ -188,7 +188,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                                         getReceiverOrThis(selectorSym)
                             ),
                             CallSeqInvalidateUndefined(targetSymbol),
-                            CallSeqInvalidate(targetSymbol, Int(0), Int(0), CallSize(concreteSelector(), refSym), id(defs.varFlagNEEDS_TRIGGER))
+                            CallSeqInvalidate(targetSymbol, Int(0), Int(0), CallSize(concreteSelector(), refSym), id(defs.phaseTransitionCASCADE_TRIGGER))
                         )
                     ),
                     Return (CallSize(concreteSelector(), refSym))
