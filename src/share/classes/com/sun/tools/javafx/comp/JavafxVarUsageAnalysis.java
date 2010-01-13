@@ -41,6 +41,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     
     private boolean inLHS;
     private JavafxBindStatus bindStatus;
+    private JFXClassDeclaration currentClass;
     
     public static JavafxVarUsageAnalysis instance(Context context) {
         JavafxVarUsageAnalysis instance = context.get(varUsageKey);
@@ -128,7 +129,16 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
                 // this is a reference to this variable from within its own initializer
                 mark(sym, VARUSE_SELF_REFERENCE);
             }
+            
             sym.flags_field &= ~VARUSE_OPT_TRIGGER;
+            
+            checkExternallySeen(sym);
+        }
+    }
+    
+    private void checkExternallySeen(Symbol sym) {
+        if (sym instanceof JavafxVarSymbol && sym.owner != currentClass.sym) {
+            ((JavafxVarSymbol)sym).setIsExternallySeen();
         }
     }
 
@@ -170,6 +180,8 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
             mark(tree.sym, VARUSE_NEED_ACCESSOR);
             scan(tree.getOnInvalidate());
         }
+        
+        checkExternallySeen(tree.sym);
     }
 
     @Override
@@ -199,6 +211,8 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
+       JFXClassDeclaration previousClass = currentClass;
+       currentClass = tree;
        // these start over in a class definition
        boolean wasLHS = inLHS;
        JavafxBindStatus wasBindStatus = bindStatus;
@@ -209,6 +223,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
        bindStatus = wasBindStatus;
        inLHS = wasLHS;
+       currentClass = previousClass;
     }
 
     @Override
@@ -256,6 +271,8 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         mark(tree.sym, VARUSE_OBJ_LIT_INIT);
         scan(tree.getExpression());
 
+        checkExternallySeen(tree.sym);
+        
         bindStatus = wasBindStatus;
     }
 

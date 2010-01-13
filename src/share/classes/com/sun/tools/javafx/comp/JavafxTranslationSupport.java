@@ -711,7 +711,7 @@ public abstract class JavafxTranslationSupport {
         String sname = sym.name.toString();
         // JFXC-2837 - Mixins: script-private vars no longer hidden -- var with same name as
         // var in subclass, but with different type fails
-        if (!vsym.isStatic() && vsym.hasScriptOnlyAccess()) {
+        if (!vsym.isStatic() && (vsym.hasScriptOnlyAccess() && vsym.isExternallySeen() || types.isMixin(owner))) {
             // mangle name to hide it
             sname = owner.toString().replace('.', '$') + '$' + sname;
         }
@@ -836,6 +836,9 @@ public abstract class JavafxTranslationSupport {
         }
         else if ((flags & Flags.PROTECTED) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.protectedAnnotationClassNameString), List.<JCExpression>nil()));
+        }
+        else if ((flags & Flags.PRIVATE) != 0) {
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.privateAnnotationClassNameString), List.<JCExpression>nil()));
         }
         else if ((flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.scriptPrivateAnnotationClassNameString), List.<JCExpression>nil()));

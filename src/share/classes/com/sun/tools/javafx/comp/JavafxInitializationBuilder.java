@@ -648,15 +648,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     setDiagPos(ai);
                     // Grab the variable symbol.
                     JavafxVarSymbol varSym = ai.getSymbol();
-                    // Static vars are public since they are accessed directly.
-                    // Synthetic vars should be hidden (private) since they are internal only and
-                    // they may be arbitrarily overridden in subclasses.
-                    // Others are protected since they should only be accessed via accessors, but may be
-                    // overridden by subclasses.
-                    long flags = ai.isStatic()     ? (Flags.STATIC | Flags.PUBLIC) :
-                                 ai.isBareSynth()  ? Flags.PRIVATE :
-                                 ai.useAccessors() ? Flags.PROTECTED :
-                                                     Flags.PUBLIC;
+                    long flags = attributeFieldAccessFlags(ai);
+                    if (ai.isStatic()) flags |= Flags.STATIC;
                     JCModifiers mods = m().Modifiers(flags);
 
                     // Apply annotations, if current class then add source annotations.
@@ -682,43 +675,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Construct the value field
                     JCExpression init = useSimpleInit(ai)              ? getSimpleInit(ai) :
-                                        isValueType(ai.getRealType()) ? defaultValue(ai) :
+                                        isValueType(ai.getRealType())  ? defaultValue(ai) :
                                                                          null;
                     addDefinition(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym), init));
                 }
             }
         }
       
-        //
-        // This method constructs modifiers for getters/setters and proxies.
-        //
-        private JCModifiers proxyModifiers(VarInfo ai, boolean isAbstract) {
-            // Copy old flags from VarInfo.
-            long oldFlags = ai.getFlags();
-            
-            // Determine new flags.
-            long newFlags = (oldFlags & Flags.STATIC) | Flags.PUBLIC;
-            if (isAbstract) {
-                newFlags|= Flags.ABSTRACT;
-            } else if (isMixinClass()) {
-                newFlags|= Flags.STATIC;
-            }
-
-            // Set up basic flags.
-            JCModifiers mods = m().Modifiers(newFlags);
-
-            // If var is in current class.
-            if (isCurrentClassSymbol(ai.getSymbol().owner)) {
-                // Use local access modifiers.
-                mods = addAccessAnnotationModifiers(ai.pos(), oldFlags, mods);
-            } else {
-                // Use inherited modifiers.
-                mods = addInheritedAnnotationModifiers(ai.pos(), oldFlags, mods);
-            }
-
-            return mods;
-        }
-
         //
         // Return a receiver$, scriptLevelAccess$() or null depending on the context.
         //
@@ -740,6 +703,46 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
         }
         
+        //
+        // Returns access flags appropriate for an attribute's field.
+        //
+        private long attributeFieldAccessFlags(VarInfo varInfo) {
+            long flags = Flags.PROTECTED;
+            
+            if (!varInfo.isMixinVar()) {
+                flags = varInfo.isPublicAccess()          ? Flags.PUBLIC :     // User specified
+                        varInfo.isProtectedAccess()       ? Flags.PROTECTED :  // User specified
+                        varInfo.hasScriptOnlyAccess() &&
+                           !varInfo.isExternallySeen()    ? Flags.PRIVATE :    // Internal var
+                        varInfo.useAccessors()            ? Flags.PROTECTED :  // Subclasses need access for overrides
+                        varInfo.isExternallySeen()        ? 0 :                // Package private
+                                                            Flags.PRIVATE;
+            }
+            
+            return flags;
+        }
+        
+        //
+        // Returns access flags appropriate for an attribute's method.
+        //
+        private long attributeMethodAccessFlags(VarInfo varInfo) {
+            long flags = Flags.PUBLIC;
+            
+            // TODO - Handle public read/init properly.
+            if (!varInfo.isMixinVar()) {
+                flags = varInfo.isPublicAccess() ||
+                          varInfo.isPublicReadAccess() ||
+                          varInfo.isPublicInitAccess()    ? Flags.PUBLIC :     // User specified
+                        varInfo.isProtectedAccess()       ? Flags.PROTECTED :  // User specified
+                        varInfo.hasScriptOnlyAccess() &&
+                           !varInfo.isExternallySeen()    ? Flags.PRIVATE :    // Internal vars
+                        varInfo.useAccessors()            ? Flags.PUBLIC :     // Generally visible
+                                                            0;                 // Package private
+            }
+            
+            return flags;
+        }
+ 
         //
         // This class is designed to reduce the repetitiveness of constructing methods.
         //
@@ -871,11 +874,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 return args.toList();
             }
             
+            // This method returns the rawFlags for the method.
+            protected long rawFlags() {
+                return JavaCodeMaker.this.rawFlags();
+            }
+            
             // This method generates a method symbol for the current method.
             protected MethodSymbol methodSymbol() {
                 if (methodSymbol == null) {
                     ListBuffer<Type> argtypes = ListBuffer.lb();
-                    long flags = rawFlags();
                     
                     if (needsReceiver) {
                         argtypes.append(getCurrentOwner().type);
@@ -885,7 +892,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         argtypes.append(type);
                     }
                     
-                    methodSymbol = makeMethodSymbol(rawFlags(), returnType, methodName, argtypes.toList());
+                    methodSymbol = makeMethodSymbol(flags().flags, returnType, methodName, argtypes.toList());
                 }
                 
                 return methodSymbol;
@@ -1027,10 +1034,39 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 this.needsReceiver = isMixinClass() && needsBody && !varInfo.isStatic();
             }
             
+            // Return the raw Method flags.
+            @Override
+            public long rawFlags() {
+                long flags = attributeMethodAccessFlags(varInfo);
+                
+                if (!needsBody) {
+                    flags |= Flags.ABSTRACT;
+                } else if (isMixinClass() || varInfo.isStatic()) {
+                    flags |= Flags.STATIC;
+                }
+                
+                return flags;
+            }
+            
             // Return the method flags.
             @Override
             public JCModifiers flags() {
-                return proxyModifiers(varInfo, !needsBody);
+                // Copy old flags from VarInfo.
+                long flags = rawFlags();
+
+                // Set up basic flags.
+                JCModifiers mods = m().Modifiers(flags);
+    
+                // If var is in current class.
+                if (isCurrentClassSymbol(varInfo.getSymbol().owner)) {
+                    // Use local access modifiers.
+                    mods = addAccessAnnotationModifiers(varInfo.pos(), flags, mods);
+                } else {
+                    // Use inherited modifiers.
+                    mods = addInheritedAnnotationModifiers(varInfo.pos(), flags, mods);
+                }
+    
+                return mods;
             }
         }
         
@@ -1257,7 +1293,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                    varSym.isDef() ||
                    varSym.hasScriptOnlyAccess() && (flags & JavafxFlags.OVERRIDE) == 0;
         }
-
+        
         //-----------------------------------------------------------------------------------------------------------------------------
         //
         // Sequence var accessors.
@@ -2461,7 +2497,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Construct flags var.
                     Name name = attributeFlagsName(ai.getSymbol());
                     // Determine flags.
-                    long flags = isScript() || isMixinClass() ? (Flags.STATIC | Flags.PUBLIC) : Flags.PUBLIC;
+                    long flags = attributeFieldAccessFlags(ai);
+                    if (isScript() || isMixinClass()) flags |= Flags.STATIC;
                     // Construct and add: public static short VFLGS$name = n;
                     addDefinition(makeField(flags, syms.shortType, name, null));
                 }
