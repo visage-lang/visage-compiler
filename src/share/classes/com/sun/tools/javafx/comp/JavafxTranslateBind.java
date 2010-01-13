@@ -432,7 +432,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private Name activeFlagBit = defs.varFlagSEQUENCE_LIVE;
-        JavafxVarSymbol flagSymbol = (JavafxVarSymbol)targetSymbol;
+        private JavafxVarSymbol flagSymbol = (JavafxVarSymbol)targetSymbol;
 
         JCExpression isSequenceActive() {
             return FlagTest(flagSymbol, activeFlagBit, activeFlagBit);
@@ -566,7 +566,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         Block(
                             Stmt(m().Assign(id(sizeVar), makeSizeValue())),
                             SetStmt(sizeSym, id(sizeVar)),
-                            CallSeqInvalidateUndefined(flagSymbol),
+                            CallSeqInvalidateUndefined(targetSymbol),
                             CallSeqTriggerInitial(targetSymbol, id(sizeVar))
                         )
                     ),
@@ -614,6 +614,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 Block(
                                     CallSeqInvalidateUndefined(targetSymbol)
                                 ),
+                            /*Else (Trigger phase)*/
                                 Block(
                                     newSizeVar,
                                     SetStmt(sizeSym, id(newSizeVar)),
@@ -771,7 +772,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         private final SelectTranslator strans;
         private final Symbol refSym;
-        private final JavafxVarSymbol selfSym = (JavafxVarSymbol) targetSymbol;
         private final JavafxVarSymbol selectorSym;
         private final JavafxVarSymbol sizeSym;
 
@@ -846,7 +846,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             return
                 Block(
-                    Stmt(CallSize(selfSym)),
+                    Stmt(CallSize(targetSymbol)),
                     buildBody(tToCheck, CallGetElement(tToCheck, refSym, posArg()), types.elementType(refSym.type))
                 );
         }
@@ -907,7 +907,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                        getReceiverOrThis(selectorSym)
                                     )
                                 ),
-                                CallSeqInvalidateUndefined(selfSym)
+                                CallSeqInvalidateUndefined(targetSymbol)
                             ),
                         /*Else (Trigger phase)*/
                             Block(
@@ -921,7 +921,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         getReceiverOrThis(selectorSym)
                                     )
                                 ),
-                                CallSeqTrigger(selfSym,
+                                CallSeqTrigger(targetSymbol,
                                     Int(0),
                                     id(oldSize),
                                     id(newSize)
@@ -962,7 +962,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         void setupInvalidators() {
                 addInvalidator(selectorSym, makeInvalidateSelector());
-                addInvalidator(selfSym, makeInvalidateSelf());
+                addInvalidator(targetSymbol, makeInvalidateSelf());
                 addInterClassBindee(selectorSym, refSym);
         }
     }
@@ -1636,9 +1636,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             this.elemType = types.elementType(tree.type);
         }
 
-        private JCExpression seq() {
-            return Get(seqSym);
-        }
         private JCExpression lower() {
             return Get(lowerSym);
         }
@@ -1648,9 +1645,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         private JCStatement setLower(JCExpression value) {
             return SetStmt(lowerSym, value);
-        }
-        private JCStatement setUpper(JCExpression value) {
-            return SetStmt(upperSym, value);
         }
 
         private JCExpression CallSeqSize() {
@@ -2270,7 +2264,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     CallSize(elseSym)
                                 )
                             ),
-                            CallSeqInvalidateUndefined(flagSymbol),
+                            CallSeqInvalidateUndefined(targetSymbol),
                             CallSeqTriggerInitial(targetSymbol, Get(sizeSym))
                         ),
                     /*Else (already active)*/
@@ -2324,7 +2318,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 If(isSequenceActive(),
                     If(IsInvalidatePhase(),
-                        CallSeqInvalidateUndefined(targetSymbol),
+                        Block(
+                            CallSeqInvalidateUndefined(targetSymbol)
+                        ),
+                    /*Else (Trigger phase)*/
                         Block(
                             oldCondVar,
                             newCondVar,
@@ -2354,7 +2351,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 If(isSequenceActive(),
                     If(IsInvalidatePhase(),
-                        CallSeqInvalidateUndefined(targetSymbol),
+                        Block(
+                            CallSeqInvalidateUndefined(targetSymbol)
+                        ),
+                    /*Else (Trigger phase)*/
                         Block(
                             If (EQ(Get(condSym), Boolean(take)),
                                 Block(
