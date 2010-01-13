@@ -20,6 +20,12 @@ public class HtmlWriter implements Closeable {
     private final FileOutputStream fos;
     final PrintStream ps;
 
+    public HtmlWriter(String filename) throws FileNotFoundException {
+        fos = new FileOutputStream(filename);
+        ps = new PrintStream(fos);
+        openHtml();
+    }
+
     public HtmlWriter(String filename, String tableHeader) throws FileNotFoundException {
         fos = new FileOutputStream(filename);
         ps = new PrintStream(fos);
@@ -39,14 +45,22 @@ public class HtmlWriter implements Closeable {
         ps.println("<P><P>");
     }
 
-    public void writeToHtml(String... args) {
+    public void writeToHtmlTable(String... args) {
         ps.println("<TR>");
         for (String x : args) {
-            ps.println("<TD><P>" + x + "</TD></P>");
+            ps.println("<TD><P>" + x + "</P></TD>");
         }
         ps.println("</TR>");
     }
+    
+    public void writeToHtml(String s) {
+        ps.println(s);
+    }
 
+    public void writeToHtml(StringBuffer s) {
+        ps.println(s.toString());
+    }
+    
     private void openHtml() {
         ps.println("<HTML>");
         ps.println("<BODY LANG=\"en-US\" DIR=\"LTR\">");

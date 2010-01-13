@@ -13,7 +13,7 @@
         <format property="date.stamp" pattern="yyyy-MM-dd"/>
     </tstamp>
 
-    <property name="top-repo" value="openjfx-compiler~marina-setup"/>
+    <property name="top-repo" value="openjfx-compiler~soma-setup"/>
     <property name="top-url" value="http://kenai.com/hg/${top-repo}"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="dist.dir" value="${basedir}/dist"/>

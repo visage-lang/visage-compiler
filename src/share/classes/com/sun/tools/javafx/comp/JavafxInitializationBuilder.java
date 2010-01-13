@@ -1231,7 +1231,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     !isLeaf(varInfo) ||
                         varInfo.hasDependents() || varInfo.isDependent() ||
                         !varInfo.boundInvalidatees().isEmpty() ||
-                        varInfo.isMixinVar() || varInfo.isStatic() ||
+                        varInfo.isMixinVar() ||
+                        (varInfo.isStatic() && !varInfo.getSymbol().hasScriptOnlyAccess()) ||
                         varInfo.onReplace() != null ||
                         varInfo.onInvalidate() != null;
         }
@@ -1253,8 +1254,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             JavafxVarSymbol varSym = (JavafxVarSymbol)varInfo.getSymbol();
             long flags = varSym.flags();
             return isAnonClass() ||
-                   varInfo.isStatic() ||
-                   (varSym.hasScriptOnlyAccess() && (flags & JavafxFlags.OVERRIDE) == 0);
+                   varSym.isDef() ||
+                   varSym.hasScriptOnlyAccess() && (flags & JavafxFlags.OVERRIDE) == 0;
         }
 
         //-----------------------------------------------------------------------------------------------------------------------------
@@ -2060,8 +2061,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Set phase flag.
                         addStmt(FlagChangeStmt(proxyVarSym, null, phaseArg()));
                         
-                        // notifyDependents(VOFF$var, phase$);
-                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
+                        if (!isLeaf(varInfo) || varInfo.hasDependents()) {
+                            // notifyDependents(VOFF$var, phase$);
+                            addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
+                        }
                     }
 
                     for (VarInfo otherVar : varInfo.boundBinders()) {

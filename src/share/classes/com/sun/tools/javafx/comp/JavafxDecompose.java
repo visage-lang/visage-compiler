@@ -509,17 +509,6 @@ public class JavafxDecompose implements JavafxVisitor {
         }
     }
 
-    private JFXExpression shredScriptAccessConditionally(Symbol sym, Type symType) {
-        JFXIdent _access = fxmake.ScriptAccess(sym);
-
-        if (types.isSequence(symType) || !bindStatus.isUnidiBind() ||
-            (_access.sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
-            return shred(_access);
-        } else {
-            return _access;
-        }
-    }
-
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected;
         Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);        
@@ -533,8 +522,7 @@ public class JavafxDecompose implements JavafxVisitor {
             }
         } else if (selectSym != null && selectSym.name == names._this) {
             selected = shredThisConditionally(selectSym.type, tree.type);
-        } else if ((selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super)) ||
-                !types.isJFXClass(tree.sym.owner)) {
+        } else if ((selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super))) {
             // Referenced is static, or qualified super access
             // then selected is a class reference
             selected = decompose(tree.selected);

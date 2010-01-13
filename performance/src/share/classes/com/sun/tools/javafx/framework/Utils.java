@@ -58,7 +58,7 @@ public class Utils {
     static final String CSV_FORMAT_STRING = "%s %s %s\n";
     static final String RESULTS_CSV = "results.csv";
     private static final String HG_REPO =
-            "http://kenai.com/hg/openjfx-compiler~marina-mixins/file/tip/";
+            "http://kenai.com/hg/openjfx-compiler~soma-master/file/tip/";
     private static final String BENCHMARKS_SRC =
             "performance/benchmarks/src/";
 

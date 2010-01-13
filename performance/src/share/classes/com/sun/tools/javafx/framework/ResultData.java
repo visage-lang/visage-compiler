@@ -41,8 +41,10 @@ public class ResultData {
 
     public ResultData(String... flds) {
         this.name = flds[0];
-        this.performance = flds[1];
-        this.heapsize = flds[2];
+        if (isFloatOk(flds[1]))
+            this.performance = flds[1];
+        if (isFloatOk(flds[2]))
+            this.heapsize = flds[2];
     }
     
     public String getName() {
@@ -62,5 +64,14 @@ public class ResultData {
     @Override
     public String toString() {
         return String.format(Utils.CSV_FORMAT_STRING, name, getPerformance(), getHeapsize());
+    }
+
+    private boolean isFloatOk(String s) {
+        try {
+            Float.parseFloat(s);
+        } catch (NumberFormatException ignore) {
+            return false;
+        }
+        return true;
     }
 }
