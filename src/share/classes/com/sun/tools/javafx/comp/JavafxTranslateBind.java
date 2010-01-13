@@ -44,7 +44,7 @@ import com.sun.tools.mjavac.util.Name;
 
 /**
  * Translate bind expressions into code in bind defining methods
- * 
+ *
  * @author Robert Field
  */
 public class JavafxTranslateBind extends JavafxAbstractTranslation implements JavafxVisitor {
@@ -479,11 +479,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             this.sym = (JavafxVarSymbol) tree.sym;
             this.exprResult = exprResult;
         }
-        
+
         JCStatement makeSizeBody() {
             JCVariableDecl vSize = TmpVar("size", syms.intType, CallSize(sym));
 
-            return 
+            return
                 Block(
                     vSize,
                     If (isSequenceDormant(),
@@ -608,9 +608,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 Block(
                     oldSizeVar,
-                    If(AND(NE(id(oldSizeVar), Undefined()), FlagTest(sym,  phaseArg(), null)),
-                        Block(
-                            FlagChangeStmt(sym, null, phaseArg()),
+                    If(NE(id(oldSizeVar), Undefined()),
+                        PhaseCheckedBlock(sym,
                             If(IsInvalidatePhase(),
                                 Block(
                                     CallSeqInvalidateUndefined(targetSymbol)
@@ -900,9 +899,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl newSize = TmpVar(syms.intType, getSize());
 
             return
-                If (FlagTest(selectorSym, phaseArg(), null),
-                    Block(
-                        FlagChangeStmt(selectorSym, null, phaseArg()),
+                    PhaseCheckedBlock(selectorSym,
                         If (IsInvalidatePhase(),
                             Block(
                                 If (NEnull(selector()),
@@ -933,8 +930,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 )
                             )
                         )
-                    )
-                );
+                    );
         }
 
         /**
@@ -969,9 +965,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         void setupInvalidators() {
-                addInvalidator(selectorSym, makeInvalidateSelector());
-                addInvalidator(targetSymbol, makeInvalidateSelf());
-                addInterClassBindee(selectorSym, refSym);
+            addInvalidator(selectorSym, makeInvalidateSelector());
+            addInvalidator(targetSymbol, makeInvalidateSelf());
+            addInterClassBindee(selectorSym, refSym);
         }
     }
 
@@ -1011,7 +1007,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          *
          * Compute the old size:
          *    oldSize = newSize - (newLen - (end - start));
-         * 
+         *
          * reversedStart = oldSize - 1 - (end - 1) = oldSize - end
          * reversedEnd = oldSize - 1 + 1 - start = oldSize - start
          */
@@ -1205,7 +1201,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vStart = TmpVar("start", syms.intType, cummulativeSize(index));
 
             if (isSequence(index)) {
-                return 
+                return
                         If (isSequenceActive(),
                             Block(
                                 If (IsInvalidatePhase(),
@@ -1234,10 +1230,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 JCVariableDecl vValue = TmpVar("value", type(index), CallGetter(index));
                 JCVariableDecl vNewLen = TmpVar("newLen", syms.intType, computeSize(index, id(vValue)));
 
-                return 
-                    If (id(defs.wasInvalid_LocalVarName),
-                        Block(
-                            FlagChangeStmt(vsym(index), null, phaseArg()),
+                return
+                        PhaseCheckedBlock(vsym(index),
                             If (isSequenceActive(),
                                 Block(
                                     If (IsInvalidatePhase(),
@@ -1259,8 +1253,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     )
                                 )
                             )
-                        )
-                    );
+                        );
             }
         }
 
@@ -1479,7 +1472,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         )
                       )
                     )
-                );
+              );
         }
 
         /**
@@ -1506,7 +1499,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         calculateSize(lower(), id(vNewUpper), step()));
 
             return
-                If (isSequenceActive(),
+              If (isSequenceActive(),
                   If (IsInvalidatePhase(),
                       CallSeqInvalidateUndefined(targetSymbol),
                   /*Else (Trigger phase)*/
@@ -1527,7 +1520,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         )
                       )
                   )
-                );
+              );
         }
 
         /**
@@ -1567,7 +1560,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         )
                       )
                     )
-                );
+              );
         }
 
         /**
@@ -1780,9 +1773,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             PLUS(CallUpper(), Int(1)));
 
             return
-                If (id(defs.wasInvalid_LocalVarName),
-                    Block(
-                        FlagChangeStmt(lowerSym, null, phaseArg()),
+                    PhaseCheckedBlock(lowerSym,
                         If (isSequenceActive(),
                             Block(
                                 If (IsInvalidatePhase(),
@@ -1823,8 +1814,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 )
                             )
                         )
-                    )
-                );
+                    );
         }
 
 
@@ -1851,9 +1841,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vOldSize = TmpVar("oldSize", syms.intType, MINUS(id(vOldUpper), id(vLower)));
 
             return
-                If (id(defs.wasInvalid_LocalVarName),
-                    Block(
-                        FlagChangeStmt(upperSym, null, phaseArg()),
+                    PhaseCheckedBlock(upperSym,
                         If (isSequenceActive(),
                             Block(
                                 If (IsInvalidatePhase(),
@@ -1897,8 +1885,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 )
                             )
                         )
-                    )
-                );
+                    );
         }
 
         /**
@@ -2037,7 +2024,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             addInvalidator(seqSym, makeInvalidateUnderlying());
         }
     }
-    
+
     private class BoundForExpressionTranslator extends BoundSequenceTranslator {
         JFXForExpression forExpr;
         JFXForExpressionInClause clause;
@@ -2056,7 +2043,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             // to (roughly, using a hybrid of Java with object-literals):
             //   y$helper = new BoundForHelper() {
             //      FXForPart makeForPart(int $index$) {
-            //        // The following body of makeForPart 
+            //        // The following body of makeForPart
             //        // is the body of the for
             //        class anon implements FXForPart {
             //          var $indexof$x: Integer = $index$;
@@ -2071,7 +2058,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             // Translate the part created in the FX AST
             JCExpression makePart = toJava.translateToExpression(forExpr.bodyExpr, bodyType);
             BlockExprJCBlockExpression jcb = (BlockExprJCBlockExpression) makePart;
-            
+
             // Add access methods
             JCClassDecl tcdecl = (JCClassDecl) jcb.stats.head;
             ClassSymbol csym = tcdecl.sym;
@@ -2083,7 +2070,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     .append(CallStmt(makeType(((JFXBlock)forExpr.bodyExpr).value.type), defs.count_FXObjectFieldName))
                     .append(Stmt(m().Assign(Select(Get(helperSym), defs.partResultVarNum_BoundForHelper), Offset(clause.boundResultVarSym)))
             );
- 
+
             Type helperType = types.applySimpleGenericType(
                     types.isSequence(bodyType)?
                         syms.javafx_BoundForHelperType :
@@ -2204,7 +2191,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     );
             }
         }
-       
+
         void setupInvalidators() {
             if (clause.seqExpr instanceof JFXIdent) {
                 Symbol bindee = ((JFXIdent) clause.seqExpr).sym;
@@ -2226,7 +2213,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      * Assumptions:
      *   No eager compution and no invalate calls until sequence is active.
      *   Sequence is made active by a call to size.
-     *   Once the sequence is active, 
+     *   Once the sequence is active,
      *     the cond field is kept up-to-date (by condition invalidator);
      *     the size field is kept up-to-date (by the condition and arm invalidators
      */
@@ -2422,17 +2409,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     public void visitFunctionValue(final JFXFunctionValue tree) {
         result = toJava().translateToExpressionResult(tree, targetSymbol.type);
     }
-    
+
     public void visitIdent(JFXIdent tree) {
-        final ExpressionResult exprResult = new BoundIdentTranslator(tree).doit();
         if (tree == boundExpression && isTargettedToSequence()) {
             // We are translating to a bound sequence
             if (tree instanceof JFXIdentSequenceProxy) {
-                result = new BoundIdentSequenceFromNonTranslator((JFXIdentSequenceProxy)tree).doit();
+                result = new BoundIdentSequenceFromNonTranslator((JFXIdentSequenceProxy) tree).doit();
             } else {
+                final ExpressionResult exprResult = new BoundIdentTranslator(tree).doit();
                 result = new BoundIdentSequenceTranslator(tree, exprResult).doit();
             }
         } else {
+            final ExpressionResult exprResult = new BoundIdentTranslator(tree).doit();
             result = exprResult;
         }
     }

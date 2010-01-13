@@ -1053,6 +1053,18 @@ public abstract class JavafxTranslationSupport {
             return makeMethodArg(defs.phase_ArgName, syms.intType);
         }
 
+
+        JCStatement PhaseCheckedBlock(JavafxVarSymbol sym, JCStatement... stmts) {
+            return
+                If (id(defs.wasInvalid_LocalVarName),
+                    Block(
+                        Stmts(
+                            FlagChangeStmt(sym, null, phaseArg())
+                        ).appendList(List.from(stmts))
+                    )
+                );
+        }
+
         JCExpression IsInvalidatePhase() {
             return EQ(phaseArg(), id(defs.varFlagIS_INVALID));
         }
