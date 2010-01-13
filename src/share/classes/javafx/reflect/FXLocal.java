@@ -433,7 +433,6 @@ public class FXLocal {
             "getDependentsManager$internal$",
             "getListenerCount$",
             "getType$",
-            "initFXBase$",
             "initialize$",
             "isInitialized$",
             "javafx$run$",

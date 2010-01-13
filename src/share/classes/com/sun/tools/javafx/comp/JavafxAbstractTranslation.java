@@ -2684,7 +2684,8 @@ public abstract class JavafxAbstractTranslation
          * it's instance variables are initialized. Override to generate
          * statements/expressions just after new object is created.
          */
-        protected void postInstanceCreation() {
+        protected void postInstanceCreation(Name instName) {
+            makeInitSupportCall(defs.initVars_FXObjectMethodName, instName);
         }
 
         /**
@@ -2858,7 +2859,7 @@ public abstract class JavafxAbstractTranslation
                         m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
 
                 // generate stuff just after new object is created
-                postInstanceCreation();
+                postInstanceCreation(tmpVarName);
 
                 // now initialize it's instance variables
                 initInstanceVariables(tmpVarName);
@@ -2888,8 +2889,14 @@ public abstract class JavafxAbstractTranslation
 
             } else {
                 // this is a Java class or has no instance variable initializers, just instanciate it
-                instExpression = m().NewClass(null, null, classTypeExpr, newClassArgs, null);
-                postInstanceCreation();
+                addPreface(Var(
+                        type,
+                        tmpVarName,
+                        m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
+                if (isFX) {
+                    postInstanceCreation(tmpVarName);
+                }
+                instExpression = id(tmpVarName);
             }
 
             return toResult(instExpression, type);

@@ -63,8 +63,6 @@ public interface FXObject {
 
     public static final int VFLGS$ALL_FLAGS = -1;
 
-    public void     initFXBase$     ();
-
     public int getFlags$(final int varNum);
     public void setFlags$(final int varNum, final int value);
     public boolean varTestBits$(final int varNum, int maskBits, int testBits);

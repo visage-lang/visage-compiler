@@ -337,7 +337,6 @@ public class JavafxDefs {
 
     final Name isInitialized_MethodName;
     final Name isReadOnly_MethodName;
-    final Name initFXBase_MethodName;
     final Name start_ThreadMethodName;
     final Name outerAccessor_MethodName;
     final Name main_MethodName;
@@ -568,7 +567,6 @@ public class JavafxDefs {
         target_InterpolateMethodName = names.fromString("target");
         value_InterpolateMethodName = names.fromString("value");
         interpolate_InterpolateMethodName = names.fromString("interpolate");
-        initFXBase_MethodName = names.fromString("initFXBase$");
         userInit_FXObjectMethodName = names.fromString("userInit$");
         postInit_FXObjectMethodName = names.fromString("postInit$");
         incrementSharing_SequenceMethodName = names.fromString("incrementSharing");
