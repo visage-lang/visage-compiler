@@ -35,4 +35,15 @@ public interface FXMember {
     public abstract String getName();
     public abstract FXClassType getDeclaringClass();
     public abstract boolean isStatic();
+
+    /** The member was specified to have public access. */
+    public abstract boolean isPublic();
+
+    /** The member was specified to have package access.
+     * For a member of a Java class, returns true if the member has default (blank) access.
+     */
+    public abstract boolean isPackage();
+
+    /** The member was specified to have protected access. */
+    public abstract boolean isProtected();
 }
