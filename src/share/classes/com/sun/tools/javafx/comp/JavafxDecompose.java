@@ -180,13 +180,18 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     private JFXVar shredVar(String label, JFXExpression pose, Type type) {
+        return shredVar(label, pose, type, JavafxBindStatus.UNIDIBIND);
+    }
+    
+    private JFXVar shredVar(String label, JFXExpression pose, Type type, JavafxBindStatus bindStatus) {
         Name tmpName = tempName(label);
         // If this shred var initialized with a call to a bound function?
         JFXVar ptrVar = makeTempBoundResultName(tmpName, pose);
+        
         if (ptrVar != null) {
-            return makeVar(pose.pos(), tmpName, id(ptrVar), JavafxBindStatus.UNIDIBIND, type);
+            return makeVar(pose.pos(), tmpName, id(ptrVar), bindStatus, type);
         } else {
-            return makeVar(pose.pos(), tmpName, pose, JavafxBindStatus.UNIDIBIND, type);
+            return makeVar(pose.pos(), tmpName, pose, bindStatus, type);
         }
     }
 
@@ -218,7 +223,7 @@ public class JavafxDecompose implements JavafxVisitor {
             // If the tree type is bottom, try to use contextType
             varType = contextType;
         }
-        JFXVar v = shredVar("", pose, varType);
+        JFXVar v = shredVar("", pose, varType, bindStatus);
         return id(v);
     }
 
@@ -516,7 +521,10 @@ public class JavafxDecompose implements JavafxVisitor {
                 // then selected is a class reference
                 selected = decompose(tree.selected);
             } else {
+                JavafxBindStatus oldBindStatus = bindStatus;
+                if (bindStatus == JavafxBindStatus.BIDIBIND) bindStatus = JavafxBindStatus.UNIDIBIND;
                 selected = shred(tree.selected);
+                bindStatus = oldBindStatus;
             }
             JFXSelect res = fxmake.at(diagPos).Select(selected, sym.name);
             res.sym = sym;
