@@ -858,6 +858,7 @@ public class JavafxDecompose implements JavafxVisitor {
         if (bindStatus.isBound()) {
             // now add a size temp var
             res.boundSizeVar = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
+            res.boundSizeVar.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
         }
         result = res;
     }
