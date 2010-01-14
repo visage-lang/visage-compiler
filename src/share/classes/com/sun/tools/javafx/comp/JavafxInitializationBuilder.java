@@ -2458,7 +2458,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             // Construct a static count variable (VCNT$), -1 indicates count has not been initialized.
             int initCount = analysis.isFirstTier() ? varCount : -1;
-            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PUBLIC, defs.count_FXObjectFieldName, initCount));
+            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.count_FXObjectFieldName, initCount));
 
             // Construct a static count accessor method (VCNT$)
             makeVCNT$(attrInfos, varCount);
