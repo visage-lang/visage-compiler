@@ -2895,14 +2895,7 @@ public abstract class JavafxAbstractTranslation
 
             } else {
                 // this is a Java class or has no instance variable initializers, just instanciate it
-                addPreface(Var(
-                        type,
-                        tmpVarName,
-                        m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
-                if (isFX) {
-                    postInstanceCreation(tmpVarName);
-                }
-                instExpression = id(tmpVarName);
+                instExpression = m().NewClass(null, null, classTypeExpr, newClassArgs, null);
             }
 
             return toResult(instExpression, type);

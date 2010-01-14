@@ -650,7 +650,6 @@ public class FXLocal {
                     ref.getter = getMethodOrNull(cls, "get" + fname);
  
                     if (ref.getter != null) {
-                        ref.fld = null;
                         Class type = ref.getter.getReturnType();
                         ref.setter = getMethodOrNull(cls, "set" + fname, type);
                     }

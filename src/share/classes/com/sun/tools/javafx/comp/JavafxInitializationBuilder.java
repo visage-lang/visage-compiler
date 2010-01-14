@@ -2505,8 +2505,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     if (!ai.isOverride()) {
                         if (ai instanceof MixinClassVarInfo) {
-                            // TODO - fix when overridden twice.
-                            init = Select(makeType(ai.getSymbol().owner.type, false), name);
+                            init = updateVarBits(ai, Select(makeType(ai.getSymbol().owner.type, false), name));
+                            
+                            if (init == null) {
+                                // TODO - fix when overridden twice.
+                                init = Select(makeType(ai.getSymbol().owner.type, false), name);
+                            }
                         } else {
                             init = initialVarBits(ai);
                             zero = init == null;
@@ -2925,17 +2929,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method generates code to update overridden var flags.
         //
         public JCExpression updateVarBits(VarInfo ai, JCExpression oldFlags) {
-            if (ai.hasBoundDefinition() || ai.hasInitializer()) {
-                JCExpression setBits = initialVarBits(ai);
-                
-                if (setBits == null) {
-                    return flagCast(BITAND(oldFlags, id(defs.varFlagIS_EAGER)));
-                } else {
-                    return flagCast(BITOR(BITAND(oldFlags, id(defs.varFlagIS_EAGER)), setBits));
-                }
-             }
+            JCExpression setBits = initialVarBits(ai);
+            JCExpression clearBits = oldFlags;
             
-            return null;
+            if (ai.hasBoundDefinition() || ai.hasInitializer()) {
+                clearBits = BITAND(oldFlags, id(defs.varFlagIS_EAGER));
+            }
+            
+            if (setBits != null) {
+                setBits = BITOR(clearBits, setBits);
+            } else if (clearBits != oldFlags) {
+                setBits = clearBits;
+            }
+            
+            return setBits == null ? null : flagCast(setBits);
         }
         
         //

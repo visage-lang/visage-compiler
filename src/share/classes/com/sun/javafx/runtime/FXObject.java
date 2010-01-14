@@ -69,8 +69,6 @@ public interface FXObject {
     public static final int PHASE_TRANS$CASCADE_TRIGGER     = VFLGS$NEEDS_TRIGGER;
     public static final int PHASE_TRANS$BE_TRIGGER          = VFLGS$NEEDS_TRIGGER;
 
-    public void     initFXBase$     ();
-
     public int getFlags$(final int varNum);
     public void setFlags$(final int varNum, final int value);
     public boolean varTestBits$(final int varNum, int maskBits, int testBits);
