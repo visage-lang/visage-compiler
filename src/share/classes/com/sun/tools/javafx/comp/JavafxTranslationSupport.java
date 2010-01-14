@@ -1053,24 +1053,50 @@ public abstract class JavafxTranslationSupport {
             return makeMethodArg(defs.phase_ArgName, syms.intType);
         }
 
+        /**
+         * Set the phase state part of the flag to the next state part of the phase transition
+         */
+        JCStatement SetNextVarFlagsStateFromPhaseTransition(JavafxVarSymbol sym) {
+            return
+                FlagChangeStmt(sym,
+                        id(defs.varFlagSTATE_MASK),
+                        SHIFTR(
+                            phaseArg(),
+                            id(defs.phaseTransitionNEXT_STATE_SHIFT)
+                        )
+                );
+        }
+
+        /**
+         * Clear the be$ bits from the phase transition
+         */
+        JCStatement ClearBeFromPhaseTransition() {
+            return
+                Stmt(
+                    m().Assignop(JCTree.BITAND_ASG,
+                        phaseArg(),
+                        id(defs.phaseTransitionCLEAR_BE)
+                    ));
+        }
 
         JCStatement PhaseCheckedBlock(JavafxVarSymbol sym, JCStatement... stmts) {
             return
                 If (id(defs.wasInvalid_LocalVarName),
                     Block(
                         Stmts(
-                            FlagChangeStmt(sym, null, phaseArg())
+                            SetNextVarFlagsStateFromPhaseTransition(sym),
+                            ClearBeFromPhaseTransition()
                         ).appendList(List.from(stmts))
                     )
                 );
         }
 
         JCExpression IsInvalidatePhase() {
-            return EQ(phaseArg(), id(defs.varFlagIS_INVALID));
+            return EQ(BITAND(phaseArg(), id(defs.phaseTransitionPHASE)), id(defs.phaseINVALIDATE));
         }
-
+        
         JCExpression IsTriggerPhase() {
-            return EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
+            return EQ(BITAND(phaseArg(), id(defs.phaseTransitionPHASE)), id(defs.phaseTRIGGER));
         }
 
         /**

@@ -179,7 +179,7 @@ public class Pointer implements KeyValueTarget {
         FXObject listener = new FXBase() {
             @Override
             public void update$(FXObject src, int varNum, int phase) {
-                if (phase == VFLGS$NEEDS_TRIGGER) {
+                if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
                     // update value from "src"
                     thisObj.set$(thisVarNum, src.get$(varNum));
                 }
@@ -188,7 +188,7 @@ public class Pointer implements KeyValueTarget {
             @Override
             public void update$(FXObject src, final int varNum,
                     int startPos, int endPos, int newLength, final int phase) {
-                if (phase == VFLGS$NEEDS_TRIGGER) {
+                if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
                     // update value from "src"
                     thisObj.set$(thisVarNum, src.get$(varNum));
                 }
