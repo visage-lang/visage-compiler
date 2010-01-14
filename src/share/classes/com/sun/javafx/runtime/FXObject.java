@@ -32,26 +32,41 @@ package com.sun.javafx.runtime;
  *
  * @author Brian Goetz
  * @author Jim Laskey
+ * @author Robert Field
  */
 public interface FXObject {
     /**
-     * Var bit flags.
+     * Var flag bits.
      */
-    public static final int VFLGS$IS_INVALID = 1;
-    public static final int VFLGS$NEEDS_TRIGGER = 2;
-    public static final int VFLGS$IS_BOUND = 4;
-    public static final int VFLGS$IS_READONLY = 8;
-    public static final int VFLGS$DEFAULT_APPLIED = 16;
-    public static final int VFLGS$IS_INITIALIZED = 32;
-    public static final int VFLGS$AWAIT_VARINIT = 64;
-    public static final int VFLGS$CYCLE = 128;
-    public static final int VFLGS$IS_EAGER = 256;
-    public static final int VFLGS$SEQUENCE_LIVE = 512;
+    public static final int VFLGS$RESTING_STATE_BIT  =    01;
+    public static final int VFLGS$BE_STATE_BIT       =    02;
+    public static final int VFLGS$INVALID_STATE_BIT  =    04;
+    public static final int VFLGS$DEFAULT_APPLIED    =   010;
+    public static final int VFLGS$IS_INITIALIZED     =   020;
+    public static final int VFLGS$AWAIT_VARINIT      =   040;
+    public static final int VFLGS$CYCLE              =  0100;
+    public static final int VFLGS$IS_EAGER           =  0200;
+    public static final int VFLGS$SEQUENCE_LIVE      =  0400;
+    public static final int VFLGS$BE_UPDATE          = 01000;
+    public static final int VFLGS$IS_BOUND           = 02000;
+    public static final int VFLGS$IS_READONLY        = 04000;
 
-    public static final int VFLGS$VALIDITY_FLAGS = VFLGS$IS_INVALID | VFLGS$NEEDS_TRIGGER;
-    public static final int VFLGS$IS_BOUND_INVALID = VFLGS$IS_BOUND | VFLGS$IS_INVALID;
-    public static final int VFLGS$IS_BOUND_INVALID_CYCLE = VFLGS$IS_BOUND | VFLGS$IS_INVALID | VFLGS$CYCLE;
-    public static final int VFLGS$IS_BOUND_INVALID_CYCLE_AWAIT_VARINIT = VFLGS$IS_BOUND | VFLGS$IS_INVALID | VFLGS$CYCLE | VFLGS$AWAIT_VARINIT;
+    /**
+     * Var states
+     */
+    public static final int VFLGS$STATE_MASK = VFLGS$RESTING_STATE_BIT | VFLGS$BE_STATE_BIT | VFLGS$INVALID_STATE_BIT;
+
+    public static final int VFLGS$STATE$VALID            = VFLGS$RESTING_STATE_BIT;
+    public static final int VFLGS$STATE$CASCADE_INVALID  = VFLGS$INVALID_STATE_BIT;
+    public static final int VFLGS$STATE$BE_INVALID       = VFLGS$BE_STATE_BIT | VFLGS$INVALID_STATE_BIT;
+    public static final int VFLGS$STATE$TRIGGERED        = VFLGS$RESTING_STATE_BIT | VFLGS$INVALID_STATE_BIT;
+
+    /**
+     * Var flag groups.
+     */
+    public static final int VFLGS$IS_BOUND_INVALID = VFLGS$IS_BOUND | VFLGS$INVALID_STATE_BIT;
+    public static final int VFLGS$IS_BOUND_INVALID_CYCLE = VFLGS$IS_BOUND | VFLGS$INVALID_STATE_BIT | VFLGS$CYCLE;
+    public static final int VFLGS$IS_BOUND_INVALID_CYCLE_AWAIT_VARINIT = VFLGS$IS_BOUND | VFLGS$INVALID_STATE_BIT | VFLGS$CYCLE | VFLGS$AWAIT_VARINIT;
     public static final int VFLGS$IS_BOUND_DEFAULT_APPLIED = VFLGS$IS_BOUND | VFLGS$DEFAULT_APPLIED;
     public static final int VFLGS$IS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED = VFLGS$IS_BOUND | VFLGS$DEFAULT_APPLIED | VFLGS$IS_INITIALIZED;
     public static final int VFLGS$DEFAULT_APPLIED_VARINIT = VFLGS$AWAIT_VARINIT | VFLGS$DEFAULT_APPLIED;
@@ -59,15 +74,41 @@ public interface FXObject {
     public static final int VFLGS$INIT_OBJ_LIT_DEFAULT = VFLGS$IS_INITIALIZED | VFLGS$DEFAULT_APPLIED;
     public static final int VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY = VFLGS$DEFAULT_APPLIED | VFLGS$IS_INITIALIZED | VFLGS$IS_READONLY;
     public static final int VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED = VFLGS$DEFAULT_APPLIED | VFLGS$IS_INITIALIZED;
-    public static final int VFLGS$INIT_BOUND_READONLY = VFLGS$IS_BOUND | VFLGS$IS_READONLY | VFLGS$IS_INVALID | VFLGS$NEEDS_TRIGGER;
+    public static final int VFLGS$INIT_BOUND_READONLY = VFLGS$IS_BOUND | VFLGS$IS_READONLY | VFLGS$STATE$TRIGGERED;
+    public static final int VFLGS$VALID_DEFAULT_APPLIED = VFLGS$STATE$VALID | VFLGS$DEFAULT_APPLIED;
 
     public static final int VFLGS$ALL_FLAGS = -1;
 
-    //TODO: Transitional values
-    public static final int PHASE_TRANS$CASCADE_INVALIDATE  = VFLGS$IS_INVALID;
-    public static final int PHASE_TRANS$BE_INVALIDATE       = VFLGS$IS_INVALID;
-    public static final int PHASE_TRANS$CASCADE_TRIGGER     = VFLGS$NEEDS_TRIGGER;
-    public static final int PHASE_TRANS$BE_TRIGGER          = VFLGS$NEEDS_TRIGGER;
+    /**
+     * Phase transitions
+     * Acceptable current states / Next state / Phase
+     * Note: sequences use cascade triggerring
+     */
+    public static final int PHASE_TRANS$PHASE_SHIFT = 3;
+    public static final int PHASE_TRANS$NEXT_STATE_SHIFT = 1 + PHASE_TRANS$PHASE_SHIFT;
+    public static final int PHASE_TRANS$PHASE  = 1 << PHASE_TRANS$PHASE_SHIFT;
+
+    public static final int PHASE$INVALIDATE  = 0;
+    public static final int PHASE$TRIGGER     = PHASE_TRANS$PHASE;
+
+    public static final int PHASE_TRANS$CASCADE_INVALIDATE  = (VFLGS$STATE$VALID)
+                                                            | (VFLGS$STATE$CASCADE_INVALID << PHASE_TRANS$NEXT_STATE_SHIFT)
+                                                            | PHASE$INVALIDATE;
+
+    public static final int PHASE_TRANS$BE_INVALIDATE       = (VFLGS$STATE$VALID)
+                                                            | (VFLGS$STATE$BE_INVALID      << PHASE_TRANS$NEXT_STATE_SHIFT)
+                                                            | PHASE$INVALIDATE;
+
+    public static final int PHASE_TRANS$CASCADE_TRIGGER     = (VFLGS$STATE$CASCADE_INVALID)
+                                                            | (VFLGS$STATE$TRIGGERED       << PHASE_TRANS$NEXT_STATE_SHIFT)
+                                                            | PHASE$TRIGGER;
+
+    public static final int PHASE_TRANS$BE_TRIGGER          = (VFLGS$STATE$CASCADE_INVALID | VFLGS$STATE$BE_INVALID)
+                                                            | (VFLGS$STATE$TRIGGERED       << PHASE_TRANS$NEXT_STATE_SHIFT)
+                                                            | PHASE$TRIGGER;
+
+    public static final int PHASE_TRANS$CLEAR_BE            = ~((VFLGS$BE_STATE_BIT)
+                                                            | (VFLGS$BE_STATE_BIT          << PHASE_TRANS$NEXT_STATE_SHIFT));
 
     public int getFlags$(final int varNum);
     public void setFlags$(final int varNum, final int value);

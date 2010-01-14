@@ -833,6 +833,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             public void addStmts(ListBuffer<JCStatement> list) {
                 stmts.appendList(list.toList());
             }
+            public void addStmts(JCStatement... stmts) {
+                for (JCStatement stmt : stmts)
+                    addStmt(stmt); // handle nulls this way
+            }
             
             // This method adds a new parameter type and name to the current method.
             public void addParam(Type type, Name name) {
@@ -857,12 +861,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
      
                 while (typeIter.hasNext() && nameIter.hasNext()) {
-                    params.append(Param(typeIter.next(), nameIter.next()));
+                    params.append(makeParam(typeIter.next(), nameIter.next()));
                 }
                 
                 return params.toList();
             }
             
+            protected JCVariableDecl makeParam(Type varType, Name varName) {
+                return Param(varType, varName);
+            }
+
             // This method returns all the parameters for the current method as a
             // list of JCExpression.
             protected List<JCExpression> argList() {
@@ -1218,10 +1226,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             init = Block(FlagChangeStmt(varSym, null, defs.varFlagDEFAULT_APPLIED),
                                          CallStmt(attributeInvalidateName(varSym),
                                                   Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_INVALIDATE)),
-                                         FlagChangeStmt(varSym, null, defs.varFlagIS_INVALID),
                                          CallStmt(attributeInvalidateName(varSym),
-                                              Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_TRIGGER)),
-                                         FlagChangeStmt(varSym, null, defs.varFlagNEEDS_TRIGGER)
+                                              Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_TRIGGER))
                                          );
                         }
                     }
@@ -1489,8 +1495,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             JCExpression receiver = getReceiverOrThis(varSym);
                             addStmt(CallStmt(defs.Pointer_switchDependence,id(oldPtrVar), id(newPtrVar), receiver));
 
-                            // setValid(VFLGS$VALIDITY_FLAGS);
-                            JCStatement setValid = FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED);
+                            JCStatement setValid = FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID_DEFAULT_APPLIED);
                             JCExpression apply = Call(
                                     Getter(varInfo.boundFuncResultInitSym()),
                                     defs.size_PointerMethodName);
@@ -1618,11 +1623,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                 newLengthArg()));
                         }
 
-                        // phase$ == VFLGS$NEEDS_TRIGGER
-                        JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
-
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
-                        addStmt(OptIf(ifTriggerPhase,
+                        addStmt(OptIf(IsTriggerPhase(),
                                 endBlock()));
                     }
                 }
@@ -1859,22 +1861,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                         varInfo.boundPreface(),
                                         CallStmt(attributeBeName(varSym), initValue),
                                         CallStmt(attributeBeName(varSym), defaultValue(varInfo))));
-                            }
-                          
+                                }
+
                             // Release cycle lock.
                             addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
-                            
+
                             // Is it bound and invalid?
                             JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT, defs.varFlagIS_BOUND_INVALID);
-                            
+
                             // if (bound and invalid) { set$var(init/bound expression); }
-                            addStmt(OptIf(condition, 
+                            addStmt(OptIf(condition,
                                     endBlock(),
                                     initIf));
                         } else {
                             addStmt(initIf);
                         }
-    
+
                         // Construct and add: return $var;
                         addStmt(Return(Get(proxyVarSym)));
                     }
@@ -2035,11 +2037,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(
                             OptIf (OR(valueChangedTest, defaultAppliedTest),
                                 Block(body), null));
-                        addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null));
                     } else {
                         addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
-                        addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED));
                     }
+
+                    // Set the state valid and mark defaults as applied
+                    addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID_DEFAULT_APPLIED));
    
                     // return $var;
                     addStmt(Return(Get(proxyVarSym)));
@@ -2067,10 +2070,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     List<BindeeInvalidator> invalidatees = varInfo.boundInvalidatees();
                     boolean hasInvalidators = !invalidatees.isEmpty();
 
-                    //!isValidValue$(VOFF$var)
+                    JCVariableDecl varState = Var(syms.intType,
+                            defs.varState_LocalVarName,
+                            BITAND(GetFlags(proxyVarSym), id(defs.varFlagSTATE_MASK)));
                     JCVariableDecl wasValidVar = Var(syms.booleanType,
                             defs.wasInvalid_LocalVarName,
-                            FlagTest(proxyVarSym, id(defs.varFlagVALIDITY_FLAGS), SHIFTR(phaseArg(), Int(1))));
+                            EQ(BITAND(id(varState), phaseArg()), id(varState)));
+                    addStmt(varState);
                     addStmt(wasValidVar);
                      
                     if (hasInvalidators) {
@@ -2088,6 +2094,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     beginBlock();
     
                     boolean mixin = !isMixinClass() && varInfo instanceof MixinClassVarInfo;
+                    boolean notifyDependents = false;
 
                     if (varInfo.isOverride() || varInfo instanceof SuperClassVarInfo) {
                         // Call super first.
@@ -2095,15 +2102,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     } else if (mixin) {
                         callMixin((ClassSymbol)varSym.owner);
                     } else {
-                        // Set phase flag.
-                        addStmt(FlagChangeStmt(proxyVarSym, null, phaseArg()));
-                        
-                        if (!isLeaf(varInfo) || varInfo.hasDependents()) {
-                            // notifyDependents(VOFF$var, phase$);
-                            addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
-                        }
+                        // Set the phase state part of the flag to the next state part of the phase transition
+                        addStmt(SetNextVarFlagsStateFromPhaseTransition(proxyVarSym));
+
+                        notifyDependents = !isLeaf(varInfo) || varInfo.hasDependents();
                     }
 
+                    // Strip phase down to the non-be$ form before propagating
+                    addStmt(ClearBeFromPhaseTransition());
+
+                    if (notifyDependents) {
+                        // notifyDependents(VOFF$var, phase$);
+                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
+                    }
+                    
                     for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
                         if (!otherVar.generateSequenceAccessors()) {
@@ -2124,9 +2136,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             break;
                         }
                     }
-
-                    // phase$ == VFLGS$NEEDS_TRIGGER
-                    JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
 
                     // Wrap up main block.
                     JCBlock mainBlock = endBlock();
@@ -2160,10 +2169,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
 
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
-                        addStmt(OptIf(ifTriggerPhase,
+                        addStmt(OptIf(IsTriggerPhase(),
                                 endBlock()));
                     }
                 }
+
+                // phase non-FINAL
+                @Override
+                protected JCVariableDecl makeParam(Type varType, Name varName) {
+                    return Var(Flags.PARAMETER, varType, varName, null);
+                }
+
             };
 
             vamb.build();
@@ -2906,7 +2922,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 setBits = bitOrFlags(setBits, defs.varFlagDEFAULT_APPLIED, defs.varFlagIS_INITIALIZED);
             } else {
                 if (isBound) {
-                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagIS_INVALID, defs.varFlagNEEDS_TRIGGER);
+                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagStateTRIGGERED);
                 }
                 
                 if (ai.hasVarInit()) {

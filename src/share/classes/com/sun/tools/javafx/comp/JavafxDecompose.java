@@ -128,7 +128,7 @@ public class JavafxDecompose implements JavafxVisitor {
             lb.append(decompose(tree));
         return lb.toList();
     }
-    
+
     private boolean requiresShred(JFXExpression tree) {
         if (tree==null) {
             return false;
@@ -252,7 +252,7 @@ public class JavafxDecompose implements JavafxVisitor {
         }
         return lb.toList();
     }
-    
+
     private Name tempName(String label) {
         String name = currentVarSymbol != null ? currentVarSymbol.toString() : "";
         name += "$" + label + "$";
@@ -265,10 +265,10 @@ public class JavafxDecompose implements JavafxVisitor {
                 }
             }
         }
-        
+
         // name += defs.internalNameMarker;
         synthNames.add(name);
-        
+
         return names.fromString(name);
     }
 
@@ -276,11 +276,19 @@ public class JavafxDecompose implements JavafxVisitor {
         return names.fromString(JavafxDefs.boundFunctionResult + name);
     }
 
-    private JFXVar makeTempBoundResultName(Name varName, JFXExpression initExpr) {
-        JFXVar ptrVar = null;
+    //TODO: clean-up this whole mess
+    private boolean isBoundFunctionResult(JFXExpression initExpr) {
         if (initExpr instanceof JFXFunctionInvocation) {
             Symbol meth = JavafxTreeInfo.symbol(((JFXFunctionInvocation)initExpr).meth);
-            if (meth != null && (meth.flags() & JavafxFlags.BOUND) != 0L) {
+            return meth != null && (meth.flags() & JavafxFlags.BOUND) != 0L;
+        } else {
+            return false;
+        }
+    }
+
+    private JFXVar makeTempBoundResultName(Name varName, JFXExpression initExpr) {
+        JFXVar ptrVar = null;
+        if (isBoundFunctionResult(initExpr)) {
                 Name tmpBoundResName = tempBoundResultName(varName);
                 /*
                  * Introduce a Pointer synthetic variable which will be used to cache
@@ -289,11 +297,10 @@ public class JavafxDecompose implements JavafxVisitor {
                  */
                 ptrVar = makeVar(initExpr.pos(), tmpBoundResName, initExpr, JavafxBindStatus.UNIDIBIND, syms.javafx_PointerType);
                 ptrVar.sym.flags_field |= Flags.SYNTHETIC | JavafxFlags.VARUSE_BIND_ACCESS;
-            }
         }
         return ptrVar;
     }
-    
+
     private <T extends JFXTree> List<T> decomposeContainer(List<T> trees) {
         if (trees == null)
             return null;
@@ -438,7 +445,7 @@ public class JavafxDecompose implements JavafxVisitor {
         }
         JFXExpression res = fxmake.at(tree.pos).Apply(tree.typeargs, fn, args);
         res.type = tree.type;
-        if (bindStatus.isBound() && types.isSequence(tree.type)) {
+        if (bindStatus.isBound() && types.isSequence(tree.type) && !isBoundFunctionResult(tree)) {
             JFXVar v = shredVar("sii", res, tree.type);
             JFXVar sz = makeSizeVar(v.pos(), JavafxDefs.UNDEFINED_MARKER_INT, JavafxBindStatus.UNBOUND);
             res = fxmake.IdentSequenceProxy(v.name, v.sym, sz.sym);
@@ -501,7 +508,7 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXTree clazz = decompose(tree.clazz);
         result = fxmake.at(tree.pos).TypeTest(expr, clazz);
     }
-    
+
     public void visitSelect(JFXSelect tree) {
         DiagnosticPosition diagPos = tree.pos();
         Symbol sym = tree.sym;
@@ -628,7 +635,7 @@ public class JavafxDecompose implements JavafxVisitor {
        List<JFXObjectLiteralPart> dparts = decompose(tree.getParts());
        JFXClassDeclaration dcdel = decompose(tree.getClassBody());
        List<JFXExpression> dargs = decomposeComponents(tree.getArgs());
-       
+
        JFXInstanciate res = fxmake.at(tree.pos).Instanciate(tree.getJavaFXKind(), klassExpr, dcdel, dargs, dparts, tree.getLocalvars());
        res.sym = tree.sym;
        res.constructor = tree.constructor;
@@ -640,7 +647,7 @@ public class JavafxDecompose implements JavafxVisitor {
            for (JFXObjectLiteralPart olp : dparts) {
               objInitSyms.append((JavafxVarSymbol)olp.sym);
            }
-           
+
            if (objInitSyms.size() > 1) {
               dcdel.setObjInitSyms(objInitSyms.toList());
            }
@@ -859,6 +866,7 @@ public class JavafxDecompose implements JavafxVisitor {
         if (bindStatus.isBound()) {
             // now add a size temp var
             res.boundSizeVar = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
+            res.boundSizeVar.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
         }
         result = res;
     }
@@ -933,7 +941,7 @@ public class JavafxDecompose implements JavafxVisitor {
                         syms.javafx_BoundForHelperSingletonType,
                     types.boxedElementType(tree.type),
                     inductionType);
-            JFXExpression init = fxmake.Literal(TypeTags.BOT, null); 
+            JFXExpression init = fxmake.Literal(TypeTags.BOT, null);
             init.type = helperType;
             Name helperName = preTrans.makeUniqueVarNameIn(names.fromString("helper$"+currentVarSymbol.name), varOwner);
             JFXVar helper = makeVar(tree, helperName, init, JavafxBindStatus.UNBOUND, helperType);
@@ -944,10 +952,10 @@ public class JavafxDecompose implements JavafxVisitor {
             JFXBlock body = (JFXBlock) tree.getBodyExpression();
             JFXClassDeclaration cdecl = (JFXClassDeclaration) decompose(body.stats.head);
             body.stats.head = cdecl;
-            
+
             // Patch the type of the doit function
             patchDoitFunction(cdecl);
-            
+
             // Patch the type of the anon{}.doit() call
             body.value.type = cdecl.type;  //TODO: probably need to go deeper
 

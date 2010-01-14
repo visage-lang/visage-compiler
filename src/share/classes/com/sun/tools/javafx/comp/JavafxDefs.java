@@ -422,8 +422,10 @@ public class JavafxDefs {
     final Name varFlagActionTest;
     final Name varFlagActionChange;
     final Name varFlagRestrictSet;
-    final Name varFlagIS_INVALID;
-    final Name varFlagNEEDS_TRIGGER;
+
+    final Name varFlagRESTING_STATE_BIT;
+    final Name varFlagBE_STATE_BIT;
+    final Name varFlagINVALID_STATE_BIT;
     final Name varFlagIS_BOUND;
     final Name varFlagIS_READONLY;
     final Name varFlagDEFAULT_APPLIED;
@@ -432,7 +434,12 @@ public class JavafxDefs {
     final Name varFlagCYCLE;
     final Name varFlagIS_EAGER;
     final Name varFlagSEQUENCE_LIVE;
-    final Name varFlagVALIDITY_FLAGS;
+
+    final Name varFlagSTATE_MASK;
+    final Name varFlagStateVALID;
+    final Name varFlagStateVALID_DEFAULT_APPLIED;
+    final Name varFlagStateTRIGGERED;
+
     final Name varFlagIS_BOUND_INVALID;
     final Name varFlagIS_BOUND_INVALID_CYCLE;
     final Name varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT;
@@ -454,6 +461,13 @@ public class JavafxDefs {
     final Name phaseTransitionBE_TRIGGER;
     final Name phaseTransitionCASCADE_INVALIDATE;
     final Name phaseTransitionCASCADE_TRIGGER;
+
+    final Name phaseTransitionCLEAR_BE;
+    final Name phaseTransitionNEXT_STATE_SHIFT;
+
+    final Name phaseTransitionPHASE;
+    final Name phaseINVALIDATE;
+    final Name phaseTRIGGER;
 
     /**
      * Packages as Name
@@ -477,6 +491,7 @@ public class JavafxDefs {
     final Name internalRunFunctionName;
     final Name receiverName;
     final Name typeParameterName;
+    final Name varState_LocalVarName;
     final Name varOldValue_LocalVarName;
     final Name varFlags_LocalVarName;
     final Name wasInvalid_LocalVarName;
@@ -609,6 +624,7 @@ public class JavafxDefs {
         getElement_FXObjectMethodName = names.fromString(getElement_AttributeMethodPrefix);
         size_FXObjectMethodName = names.fromString(size_AttributeMethodPrefix);
         count_FXObjectMethodName = names.fromString("count$");
+        varState_LocalVarName = names.fromString("varState$");
         varOldValue_LocalVarName = names.fromString("varOldValue$");
         varFlags_LocalVarName = names.fromString("varFlags$");
         wasInvalid_LocalVarName = names.fromString("wasInvalid$");
@@ -639,8 +655,9 @@ public class JavafxDefs {
         varFlagRestrictSet = names.fromString("restrictSet$");
 
         // Initialize VFLG Names
-        varFlagIS_INVALID = names.fromString("VFLGS$IS_INVALID");
-        varFlagNEEDS_TRIGGER = names.fromString("VFLGS$NEEDS_TRIGGER");
+        varFlagRESTING_STATE_BIT = names.fromString("VFLGS$RESTING_STATE_BIT");
+        varFlagBE_STATE_BIT = names.fromString("VFLGS$BE_STATE_BIT");
+        varFlagINVALID_STATE_BIT = names.fromString("VFLGS$INVALID_STATE_BIT");
         varFlagIS_BOUND = names.fromString("VFLGS$IS_BOUND");
         varFlagIS_READONLY = names.fromString("VFLGS$IS_READONLY");
         varFlagDEFAULT_APPLIED = names.fromString("VFLGS$DEFAULT_APPLIED");
@@ -650,12 +667,21 @@ public class JavafxDefs {
         varFlagIS_EAGER = names.fromString("VFLGS$IS_EAGER");
         varFlagSEQUENCE_LIVE = names.fromString("VFLGS$SEQUENCE_LIVE");
 
+
         phaseTransitionBE_INVALIDATE = names.fromString("PHASE_TRANS$BE_INVALIDATE");
         phaseTransitionBE_TRIGGER = names.fromString("PHASE_TRANS$BE_TRIGGER");
         phaseTransitionCASCADE_INVALIDATE = names.fromString("PHASE_TRANS$CASCADE_INVALIDATE");
         phaseTransitionCASCADE_TRIGGER = names.fromString("PHASE_TRANS$CASCADE_TRIGGER");
+        phaseTransitionCLEAR_BE = names.fromString("PHASE_TRANS$CLEAR_BE");
+        phaseTransitionNEXT_STATE_SHIFT = names.fromString("PHASE_TRANS$NEXT_STATE_SHIFT");
+        phaseTransitionPHASE = names.fromString("PHASE_TRANS$PHASE");
+        phaseINVALIDATE = names.fromString("PHASE$INVALIDATE");
+        phaseTRIGGER = names.fromString("PHASE$TRIGGER");
 
-        varFlagVALIDITY_FLAGS = names.fromString("VFLGS$VALIDITY_FLAGS");
+        varFlagSTATE_MASK = names.fromString("VFLGS$STATE_MASK");
+        varFlagStateVALID = names.fromString("VFLGS$STATE$VALID");
+        varFlagStateVALID_DEFAULT_APPLIED = names.fromString("VFLGS$VALID_DEFAULT_APPLIED");
+        varFlagStateTRIGGERED = names.fromString("VFLGS$STATE$TRIGGERED");
         varFlagIS_BOUND_INVALID = names.fromString("VFLGS$IS_BOUND_INVALID");
         varFlagIS_BOUND_INVALID_CYCLE = names.fromString("VFLGS$IS_BOUND_INVALID_CYCLE");
         varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT = names.fromString("VFLGS$IS_BOUND_INVALID_CYCLE_AWAIT_VARINIT");
