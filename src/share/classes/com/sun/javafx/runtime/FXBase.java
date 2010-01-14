@@ -102,21 +102,19 @@ import com.sun.javafx.runtime.sequence.Sequences;
  */
  public class FXBase implements FXObject {
     // First class count.
-    public static final int VCNT$ = 0;
+    private static final int VCNT$ = 0;
     public int count$() { return VCNT$(); }
+    public static int VCNT$() { return VCNT$; }
 
     public int getFlags$(final int varNum) {
-        return getFlags$(this, varNum);
+        return 0;
     }
     public static int getFlags$(FXObject obj, final int varNum) {
         return 0;
     }
     
-    public void setFlags$(final int varNum, final int value) {
-        setFlags$(this, varNum, value);
-    }
-    public static void setFlags$(FXObject obj, final int varNum, final int value) {
-    }
+    public void setFlags$(final int varNum, final int value) {}
+    public static void setFlags$(FXObject obj, final int varNum, final int value) {}
     
     public boolean varTestBits$(final int varNum, int maskBits, int testBits) {
         return varTestBits$(this, varNum, maskBits, testBits);
@@ -199,7 +197,6 @@ import com.sun.javafx.runtime.sequence.Sequences;
     }
     public static void notifyDependents$(FXObject obj, final int varNum, final int phase) {
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-        //System.err.println("notifyDependents$: " + obj + "[" + varNum + "] " + phase);
         DependentsManager.get(obj).notifyDependents(obj, varNum, phase);
     }
     public void notifyDependents$(int varNum, int startPos, int endPos, int newLength, int phase) {
@@ -207,21 +204,12 @@ import com.sun.javafx.runtime.sequence.Sequences;
     }
     public static void notifyDependents$(FXObject obj, final int varNum, int startPos, int endPos, int newLength, final int phase) {
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-        //System.err.println("notifyDependents$: " + obj + "[" + varNum + "] " + phase);
         DependentsManager.get(obj).notifyDependents(obj, varNum, startPos, endPos, newLength, phase);
     }
-    public void update$(FXObject src, final int varNum, final int phase) {
-        update$(this, src, varNum, phase);
-    }
-    public static void update$(FXObject obj, FXObject src, final int varNum, final int phase) {
-        //System.err.println("update$: " + obj + " " + src + "[" + varNum + "] " + phase);
-    }
-    public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
-        update$(this, src, varNum, startPos, endPos, newLength, phase);
-    }
-    public static void update$(FXObject obj, FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
-        //System.err.println("update$: " + obj + " " + src + "[" + varNum + "] " + phase);
-    }
+    public void update$(FXObject src, final int varNum, final int phase) {}
+    public static void update$(FXObject obj, FXObject src, final int varNum, final int phase) {}
+    public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {}
+    public static void update$(FXObject obj, FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {}
     public int getListenerCount$() {
         return DependentsManager.get(this).getListenerCount(this);
     }
@@ -254,10 +242,10 @@ import com.sun.javafx.runtime.sequence.Sequences;
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
     public void invalidate$(int varNum, int startPos, int endPos, int newLength, int phase) {
-        throw new IllegalArgumentException("no such variable: " + varNum);
+        // JFXC-3964 - Var invalidate may be optimized away.
     }
     public static void invalidate$(FXObject obj, int varNum, int startPos, int endPos, int newLength, int phase) {
-        throw new IllegalArgumentException("no such variable: " + varNum);
+        // JFXC-3964 - Var invalidate may be optimized away.
     }
 
     /**
@@ -297,14 +285,11 @@ import com.sun.javafx.runtime.sequence.Sequences;
         obj.postInit$();
     }
 
-    public void initVars$() { initVars$(this); }
+    public void initVars$() {}
     public static void initVars$(FXObject obj) {}
 
-    public void applyDefaults$(final int varNum) {
-        applyDefaults$(this, varNum);
-    }
-    public static void applyDefaults$(FXObject obj, final int varNum) {
-    }
+    public void applyDefaults$(final int varNum) {}
+    public static void applyDefaults$(FXObject obj, final int varNum) {}
 
     public void applyDefaults$() {
         int cnt = count$();
@@ -318,8 +303,6 @@ import com.sun.javafx.runtime.sequence.Sequences;
             obj.applyDefaults$(inx);
         }
     }
-
-    public static int VCNT$() { return VCNT$; }
 
     public        void userInit$()             {}
     public static void userInit$(FXObject obj) {}
