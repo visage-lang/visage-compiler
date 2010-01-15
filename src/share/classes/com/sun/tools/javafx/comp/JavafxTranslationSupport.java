@@ -1056,6 +1056,10 @@ public abstract class JavafxTranslationSupport {
             return makeMethodArg(defs.phase_ArgName, syms.intType);
         }
 
+        JCIdent isSetArg() {
+            return makeMethodArg(defs.isSet_ArgName, syms.booleanType);
+        }
+
         /**
          * Set the phase state part of the flag to the next state part of the phase transition
          */
@@ -1369,9 +1373,11 @@ public abstract class JavafxTranslationSupport {
         //
         protected JCExpression Int(int value)         { return m().Literal(TypeTags.INT, value); }
         protected JCExpression Byte(int value)        { return m().Literal(TypeTags.BYTE, value); }
-        protected JCExpression Boolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
         protected JCExpression Null()                 { return m().Literal(TypeTags.BOT, null); }
         protected JCExpression String(String str)     { return m().Literal(TypeTags.CLASS, str); }
+        protected JCExpression Boolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
+        protected JCExpression True()                 { return Boolean(true); }
+        protected JCExpression False()                { return Boolean(false); }
 
         protected JCStatement Stmt(JCExpression expr) {
             return m().Exec(expr);

@@ -391,6 +391,7 @@ public class JavafxDefs {
     final Name newLength_ArgName;
     final Name phase_ArgName;
     final Name varNewValue_ArgName;
+    final Name isSet_ArgName;
     final Name oldValue_ArgName;
     final Name newValue_ArgName;
     final Name pos_ArgName;
@@ -629,6 +630,7 @@ public class JavafxDefs {
         varFlags_LocalVarName = names.fromString("varFlags$");
         wasInvalid_LocalVarName = names.fromString("wasInvalid$");
         varNewValue_ArgName = names.fromString("varNewValue$");
+        isSet_ArgName = names.fromString("isSet$");
         value_NonLocalReturnExceptionFieldName = names.fromString("value");
         outerAccessor_FXObjectFieldName = names.fromString("accessOuterField$");
         updateInstance_ArgName = names.fromString("instance$");

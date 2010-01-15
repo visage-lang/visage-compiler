@@ -1367,7 +1367,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         private JCExpression isInvalid(JFXVar var) {
             if (var == null) {
-                return Boolean(false);
+                return False();
             } else {
                 return FlagTest(var.getSymbol(), defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT);
             }
@@ -2149,7 +2149,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         getReceiverOrThis(targetSymbol),
                         Offset(targetSymbol),
                         Offset(seqSym),
-                        Boolean(true)
+                        True()
                     ),
                     helperClass);
             return

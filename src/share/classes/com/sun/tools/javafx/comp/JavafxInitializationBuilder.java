@@ -1850,17 +1850,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                                 // We have a Pointer - we need to call Pointer.get() and cast the result.
                                 initValue = castFromObject(Call(id(newPtrVar), defs.get_PointerMethodName), varSym.type);
-                                JCStatement beStmt = CallStmt(attributeBeName(varSym), initValue);
 
-                                JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
-                                        defaultValue(varInfo));
-                                addStmt(OptIf(NEnull(id(newPtrVar)), beStmt, beDefaultStmt));
+                                addStmt(
+                                    OptIf(NEnull(id(newPtrVar)),
+                                        CallStmt(attributeBeName(varSym), initValue, False()),
+                                    /*else*/
+                                        CallStmt(attributeBeName(varSym), defaultValue(varInfo), False())));
                             } else {
                                 addStmt(
                                     TryWithErrorHandler(varInfo.hasSafeInitializer(),
                                         varInfo.boundPreface(),
-                                        CallStmt(attributeBeName(varSym), initValue),
-                                        CallStmt(attributeBeName(varSym), defaultValue(varInfo))));
+                                        CallStmt(attributeBeName(varSym), initValue, False()),
+                                    /*on exception*/
+                                        CallStmt(attributeBeName(varSym), defaultValue(varInfo), False())));
                                 }
 
                             // Release cycle lock.
@@ -1962,7 +1964,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     
                     // be$var(value)
-                    addStmt(CallStmt(attributeBeName(varSym), id(defs.varNewValue_ArgName)));
+                    addStmt(CallStmt(attributeBeName(varSym), id(defs.varNewValue_ArgName), True()));
                     // return $var;
                     addStmt(Return(Get(proxyVarSym)));
                 }
@@ -1981,6 +1983,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void initialize() {
                     addParam(type, defs.varNewValue_ArgName);
+                    addParam(isSetArg());
                     buildIf(!varInfo.isBareSynth());
                 }
                 
@@ -2021,13 +2024,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         ListBuffer<JCStatement> body = ListBuffer.<JCStatement>lb();
                         
                         if (needsInvalidate) {
-                            body.append(CallStmt(attributeInvalidateName(varSym), id(defs.phaseTransitionBE_INVALIDATE)));
+                            body.append(
+                                If(isSetArg(),
+                                    CallStmt(attributeInvalidateName(varSym), id(defs.phaseTransitionBE_INVALIDATE))));
                         }
                         
                         body.append(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
                         
                         if (needsInvalidate) {
-                            body.append(CallStmt(attributeInvalidateName(varSym), id(defs.phaseTransitionBE_TRIGGER)));
+                            body.append(
+                                If(isSetArg(),
+                                    CallStmt(attributeInvalidateName(varSym), id(defs.phaseTransitionBE_TRIGGER))));
                         }
                          
                         if (needsOnReplace) {
@@ -2037,12 +2044,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(
                             OptIf (OR(valueChangedTest, defaultAppliedTest),
                                 Block(body), null));
+
+
+                        // Set the state valid and mark defaults as applied, but don't cancel an invalidation in progress
+                        addStmt(
+                            If(FlagTest(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagStateTRIGGERED),
+                                FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID)));
+
                     } else {
                         addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
-                    }
 
-                    // Set the state valid and mark defaults as applied
-                    addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID_DEFAULT_APPLIED));
+                        // Set the state valid and mark defaults as applied
+                        addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID_DEFAULT_APPLIED));
+                    }
    
                     // return $var;
                     addStmt(Return(Get(proxyVarSym)));
@@ -3388,8 +3402,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.useAccessors() && !varInfo.isOverride() && !varInfo.isBareSynth()) {
                         // (type)object$
                         JCExpression objCast = typeCast(varInfo.getRealType(), syms.objectType, objArg());
-                        // be$var((type)object$)
-                        addStmt(CallStmt(attributeBeName(varSym), objCast));
+                        if (varInfo.generateSequenceAccessors()) {
+                            // be$var((Sequence<...>)object$)
+                            addStmt(CallStmt(attributeBeName(varSym), objCast));
+                        } else {
+                            // be$var((type)object$, true) -- all external be$ calls should be inits -- which are sets (hence the true)
+                            addStmt(CallStmt(attributeBeName(varSym), objCast, True()));
+                        }
                         
                         // return
                         addStmt(Return(null));
@@ -3636,7 +3655,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             if (isScriptLevel) {
                 stmts.append(Stmt(m().Assign(id(scriptLevelAccessSym),
-                                             m().NewClass(null, null, id(scriptName), List.<JCExpression>of(Boolean(false)), null))));
+                                             m().NewClass(null, null, id(scriptName), List.<JCExpression>of(False()), null))));
                 stmts.append(CallStmt(id(scriptLevelAccessSym), defs.initialize_FXObjectMethodName));
             }
             
@@ -3709,7 +3728,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             //    }
             makeConstructor(List.<JCVariableDecl>nil(), List.<Type>nil(),
                 Stmts(
-                    CallStmt(names._this, Boolean(false)),
+                    CallStmt(names._this, False()),
                     CallStmt(defs.initialize_FXObjectMethodName)
                 )
             );

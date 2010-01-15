@@ -2327,7 +2327,7 @@ public abstract class JavafxAbstractTranslation
             if (lhsType.getKind() == TypeKind.NULL) {
                 if (rhsType.getKind() == TypeKind.NULL) {
                     // both are known to be null
-                    return Boolean(true);
+                    return True();
                 } else if (rhsType.isPrimitive()) {
                     // lhs is null, rhs is primitive, do default check
                     return makePrimitiveNullCheck(rhsType, rhs(req));
@@ -2714,7 +2714,7 @@ public abstract class JavafxAbstractTranslation
                     def = CallStmt(defs.Sequences_set, tc,
                             Offset(id(instanceName), vsym), transInit);
                 } else {
-                    def = CallStmt(tc, attributeBeName(vsym), transInit);
+                    def = CallStmt(tc, attributeBeName(vsym), transInit, True());
                 }
             } else {
                 def = SetStmt(tc, vsym, transInit);
@@ -2855,7 +2855,7 @@ public abstract class JavafxAbstractTranslation
 
                 // Use the JavaFX constructor by adding a marker argument. The "true" in:
                 //       ... new X(true);
-                newClassArgs = newClassArgs.append(Boolean(true));
+                newClassArgs = newClassArgs.append(True());
 
                 // Create the new instance, placing it in a temporary variable "jfx$0objlit"
                 //       final X jfx$0objlit = new X(true);
