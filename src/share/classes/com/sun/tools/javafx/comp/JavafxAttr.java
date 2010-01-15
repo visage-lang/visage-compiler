@@ -758,7 +758,7 @@ public class JavafxAttr implements JavafxVisitor {
                         : List.<Type>nil();
                     t = new ClassType(t.getEnclosingType(), typeargs, t.tsym);
                     return new JavafxVarSymbol(
-                        types, names,STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
+                        types, names,STATIC | PUBLIC | FINAL | JavafxFlags.VARUSE_SPECIAL, names._class, t, site.tsym);
                 } else {
                     // We are seeing a plain identifier as selector.
                     sym = rs.findIdentInType(env, site, name, pkind);
@@ -797,7 +797,7 @@ public class JavafxAttr implements JavafxVisitor {
                     Type arg = types.boxedTypeOrType(site);
                     t = new ClassType(t.getEnclosingType(), List.of(arg), t.tsym);
                     return new JavafxVarSymbol(
-                        types, names,STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
+                        types, names,STATIC | PUBLIC | FINAL | JavafxFlags.VARUSE_SPECIAL, names._class, t, site.tsym);
                 } else {
                     log.error(pos, MsgSym.MESSAGE_CANNOT_DEREF, site);
                     return syms.errSymbol;

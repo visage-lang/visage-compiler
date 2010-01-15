@@ -516,7 +516,7 @@ public class JavafxDecompose implements JavafxVisitor {
             result = res;
         } else {
             JFXExpression selected;
-            if ((selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super))) {
+            if ((selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super || selectSym.name == names._class))) {
                 // Referenced is static, or qualified super access
                 // then selected is a class reference
                 selected = decompose(tree.selected);
