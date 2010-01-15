@@ -106,12 +106,13 @@ MyRect variables (inherited also):
   shapeNum : Float = 1.5;
   shapeStr : class java.lang.String = str1;
 Square attributes (only):
-  atBlank : class java.lang.String
-  atProt : class java.lang.String
-  atPub : class java.lang.String
+  var atBlank : class java.lang.String
+  protected var atProt : class java.lang.String
+  public var atPub : class java.lang.String
+  public def cc : Integer
 Simple attributes (only):
-  at1 : class java.lang.Object
-  func : function(java.lang.String):function():Void
+  public-init var at1 : class java.lang.Object
+  public-read package var func : function(java.lang.String):function():Void
 MyRect methods:
   function MyRect.corners():java.awt.geom.Point2D[]
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape

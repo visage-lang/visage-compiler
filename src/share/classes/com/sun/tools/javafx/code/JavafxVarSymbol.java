@@ -42,6 +42,7 @@ public class JavafxVarSymbol extends VarSymbol {
     private JavafxTypeRepresentation typeRepresentation;
     private Type elementType = null;
     private final boolean isDotClass;
+    private boolean isExternallySeen;
 
     private Type lastSeenType;
     private final JavafxTypes types;
@@ -52,6 +53,7 @@ public class JavafxVarSymbol extends VarSymbol {
         super(flags, name, type, owner);
         this.types = types;
         this.isDotClass = name == names._class;
+        this.isExternallySeen = false; 
     }
 
     private void syncType() {
@@ -107,12 +109,17 @@ public class JavafxVarSymbol extends VarSymbol {
     public boolean isSpecial() {
         return (flags_field & JavafxFlags.VARUSE_SPECIAL) != 0;
     }
-
+    
+    public boolean isBindAccess() {
+        return (flags_field & JavafxFlags.VARUSE_BIND_ACCESS) != 0;
+    }
+    
     public boolean useAccessors() {
         return isFXMember() && !isSpecial() &&
                 (!hasScriptOnlyAccess() ||
                 (flags_field & VARUSE_NEED_ACCESSOR) != 0 ||
-                ((flags_field & JavafxFlags.VARUSE_BIND_ACCESS) != 0 && (flags_field & JavafxFlags.VARUSE_ASSIGNED_TO) != 0) ||
+                (isBindAccess() && isAssignedTo()) ||
+                (isSequence() && (isAssignedTo() || !isBindAccess())) ||
                 (owner.flags_field & MIXIN) != 0);
     }
 
@@ -132,6 +139,14 @@ public class JavafxVarSymbol extends VarSymbol {
 
     public boolean isParameter() {
         return (flags_field & PARAMETER) != 0;
+    }
+
+    public void setIsExternallySeen() {
+        isExternallySeen = true;
+    }
+
+    public boolean isExternallySeen() {
+        return isExternallySeen;
     }
 
     // Predicate for self-reference in init.

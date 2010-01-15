@@ -939,8 +939,10 @@ public abstract class JavafxAbstractTranslation
         JCExpression reference(Symbol sym) {
             if (sym.isStatic()) {
                 return Select(staticReference(sym), sym.name);
-            } else {
+            } else if (sym.isLocal()) {
                 return id(sym);
+            } else {
+                return Select(getReceiver(sym), sym.name);
             }
         }
 
@@ -1858,27 +1860,31 @@ public abstract class JavafxAbstractTranslation
             super(tree);
         }
         
-        protected void addStaticInterClassBindee(JavafxVarSymbol vsym) {
-            if (vsym.isStatic() && !vsym.isSpecial()) {
-                JavafxClassSymbol classSym = (JavafxClassSymbol)vsym.owner;
-                JavafxVarSymbol scriptAccess = fxmake.ScriptAccessSymbol(classSym);
-                addInterClassBindee(scriptAccess, vsym);
+        protected void addIdentInterClassBindee(JavafxVarSymbol vsym) {
+            if (vsym.owner.kind == Kinds.TYP && !vsym.isSpecial()) {
+                if (vsym.isStatic()) {
+                    // Script var
+                    JavafxClassSymbol classSym = (JavafxClassSymbol) vsym.owner;
+                    JavafxVarSymbol scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                    addInterClassBindee(scriptAccess, vsym);
+                } else {
+                    // Outer class reference through "this"
+                    addInterClassBindee(fxmake.ThisSymbol(vsym.owner.type), vsym);
+                }
             }
         }
-        
+
         @Override
         protected ExpressionResult doit() {
             if (sym instanceof JavafxVarSymbol) {
                 JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
-                if (currentClass().sym.isSubClass(sym.owner, types)) {
+                boolean isScriptContext = receiverContext() == ReceiverContext.ScriptAsStatic;
+                if ((isScriptContext == sym.isStatic())  && currentClass().sym.isSubClass(sym.owner, types)) {
                     // The var is in our class (or a superclass)
-                    if ((receiverContext() == ReceiverContext.ScriptAsStatic) == sym.isStatic()) {
-                        addBindee(vsym);
-                    } else {
-                        addStaticInterClassBindee(vsym);
-                    }
+                    addBindee(vsym);
                 } else {
-                    addStaticInterClassBindee(vsym);
+                    // Possible script or outer class reference
+                    addIdentInterClassBindee(vsym);
                 }
             }
             return super.doit();
@@ -2684,7 +2690,8 @@ public abstract class JavafxAbstractTranslation
          * it's instance variables are initialized. Override to generate
          * statements/expressions just after new object is created.
          */
-        protected void postInstanceCreation() {
+        protected void postInstanceCreation(Name instName) {
+            makeInitSupportCall(defs.initVars_FXObjectMethodName, instName);
         }
 
         /**
@@ -2858,7 +2865,7 @@ public abstract class JavafxAbstractTranslation
                         m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
 
                 // generate stuff just after new object is created
-                postInstanceCreation();
+                postInstanceCreation(tmpVarName);
 
                 // now initialize it's instance variables
                 initInstanceVariables(tmpVarName);
@@ -2889,7 +2896,6 @@ public abstract class JavafxAbstractTranslation
             } else {
                 // this is a Java class or has no instance variable initializers, just instanciate it
                 instExpression = m().NewClass(null, null, classTypeExpr, newClassArgs, null);
-                postInstanceCreation();
             }
 
             return toResult(instExpression, type);
@@ -3214,7 +3220,7 @@ public abstract class JavafxAbstractTranslation
     class SequenceSliceTranslator extends ExpressionTranslator {
 
         private final Type type;
-        private final JCExpression seq;
+        private final JFXExpression seq;
         private final int endKind;
         private final JFXExpression firstIndex;
         private final JFXExpression lastIndex;
@@ -3222,7 +3228,7 @@ public abstract class JavafxAbstractTranslation
         SequenceSliceTranslator(JFXSequenceSlice tree) {
             super(tree.pos());
             this.type = tree.type;
-            this.seq = translateExpr(tree.getSequence(), null);  //FIXME
+            this.seq = tree.getSequence();
             this.endKind = tree.getEndKind();
             this.firstIndex = tree.getFirstIndex();
             this.lastIndex = tree.getLastIndex();
@@ -3231,7 +3237,7 @@ public abstract class JavafxAbstractTranslation
         JCExpression computeSliceEnd() {
             JCExpression endPos;
             if (lastIndex == null) {
-                endPos = Call(seq, defs.size_SequenceMethodName);
+                endPos = Call(translateExpr(seq, null), defs.size_SequenceMethodName);
                 if (endKind == SequenceSliceTree.END_EXCLUSIVE) {
                     endPos = MINUS(endPos, Int(1));
                 }
@@ -3250,7 +3256,7 @@ public abstract class JavafxAbstractTranslation
 
         protected JCExpression doitExpr() {
             JCExpression tFirstIndex = translateExpr(firstIndex, syms.intType);
-            return Call(seq, defs.getSlice_SequenceMethodName, tFirstIndex, computeSliceEnd());
+            return Call(translateExpr(seq, null), defs.getSlice_SequenceMethodName, tFirstIndex, computeSliceEnd());
         }
     }
 

@@ -96,7 +96,7 @@ public abstract class BoundForHelper<T, PT> extends FXBase {
             int sz = container.size$(inductionSeqVarNum);
 
             uninitialized = false;
-            replaceParts(0, 0, sz, FXObject.VFLGS$NEEDS_TRIGGER);
+            replaceParts(0, 0, sz, FXObject.PHASE_TRANS$CASCADE_TRIGGER);
         }
     }
 

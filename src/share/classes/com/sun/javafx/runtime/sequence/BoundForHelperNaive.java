@@ -60,7 +60,7 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
     }
 
     private void blanketInvalidationOfBoundFor() {
-        container.invalidate$(forVarNum, 0, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, FXObject.VFLGS$IS_INVALID);
+        container.invalidate$(forVarNum, 0, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
     }
 
     // Called by invalidate when the result of a part changes.

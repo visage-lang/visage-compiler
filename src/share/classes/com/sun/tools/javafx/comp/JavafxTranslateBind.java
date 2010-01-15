@@ -431,32 +431,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 return Call(Getter(rcvr, sym), defs.get_SequenceMethodName, pos);
         }
 
-        JCExpression Undefined() {
-            return Int(JavafxDefs.UNDEFINED_MARKER_INT);
-        }
-
-        JCStatement CallSeqInvalidate() {
-            return CallSeqInvalidateUndefined(targetSymbol);
-        }
-
-        JCStatement CallSeqInvalidateUndefined(Symbol sym) {
-            return CallSeqInvalidate(sym, Int(0), Undefined(), Undefined(), id(defs.varFlagIS_INVALID));
-        }
-
-        JCStatement CallSeqInvalidate(JCExpression begin, JCExpression end, JCExpression newLen) {
-            return CallSeqInvalidate(targetSymbol, begin, end, newLen);
-        }
-
-        JCStatement CallSeqInvalidate(Symbol sym, JCExpression begin, JCExpression end, JCExpression newLen) {
-            return CallSeqInvalidate(sym, begin, end, newLen, phaseArg());
-        }
-
-        JCStatement CallSeqInvalidate(Symbol sym, JCExpression begin, JCExpression end, JCExpression newLen, JCExpression phase) {
-            return CallStmt(attributeInvalidateName(sym), begin, end, newLen, phase);
-        }
-
         private Name activeFlagBit = defs.varFlagSEQUENCE_LIVE;
-        JavafxVarSymbol flagSymbol = (JavafxVarSymbol)targetSymbol;
+        private JavafxVarSymbol flagSymbol = (JavafxVarSymbol)targetSymbol;
 
         JCExpression isSequenceActive() {
             return FlagTest(flagSymbol, activeFlagBit, activeFlagBit);
@@ -513,8 +489,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     If (isSequenceDormant(),
                         Block(
                             setSequenceActive(),
-                            CallSeqInvalidate(),
-                            CallSeqInvalidate(targetSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER))
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, id(vSize))
                         )
                     ),
                     Return(id(vSize))
@@ -532,7 +508,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         /**
-         * Invalidator for the underlying sequence
+         * Invalidator for the bound sequence itself
+         * If called, we have been made active
          */
         private JCStatement makeInvalidateSelf() {
             return
@@ -549,7 +526,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     /**
-     * Bound identifier Translator for identifiers referencing sequences but pretending tto be non-sequences
+     * Bound identifier Translator for identifiers referencing sequences but pretending to be non-sequences
      *
      * Use the referenced as a sequence
      */
@@ -586,12 +563,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 Block(
                     sizeVar,
-                    If(EQ(id(sizeVar), Int(JavafxDefs.UNDEFINED_MARKER_INT)),
+                    If(EQ(id(sizeVar), Undefined()),
                         Block(
                             Stmt(m().Assign(id(sizeVar), makeSizeValue())),
                             SetStmt(sizeSym, id(sizeVar)),
-                            CallSeqInvalidateUndefined(flagSymbol),
-                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(sizeVar), id(defs.varFlagNEEDS_TRIGGER))
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, id(sizeVar))
                         )
                     ),
                     Return(id(sizeVar))
@@ -607,7 +584,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         JCStatement makeGetElementBody() {
             return
                 Block(
-                    If(EQ(Get(sizeSym), Int(JavafxDefs.UNDEFINED_MARKER_INT)),
+                    If(EQ(Get(sizeSym), Undefined()),
                         Stmt(CallSize(targetSymbol))
                     ),
                     Return (Call(Getter(sym), defs.get_SequenceMethodName, posArg()))
@@ -631,17 +608,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 Block(
                     oldSizeVar,
-                    If(AND(NE(id(oldSizeVar), Int(JavafxDefs.UNDEFINED_MARKER_INT)), FlagTest(sym,  phaseArg(), null)),
+                    If(AND(NE(id(oldSizeVar), Undefined()), FlagTest(sym,  phaseArg(), null)),
                         Block(
                             FlagChangeStmt(sym, null, phaseArg()),
                             If(IsInvalidatePhase(),
                                 Block(
                                     CallSeqInvalidateUndefined(targetSymbol)
                                 ),
+                            /*Else (Trigger phase)*/
                                 Block(
                                     newSizeVar,
                                     SetStmt(sizeSym, id(newSizeVar)),
-                                    CallSeqInvalidate(targetSymbol, Int(0), id(oldSizeVar), id(newSizeVar))
+                                    CallSeqTrigger(targetSymbol, Int(0), id(oldSizeVar), id(newSizeVar))
                                 )
                             )
                         )
@@ -795,7 +773,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         private final SelectTranslator strans;
         private final Symbol refSym;
-        private final JavafxVarSymbol selfSym = (JavafxVarSymbol) targetSymbol;
         private final JavafxVarSymbol selectorSym;
         private final JavafxVarSymbol sizeSym;
 
@@ -841,17 +818,19 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          *
          */
         JCStatement makeSizeBody() {
+            assert selectorSym.useAccessors() : "Would need redesign to implement without accessors";
+
             JCExpression tToCheck = translateToCheck(getToCheck());
             JCStatement callSize = buildBody(tToCheck, CallSize(tToCheck, refSym), syms.intType);
-            if (! selectorSym.useAccessors())
-                return callSize;
+
             return
                 Block(
                     If (isSequenceDormant(),
                         Block(
                             setSequenceActive(),
+                            //TODO: Must fix
                             FlagChangeStmt(selectorSym, defs.varFlagNEEDS_TRIGGER, null),
-                            CallStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
+                            CallStmt(attributeInvalidateName(selectorSym), id(defs.phaseTransitionBE_TRIGGER))
                         )
                     ),
                     callSize
@@ -870,7 +849,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             return
                 Block(
-                    Stmt(CallSize(selfSym)),
+                    If (isSequenceDormant(),
+                        Stmt(CallSize(targetSymbol))
+                    ),
                     buildBody(tToCheck, CallGetElement(tToCheck, refSym, posArg()), types.elementType(refSym.type))
                 );
         }
@@ -931,7 +912,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                        getReceiverOrThis(selectorSym)
                                     )
                                 ),
-                                CallSeqInvalidateUndefined(selfSym)
+                                CallSeqInvalidateUndefined(targetSymbol)
                             ),
                         /*Else (Trigger phase)*/
                             Block(
@@ -945,7 +926,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         getReceiverOrThis(selectorSym)
                                     )
                                 ),
-                                CallSeqInvalidate(selfSym,
+                                CallSeqTrigger(targetSymbol,
                                     Int(0),
                                     id(oldSize),
                                     id(newSize)
@@ -968,15 +949,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         private JCStatement makeInvalidateSelf() {
             return
-                If (IsTriggerPhase(),
-                    SetStmt(sizeSym,
-                        PLUS(
-                            Get(sizeSym),
-                            MINUS(
-                                newLengthArg(),
+                Block(
+                    setSequenceActive(),
+                    If (IsTriggerPhase(),
+                        SetStmt(sizeSym,
+                            PLUS(
+                                Get(sizeSym),
                                 MINUS(
-                                    endPosArg(),
-                                    startPosArg()
+                                    newLengthArg(),
+                                    MINUS(
+                                        endPosArg(),
+                                        startPosArg()
+                                    )
                                 )
                             )
                         )
@@ -986,7 +970,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         void setupInvalidators() {
                 addInvalidator(selectorSym, makeInvalidateSelector());
-                addInvalidator(selfSym, makeInvalidateSelf());
+                addInvalidator(targetSymbol, makeInvalidateSelf());
                 addInterClassBindee(selectorSym, refSym);
         }
     }
@@ -1052,7 +1036,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 /*Else (Trigger phase)*/
                     Block(
                         oldSize,
-                        CallSeqInvalidate(selfSym,
+                        CallSeqTrigger(selfSym,
                                     MINUS(id(oldSize), endPosArg()),
                                     MINUS(id(oldSize), startPosArg()),
                                     newLengthArg()
@@ -1155,8 +1139,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             varInits,
                             vSize,
                             setSequenceActive(),
-                            CallSeqInvalidate(),
-                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER)),
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, id(vSize)),
                             Return(id(vSize))
                         )
                     ),
@@ -1226,12 +1210,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             Block(
                                 If (IsInvalidatePhase(),
                                     Block(
-                                        CallSeqInvalidate()
+                                        CallSeqInvalidateUndefined(targetSymbol)
                                     ),
                                 /*Else (Trigger phase)*/
                                     Block(
                                         vStart,
-                                        CallSeqInvalidate(
+                                        CallSeqTrigger(targetSymbol,
                                             PLUS(id(vStart), startPosArg()),
                                             If (EQ(endPosArg(), Undefined()),
                                                 Undefined(),
@@ -1258,7 +1242,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 Block(
                                     If (IsInvalidatePhase(),
                                         Block(
-                                            CallSeqInvalidate()
+                                            CallSeqInvalidateUndefined(targetSymbol)
                                         ),
                                     /*Else (Trigger phase)*/
                                         Block(
@@ -1266,7 +1250,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                             vStart,
                                             vValue,
                                             vNewLen,
-                                            CallSeqInvalidate(
+                                            CallSeqTrigger(targetSymbol,
                                                 id(vStart),
                                                 PLUS(id(vStart), id(vOldLen)),
                                                 id(vNewLen)
@@ -1456,7 +1440,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 If (isSequenceActive(),
                   If (IsInvalidatePhase(),
-                      CallSeqInvalidate(),
+                      Block(
+                          CallSeqInvalidateUndefined(targetSymbol)
+                      ),
                   /*Else (Trigger phase)*/
                       Block(
                         vNewLower,
@@ -1488,7 +1474,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                               ),
                               setLower(id(vNewLower)),
                               setSize(id(vNewSize)),
-                              CallSeqInvalidate(Int(0), id(vLoss), id(vGain))
+                              CallSeqTrigger(targetSymbol, Int(0), id(vLoss), id(vGain))
                           )
                         )
                       )
@@ -1522,7 +1508,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 If (isSequenceActive(),
                   If (IsInvalidatePhase(),
-                      CallSeqInvalidate(),
+                      CallSeqInvalidateUndefined(targetSymbol),
                   /*Else (Trigger phase)*/
                       Block(
                         vNewUpper,
@@ -1533,8 +1519,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 setUpper(id(vNewUpper)),
                                 setSize(id(vNewSize)),
                                 If (GE(id(vNewSize), id(vOldSize)),
-                                    CallSeqInvalidate(id(vOldSize), id(vOldSize), MINUS(id(vNewSize), id(vOldSize))),
-                                    CallSeqInvalidate(id(vNewSize), id(vOldSize), Int(0))
+                                    CallSeqTrigger(targetSymbol, id(vOldSize), id(vOldSize), MINUS(id(vNewSize), id(vOldSize))),
+                                /*else*/
+                                    CallSeqTrigger(targetSymbol, id(vNewSize), id(vOldSize), Int(0))
                                 )
                             )
                         )
@@ -1565,7 +1552,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 If (isSequenceActive(),
                   If (IsInvalidatePhase(),
-                      CallSeqInvalidate(),
+                      CallSeqInvalidateUndefined(targetSymbol),
                   /*Else (Trigger phase)*/
                       Block(
                         vNewStep,
@@ -1575,7 +1562,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                               vOldSize,
                               setStep(id(vNewStep)),
                               setSize(id(vNewSize)),
-                              CallSeqInvalidate(Int(0), id(vOldSize), id(vNewSize))
+                              CallSeqTrigger(targetSymbol, Int(0), id(vOldSize), id(vNewSize))
                           )
                         )
                       )
@@ -1616,11 +1603,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             }
             inits.append(setSize(id(vNewSize)));
             inits.append(setSequenceActive());
-            inits.append(CallSeqInvalidate(Int(0), Int(0), id(vNewSize)));
+            inits.append(CallSeqTriggerInitial(targetSymbol, id(vNewSize)));
 
             return
                 If (IsInvalidatePhase(),
-                    CallSeqInvalidate(),
+                    CallSeqInvalidateUndefined(targetSymbol),
                 /*Else (Trigger phase)*/
                     Block(inits)
                 );
@@ -1660,9 +1647,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             this.elemType = types.elementType(tree.type);
         }
 
-        private JCExpression seq() {
-            return Get(seqSym);
-        }
         private JCExpression lower() {
             return Get(lowerSym);
         }
@@ -1672,9 +1656,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         private JCStatement setLower(JCExpression value) {
             return SetStmt(lowerSym, value);
-        }
-        private JCStatement setUpper(JCExpression value) {
-            return SetStmt(upperSym, value);
         }
 
         private JCExpression CallSeqSize() {
@@ -1735,8 +1716,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     If (isSequenceDormant(),
                         Block(
                             setSequenceActive(),
-                            CallSeqInvalidate(),
-                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER))
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, id(vSize))
                         )
                     ),
                     Return (id(vSize))
@@ -1806,7 +1787,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             Block(
                                 If (IsInvalidatePhase(),
                                     Block(
-                                        CallSeqInvalidate()
+                                        CallSeqInvalidateUndefined(targetSymbol)
                                     ),
                                 /*Else (Trigger phase)*/
                                     Block(
@@ -1830,12 +1811,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         If (GT(id(vNewLower), id(vOldLower)),
                                             Block(
                                                 // lose elements from the front
-                                                CallSeqInvalidate(Int(0), MINUS(id(vNewLower), id(vOldLower)), Int(0))
+                                                CallSeqTrigger(targetSymbol, Int(0), MINUS(id(vNewLower), id(vOldLower)), Int(0))
                                             ),
                                         /*else*/ If (LT(id(vNewLower), id(vOldLower)),
                                             Block(
                                                 // Gain elements in the front
-                                                CallSeqInvalidate(Int(0), Int(0), MINUS(id(vOldLower), id(vNewLower)))
+                                                CallSeqTrigger(targetSymbol, Int(0), Int(0), MINUS(id(vOldLower), id(vNewLower)))
                                             )
                                         ))
                                    )
@@ -1877,7 +1858,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             Block(
                                 If (IsInvalidatePhase(),
                                     Block(
-                                        CallSeqInvalidate()
+                                        CallSeqInvalidateUndefined(targetSymbol)
                                     ),
                                 /*Else (Trigger phase)*/
                                     Block(
@@ -1904,12 +1885,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         If (GT(id(vNewUpper), id(vOldUpper)),
                                             Block(
                                                 // Gain elements at the end
-                                                CallSeqInvalidate(id(vOldSize), id(vOldSize), MINUS(id(vNewUpper), id(vOldUpper)))
+                                                CallSeqTrigger(targetSymbol, id(vOldSize), id(vOldSize), MINUS(id(vNewUpper), id(vOldUpper)))
                                             ),
                                         /*else*/ If (LT(id(vNewUpper), id(vOldUpper)),
                                             Block(
                                                 // Lose elements in the end
-                                                CallSeqInvalidate(MINUS(id(vNewUpper), id(vLower)), id(vOldSize), Int(0))
+                                                CallSeqTrigger(targetSymbol, MINUS(id(vNewUpper), id(vLower)), id(vOldSize), Int(0))
                                             )
                                         ))
                                    )
@@ -1959,7 +1940,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             Block(
                                 If (IsInvalidatePhase(),
                                     Block(
-                                        CallSeqInvalidate()
+                                        CallSeqInvalidateUndefined(targetSymbol)
                                     ),
                                 /*Else (Trigger phase)*/
                                     Block(
@@ -1993,7 +1974,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                                                 If(LT(id(vNewUpper), id(vNewLower)),
                                                                     Assign(vNewLower, id(vNewUpper))
                                                                 ),
-                                                                CallSeqInvalidate(
+                                                                CallSeqTrigger(targetSymbol,
                                                                     Int(0),
                                                                     MINUS(id(vOldUpper), id(vOldLower)),
                                                                     MINUS(id(vNewUpper), id(vNewLower))
@@ -2031,7 +2012,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                                             Assign(vNewBegin, id(vNewEnd))
                                                         ),
                                                         // Invalidate
-                                                        CallSeqInvalidate(
+                                                        CallSeqTrigger(targetSymbol,
                                                             MINUS(id(vOldBegin), id(vOldLower)),
                                                             MINUS(id(vOldEnd),   id(vOldLower)),
                                                             MINUS(id(vNewEnd),   id(vNewBegin))
@@ -2294,8 +2275,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     CallSize(elseSym)
                                 )
                             ),
-                            CallSeqInvalidateUndefined(flagSymbol),
-                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), Get(sizeSym), id(defs.varFlagNEEDS_TRIGGER))
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, Get(sizeSym))
                         ),
                     /*Else (already active)*/
                         Block(
@@ -2348,7 +2329,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 If(isSequenceActive(),
                     If(IsInvalidatePhase(),
-                        CallSeqInvalidateUndefined(targetSymbol),
+                        Block(
+                            CallSeqInvalidateUndefined(targetSymbol)
+                        ),
+                    /*Else (Trigger phase)*/
                         Block(
                             oldCondVar,
                             newCondVar,
@@ -2356,8 +2340,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 Block(
                                     oldSizeVar,
                                     SetStmt(condSym, id(newCondVar)),
-                                    SetStmt(sizeSym, Int(JavafxDefs.UNDEFINED_MARKER_INT)),
-                                    CallSeqInvalidate(targetSymbol, Int(0), id(oldSizeVar), CallSize(targetSymbol))
+                                    SetStmt(sizeSym, Undefined()),
+                                    CallSeqTrigger(targetSymbol, Int(0), id(oldSizeVar), CallSize(targetSymbol))
                                 )
                             )
                         )
@@ -2378,12 +2362,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 If(isSequenceActive(),
                     If(IsInvalidatePhase(),
-                        CallSeqInvalidateUndefined(targetSymbol),
+                        Block(
+                            CallSeqInvalidateUndefined(targetSymbol)
+                        ),
+                    /*Else (Trigger phase)*/
                         Block(
                             If (EQ(Get(condSym), Boolean(take)),
                                 Block(
                                     SetStmt(sizeSym, CallSize(armSym)), // update the size
-                                    CallSeqInvalidate(targetSymbol, startPosArg(), endPosArg(), newLengthArg())
+                                    CallSeqTrigger(targetSymbol, startPosArg(), endPosArg(), newLengthArg())
                                 )
                             )
                         )

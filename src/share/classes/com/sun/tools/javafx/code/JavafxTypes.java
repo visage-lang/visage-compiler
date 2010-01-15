@@ -374,17 +374,36 @@ public class JavafxTypes extends Types {
             target == syms.botType)
             return true;
 
+        return isCastableNoConversion(source, target, warn);
+    }
+
+    public boolean isCastableNoConversion(Type source, Type target, Warner warn) {
+        if (isSequence(source) != isSequence(target) &&
+                !isSameType(source, syms.objectType) &&
+                !isSameType(target, syms.objectType))
+            return false;
+
+        if (source.isPrimitive() &&
+                !target.isPrimitive() &&
+                isSubtype(boxedClass(source).type, target))
+            return true;
+
+        if (target.isPrimitive() &&
+                !source.isPrimitive() &&
+                isSubtype(boxedClass(target).type, source))
+            return true;
+
         boolean isSourceFinal = (source.tsym.flags() & FINAL) != 0;
         boolean isTargetFinal = (target.tsym.flags() & FINAL) != 0;
         if (isMixin(source.tsym) && isMixin(target.tsym))
             return true;
         else if (isMixin(source.tsym) &&
-            !isTargetFinal || 
-            target.isInterface())
+            !isTargetFinal ||
+            (target.isInterface() && !isSequence(target)))
             return true;
         else if (isMixin(target.tsym) &&
             !isSourceFinal ||
-            target.isInterface())
+            (target.isInterface() && !isSequence(target)))
             return true;
         else //conversion between two primitives/Java classes
             return super.isCastable(source, target, warn);

@@ -337,7 +337,6 @@ public class JavafxDefs {
 
     final Name isInitialized_MethodName;
     final Name isReadOnly_MethodName;
-    final Name initFXBase_MethodName;
     final Name start_ThreadMethodName;
     final Name outerAccessor_MethodName;
     final Name main_MethodName;
@@ -447,6 +446,14 @@ public class JavafxDefs {
     final Name varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED;
     final Name varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY;
     final Name varFlagALL_FLAGS;
+
+    /**
+     * Names of phase transitions
+     */
+    final Name phaseTransitionBE_INVALIDATE;
+    final Name phaseTransitionBE_TRIGGER;
+    final Name phaseTransitionCASCADE_INVALIDATE;
+    final Name phaseTransitionCASCADE_TRIGGER;
 
     /**
      * Packages as Name
@@ -568,7 +575,6 @@ public class JavafxDefs {
         target_InterpolateMethodName = names.fromString("target");
         value_InterpolateMethodName = names.fromString("value");
         interpolate_InterpolateMethodName = names.fromString("interpolate");
-        initFXBase_MethodName = names.fromString("initFXBase$");
         userInit_FXObjectMethodName = names.fromString("userInit$");
         postInit_FXObjectMethodName = names.fromString("postInit$");
         incrementSharing_SequenceMethodName = names.fromString("incrementSharing");
@@ -643,6 +649,11 @@ public class JavafxDefs {
         varFlagCYCLE = names.fromString("VFLGS$CYCLE");
         varFlagIS_EAGER = names.fromString("VFLGS$IS_EAGER");
         varFlagSEQUENCE_LIVE = names.fromString("VFLGS$SEQUENCE_LIVE");
+
+        phaseTransitionBE_INVALIDATE = names.fromString("PHASE_TRANS$BE_INVALIDATE");
+        phaseTransitionBE_TRIGGER = names.fromString("PHASE_TRANS$BE_TRIGGER");
+        phaseTransitionCASCADE_INVALIDATE = names.fromString("PHASE_TRANS$CASCADE_INVALIDATE");
+        phaseTransitionCASCADE_TRIGGER = names.fromString("PHASE_TRANS$CASCADE_TRIGGER");
 
         varFlagVALIDITY_FLAGS = names.fromString("VFLGS$VALIDITY_FLAGS");
         varFlagIS_BOUND_INVALID = names.fromString("VFLGS$IS_BOUND_INVALID");

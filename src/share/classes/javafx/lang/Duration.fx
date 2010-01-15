@@ -66,7 +66,7 @@ public def INDEFINITE: Duration = Duration { millis: Double.POSITIVE_INFINITY};
         valueOf(ms as Double)
     }
 
-    def TYPE_INFO = com.sun.javafx.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
+    public def TYPE_INFO = com.sun.javafx.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
 
 /**
  * A class that defines a duration of time.  Duration instances are defined in

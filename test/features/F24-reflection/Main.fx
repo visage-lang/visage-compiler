@@ -16,14 +16,15 @@ import com.sun.javafx.runtime.sequence.Sequences;
 var context : FXLocal.Context = FXLocal.getContext();
 
 class Square extends MyRect {
+   public def cc = 200;
    var atBlank : String;
    public var atPub : String;
    protected var atProt : String;
 };
 
 class Simple extends Square {
-   public var at1;
-   public var func : function(:String) : function();
+   public-init var at1;
+   public-read package var func : function(:String) : function();
 };
 
 //function run( ) {
@@ -82,13 +83,34 @@ for (v in attrsMyRect) {
   var vval = v.getValue(myRectRef);
   System.out.println("  {if (v.isStatic()) "static " else ""}{v.getName()} : {v.getType()} = {vval.getValueString()};") };
 
+function printAccessors(attr: FXVarMember) : Void {
+  if (attr.isPublicInit())
+    System.out.print("public-init ");
+  if (attr.isPublicRead())
+    System.out.print("public-read ");
+  if (attr.isPublic())
+    System.out.print("public ");
+  if (attr.isProtected())
+    System.out.print("protected ");
+  if (attr.isPackage())
+    System.out.print("package ");
+  if (attr.isDef())
+    System.out.print("def ")
+  else
+    System.out.print("var ");
+}
+
 System.out.println("Square attributes (only):");
 for (attr in context.findClass("Main.Square").getVariables(false)) {
-  System.out.println("  {attr.getName()} : {attr.getType()}") };
+  System.out.print("  "); printAccessors(attr);
+  System.out.println("{attr.getName()} : {attr.getType()}")
+};
 
 System.out.println("Simple attributes (only):");
 for (attr in context.findClass("Main.Simple").getVariables(false)) {
-  System.out.println("  {attr.getName()} : {attr.getType()}"); };
+  System.out.print("  "); printAccessors(attr);
+  System.out.println("{attr.getName()} : {attr.getType()}");
+};
 
 System.out.println("MyRect methods:");
 for (meth in clsMyRect.getFunctions(false)) {

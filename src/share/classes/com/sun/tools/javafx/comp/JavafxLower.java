@@ -581,10 +581,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitInstanceOf(JFXInstanceOf tree) {
-        Type typeToCheck = needSequenceConversion(tree.getExpression(), tree.clazz.type) ?
-            types.sequenceType(tree.getExpression().type) :
-            tree.getExpression().type;
-        JFXExpression expr = lowerExpr(tree.getExpression(), typeToCheck);
+        JFXExpression expr = lower(tree.getExpression());
         result = m.at(tree.pos).TypeTest(expr, tree.clazz).setType(tree.type);
     }
 

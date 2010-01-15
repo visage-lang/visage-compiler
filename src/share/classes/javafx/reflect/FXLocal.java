@@ -24,6 +24,8 @@
 package javafx.reflect;
 
 import java.lang.reflect.*;
+import java.lang.annotation.Annotation;
+import com.sun.javafx.runtime.annotation.Package;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +39,7 @@ import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.DependentsManager;
+import com.sun.javafx.runtime.annotation.*;
 
 /**
  * Implement JavaFX rfeflection on top of {@java.lang.reflect}.
@@ -430,7 +433,6 @@ public class FXLocal {
             "getDependentsManager$internal$",
             "getListenerCount$",
             "getType$",
-            "initFXBase$",
             "initialize$",
             "isInitialized$",
             "javafx$run$",
@@ -648,7 +650,6 @@ public class FXLocal {
                     ref.getter = getMethodOrNull(cls, "get" + fname);
  
                     if (ref.getter != null) {
-                        ref.fld = null;
                         Class type = ref.getter.getReturnType();
                         ref.setter = getMethodOrNull(cls, "set" + fname, type);
                     }
@@ -688,6 +689,33 @@ public class FXLocal {
 
         public boolean isStatic() {
             return true;
+        }
+
+        Annotation getAnnotation (Class clas) {
+            Class cls = refClass;
+            return cls.getAnnotation(clas);
+        }
+
+        public boolean isPublic() {
+            if (isJfxType())
+                return getAnnotation(Public.class) != null;
+            else {
+                Class cls = refClass;
+                return (cls.getModifiers() & Modifier.PUBLIC) != 0;
+            }
+        }
+
+        public boolean isProtected() {
+            return getAnnotation(Protected.class) != null;
+        }
+
+        public boolean isPackage() {
+            if (isJfxType())
+                return getAnnotation(Package.class) != null;
+            else {
+                Class cls = refClass;
+                return (cls.getModifiers() & Modifier.PUBLIC) == 0;
+            }
         }
     }
     
@@ -768,9 +796,10 @@ public class FXLocal {
                     Context context =
                         (Context) owner.getReflectionContext();
                     Object val;
-                    if (getter != null)
+                    if (getter != null) {
                         val = getter.invoke(robj, new Object[0]);
-                    else {
+                    } else {
+                        fld.setAccessible(true);
                         val = fld.get(robj);
                     }
                     // FIXME: yet to be implemented for compiled binds
@@ -820,6 +849,7 @@ public class FXLocal {
                     } else {
                         // FIXME: yet to be implemented for compiled binds
                         if (fld != null) {
+                            fld.setAccessible(true);
                             fld.set(robj, ((Value) value).asObject());
                             return;
                         }
@@ -846,7 +876,60 @@ public class FXLocal {
                     : fld.getModifiers();
             return (mods & Modifier.STATIC) != 0;
         }
-         
+
+        public <T extends Annotation> T getAnnotation (Class<T> clas) {
+            if (fld != null)
+                return fld.getAnnotation(clas);
+            if (getter != null)
+                return getter.getAnnotation(clas);
+            return null;
+        }
+
+        public boolean isPublic() {
+            if (getDeclaringClass().isJfxType())
+                return getAnnotation(Public.class) != null;
+            else {
+                int mods = getter != null ? getter.getModifiers()
+                        : fld.getModifiers();
+                return (mods & Modifier.PUBLIC) != 0;
+            }
+        }
+
+        public boolean isProtected() {
+            if (getDeclaringClass().isJfxType())
+                return getAnnotation(Protected.class) != null;
+            else {
+                int mods = getter != null ? getter.getModifiers()
+                        : fld.getModifiers();
+                return (mods & Modifier.PROTECTED) != 0;
+            }
+        }
+
+        public boolean isPackage() {
+            if (getDeclaringClass().isJfxType())
+                return getAnnotation(Package.class) != null;
+            else {
+                int mods = getter != null ? getter.getModifiers()
+                        : fld.getModifiers();
+                int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
+                return (mods & mask) == 0;
+            }
+        }
+
+        public boolean isPublicInit() {
+            return getAnnotation(PublicInitable.class) != null;
+        }
+
+        public boolean isPublicRead() {
+            return getAnnotation(PublicReadable.class) != null;
+        }
+
+        public boolean isDef() {
+            if (fld != null && ! getDeclaringClass().isJfxType())
+                return (fld.getModifiers() & Modifier.FINAL) != 0;
+            return getAnnotation(Def.class) != null;
+        }
+
 	static class ListenerAdapter extends com.sun.javafx.runtime.FXBase implements FXChangeListenerID {
 	    final FXChangeListener listener;
 	    ListenerAdapter(FXChangeListener listener) {
@@ -934,6 +1017,34 @@ public class FXLocal {
             }
             catch (Exception ex) {
                 throw new RuntimeException(ex);
+            }
+        }
+
+        public <T extends Annotation> T getAnnotation (Class<T> clas) {
+            return method.getAnnotation(clas);
+        }
+
+        public boolean isPublic() {
+            if (getDeclaringClass().isJfxType())
+                return getAnnotation(Public.class) != null;
+            else
+                return (method.getModifiers() & Modifier.PUBLIC) != 0;
+        }
+
+        public boolean isProtected() {
+            if (getDeclaringClass().isJfxType())
+                return getAnnotation(Protected.class) != null;
+            else
+                return (method.getModifiers() & Modifier.PROTECTED) != 0;
+        }
+
+        public boolean isPackage() {
+            if (getDeclaringClass().isJfxType())
+                return getAnnotation(Package.class) != null;
+            else {
+                int mods = method.getModifiers();
+                int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
+                return (mods & mask) == 0;
             }
         }
     }

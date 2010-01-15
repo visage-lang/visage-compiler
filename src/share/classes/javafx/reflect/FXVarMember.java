@@ -75,4 +75,13 @@ public abstract class FXVarMember implements FXMember {
         getType().toStringTerse(sb);
         return sb.toString();
     }
+
+    /** True if {@code public-read} was specified. */
+    public abstract boolean isPublicRead();
+
+    /** True if {@code public-init} was specified. */
+    public abstract boolean isPublicInit();
+
+    /** True if if the variable is defined with {@code def} rather than {@code var}. */
+    public abstract boolean isDef();
 }

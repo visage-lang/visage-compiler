@@ -1015,10 +1015,10 @@ public class SequencesBase {
         if (preReplaceSlice(oldValue, newValue, startPos, endPos) ||
                 wasUninitialized) {
             int newLength = newValue==null?0:1;
-            instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
+            instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
             Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos, true);
             instance.be$(varNum, arr);
-            instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
+            instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
         }
     }
 
@@ -1118,10 +1118,10 @@ public class SequencesBase {
         if (preReplaceSlice(oldValue, newValues, startPos, endPos) ||
                 wasUninitialized) {
             int newLength = newValues == null ? 0 : newValues.size();
-            instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
+            instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
             Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValues, startPos, endPos, true);
             instance.be$(varNum, arr);
-            instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
+            instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
         }
     }
 
@@ -1179,9 +1179,9 @@ public class SequencesBase {
         int oldSize = oldValue.size();
         int newLength = newValue==null?0:1;
         Sequence<? extends T> arr = insert(oldValue, newValue);
-        instance.invalidate$(varNum, oldSize, oldSize, newLength, FXObject.VFLGS$IS_INVALID);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
         instance.be$(varNum, arr);
-        instance.invalidate$(varNum, oldSize, oldSize, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
     }
 
     public static <T> Sequence<? extends T> insert(Sequence<? extends T> oldValue, Sequence<? extends T> values) {
@@ -1210,9 +1210,9 @@ public class SequencesBase {
         int oldSize = oldValue.size();
         int newLength = values == null ? 0 : values.size();
         Sequence<? extends T> arr = insert(oldValue, values);
-        instance.invalidate$(varNum, oldSize, oldSize, newLength, FXObject.VFLGS$IS_INVALID);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
         instance.be$(varNum, arr);
-        instance.invalidate$(varNum, oldSize, oldSize, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
 
     }
 
