@@ -938,7 +938,7 @@ public class FXLocal {
 	    
 	    @Override public void update$(FXObject src, final int varNum, int phase) {
 		// varNum does not matter, there is one change listener per <src, varNum> tuple.
-		if (phase == FXObject.VFLGS$NEEDS_TRIGGER) {
+                if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
 		    this.listener.onChange();
 		}
 	    }
@@ -1142,7 +1142,7 @@ public class FXLocal {
                     for (int offset = 0; offset < count; offset++ ) {
                         if (initMembers[offset] != null) {
                             initMembers[offset].setValue(this, initValues[offset]);
-                        } else if (instance.varTestBits$(offset, FXObject.VFLGS$IS_INVALID, FXObject.VFLGS$IS_INVALID)) {
+                        } else if (instance.varTestBits$(offset, FXObject.VFLGS$DEFAULT_APPLIED, 0)) {
                             instance.applyDefaults$(offset);
                         }
                     }

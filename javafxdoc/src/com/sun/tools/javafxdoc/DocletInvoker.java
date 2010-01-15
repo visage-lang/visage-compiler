@@ -203,7 +203,7 @@ public class DocletInvoker {
      */
     @SuppressWarnings("unchecked")
     private Object invoke(String methodName, Object returnValueIfNonExistent,
-                          Class[] paramTypes, Object[] params)
+                          Class<?>[] paramTypes, Object[] params)
         throws DocletInvokeException {
             Method meth;
             try {

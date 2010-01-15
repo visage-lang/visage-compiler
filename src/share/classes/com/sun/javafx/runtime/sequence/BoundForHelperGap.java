@@ -104,7 +104,7 @@ public abstract class BoundForHelperGap<T, PT> extends BoundForHelper<T, PT> {
     public void updateForPart(int ipart, int begin, int end, int newLen, int phase) {
         if (uninitialized)
             return;
-        if (phase != FXObject.VFLGS$NEEDS_TRIGGER)
+        if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE)
             return;
         int len = cumulatedLengths.length;
         int delta = newLen - begin + end;
@@ -124,7 +124,7 @@ public abstract class BoundForHelperGap<T, PT> extends BoundForHelper<T, PT> {
         //System.err.println("replaceParts("+startPart+", "+endPart+", "+insertedParts+", "+phase+")");
         if (uninitialized)
             return;
-        if (phase != FXObject.VFLGS$NEEDS_TRIGGER)
+        if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE)
             return;
         int removedParts = endPart - startPart;
         int deltaParts = insertedParts - removedParts;

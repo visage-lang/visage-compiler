@@ -1056,12 +1056,54 @@ public abstract class JavafxTranslationSupport {
             return makeMethodArg(defs.phase_ArgName, syms.intType);
         }
 
-        JCExpression IsInvalidatePhase() {
-            return EQ(phaseArg(), id(defs.varFlagIS_INVALID));
+        JCIdent isSetArg() {
+            return makeMethodArg(defs.isSet_ArgName, syms.booleanType);
         }
 
+        /**
+         * Set the phase state part of the flag to the next state part of the phase transition
+         */
+        JCStatement SetNextVarFlagsStateFromPhaseTransition(JavafxVarSymbol sym) {
+            return
+                FlagChangeStmt(sym,
+                        id(defs.varFlagSTATE_MASK),
+                        SHIFTR(
+                            phaseArg(),
+                            id(defs.phaseTransitionNEXT_STATE_SHIFT)
+                        )
+                );
+        }
+
+        /**
+         * Clear the be$ bits from the phase transition
+         */
+        JCStatement ClearBeFromPhaseTransition() {
+            return
+                Stmt(
+                    m().Assignop(JCTree.BITAND_ASG,
+                        phaseArg(),
+                        id(defs.phaseTransitionCLEAR_BE)
+                    ));
+        }
+
+        JCStatement PhaseCheckedBlock(JavafxVarSymbol sym, JCStatement... stmts) {
+            return
+                If (id(defs.wasInvalid_LocalVarName),
+                    Block(
+                        Stmts(
+                            SetNextVarFlagsStateFromPhaseTransition(sym),
+                            ClearBeFromPhaseTransition()
+                        ).appendList(List.from(stmts))
+                    )
+                );
+        }
+
+        JCExpression IsInvalidatePhase() {
+            return EQ(BITAND(phaseArg(), id(defs.phaseTransitionPHASE)), id(defs.phaseINVALIDATE));
+        }
+        
         JCExpression IsTriggerPhase() {
-            return EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
+            return EQ(BITAND(phaseArg(), id(defs.phaseTransitionPHASE)), id(defs.phaseTRIGGER));
         }
 
         /**
@@ -1331,9 +1373,11 @@ public abstract class JavafxTranslationSupport {
         //
         protected JCExpression Int(int value)         { return m().Literal(TypeTags.INT, value); }
         protected JCExpression Byte(int value)        { return m().Literal(TypeTags.BYTE, value); }
-        protected JCExpression Boolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
         protected JCExpression Null()                 { return m().Literal(TypeTags.BOT, null); }
         protected JCExpression String(String str)     { return m().Literal(TypeTags.CLASS, str); }
+        protected JCExpression Boolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
+        protected JCExpression True()                 { return Boolean(true); }
+        protected JCExpression False()                { return Boolean(false); }
 
         protected JCStatement Stmt(JCExpression expr) {
             return m().Exec(expr);

@@ -543,7 +543,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         res = Call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);
                     } else {
                         JCExpression tc = instanceName == null ? null : id(instanceName);
-                        res = Call(tc, attributeBeName(vsym), nonNullInit);
+                        res = Call(tc, attributeBeName(vsym), nonNullInit, True());
                     }
                 } else {
                     res = nonNullInit;

@@ -74,7 +74,7 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
     public void update$(FXObject src, final int varNum, final int phase) {
         if (uninitialized || inWholesaleUpdate)
             return;
-        if (phase != FXObject.VFLGS$NEEDS_TRIGGER) {
+        if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE) {
             blanketInvalidationOfBoundFor();
             return;
         }
@@ -120,7 +120,7 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
     public void replaceParts(int startPart, int endPart, int insertedParts, int phase) {
         if (uninitialized)
             return;
-        if (phase != FXObject.VFLGS$NEEDS_TRIGGER) {
+        if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE) {
             blanketInvalidationOfBoundFor();
             return;
         }
