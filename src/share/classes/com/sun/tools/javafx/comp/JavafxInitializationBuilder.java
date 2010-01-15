@@ -713,6 +713,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (!varInfo.isMixinVar()) {
                 flags = varInfo.isPublicAccess()          ? Flags.PUBLIC :     // User specified
                         varInfo.isProtectedAccess()       ? Flags.PROTECTED :  // User specified
+                        varInfo.isStatic()                ? Flags.PUBLIC :     // Can't change access in subclass
                         varInfo.hasScriptOnlyAccess() &&
                            !varInfo.isExternallySeen()    ? Flags.PRIVATE :    // Internal var
                         varInfo.useAccessors()            ? Flags.PROTECTED :  // Subclasses need access for overrides
@@ -735,6 +736,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                           varInfo.isPublicReadAccess() ||
                           varInfo.isPublicInitAccess()    ? Flags.PUBLIC :     // User specified
                         varInfo.isProtectedAccess()       ? Flags.PROTECTED :  // User specified
+                        varInfo.isStatic()                ? Flags.PUBLIC :     // Can't change access in subclass
                         varInfo.hasScriptOnlyAccess() &&
                            !varInfo.isExternallySeen()    ? Flags.PRIVATE :    // Internal vars
                         varInfo.useAccessors()            ? Flags.PUBLIC :     // Generally visible

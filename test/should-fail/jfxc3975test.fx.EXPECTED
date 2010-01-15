@@ -1,0 +1,4 @@
+test/should-fail/jfxc3975test.fx:15: parent has protected access in jfxc3975.jfxc3975b
+        (this as jfxc3975b).parent = null; // error - parent is protected in jfxc3975b
+                           ^
+1 error
