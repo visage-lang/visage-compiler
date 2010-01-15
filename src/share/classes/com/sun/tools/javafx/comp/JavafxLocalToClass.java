@@ -600,7 +600,12 @@ public class JavafxLocalToClass {
                     null));
 
             if (block.type != syms.voidType) {
-                JavafxVarSymbol resVarSym = new JavafxVarSymbol(types, names, 0L, preTrans.syntheticName("res$"), block.type, doit.sym);
+                JavafxVarSymbol resVarSym = new JavafxVarSymbol(types,
+                        names,
+                        0L,
+                        preTrans.syntheticName("res$"),
+                        types.normalize(block.type),
+                        doit.sym);
                 JFXVar resVar = fxmake.Var(resVarSym.name,
                     preTrans.makeTypeTree(resVarSym.type),
                     fxmake.Modifiers(resVarSym.flags_field),

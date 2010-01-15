@@ -559,9 +559,13 @@ public class JavafxLower implements JavafxVisitor {
 
     public JFXTree lowerUnreachableIfExpression(JFXIfExpression tree) {
         boolean inverted = tree.truepart.type == syms.unreachableType;
-        JFXExpression truePart = lowerExpr(tree.truepart, tree.type);
-        JFXExpression falsePart = lowerExpr(tree.falsepart, tree.type);
-        JFXVar varDef = makeVar(tree.pos(), "res", null, tree.type == syms.botType ? syms.objectType : tree.type);
+        Type treeType = tree.type.tag == TypeTags.BOT ?
+            types.isSequence(tree.type) ?
+                types.sequenceType(syms.objectType) : syms.objectType :
+            tree.type;
+        JFXExpression truePart = lowerExpr(tree.truepart, treeType);
+        JFXExpression falsePart = lowerExpr(tree.falsepart, treeType);
+        JFXVar varDef = makeVar(tree.pos(), "res", null, treeType);
         JFXIdent varRef = m.at(tree.pos).Ident(varDef.sym);
         varRef.sym = varDef.sym;
         varRef.type = varDef.type;
