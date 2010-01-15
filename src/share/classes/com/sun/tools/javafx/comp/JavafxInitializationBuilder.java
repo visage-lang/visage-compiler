@@ -703,7 +703,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             }
         }
-        
+
+/* In an ideal world this is what we would like.        
         //
         // Returns access flags appropriate for an attribute's field.
         //
@@ -745,7 +746,49 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             return flags;
         }
- 
+however this is what we need */ 
+        //
+        // Returns access flags appropriate for an attribute's field.
+        //
+        private long attributeFieldAccessFlags(VarInfo varInfo) {
+            long flags = Flags.PUBLIC;
+            
+            if (!varInfo.isMixinVar()) {
+                flags = varInfo.isPublicAccess()          ? Flags.PUBLIC :     // User specified
+                        varInfo.isProtectedAccess()       ? Flags.PUBLIC :     // User specified
+                        varInfo.isStatic()                ? Flags.PUBLIC :     // Can't change access in subclass
+                        varInfo.hasScriptOnlyAccess() &&
+                           !varInfo.isExternallySeen()    ? Flags.PRIVATE :    // Internal var
+                        varInfo.useAccessors()            ? Flags.PUBLIC :     // Subclasses need access for overrides
+                        varInfo.isExternallySeen()        ? Flags.PUBLIC :     // Package private
+                                                            Flags.PRIVATE;
+            }
+            
+            return flags;
+        }
+        
+        //
+        // Returns access flags appropriate for an attribute's method.
+        //
+        private long attributeMethodAccessFlags(VarInfo varInfo) {
+            long flags = Flags.PUBLIC;
+            
+            // TODO - Handle public read/init properly.
+            if (!varInfo.isMixinVar()) {
+                flags = varInfo.isPublicAccess() ||
+                          varInfo.isPublicReadAccess() ||
+                          varInfo.isPublicInitAccess()    ? Flags.PUBLIC :     // User specified
+                        varInfo.isProtectedAccess()       ? Flags.PUBLIC :     // User specified
+                        varInfo.isStatic()                ? Flags.PUBLIC :     // Can't change access in subclass
+                        varInfo.hasScriptOnlyAccess() &&
+                           !varInfo.isExternallySeen()    ? Flags.PRIVATE :    // Internal vars
+                        varInfo.useAccessors()            ? Flags.PUBLIC :     // Generally visible
+                                                            Flags.PUBLIC;      // Package private
+            }
+            
+            return flags;
+        }
+
         //
         // This class is designed to reduce the repetitiveness of constructing methods.
         //
