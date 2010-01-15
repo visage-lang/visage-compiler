@@ -24,6 +24,7 @@
 import com.sun.btrace.annotations.*;
 import static com.sun.btrace.BTraceUtils.*;
 import com.sun.btrace.AnyType;
+import java.util.Stack;
 
 /**
  * Prints an indented trace message showing phase information.
@@ -43,18 +44,50 @@ import com.sun.btrace.AnyType;
     public static long invalidations;
 
     public static String indent = "";
+    public static Stack<String> closeBrace = new Stack();
+
+    public static final int PHASE_INV = 4; // <- 0
+    public static final int PHASE_TRIG = 5; // <- 8
 
     @OnMethod(
         clazz="+com.sun.javafx.runtime.FXObject",
         method="/invalidate\\$.+/"
     )
     public static void onInvalidateEnter(
-        @ProbeClassName String className, 
-        @ProbeMethodName String methodName,
-        AnyType[] args) { 
+					 @ProbeClassName String className, 
+					 @ProbeMethodName String methodName,
+					 AnyType[] args) { 
         invalidations++;
 	print(indent);
-        print(args[args.length-1].toString().equals("1")? "+ " : "@ ");
+	int pt = Integer.parseInt(args[args.length-1].toString()); 
+	int np = (pt >> 4) | ((pt & 2) << 2);
+        String ob = "%%";
+        String cb = "%%";
+	switch (np) {
+	case PHASE_INV:
+	    ob = "(+";
+	    cb = "+)";
+	    break;
+	case 6:
+	    ob = "<+";
+	    cb = "+>";
+	    break;
+	case PHASE_TRIG:
+	    ob = "(@";
+	    cb = "@)";
+	    break;
+	case 13:
+	    ob = "<@";
+	    cb = "@>";
+	    break;
+	default:
+	    print(np);
+        print(" : ");
+        print(Integer.toHexString(pt));
+	}
+	closeBrace.push(cb);
+        print(ob);
+        print(" ");
         print(className);
         print(".");
         print(substr(methodName, strlen("invalidate$")));
@@ -67,7 +100,7 @@ import com.sun.btrace.AnyType;
           print(args[2]);
         }
         println();
-	indent += "   ";
+	indent += "|  ";
     }
 
     @OnMethod(
@@ -76,14 +109,141 @@ import com.sun.btrace.AnyType;
         location=@Location(Kind.RETURN)
     )
     public static void onInvalidateReturn(
-        @ProbeClassName String className, 
-        @ProbeMethodName String methodName) { 
+					  @ProbeClassName String className, 
+					  @ProbeMethodName String methodName) { 
         indent = indent.substring(3);
 	print(indent);
-        print("- ");
+        print(closeBrace.pop());
+        print(" ");
         print(className);
         print(".");
         println(substr(methodName, strlen("invalidate$")));
+    }
+
+    @OnMethod(
+        clazz="+com.sun.javafx.runtime.FXObject",
+        method="/update\\$.+/"
+    )
+    public static void onUpdateEnter(
+				     @ProbeClassName String className, 
+				     AnyType[] args) { 
+        invalidations++;
+	print(indent);
+	int pt = Integer.parseInt(args[args.length-1].toString()); 
+	int np = (pt >> 4) | ((pt & 2) << 2);
+        String ob = "%%";
+        String cb = "%%";
+	switch (np) {
+	case PHASE_INV:
+	    ob = "{+";
+	    cb = "+}";
+	    break;
+	case 6:
+	    ob = "[+";
+	    cb = "+]";
+	    break;
+	case PHASE_TRIG:
+	    ob = "{@";
+	    cb = "@}";
+	    break;
+	case 13:
+	    ob = "[@";
+	    cb = "@]";
+	    break;
+	default:
+	    print(np);
+        print(" : ");
+        print(Integer.toHexString(pt));
+	}
+	closeBrace.push(cb);
+        print(ob);
+        print(" ");
+        print(className);
+        print(" - update");
+        if (args.length == 5) {
+          print(" [");
+          print(args[1]);
+          print("..");
+          print(args[2]);
+          print("] = ");
+          print(args[3]);
+        }
+        println();
+	indent += "|  ";
+    }
+
+    @OnMethod(
+        clazz="+com.sun.javafx.runtime.FXObject",
+        method="/update\\$.+/",
+        location=@Location(Kind.RETURN)
+    )
+    public static void onUpdateReturn(
+				      @ProbeClassName String className) {
+        indent = indent.substring(3);
+	print(indent);
+        print(closeBrace.pop());
+        print(" ");
+        print(className);
+        println(" - update");
+    }
+
+    @OnMethod(
+        clazz="+com.sun.javafx.runtime.FXObject",
+        method="/notifyDependents\\$.+/"
+    )
+    public static void onNotifyDependentsEnter(
+					       @ProbeClassName String className) {
+	print(indent);
+        print("(. ");
+        print(className);
+        print(".");
+        println("NotifyDependents");
+	indent += "|  ";
+    }
+
+    @OnMethod(
+        clazz="+com.sun.javafx.runtime.FXObject",
+        method="/notifyDependents\\$.+/",
+        location=@Location(Kind.RETURN)
+    )
+    public static void onNotifyDependentsReturn(
+						@ProbeClassName String className) {
+        indent = indent.substring(3);
+	print(indent);
+        print(".) ");
+        print(className);
+        print(".");
+        println("NotifyDependents");
+    }
+
+    // "get$foo" are called to do (external) var set
+    @OnMethod(
+        clazz="+com.sun.javafx.runtime.FXObject",
+        method="/get\\$.+/"
+    )
+    public static void onGetterEnter(
+        @ProbeClassName String className, @ProbeMethodName String methodName) {
+	print(indent);
+        print("(. ");
+        print(className);
+        print(".");
+        println(substr(methodName, strlen("get$")));
+	indent += "|  ";
+    }
+
+    @OnMethod(
+        clazz="+com.sun.javafx.runtime.FXObject",
+        method="/get\\$.+/",
+        location=@Location(Kind.RETURN)
+    )
+    public static void onGetterReturn(
+        @ProbeClassName String className, @ProbeMethodName String methodName) {
+        indent = indent.substring(3);
+	print(indent);
+        print(".) ");
+        print(className);
+        print(".");
+        println(substr(methodName, strlen("get$")));
     }
 
     // "be$foo" are called to do recomputation set (internal set)
@@ -92,13 +252,17 @@ import com.sun.btrace.AnyType;
         method="/be\\$.+/"
     )
     public static void onBeEnter(
-        @ProbeClassName String className, @ProbeMethodName String methodName) {
+        @ProbeClassName String className, 
+        @ProbeMethodName String methodName,
+        AnyType[] args) { 
 	print(indent);
-        print("= ");
+        print("<= ");
         print(className);
         print(".");
-        println(substr(methodName, strlen("be$")));
-	indent += "   ";
+        print(substr(methodName, strlen("be$")));
+        print(" = ");
+        println(args[0]);
+	indent += "|  ";
     }
 
     // "be$foo" are called to do recomputation set (internal set)
@@ -111,7 +275,7 @@ import com.sun.btrace.AnyType;
         @ProbeClassName String className, @ProbeMethodName String methodName) {
         indent = indent.substring(3);
 	print(indent);
-        print("- ");
+        print("=> ");
         print(className);
         print(".");
         println(substr(methodName, strlen("be$")));
