@@ -303,7 +303,7 @@ public class JavafxResolve {
                      // In JLS 2e 6.6.2.1, the subclass restriction applies
                      // only to instance fields and methods -- types are excluded
                      // regardless of whether they are declared 'static' or not.
-                     ((sym.flags() & STATIC) != 0 || sym.kind == TYP || types.isSubtype(c.type, site))))
+                     ((sym.flags() & STATIC) != 0 || sym.kind == TYP || site.tsym.isSubClass(c, types))))
                 c = c.owner.enclClass();
             return c != null;
         }
