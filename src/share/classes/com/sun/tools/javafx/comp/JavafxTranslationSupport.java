@@ -1790,7 +1790,9 @@ public abstract class JavafxTranslationSupport {
         }
         
         public JCExpression Getter(Symbol sym) {
-            return Getter(getReceiver(), sym);
+            return Getter(sym.isStatic() ?
+                    makeType(sym.owner.type, false) :
+                    getReceiver(sym), sym);
         }
 
         public JCExpression Getter(JCExpression selector, Symbol sym) {
@@ -1810,7 +1812,9 @@ public abstract class JavafxTranslationSupport {
         }
         
         public JCExpression Setter(Symbol sym, JCExpression value) {
-            return Setter(getReceiver(), sym, value);
+            return Setter(sym.isStatic() ?
+                    makeType(sym.owner.type, false) :
+                    getReceiver(sym), sym, value);
         }
 
         public JCExpression Setter(JCExpression selector, Symbol sym, JCExpression value) {
@@ -1830,7 +1834,7 @@ public abstract class JavafxTranslationSupport {
         }
         
         public JCStatement SetterStmt(Symbol sym, JCExpression value) {
-            return SetterStmt(null, sym, value);
+            return Stmt(Setter(sym, value));
         }
         public JCStatement SetterStmt(JCExpression selector, Symbol sym, JCExpression value) {
             return Stmt(Setter(selector, sym, value));

@@ -2117,6 +2117,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             // Add access methods
             JCClassDecl tcdecl = (JCClassDecl) jcb.stats.head;
             ClassSymbol csym = tcdecl.sym;
+
             tcdecl.defs = tcdecl.defs
                     .append(makeSetInductionVarMethod(csym, inductionType))
                     .append(makeGetIndexMethod(csym))
@@ -2452,7 +2453,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitForExpression(JFXForExpression tree) {
-        result = new BoundForExpressionTranslator(tree).doit();
+        JFXClassDeclaration prevClass = JavafxTranslateBind.this.currentClass();
+        try {
+            JavafxTranslateBind.this.setCurrentClass((JFXClassDeclaration)((JFXBlock)tree.bodyExpr).stats.head);
+            result = new BoundForExpressionTranslator(tree).doit();
+        }
+        finally {
+            JavafxTranslateBind.this.setCurrentClass(prevClass);
+        }
     }
 
     @Override
