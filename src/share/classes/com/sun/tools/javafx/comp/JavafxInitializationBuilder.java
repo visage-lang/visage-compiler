@@ -2802,9 +2802,7 @@ however this is what we need */
             
             makeApplyDefaultsMethod(varInfos, varCount);
             makeInitVarsMethod(varInfos, updateMap);
-            
-            makeUpdateMethod(varInfos, updateMap, false);
-            makeUpdateMethod(varInfos, updateMap, true);
+            makeUpdateMethod(varInfos, updateMap);
             
             if ((isScript() || !isMixinClass()) && varCount > 0) {
                 makeGetMethod(varInfos, varCount);
@@ -3066,17 +3064,15 @@ however this is what we need */
         //
         // This method constructs the current class's update$ method.
         //
-        public void makeUpdateMethod(final List<VarInfo> varInfos, final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap, final boolean isSequenceVersion) {
+        public void makeUpdateMethod(final List<VarInfo> varInfos, final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap) {
             MethodBuilder mb = new MethodBuilder(defs.update_FXObjectMethodName, syms.voidType) {
                 @Override
                 public void initialize() {
                     addParam(updateInstanceArg());
                     addParam(varNumArg());
-                    if (isSequenceVersion) {
-                        addParam(startPosArg());
-                        addParam(endPosArg());
-                        addParam(newLengthArg());
-                    }
+                    addParam(startPosArg());
+                    addParam(endPosArg());
+                    addParam(newLengthArg());
                     addParam(phaseArg());
                 }
             
@@ -3184,15 +3180,7 @@ however this is what we need */
                             // Loop for local vars.
                             for (VarInfo varInfo : referenceSet) {
                                 if (depGraphWriter != null) {
-                                    if (varInfo.generateSequenceAccessors()) {
-                                        if (isSequenceVersion) {
-                                            depGraphWriter.writeInterObjectDependency(instanceVar, referenceVar);
-                                        } // else do not output dependency
-                                    } else {
-                                        if (! isSequenceVersion) {
-                                            depGraphWriter.writeInterObjectDependency(instanceVar, referenceVar);
-                                        }
-                                    }
+                                    depGraphWriter.writeInterObjectDependency(instanceVar, referenceVar);
                                 }
                                 addStmt(invalidate(varInfo.generateSequenceAccessors(), varInfo.proxyVarSym()));
                             }
@@ -3229,16 +3217,12 @@ however this is what we need */
 
                 JCStatement invalidate(boolean isSequence, JavafxVarSymbol vsym) {
                     if (isSequence) {
-                        if (isSequenceVersion) {
-                            // Sequence: update$ is only used on select, so, for sequences, we can just pass through
-                            return CallStmt(attributeInvalidateName(vsym),
-                                    startPosArg(),
-                                    endPosArg(),
-                                    newLengthArg(),
-                                    phaseArg());
-                        } else {
-                            return Throw(syms.runtimeExceptionType, "Not expecting a non-sequence to be sending update$ to a sequence");
-                        }
+                        // Sequence: update$ is only used on select, so, for sequences, we can just pass through
+                        return CallStmt(attributeInvalidateName(vsym),
+                                startPosArg(),
+                                endPosArg(),
+                                newLengthArg(),
+                                phaseArg());
                     } else {
                         // Non-sequence
                         return CallStmt(attributeInvalidateName(vsym), phaseArg());

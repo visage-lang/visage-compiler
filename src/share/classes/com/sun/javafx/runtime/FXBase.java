@@ -197,7 +197,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
     }
     public static void notifyDependents$(FXObject obj, final int varNum, final int phase) {
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-        DependentsManager.get(obj).notifyDependents(obj, varNum, phase);
+        DependentsManager.get(obj).notifyDependents(obj, varNum, 0, Sequences.UNDEFINED_MARKER_INT, Sequences.UNDEFINED_MARKER_INT, phase);
     }
     public void notifyDependents$(int varNum, int startPos, int endPos, int newLength, int phase) {
         notifyDependents$(this, varNum, startPos, endPos, newLength, phase);
@@ -206,8 +206,6 @@ import com.sun.javafx.runtime.sequence.Sequences;
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
         DependentsManager.get(obj).notifyDependents(obj, varNum, startPos, endPos, newLength, phase);
     }
-    public void update$(FXObject src, final int varNum, final int phase) {}
-    public static void update$(FXObject obj, FXObject src, final int varNum, final int phase) {}
     public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {}
     public static void update$(FXObject obj, FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {}
     public int getListenerCount$() {

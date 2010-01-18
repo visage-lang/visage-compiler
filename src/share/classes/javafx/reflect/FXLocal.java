@@ -936,7 +936,7 @@ public class FXLocal {
 		this.listener = listener;
 	    }
 	    
-	    @Override public void update$(FXObject src, final int varNum, int phase) {
+	    @Override public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, int phase) {
 		// varNum does not matter, there is one change listener per <src, varNum> tuple.
                 if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
 		    this.listener.onChange();

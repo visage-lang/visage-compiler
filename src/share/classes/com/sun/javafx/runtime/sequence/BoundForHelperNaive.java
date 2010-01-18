@@ -66,12 +66,6 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
     // Called by invalidate when the result of a part changes.
     @Override
     public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
-        update$(src, varNum, phase);
-    }
-
-    // Called by invalidate when the result of a part changes.
-    @Override
-    public void update$(FXObject src, final int varNum, final int phase) {
         if (uninitialized || inWholesaleUpdate)
             return;
         if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE) {

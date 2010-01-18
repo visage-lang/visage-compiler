@@ -38,4 +38,5 @@ public function run() {
     println('Listeners should no longer be triggered');
     instance.x = 2;
     instance.seq = [2];
+    println("Done.")
 }

@@ -127,7 +127,6 @@ public interface FXObject {
     public void     switchBiDiDependence$(final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum);
     public void     notifyDependents$    (final int varNum, final int phase);
     public void     notifyDependents$    (int varNum, int startPos, int endPos, int newLength, int phase);
-    public void     update$ (final FXObject src, final int varNum, final int phase);
     public void     update$ (FXObject src, int varNum, int startPos, int endPos, int newLength, int phase);
 // for testing - the listener count is the number of distinct {varNum, dep} pairs
     public int      getListenerCount$();

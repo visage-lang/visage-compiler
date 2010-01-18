@@ -74,39 +74,6 @@ class MinWeakRefsDepsMgr extends DependentsManager {
         }
     }
 
-    public void notifyDependents(FXObject bindee, final int varNum, final int phase) {
-        // TODO - handle phase.
-        boolean oldInIteration = Dep.inIteration;
-        try {
-            Dep.inIteration = true;
-            DepChain chain = DepChain.find(varNum, dependencies);
-            if (chain == null)
-                return;
-            for (Dep dep = chain.dependencies; dep != null;) {
-                Dep next = dep.nextInBinders;
-                WeakBinderRef binderRef = dep.binderRef;
-                if (binderRef != null) {
-                    FXObject binder = binderRef.get();
-                    if (binder == null) {
-                        dep.binderRef = null;
-                        binderRef.cleanup();
-                    } else {
-                        try {
-                            binder.update$(bindee, varNum, phase);
-                        } catch (RuntimeException re) {
-                            ErrorHandler.bindException(re);
-                        }
-                    }
-                } else {
-                    dep.unlinkFromBindee();
-                }
-                dep = next;
-            }
-        } finally {
-            Dep.inIteration = oldInIteration;
-        }
-    }
-
     public void notifyDependents(FXObject bindee, int varNum, int startPos, int endPos, int newLength, int phase) {
         // TODO - handle phase.
         boolean oldInIteration = Dep.inIteration;
