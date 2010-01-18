@@ -270,8 +270,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             final ListBuffer<JCStatement> translatedInitBlocks = ListBuffer.lb();
             final ListBuffer<JCStatement> translatedPostInitBlocks = ListBuffer.lb();
             
-            ListBuffer<JFXClassDeclaration> deferredClasses = ListBuffer.lb();
-
             ListBuffer<TranslatedVarInfo> attrInfo = ListBuffer.lb();
             ListBuffer<TranslatedOverrideClassVarInfo> overrideInfo = ListBuffer.lb();
             ListBuffer<TranslatedFuncInfo> funcInfo = ListBuffer.lb();
@@ -346,12 +344,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         }
                         case CLASS_DEF: {
                             // Handle other classes.
-                            if (isMixinClass) {
-                                deferredClasses.append((JFXClassDeclaration)def);
-                            } else {
-                                inInstanceContext = ReceiverContext.Oops;
-                                translatedDefs.appendList(translateToStatementsResult((JFXClassDeclaration)def, syms.voidType).trees());
-                            }
+                            inInstanceContext = ReceiverContext.Oops;
+                            translatedDefs.appendList(translateToStatementsResult((JFXClassDeclaration)def, syms.voidType).trees());
                             break;
                         }
                         default: {
@@ -388,27 +382,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
             translatedDefs.appendList(model.additionalClassMembers);
 
-            if (isMixinClass && deferredClasses.nonEmpty()) {
-                ListBuffer<JCStatement> savedPrependToDefinitions = prependToDefinitions;
-                ListBuffer<JCStatement> savedPrependToStatements = prependToStatements;
-                prependToStatements = prependToDefinitions = ListBuffer.lb();
-                
-                // Add partial list of member symbols to mixin class symbol so that
-                // nested classes will "see" synthesized mixin methods.
-                membersToSymbol((ClassSymbol)tree.sym, translatedDefs.toList());
-                
-                for (JFXClassDeclaration deferredClass : deferredClasses) {
-                    inInstanceContext = ReceiverContext.Oops;
-                    translatedDefs.appendList(translateToStatementsResult(deferredClass, syms.voidType).trees());
-                }
-                
-                assert prependToDefinitions.isEmpty() : "prependToDefinitions is non-empty";
-                assert prependToStatements.isEmpty() : "prependToStatements is non-empty";
-                
-                prependToDefinitions = savedPrependToDefinitions;
-                prependToStatements = savedPrependToStatements;
-            }
-            
             // build the list of implemented interfaces
             List<JCExpression> implementing = model.interfaces;
 
