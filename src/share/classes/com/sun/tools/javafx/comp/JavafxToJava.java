@@ -1049,50 +1049,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         try {
             if (tree.isScriptClass()) {
                 setLiteralInitClassMap(new LiteralInitClassMap());
-                reorderClassMembers(tree);
             }
-
             result = new ClassDeclarationTranslator(tree).doit();
-
         } finally {
             setCurrentClass(prevClass);
-        }
-    }
-
-    /**
-     * We need to re-order script class nested declaration so that supertypes
-     * appears first in the script class members list - this is required for
-     * JavafxInitializationBuilder to function properly.
-     */
-    private void reorderClassMembers(JFXClassDeclaration scriptClass) {
-        List<JFXClassDeclaration> classDeclarations = List.nil();
-        List<JFXTree> otherMembers = List.nil();
-        for (JFXTree t : scriptClass.getMembers()) {
-            if (t.getFXTag() == JavafxTag.CLASS_DEF) {
-                classDeclarations = classDeclarations.append((JFXClassDeclaration)t);
-            }
-            else {
-                otherMembers = otherMembers.append(t);
-            }
-        }
-        scriptClass.setMembers(List.convert(JFXTree.class, reorderClassMembers(classDeclarations)).appendList(otherMembers));
-    }
-    //where
-    private List<JFXClassDeclaration> reorderClassMembers(List<JFXClassDeclaration> decls) {
-        return (decls.isEmpty() || decls.tail.isEmpty()) ?
-            decls :
-            insertOrdered(decls.head, reorderClassMembers(decls.tail));
-    }
-    //where
-    private List<JFXClassDeclaration> insertOrdered(JFXClassDeclaration cdecl, List<JFXClassDeclaration> decls) {
-        if (decls.isEmpty()) {
-            return List.of(cdecl);
-        }
-        else if (types.isSubtype(decls.head.type, cdecl.type)) {
-            return decls.prepend(cdecl);
-        }
-        else {
-            return insertOrdered(cdecl, decls.tail).prepend(decls.head);
         }
     }
 

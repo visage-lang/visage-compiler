@@ -49,10 +49,6 @@ import static com.sun.tools.mjavac.util.ListBuffer.lb;
 import com.sun.tools.javafx.antlr.JavafxSyntacticAnalysis;
 import com.sun.tools.javafx.tree.xml.TreeXMLTransformer;
 import com.sun.tools.javafx.util.PlatformPlugin;
-import com.sun.tools.mjavac.comp.AttrContext;
-import com.sun.tools.mjavac.comp.Env;
-import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
-import java.util.LinkedHashSet;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -737,57 +733,18 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         return stopIfError(results);
     }
 
-    private List<JavafxEnv<JavafxAttrContext>> translatedClasses = List.nil();
-
     protected void jfxToJava(final JavafxEnv<JavafxAttrContext> env, ListBuffer<JavafxEnv<JavafxAttrContext>> results) {
         try {
             if (errorCount() > 0)
                 return;
 
-            if (relax || translatedClasses.contains(env)) {
+            if (relax || deferredSugar.contains(env)) {
                 results.append(env);
                 return;
             }
-            translatedClasses = translatedClasses.append(env);
-            /**
-             * Ensure that superclasses of C are translated before C itself.
-             */
-            class ScanNested extends JavafxTreeScanner {
-                Set<JavafxEnv<JavafxAttrContext>> dependencies = new LinkedHashSet<JavafxEnv<JavafxAttrContext>>();
-                @Override
-                public void visitClassDeclaration(JFXClassDeclaration node) {
-                    Type st = types.supertype(node.sym.type);
-                    if (st.tag == TypeTags.CLASS) {
-                        ClassSymbol c = st.tsym.outermostClass();
-                        JavafxEnv<JavafxAttrContext> stEnv = enter.getEnv(c);
-                        if (stEnv != null && env != stEnv) {
-                            if (dependencies.add(stEnv))
-                                scan(stEnv.tree);
-                        }
-                    }
-                    for (Type l : types.interfaces(node.sym.type)) {
-
-                        if (l.tag == TypeTags.CLASS) {
-                            ClassSymbol c = l.tsym.outermostClass();
-                            JavafxEnv<JavafxAttrContext> lEnv = enter.getEnv(c);
-                            if (lEnv != null && env != lEnv) {
-                                if (dependencies.add(lEnv))
-                                    scan(lEnv.tree);
-                            }
-                        }
-                    }
-                    super.visitClassDeclaration(node);
-                }
-            }
-            ScanNested scanner = new ScanNested();
-            scanner.scan(env.tree);
-            for (JavafxEnv<JavafxAttrContext> dep: scanner.dependencies) {
-                jfxToJava(dep);
-                translatedClasses = translatedClasses.append(dep);
-            }
             
             if (verboseCompilePolicy)
-                Log.printLines(log.noticeWriter, "[flow " + env.enclClass.sym + "]");
+                Log.printLines(log.noticeWriter, "[toJava " + env.enclClass.sym + "]");
             JavaFileObject prev = log.useSource(
                                                 env.enclClass.sym.sourcefile != null ?
                                                 env.enclClass.sym.sourcefile :
