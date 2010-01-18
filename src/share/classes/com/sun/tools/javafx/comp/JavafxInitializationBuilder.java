@@ -460,6 +460,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private Name scriptName;
         private ClassSymbol scriptClassSymbol;
         private final boolean isBoundFuncClass;
+        
+        // Accessor body types.
+        static final int BODY_NONE = 0;
+        static final int BODY_NORMAL = 1;
+        static final int BODY_MIXIN = 2;
 
         JavaCodeMaker(JavafxAnalyzeClass analysis, ListBuffer<JCTree> definitions) {
             super(analysis.getCurrentClassPos(), analysis.getCurrentClassDecl(), false);
@@ -805,7 +810,7 @@ however this is what we need */
             protected boolean needsReceiver = isMixinClass() && !isScript();
 
             // True if body is required.
-            protected boolean needsBody = true;
+            protected int bodyType = BODY_NORMAL;
             // Cached method symbol.
             MethodSymbol methodSymbol = null;
             
@@ -995,7 +1000,18 @@ however this is what we need */
                 initialize();
                 
                 // Generate the code.
-                if (needsBody && !stopBuild) generate();
+                if (!stopBuild) {
+                    switch (bodyType) {
+                    case BODY_NONE:
+                        break;
+                    case BODY_NORMAL:
+                        generate();
+                        break;
+                    case BODY_MIXIN:
+                        generateMixin();
+                        break;
+                    }
+                }
                 
                 // Produce no method if generate indicates stopBuild.
                 if (!stopBuild) {
@@ -1007,7 +1023,7 @@ however this is what we need */
                                              returnType,
                                              methodName,
                                              paramList(),
-                                             needsBody ? stmts.toList() : null,
+                                             bodyType != BODY_NONE ? stmts.toList() : null,
                                              methodSymbol()));
                 }
             }
@@ -1017,8 +1033,6 @@ however this is what we need */
                 // Reset diagnostic position to current class.
                 resetDiagPos();
                 
-                // Reset diagnostic position to current class.
-                resetDiagPos();
                 // Emit method body.
                 body();
                 
@@ -1026,6 +1040,9 @@ however this is what we need */
                 resetDiagPos();
             }
 
+            // This method generates the statements for a mixin proxy.
+            public void generateMixin() {
+            }
             
             // This method contains any code to initialize the builder.
             public void initialize() {
@@ -1056,7 +1073,7 @@ however this is what we need */
                 return m().Modifiers(Flags.STATIC | Flags.PUBLIC);
             }
         }
-      
+        
         //
         // This class is designed to generate a method whose body is a var
         // accessor.
@@ -1076,16 +1093,16 @@ however this is what we need */
             protected Type elementType;
 
             
-            VarAccessorMethodBuilder(Name methodName, Type returnType, VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder(Name methodName, Type returnType, VarInfo varInfo, int bodyType) {
                 super(methodName, returnType);
                 this.varInfo = varInfo;
-                this.needsBody = needsBody;
+                this.bodyType = bodyType;
                 this.varSym = varInfo.getSymbol();
                 this.proxyVarSym = varInfo.proxyVarSym();
                 this.isSequence = varInfo.isSequence();
                 this.type = varInfo.getRealType();
                 this.elementType = isSequence ? varInfo.getElementType() : null;
-                this.needsReceiver = isMixinClass() && needsBody && !varInfo.isStatic();
+                this.needsReceiver = isMixinClass() && bodyType == BODY_NORMAL && !varInfo.isStatic();
             }
             
             // Return the raw Method flags.
@@ -1093,7 +1110,7 @@ however this is what we need */
             public long rawFlags() {
                 long flags = attributeMethodAccessFlags(varInfo);
                 
-                if (!needsBody) {
+                if (bodyType == BODY_NONE) {
                     flags |= Flags.ABSTRACT;
                 } else if (isMixinClass() || varInfo.isStatic()) {
                     flags |= Flags.STATIC;
@@ -1121,6 +1138,12 @@ however this is what we need */
                 }
     
                 return mods;
+            }
+            
+            // This method generates the statements for a mixin proxy.
+            @Override
+            public void generateMixin() {
+                callMixin((ClassSymbol)varSym.owner);
             }
         }
         
@@ -1354,10 +1377,10 @@ however this is what we need */
         //
         // This method constructs the getter method for a sequence attribute.
         //
-        private void makeSeqGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeSeqGetterAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetterName(varInfo.getSymbol()),
                                                                          varInfo.getRealType(),
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void statements() {
                     JCStatement initIf = null;
@@ -1434,10 +1457,10 @@ however this is what we need */
         //
         // This method constructs the get element method for a sequence attribute.
         //
-        private void makeSeqGetElementAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeSeqGetElementAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetElementName(varInfo.getSymbol()),
                                                                          varInfo.getElementType(),
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void initialize() {
                     addParam(posArg());
@@ -1496,10 +1519,10 @@ however this is what we need */
         //
         // This method constructs the getter method for a sequence attribute.
         //
-        private void makeSeqGetSizeAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeSeqGetSizeAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSizeName(varInfo.getSymbol()),
                                                                          syms.intType,
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void statements() {
                     if (varInfo.hasBoundDefinition()) {
@@ -1565,10 +1588,10 @@ however this is what we need */
         //
         // This method constructs the be method for a sequence attribute.
         //
-        private void makeSeqBeAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeSeqBeAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeBeName(varInfo.getSymbol()),
                                                                          varInfo.getRealType(),
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void initialize() {
                     addParam(type, defs.varNewValue_ArgName);
@@ -1590,10 +1613,10 @@ however this is what we need */
         //
         // This method constructs the invalidate method for a sequence attribute.
         //
-        private void makeSeqInvalidateAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeSeqInvalidateAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeInvalidateName(varInfo.getSymbol()),
                                                                          syms.voidType,
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void initialize() {
                     addParam(startPosArg());
@@ -1681,10 +1704,10 @@ however this is what we need */
         //
         // This method constructs the onreplace$ method for a sequence attribute.
         //
-        private void makeSeqOnReplaceAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeSeqOnReplaceAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
                                                                          syms.voidType,
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 Name oldValueName;
                 Name newValueName;
                 Name firstIndexName;
@@ -1785,10 +1808,10 @@ however this is what we need */
         //
         // This method constructs the getter method for the specified attribute.
         //
-        private void makeGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeGetterAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetterName(varInfo.getSymbol()),
                                                                          varInfo.getRealType(),
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void statements() {
                     if (varInfo.isBareSynth()) {
@@ -1964,10 +1987,10 @@ however this is what we need */
         //
         // This method constructs the setter method for the specified attribute.
         //
-        private void makeSetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeSetterAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSetterName(varInfo.getSymbol()),
                                                                          varInfo.getRealType(),
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void initialize() {
                     addParam(type, defs.varNewValue_ArgName);
@@ -2021,10 +2044,10 @@ however this is what we need */
         //
         // This method constructs the be method for the specified attribute.
         //
-        private void makeBeAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeBeAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeBeName(varInfo.getSymbol()),
                                                                          varInfo.getRealType(),
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void initialize() {
                     addParam(type, defs.varNewValue_ArgName);
@@ -2114,10 +2137,10 @@ however this is what we need */
         //
         // This method constructs the invalidate method for the specified attribute.
         //
-        private void makeInvalidateAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeInvalidateAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeInvalidateName(varInfo.getSymbol()),
                                                                          syms.voidType,
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void initialize() {
                     addParam(phaseArg());
@@ -2247,10 +2270,10 @@ however this is what we need */
         //
         // This method constructs the onreplace$ method for the specified attribute.
         //
-        private void makeOnReplaceAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeOnReplaceAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
                                                                          syms.voidType,
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 Name oldValueName;
                 Name newValueName;
 
@@ -2301,10 +2324,10 @@ however this is what we need */
         //
         // This method constructs a getMixin$ method.
         //
-        private void makeGetMixinAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeGetMixinAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetMixinName(varInfo.getSymbol()),
                                                                          varInfo.getRealType(),
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void statements() {
                     // Construct and add: return $var;
@@ -2318,10 +2341,10 @@ however this is what we need */
         //
         // This method constructs a getVOFF$ method.
         //
-        private void makeGetVOFFAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeGetVOFFAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetVOFFName(varInfo.getSymbol()),
                                                                          syms.intType,
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void statements() {
                     addStmt(Return(id(attributeOffsetName(proxyVarSym))));
@@ -2334,10 +2357,10 @@ however this is what we need */
         //
         // This method constructs a setMixin$ method.
         //
-        private void makeSetMixinAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private void makeSetMixinAccessorMethod(VarInfo varInfo, int bodyType) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSetMixinName(varInfo.getSymbol()),
                                                                          varInfo.getRealType(),
-                                                                         varInfo, needsBody) {
+                                                                         varInfo, bodyType) {
                 @Override
                 public void initialize() {
                     addParam(type, defs.varNewValue_ArgName);
@@ -2358,12 +2381,12 @@ however this is what we need */
         //
         // This method constructs the accessor methods for an attribute.
         //
-        public void makeAnAttributeAccessorMethods(VarInfo ai, boolean needsBody) {
+        public void makeAnAttributeAccessorMethods(VarInfo ai, int bodyType) {
             setDiagPos(ai.pos());
 
             if (!ai.useAccessors()) {
                 if (ai.useGetters() && !ai.isOverride()) {
-                    makeGetterAccessorMethod(ai, needsBody);
+                    makeGetterAccessorMethod(ai, bodyType);
                 }
             } else {
                 if (!(ai instanceof MixinClassVarInfo)) {
@@ -2371,102 +2394,69 @@ however this is what we need */
                         if (ai.isHiddenBareSynth()) {
                             // on replace savedVar
                         } else if (!ai.isOverride()) {
-                            makeSeqGetterAccessorMethod(ai, needsBody);
-                            makeSeqGetElementAccessorMethod(ai, needsBody);
-                            makeSeqGetSizeAccessorMethod(ai, needsBody);
-                            makeSeqBeAccessorMethod(ai, needsBody);
-                            makeSeqInvalidateAccessorMethod(ai, needsBody);
-                            makeSeqOnReplaceAccessorMethod(ai, needsBody);
-                        } else if (needsBody) {
+                            makeSeqGetterAccessorMethod(ai, bodyType);
+                            makeSeqGetElementAccessorMethod(ai, bodyType);
+                            makeSeqGetSizeAccessorMethod(ai, bodyType);
+                            makeSeqBeAccessorMethod(ai, bodyType);
+                            makeSeqInvalidateAccessorMethod(ai, bodyType);
+                            makeSeqOnReplaceAccessorMethod(ai, bodyType);
+                        } else if (bodyType != BODY_NONE) {
                             if (ai.hasInitializer()) {
                                 // We only need to worry about computational methods
                                 // The getter and be are generic.
-                                makeSeqGetElementAccessorMethod(ai, needsBody);
-                                makeSeqGetSizeAccessorMethod(ai, needsBody);
+                                makeSeqGetElementAccessorMethod(ai, bodyType);
+                                makeSeqGetSizeAccessorMethod(ai, bodyType);
                             }
                             if (needOverrideInvalidateAccessorMethod(ai)) {
-                                makeSeqInvalidateAccessorMethod(ai, needsBody);
+                                makeSeqInvalidateAccessorMethod(ai, bodyType);
                                 }
                             if (ai.onReplace() != null || ai.isMixinVar()) {
-                                makeSeqOnReplaceAccessorMethod(ai, needsBody);
+                                makeSeqOnReplaceAccessorMethod(ai, bodyType);
                             }
                         }
                    } else {
                         if (!ai.isOverride()) {
-                            makeGetterAccessorMethod(ai, needsBody);
-                            makeSetterAccessorMethod(ai, needsBody);
-                            makeBeAccessorMethod(ai, needsBody);
+                            makeGetterAccessorMethod(ai, bodyType);
+                            makeSetterAccessorMethod(ai, bodyType);
+                            makeBeAccessorMethod(ai, bodyType);
                             if (needInvalidateAccessorMethod(ai)) {
-                                makeInvalidateAccessorMethod(ai, needsBody);
+                                makeInvalidateAccessorMethod(ai, bodyType);
                             }
-                            makeOnReplaceAccessorMethod(ai, needsBody);
-                        } else if (needsBody) {
+                            makeOnReplaceAccessorMethod(ai, bodyType);
+                        } else if (bodyType != BODY_NONE) {
                             if (ai.hasInitializer()) {
                                 // Bound or not, we need getter & setter on override since we
                                 // may be switching between bound and non-bound or visa versa
-                                makeGetterAccessorMethod(ai, needsBody);
-                                makeSetterAccessorMethod(ai, needsBody);
+                                makeGetterAccessorMethod(ai, bodyType);
+                                makeSetterAccessorMethod(ai, bodyType);
                             }
                             if (needOverrideInvalidateAccessorMethod(ai)) {
-                                makeInvalidateAccessorMethod(ai, needsBody);
+                                makeInvalidateAccessorMethod(ai, bodyType);
                             }
                             if (ai.onReplace() != null || ai.isMixinVar()) {
-                                makeOnReplaceAccessorMethod(ai, needsBody);
+                                makeOnReplaceAccessorMethod(ai, bodyType);
                             }
                         }
                     }                    
                } else {
-                    // Mixins.
+                    // Mixins in a normal class.
                     if (ai.needsCloning() && !ai.isHiddenBareSynth()) {
-                        MixinClassVarInfo mixinVar = (MixinClassVarInfo)ai;
-                        Name varName = attributeValueName(ai.getSymbol());
-                        int varNameLength = varName.length();
+                        boolean hasInit = ai.hasInitializer() || ai.hasBoundDefinition();
+                        bodyType = hasInit ? BODY_NORMAL : BODY_MIXIN;
                         
-                        // Gather all the cloneable accessors into a map.
-                        HashMap<Name, MethodSymbol> funcMap = new HashMap<Name, MethodSymbol>();
-                        for (FuncInfo func : mixinVar.getAccessors()) {
-                            MethodSymbol methSym = func.getSymbol();
-                            Name methName = methSym.name;
-                            Name key = methName.subName(0, methName.length() - varNameLength + 1);
-                            funcMap.put(key, methSym);
-                        }
-                        
-                        // Initializers overrides mixin initializer.
-                        if (ai.hasInitializer() || ai.hasBoundDefinition()) {
-                            if (ai.generateSequenceAccessors()) {
-                                makeSeqGetElementAccessorMethod(ai, needsBody);
-                                funcMap.remove(defs.getElement_FXObjectMethodName);
-                                
-                                makeSeqGetSizeAccessorMethod(ai, needsBody);
-                                funcMap.remove(defs.size_FXObjectMethodName);
-                            } else {
-                                makeGetterAccessorMethod(ai, needsBody);
-                                funcMap.remove(defs.get_AttributeMethodPrefixName);
-                                
-                                makeSetterAccessorMethod(ai, needsBody);
-                                funcMap.remove(defs.set_AttributeMethodPrefixName);
-                            }
-                        }
-                        
-                        // Must handle binders and such.
                         if (ai.generateSequenceAccessors()) {
-                            makeSeqInvalidateAccessorMethod(ai, needsBody);
+                            makeSeqGetterAccessorMethod(ai, BODY_MIXIN);
+                            makeSeqBeAccessorMethod(ai, BODY_MIXIN);
+                            makeSeqGetElementAccessorMethod(ai, bodyType);
+                            makeSeqGetSizeAccessorMethod(ai, bodyType);
+                            makeSeqInvalidateAccessorMethod(ai, BODY_NORMAL);
+                            makeSeqOnReplaceAccessorMethod(ai, BODY_NORMAL);
                         } else {
-                            makeInvalidateAccessorMethod(ai, needsBody);
-                        }
-                        funcMap.remove(defs.invalidate_FXObjectMethodName);
-                    
-                        // Must handle overriding on replace.
-                        if (ai.generateSequenceAccessors()) {
-                            makeSeqOnReplaceAccessorMethod(ai, needsBody);
-                        } else {
-                            makeOnReplaceAccessorMethod(ai, needsBody);
-                        }
-                        funcMap.remove(defs.onReplaceAttributeMethodPrefixName);
-                        
-                        // Emit any accessors left over.
-                        for (MethodSymbol methSym : funcMap.values()) {
-                            appendMethodClones(methSym, needsBody);
+                            makeGetterAccessorMethod(ai, bodyType);
+                            makeSetterAccessorMethod(ai, bodyType);
+                            makeBeAccessorMethod(ai, BODY_MIXIN);
+                            makeInvalidateAccessorMethod(ai, BODY_NORMAL);
+                            makeOnReplaceAccessorMethod(ai, BODY_NORMAL);
                         }
                     }
                 }
@@ -2476,10 +2466,10 @@ however this is what we need */
         //
         // This method constructs mixin interfaces for the specified var.
         //
-        public void makeAttributeMixinInterfaces(VarInfo ai, boolean needsBody) {
-            makeGetMixinAccessorMethod(ai, needsBody);
-            makeGetVOFFAccessorMethod(ai, needsBody);
-            makeSetMixinAccessorMethod(ai, needsBody);
+        public void makeAttributeMixinInterfaces(VarInfo ai, int bodyType) {
+            makeGetMixinAccessorMethod(ai, bodyType);
+            makeGetVOFFAccessorMethod(ai, bodyType);
+            makeSetMixinAccessorMethod(ai, bodyType);
         }
         
         //
@@ -2489,19 +2479,19 @@ however this is what we need */
             for (VarInfo ai : attrInfos) {
                 // Only create accessors for declared and proxied vars.
                 if (ai.needsCloning()) {
-                    makeAnAttributeAccessorMethods(ai, true);
+                    makeAnAttributeAccessorMethods(ai, BODY_NORMAL);
                 } else {
                     // If a super has binders we need to emit an overriding invalidate$.
                     if (ai.boundBinders().size() != 0) {
                         if (ai.generateSequenceAccessors())
-                            makeSeqInvalidateAccessorMethod(ai, true);
+                            makeSeqInvalidateAccessorMethod(ai, BODY_NORMAL);
                         else
-                            makeInvalidateAccessorMethod(ai, true);
+                            makeInvalidateAccessorMethod(ai, BODY_NORMAL);
                     }
                 }
                 
                 if (ai.needsMixinInterface()) {
-                    makeAttributeMixinInterfaces(ai, true);
+                    makeAttributeMixinInterfaces(ai, BODY_NORMAL);
                 }
             }
         }
@@ -2514,10 +2504,10 @@ however this is what we need */
             // Only for vars within the class.
             for (VarInfo ai : attrInfos) {
                 if (ai.needsCloning()) {
-                    makeAnAttributeAccessorMethods(ai, false);
+                    makeAnAttributeAccessorMethods(ai, BODY_NONE);
                     
                     if (isMixinClass()) {
-                        makeAttributeMixinInterfaces(ai, false);
+                        makeAttributeMixinInterfaces(ai, BODY_NONE);
                     }
                 }
             }
@@ -3898,7 +3888,7 @@ however this is what we need */
         // Make a method from a MethodSymbol and an optional method body.
         // Make a bound version if "isBound" is set.
         //
-        private void appendMethodClones(final MethodSymbol methSym, final boolean needsBody) {
+        private void appendMethodClones(final MethodSymbol methSym, final int bodyType) {
             final boolean isBound = (methSym.flags() & JavafxFlags.BOUND) != 0;
             final boolean isStatic = methSym.isStatic();
             final Name functionName = functionName(methSym, false, isBound);
@@ -3930,7 +3920,7 @@ however this is what we need */
                 skipFirst = false;
             }
 
-            if (needsBody) {
+            if (bodyType != BODY_NONE) {
                 stmts = ListBuffer.lb();
                 
                 Name callName = functionName(methSym, !isStatic, isBound);
@@ -3943,7 +3933,7 @@ however this is what we need */
                 }
             }
             
-            long flags = needsBody ? Flags.PUBLIC : (Flags.PUBLIC | Flags.ABSTRACT);
+            long flags = bodyType != BODY_NONE ? Flags.PUBLIC : (Flags.PUBLIC | Flags.ABSTRACT);
             JCModifiers mods = m().Modifiers(flags);
             
             if (isCurrentClassSymbol(methSym.owner))
@@ -3958,10 +3948,10 @@ however this is what we need */
                           returnType,
                           functionName,
                           params.toList(),
-                          needsBody ? stmts.toList() : null,
+                          bodyType != BODY_NONE ? stmts.toList() : null,
                           makeMethodSymbol(mods.flags, returnType, functionName, methSym.owner, argTypes.toList())));
                           
-            if (needsBody) {
+            if (bodyType != BODY_NONE) {
                 optStat.recordProxyMethod();
             }
         }
@@ -3972,7 +3962,7 @@ however this is what we need */
         //
         public void makeFunctionProxyMethods(List<MethodSymbol> needDispatch) {
             for (MethodSymbol sym : needDispatch) {
-                appendMethodClones(sym, true);
+                appendMethodClones(sym, BODY_NORMAL);
             }
         }
 
@@ -3986,7 +3976,7 @@ however this is what we need */
                     MethodSymbol sym = func.sym;
                     
                     if ((sym.flags() & (Flags.SYNTHETIC | Flags.STATIC | Flags.PRIVATE)) == 0) {
-                        appendMethodClones(sym, false);
+                        appendMethodClones(sym, BODY_NONE);
                     }
                 }
             }
