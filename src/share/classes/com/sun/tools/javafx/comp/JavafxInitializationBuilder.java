@@ -1406,18 +1406,15 @@ however this is what we need */
                         /*
                          * if "foo" is the variable name, then we generate
                          *
-                         *     be$(varNum, $$boundInstance$foo.get($$boundVarNum$foo));
+                         *     var = (cast)$$boundInstance$foo.get($$boundVarNum$foo);
                          *
-                         * With be$(int, Object), we need not worry about type conversion.
                          */
                         JCExpression get$call = Call(
                                 id(boundFunctionObjectParamName(varSym.name)),
                                 defs.get_FXObjectMethodName,
                                 id(boundFunctionVarNumParamName(varSym.name)));
-
-                        addStmt(CallStmt(
-                                defs.be_AttributeMethodPrefixName,
-                                Offset(varSym), get$call));
+                        JCExpression castGet = typeCast(varInfo.getRealType(), syms.objectType, get$call);
+                        addStmt(Stmt(m().Assign(id(attributeValueName(varSym)), castGet)));
 
                         // Is it invalid?
                         JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT, defs.varFlagIS_BOUND_INVALID);
@@ -1580,31 +1577,6 @@ however this is what we need */
                         addStmt(Return(Call(Get(proxyVarSym), defs.size_SequenceMethodName)));
                     }
                 }
-            };
-
-            vamb.build();
-        }
-
-        //
-        // This method constructs the be method for a sequence attribute.
-        //
-        private void makeSeqBeAccessorMethod(VarInfo varInfo, int bodyType) {
-            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeBeName(varInfo.getSymbol()),
-                                                                         varInfo.getRealType(),
-                                                                         varInfo, bodyType) {
-                @Override
-                public void initialize() {
-                    addParam(type, defs.varNewValue_ArgName);
-                }
-                
-                @Override
-                public void statements() {
-                        // $var = value
-                        addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
-
-                        // return $var;
-                        addStmt(Return(Get(proxyVarSym)));
-                    }
             };
 
             vamb.build();
@@ -1848,19 +1820,18 @@ however this is what we need */
                             /*
                              * if "foo" is the variable name, then we generate
                              *
-                             *     be$(varNum, $$boundInstance$foo.get($$boundVarNum$foo));
+                             *     be$var((cast)$$boundInstance$foo.get($$boundVarNum$foo));
                              *
-                             * With be$(int, Object), we need not worry about type conversion.
                              */
                             JCExpression get$call = Call(
                                     id(boundFunctionObjectParamName(varSym.name)),
                                     defs.get_FXObjectMethodName,
                                     id(boundFunctionVarNumParamName(varSym.name)));
-
+                            JCExpression castGet = typeCast(varInfo.getRealType(), syms.objectType, get$call);
                             addStmt(CallStmt(
-                                    defs.be_AttributeMethodPrefixName,
-                                    Offset(varSym),
-                                    get$call));
+                                    attributeBeName(varSym),
+                                    castGet,
+                                    True()));
 
                             // Release cycle lock.
                             addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
@@ -2397,7 +2368,6 @@ however this is what we need */
                             makeSeqGetterAccessorMethod(ai, bodyType);
                             makeSeqGetElementAccessorMethod(ai, bodyType);
                             makeSeqGetSizeAccessorMethod(ai, bodyType);
-                            makeSeqBeAccessorMethod(ai, bodyType);
                             makeSeqInvalidateAccessorMethod(ai, bodyType);
                             makeSeqOnReplaceAccessorMethod(ai, bodyType);
                         } else if (bodyType != BODY_NONE) {
@@ -2446,7 +2416,6 @@ however this is what we need */
                         
                         if (ai.generateSequenceAccessors()) {
                             makeSeqGetterAccessorMethod(ai, BODY_MIXIN);
-                            makeSeqBeAccessorMethod(ai, BODY_MIXIN);
                             makeSeqGetElementAccessorMethod(ai, bodyType);
                             makeSeqGetSizeAccessorMethod(ai, bodyType);
                             makeSeqInvalidateAccessorMethod(ai, BODY_NORMAL);
@@ -3418,17 +3387,11 @@ however this is what we need */
                 }
                 @Override
                 public void statements() {
-                    if (varInfo.useAccessors() && !varInfo.isOverride() && !varInfo.isBareSynth()) {
+                    if (varInfo.useAccessors() && !varInfo.isOverride() && !varInfo.isBareSynth() && varInfo.generateSequenceAccessors()) {
                         // (type)object$
                         JCExpression objCast = typeCast(varInfo.getRealType(), syms.objectType, objArg());
-                        if (varInfo.generateSequenceAccessors()) {
-                            // be$var((Sequence<...>)object$)
-                            addStmt(CallStmt(attributeBeName(varSym), objCast));
-                        } else {
-                            // be$var((type)object$, true) -- all external be$ calls should be inits -- which are sets (hence the true)
-                            addStmt(CallStmt(attributeBeName(varSym), objCast, True()));
-                        }
-                        
+                        // $var = value
+                        addStmt(SetStmt(proxyVarSym, objCast));
                         // return
                         addStmt(Return(null));
                     }
