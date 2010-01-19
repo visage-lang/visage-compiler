@@ -2322,11 +2322,23 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         ),
                     /*Else (already active)*/
                         Block(
-                            If (LT(Get(sizeSym), Int(0)),
-                                SetStmt(sizeSym,
-                                    If (Get(condSym),
-                                        CallSize(thenSym),
-                                        CallSize(elseSym)
+                            If (FlagTest(sizeSym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT),
+                                If (OR(OR(
+                                        FlagTest(condSym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT),
+                                        FlagTest(thenSym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT)),
+                                        FlagTest(elseSym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT)),
+                                    // Accessing in between invalidation and triggering, compute, but don't smash size
+                                    Block(
+                                        Return (
+                                            If (CallGetCond(),
+                                                CallSize(thenSym),
+                                                CallSize(elseSym)
+                                            )
+                                        )
+                                    ),
+                                /*else (nothing actually invalid (note that for next time))*/
+                                    Block(
+                                        FlagChangeStmt(sizeSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID)
                                     )
                                 )
                             )
@@ -2345,10 +2357,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         JCStatement makeGetElementBody() {
             return
                 Block(
-                    Stmt(CallSize(targetSymbol)),  // Assure initialized
-                    If (Get(condSym),
-                        Return(CallGetElement(thenSym, posArg())),
-                        Return(CallGetElement(elseSym, posArg()))
+                    If (isSequenceDormant(),
+                        Stmt(CallSize(targetSymbol))  // Assure initialized
+                    ),
+                    If (FlagTest(sizeSym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT),
+                        If (CallGetCond(),
+                            Return(CallGetElement(thenSym, posArg())),
+                            Return(CallGetElement(elseSym, posArg()))
+                        ),
+                        If (Get(condSym),
+                            Return(CallGetElement(thenSym, posArg())),
+                            Return(CallGetElement(elseSym, posArg()))
+                        )
                     )
                 );
         }
@@ -2372,18 +2392,28 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 If(isSequenceActive(),
                     If(IsInvalidatePhase(),
                         Block(
+                            // Mark mid invalidation
+                            FlagChangeStmt(condSym, defs.varFlagSTATE_MASK, defs.varFlagINVALID_STATE_BIT),
+
+                            // Whole sequence potentially invalid
                             CallSeqInvalidateUndefined(targetSymbol)
                         ),
                     /*Else (Trigger phase)*/
                         Block(
                             oldCondVar,
                             newCondVar,
+                            FlagChangeStmt(condSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID),
                             If (NE(id(newCondVar), id(oldCondVar)),
                                 Block(
                                     oldSizeVar,
                                     SetStmt(condSym, id(newCondVar)),
-                                    SetStmt(sizeSym, Undefined()),
-                                    CallSeqTrigger(targetSymbol, Int(0), id(oldSizeVar), CallSize(targetSymbol))
+                                    SetStmt(sizeSym,
+                                        If (id(newCondVar),
+                                            CallSize(thenSym),
+                                            CallSize(elseSym)
+                                        )
+                                    ),
+                                    CallSeqTrigger(targetSymbol, Int(0), id(oldSizeVar), Get(sizeSym))
                                 )
                             )
                         )
@@ -2405,10 +2435,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 If(isSequenceActive(),
                     If(IsInvalidatePhase(),
                         Block(
+                            // Mark mid invalidation
+                            FlagChangeStmt(armSym, defs.varFlagSTATE_MASK, defs.varFlagINVALID_STATE_BIT),
+
+                            // Whole sequence potentially invalid
                             CallSeqInvalidateUndefined(targetSymbol)
                         ),
                     /*Else (Trigger phase)*/
                         Block(
+                            FlagChangeStmt(armSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID),
                             If (EQ(Get(condSym), Boolean(take)),
                                 Block(
                                     SetStmt(sizeSym, CallSize(armSym)), // update the size
