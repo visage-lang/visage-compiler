@@ -1,0 +1,9 @@
+/**
+ * JFXC-3371 : insert ... into ... statements fail with "cannot find symbol" error.
+ *
+ * @test
+ * @author Maurizio
+ */
+
+var seq:Object[]; 
+insert 2 into seq; 
