@@ -455,12 +455,12 @@ public class FXLocal {
         };
         static final String[] SYSTEM_METHOD_PREFIXES = {
             "applyDefaults$",
-            "be$",
             "get$",
             "elem$",
             "initVars$",
             "invalidate$",
             "onReplace$",
+            "seq$",
             "set$",
             "size$",
             "update$",

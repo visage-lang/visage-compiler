@@ -1017,7 +1017,7 @@ public class SequencesBase {
             int newLength = newValue==null?0:1;
             instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
             Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos, true);
-            instance.be$(varNum, arr);
+            instance.seq$(varNum, arr);
             instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
         }
     }
@@ -1120,7 +1120,7 @@ public class SequencesBase {
             int newLength = newValues == null ? 0 : newValues.size();
             instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
             Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValues, startPos, endPos, true);
-            instance.be$(varNum, arr);
+            instance.seq$(varNum, arr);
             instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
         }
     }
@@ -1180,7 +1180,7 @@ public class SequencesBase {
         int newLength = newValue==null?0:1;
         Sequence<? extends T> arr = insert(oldValue, newValue);
         instance.invalidate$(varNum, oldSize, oldSize, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
-        instance.be$(varNum, arr);
+        instance.seq$(varNum, arr);
         instance.invalidate$(varNum, oldSize, oldSize, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
     }
 
@@ -1211,7 +1211,7 @@ public class SequencesBase {
         int newLength = values == null ? 0 : values.size();
         Sequence<? extends T> arr = insert(oldValue, values);
         instance.invalidate$(varNum, oldSize, oldSize, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
-        instance.be$(varNum, arr);
+        instance.seq$(varNum, arr);
         instance.invalidate$(varNum, oldSize, oldSize, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
 
     }
@@ -1261,7 +1261,7 @@ public class SequencesBase {
         }
         // It's tempting to just do:
         //   Sequence<? extends T> arr = deleteValue(oldValue, value);
-        //   instance.be$(varNum, arr);
+        //   instance.seq$(varNum, arr);
         // However, in that case triggers won't run properly.
         int hi = -1;
         for (int i = oldValue.size();  ; ) {

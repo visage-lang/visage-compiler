@@ -233,10 +233,10 @@ import com.sun.javafx.runtime.sequence.Sequences;
     public static Class getType$(FXObject obj, int varNum) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
-    public void be$(int varNum, Object value) {
+    public void seq$(int varNum, Object value) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
-    public static void be$(FXObject obj, int varNum, Object value) {
+    public static void seq$(FXObject obj, int varNum, Object value) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
     public void invalidate$(int varNum, int startPos, int endPos, int newLength, int phase) {

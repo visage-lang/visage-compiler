@@ -43,7 +43,7 @@ public class JavafxDefs {
      * Format: <name>_AttributeMethodPrefix
      */
     public static final String applyDefaults_AttributeMethodPrefix = "applyDefaults$";
-    public static final String be_AttributeMethodPrefix = "be$";
+    public static final String seq_AttributeMethodPrefix = "seq$";
     public static final String get_AttributeMethodPrefix = "get$";
     public static final String getMixin_AttributeMethodPrefix = "getMixin$";
     public static final String getVOFF_AttributeMethodPrefix = "getVOFF$";
@@ -391,7 +391,6 @@ public class JavafxDefs {
     final Name newLength_ArgName;
     final Name phase_ArgName;
     final Name varNewValue_ArgName;
-    final Name isSet_ArgName;
     final Name oldValue_ArgName;
     final Name newValue_ArgName;
     final Name pos_ArgName;
@@ -407,7 +406,7 @@ public class JavafxDefs {
      */
     final Name get_AttributeMethodPrefixName;
     final Name set_AttributeMethodPrefixName;
-    final Name be_AttributeMethodPrefixName;
+    final Name seq_AttributeMethodPrefixName;
 
     /**
      * Field prefixes for attributes as Name
@@ -608,7 +607,7 @@ public class JavafxDefs {
         get_FXObjectMethodName = get_AttributeMethodPrefixName;
         set_AttributeMethodPrefixName = names.fromString(set_AttributeMethodPrefix);
         set_FXObjectMethodName = set_AttributeMethodPrefixName;
-        be_AttributeMethodPrefixName = names.fromString(be_AttributeMethodPrefix);
+        seq_AttributeMethodPrefixName = names.fromString(seq_AttributeMethodPrefix);
         replaceParts_BoundForHelperMethodName = names.fromString("replaceParts");
         invalidate_FXObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
         getFlags_FXObjectMethodName = names.fromString(getFlags_AttributeMethodPrefix);
@@ -630,7 +629,6 @@ public class JavafxDefs {
         varFlags_LocalVarName = names.fromString("varFlags$");
         wasInvalid_LocalVarName = names.fromString("wasInvalid$");
         varNewValue_ArgName = names.fromString("varNewValue$");
-        isSet_ArgName = names.fromString("isSet$");
         value_NonLocalReturnExceptionFieldName = names.fromString("value");
         outerAccessor_FXObjectFieldName = names.fromString("accessOuterField$");
         updateInstance_ArgName = names.fromString("instance$");
@@ -781,7 +779,7 @@ public class JavafxDefs {
         accessorPrefixes = new Name[] {
                 get_AttributeMethodPrefixName,
                 set_AttributeMethodPrefixName,
-                be_AttributeMethodPrefixName,
+                seq_AttributeMethodPrefixName,
                 invalidate_FXObjectMethodName,
                 getFlags_FXObjectMethodName,
                 setFlags_FXObjectMethodName,
