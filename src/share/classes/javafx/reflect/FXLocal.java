@@ -287,6 +287,8 @@ public class FXLocal {
                 return ((FXPrimitiveType) type).clas;
             else if (type instanceof JavaArrayType)
                 return ((JavaArrayType) type).getJavaClass();
+            else if (type instanceof FXSequenceType)
+                return Sequence.class;
             else { // FIXME - handle other cases
                 ClassType ctyp = (ClassType) type;
                 return ctyp.isMixin() ? ctyp.refInterface : ctyp.refClass;
