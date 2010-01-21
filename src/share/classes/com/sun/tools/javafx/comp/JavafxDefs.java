@@ -239,7 +239,6 @@ public class JavafxDefs {
     final RuntimeMethod ErrorHandler_bindException;
 
     final RuntimeMethod FXBase_switchDependence;
-    final RuntimeMethod FXBase_switchBiDiDependence;
     final RuntimeMethod FXBase_removeDependent;
     final RuntimeMethod FXBase_addDependent;
     final RuntimeMethod FXBase_makeInitMap;
@@ -760,7 +759,6 @@ public class JavafxDefs {
         ErrorHandler_bindException = new RuntimeMethod(names, cErrorHandler, "bindException");
 
         FXBase_switchDependence = new RuntimeMethod(names, cFXBase, "switchDependence$");
-        FXBase_switchBiDiDependence = new RuntimeMethod(names, cFXBase, "switchBiDiDependence$");
         FXBase_removeDependent = new RuntimeMethod(names, cFXBase, "removeDependent$");
         FXBase_addDependent = new RuntimeMethod(names, cFXBase, "addDependent$");
         FXBase_makeInitMap = new RuntimeMethod(names, cFXBase, "makeInitMap$");
