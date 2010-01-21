@@ -178,20 +178,6 @@ import com.sun.javafx.runtime.sequence.Sequences;
             DependentsManager.get(obj).switchDependence(obj, oldBindee, oldNum, newBindee, newNum);
         }
     }
-    public void switchBiDiDependence$(final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
-        switchBiDiDependence$(this, varNum, oldBindee, oldNum, newBindee, newNum);
-    }
-    public static void switchBiDiDependence$(FXObject obj, final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
-        if (oldBindee != newBindee) {
-            if (oldBindee != null) {
-                DependentsManager.get(oldBindee).switchDependence(oldBindee, obj, varNum, null, 0);
-            }
-            DependentsManager.get(obj).switchDependence(obj, oldBindee, oldNum, newBindee, newNum);
-            if (newBindee != null) {
-                DependentsManager.get(newBindee).switchDependence(newBindee, null, 0, obj, varNum);
-            }
-        }
-    }
     public void notifyDependents$(final int varNum, final int phase) {
         notifyDependents$(this, varNum, phase);
     }

@@ -447,7 +447,6 @@ public class FXLocal {
             "restrictSet$",
             "setDependentsManager$internal$",
             "switchDependence$",
-            "switchBiDiDependence$",
             "userInit$",
             "getFlags$",
             "setFlags$",

@@ -124,7 +124,6 @@ public interface FXObject {
     // Earlier 'this' object was dependent on { oldBindee, varNum }.
     // Now, change the dependence to { newBindee, varNum }
     public void     switchDependence$    (FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum);
-    public void     switchBiDiDependence$(final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum);
     public void     notifyDependents$    (final int varNum, final int phase);
     public void     notifyDependents$    (int varNum, int startPos, int endPos, int newLength, int phase);
     public void     update$ (FXObject src, int varNum, int startPos, int endPos, int newLength, int phase);
