@@ -33,16 +33,17 @@
     <target name="init" depends="clean">
         <tstamp/>
         <echo message="###################################"/>
-        <echo message="java.home   : ${java.home}"/>
+        <echo message="java.home    : ${java.home}"/>
          <exec executable="${java.home}/bin/java${suffix.exe}">
             <arg line="-version"/>
         </exec>
-        <echo message="javafx.home : ${javafx.home}"/>
+        <echo message="javafx.home  : ${javafx.home}"/>
         <exec executable="${javafx.home}/bin/javafx${suffix.exe}">
             <arg line="-version"/>
         </exec>
-        <echo message="javafxc.jar : ${javafxc.jar}"/>
+        <echo message="javafxc.jar  : ${javafxc.jar}"/>
         <echo message="jfree.libpath: ${jfree.libpath}"/>
+        <echo message="csv.data.dir : ${csv.data.dir}"/>
         <echo message="###################################"/>
         <mkdir dir="${builddir}"/>
         <mkdir dir="${bm.builddir}"/>
@@ -58,10 +59,10 @@
 
     <target name="compile" depends="compile-benchmarks, compile-framework"/>
 
-    <target name="compile-framework" depends="init" if="jfree.libpath">
+    <target name="compile-framework" depends="init">
         <javac srcdir="${srcdir}"
                destdir="${builddir}"
-               classpathref="jfree.classpath"
+               excludes="**/Reporter.java"
                debug="true">
         </javac>
     </target>
@@ -79,6 +80,7 @@
         <attribute name="benchmark" default="NOT_SET"/>
         <attribute name="heapsize" default="${default.heap}"/>
         <sequential>
+            <echo message="Runnning : @{benchmark}"/>
             <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
               classpath="${builddir}" failonerror="true" dir="${builddir}" >
                 <sysproperty key="app.name"         value="@{benchmark}"/>
@@ -92,7 +94,19 @@
         </sequential>
     </macrodef>
 
-    <target name="reporter" depends="compile" if="csv.data.dir">
+    <condition property="reporter.ok">
+        <and>
+            <isset property="csv.data.dir"/>
+            <isset property="jfree.libpath"/>
+        </and>
+    </condition>
+
+    <target name="reporter" depends="compile" if="reporter.ok">
+         <javac srcdir="${srcdir}"
+               destdir="${builddir}"
+               classpathref="jfree.classpath"
+               debug="true">
+        </javac>
         <copy todir="${bm.outdir}">
             <fileset dir="${csv.data.dir}">
                 <include name="*.csv"/>
@@ -104,7 +118,7 @@
         </java>
     </target>
     
-    <target name="run-benchmarks" depends="compile" if="jfree.libpath">
+    <target name="run-benchmarks" depends="compile">
         <run-benchmark benchmark="mathcalc"/>
         <run-benchmark benchmark="mathcalcb"/>
         <run-benchmark benchmark="bsort"/>
@@ -135,13 +149,18 @@
         <run-benchmark benchmark="boundSequenceRangeSum_nobind"/>
         <run-benchmark benchmark="boundTypeCast"/>
         <run-benchmark benchmark="boundTypeCast_a"/>
+        <run-benchmark benchmark="bindif_seq"/>
+        <run-benchmark benchmark="bindslice"/>
+        <run-benchmark benchmark="bindslice_lt"/>
+        <run-benchmark benchmark="bindslice_ltEVE"/>
+        <run-benchmark benchmark="bindslice_noEVE"/>
         <!-- ignored tests
         <run-benchmark benchmark="boundSequenceRange"/>
         <run-benchmark benchmark="visibleNode"/> // JFXC-3693
         -->
     </target>
-    <target name="krun-benchmarks" depends="compile" if="jfree.libpath">
-        <run-benchmark benchmark="bindforglobal"/>
+    
+    <target name="krun-benchmarks" depends="compile">
     </target>
 
     <target name="run" depends="run-benchmarks, reporter"/>
@@ -149,7 +168,6 @@
 
     <!-- used for test one off tests -->
     <target name="ktest" depends="compile">
-        <echo message="Running ${test.one}..standby...."/>
         <run-benchmark benchmark="${test.one}"/>
     </target>
 </project>
