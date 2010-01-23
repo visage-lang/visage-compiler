@@ -937,8 +937,8 @@ public class JavafxDecompose implements JavafxVisitor {
             Type bodyType = tree.bodyExpr.type;
             Type helperType = types.applySimpleGenericType(
                     types.isSequence(bodyType)?
-                        syms.javafx_BoundForHelperType :
-                        syms.javafx_BoundForHelperSingletonType,
+                        syms.javafx_BoundForOverSequenceType :
+                        syms.javafx_BoundForOverNullableSingletonType,
                     types.boxedElementType(tree.type),
                     inductionType);
             JFXExpression init = fxmake.Literal(TypeTags.BOT, null);

@@ -2129,8 +2129,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             Type helperType = types.applySimpleGenericType(
                     types.isSequence(bodyType)?
-                        syms.javafx_BoundForHelperType :
-                        syms.javafx_BoundForHelperSingletonType,
+                        syms.javafx_BoundForOverSequenceType :
+                        syms.javafx_BoundForOverNullableSingletonType,
                     types.boxedElementType(forExpr.type),
                     inductionType);
             JCVariableDecl indexParam = Var(syms.intType, names.fromString("$index$"), null); // FIXME

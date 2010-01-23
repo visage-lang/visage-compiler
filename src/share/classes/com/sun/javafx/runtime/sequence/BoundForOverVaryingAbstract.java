@@ -24,14 +24,14 @@
 package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.FXObject;
 
-public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
+public abstract class BoundForOverVaryingAbstract<T, PT> extends BoundFor<T, PT> {
 
     private FXForPart<PT>[] parts;
     private int[] cumulatedLengths;
     private boolean areCumulatedLengthsValid = false;
     private boolean inWholesaleUpdate = true; // ignore initial individual updates
 
-    public BoundForHelperNaive(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
+    public BoundForOverVaryingAbstract(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         super(container, forVarNum, inductionSeqVarNum, dependsOnIndex);
     }
 

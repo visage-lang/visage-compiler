@@ -30,7 +30,7 @@ import com.sun.javafx.runtime.FXObject;
  * @param <T> Result element type
  * @param <PT> Induction type
  */
-public abstract class BoundForHelper<T, PT> extends FXBase {
+public abstract class BoundFor<T, PT> extends FXBase {
 
     /** 
      * The bfElem class in the design document implements this interface.
@@ -67,7 +67,7 @@ public abstract class BoundForHelper<T, PT> extends FXBase {
     private int cacheIndex;
     private int cachePart;
 
-    public BoundForHelper(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
+    public BoundFor(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         this.container = container;
         this.forVarNum = forVarNum;
         this.inductionSeqVarNum = inductionSeqVarNum;

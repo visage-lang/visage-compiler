@@ -24,24 +24,10 @@
 package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.FXObject;
 
-public abstract class BoundForHelperNaiveSingle<T, PT> extends BoundForHelperNaive<T, PT> {
+public abstract class BoundForOverSequence<T, PT> extends BoundForOverVaryingAbstract<T, PT> {
 
-    public BoundForHelperNaiveSingle(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
+    public BoundForOverSequence(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         super(container, forVarNum, inductionSeqVarNum, dependsOnIndex);
-    }
-
-    /** Get the size of part ipart. */
-    @Override
-    protected int size(int ipart) {
-        FXForPart part = getPart(ipart);
-        return part.get$(partResultVarNum) == null? 0 : 1;
-    }
-
-    /** Get the j'th item of part ipart -- which for a singleton, is just the item. */
-    @Override
-    protected T get(int ipart, int j) {
-        FXForPart part = getPart(ipart);
-        return (T) part.get$(partResultVarNum);
     }
 }
 

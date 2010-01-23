@@ -123,10 +123,9 @@ public class JavafxDefs {
     public static final String cSequenceRef = sequence_PackageString + ".SequenceRef";
     public static final String cSequenceProxy = sequence_PackageString + ".SequenceProxy";
     public static final String cArraySequence = sequence_PackageString + ".ArraySequence";
-    public static final String cBoundForHelper = sequence_PackageString + ".BoundForHelper";
-    public static final String cBoundForHelperNaive = sequence_PackageString + ".BoundForHelperNaive";
-    public static final String cBoundForHelperNaiveSingle = sequence_PackageString + ".BoundForHelperNaiveSingle";
-    public static final String cBoundForPartI = cBoundForHelper + "$FXForPart";
+    public static final String cBoundForOverSequence = sequence_PackageString + ".BoundForOverSequence";
+    public static final String cBoundForOverNullableSingleton = sequence_PackageString + ".BoundForOverNullableSingleton";
+    public static final String cBoundForPartI = sequence_PackageString + ".BoundFor$FXForPart";
     public static final String cObjectArraySequence = sequence_PackageString + ".ObjectArraySequence";
 
     // in runtime package -- public
