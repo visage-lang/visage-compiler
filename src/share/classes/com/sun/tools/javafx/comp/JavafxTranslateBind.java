@@ -2150,7 +2150,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         getReceiverOrThis(targetSymbol),
                         Offset(targetSymbol),
                         Offset(seqSym),
-                        True()
+                        Boolean(clause.getIndexUsed())
                     ),
                     helperClass);
             return

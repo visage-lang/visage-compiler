@@ -64,15 +64,11 @@ public abstract class BoundFor<T, PT> extends FXBase {
     protected int numParts;
     protected boolean uninitialized = true;
 
-    private int cacheIndex;
-    private int cachePart;
-
     public BoundFor(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         this.container = container;
         this.forVarNum = forVarNum;
         this.inductionSeqVarNum = inductionSeqVarNum;
         this.dependsOnIndex = dependsOnIndex;
-        resetCache();
     }
 
     // Required public interface
@@ -85,9 +81,6 @@ public abstract class BoundFor<T, PT> extends FXBase {
 
     // Shared implementation interface (optional)
 
-    // Cumulative length, exclusive
-    protected abstract int cumLength(int ipart);
-
     protected abstract FXForPart<PT> getPart(int part);
 
     protected void initializeIfNeeded() {
@@ -98,55 +91,6 @@ public abstract class BoundFor<T, PT> extends FXBase {
             uninitialized = false;
             replaceParts(0, 0, sz, FXObject.PHASE_TRANS$CASCADE_TRIGGER);
         }
-    }
-
-    public int size() {
-        initializeIfNeeded();
-        return cumLength(numParts);
-    }
-
-    public T get(int index) {
-        initializeIfNeeded();
-
-        if (index < 0)
-            return null;
-        
-        // FIXME - should use binary search if not in cache.
-        int i, cumPrev;
-        if (index >= cacheIndex) {
-            i = cachePart;
-            cumPrev = cumLength(i);
-        } else {
-            i = 0;
-            cumPrev = 0;
-        }
-        for (;; i++) {
-            if (i >= numParts)
-                return null;
-            int cum = cumLength(i+1);
-            if (index < cum) {
-                cachePart = i;
-                cacheIndex = cumPrev;
-                return get(i, index-cumPrev);
-            }
-            cumPrev = cum;
-        }
-    }
-
-    protected void resetCache() {
-        cachePart = 0;
-    }
-
-    /** Get the size of part ipart. */
-    protected int size(int ipart) {
-        FXForPart part = getPart(ipart);
-        return part.size$(partResultVarNum); // sequence version
-    }
-
-    /** Get the j'th item of part ipart. */
-    protected T get(int ipart, int j) {
-        FXForPart part = getPart(ipart);
-        return (T) part.elem$(partResultVarNum, j);
     }
 }
 
