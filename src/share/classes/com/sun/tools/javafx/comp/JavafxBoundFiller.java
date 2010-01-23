@@ -36,7 +36,6 @@ import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.util.Context;
-import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 
@@ -98,7 +97,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
             MethodSymbol dummyOwner = preTrans.makeDummyMethodSymbol(clause.var.sym.owner);
             JFXVar idxv = createIndexVar(clause, dummyOwner);
             JFXVar iv = createInductionVar(clause, idxv.sym, dummyOwner);
-            JFXVar rv = createResultVar(clause, body.value, dummyOwner);
+            JFXVar rv = createResultVar(clause, body.value, dummyOwner, tree.type);
             body.stats = body.stats.prepend(iv).prepend(idxv).append(rv);
             body.value = preTrans.defaultValue(body.type); // just fill the spot
             scan(body);
@@ -141,18 +140,21 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
      * Create the bound result:
      *  def result = bind block_value;
      */
-    private JFXVar createResultVar(JFXForExpressionInClause clause, JFXExpression value, Symbol owner) {
+    private JFXVar createResultVar(JFXForExpressionInClause clause, JFXExpression value, Symbol owner, Type seqType) {
         Type valtype = value.type;
-        // For now, at least, if there is a where clause, we need to be
-        // able to return ull, so box the type
-        if (! types.isSequence(valtype) && clause.whereExpr != null) {
-            valtype = types.boxedTypeOrType(valtype);
-            value.type = valtype;
-        }
         if (clause.whereExpr != null) {
-            JFXExpression nada = types.isSequence(valtype)?
-                fxmake.EmptySequence() :
-                fxmake.Literal(TypeTags.BOT, null);
+            // There is a where-clause, convert to an if-expression
+            JFXExpression nada;
+            if (types.isSequence(valtype)) {
+                nada = fxmake.EmptySequence();
+            } else {
+                // For now, at least, if there is a where clause, we need to be
+                // able to return null, so box the type
+                nada = fxmake.Literal(TypeTags.BOT, null);
+                valtype = types.boxedElementType(seqType);
+                value = preTrans.makeCastIfNeeded(value, valtype);
+                value.type = valtype;
+            }
             nada.type = valtype;
             value = fxmake.Conditional(clause.whereExpr, value, nada);
             value.type = valtype;
