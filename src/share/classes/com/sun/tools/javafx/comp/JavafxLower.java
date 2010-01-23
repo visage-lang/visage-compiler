@@ -152,7 +152,7 @@ public class JavafxLower implements JavafxVisitor {
     JFXExpression convertTree(JFXExpression tree, Type type) {
         return tree = needSequenceConversion(tree, type) ?
             toSequence(tree, type) :
-            makeCastIfNeeded(tree, type);
+            preTrans.makeCastIfNeeded(tree, type);
     }
 
     private boolean needSequenceConversion(JFXExpression tree, Type type) {
@@ -161,21 +161,6 @@ public class JavafxLower implements JavafxVisitor {
             tree.type != syms.unreachableType &&
             !types.isArray(tree.type)) ||
             isNull(tree)));
-    }
-
-    /**
-     * It is necessary to add an extra cast if either source type or target type
-     * is a boxed Java type - this is required because we might want to go from
-     * java.Lang.Long to int and vice-versa
-     */
-    private boolean needNumericBoxConversion(JFXExpression tree, Type type) {
-        boolean sourceIsPrimitive = tree.type.isPrimitive();
-        boolean targetIsPrimitive = type.isPrimitive();
-        Type unboxedSource = types.unboxedType(tree.type);
-        Type unboxedTarget = types.unboxedType(type);
-        return (sourceIsPrimitive && !targetIsPrimitive && unboxedTarget != Type.noType && !types.isSameType(unboxedTarget, tree.type)) ||
-                (targetIsPrimitive && !sourceIsPrimitive && unboxedSource != Type.noType && !types.isSameType(unboxedSource, type)) ||
-                (!sourceIsPrimitive && !targetIsPrimitive && unboxedTarget != Type.noType && unboxedSource!= Type.noType && !types.isSameType(type, tree.type));
     }
 
     private boolean isNull(JFXTree tree) {
@@ -200,56 +185,10 @@ public class JavafxLower implements JavafxVisitor {
 
         }
         else {
-            seqExpr = m.at(tree.pos).ExplicitSequence(List.of(makeCastIfNeeded(tree, types.elementType(type))));
+            seqExpr = m.at(tree.pos).ExplicitSequence(List.of(preTrans.makeCastIfNeeded(tree, types.elementType(type))));
             seqExpr.type = type;
         }
         return seqExpr;
-    }
-
-    private JFXExpression makeCastIfNeeded(JFXExpression tree, Type type) {
-        if (type == Type.noType ||
-                type == null ||
-                type.isErroneous() ||
-                type == syms.voidType ||
-                tree.type == syms.voidType ||
-                tree.type == syms.unreachableType ||
-                type == syms.unreachableType)
-            return tree;
-        else {
-            tree = makeNumericBoxConversionIfNeeded(tree, type);
-            return !types.isSameType(tree.type, type) &&
-                   (!types.isSubtypeUnchecked(tree.type, type) ||
-                   (tree.type.isPrimitive() && type.isPrimitive() ||
-                   (types.isSameType(tree.type, syms.javafx_EmptySequenceType) &&
-                   types.isSequence(type)))) ?
-                makeCast(tree, type) :
-                tree;
-        }
-    }
-
-    private JFXExpression makeNumericBoxConversionIfNeeded(JFXExpression tree, Type type) {
-        if (needNumericBoxConversion(tree, type)) {
-           //either tree.type or type is primitive!
-           if (tree.type.isPrimitive() && !type.isPrimitive()) {
-               return makeCast(tree, types.unboxedType(type));
-           }
-           else if (type.isPrimitive() && !tree.type.isPrimitive()) {
-               return makeCast(tree, types.unboxedType(tree.type));
-           }
-           else { //both are boxed types
-               return makeCast(makeCast(tree, types.unboxedType(tree.type)), types.unboxedType(type));
-           }
-        }
-        else {
-            return tree;
-        }
-    }
-
-    private JFXExpression makeCast(JFXExpression tree, Type type) {
-        JFXExpression typeTree = preTrans.makeTypeTree(type);
-        JFXExpression expr = m.at(tree.pos).TypeCast(typeTree, tree);
-        expr.type = type;
-        return expr;
     }
 
     private Name tempName(String label) {
