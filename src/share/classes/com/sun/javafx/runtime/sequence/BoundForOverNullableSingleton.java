@@ -123,9 +123,24 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
             return;
         }
         if (DEBUG) System.err.println("+trig replaceParts id: " + forVarNum + ", startPart: " + startPart + ", endPart: " + endPart + ", insertedParts: " + insertedParts);
+        boolean outstandingInvalidations = highestInvalidPart >= 0;
+
+        if (startPart < 0) {
+            // This is a no-change trigger
+            if (outstandingInvalidations) {
+                // We collected part updates during this no-change invalidation, proceed using them
+                startPart = lowestInvalidPart;
+                endPart = highestInvalidPart;
+                insertedParts = highestInvalidPart - lowestInvalidPart;
+            } else {
+                // Pass on this no-change trigger
+                container.invalidate$(forVarNum, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, 0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
+                return;
+            }
+        }
+
         int deltaParts = insertedParts - (endPart - startPart);
         int newNumParts = numParts + deltaParts;
-        boolean outstandingInvalidations = highestInvalidPart >= 0;
 
         int oldStartPos;
         int oldEndPos;

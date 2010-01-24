@@ -1706,25 +1706,24 @@ however this is what we need */
                     }
 
                     if (!override || varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
-                        // Begin the get$ block.
-                        beginBlock();
-
-                        // Add on-invalidate trigger if any
-                        if (varInfo.onInvalidate() != null) {
-                            addStmt(varInfo.onInvalidateAsInline());
-                        }
-
-                        // Call the onReplace$var to force evaluation.
-                        if (!override && varInfo.sym.useTrigger()) {
-                            addStmt(CallStmt(attributeOnReplaceName(proxyVarSym),
+                        // if (trigger-phase and real-trigger) { call-on-invalidate; call-on-replace; }
+                        addStmt(
+                            OptIf(
+                                AND(
+                                    IsTriggerPhase(),
+                                    GE(startPosArg(), Int(0))
+                                ),
+                                Block(
+                                    (varInfo.onInvalidate() == null)? null :
+                                        varInfo.onInvalidateAsInline(),
+                                    (override || !varInfo.sym.useTrigger())? null :
+                                        CallStmt(attributeOnReplaceName(proxyVarSym),
                                                                 startPosArg(),
                                                                 endPosArg(),
-                                                                newLengthArg()));
-                        }
-
-                        // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
-                        addStmt(OptIf(IsTriggerPhase(),
-                                endBlock()));
+                                                                newLengthArg())
+                                )
+                            )
+                        );
                     }
                 }
             };

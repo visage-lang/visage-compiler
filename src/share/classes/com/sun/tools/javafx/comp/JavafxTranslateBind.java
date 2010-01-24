@@ -1572,6 +1572,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                             setLower(id(vNewLower)),
                                             setSize(id(vNewSize)),
                                             CallSeqTrigger(targetSymbol, Int(0), id(vLoss), id(vGain))
+                                        ),
+                                    /*else (no change in lower, send no-change trigger)*/
+                                        Block(
+                                            CallSeqTriggerUnchanged(targetSymbol)
                                         )
                                     )
                                 )
@@ -1626,6 +1630,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                             /*else*/
                                                 CallSeqTrigger(targetSymbol, id(vNewSize), id(vOldSize), Int(0))
                                             )
+                                        ),
+                                    /*else (no change in upper, send no-change trigger)*/
+                                        Block(
+                                            CallSeqTriggerUnchanged(targetSymbol)
                                         )
                                     )
                                 )
@@ -1671,6 +1679,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                             setStep(id(vNewStep)),
                                             setSize(id(vNewSize)),
                                             CallSeqTrigger(targetSymbol, Int(0), id(vOldSize), id(vNewSize))
+                                        ),
+                                    /*else (no change in step, send no-change trigger)*/
+                                        Block(
+                                            CallSeqTriggerUnchanged(targetSymbol)
                                         )
                                     )
                           )))));
@@ -1877,6 +1889,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                             Block(
                                                 // Gain elements in the front
                                                 CallSeqTrigger(targetSymbol, Int(0), Int(0), MINUS(id(vOldLower), id(vNewLower)))
+                                            ),
+                                        /*else (no change, send no-change trigger)*/
+                                            Block(
+                                                CallSeqTriggerUnchanged(targetSymbol)
                                             )
                                         ))
                                    )
@@ -1948,6 +1964,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                             Block(
                                                 // Lose elements in the end
                                                 CallSeqTrigger(targetSymbol, MINUS(id(vNewUpper), id(vLower)), id(vOldSize), Int(0))
+                                            ),
+                                        /*else (no change, send no-change trigger)*/
+                                            Block(
+                                                CallSeqTriggerUnchanged(targetSymbol)
                                             )
                                         ))
                                    )
@@ -2435,6 +2455,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         )
                                     ),
                                     CallSeqTrigger(targetSymbol, Int(0), id(oldSizeVar), Get(sizeSym))
+                                ),
+                            /*else (condition did not change, send no-change trigger)*/
+                                Block(
+                                    CallSeqTriggerUnchanged(targetSymbol)
                                 )
                             )
                         )
@@ -2469,6 +2493,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 Block(
                                     SetStmt(sizeSym, CallSize(armSym)), // update the size
                                     CallSeqTrigger(targetSymbol, startPosArg(), endPosArg(), newLengthArg())
+                                ),
+                            /*else (condition not ours, send no-change trigger)*/
+                                Block(
+                                    CallSeqTriggerUnchanged(targetSymbol)
                                 )
                             )
                         )
