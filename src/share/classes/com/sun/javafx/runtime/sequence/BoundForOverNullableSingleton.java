@@ -27,6 +27,13 @@ import com.sun.javafx.runtime.FXObject;
 public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverVaryingAbstract<T, PT> {
 
     private boolean inWholesaleUpdate = true; // ignore initial individual updates
+    private int lowestInvalidPart;            // lowest part index that is invalid
+    private int highestInvalidPart = -1;      // highest part index that is invalid, negative means none
+    protected int pendingTriggers = 0;        // number of invalidations seen minus number of triggers seen
+    private boolean inPartChange = false;     // adding, removing, changing parts
+    private int sizeAtLastTrigger = 0;        // size the previous time we did trigger phase invalidate
+
+    private static final boolean DEBUG = false;
 
     public BoundForOverNullableSingleton(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         super(container, forVarNum, inductionSeqVarNum, dependsOnIndex);
@@ -37,32 +44,70 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
     public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
         if (uninitialized || inWholesaleUpdate)
             return;
+        int ipart = ((FXForPart) src).getIndex$();
         if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE) {
-            blanketInvalidationOfBoundFor();
+            if (DEBUG) System.err.println("inv update$ id: " + forVarNum + ", ipart: " + ipart + ", " + lowestInvalidPart + " ... " + highestInvalidPart);
+            if (highestInvalidPart < 0) {
+                // No outstanding invalid region, mark this as the beginning and end of region
+                // and send a blanket invalidation
+                highestInvalidPart = lowestInvalidPart = ipart;
+                pendingTriggers = 1;
+                blanketInvalidationOfBoundFor();
+            } else {
+                // Already have invalid parts, encompass ours
+                ++pendingTriggers;
+                if (ipart < lowestInvalidPart) {
+                    lowestInvalidPart = ipart;
+                }
+                if (ipart > highestInvalidPart) {
+                    highestInvalidPart = ipart;
+                }
+            }
             return;
         }
-        //System.err.println("updateForPart src: " + ((FXForPart)src).getIndex$() + ", newLength: " + newLength);
+        --pendingTriggers;
+        if (DEBUG) System.err.println("+trig update$ id: " + forVarNum + ", ipart: " + ipart + ", " + lowestInvalidPart + " ... " + highestInvalidPart);
 
-        // Do invalidation
+        if (pendingTriggers > 0) {
+            // Trigger when all the part triggers have come in
+            return;
+        }
+        assert pendingTriggers == 0;
 
-        int ipart = ((FXForPart) src).getIndex$();
-        int oldStartPos = cumLength(ipart);
-        int oldEndPos = cumLength(ipart + 1);
+        if (inPartChange) {
+            // Part change will handle update
+            return;
+        }
+        if (DEBUG) System.err.println(".trig update$ id: " + forVarNum + ", ipart: " + ipart + ", " + lowestInvalidPart + " ... " + highestInvalidPart);
+
+        // Do invalidation for all currently invalid parts
+
+        int oldStartPos = cumLength(lowestInvalidPart);
+        int oldEndPos = cumLength(highestInvalidPart + 1);
 
         // Set-up to lazily update lengths
         cumulatedLengths = null;
         areCumulatedLengthsValid = false;
+        sizeAtLastTrigger = cumLength(numParts);
 
         // Calculate the inserted length (in the new parts)
         int newStartPos = oldStartPos;
-        int newEndPos = cumLength(ipart + 1);
+        int newEndPos = cumLength(highestInvalidPart + 1);
         int insertedLength = newEndPos - newStartPos;
 
         resetCache();
+        highestInvalidPart = -1;
 
         // Send invalidation
-        //System.out.println("ipart: " + ipart + ", oldStart: " + oldStartPos + ", oldEndPos: " + oldEndPos + ", newEndPos: " + newEndPos + ", insertedLength: " + insertedLength);
-        container.invalidate$(forVarNum, oldStartPos, oldEndPos, insertedLength, phase);
+        if (DEBUG) System.err.println("-trig update$ id: " + forVarNum + ", ipart: " + ipart + ", oldStart: " + oldStartPos + ", oldEndPos: " + oldEndPos + ", newEndPos: " + newEndPos + ", insertedLength: " + insertedLength);
+        container.invalidate$(forVarNum, oldStartPos, oldEndPos, insertedLength, FXObject.PHASE_TRANS$CASCADE_TRIGGER);
+    }
+
+    void showStates(String label) {
+            for (int ips = 0; ips < numParts; ++ips) {
+                System.err.print(getPart(ips).getFlags$(partResultVarNum) & VFLGS$STATE_MASK);
+            }
+            System.err.println(" - " + label);
     }
 
     // Called by invalidate when the input sequence changes.
@@ -70,81 +115,115 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
         if (uninitialized)
             return;
         if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE) {
-            blanketInvalidationOfBoundFor();
+            if (DEBUG) System.err.println("inv replaceParts id: " + forVarNum + ", inPartChange: " + inPartChange);
+            if (!inPartChange) {
+                inPartChange = true;
+                blanketInvalidationOfBoundFor();
+            }
             return;
         }
-        //System.err.println("startPart: " + startPart + ", endPart: " + endPart + ", insertedParts: " + insertedParts);
-        int removedParts = endPart - startPart;
-        int deltaParts = insertedParts - removedParts;
+        if (DEBUG) System.err.println("+trig replaceParts id: " + forVarNum + ", startPart: " + startPart + ", endPart: " + endPart + ", insertedParts: " + insertedParts);
+        int deltaParts = insertedParts - (endPart - startPart);
         int newNumParts = numParts + deltaParts;
+        boolean outstandingInvalidations = highestInvalidPart >= 0;
 
-        if (parts == null || deltaParts != 0) {
-            // Changing size or first time.
+        int oldStartPos;
+        int oldEndPos;
+        int trailingLength;
 
-            int oldStartPos;
-            int oldEndPos;
-            int trailingLength;
+        // Allocate the new elements
+        FXForPart<PT>[] newParts = (FXForPart<PT>[]) new FXForPart[newNumParts];
 
-            // Allocate the new elements
-            FXForPart<PT>[] newParts = (FXForPart<PT>[]) new FXForPart[newNumParts];
-
-            if (parts == null) {
-                assert startPart == 0;
-                assert endPart == 0;
-                oldStartPos = 0;
-                oldEndPos = 0;
-                trailingLength = 0;
-            } else {
-                // Remember old positions (for invalidate)
-                oldStartPos = cumLength(startPart);
-                oldEndPos = cumLength(endPart);
-                trailingLength = numParts - endPart;
-
-                // Copy the existing parts
-                System.arraycopy(parts, 0, newParts, 0, startPart);
-                //System.err.println("parts.len: " + parts.length + ", start: " + startPart +  ", end: " + endPart + ", newParts.len: " + newParts.length + ", s+i: " + (startPart + insertedParts) + ", trail: " + trailingLength);
-                System.arraycopy(parts, endPart, newParts, startPart + insertedParts, trailingLength);
-
-                for (int ips = startPart; ips < endPart; ++ips) {
-                    removeDependent$(parts[ips], partResultVarNum, this);
-                }
-            }
-
-            // Install new parts
-            parts = newParts;
-            numParts = newNumParts;
-
-            // Don't generate individual updates
-            inWholesaleUpdate = true;
-
-            // Fill in the new parts
-            buildParts(startPart, startPart + insertedParts);
-
-            // Set-up to lazily update lengths
-            cumulatedLengths = null;
-            areCumulatedLengthsValid = false;
-
-            // Calculate the inserted length (in the new parts)
-            int newStartPos = oldStartPos;
-            int newEndPos = cumLength(startPart + insertedParts);
-            int insertedLength = newEndPos - newStartPos;
-
-            // Send wholesale invalidation
-            container.invalidate$(forVarNum, oldStartPos, oldEndPos, insertedLength, phase);
-            inWholesaleUpdate = false;
-
-            // Adjust the index of trailing parts
-            for (int ips = startPart + insertedParts; ips < startPart + insertedParts + trailingLength; ++ips) {
-                getPart(ips).adjustIndex$(deltaParts);
-            }
+        if (parts == null) {
+            assert startPart == 0;
+            assert endPart == 0;
+            oldStartPos = 0;
+            oldEndPos = 0;
+            trailingLength = 0;
         } else {
-            // In-place modification.  Update induction var.  Invalidation from parts.
-            for (int ips = startPart; ips < endPart; ++ips) {
-                syncInductionVar(ips);
+            // Remember old positions (for invalidate)
+            oldStartPos = cumLength(startPart);
+            oldEndPos = cumLength(endPart);
+            trailingLength = numParts - endPart;
+
+            // Copy the existing parts
+            System.arraycopy(parts, 0, newParts, 0, startPart);
+            if (DEBUG) {
+                System.err.println(".trig replaceParts id: " + forVarNum + ", parts.len: " + parts.length + ", start: " + startPart + ", end: " + endPart +
+                        ", newParts.len: " + newParts.length + ", s+i: " + (startPart + insertedParts) + ", trail: " + trailingLength);
             }
-            areCumulatedLengthsValid = false;
+            System.arraycopy(parts, endPart, newParts, startPart + insertedParts, trailingLength);
+
+            for (int ips = startPart; ips < endPart; ++ips) {
+                removeDependent$(parts[ips], partResultVarNum, this);
+            }
         }
+
+        // Install new parts
+        parts = newParts;
+        numParts = newNumParts;
+
+        // Don't generate individual updates
+        inWholesaleUpdate = true;
+
+        // Fill in the new parts
+        buildParts(startPart, startPart + insertedParts);
+
+        // Update the trailing indices
+        for (int ips = startPart + insertedParts; ips < startPart + insertedParts + trailingLength; ++ips) {
+            getPart(ips).adjustIndex$(deltaParts);
+        }
+
+        // Set-up to lazily update lengths
+        cumulatedLengths = null;
+        areCumulatedLengthsValid = false;
+        int previousSize = sizeAtLastTrigger;
+        sizeAtLastTrigger = cumLength(numParts);
+
+        // Invalidation parameters
+        int invStartPos;
+        int invEndPos;
+        int newEndPos;
+
+        if (outstandingInvalidations) {
+            // Trying to change parts and do individual update at the same time -- invalidate everything
+            invStartPos = 0;
+            invEndPos = previousSize;
+            newEndPos = sizeAtLastTrigger;
+            restoreValidState(0, numParts);
+        } else if (dependsOnIndex) {
+            // We depend on indices, everything after the start point is invalid
+            invStartPos = oldStartPos;
+            invEndPos = previousSize;
+            newEndPos = sizeAtLastTrigger;
+            restoreValidState(startPart, numParts);
+        } else {
+            // Calculate the inserted length (in the new parts)
+            invStartPos = oldStartPos;
+            invEndPos = oldEndPos;
+            newEndPos = cumLength(startPart + insertedParts);
+            restoreValidState(startPart, startPart + insertedParts);
+        }
+        if (DEBUG) {
+            System.err.println("-trig replaceParts id: " + forVarNum + ", invStartPos: " + invStartPos + ", invEndPos: " + invEndPos + ", len: " + (newEndPos - invStartPos));
+        }
+        container.invalidate$(forVarNum,
+                invStartPos,
+                invEndPos,
+                newEndPos - invStartPos,
+                FXObject.PHASE_TRANS$CASCADE_TRIGGER);
+
+        inPartChange = false;
+        inWholesaleUpdate = false;
+        highestInvalidPart = -1;
         resetCache();
+    }
+
+    void restoreValidState(int lowPart, int highPart) {
+        for (int ipart = lowPart; ipart < highPart; ++ipart) {
+            FXForPart part = getPart(ipart);
+            part.varChangeBits$(partResultVarNum, VFLGS$STATE_MASK, VFLGS$STATE$VALID);
+        }
     }
 
     /** Get the size of part ipart. */
