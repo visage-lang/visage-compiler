@@ -43,6 +43,11 @@ public abstract class BoundForOverSequence<T, PT> extends BoundForOverVaryingAbs
         }
         //System.err.println("updateForPart src: " + ((FXForPart)src).getIndex$() + ", newLength: " + newLength);
 
+        if (startPos < 0) {
+            // This is a no-change trigger, pass it on
+            container.invalidate$(forVarNum, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, 0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
+        }
+
         // Do invalidation
 
         int ipart = ((FXForPart) src).getIndex$();

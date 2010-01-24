@@ -1589,7 +1589,7 @@ public abstract class JavafxTranslationSupport {
             return Block(stmts.toList());
         }
 
-        JCBlock Block(JCStatement... stmts) {
+                JCBlock Block(JCStatement... stmts) {
             return Block(List.from(stmts));
         }
         
@@ -1964,6 +1964,14 @@ public abstract class JavafxTranslationSupport {
 
         JCStatement CallSeqTriggerInitial(Symbol sym, JCExpression initialSize) {
             return CallSeqTrigger(sym, Int(0), Int(0), initialSize);
+        }
+
+        JCStatement CallSeqTriggerUnchanged(Symbol sym) {
+            return CallSeqTrigger(sym, Undefined(), Undefined(), Int(0));
+        }
+
+        JCExpression IsUnchangedTrigger() {
+            return LT(startPosArg(), Int(0));
         }
 
         /**

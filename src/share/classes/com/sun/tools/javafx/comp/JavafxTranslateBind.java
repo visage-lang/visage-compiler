@@ -976,7 +976,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      */
     private class BoundReverseSequenceTranslator extends BoundSequenceTranslator {
 
-        private final JavafxVarSymbol selfSym = (JavafxVarSymbol) targetSymbol;
         private final JavafxVarSymbol argSym;
 
         BoundReverseSequenceTranslator(JFXUnary tree) {
@@ -1027,15 +1026,23 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 If (IsInvalidatePhase(),
                     Block(
-                        CallSeqInvalidateUndefined(selfSym)
+                        CallSeqInvalidateUndefined(targetSymbol)
                     ),
                 /*Else (Trigger phase)*/
                     Block(
-                        oldSize,
-                        CallSeqTrigger(selfSym,
+                        If(IsUnchangedTrigger(),
+                            Block(
+                                CallSeqTriggerUnchanged(targetSymbol) // Pass it on
+                            ),
+                        /*else (real trigger)*/
+                            Block(
+                                oldSize,
+                                CallSeqTrigger(targetSymbol,
                                     MINUS(id(oldSize), endPosArg()),
                                     MINUS(id(oldSize), startPosArg()),
                                     newLengthArg()
+                                )
+                           )
                         )
                     )
                 );
@@ -1202,27 +1209,34 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             if (isSequence(index)) {
                 return
-                        If (isSequenceActive(),
-                            Block(
-                                If (IsInvalidatePhase(),
-                                    Block(
-                                        CallSeqInvalidateUndefined(targetSymbol)
-                                    ),
-                                /*Else (Trigger phase)*/
-                                    Block(
-                                        vStart,
-                                        CallSeqTrigger(targetSymbol,
-                                            PLUS(id(vStart), startPosArg()),
-                                            If (EQ(endPosArg(), Undefined()),
-                                                Undefined(),
-                                                PLUS(id(vStart), endPosArg())
-                                            ),
-                                            newLengthArg()
+                    If (isSequenceActive(),
+                        Block(
+                            If (IsInvalidatePhase(),
+                                Block(
+                                    CallSeqInvalidateUndefined(targetSymbol)
+                                ),
+                            /*Else (Trigger phase)*/
+                                Block(
+                                    If (IsUnchangedTrigger(),
+                                        Block(
+                                            CallSeqTriggerUnchanged(targetSymbol) // Pass it on
+                                        ),
+                                    /*else (real trigger)*/
+                                        Block(
+                                            vStart,
+                                            CallSeqTrigger(targetSymbol,
+                                                PLUS(id(vStart), startPosArg()),
+                                                If (EQ(endPosArg(), Undefined()),
+                                                    Undefined(),
+                                                    PLUS(id(vStart), endPosArg())
+                                                ),
+                                                newLengthArg()
+                                            )
                                         )
                                     )
                                 )
                             )
-                        );
+                        ));
 
             } else {
                 //TODO: this is eager even for fixed length
@@ -1978,13 +1992,19 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vNewEnd = MutableTmpVar("endNew", syms.intType, id(vEnd));
 
             return
-                        If (isSequenceActive(),
+                If (isSequenceActive(),
+                    Block(
+                        If (IsInvalidatePhase(),
                             Block(
-                                If (IsInvalidatePhase(),
+                                CallSeqInvalidateUndefined(targetSymbol)
+                            ),
+                        /*Else (Trigger phase)*/
+                            Block(
+                                If (IsUnchangedTrigger(),
                                     Block(
-                                        CallSeqInvalidateUndefined(targetSymbol)
+                                        CallSeqTriggerUnchanged(targetSymbol) // Pass it on
                                     ),
-                                /*Else (Trigger phase)*/
+                                /*else (real trigger)*/
                                     Block(
                                         vDelta,
                                         vSeqSize,
@@ -2066,7 +2086,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                    )
                                 )
                             )
-                        );
+                        )));
         }
 
         /**
