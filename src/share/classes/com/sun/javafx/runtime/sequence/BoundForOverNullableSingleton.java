@@ -139,15 +139,16 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
             }
         }
 
-        int deltaParts = insertedParts - (endPart - startPart);
+        int newEndPart = startPart + insertedParts;
+        int deltaParts = newEndPart - endPart;
         int newNumParts = numParts + deltaParts;
 
         int oldStartPos;
         int oldEndPos;
         int trailingLength;
 
-        // Allocate the new elements
-        FXForPart<PT>[] newParts = (FXForPart<PT>[]) new FXForPart[newNumParts];
+        // Don't generate individual updates
+        inWholesaleUpdate = true;
 
         if (parts == null) {
             assert startPart == 0;
@@ -155,37 +156,56 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
             oldStartPos = 0;
             oldEndPos = 0;
             trailingLength = 0;
+
+            // Allocate the new elements
+            FXForPart<PT>[] newParts = (FXForPart<PT>[]) new FXForPart[newNumParts];
+
+            // Install new parts
+            parts = newParts;
+            numParts = newNumParts;
+
+            // Fill in the new parts
+            buildParts(0, insertedParts);
         } else {
             // Remember old positions (for invalidate)
             oldStartPos = cumLength(startPart);
             oldEndPos = cumLength(endPart);
             trailingLength = numParts - endPart;
 
-            // Copy the existing parts
-            System.arraycopy(parts, 0, newParts, 0, startPart);
-            if (DEBUG) {
-                System.err.println(".trig replaceParts id: " + forVarNum + ", parts.len: " + parts.length + ", start: " + startPart + ", end: " + endPart +
-                        ", newParts.len: " + newParts.length + ", s+i: " + (startPart + insertedParts) + ", trail: " + trailingLength);
-            }
-            System.arraycopy(parts, endPart, newParts, startPart + insertedParts, trailingLength);
+            if (DEBUG) System.err.println(".trig replaceParts id: " + forVarNum + ", parts.len: " + parts.length + ", start: " + startPart + ", end: " + endPart +
+                        ", newNumParts: " + newNumParts + ", s+i: " + (startPart + insertedParts) + ", trail: " + trailingLength);
 
-            for (int ips = startPart; ips < endPart; ++ips) {
-                removeDependent$(parts[ips], partResultVarNum, this);
+            int endPartCopy = (newEndPart < endPart)? newEndPart : endPart;
+
+            // In-place modification.  Update reused induction vars (if any) Invalidation from parts.
+            for (int ips = startPart; ips < endPartCopy; ++ips) {
+                syncInductionVar(ips);
+            }
+
+            if (newNumParts != numParts) {
+                for (int ips = endPartCopy; ips < endPart; ++ips) {
+                    removeDependent$(parts[ips], partResultVarNum, this);
+                }
+
+                // Allocate the new elements
+                FXForPart<PT>[] newParts = (FXForPart<PT>[]) new FXForPart[newNumParts];
+
+                // Copy the existing parts
+                System.arraycopy(parts, 0, newParts, 0, endPartCopy);
+                System.arraycopy(parts, endPart, newParts, newEndPart, trailingLength);
+
+                // Install new parts
+                parts = newParts;
+                numParts = newNumParts;
+
+                // Fill in the new parts (if any)
+                buildParts(endPartCopy, newEndPart);
             }
         }
 
-        // Install new parts
-        parts = newParts;
-        numParts = newNumParts;
-
-        // Don't generate individual updates
-        inWholesaleUpdate = true;
-
-        // Fill in the new parts
-        buildParts(startPart, startPart + insertedParts);
-
-        // Update the trailing indices
-        for (int ips = startPart + insertedParts; ips < startPart + insertedParts + trailingLength; ++ips) {
+        // Update the trailing indices -- need indices for internal bookkeeping, always update
+        assert startPart + insertedParts + trailingLength == numParts;
+        for (int ips = newEndPart; ips < numParts; ++ips) {
             getPart(ips).adjustIndex$(deltaParts);
         }
 
@@ -216,8 +236,8 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
             // Calculate the inserted length (in the new parts)
             invStartPos = oldStartPos;
             invEndPos = oldEndPos;
-            newEndPos = cumLength(startPart + insertedParts);
-            restoreValidState(startPart, startPart + insertedParts);
+            newEndPos = cumLength(newEndPart);
+            restoreValidState(startPart, newEndPart);
         }
         if (DEBUG) {
             System.err.println("-trig replaceParts id: " + forVarNum + ", invStartPos: " + invStartPos + ", invEndPos: " + invEndPos + ", len: " + (newEndPos - invStartPos));
