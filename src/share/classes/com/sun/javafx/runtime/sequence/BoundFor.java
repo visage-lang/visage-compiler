@@ -61,6 +61,7 @@ public abstract class BoundFor<T, PT> extends FXBase {
 
     public int partResultVarNum; // This gets magically assigned when a part is created
 
+    protected FXForPart<PT>[] parts;
     protected int numParts;
     protected boolean uninitialized = true;
 
@@ -81,8 +82,6 @@ public abstract class BoundFor<T, PT> extends FXBase {
 
     // Shared implementation interface (optional)
 
-    protected abstract FXForPart<PT> getPart(int part);
-
     protected void initializeIfNeeded() {
         if (uninitialized) {
             // Init the induction sequence
@@ -90,6 +89,28 @@ public abstract class BoundFor<T, PT> extends FXBase {
 
             uninitialized = false;
             replaceParts(0, 0, sz, FXObject.PHASE_TRANS$CASCADE_TRIGGER);
+        }
+    }
+
+    protected FXForPart<PT> getPart(int ipart) {
+        return parts[ipart];
+    }
+
+    protected void blanketInvalidationOfBoundFor() {
+        container.invalidate$(forVarNum, 0, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
+    }
+
+    protected void syncInductionVar(int ipart) {
+        FXForPart part = getPart(ipart);
+        part.setInductionVar$(container.elem$(inductionSeqVarNum, ipart));
+    }
+
+    protected void buildParts(int ipFrom, int ipTo) {
+        for (int ips = ipFrom; ips < ipTo; ++ips) {
+            FXForPart part = makeForPart$(ips);
+            parts[ips] = part;
+            syncInductionVar(ips);
+            addDependent$(part, partResultVarNum, this);
         }
     }
 }

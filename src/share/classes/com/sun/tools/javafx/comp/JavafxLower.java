@@ -377,7 +377,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        JFXExpression whereExpr = lower(that.whereExpr);
+        JFXExpression whereExpr = lower(that.getWhereExpression());
         Type typeToCheck = that.seqExpr.type;
         if  (that.seqExpr.type.tag == TypeTags.BOT ||
                 types.isSameType(that.seqExpr.type, syms.javafx_EmptySequenceType)) {

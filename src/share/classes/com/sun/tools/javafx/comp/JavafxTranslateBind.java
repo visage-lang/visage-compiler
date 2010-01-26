@@ -2167,12 +2167,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     .append(Stmt(m().Assign(Select(Get(helperSym), defs.partResultVarNum_BoundForHelper), Offset(clause.boundResultVarSym)))
             );
 
-            Type helperType = types.applySimpleGenericType(
-                    types.isSequence(bodyType)?
-                        syms.javafx_BoundForOverSequenceType :
-                        syms.javafx_BoundForOverNullableSingletonType,
-                    types.boxedElementType(forExpr.type),
-                    inductionType);
+            Type helperType = clause.boundHelper.type;
             JCVariableDecl indexParam = Var(syms.intType, names.fromString("$index$"), null); // FIXME
             Type partType = types.applySimpleGenericType(syms.javafx_FXForPartInterfaceType, inductionType);
             JCMethodDecl makeDecl = Method(Flags.PUBLIC,
@@ -2294,7 +2289,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 JCStatement inv =
                     If(NEnull(Get(clause.boundHelper.sym)),
                         CallStmt(Get(clause.boundHelper.sym),
-                             defs.replaceParts_BoundForHelperMethodName,
+                             defs.replaceParts_BoundForMethodName,
                              startPosArg(), endPosArg(), newLengthArg(), phaseArg()));
                 addInvalidator((JavafxVarSymbol) bindee, inv);
             }

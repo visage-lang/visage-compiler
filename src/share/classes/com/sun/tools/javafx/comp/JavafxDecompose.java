@@ -60,7 +60,6 @@ public class JavafxDecompose implements JavafxVisitor {
     private JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;
     private ListBuffer<JFXTree> lbVar;
     private Set<String> synthNames;
-    private int anonClassCount = 0;
     private Symbol varOwner = null;
     private Symbol currentVarSymbol;
     private Symbol currentClass = null;
@@ -934,11 +933,13 @@ public class JavafxDecompose implements JavafxVisitor {
 
             // Create the BoundForHelper variable:
             Type inductionType = types.boxedTypeOrType(clause.inductionVarSym.type);
-            Type bodyType = tree.bodyExpr.type;
+            JFXBlock body = (JFXBlock) tree.getBodyExpression();
             Type helperType = types.applySimpleGenericType(
-                    types.isSequence(bodyType)?
+                    types.isSequence(body.type)?
                         syms.javafx_BoundForOverSequenceType :
-                        syms.javafx_BoundForOverNullableSingletonType,
+                        (preTrans.isNullable(body) || clause.hasWhereExpression())?
+                            syms.javafx_BoundForOverNullableSingletonType :
+                            syms.javafx_BoundForOverSingletonType,
                     types.boxedElementType(tree.type),
                     inductionType);
             JFXExpression init = fxmake.Literal(TypeTags.BOT, null);
@@ -949,7 +950,6 @@ public class JavafxDecompose implements JavafxVisitor {
             clause.boundHelper = helper;
 
             // Fix up the class
-            JFXBlock body = (JFXBlock) tree.getBodyExpression();
             JFXClassDeclaration cdecl = (JFXClassDeclaration) decompose(body.stats.head);
             body.stats.head = cdecl;
 
@@ -1001,7 +1001,7 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitForExpressionInClause(JFXForExpressionInClause tree) {
         tree.seqExpr = decompose(tree.seqExpr);
-        tree.whereExpr = decompose(tree.whereExpr);
+        tree.setWhereExpr(decompose(tree.getWhereExpression()));
         result = tree;
     }
 

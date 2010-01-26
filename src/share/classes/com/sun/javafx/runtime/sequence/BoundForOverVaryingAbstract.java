@@ -26,7 +26,6 @@ import com.sun.javafx.runtime.FXObject;
 
 public abstract class BoundForOverVaryingAbstract<T, PT> extends BoundFor<T, PT> {
 
-    protected FXForPart<PT>[] parts;
     protected int[] cumulatedLengths;
     protected boolean areCumulatedLengthsValid = false;
     private int cacheIndex;
@@ -67,28 +66,6 @@ public abstract class BoundForOverVaryingAbstract<T, PT> extends BoundFor<T, PT>
             areCumulatedLengthsValid = true;
         }
         return cumulatedLengths[ipart-1];
-    }
-
-    protected FXForPart<PT> getPart(int ipart) {
-        return parts[ipart];
-    }
-
-    protected void blanketInvalidationOfBoundFor() {
-        container.invalidate$(forVarNum, 0, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
-    }
-
-    protected void syncInductionVar(int ipart) {
-        FXForPart part = getPart(ipart);
-        part.setInductionVar$(container.elem$(inductionSeqVarNum, ipart));
-    }
-
-    protected void buildParts(int ipFrom, int ipTo) {
-        for (int ips = ipFrom; ips < ipTo; ++ips) {
-            FXForPart part = makeForPart$(ips);
-            parts[ips] = part;
-            syncInductionVar(ips);
-            addDependent$(part, partResultVarNum, this);
-        }
     }
 
     public T get(int index) {

@@ -334,5 +334,21 @@ public class JavafxPreTranslationSupport {
         }
         return name;
     }
+
+    boolean isNullable(JFXExpression expr) {
+        if (expr.type.isPrimitive()) {
+            return false;
+        }
+        if (types.isSameType(expr.type, syms.javafx_StringType)) {
+            return false;
+        }
+        if (types.isSameType(expr.type, syms.javafx_DurationType)) {
+            return false;
+        }
+        if (expr.getFXTag() == JavafxTag.OBJECT_LITERAL) {
+            return false;
+        }
+        return true;
+    }
 }
 

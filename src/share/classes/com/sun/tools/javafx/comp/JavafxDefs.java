@@ -125,6 +125,7 @@ public class JavafxDefs {
     public static final String cArraySequence = sequence_PackageString + ".ArraySequence";
     public static final String cBoundForOverSequence = sequence_PackageString + ".BoundForOverSequence";
     public static final String cBoundForOverNullableSingleton = sequence_PackageString + ".BoundForOverNullableSingleton";
+    public static final String cBoundForOverSingleton = sequence_PackageString + ".BoundForOverSingleton";
     public static final String cBoundForPartI = sequence_PackageString + ".BoundFor$FXForPart";
     public static final String cObjectArraySequence = sequence_PackageString + ".ObjectArraySequence";
 
@@ -304,7 +305,7 @@ public class JavafxDefs {
     final Name toArray_SequenceMethodName;
     final Name incrementSharing_SequenceMethodName;
 
-    final Name replaceParts_BoundForHelperMethodName;
+    final Name replaceParts_BoundForMethodName;
 
     /**
      * Interpolate method Names
@@ -606,7 +607,7 @@ public class JavafxDefs {
         set_AttributeMethodPrefixName = names.fromString(set_AttributeMethodPrefix);
         set_FXObjectMethodName = set_AttributeMethodPrefixName;
         seq_AttributeMethodPrefixName = names.fromString(seq_AttributeMethodPrefix);
-        replaceParts_BoundForHelperMethodName = names.fromString("replaceParts");
+        replaceParts_BoundForMethodName = names.fromString("replaceParts");
         invalidate_FXObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
         getFlags_FXObjectMethodName = names.fromString(getFlags_AttributeMethodPrefix);
         setFlags_FXObjectMethodName = names.fromString(setFlags_AttributeMethodPrefix);

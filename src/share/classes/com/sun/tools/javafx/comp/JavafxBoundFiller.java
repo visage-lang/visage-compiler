@@ -97,7 +97,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
             MethodSymbol dummyOwner = preTrans.makeDummyMethodSymbol(clause.var.sym.owner);
             JFXVar idxv = createIndexVar(clause, dummyOwner);
             JFXVar iv = createInductionVar(clause, idxv.sym, dummyOwner);
-            JFXVar rv = createResultVar(clause, body.value, dummyOwner, tree.type);
+            JFXVar rv = createResultVar(clause, body, dummyOwner, tree.type);
             body.stats = body.stats.prepend(iv).prepend(idxv).append(rv);
             body.value = preTrans.defaultValue(body.type); // just fill the spot
             scan(body);
@@ -140,9 +140,10 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
      * Create the bound result:
      *  def result = bind block_value;
      */
-    private JFXVar createResultVar(JFXForExpressionInClause clause, JFXExpression value, Symbol owner, Type seqType) {
+    private JFXVar createResultVar(JFXForExpressionInClause clause, JFXBlock body, Symbol owner, Type seqType) {
+        JFXExpression value = body.value;
         Type valtype = value.type;
-        if (clause.whereExpr != null) {
+        if (clause.getWhereExpression() != null) {
             // There is a where-clause, convert to an if-expression
             JFXExpression nada;
             if (types.isSequence(valtype)) {
@@ -156,10 +157,11 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
                 value.type = valtype;
             }
             nada.type = valtype;
-            value = fxmake.Conditional(clause.whereExpr, value, nada);
+            value = fxmake.Conditional(clause.getWhereExpression(), value, nada);
             value.type = valtype;
-            clause.whereExpr = null;
+            clause.setWhereExpr(null);
         }
+        body.type = valtype;
         JFXVar param = clause.getVar();
         Name resName = resultVarName(param.name);
         JFXVar resultVar =  preTrans.BoundLocalVar(valtype, resName, value, owner);
