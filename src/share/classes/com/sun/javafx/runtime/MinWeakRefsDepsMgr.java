@@ -72,7 +72,7 @@ class MinWeakRefsDepsMgr extends DependentsManager {
             return;
         Dep prev = null;
         MinWeakRefsDepsMgr binderManager = (MinWeakRefsDepsMgr) DependentsManager.get(binder);
-        WeakBinderRef binderRef = binderManager.thisRef;
+        WeakBinderRef binderRef = binderManager.getThisRef(binder);
         for (Dep dep = binderRef.bindees; dep != null; ) {
             Dep next = dep.nextInBindees;
             if (dep.chain == chain) {

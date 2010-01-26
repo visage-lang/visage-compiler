@@ -1206,6 +1206,45 @@ however this is what we need */
             public void generateMixin() {
                 callMixin((ClassSymbol)varSym.owner);
             }
+
+            // This method generates FXBase.switchDependence$ calls for all the
+            // bound select expressions that use the current var as the selector.
+            protected void generateSwitchDependences() {
+                if (!varInfo.boundBinders().isEmpty()) {
+                    for (VarInfo dependent : varInfo.boundBinders()) {
+                        JCExpression rcvr = getReceiverOrThis(varInfo.sym);
+                        for (DependentPair depPair : dependent.boundBoundSelects()) {
+                            // static variables and sequences are handled diffently
+                            if (depPair.instanceSym != varInfo.sym ||
+                                depPair.referencedSym.isStatic() ||
+                                types.isSequence(depPair.referencedSym.type)) {
+                                continue;
+                            }
+                            if (isMixinVar(depPair.referencedSym)) {
+                                JCExpression oldOffset = If(EQnull(id(defs.varOldValue_LocalVarName)),
+                                    Int(0),
+                                    Offset(id(defs.varOldValue_LocalVarName), depPair.referencedSym));
+                                    addStmt(Stmt(oldOffset));
+                                JCExpression newOffset = If(EQnull(Get(varInfo.sym)),
+                                    Int(0),
+                                    Offset(Get(varInfo.sym), depPair.referencedSym));
+                                    addStmt(Stmt(newOffset));
+                                    addStmt(CallStmt(defs.FXBase_switchDependence,
+                                    rcvr,
+                                id(defs.varOldValue_LocalVarName), oldOffset,
+                                    Get(varInfo.sym), newOffset));
+                            } else {
+                                JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(depPair.referencedSym));
+                                addStmt(offsetVar);
+                                addStmt(CallStmt(defs.FXBase_switchDependence,
+                                    rcvr,
+                                    id(defs.varOldValue_LocalVarName), id(offsetVar),
+                                    Get(varInfo.sym), id(offsetVar)));
+                            }
+                        }
+                    }
+                }
+            }
         }
         
         //
@@ -1834,7 +1873,8 @@ however this is what we need */
         //
         // Normal var accessors.
         //
-        
+
+
         //
         // This method constructs the getter method for the specified attribute.
         //
@@ -1852,7 +1892,7 @@ however this is what we need */
                                 Return(varInfo.boundInit()),
                                 Return(defaultValue(varInfo))));
                     } else {
-                        JCStatement initIf = null;
+                        JCStatement initIf = null;                        
                         if (!varInfo.isStatic() && !(isAnonClass() && varInfo.hasBoundDefinition())) {
                             // Prepare to accumulate body of if.
                             beginBlock();
@@ -1971,6 +2011,8 @@ however this is what we need */
                             // Release cycle lock.
                             addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
 
+                            generateSwitchDependences();
+
                             // Is it bound and invalid?
                             JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT, defs.varFlagIS_BOUND_INVALID);
 
@@ -2034,7 +2076,7 @@ however this is what we need */
                 @Override
                 public void statements() {
                     boolean isLeaf = isLeaf(varInfo);
-                
+
                     if (isLeaf) {
                         if (varInfo.isReadOnly()) {
                             addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
@@ -2060,9 +2102,11 @@ however this is what we need */
                         addStmt(OptIf(ifBoundTest,
                                 endBlock()));
                     }
-                    
+
                     // Set the var.
                     makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, false);
+
+                    generateSwitchDependences();
                     
                     // return $var;
                     addStmt(Return(Get(proxyVarSym)));

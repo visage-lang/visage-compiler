@@ -433,5 +433,28 @@ public class DependentsTest extends JavaFXTestCase {
         assertEquals(0, src1.getListenerCount$());
         assertEquals(3, src2.getListenerCount$());
     }
+
+    public void testFakeRemove() {
+        // create an FXBase with 2 fields.
+        FXBase src = new FXBase() {
+            @Override
+            public int count$() { return 2; }
+        };
+
+        FXBase dep = new FXBase();
+        src.addDependent$(0, dep);
+        src.addDependent$(1, dep);
+        assertEquals(2, src.getListenerCount$());
+
+        // remove something that was *not* added as dependent
+        FXObject fakeDep = new FXBase();
+        src.removeDependent$(0, fakeDep);
+        src.removeDependent$(1, fakeDep);
+        // try invalid varNum too!
+        src.removeDependent$(5, fakeDep);
+
+        // still 2 dependents -- but made sure fake removals are handled ok
+        assertEquals(2, src.getListenerCount$());
+    }
 }
 
