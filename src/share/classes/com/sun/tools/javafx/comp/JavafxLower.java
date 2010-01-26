@@ -932,6 +932,7 @@ public class JavafxLower implements JavafxVisitor {
         class ForLoopPatcher extends JavafxTreeScanner {
 
             Name targetLabel;
+            boolean inWhile = false;
             int synthNameCount = 0;
 
             private Name newLabelName() {
@@ -939,15 +940,27 @@ public class JavafxLower implements JavafxVisitor {
             }
 
             @Override
+            public void visitWhileLoop(JFXWhileLoop tree) {
+                boolean prevInWhile = inWhile;
+                try {
+                    inWhile = true;
+                    super.visitWhileLoop(tree);
+                }
+                finally {
+                    inWhile = prevInWhile;
+                }
+            }
+
+            @Override
             public void visitBreak(JFXBreak tree) {
-                tree.label = tree.label == null ?
+                tree.label = (tree.label == null && !inWhile) ?
                     targetLabel :
                     tree.label;
             }
 
             @Override
             public void visitContinue(JFXContinue tree) {
-                tree.label = tree.label == null ?
+                tree.label = (tree.label == null && !inWhile) ?
                     targetLabel :
                     tree.label;
             }
