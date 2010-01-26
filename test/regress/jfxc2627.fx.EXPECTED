@@ -5,9 +5,6 @@ BEFORE INSERT:
     sizeof(table.items) = 3
     sizeof(table.group.content) = 3
 theContent: sizeof(group.content) = 4
-theContent: sizeof(group.content) = 4
-theContent: sizeof(group.content) = 4
-theContent: sizeof(group.content) = 4
 [ Monday, Tuesday, Wednesday, Thursday ]
 AFTER INSERT:
     sizeof(items) = 4

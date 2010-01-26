@@ -327,19 +327,6 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
             return super.doit();
         }
-
-        @Override
-        protected void addSwitchDependence(JCExpression oldSelector, JCExpression newSelector, JCExpression oldOffset, JCExpression newOffset) {
-            JCExpression rcvr = getReceiverOrThis(selectResSym);
-            JCVariableDecl selectorOffset = TmpVar(syms.intType, Offset(selectResSym));
-            addPreface(selectorOffset);
-
-            addPreface(CallStmt(defs.FXBase_switchBiDiDependence,
-                    rcvr,
-                    id(selectorOffset),
-                    oldSelector, oldOffset,
-                    newSelector, newOffset));
-        }
     }
 
     private class BiBoundIdentTranslator extends BoundIdentTranslator {

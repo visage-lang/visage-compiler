@@ -30,7 +30,7 @@ import com.sun.javafx.runtime.FXObject;
  * @param <T> Result element type
  * @param <PT> Induction type
  */
-public abstract class BoundForHelper<T, PT> extends FXBase {
+public abstract class BoundFor<T, PT> extends FXBase {
 
     /** 
      * The bfElem class in the design document implements this interface.
@@ -61,18 +61,15 @@ public abstract class BoundForHelper<T, PT> extends FXBase {
 
     public int partResultVarNum; // This gets magically assigned when a part is created
 
+    protected FXForPart<PT>[] parts;
     protected int numParts;
     protected boolean uninitialized = true;
 
-    private int cacheIndex;
-    private int cachePart;
-
-    public BoundForHelper(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
+    public BoundFor(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         this.container = container;
         this.forVarNum = forVarNum;
         this.inductionSeqVarNum = inductionSeqVarNum;
         this.dependsOnIndex = dependsOnIndex;
-        resetCache();
     }
 
     // Required public interface
@@ -85,11 +82,6 @@ public abstract class BoundForHelper<T, PT> extends FXBase {
 
     // Shared implementation interface (optional)
 
-    // Cumulative length, exclusive
-    protected abstract int cumLength(int ipart);
-
-    protected abstract FXForPart<PT> getPart(int part);
-
     protected void initializeIfNeeded() {
         if (uninitialized) {
             // Init the induction sequence
@@ -100,53 +92,26 @@ public abstract class BoundForHelper<T, PT> extends FXBase {
         }
     }
 
-    public int size() {
-        initializeIfNeeded();
-        return cumLength(numParts);
+    protected FXForPart<PT> getPart(int ipart) {
+        return parts[ipart];
     }
 
-    public T get(int index) {
-        initializeIfNeeded();
-
-        if (index < 0)
-            return null;
-        
-        // FIXME - should use binary search if not in cache.
-        int i, cumPrev;
-        if (index >= cacheIndex) {
-            i = cachePart;
-            cumPrev = cumLength(i);
-        } else {
-            i = 0;
-            cumPrev = 0;
-        }
-        for (;; i++) {
-            if (i >= numParts)
-                return null;
-            int cum = cumLength(i+1);
-            if (index < cum) {
-                cachePart = i;
-                cacheIndex = cumPrev;
-                return get(i, index-cumPrev);
-            }
-            cumPrev = cum;
-        }
+    protected void blanketInvalidationOfBoundFor() {
+        container.invalidate$(forVarNum, 0, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
     }
 
-    protected void resetCache() {
-        cachePart = 0;
-    }
-
-    /** Get the size of part ipart. */
-    protected int size(int ipart) {
+    protected void syncInductionVar(int ipart) {
         FXForPart part = getPart(ipart);
-        return part.size$(partResultVarNum); // sequence version
+        part.setInductionVar$(container.elem$(inductionSeqVarNum, ipart));
     }
 
-    /** Get the j'th item of part ipart. */
-    protected T get(int ipart, int j) {
-        FXForPart part = getPart(ipart);
-        return (T) part.elem$(partResultVarNum, j);
+    protected void buildParts(int ipFrom, int ipTo) {
+        for (int ips = ipFrom; ips < ipTo; ++ips) {
+            FXForPart part = makeForPart$(ips);
+            parts[ips] = part;
+            syncInductionVar(ips);
+            addDependent$(part, partResultVarNum, this);
+        }
     }
 }
 

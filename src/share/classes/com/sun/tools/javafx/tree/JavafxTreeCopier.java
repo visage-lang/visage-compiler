@@ -360,7 +360,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
 
     public void visitForExpressionInClause(JFXForExpressionInClause tree) {
         tree.seqExpr = copy(tree.seqExpr);
-        tree.whereExpr = copy(tree.whereExpr);
+        tree.setWhereExpr(copy(tree.getWhereExpression()));
         result = tree;
     }
 

@@ -24,54 +24,17 @@
 package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.FXObject;
 
-public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
+public abstract class BoundForOverSequence<T, PT> extends BoundForOverVaryingAbstract<T, PT> {
 
-    private FXForPart<PT>[] parts;
-    private int[] cumulatedLengths;
-    private boolean areCumulatedLengthsValid = false;
     private boolean inWholesaleUpdate = true; // ignore initial individual updates
 
-    public BoundForHelperNaive(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
+    public BoundForOverSequence(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         super(container, forVarNum, inductionSeqVarNum, dependsOnIndex);
-    }
-
-    protected int cumLength(int ipart) {
-        if (ipart <= 0) {
-            return 0;
-        }
-        if (!areCumulatedLengthsValid) {
-            if (cumulatedLengths == null) {
-                cumulatedLengths = new int[numParts];
-            }
-
-            // We have invalid lengths, recompute them all
-            int sum = 0;
-            for (int ips = 0; ips < numParts; ++ips) {
-                sum += size(ips);
-                cumulatedLengths[ips] = sum;
-            }
-            areCumulatedLengthsValid = true;
-        }
-        return cumulatedLengths[ipart-1];
-    }
-
-    protected FXForPart<PT> getPart(int ipart) {
-        return parts[ipart];
-    }
-
-    private void blanketInvalidationOfBoundFor() {
-        container.invalidate$(forVarNum, 0, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
     }
 
     // Called by invalidate when the result of a part changes.
     @Override
     public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
-        update$(src, varNum, phase);
-    }
-
-    // Called by invalidate when the result of a part changes.
-    @Override
-    public void update$(FXObject src, final int varNum, final int phase) {
         if (uninitialized || inWholesaleUpdate)
             return;
         if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE) {
@@ -79,9 +42,15 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
             return;
         }
         //System.err.println("updateForPart src: " + ((FXForPart)src).getIndex$() + ", newLength: " + newLength);
-        
+
+        if (startPos < 0) {
+            // This is a no-change trigger, just pass it on
+            container.invalidate$(forVarNum, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, 0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
+            return;
+        }
+
         // Do invalidation
-        
+
         int ipart = ((FXForPart) src).getIndex$();
         int oldStartPos = cumLength(ipart);
         int oldEndPos = cumLength(ipart + 1);
@@ -102,20 +71,6 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
         container.invalidate$(forVarNum, oldStartPos, oldEndPos, insertedLength, phase);
     }
 
-    private void syncInductionVar(int ipart) {
-        FXForPart part = getPart(ipart);
-        part.setInductionVar$(container.elem$(inductionSeqVarNum, ipart));
-    }
-
-    private void buildParts(int ipFrom, int ipTo) {
-        for (int ips = ipFrom; ips < ipTo; ++ips) {
-            FXForPart part = makeForPart$(ips);
-            parts[ips] = part;
-            syncInductionVar(ips);
-            addDependent$(part, partResultVarNum, this);
-        }
-    }
-
     // Called by invalidate when the input sequence changes.
     public void replaceParts(int startPart, int endPart, int insertedParts, int phase) {
         if (uninitialized)
@@ -124,6 +79,13 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
             blanketInvalidationOfBoundFor();
             return;
         }
+
+        if (startPart < 0) {
+            // This is a no-change trigger, just pass it on
+            container.invalidate$(forVarNum, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, 0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
+            return;
+        }
+
         //System.err.println("startPart: " + startPart + ", endPart: " + endPart + ", insertedParts: " + insertedParts);
         int removedParts = endPart - startPart;
         int deltaParts = insertedParts - removedParts;
@@ -196,6 +158,18 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
             areCumulatedLengthsValid = false;
         }
         resetCache();
+    }
+
+    /** Get the size of part ipart. */
+    protected int size(int ipart) {
+        FXForPart part = getPart(ipart);
+        return part.size$(partResultVarNum); // sequence version
+    }
+
+    /** Get the j'th item of part ipart. */
+    protected T get(int ipart, int j) {
+        FXForPart part = getPart(ipart);
+        return (T) part.elem$(partResultVarNum, j);
     }
 }
 

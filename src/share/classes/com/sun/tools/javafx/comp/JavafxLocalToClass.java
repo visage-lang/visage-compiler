@@ -115,6 +115,12 @@ public class JavafxLocalToClass {
         descend(attrEnv.tree);
     }
 
+    enum BlockKind {
+        FUNCTION,
+        TRIGGER,
+        LOOP
+    }
+
     /**
      * This class is subclassed by classes which wish to control their descent
      * into other chunks.
@@ -129,7 +135,7 @@ public class JavafxLocalToClass {
      */
     private abstract class AbstractTreeChunker extends JavafxTreeScanner {
 
-        abstract void blockWithin(JFXBlock block);
+        abstract void blockWithin(JFXBlock block, BlockKind bkind);
 
         abstract void classWithin(JFXClassDeclaration block);
 
@@ -150,7 +156,7 @@ public class JavafxLocalToClass {
             Type returnType = (tree.definition.type == null)?
                 null : tree.definition.type.getReturnType();
             pushFunctionReturnType(returnType);
-            blockWithin(tree.getBodyExpression());
+            blockWithin(tree.getBodyExpression(), BlockKind.FUNCTION);
             popFunctionReturnType();
             popOwner();
         }
@@ -168,7 +174,7 @@ public class JavafxLocalToClass {
             boolean prevStatic = isStatic;
             isStatic = false;
             pushOwner(preTrans.makeDummyMethodSymbol(owner, defs.boundForPartName), false);
-            blockWithin((JFXBlock) tree.getBodyExpression());
+            blockWithin((JFXBlock) tree.getBodyExpression(), BlockKind.LOOP);
             popOwner();
             isStatic = prevStatic;
         }
@@ -178,7 +184,7 @@ public class JavafxLocalToClass {
             scan(tree.cond);
             // The body of the while-loop begins a new chunk
             // Lower has made the body a block-expression
-            blockWithin((JFXBlock) tree.getBody());
+            blockWithin((JFXBlock) tree.getBody(), BlockKind.LOOP);
         }
 
         @Override
@@ -192,7 +198,7 @@ public class JavafxLocalToClass {
         @Override
         public void visitOnReplace(JFXOnReplace tree) {
             pushOwner(preTrans.makeDummyMethodSymbol(owner), false);
-            blockWithin(tree.getBody());
+            blockWithin(tree.getBody(), BlockKind.TRIGGER);
             popOwner();
         }
 
@@ -243,7 +249,7 @@ public class JavafxLocalToClass {
 
             boolean needed = false;
 
-            void blockWithin(JFXBlock block) {
+            void blockWithin(JFXBlock block, BlockKind bkind) {
                 // Do not descend -- this analysis is within the chunk
             }
 
@@ -350,7 +356,7 @@ public class JavafxLocalToClass {
             return List.convert(JFXTree.class, vars.toList());
         }
 
-        void blockWithin(JFXBlock block) {
+        void blockWithin(JFXBlock block, BlockKind bkind) {
             // Do not descend -- this inflation is within the chunk
         }
 
@@ -435,7 +441,7 @@ public class JavafxLocalToClass {
      *     (new local_klass44()).doit$();
      *   }
      */
-    private void inflateBlockToClass(JFXBlock block) {
+    private void inflateBlockToClass(JFXBlock block, BlockKind bkind) {
         final Name funcName = preTrans.syntheticName("doit$$");
 
         String classNamePrefix;
@@ -619,9 +625,15 @@ public class JavafxLocalToClass {
                 resVarRef.type = resVar.type;
                 tryBody.value = fxmake.Assign(resVarRef, apply).setType(block.type);
 
-                value = (vc.returnType != null &&
+                value = (bkind == BlockKind.FUNCTION &&
+                        vc.returnType != null &&
                         vc.returnType.tag != TypeTags.VOID) ?
-                    fxmake.Return(resVarRef).setType(syms.unreachableType) :
+                        fxmake.Return(
+                            fxmake.TypeCast(
+                                preTrans.makeTypeTree(vc.returnType),
+                                resVarRef
+                            ).setType(vc.returnType)
+                        ).setType(syms.unreachableType) :
                     resVarRef;
                 stats = stats.prepend(resVar);
             }
@@ -660,13 +672,13 @@ public class JavafxLocalToClass {
 
     private class BottomUpChunkWalker extends AbstractTreeChunker {
 
-        void blockWithin(JFXBlock block) {
+        void blockWithin(JFXBlock block, BlockKind bkind) {
             // Descend into inner chunks
             descend(block);
 
             // check if the block needs inflation, if so, inflate
             if (needsToBeInflatedToClass(block)) {
-                inflateBlockToClass(block);
+                inflateBlockToClass(block, bkind);
             }
         }
 

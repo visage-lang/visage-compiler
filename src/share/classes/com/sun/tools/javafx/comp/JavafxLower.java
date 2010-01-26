@@ -152,7 +152,7 @@ public class JavafxLower implements JavafxVisitor {
     JFXExpression convertTree(JFXExpression tree, Type type) {
         return tree = needSequenceConversion(tree, type) ?
             toSequence(tree, type) :
-            makeCastIfNeeded(tree, type);
+            preTrans.makeCastIfNeeded(tree, type);
     }
 
     private boolean needSequenceConversion(JFXExpression tree, Type type) {
@@ -161,21 +161,6 @@ public class JavafxLower implements JavafxVisitor {
             tree.type != syms.unreachableType &&
             !types.isArray(tree.type)) ||
             isNull(tree)));
-    }
-
-    /**
-     * It is necessary to add an extra cast if either source type or target type
-     * is a boxed Java type - this is required because we might want to go from
-     * java.Lang.Long to int and vice-versa
-     */
-    private boolean needNumericBoxConversion(JFXExpression tree, Type type) {
-        boolean sourceIsPrimitive = tree.type.isPrimitive();
-        boolean targetIsPrimitive = type.isPrimitive();
-        Type unboxedSource = types.unboxedType(tree.type);
-        Type unboxedTarget = types.unboxedType(type);
-        return (sourceIsPrimitive && !targetIsPrimitive && unboxedTarget != Type.noType && !types.isSameType(unboxedTarget, tree.type)) ||
-                (targetIsPrimitive && !sourceIsPrimitive && unboxedSource != Type.noType && !types.isSameType(unboxedSource, type)) ||
-                (!sourceIsPrimitive && !targetIsPrimitive && unboxedTarget != Type.noType && unboxedSource!= Type.noType && !types.isSameType(type, tree.type));
     }
 
     private boolean isNull(JFXTree tree) {
@@ -200,56 +185,10 @@ public class JavafxLower implements JavafxVisitor {
 
         }
         else {
-            seqExpr = m.at(tree.pos).ExplicitSequence(List.of(makeCastIfNeeded(tree, types.elementType(type))));
+            seqExpr = m.at(tree.pos).ExplicitSequence(List.of(preTrans.makeCastIfNeeded(tree, types.elementType(type))));
             seqExpr.type = type;
         }
         return seqExpr;
-    }
-
-    private JFXExpression makeCastIfNeeded(JFXExpression tree, Type type) {
-        if (type == Type.noType ||
-                type == null ||
-                type.isErroneous() ||
-                type == syms.voidType ||
-                tree.type == syms.voidType ||
-                tree.type == syms.unreachableType ||
-                type == syms.unreachableType)
-            return tree;
-        else {
-            tree = makeNumericBoxConversionIfNeeded(tree, type);
-            return !types.isSameType(tree.type, type) &&
-                   (!types.isSubtypeUnchecked(tree.type, type) ||
-                   (tree.type.isPrimitive() && type.isPrimitive() ||
-                   (types.isSameType(tree.type, syms.javafx_EmptySequenceType) &&
-                   types.isSequence(type)))) ?
-                makeCast(tree, type) :
-                tree;
-        }
-    }
-
-    private JFXExpression makeNumericBoxConversionIfNeeded(JFXExpression tree, Type type) {
-        if (needNumericBoxConversion(tree, type)) {
-           //either tree.type or type is primitive!
-           if (tree.type.isPrimitive() && !type.isPrimitive()) {
-               return makeCast(tree, types.unboxedType(type));
-           }
-           else if (type.isPrimitive() && !tree.type.isPrimitive()) {
-               return makeCast(tree, types.unboxedType(tree.type));
-           }
-           else { //both are boxed types
-               return makeCast(makeCast(tree, types.unboxedType(tree.type)), types.unboxedType(type));
-           }
-        }
-        else {
-            return tree;
-        }
-    }
-
-    private JFXExpression makeCast(JFXExpression tree, Type type) {
-        JFXExpression typeTree = preTrans.makeTypeTree(type);
-        JFXExpression expr = m.at(tree.pos).TypeCast(typeTree, tree);
-        expr.type = type;
-        return expr;
     }
 
     private Name tempName(String label) {
@@ -438,7 +377,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        JFXExpression whereExpr = lower(that.whereExpr);
+        JFXExpression whereExpr = lower(that.getWhereExpression());
         Type typeToCheck = that.seqExpr.type;
         if  (that.seqExpr.type.tag == TypeTags.BOT ||
                 types.isSameType(that.seqExpr.type, syms.javafx_EmptySequenceType)) {
@@ -873,14 +812,20 @@ public class JavafxLower implements JavafxVisitor {
     public void visitBlockExpression(JFXBlock tree) {
         List<JFXExpression> stats = tree.stats;
         JFXExpression value = tree.value;
-        if (value != null &&
-                JavafxTreeInfo.skipParens(value).getFXTag() == JavafxTag.VAR_DEF) {
-            JFXVar varDef = (JFXVar)JavafxTreeInfo.skipParens(value);
-            JFXIdent varRef = m.at(tree.value.pos).Ident(varDef.sym);
-            varRef.sym = varDef.sym;
-            varRef.type = varDef.type;
-            value = varRef;
-            stats = stats.append(varDef);
+        if (value != null) {
+            if (JavafxTreeInfo.skipParens(value).getFXTag() == JavafxTag.VAR_DEF) {
+                JFXVar varDef = (JFXVar)JavafxTreeInfo.skipParens(value);
+                JFXIdent varRef = m.at(tree.value.pos).Ident(varDef.sym);
+                varRef.sym = varDef.sym;
+                varRef.type = varDef.type;
+                value = varRef;
+                stats = stats.append(varDef);
+            }
+            else if (value.type == syms.voidType &&
+                    !tree.isVoidValueAllowed) {
+                 stats = stats.append(value);
+                 value = makeDefaultValue(tree.type);
+            }
         }
         List<JFXExpression> loweredStats = lower(stats);
         JFXExpression loweredValue = value != null ?
@@ -891,6 +836,32 @@ public class JavafxLower implements JavafxVisitor {
         result.type = value != null ?
             loweredValue.type :
             tree.type;
+    }
+    //where
+    private JFXExpression makeDefaultValue(Type t) {
+        switch (t.tag) {
+            case TypeTags.BYTE: return m.Literal(TypeTags.BYTE, 0).setType(syms.byteType);
+            case TypeTags.SHORT: return m.Literal(TypeTags.SHORT, 0).setType(syms.shortType);
+            case TypeTags.INT: return m.Literal(TypeTags.INT, 0).setType(syms.intType);
+            case TypeTags.FLOAT: return m.Literal(TypeTags.FLOAT, 0).setType(syms.floatType);
+            case TypeTags.DOUBLE: return m.Literal(TypeTags.DOUBLE, 0).setType(syms.doubleType);
+            case TypeTags.BOOLEAN: return m.Literal(TypeTags.BOOLEAN, 0).setType(syms.booleanType);
+            case TypeTags.CLASS: {
+                if (types.isSequence(t)) {
+                    return m.EmptySequence().setType(syms.javafx_EmptySequenceType);
+                } else if (types.isSameType(t, syms.javafx_StringType)) {
+                    return m.Literal("").setType(syms.javafx_StringType);
+                } else if (types.isSameType(t, syms.javafx_DurationType)) {
+                    Name zeroName = names.fromString("ZERO");
+                    JFXSelect res = (JFXSelect)m.Select(
+                            preTrans.makeTypeTree(syms.javafx_DurationType),
+                            zeroName).setType(syms.javafx_DurationType);
+                    res.sym = rs.findIdentInType(env, syms.javafx_DurationType, zeroName, Kinds.VAR);
+                    return res;
+                }
+            }
+            default: return m.Literal(TypeTags.BOT, null);
+        }
     }
 
     public void visitBreak(JFXBreak tree) {
@@ -961,6 +932,7 @@ public class JavafxLower implements JavafxVisitor {
         class ForLoopPatcher extends JavafxTreeScanner {
 
             Name targetLabel;
+            boolean inWhile = false;
             int synthNameCount = 0;
 
             private Name newLabelName() {
@@ -968,15 +940,27 @@ public class JavafxLower implements JavafxVisitor {
             }
 
             @Override
+            public void visitWhileLoop(JFXWhileLoop tree) {
+                boolean prevInWhile = inWhile;
+                try {
+                    inWhile = true;
+                    super.visitWhileLoop(tree);
+                }
+                finally {
+                    inWhile = prevInWhile;
+                }
+            }
+
+            @Override
             public void visitBreak(JFXBreak tree) {
-                tree.label = tree.label == null ?
+                tree.label = (tree.label == null && !inWhile) ?
                     targetLabel :
                     tree.label;
             }
 
             @Override
             public void visitContinue(JFXContinue tree) {
-                tree.label = tree.label == null ?
+                tree.label = (tree.label == null && !inWhile) ?
                     targetLabel :
                     tree.label;
             }

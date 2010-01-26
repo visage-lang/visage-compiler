@@ -88,33 +88,6 @@ class SimpleDepsMgr extends DependentsManager implements Linkable<Dependent> {
         }
     }
 
-    @Override
-    public void notifyDependents(FXObject bindee, final int varNum, final int phase) {
-        // TODO - handle phase.
-        boolean oldInIteration = Dependent.inIteration;
-        try {
-            Dependent.inIteration = true;
-            for (Dependent dep = dependencies; dep != null;) {
-                Dependent next = dep.getNext();
-                FXObject binder = dep.get();
-                if (binder != null) {
-                    if (varNum == dep.varNum) {
-                        try {
-                            binder.update$(bindee, varNum, phase);
-                        } catch (RuntimeException re) {
-                            ErrorHandler.bindException(re);
-                        }
-                    }
-                } else {
-                    Linkables.remove(dep);
-                }
-                dep = next;
-            }
-        } finally {
-            Dependent.inIteration = oldInIteration;
-        }
-    }
-
     public void notifyDependents(FXObject bindee, final int varNum, int startPos, int endPos, int newLength, final int phase) {
         // TODO - handle phase.
         boolean oldInIteration = Dependent.inIteration;

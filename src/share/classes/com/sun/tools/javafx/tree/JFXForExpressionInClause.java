@@ -37,7 +37,8 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
 
     public final JFXVar var;
     public JFXExpression seqExpr;
-    public JFXExpression whereExpr;
+    private JFXExpression whereExpr;
+    private boolean hasWhere = false;
     public Name label;
 
     private boolean indexUsed;
@@ -61,6 +62,7 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
         this.var = var;
         this.seqExpr = seqExpr;
         this.whereExpr = whereExpr;
+        this.hasWhere = whereExpr != null;
     }
 
     public void accept(JavafxVisitor v) {
@@ -81,6 +83,17 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
 
     public JFXExpression getWhereExpression() {
         return whereExpr;
+    }
+
+    public boolean hasWhereExpression() {
+        return hasWhere;
+    }
+
+    public void setWhereExpr(JFXExpression whereExpr) {
+        this.whereExpr = whereExpr;
+        if (whereExpr != null) {
+            this.hasWhere = true;
+        }
     }
 
     public boolean getIndexUsed() {

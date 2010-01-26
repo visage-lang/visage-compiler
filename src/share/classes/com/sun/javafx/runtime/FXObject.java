@@ -124,10 +124,8 @@ public interface FXObject {
     // Earlier 'this' object was dependent on { oldBindee, varNum }.
     // Now, change the dependence to { newBindee, varNum }
     public void     switchDependence$    (FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum);
-    public void     switchBiDiDependence$(final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum);
     public void     notifyDependents$    (final int varNum, final int phase);
     public void     notifyDependents$    (int varNum, int startPos, int endPos, int newLength, int phase);
-    public void     update$ (final FXObject src, final int varNum, final int phase);
     public void     update$ (FXObject src, int varNum, int startPos, int endPos, int newLength, int phase);
 // for testing - the listener count is the number of distinct {varNum, dep} pairs
     public int      getListenerCount$();
@@ -137,7 +135,7 @@ public interface FXObject {
     public void     set$(int varNum, Object value);
     // type of a particular instance variable
     public Class    getType$(int varNum);
-    public void     be$(int varNum, Object value);
+    public void     seq$(int varNum, Object value);
     public void     invalidate$(int varNum, int startPos, int endPos, int newLength, int phase);
 
     public void     initialize$   ();

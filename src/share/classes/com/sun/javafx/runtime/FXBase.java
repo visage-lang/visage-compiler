@@ -178,36 +178,24 @@ import com.sun.javafx.runtime.sequence.Sequences;
             DependentsManager.get(obj).switchDependence(obj, oldBindee, oldNum, newBindee, newNum);
         }
     }
-    public void switchBiDiDependence$(final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
-        switchBiDiDependence$(this, varNum, oldBindee, oldNum, newBindee, newNum);
-    }
-    public static void switchBiDiDependence$(FXObject obj, final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
-        if (oldBindee != newBindee) {
-            if (oldBindee != null) {
-                DependentsManager.get(oldBindee).switchDependence(oldBindee, obj, varNum, null, 0);
-            }
-            DependentsManager.get(obj).switchDependence(obj, oldBindee, oldNum, newBindee, newNum);
-            if (newBindee != null) {
-                DependentsManager.get(newBindee).switchDependence(newBindee, null, 0, obj, varNum);
-            }
-        }
-    }
     public void notifyDependents$(final int varNum, final int phase) {
         notifyDependents$(this, varNum, phase);
     }
     public static void notifyDependents$(FXObject obj, final int varNum, final int phase) {
-        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-        DependentsManager.get(obj).notifyDependents(obj, varNum, phase);
+        if (obj.getDependentsManager$internal$() != null) {
+            assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+            DependentsManager.get(obj).notifyDependents(obj, varNum, 0, Sequences.UNDEFINED_MARKER_INT, Sequences.UNDEFINED_MARKER_INT, phase);
+        }
     }
     public void notifyDependents$(int varNum, int startPos, int endPos, int newLength, int phase) {
         notifyDependents$(this, varNum, startPos, endPos, newLength, phase);
     }
     public static void notifyDependents$(FXObject obj, final int varNum, int startPos, int endPos, int newLength, final int phase) {
-        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-        DependentsManager.get(obj).notifyDependents(obj, varNum, startPos, endPos, newLength, phase);
+        if (obj.getDependentsManager$internal$() != null) {
+            assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+            DependentsManager.get(obj).notifyDependents(obj, varNum, startPos, endPos, newLength, phase);
+        }
     }
-    public void update$(FXObject src, final int varNum, final int phase) {}
-    public static void update$(FXObject obj, FXObject src, final int varNum, final int phase) {}
     public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {}
     public static void update$(FXObject obj, FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {}
     public int getListenerCount$() {
@@ -235,10 +223,10 @@ import com.sun.javafx.runtime.sequence.Sequences;
     public static Class getType$(FXObject obj, int varNum) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
-    public void be$(int varNum, Object value) {
+    public void seq$(int varNum, Object value) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
-    public static void be$(FXObject obj, int varNum, Object value) {
+    public static void seq$(FXObject obj, int varNum, Object value) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
     public void invalidate$(int varNum, int startPos, int endPos, int newLength, int phase) {

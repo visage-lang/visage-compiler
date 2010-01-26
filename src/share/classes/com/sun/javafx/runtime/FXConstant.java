@@ -61,14 +61,6 @@ public final class FXConstant extends FXBase {
     }
 
 
-    public Object be$value(final Object varNewValue$) {
-         invalidate$value(PHASE_TRANS$BE_INVALIDATE);
-         $value = varNewValue$;
-         invalidate$value(PHASE_TRANS$BE_TRIGGER);
-         return $value;
-    }
-
-
     public void invalidate$value(final int phase$) {
         notifyDependents$(FXConstant.VOFF$value, phase$);
     }
@@ -103,7 +95,9 @@ public final class FXConstant extends FXBase {
 
     public static FXConstant make(Object init) {
         FXConstant var = new FXConstant();
-        var.be$value(init);
+        var.invalidate$value(PHASE_TRANS$BE_INVALIDATE);
+        var.$value = init;
+        var.invalidate$value(PHASE_TRANS$BE_TRIGGER);
         return var;
     }
 }

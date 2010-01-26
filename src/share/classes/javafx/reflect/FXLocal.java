@@ -287,6 +287,8 @@ public class FXLocal {
                 return ((FXPrimitiveType) type).clas;
             else if (type instanceof JavaArrayType)
                 return ((JavaArrayType) type).getJavaClass();
+            else if (type instanceof FXSequenceType)
+                return Sequence.class;
             else { // FIXME - handle other cases
                 ClassType ctyp = (ClassType) type;
                 return ctyp.isMixin() ? ctyp.refInterface : ctyp.refClass;
@@ -445,7 +447,6 @@ public class FXLocal {
             "restrictSet$",
             "setDependentsManager$internal$",
             "switchDependence$",
-            "switchBiDiDependence$",
             "userInit$",
             "getFlags$",
             "setFlags$",
@@ -455,12 +456,12 @@ public class FXLocal {
         };
         static final String[] SYSTEM_METHOD_PREFIXES = {
             "applyDefaults$",
-            "be$",
             "get$",
             "elem$",
             "initVars$",
             "invalidate$",
             "onReplace$",
+            "seq$",
             "set$",
             "size$",
             "update$",
@@ -661,7 +662,7 @@ public class FXLocal {
             }
         }
 
-        public FXObjectValue allocate () {
+        public ObjectValue allocate () {
             Class cls = refClass;
             Context context = getReflectionContext();
             try {
@@ -936,7 +937,7 @@ public class FXLocal {
 		this.listener = listener;
 	    }
 	    
-	    @Override public void update$(FXObject src, final int varNum, int phase) {
+	    @Override public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, int phase) {
 		// varNum does not matter, there is one change listener per <src, varNum> tuple.
                 if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
 		    this.listener.onChange();
@@ -1113,7 +1114,7 @@ public class FXLocal {
                 else {
                     Class cls = obj.getClass();
                     classType = type.getJavaImplementationClass() == cls ? type
-                            : type.getReflectionContext().makeClassRef(obj.getClass());
+                            : type.getReflectionContext().makeClassRef(cls);
                 }
             }
             return classType;

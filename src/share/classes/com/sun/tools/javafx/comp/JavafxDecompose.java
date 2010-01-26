@@ -35,6 +35,7 @@ import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.code.TypeTags;
@@ -44,8 +45,10 @@ import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Decompose bind expressions into easily translated expressions
@@ -60,11 +63,13 @@ public class JavafxDecompose implements JavafxVisitor {
     private JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;
     private ListBuffer<JFXTree> lbVar;
     private Set<String> synthNames;
-    private int anonClassCount = 0;
     private Symbol varOwner = null;
     private Symbol currentVarSymbol;
     private Symbol currentClass = null;
     private boolean inScriptLevel = true;
+    // Map of shreded (Ident) selectors in bound select expressions.
+    // Used in shred optimization.
+    private Map<Symbol, JFXExpression> shrededSelectors;
 
     protected final JavafxTreeMaker fxmake;
     protected final JavafxPreTranslationSupport preTrans;
@@ -530,7 +535,53 @@ public class JavafxDecompose implements JavafxVisitor {
             } else {
                 JavafxBindStatus oldBindStatus = bindStatus;
                 if (bindStatus == JavafxBindStatus.BIDIBIND) bindStatus = JavafxBindStatus.UNIDIBIND;
-                selected = shred(tree.selected);
+
+                /**
+                 * Avoding shreding as an optimization: if the select expression's selected part
+                 * is a JFXIdent and that identifier is an instance var of current class, then we
+                 * don't have to shred it.
+                 *
+                 * Example:
+                 *
+                 * class Person {
+                 *     var name : String;
+                 *     var age: Integer;
+                 * }
+                 *
+                 * class Test {
+                 *     var p : Person;
+                 *     var name = bind p.name; // instance var "p" in bind-select
+                 *     var age = bind p.age;   // same instance var "p" in bind-select
+                 * }
+                 *
+                 * In this case we can avoid shreding and generating two synthetic variables for
+                 * bind select expressions p.name, p.age.
+                 *
+                 * Special cases:
+                 * 
+                 *     (1) sequences are always shreded
+                 *     (2) non-variable access (eg. select expression selects method)
+                 *
+                 * TODO: for some reason this optimization does not work if the same selected part is
+                 * used by a unidirectional and bidirectional bind expressions. For now, filtering out
+                 * bidirectional cases. We need to revisit that mystery. Also. I've to oldBindStatus
+                 * because bindStatus has been set to UNIDIBIND in the previous statement.
+                 */
+                if (oldBindStatus == JavafxBindStatus.UNIDIBIND &&
+                    tree.selected instanceof JFXIdent &&
+                    !types.isSequence(tree.type) &&
+                    sym instanceof VarSymbol) {
+                    if (selectSym.owner == currentClass && !(selectSym.isStatic() ^ inScriptLevel)) {
+                        selected = tree.selected;
+                    } else if (shrededSelectors.containsKey(selectSym)) {
+                        selected = shrededSelectors.get(selectSym);
+                    } else {
+                        selected = shred(tree.selected);
+                        shrededSelectors.put(selectSym, selected);
+                    }
+                } else {
+                    selected = shred(tree.selected);
+                }
                 bindStatus = oldBindStatus;
             }
             JFXSelect res = fxmake.at(diagPos).Select(selected, sym.name);
@@ -568,6 +619,8 @@ public class JavafxDecompose implements JavafxVisitor {
         bindStatus = JavafxBindStatus.UNBOUND;
         Symbol prevVarOwner = varOwner;
         Symbol prevClass = currentClass;
+        Map<Symbol, JFXExpression> prevShredExprs = shrededSelectors;
+        shrededSelectors = new HashMap<Symbol, JFXExpression>();
         currentClass = varOwner = tree.sym;
         ListBuffer<JFXTree> prevLbVar = lbVar;
         lbVar = ListBuffer.<JFXTree>lb();
@@ -578,6 +631,7 @@ public class JavafxDecompose implements JavafxVisitor {
         lbVar = prevLbVar;
         varOwner = prevVarOwner;
         currentClass = prevClass;
+        shrededSelectors = prevShredExprs;
         result = tree;
         bindStatus = prevBindStatus;
     }
@@ -934,11 +988,13 @@ public class JavafxDecompose implements JavafxVisitor {
 
             // Create the BoundForHelper variable:
             Type inductionType = types.boxedTypeOrType(clause.inductionVarSym.type);
-            Type bodyType = tree.bodyExpr.type;
+            JFXBlock body = (JFXBlock) tree.getBodyExpression();
             Type helperType = types.applySimpleGenericType(
-                    types.isSequence(bodyType)?
-                        syms.javafx_BoundForHelperType :
-                        syms.javafx_BoundForHelperSingletonType,
+                    types.isSequence(body.type)?
+                        syms.javafx_BoundForOverSequenceType :
+                        (preTrans.isNullable(body) || clause.hasWhereExpression())?
+                            syms.javafx_BoundForOverNullableSingletonType :
+                            syms.javafx_BoundForOverSingletonType,
                     types.boxedElementType(tree.type),
                     inductionType);
             JFXExpression init = fxmake.Literal(TypeTags.BOT, null);
@@ -949,7 +1005,6 @@ public class JavafxDecompose implements JavafxVisitor {
             clause.boundHelper = helper;
 
             // Fix up the class
-            JFXBlock body = (JFXBlock) tree.getBodyExpression();
             JFXClassDeclaration cdecl = (JFXClassDeclaration) decompose(body.stats.head);
             body.stats.head = cdecl;
 
@@ -1001,7 +1056,7 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitForExpressionInClause(JFXForExpressionInClause tree) {
         tree.seqExpr = decompose(tree.seqExpr);
-        tree.whereExpr = decompose(tree.whereExpr);
+        tree.setWhereExpr(decompose(tree.getWhereExpression()));
         result = tree;
     }
 

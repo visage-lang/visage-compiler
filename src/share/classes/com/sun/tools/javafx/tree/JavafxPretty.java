@@ -1358,12 +1358,12 @@ public class JavafxPretty implements JavafxVisitor {
             } else {
                 print(that.seqExpr);
             }
-            if (that.whereExpr != null) {
+            if (that.getWhereExpression() != null) {
                 print(" where ");
-                if (that.whereExpr instanceof JFXErroneous) {
+                if (that.getWhereExpression() instanceof JFXErroneous) {
                     print("<erroreous where>");
                 } else {
-                    print(that.whereExpr);
+                    print(that.getWhereExpression());
                 }
             }
         } catch (IOException e) {

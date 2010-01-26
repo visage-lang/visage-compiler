@@ -93,8 +93,9 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_KeyValueTargetType;
     public final Type javafx_PointerType;
     public final Type javafx_FXConstantType;
-    public final Type javafx_BoundForHelperType;
-    public final Type javafx_BoundForHelperSingletonType;
+    public final Type javafx_BoundForOverSequenceType;
+    public final Type javafx_BoundForOverNullableSingletonType;
+    public final Type javafx_BoundForOverSingletonType;
     public final Type javafx_FXForPartInterfaceType;
     public final Type javafx_NonLocalReturnExceptionType;
     public final Type javafx_NonLocalBreakExceptionType;
@@ -215,8 +216,9 @@ public class JavafxSymtab extends Symtab {
         javafx_KeyValueTargetType = enterClass("javafx.animation.KeyValueTarget");
         javafx_PointerType = enterClass("com.sun.javafx.runtime.Pointer");
         javafx_FXConstantType = enterClass("com.sun.javafx.runtime.FXConstant");
-        javafx_BoundForHelperType = enterClass(JavafxDefs.cBoundForHelperNaive);
-        javafx_BoundForHelperSingletonType = enterClass(JavafxDefs.cBoundForHelperNaiveSingle);
+        javafx_BoundForOverSequenceType = enterClass(JavafxDefs.cBoundForOverSequence);
+        javafx_BoundForOverNullableSingletonType = enterClass(JavafxDefs.cBoundForOverNullableSingleton);
+        javafx_BoundForOverSingletonType = enterClass(JavafxDefs.cBoundForOverSingleton);
         javafx_FXForPartInterfaceType = enterClass(JavafxDefs.cBoundForPartI);
         javafx_NonLocalReturnExceptionType = enterClass(JavafxDefs.cNonLocalReturnException);
         javafx_NonLocalBreakExceptionType = enterClass(JavafxDefs.cNonLocalBreakException);

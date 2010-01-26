@@ -43,7 +43,7 @@ public class JavafxDefs {
      * Format: <name>_AttributeMethodPrefix
      */
     public static final String applyDefaults_AttributeMethodPrefix = "applyDefaults$";
-    public static final String be_AttributeMethodPrefix = "be$";
+    public static final String seq_AttributeMethodPrefix = "seq$";
     public static final String get_AttributeMethodPrefix = "get$";
     public static final String getMixin_AttributeMethodPrefix = "getMixin$";
     public static final String getVOFF_AttributeMethodPrefix = "getVOFF$";
@@ -123,10 +123,10 @@ public class JavafxDefs {
     public static final String cSequenceRef = sequence_PackageString + ".SequenceRef";
     public static final String cSequenceProxy = sequence_PackageString + ".SequenceProxy";
     public static final String cArraySequence = sequence_PackageString + ".ArraySequence";
-    public static final String cBoundForHelper = sequence_PackageString + ".BoundForHelper";
-    public static final String cBoundForHelperNaive = sequence_PackageString + ".BoundForHelperNaive";
-    public static final String cBoundForHelperNaiveSingle = sequence_PackageString + ".BoundForHelperNaiveSingle";
-    public static final String cBoundForPartI = cBoundForHelper + "$FXForPart";
+    public static final String cBoundForOverSequence = sequence_PackageString + ".BoundForOverSequence";
+    public static final String cBoundForOverNullableSingleton = sequence_PackageString + ".BoundForOverNullableSingleton";
+    public static final String cBoundForOverSingleton = sequence_PackageString + ".BoundForOverSingleton";
+    public static final String cBoundForPartI = sequence_PackageString + ".BoundFor$FXForPart";
     public static final String cObjectArraySequence = sequence_PackageString + ".ObjectArraySequence";
 
     // in runtime package -- public
@@ -239,7 +239,6 @@ public class JavafxDefs {
     final RuntimeMethod ErrorHandler_bindException;
 
     final RuntimeMethod FXBase_switchDependence;
-    final RuntimeMethod FXBase_switchBiDiDependence;
     final RuntimeMethod FXBase_removeDependent;
     final RuntimeMethod FXBase_addDependent;
     final RuntimeMethod FXBase_makeInitMap;
@@ -306,7 +305,7 @@ public class JavafxDefs {
     final Name toArray_SequenceMethodName;
     final Name incrementSharing_SequenceMethodName;
 
-    final Name replaceParts_BoundForHelperMethodName;
+    final Name replaceParts_BoundForMethodName;
 
     /**
      * Interpolate method Names
@@ -391,7 +390,6 @@ public class JavafxDefs {
     final Name newLength_ArgName;
     final Name phase_ArgName;
     final Name varNewValue_ArgName;
-    final Name isSet_ArgName;
     final Name oldValue_ArgName;
     final Name newValue_ArgName;
     final Name pos_ArgName;
@@ -407,7 +405,7 @@ public class JavafxDefs {
      */
     final Name get_AttributeMethodPrefixName;
     final Name set_AttributeMethodPrefixName;
-    final Name be_AttributeMethodPrefixName;
+    final Name seq_AttributeMethodPrefixName;
 
     /**
      * Field prefixes for attributes as Name
@@ -608,8 +606,8 @@ public class JavafxDefs {
         get_FXObjectMethodName = get_AttributeMethodPrefixName;
         set_AttributeMethodPrefixName = names.fromString(set_AttributeMethodPrefix);
         set_FXObjectMethodName = set_AttributeMethodPrefixName;
-        be_AttributeMethodPrefixName = names.fromString(be_AttributeMethodPrefix);
-        replaceParts_BoundForHelperMethodName = names.fromString("replaceParts");
+        seq_AttributeMethodPrefixName = names.fromString(seq_AttributeMethodPrefix);
+        replaceParts_BoundForMethodName = names.fromString("replaceParts");
         invalidate_FXObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
         getFlags_FXObjectMethodName = names.fromString(getFlags_AttributeMethodPrefix);
         setFlags_FXObjectMethodName = names.fromString(setFlags_AttributeMethodPrefix);
@@ -630,7 +628,6 @@ public class JavafxDefs {
         varFlags_LocalVarName = names.fromString("varFlags$");
         wasInvalid_LocalVarName = names.fromString("wasInvalid$");
         varNewValue_ArgName = names.fromString("varNewValue$");
-        isSet_ArgName = names.fromString("isSet$");
         value_NonLocalReturnExceptionFieldName = names.fromString("value");
         outerAccessor_FXObjectFieldName = names.fromString("accessOuterField$");
         updateInstance_ArgName = names.fromString("instance$");
@@ -762,7 +759,6 @@ public class JavafxDefs {
         ErrorHandler_bindException = new RuntimeMethod(names, cErrorHandler, "bindException");
 
         FXBase_switchDependence = new RuntimeMethod(names, cFXBase, "switchDependence$");
-        FXBase_switchBiDiDependence = new RuntimeMethod(names, cFXBase, "switchBiDiDependence$");
         FXBase_removeDependent = new RuntimeMethod(names, cFXBase, "removeDependent$");
         FXBase_addDependent = new RuntimeMethod(names, cFXBase, "addDependent$");
         FXBase_makeInitMap = new RuntimeMethod(names, cFXBase, "makeInitMap$");
@@ -781,7 +777,7 @@ public class JavafxDefs {
         accessorPrefixes = new Name[] {
                 get_AttributeMethodPrefixName,
                 set_AttributeMethodPrefixName,
-                be_AttributeMethodPrefixName,
+                seq_AttributeMethodPrefixName,
                 invalidate_FXObjectMethodName,
                 getFlags_FXObjectMethodName,
                 setFlags_FXObjectMethodName,

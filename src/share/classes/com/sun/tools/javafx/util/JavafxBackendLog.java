@@ -80,12 +80,7 @@ public class JavafxBackendLog extends Log {
             // we haven't created the crashFileWriter
             try {
                 // Create temp file writer if we can.
-                
-                //File crashFile = File.createTempFile("javafx_err_", ".txt");
-                //TODO: return to above
-                File crashFile = File.createTempFile("javafx_err_XXX", "YYY.txt");
-                crashFile = new File(crashFile.getPath().replaceAll("XXX.*YYY", "_TODO_FIXED_FOR_ERR_LOG_COMPARE_"));
-
+                File crashFile = File.createTempFile("javafx_err_", ".txt");
                 crashFileWriter = new PrintWriter(crashFile);
                 crashFileName = crashFile.getCanonicalPath();
             } catch (Exception e) {
