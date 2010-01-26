@@ -812,14 +812,20 @@ public class JavafxLower implements JavafxVisitor {
     public void visitBlockExpression(JFXBlock tree) {
         List<JFXExpression> stats = tree.stats;
         JFXExpression value = tree.value;
-        if (value != null &&
-                JavafxTreeInfo.skipParens(value).getFXTag() == JavafxTag.VAR_DEF) {
-            JFXVar varDef = (JFXVar)JavafxTreeInfo.skipParens(value);
-            JFXIdent varRef = m.at(tree.value.pos).Ident(varDef.sym);
-            varRef.sym = varDef.sym;
-            varRef.type = varDef.type;
-            value = varRef;
-            stats = stats.append(varDef);
+        if (value != null) {
+            if (JavafxTreeInfo.skipParens(value).getFXTag() == JavafxTag.VAR_DEF) {
+                JFXVar varDef = (JFXVar)JavafxTreeInfo.skipParens(value);
+                JFXIdent varRef = m.at(tree.value.pos).Ident(varDef.sym);
+                varRef.sym = varDef.sym;
+                varRef.type = varDef.type;
+                value = varRef;
+                stats = stats.append(varDef);
+            }
+            else if (value.type == syms.voidType &&
+                    !tree.isVoidValueAllowed) {
+                 stats = stats.append(value);
+                 value = makeDefaultValue(tree.type);
+            }
         }
         List<JFXExpression> loweredStats = lower(stats);
         JFXExpression loweredValue = value != null ?
@@ -830,6 +836,32 @@ public class JavafxLower implements JavafxVisitor {
         result.type = value != null ?
             loweredValue.type :
             tree.type;
+    }
+    //where
+    private JFXExpression makeDefaultValue(Type t) {
+        switch (t.tag) {
+            case TypeTags.BYTE: return m.Literal(TypeTags.BYTE, 0).setType(syms.byteType);
+            case TypeTags.SHORT: return m.Literal(TypeTags.SHORT, 0).setType(syms.shortType);
+            case TypeTags.INT: return m.Literal(TypeTags.INT, 0).setType(syms.intType);
+            case TypeTags.FLOAT: return m.Literal(TypeTags.FLOAT, 0).setType(syms.floatType);
+            case TypeTags.DOUBLE: return m.Literal(TypeTags.DOUBLE, 0).setType(syms.doubleType);
+            case TypeTags.BOOLEAN: return m.Literal(TypeTags.BOOLEAN, 0).setType(syms.booleanType);
+            case TypeTags.CLASS: {
+                if (types.isSequence(t)) {
+                    return m.EmptySequence().setType(syms.javafx_EmptySequenceType);
+                } else if (types.isSameType(t, syms.javafx_StringType)) {
+                    return m.Literal("").setType(syms.javafx_StringType);
+                } else if (types.isSameType(t, syms.javafx_DurationType)) {
+                    Name zeroName = names.fromString("ZERO");
+                    JFXSelect res = (JFXSelect)m.Select(
+                            preTrans.makeTypeTree(syms.javafx_DurationType),
+                            zeroName).setType(syms.javafx_DurationType);
+                    res.sym = rs.findIdentInType(env, syms.javafx_DurationType, zeroName, Kinds.VAR);
+                    return res;
+                }
+            }
+            default: return m.Literal(TypeTags.BOT, null);
+        }
     }
 
     public void visitBreak(JFXBreak tree) {

@@ -45,6 +45,7 @@ public class JFXBlock extends JFXExpression implements BlockExpressionTree {
     public JFXReturn returnStatement;
     /** Position of closing brace, optional. */
     public int endpos = Position.NOPOS;
+    public boolean isVoidValueAllowed = true;
 
     protected JFXBlock(long flags, List<JFXExpression> stats, JFXExpression value) {
         this.stats = stats;

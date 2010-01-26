@@ -1423,9 +1423,18 @@ public class JavafxAttr implements JavafxVisitor {
                 log.error(tree.value.pos(), MsgSym.MESSAGE_UNREACHABLE_STMT);
             }
             Type valueType = attribExpr(tree.value, localEnv, pt, pSequenceness);
-            owntype = valueType != syms.unreachableType ?
-                unionType(tree.pos(), tree.type, valueType) :
-                syms.unreachableType;
+            
+            if (valueType == syms.voidType &&
+                    !tree.isVoidValueAllowed) {
+                //void value not allowed in a block that has non-void return
+                log.warning(tree.value.pos(), MsgSym.MESSAGE_JAVAFX_VOID_BLOCK_VALUE_NOT_ALLOWED);
+                owntype = tree.type;
+            }
+            else {
+                owntype = valueType != syms.unreachableType ?
+                    unionType(tree.pos(), tree.type, valueType) :
+                    syms.unreachableType;
+            }
         }        
         if (owntype == null) {
             owntype = syms.voidType;
@@ -2237,6 +2246,7 @@ public class JavafxAttr implements JavafxVisitor {
                 }
                 Type exprType = attribExpr(tree.expr, env);
                 enclBlock.type = unionType(tree.pos(), enclBlock.type, exprType);
+                enclBlock.isVoidValueAllowed = false;
             }
         }    
         result = tree.type = syms.unreachableType;

@@ -333,6 +333,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF = "javafx.type.infer.cycle.var.ref";
     public static final String MESSAGE_JAVAFX_FUNC_TYPE_INFER_CYCLE = "javafx.function.type.infer.cycle";
     public static final String MESSAGE_JAVAFX_VOID_SEQUENCE_NOT_ALLOWED = "javafx.void.sequence.not.allowed";
+    public static final String MESSAGE_JAVAFX_VOID_BLOCK_VALUE_NOT_ALLOWED = "javafx.void.block.val.not.allowed";
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED = "javafx.only.one.base.java.class.allowed"; 
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_CLASS_ALLOWED = "javafx.only.one.base.class.allowed";
     public static final String MESSAGE_NEW_FX_CLASS_NO_ARGS = "new.fxclass.no.args";
