@@ -65,7 +65,7 @@
  * FXObjectValue z = cls.allocation();
  * z.initVar("a", ???);
  * z.bindVar("b", ???);
- * z = obj.initialize();
+ * z.initialize();
  * </pre></blockquote>
  *
  * <h2>Sequence operations</h2>

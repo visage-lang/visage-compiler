@@ -662,7 +662,7 @@ public class FXLocal {
             }
         }
 
-        public FXObjectValue allocate () {
+        public ObjectValue allocate () {
             Class cls = refClass;
             Context context = getReflectionContext();
             try {
@@ -1114,7 +1114,7 @@ public class FXLocal {
                 else {
                     Class cls = obj.getClass();
                     classType = type.getJavaImplementationClass() == cls ? type
-                            : type.getReflectionContext().makeClassRef(obj.getClass());
+                            : type.getReflectionContext().makeClassRef(cls);
                 }
             }
             return classType;
