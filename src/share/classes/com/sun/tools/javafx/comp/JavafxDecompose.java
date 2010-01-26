@@ -571,7 +571,7 @@ public class JavafxDecompose implements JavafxVisitor {
                     tree.selected instanceof JFXIdent &&
                     !types.isSequence(tree.type) &&
                     sym instanceof VarSymbol) {
-                    if (selectSym.owner == currentClass) {
+                    if (selectSym.owner == currentClass && !(selectSym.isStatic() ^ inScriptLevel)) {
                         selected = tree.selected;
                     } else if (shrededSelectors.containsKey(selectSym)) {
                         selected = shrededSelectors.get(selectSym);
