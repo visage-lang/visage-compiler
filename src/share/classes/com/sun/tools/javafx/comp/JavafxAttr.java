@@ -868,8 +868,7 @@ public class JavafxAttr implements JavafxVisitor {
                             tree.rhs.type != null &&
                             lhsVar.type != tree.rhs.type) {
                         tree.type = tree.lhs.type = lhsVar.type = lhsSym.type = types.normalize(tree.rhs.type);
-                        JFXExpression jcExpr = fxmake.at(tree.pos()).Ident(lhsSym);
-                        lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(jcExpr, lhsVar.getJFXType().getCardinality()));
+                        lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(fxmake.Type(lhsSym.type), lhsVar.getJFXType().getCardinality()));
                 }
             }
         }
