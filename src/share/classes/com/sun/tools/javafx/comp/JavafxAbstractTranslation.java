@@ -1916,12 +1916,61 @@ public abstract class JavafxAbstractTranslation
                         addInterClassBindee(selectorSym, refSym);
                     } else if (canChange()) {
                         // cases that need a null check are the same as cases that have changing dependencies
+                        buildDependencies(selectorSym);
                         addBindee(selectorSym);
                         addInterClassBindee(selectorSym, refSym);
                     }
                 }
             }
             return (ExpressionResult) super.doit();
+        }
+
+        protected void buildDependencies(Symbol selectorSym) {
+            if (types.isJFXClass(selectorSym.owner) && types.isJFXClass(tree.sym.owner)) {
+                JavafxVarSymbol varSym = (JavafxVarSymbol)tree.sym;
+                
+                if (varSym.isStatic()) {
+                    // Since the receiver is constant ($scriptaccess$) then 'this' gets added to initVars$ (do once)
+                } else {
+                    Type selectorType = selectorSym.type;
+    
+                    JCVariableDecl oldSelector = TmpVar(selectorType, Get(selectorSym));
+                    addPreface(oldSelector);
+                    JCVariableDecl newSelector = TmpVar(selectorType, Getter(selectorSym));
+                    addPreface(newSelector);
+            
+                    if (isMixinVar(varSym)) {
+                        JCExpression oldOffset =
+                            If(EQnull(id(oldSelector)),
+                                Int(0),
+                                Offset(id(oldSelector), varSym));
+                        JCExpression newOffset =
+                            If(EQnull(id(newSelector)),
+                                Int(0),
+                                Offset(id(newSelector), varSym));
+                        JCExpression depNum =
+                            If(EQnull(id(newSelector)),
+                                Int(0),
+                                Offset(id(newSelector), varSym));
+                        addSwitchDependence(id(oldSelector), id(newSelector), oldOffset, newOffset,
+                                            DepNum(getReceiver(selectResSym), selectorSym, varSym));
+                    } else {
+                        JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(varSym));
+                        addPreface(offsetVar);
+                        addSwitchDependence(id(oldSelector), id(newSelector), id(offsetVar), id(offsetVar),
+                                            DepNum(getReceiver(selectResSym), selectorSym, varSym));
+                    }
+                }
+            }
+        }
+
+        protected void addSwitchDependence(JCExpression oldSelector, JCExpression newSelector, JCExpression oldOffset, JCExpression newOffset, JCExpression depNum) {
+            JCExpression rcvr = getReceiverOrThis(selectResSym);
+            addPreface(CallStmt(defs.FXBase_switchDependence,
+                    rcvr,
+                    oldSelector, oldOffset,
+                    newSelector, newOffset,
+                    depNum));
         }
     }
 

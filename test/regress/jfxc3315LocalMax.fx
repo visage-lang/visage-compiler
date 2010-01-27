@@ -11,7 +11,7 @@
 import java.lang.management.*;
 
 // With 2000000 it fails on Mac OS X 10.5.7 
-def MAX_MEM : Long = 4500000;  // On Vista 64 - July 13, 2009 : 1273968
+def MAX_MEM : Long = 4750000;  // On Vista 64 - July 13, 2009 : 1273968
 
 var initialMem : Long;
 

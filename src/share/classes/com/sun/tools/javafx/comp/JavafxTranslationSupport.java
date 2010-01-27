@@ -338,6 +338,10 @@ public abstract class JavafxTranslationSupport {
         return sym.owner.kind == Kinds.MTH;
     }
     
+    protected boolean isBoundFuncClass(ClassSymbol sym) {
+        return (sym.flags_field & JavafxFlags.FX_BOUND_FUNCTION_CLASS) != 0L;
+    }
+
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, String str) {
         assert str.indexOf('<') < 0 : "attempt to parse a type with 'Identifier'.  Use TypeTree";
         JCExpression tree = null;
@@ -590,7 +594,7 @@ public abstract class JavafxTranslationSupport {
         String className = sym.fullname.toString();
         return names.fromString(varGetMapString + className.replace('.', '$'));
     }
-
+    
     Name attributeOffsetName(Symbol sym) {
         return prefixedAttributeName(sym, offset_AttributeFieldPrefix);
     }
@@ -657,6 +661,23 @@ public abstract class JavafxTranslationSupport {
 
     Name boundFunctionVarNumParamName(Name suffix) {
         return names.fromString(boundFunctionVarNumParamPrefix + suffix);
+    }
+
+    Name depName(Symbol selector, Symbol sym) {
+        String selectorString = "";
+        
+        if (sym.isStatic()) {
+            selectorString = sym.owner.toString().replace('.', '$');
+        } else if (selector != null &&
+                   !(selector instanceof JavafxVarSymbol && ((JavafxVarSymbol)selector).isSpecial())) {
+            selectorString = selector.toString();
+        }
+
+        return names.fromString(dep_FXObjectFieldString + selectorString + "$_$" + sym.toString());
+    }
+
+    Name classDCNT$Name(Symbol classSym) {
+        return names.fromString(defs.depCount_FXObjectFieldString + classSym.toString().replace('.', '$'));
     }
 
     boolean isBoundFunctionResult(Symbol sym) {
@@ -954,6 +975,14 @@ public abstract class JavafxTranslationSupport {
             return JavafxTranslationSupport.this.isLocalClass(sym);
         }
         
+        public boolean isBoundFuncClass() {
+            return JavafxTranslationSupport.this.isBoundFuncClass((ClassSymbol)enclosingClassDecl.sym);
+        }
+                
+        public boolean isBoundFuncClass(ClassSymbol sym) {
+            return JavafxTranslationSupport.this.isBoundFuncClass(sym);
+        }
+        
         public boolean isMixinVar(Symbol sym) {
             JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             Symbol owner = varSym.owner;
@@ -964,6 +993,12 @@ public abstract class JavafxTranslationSupport {
             JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             Symbol owner = varSym.owner;
             return owner instanceof ClassSymbol && isLocalClass((ClassSymbol)owner);
+        }
+        
+        public boolean isBoundFuncParameter(Symbol sym) {
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
+            Symbol owner = varSym.owner;
+            return owner instanceof ClassSymbol && isBoundFuncClass((ClassSymbol)owner);
         }
         
         public boolean setIsScript(boolean newState) {
@@ -1737,6 +1772,18 @@ public abstract class JavafxTranslationSupport {
             }
             
             return Offset(varSym);
+        }
+
+        public JCExpression DepNum(JCExpression selector, Symbol selectorSym, Symbol sym) {
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
+            Name depName = depName(selectorSym, varSym);
+            
+            if (isMixinClass()) {
+                return PLUS(Call(classDCNT$Name(enclosingClassDecl.sym)), id(depName));
+            }
+            
+            return Select(selector, depName);
         }
 
         public JCExpression VarFlags(Symbol sym) {

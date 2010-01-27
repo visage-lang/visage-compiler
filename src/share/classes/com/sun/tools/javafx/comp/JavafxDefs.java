@@ -76,6 +76,8 @@ public class JavafxDefs {
     public static final String count_FXObjectFieldString = "VCNT$";
     public static final String varFlags_FXObjectFieldPrefix = "VFLGS$";
     public static final String varMap_FXObjectFieldPrefix = "MAP$";
+    public static final String depCount_FXObjectFieldString = "DCNT$";
+    public static final String dep_FXObjectFieldString = "DEP$";
 
     /**
      * Class suffixes
@@ -359,6 +361,7 @@ public class JavafxDefs {
      */
 
     final Name count_FXObjectFieldName;
+    final Name depCount_FXObjectFieldName;
     final Name outerAccessor_FXObjectFieldName;
     final Name scriptLevelAccess_FXObjectFieldName;
 
@@ -394,6 +397,7 @@ public class JavafxDefs {
     final Name newValue_ArgName;
     final Name pos_ArgName;
     final Name varNum_ArgName;
+    final Name depNum_ArgName;
     final Name updateInstance_ArgName;
     final Name obj_ArgName;
     final Name value_ArgName;
@@ -579,6 +583,7 @@ public class JavafxDefs {
         offset_AttributeFieldPrefixName = names.fromString(offset_AttributeFieldPrefix);
         flags_AttributeFieldPrefixName = names.fromString(flags_AttributeFieldPrefix);
         count_FXObjectFieldName = names.fromString(count_FXObjectFieldString);
+        depCount_FXObjectFieldName = names.fromString(depCount_FXObjectFieldString);
         typeParameterName = names.fromString("T");
         init_MethodSymbolName = names.fromString("$init$def$name");
         postinit_MethodSymbolName = names.fromString("$postinit$def$name");
@@ -634,6 +639,7 @@ public class JavafxDefs {
         obj_ArgName = names.fromString("object$");
         value_ArgName = names.fromString("value$");
         varNum_ArgName = names.fromString("varNum$");
+        depNum_ArgName = names.fromString("depNum$");
         scriptClassSuffixName = names.fromString(scriptClassSuffix);
         scriptLevelAccess_FXObjectFieldName = names.fromString("$scriptLevel$");
 
@@ -783,7 +789,9 @@ public class JavafxDefs {
                 setFlags_FXObjectMethodName,
                 onReplaceAttributeMethodPrefixName,
                 getElement_FXObjectMethodName,
-                size_FXObjectMethodName
+                size_FXObjectMethodName,
+                count_FXObjectFieldName,
+                depCount_FXObjectFieldName
              };
      
         // Initialize per Kind names and types
