@@ -458,8 +458,8 @@ public class DependentsTest extends JavaFXTestCase {
         };
 
         FXBase dep = new FXBase();
-        src.addDependent$(0, dep);
-        src.addDependent$(1, dep);
+        src.addDependent$(0, dep, 0);
+        src.addDependent$(1, dep, 1);
         assertEquals(2, src.getListenerCount$());
 
         // remove something that was *not* added as dependent

@@ -110,7 +110,7 @@ public abstract class BoundFor<T, PT> extends FXBase {
             FXForPart part = makeForPart$(ips);
             parts[ips] = part;
             syncInductionVar(ips);
-            addDependent$(part, partResultVarNum, this);
+            addDependent$(part, partResultVarNum, this, 0);
         }
     }
 }

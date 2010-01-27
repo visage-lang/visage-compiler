@@ -1258,16 +1258,16 @@ however this is what we need */
                                 addStmt(CallStmt(defs.FXBase_switchDependence,
                                                  rcvr,
                                                  id(defs.varOldValue_LocalVarName), oldOffset,
-                                                 Get(varInfo.sym), newOffset),
-                                                 DepNum(getReceiver(), depPair.instanceSym, depPair.referencedSym));
+                                                 Get(varInfo.sym), newOffset,
+                                                 DepNum(getReceiver(depPair.instanceSym), depPair.instanceSym, depPair.referencedSym)));
                             } else {
                                 JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(depPair.referencedSym));
                                 addStmt(offsetVar);
                                 addStmt(CallStmt(defs.FXBase_switchDependence,
                                                  rcvr,
                                                  id(defs.varOldValue_LocalVarName), id(offsetVar),
-                                                 Get(varInfo.sym), id(offsetVar)),
-                                                 DepNum(getReceiver(), depPair.instanceSym, depPair.referencedSym));
+                                                 Get(varInfo.sym), id(offsetVar),
+                                                 DepNum(getReceiver(depPair.instanceSym), depPair.instanceSym, depPair.referencedSym)));
                             }
                         }
                     }
