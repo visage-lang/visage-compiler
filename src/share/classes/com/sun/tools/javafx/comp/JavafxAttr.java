@@ -1256,9 +1256,9 @@ public class JavafxAttr implements JavafxVisitor {
             if  (var == null || var instanceof JFXErroneousVar) continue;
 
             Type declType = attribType(var.getJFXType(), forExprEnv);
+            attribVar(var, forExprEnv);
             JFXExpression expr = (JFXExpression)clause.getSequenceExpression();
             Type exprType = types.upperBound(attribExpr(expr, forExprEnv));
-            attribVar(var, forExprEnv);
             chk.checkNonVoid(((JFXTree)clause).pos(), exprType);
 
             Type elemtype;
