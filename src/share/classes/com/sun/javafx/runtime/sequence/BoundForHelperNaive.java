@@ -65,12 +65,12 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
 
     // Called by invalidate when the result of a part changes.
     @Override
-    public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
+    public boolean update$(FXObject src, final int depNum, int startPos, int endPos, int newLength, final int phase) {
         if (uninitialized || inWholesaleUpdate)
-            return;
+            return true;
         if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE) {
             blanketInvalidationOfBoundFor();
-            return;
+            return true;
         }
         //System.err.println("updateForPart src: " + ((FXForPart)src).getIndex$() + ", newLength: " + newLength);
         
@@ -94,6 +94,7 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
         // Send invalidation
         //System.out.println("ipart: " + ipart + ", oldStart: " + oldStartPos + ", oldEndPos: " + oldEndPos + ", newEndPos: " + newEndPos + ", insertedLength: " + insertedLength);
         container.invalidate$(forVarNum, oldStartPos, oldEndPos, insertedLength, phase);
+        return true;
     }
 
     private void syncInductionVar(int ipart) {
@@ -106,7 +107,7 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
             FXForPart part = makeForPart$(ips);
             parts[ips] = part;
             syncInductionVar(ips);
-            addDependent$(part, partResultVarNum, this);
+            addDependent$(part, partResultVarNum, this, 0);
         }
     }
 

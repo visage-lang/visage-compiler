@@ -1173,7 +1173,12 @@ class JavafxAnalyzeClass {
     //
     // Returns true if the current class inherits directly from FXBase.
     //
-    public boolean isFirstTier() { return superClassSym !=  null && isFXBase(superClassSym);}
+    public boolean isFirstTier() { return superClassSym !=  null && isFXBase(superClassSym); }
+
+    //
+    // Returns true if the current class inherits directly from FXBase and has no mixins.
+    //
+    public boolean isFirstTierNoMixins() { return isFirstTier() && allMixins.isEmpty(); }
 
     //
     // Returns the var count for the current class.

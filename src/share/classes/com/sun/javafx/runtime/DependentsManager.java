@@ -34,14 +34,14 @@ import java.util.List;
  * @author A. Sundararajan
  */
 public abstract class DependentsManager {
-    public abstract void addDependent(FXObject bindee, final int varNum, FXObject binder);
+    public abstract void addDependent(FXObject bindee, final int varNum, FXObject binder, final int depNum);
     public abstract void removeDependent(FXObject bindee, final int varNum, FXObject binder);
-    public void switchDependence(FXObject binder, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
+    public void switchDependence(FXObject binder, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum, final int depNum) {
         if (oldBindee != null) {
             oldBindee.removeDependent$(oldNum, binder);
         }
         if (newBindee != null) {
-            newBindee.addDependent$(newNum, binder);
+            newBindee.addDependent$(newNum, binder, depNum);
         }
     }
     public abstract void notifyDependents(FXObject bindee, final int varNum, int startPos, int endPos, int newLength, final int phase);

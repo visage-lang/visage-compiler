@@ -465,6 +465,8 @@ public class FXLocal {
             "set$",
             "size$",
             "update$",
+            "DCNT$",
+            "DEP$",
             "GETMAP$",
             "VOFF$"
         };
@@ -577,6 +579,8 @@ public class FXLocal {
         }
 
         static final String[] SYSTEM_VAR_PREFIXES = {
+            "DCNT$",
+            "DEP$",
             "VFLG$",
             "VCNT$",
             "VOFF$",
@@ -931,19 +935,22 @@ public class FXLocal {
             return getAnnotation(Def.class) != null;
         }
 
-	static class ListenerAdapter extends com.sun.javafx.runtime.FXBase implements FXChangeListenerID {
-	    final FXChangeListener listener;
-	    ListenerAdapter(FXChangeListener listener) {
-		this.listener = listener;
-	    }
-	    
-	    @Override public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, int phase) {
-		// varNum does not matter, there is one change listener per <src, varNum> tuple.
+        static class ListenerAdapter extends com.sun.javafx.runtime.FXBase implements FXChangeListenerID {
+            final FXChangeListener listener;
+            
+            ListenerAdapter(FXChangeListener listener) {
+                this.listener = listener;
+            }
+            
+            @Override
+            public boolean update$(FXObject src, final int depNum, int startPos, int endPos, int newLength, int phase) {
+                // varNum does not matter, there is one change listener per <src, varNum> tuple.
                 if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
-		    this.listener.onChange();
-		}
-	    }
-	}
+                    this.listener.onChange();
+                }
+                return true;
+            }
+        }
 
         public FXChangeListenerID addChangeListener(FXObjectValue instance, FXChangeListener listener) {
 	    if (!this.owner.isAssignableFrom(instance.getType()))
@@ -952,7 +959,7 @@ public class FXLocal {
 	    FXObject src = (FXObject)((Value)instance).asObject();
 	    DependentsManager deps = DependentsManager.get(src);
 	    ListenerAdapter adapter = new ListenerAdapter(listener);
-	    deps.addDependent(src, this.offset, adapter);
+	    deps.addDependent(src, this.offset, adapter, 0);
             return adapter;
         }
         

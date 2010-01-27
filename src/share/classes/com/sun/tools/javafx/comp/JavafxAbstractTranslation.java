@@ -1938,7 +1938,7 @@ public abstract class JavafxAbstractTranslation
                     addPreface(oldSelector);
                     JCVariableDecl newSelector = TmpVar(selectorType, Getter(selectorSym));
                     addPreface(newSelector);
-    
+            
                     if (isMixinVar(varSym)) {
                         JCExpression oldOffset =
                             If(EQnull(id(oldSelector)),
@@ -1948,22 +1948,29 @@ public abstract class JavafxAbstractTranslation
                             If(EQnull(id(newSelector)),
                                 Int(0),
                                 Offset(id(newSelector), varSym));
-                        addSwitchDependence(id(oldSelector), id(newSelector), oldOffset, newOffset);
+                        JCExpression depNum =
+                            If(EQnull(id(newSelector)),
+                                Int(0),
+                                Offset(id(newSelector), varSym));
+                        addSwitchDependence(id(oldSelector), id(newSelector), oldOffset, newOffset,
+                                            DepNum(getReceiver(selectResSym), selectorSym, varSym));
                     } else {
                         JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(varSym));
                         addPreface(offsetVar);
-                        addSwitchDependence(id(oldSelector), id(newSelector), id(offsetVar), id(offsetVar));
+                        addSwitchDependence(id(oldSelector), id(newSelector), id(offsetVar), id(offsetVar),
+                                            DepNum(getReceiver(selectResSym), selectorSym, varSym));
                     }
                 }
             }
         }
 
-        protected void addSwitchDependence(JCExpression oldSelector, JCExpression newSelector, JCExpression oldOffset, JCExpression newOffset) {
+        protected void addSwitchDependence(JCExpression oldSelector, JCExpression newSelector, JCExpression oldOffset, JCExpression newOffset, JCExpression depNum) {
             JCExpression rcvr = getReceiverOrThis(selectResSym);
             addPreface(CallStmt(defs.FXBase_switchDependence,
                     rcvr,
                     oldSelector, oldOffset,
-                    newSelector, newOffset));
+                    newSelector, newOffset,
+                    depNum));
         }
     }
 

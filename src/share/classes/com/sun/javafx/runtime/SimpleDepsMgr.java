@@ -60,8 +60,8 @@ class SimpleDepsMgr extends DependentsManager implements Linkable<Dependent> {
     }
 
     @Override
-    public void addDependent(FXObject bindee, final int varNum, FXObject binder) {
-        Dependent newDep = new Dependent(varNum, binder);
+    public void addDependent(FXObject bindee, final int varNum, FXObject binder, final int depNum) {
+        Dependent newDep = new Dependent(varNum, binder, depNum);
         // insert at the start
         newDep.setPrev(this);
         newDep.setNext(dependencies);
@@ -98,10 +98,14 @@ class SimpleDepsMgr extends DependentsManager implements Linkable<Dependent> {
                 FXObject binder = dep.get();
                 if (binder != null) {
                     if (varNum == dep.varNum) {
+                        boolean handled = true;
                         try {
-                            binder.update$(bindee, varNum, startPos, endPos, newLength, phase);
+                            handled = binder.update$(bindee, dep.depNum, startPos, endPos, newLength, phase);
                         } catch (RuntimeException re) {
                             ErrorHandler.bindException(re);
+                        }
+                        if (!handled) {
+                             Linkables.remove(dep);
                         }
                     }
                 } else {
@@ -164,12 +168,14 @@ final class Dependent extends WeakRef<FXObject> implements Linkable<Dependent> {
     }
     private static final RefQ<FXObject> refQ = new RefQ<FXObject>();
     int varNum;
+    int depNum;
     private Dependent next;
     private Linkable<Dependent> prev;
 
-    Dependent(int varNum, FXObject dep) {
+    Dependent(int varNum, FXObject dep, int depNum) {
         super(dep, refQ);
         this.varNum = varNum;
+        this.depNum = depNum;
     }
 
     public Dependent getNext() {

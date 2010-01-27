@@ -48,8 +48,8 @@ class MinWeakRefsDepsMgr extends DependentsManager {
        return thisRef;
     }
 
-    public void addDependent(FXObject bindee, final int varNum, FXObject binder) {
-        Dep dep = Dep.newDependency(binder);
+    public void addDependent(FXObject bindee, final int varNum, FXObject binder, final int depNum) {
+        Dep dep = Dep.newDependency(binder, depNum);
         dep.linkToBindee(bindee, varNum);
         // FIXME: revisit this - is this a good time to call cleanup?
         WeakBinderRef.checkForCleanups();
@@ -59,51 +59,49 @@ class MinWeakRefsDepsMgr extends DependentsManager {
         DepChain chain = DepChain.find(varNum, dependencies);
         if (chain == null)
             return;
-        for (Dep dep = chain.dependencies; dep != null;) {
-            WeakBinderRef binderRef = dep.binderRef;
-            if (binderRef != null) {
-                if (binder == binderRef.get()) {
-                    dep.binderRef = null;
-                    if (! Dep.inIteration) {
-                        dep.unlinkFromBindee();
-                    }
-                    return;
-                }
+        Dep prev = null;
+        MinWeakRefsDepsMgr binderManager = (MinWeakRefsDepsMgr) DependentsManager.get(binder);
+        WeakBinderRef binderRef = binderManager.thisRef;
+        for (Dep dep = binderRef.bindees; dep != null; ) {
+            Dep next = dep.nextInBindees;
+            if (dep.chain == chain) {
+                if (prev == null)
+                    binderRef.bindees = next;
+                else
+                    prev.nextInBindees = next;
+                dep.unlinkFromBindee();
+                return;
             }
-            dep = dep.nextInBinders;
+            prev = dep;
+            dep = next;
         }
     }
 
     public void notifyDependents(FXObject bindee, int varNum, int startPos, int endPos, int newLength, int phase) {
         // TODO - handle phase.
-        boolean oldInIteration = Dep.inIteration;
-        try {
-            Dep.inIteration = true;
-            DepChain chain = DepChain.find(varNum, dependencies);
-            if (chain == null)
-                return;
-            for (Dep dep = chain.dependencies; dep != null;) {
-                Dep next = dep.nextInBinders;
-                WeakBinderRef binderRef = dep.binderRef;
-                if (binderRef != null) {
-                    FXObject binder = binderRef.get();
-                    if (binder == null) {
-                        dep.binderRef = null;
-                        binderRef.cleanup();
-                    } else {
-                        try {
-                            binder.update$(bindee, varNum, startPos, endPos, newLength, phase);
-                        } catch (RuntimeException re) {
-                            ErrorHandler.bindException(re);
-                        }
-                    }
+        DepChain chain = DepChain.find(varNum, dependencies);
+        if (chain == null)
+            return;
+        for (Dep dep = chain.dependencies; dep != null;) {
+            Dep next = dep.nextInBinders;
+            WeakBinderRef binderRef = dep.binderRef;
+            if (binderRef != null) {
+                FXObject binder = binderRef.get();
+                if (binder == null) {
+                    binderRef.cleanup();
                 } else {
-                    dep.unlinkFromBindee();
+                    boolean handled = true;
+                    try {
+                        handled = binder.update$(bindee, dep.depNum, startPos, endPos, newLength, phase);
+                    } catch (RuntimeException re) {
+                        ErrorHandler.bindException(re);
+                    }
+                    if (!handled) {
+                        binderRef.cleanup();
+                    }
                 }
-                dep = next;
             }
-        } finally {
-            Dep.inIteration = oldInIteration;
+            dep = next;
         }
     }
 
@@ -163,7 +161,7 @@ class WeakBinderRef extends WeakRef<FXObject> {
     static volatile int unsafeToCleanup;
 
     static void checkForCleanups() {
-        if (unsafeToCleanup > 0 || Dep.inIteration) {
+        if (unsafeToCleanup > 0) {
             return;
         }
         Reference<? extends FXObject> ref;
@@ -358,8 +356,6 @@ class Dep implements BinderLinkable {
     public String toString() { return "Dep#"+id; }
     */
 
-    // See comment for the method Dep.unlinkFromBindee().
-    static volatile boolean inIteration;
     WeakBinderRef binderRef;
     Dep nextInBinders;
 
@@ -370,14 +366,19 @@ class Dep implements BinderLinkable {
     /** Back-pointer corresponding to nextInBinders.
      * Either the previous Dep such that
      * {@code ((Dep) prevInBinders).nextInBinders==this},
-     * or (if this is the first dep) the FXBase list head such that
-     * {@code ((FXBase) prevInBinders).dependencies==this}.
+     * or (if this is the first dep) the DepChain list head such that
+     * {@code ((DepChain) prevInBinders).dependencies==this}.
      */
     BinderLinkable prevInBinders;
-    Dep nextInBindees;
 
-    static Dep newDependency(FXObject binder) {
+    Dep nextInBindees;
+    DepChain chain;
+    
+    int depNum;
+
+    static Dep newDependency(FXObject binder, int depNum) {
         Dep dep = new Dep();
+        dep.depNum = depNum;
         MinWeakRefsDepsMgr binderDepMgr =
                 (MinWeakRefsDepsMgr) DependentsManager.get(binder);
         WeakBinderRef binderRef = binderDepMgr.getThisRef(binder);
@@ -401,24 +402,19 @@ class Dep implements BinderLinkable {
         }
         prevInBinders = chain;
         chain.dependencies = this;
+        this.chain = chain;
     }
 
     /**
      * Unlink from dependency chain of bindee.
-     *
-     * This can be used for a dynamic dependency we want to re-use.
-     * WARNING: This needs some care, since if we call unlinkFromBindee
-     * on a Dep that is on a list being processed by notifyDependents$ then we
-     * risk confusion, especially if we re-use the Dep for a different bindee.
-     *
-     * The problem seems restricted to either the current or the next dep
-     * (in the notifyDependents loop), depending on whether we get the next
-     * pointer before or after we call update. Using an "inIteration" flag seems
-     * like a solution that would work.
      */
     void unlinkFromBindee() {
-        Dep next = nextInBinders;
         BinderLinkable prevBinder = prevInBinders;
+        if (prevBinder == null)
+            return;
+        prevInBinders = null;
+        binderRef = null;
+        Dep next = nextInBinders;
         if (prevBinder instanceof DepChain) {
             DepChain chain = (DepChain) prevBinder;
             chain.dependencies = next;
