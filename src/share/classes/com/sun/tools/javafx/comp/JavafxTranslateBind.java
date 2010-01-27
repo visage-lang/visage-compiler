@@ -2327,6 +2327,22 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return Getter(condSym);
         }
 
+        private JCStatement MarkValid(JavafxVarSymbol sym) {
+            return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID);
+        }
+
+        private JCStatement MarkInvalid(JavafxVarSymbol sym) {
+            return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagINVALID_STATE_BIT);
+        }
+
+        private JCExpression IsInvalid(JavafxVarSymbol sym) {
+            return FlagTest(sym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT);
+        }
+
+        private JCExpression IsValid(JavafxVarSymbol sym) {
+            return NOT(IsInvalid(sym));
+        }
+
         /**
          * Body of the sequence size method.
          *
@@ -2345,7 +2361,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 Block(
                     If (isSequenceDormant(),
                         Block(
-                            setSequenceActive(),
                             SetStmt(condSym, CallGetCond()),
                             SetStmt(sizeSym,
                                 If (Get(condSym),
@@ -2353,16 +2368,21 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     CallSize(elseSym)
                                 )
                             ),
+                            MarkValid(condSym),
+                            MarkValid(thenSym),
+                            MarkValid(elseSym),
+                            MarkValid(sizeSym),
+                            setSequenceActive(),
                             CallSeqInvalidateUndefined(targetSymbol),
                             CallSeqTriggerInitial(targetSymbol, Get(sizeSym))
                         ),
                     /*Else (already active)*/
                         Block(
-                            If (FlagTest(sizeSym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT),
+                            If (IsInvalid(sizeSym),
                                 If (OR(OR(
-                                        FlagTest(condSym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT),
-                                        FlagTest(thenSym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT)),
-                                        FlagTest(elseSym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT)),
+                                        IsInvalid(condSym),
+                                        IsInvalid(thenSym)),
+                                        IsInvalid(elseSym)),
                                     // Accessing in between invalidation and triggering, compute, but don't smash size
                                     Block(
                                         Return (
@@ -2374,7 +2394,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     ),
                                 /*else (nothing actually invalid (note that for next time))*/
                                     Block(
-                                        FlagChangeStmt(sizeSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID)
+                                        MarkValid(sizeSym)
                                     )
                                 )
                             )
@@ -2396,7 +2416,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     If (isSequenceDormant(),
                         Stmt(CallSize(targetSymbol))  // Assure initialized
                     ),
-                    If (FlagTest(sizeSym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT),
+                    If (IsInvalid(sizeSym),
                         If (CallGetCond(),
                             Return(CallGetElement(thenSym, posArg())),
                             Return(CallGetElement(elseSym, posArg()))
@@ -2411,13 +2431,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         /**
          * Body of a invalidate$ method for the synthetic condition boolean.
-         *
-         * Do nothing if the sequence is dormant.
-         * If this is invalidation phase, send a blanket invalidation of the sequence.
-         * If this is trigger phase and the condition has changed,
-         *   update the condition field
-         *   mark the size field as invalid
-         *   call invalidate as a whole sequence replacement
          */
         private JCStatement makeInvalidateCond() {
             JCVariableDecl oldCondVar = TmpVar("oldCond", syms.booleanType, Get(condSym));
@@ -2429,31 +2442,48 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     If(IsInvalidatePhase(),
                         Block(
                             // Mark mid invalidation
-                            FlagChangeStmt(condSym, defs.varFlagSTATE_MASK, defs.varFlagINVALID_STATE_BIT),
+                            MarkInvalid(condSym),
+                            MarkInvalid(sizeSym),
 
                             // Whole sequence potentially invalid
-                            CallSeqInvalidateUndefined(targetSymbol)
+                            If (AND(
+                                    IsValid(thenSym),
+                                    IsValid(elseSym)),
+                                CallSeqInvalidateUndefined(targetSymbol)
+                            )
                         ),
                     /*Else (Trigger phase)*/
                         Block(
-                            oldCondVar,
-                            newCondVar,
-                            FlagChangeStmt(condSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID),
-                            If (NE(id(newCondVar), id(oldCondVar)),
+                            If (IsInvalid(condSym),
                                 Block(
-                                    oldSizeVar,
-                                    SetStmt(condSym, id(newCondVar)),
-                                    SetStmt(sizeSym,
-                                        If (id(newCondVar),
-                                            CallSize(thenSym),
-                                            CallSize(elseSym)
+                                    oldCondVar,
+                                    newCondVar,
+                                    If (NE(id(newCondVar), id(oldCondVar)),
+                                        Block(
+                                            oldSizeVar,
+                                            SetStmt(sizeSym,
+                                                If (id(newCondVar),
+                                                    CallSize(thenSym),
+                                                    CallSize(elseSym)
+                                                )
+                                            ),
+                                            SetStmt(condSym, id(newCondVar)),
+                                            MarkValid(condSym),
+                                            MarkValid(thenSym),
+                                            MarkValid(elseSym),
+                                            MarkValid(sizeSym),
+                                            CallSeqTrigger(targetSymbol, Int(0), id(oldSizeVar), Get(sizeSym))
+                                        ),
+                                    /*else (condition did not actually change, no or empty change trigger)*/
+                                        Block(
+                                            MarkValid(condSym),
+                                            If (AND(
+                                                    IsValid(thenSym),
+                                                    IsValid(elseSym)),
+                                                CallSeqTriggerUnchanged(targetSymbol)
+                                            )
                                         )
-                                    ),
-                                    CallSeqTrigger(targetSymbol, Int(0), id(oldSizeVar), Get(sizeSym))
-                                ),
-                            /*else (condition did not change, send no-change trigger)*/
-                                Block(
-                                    CallSeqTriggerUnchanged(targetSymbol)
+                                    )
                                 )
                             )
                         )
@@ -2472,26 +2502,33 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         private JCStatement makeInvalidateArm(JavafxVarSymbol armSym, boolean take) {
             return
-                If(isSequenceActive(),
+                If(AND(isSequenceActive(), EQ(Get(condSym), Boolean(take))),
                     If(IsInvalidatePhase(),
                         Block(
                             // Mark mid invalidation
-                            FlagChangeStmt(armSym, defs.varFlagSTATE_MASK, defs.varFlagINVALID_STATE_BIT),
+                            MarkInvalid(armSym),
+                            MarkInvalid(sizeSym),
 
                             // Whole sequence potentially invalid
-                            CallSeqInvalidateUndefined(targetSymbol)
+                            If (IsValid(condSym),
+                                CallSeqInvalidateUndefined(targetSymbol)
+                            )
                         ),
                     /*Else (Trigger phase)*/
                         Block(
-                            FlagChangeStmt(armSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID),
-                            If (EQ(Get(condSym), Boolean(take)),
+                            If (AND(
+                                    IsInvalid(armSym),
+                                    OR(
+                                        IsValid(condSym),
+                                        EQ(Get(condSym), CallGetCond())
+                                    )),
                                 Block(
                                     SetStmt(sizeSym, CallSize(armSym)), // update the size
+                                    MarkValid(thenSym),
+                                    MarkValid(elseSym),
+                                    MarkValid(condSym),
+                                    MarkValid(sizeSym),
                                     CallSeqTrigger(targetSymbol, startPosArg(), endPosArg(), newLengthArg())
-                                ),
-                            /*else (condition not ours, send no-change trigger)*/
-                                Block(
-                                    CallSeqTriggerUnchanged(targetSymbol)
                                 )
                             )
                         )
