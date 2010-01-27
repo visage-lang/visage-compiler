@@ -125,7 +125,7 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
             wasUninitialized) {
             instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.PHASE_TRANS\$CASCADE_INVALIDATE);
             Sequence<? extends $Tboxed$> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos, true);
-            instance.be\$(varNum, arr);
+            instance.seq\$(varNum, arr);
             instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.PHASE_TRANS\$CASCADE_TRIGGER);
         }
     }

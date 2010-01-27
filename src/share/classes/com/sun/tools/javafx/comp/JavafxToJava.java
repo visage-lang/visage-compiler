@@ -516,13 +516,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         res = Call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);
                     } else {
                         JCExpression tc = instanceName == null ? null : id(instanceName);
-                        res = Call(tc, attributeBeName(vsym), nonNullInit, True());
+                        res = Call(tc, attributeSetterName(vsym), nonNullInit);
                     }
                 } else {
                     res = nonNullInit;
                     if (vsym.isSequence())
                         res = Call(defs.Sequences_incrementSharing, res);
-                    res = Setter(vsym, res);
+                    res = Set(vsym, res);
                 }
                 return toResult(res, vsym.type);
             }

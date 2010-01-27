@@ -287,6 +287,8 @@ public class FXLocal {
                 return ((FXPrimitiveType) type).clas;
             else if (type instanceof JavaArrayType)
                 return ((JavaArrayType) type).getJavaClass();
+            else if (type instanceof FXSequenceType)
+                return Sequence.class;
             else { // FIXME - handle other cases
                 ClassType ctyp = (ClassType) type;
                 return ctyp.isMixin() ? ctyp.refInterface : ctyp.refClass;
@@ -455,12 +457,12 @@ public class FXLocal {
         };
         static final String[] SYSTEM_METHOD_PREFIXES = {
             "applyDefaults$",
-            "be$",
             "get$",
             "elem$",
             "initVars$",
             "invalidate$",
             "onReplace$",
+            "seq$",
             "set$",
             "size$",
             "update$",
@@ -936,7 +938,7 @@ public class FXLocal {
 		this.listener = listener;
 	    }
 	    
-	    @Override public void update$(FXObject src, final int varNum, int phase) {
+	    @Override public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, int phase) {
 		// varNum does not matter, there is one change listener per <src, varNum> tuple.
                 if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
 		    this.listener.onChange();

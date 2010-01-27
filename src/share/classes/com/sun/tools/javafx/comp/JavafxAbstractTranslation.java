@@ -2714,7 +2714,7 @@ public abstract class JavafxAbstractTranslation
                     def = CallStmt(defs.Sequences_set, tc,
                             Offset(id(instanceName), vsym), transInit);
                 } else {
-                    def = CallStmt(tc, attributeBeName(vsym), transInit, True());
+                    def = CallStmt(tc, attributeSetterName(vsym), transInit);
                 }
             } else {
                 def = SetStmt(tc, vsym, transInit);

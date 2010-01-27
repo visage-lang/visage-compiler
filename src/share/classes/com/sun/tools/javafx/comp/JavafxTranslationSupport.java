@@ -611,10 +611,6 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, set_AttributeMethodPrefix);
     }
 
-    Name attributeBeName(Symbol sym) {
-        return prefixedAttributeName(sym, be_AttributeMethodPrefix);
-    }
-    
     Name attributeInvalidateName(Symbol sym) {
         return prefixedAttributeName(sym, invalidate_AttributeMethodPrefix);
     }
@@ -959,17 +955,15 @@ public abstract class JavafxTranslationSupport {
         }
         
         public boolean isMixinVar(Symbol sym) {
-            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
             JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
-            
-            return isMixinClass((ClassSymbol)varSym.owner) && !varSym.isStatic();
+            Symbol owner = varSym.owner;
+            return owner instanceof ClassSymbol && isMixinClass((ClassSymbol)owner) && !varSym.isStatic();
         }
         
         public boolean isLocalClassVar(Symbol sym) {
-            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
             JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
-            
-            return isLocalClass((ClassSymbol)varSym.owner);
+            Symbol owner = varSym.owner;
+            return owner instanceof ClassSymbol && isLocalClass((ClassSymbol)owner);
         }
         
         public boolean setIsScript(boolean newState) {
@@ -1056,10 +1050,6 @@ public abstract class JavafxTranslationSupport {
             return makeMethodArg(defs.phase_ArgName, syms.intType);
         }
 
-        JCIdent isSetArg() {
-            return makeMethodArg(defs.isSet_ArgName, syms.booleanType);
-        }
-
         /**
          * Set the phase state part of the flag to the next state part of the phase transition
          */
@@ -1075,7 +1065,7 @@ public abstract class JavafxTranslationSupport {
         }
 
         /**
-         * Clear the be$ bits from the phase transition
+         * Clear the BE bits from the phase transition
          */
         JCStatement ClearBeFromPhaseTransition() {
             return
