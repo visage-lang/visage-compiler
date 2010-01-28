@@ -567,7 +567,7 @@ public class JavafxDecompose implements JavafxVisitor {
                  * bidirectional cases. We need to revisit that mystery. Also. I've to oldBindStatus
                  * because bindStatus has been set to UNIDIBIND in the previous statement.
                  */
-                if (false && oldBindStatus == JavafxBindStatus.UNIDIBIND &&
+                if (oldBindStatus == JavafxBindStatus.UNIDIBIND &&
                     tree.selected instanceof JFXIdent &&
                     !types.isSequence(tree.type) &&
                     sym instanceof VarSymbol) {

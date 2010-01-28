@@ -1232,47 +1232,6 @@ however this is what we need */
             public void generateMixin() {
                 callMixin((ClassSymbol)varSym.owner);
             }
-
-            // This method generates FXBase.switchDependence$ calls for all the
-            // bound select expressions that use the current var as the selector.
-            protected void generateSwitchDependences() {
-                if (!varInfo.boundBinders().isEmpty()) {
-                    for (VarInfo dependent : varInfo.boundBinders()) {
-                        JCExpression rcvr = getReceiverOrThis(varInfo.sym);
-                        for (DependentPair depPair : dependent.boundBoundSelects()) {
-                            // static variables and sequences are handled diffently
-                            if (depPair.instanceSym != varInfo.sym ||
-                                depPair.referencedSym.isStatic() ||
-                                types.isSequence(depPair.referencedSym.type)) {
-                                continue;
-                            }
-                            if (isMixinVar(depPair.referencedSym)) {
-                                JCExpression oldOffset = If(EQnull(id(defs.varOldValue_LocalVarName)),
-                                                            Int(0),
-                                                            Offset(id(defs.varOldValue_LocalVarName), depPair.referencedSym));
-                                addStmt(Stmt(oldOffset));
-                                JCExpression newOffset = If(EQnull(Get(varInfo.sym)),
-                                                            Int(0),
-                                                            Offset(Get(varInfo.sym), depPair.referencedSym));
-                                addStmt(Stmt(newOffset));
-                                addStmt(CallStmt(defs.FXBase_switchDependence,
-                                                 rcvr,
-                                                 id(defs.varOldValue_LocalVarName), oldOffset,
-                                                 Get(varInfo.sym), newOffset,
-                                                 DepNum(getReceiver(depPair.instanceSym), depPair.instanceSym, depPair.referencedSym)));
-                            } else {
-                                JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(depPair.referencedSym));
-                                addStmt(offsetVar);
-                                addStmt(CallStmt(defs.FXBase_switchDependence,
-                                                 rcvr,
-                                                 id(defs.varOldValue_LocalVarName), id(offsetVar),
-                                                 Get(varInfo.sym), id(offsetVar),
-                                                 DepNum(getReceiver(depPair.instanceSym), depPair.instanceSym, depPair.referencedSym)));
-                            }
-                        }
-                    }
-                }
-            }
         }
         
         //
@@ -1474,12 +1433,31 @@ however this is what we need */
                         (varInfo.isStatic() && !varInfo.getSymbol().hasScriptOnlyAccess()) ||
                         varInfo.onInvalidate() != null;
         }
+
+        //
+        // Determine if this var needs to call switchDependence in onReplace
+        //
+        private boolean needSwitchDependence(VarInfo varInfo) {
+            for (VarInfo dependent : varInfo.boundBinders()) {
+                for (DependentPair depPair : dependent.boundBoundSelects()) {
+                    // static variables and sequences are handled diffently
+                    if (depPair.instanceSym != varInfo.sym ||
+                        depPair.referencedSym.isStatic() ||
+                        types.isSequence(depPair.referencedSym.type)) {
+                        continue;
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
         
         //
         // Determine if this var needs an on replace method.
         //
         private boolean needOnReplaceAccessorMethod(VarInfo varInfo) {
-            return varInfo.onReplace() != null ||
+            return needSwitchDependence(varInfo) ||
+                   varInfo.onReplace() != null ||
                    varInfo.isMixinVar() ||
                    !(!varInfo.isOverride() && isLeaf(varInfo));
         }
@@ -2040,8 +2018,6 @@ however this is what we need */
                             // Release cycle lock.
                             addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
 
-                            generateSwitchDependences();
-
                             // Is it bound and invalid?
                             JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT, defs.varFlagIS_BOUND_INVALID);
 
@@ -2134,8 +2110,6 @@ however this is what we need */
 
                     // Set the var.
                     makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, false);
-
-                    generateSwitchDependences();
                     
                     // return $var;
                     addStmt(Return(Get(proxyVarSym)));
@@ -2313,6 +2287,8 @@ however this is what we need */
                         callMixin((ClassSymbol)varSym.owner);
                     }
 
+                    generateSwitchDependences();
+
                     // Fetch the on replace statement or null.
                     JCStatement onReplace = varInfo.onReplaceAsInline();
     
@@ -2320,6 +2296,43 @@ however this is what we need */
                     if (onReplace != null) {
                         // Insert the trigger.
                         addStmt(onReplace);
+                    }
+                }
+
+                // This method generates FXBase.switchDependence$ calls for all the
+                // bound select expressions that use the current var as the selector.
+                private void generateSwitchDependences() {
+                    for (VarInfo dependent : varInfo.boundBinders()) {
+                        JCExpression rcvr = getReceiverOrThis(varInfo.sym);
+                        for (DependentPair depPair : dependent.boundBoundSelects()) {
+                            // static variables and sequences are handled diffently
+                            if (depPair.instanceSym != varInfo.sym ||
+                                depPair.referencedSym.isStatic() ||
+                                types.isSequence(depPair.referencedSym.type)) {
+                                continue;
+                            }
+                            if (isMixinVar(depPair.referencedSym)) {
+                                JCExpression oldOffset = If(EQnull(id(oldValueName)),
+                                    Int(0),
+                                    Offset(id(oldValueName), depPair.referencedSym));
+                                JCExpression newOffset = If(EQnull(id(newValueName)),
+                                    Int(0),
+                                    Offset(id(newValueName), depPair.referencedSym));
+                                addStmt(CallStmt(defs.FXBase_switchDependence,
+                                    rcvr,
+                                    id(oldValueName), oldOffset,
+                                    id(newValueName), newOffset,
+                                    DepNum(getReceiver(depPair.instanceSym), depPair.instanceSym, depPair.referencedSym)));
+                            } else {
+                                JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(depPair.referencedSym));
+                                addStmt(offsetVar);
+                                addStmt(CallStmt(defs.FXBase_switchDependence,
+                                    rcvr,
+                                    id(oldValueName), id(offsetVar),
+                                    id(newValueName), id(offsetVar),
+                                    DepNum(getReceiver(depPair.instanceSym), depPair.instanceSym, depPair.referencedSym)));
+                            }
+                        }
                     }
                 }
             };
