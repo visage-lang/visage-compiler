@@ -141,8 +141,11 @@ public abstract class FXClassType extends FXType implements FXMember {
         SortedMemberArray<FXVarMember> result = new SortedMemberArray<FXVarMember>();
         if (all) {
             List<FXClassType> supers = getSuperClasses(all);
-            for (FXClassType cl : supers)
-                cl.getVariables(filter, result);
+            boolean isMixin = isMixin();
+            for (FXClassType cl : supers) {
+                if (isMixin || !cl.isMixin())
+                    cl.getVariables(filter, result);
+            }
         }
         else
             getVariables(filter, result);

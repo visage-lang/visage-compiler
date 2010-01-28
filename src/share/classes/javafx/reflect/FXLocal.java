@@ -651,16 +651,15 @@ public class FXLocal {
                 int offset  = getFieldIntOrDefault(cls, "VOFF" + fname, -1);
                 VarMember ref = new VarMember(sname, this, tr, offset);
                 ref.fld = fld;
-                if (!isMixin()) {
-                    ref.getter = getMethodOrNull(cls, "get" + fname);
- 
-                    if (ref.getter != null) {
-                        Class type = ref.getter.getReturnType();
-                        ref.setter = getMethodOrNull(cls, "set" + fname, type);
-                    }
-                    
+                if (refInterface != null)
+                    cls = refInterface;
+                ref.getter = getMethodOrNull(cls, "get" + fname);
+
+                if (ref.getter != null) {
+                    Class type = ref.getter.getReturnType();
+                    ref.setter = getMethodOrNull(cls, "set" + fname, type);
                 }
-               
+
                 if (filter != null && filter.accept(ref))
                     result.insert(ref);
             }
