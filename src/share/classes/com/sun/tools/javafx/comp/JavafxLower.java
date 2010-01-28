@@ -33,8 +33,10 @@ import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.JFXExpression;
 
 import com.sun.tools.mjavac.code.Kinds;
+import com.sun.tools.mjavac.code.Scope;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
+import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
 import com.sun.tools.mjavac.code.Type;
 
 import com.sun.tools.mjavac.code.TypeTags;
@@ -107,7 +109,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends JFXTree> T lower(T tree, Type pt, LowerMode mode) {
+    <T extends JFXTree> T lower(T tree, Type pt, LowerMode mode) {
         Type prevPt = this.pt;
         LowerMode prevMode = this.mode;
         try {
@@ -146,7 +148,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
 
-    public <T extends JFXTree> List<T> lower(List<T> trees, LowerMode mode) {
+    <T extends JFXTree> List<T> lower(List<T> trees, LowerMode mode) {
         ListBuffer<T> buf = ListBuffer.lb();
         for (T tree : trees) {
             buf.append(lower(tree, Type.noType, mode));
@@ -1075,6 +1077,34 @@ public class JavafxLower implements JavafxVisitor {
         result = res.setType(tree.type);
     }
 
+    /*
+     * Determine if the expression uses any names that could clash with names in the class
+     */
+    private boolean hasNameConflicts(final TypeSymbol csym, final JFXExpression expr) {
+        class NameClashScanner extends JavafxTreeScanner {
+
+            boolean clashFound = false;
+
+            //TODO: utterly naive -- add visibility testing
+            void checkForClash(Name name) {
+                Scope.Entry e = csym.members().lookup(name);
+                if (e.scope != null) {
+                    clashFound = true;
+                }
+            }
+
+            @Override
+            public void visitIdent(JFXIdent tree) {
+                checkForClash(tree.getName());
+            }
+        }
+        NameClashScanner ncs = new NameClashScanner();
+        ncs.scan(expr);
+        boolean clashFound = ncs.clashFound;
+        // if (clashFound) System.err.println("Name clash found: " + csym + ", expr: " + expr);
+        return clashFound;
+    }
+
     public void visitInstanciate(JFXInstanciate tree) {
         ListBuffer<JFXExpression> locals = ListBuffer.lb();
         if (tree.getLocalvars().nonEmpty()) {
@@ -1105,6 +1135,23 @@ public class JavafxLower implements JavafxVisitor {
 
         ListBuffer<JFXTree> newOverrides = ListBuffer.<JFXTree>lb();
         ListBuffer<JFXObjectLiteralPart> unboundParts = ListBuffer.<JFXObjectLiteralPart>lb();
+
+        // Determine if there is a mutable non-explicitly bound initializer in a bound object literal,
+        // since this could cause the instance to be re-created so binds then need to be external so
+        // that they can be re-used (thus, won't, for example, create new objects)
+        boolean holdBindsOutsideSubclass = false;
+        if (tree.isBound()) {
+            for (JFXObjectLiteralPart part : tree.getParts()) {
+                if (!part.isExplicitlyBound() && part.getExpression().getFXTag() != JavafxTag.LITERAL) {
+                    // A bound object literal with non-explicitly bound initializer
+                    // requires continuity of binds
+                    holdBindsOutsideSubclass = true;
+                    break;
+                }
+            }
+        }
+
+
         for (JFXObjectLiteralPart part : tree.getParts()) {
             if (part.isExplicitlyBound()) {
                 m.at(part.pos());  // create at part position
@@ -1114,18 +1161,20 @@ public class JavafxLower implements JavafxVisitor {
                 id.sym = part.sym;
                 id.type = part.sym.type;
 
+                JFXExpression partExpr = part.getExpression();
+
                 JFXExpression initExpr;
 
-                if (true) { // enable bound object literal initializer scoping to object literal level.
+                if (holdBindsOutsideSubclass || hasNameConflicts(tree.type.tsym, partExpr)) { // enable bound object literal initializer scoping to object literal level.
                     // Shread the expression outside the class, so that the context is correct
                     // The variable should be marked as script private as it shouldn't
                     // be accessible from outside.
 
-                    JFXExpression partExpr = part.getExpression();
                     Symbol initSym = JavafxTreeInfo.symbol(partExpr);
                     // FIXME: revisit this - more opportunities to optimze here.
                     // Check if we can avoid more local class wrapping around object
                     // literal class.
+                    //TODO: I don't think the static test makes sense, but we could broaden this a lot to include anything immutable
                     if (partExpr.getFXTag() == JavafxTag.LITERAL ||
                         (initSym != null && initSym.isStatic())) {
                         initExpr = partExpr;
@@ -1144,7 +1193,7 @@ public class JavafxLower implements JavafxVisitor {
                         initExpr = sid;
                     }
                 } else {
-                    initExpr = part.getExpression(); // lowered with class
+                    initExpr = partExpr; // lowered with class
                 }
 
                 // Turn the part into an override var

@@ -8,12 +8,20 @@
  * @run
  */
 
+var seen = [false, false, false];
+
 class Fred {
-   var id: String;
+   var id: Integer;
    var width: Number;
    var height: Number;
    init {
-     println("Fred {id}: {width} x {height}");
+     if (seen[id]) {
+        println("ERROR: duplicate creation -- Fred {id}: {width} x {height}");
+     }
+     seen[id] = true;
+     if (width != pieRadiusX or height != pieRadiusX) {
+        println("ERROR: bad values -- Fred {id}: {width} x {height}");
+     }
    }
 }
 
@@ -29,19 +37,36 @@ class PP {
     var yy = bind pieRadiusY;
     var side: Path = Path {
         elements: bind [
-			Fred{ id: "a" width: xx height: yy},
-			Fred{ id: "b" width: xx height: yy},
-			Fred{ id: "c" width: xx height: yy}
+			Fred{ id: 0 width: xx height: yy},
+			Fred{ id: 1 width: xx height: yy},
+			Fred{ id: 2 width: xx height: yy}
 		]
     }
 }
 
 var mypp = PP{ };
 
-println("+++");
-pieRadiusX = 1000; 
-println("---");
+function checkSeen() {
+     if (seen != [true, true, true]) {
+        print("ERROR: missing updates -- ");
+        println(seen);
+     }
+     seen = [false, false, false];
+}
 
-println(mypp.side.elements[0].height);
-println(mypp.side.elements[1].height);
-println(mypp.side.elements[2].height);
+checkSeen();
+
+pieRadiusX = 500; 
+checkSeen();
+
+pieRadiusX = 8888;
+checkSeen();
+
+pieRadiusX = 1000; 
+checkSeen();
+
+for (i in [0..2]) {
+  if (mypp.side.elements[i].height != pieRadiusX) {
+    println("ERROR: bad height {mypp.side.elements[0].height}");
+  }
+}
