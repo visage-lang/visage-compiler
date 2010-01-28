@@ -2825,18 +2825,18 @@ however this is what we need */
             final int varCount = isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount();
             HashMap<Name, Integer> depMap = getDepMap(varInfos, updateMap);
             final boolean useMixins = !isScript() && !isMixinClass();
-            List<ClassSymbol> allMixinClasses = useMixins ? analysis.getAllMixins() : null;
+            List<ClassSymbol> mixinClasses = useMixins ? analysis.getImmediateMixins() : null;
             boolean useConstants = analysis.isFirstTierNoMixins() || isMixinClass();
             
             makeApplyDefaultsMethod(varInfos, varCount);
             makeInitVarsMethod(varInfos, updateMap);
-            makeDependencyNumbers(useConstants, depMap, allMixinClasses);
+            makeDependencyNumbers(useConstants, depMap, mixinClasses);
             
             if (useMixins) {
-                makeNeededMixinDCNT$(allMixinClasses);
+                makeNeededMixinDCNT$(mixinClasses);
             }
 
-            makeUpdateMethod(useConstants, varInfos, updateMap, depMap, allMixinClasses);
+            makeUpdateMethod(useConstants, varInfos, updateMap, depMap, mixinClasses);
             
             if ((isScript() || !isMixinClass()) && varCount > 0) {
                 makeGetMethod(varInfos, varCount);
@@ -3094,7 +3094,7 @@ however this is what we need */
                                         id(boundFunctionObjectParamName(varSym.name)),
                                         defs.FXBase_addDependent.methodName,
                                         id(boundFunctionVarNumParamName(varSym.name)),
-                                        id(names._this),
+                                        getReceiverOrThis(),
                                         DepNum(null, null, varSym)));
                             }
                         }
@@ -3116,7 +3116,7 @@ however this is what we need */
                     addStmt(CallStmt(defs.FXBase_addDependent,
                             Get(instanceVar),
                             Offset(Get(instanceVar), referenceVar),
-                            id(names._this),
+                            getReceiverOrThis(),
                             DepNum(null, instanceVar, referenceVar)));
                 }
             };
@@ -3183,7 +3183,7 @@ however this is what we need */
         //
         // This method generates an enumeration for each of the class's dependencies.
         //
-        public void makeDependencyNumbers(final boolean useConstants, final HashMap<Name, Integer> depMap, List<ClassSymbol> allMixinClasses) {
+        public void makeDependencyNumbers(final boolean useConstants, final HashMap<Name, Integer> depMap, List<ClassSymbol> mixinClasses) {
             // Reset diagnostic position to current class.
             resetDiagPos();
 
@@ -3192,8 +3192,8 @@ however this is what we need */
             addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.depCount_FXObjectFieldName, initCount));
             
             // Mixin class base numbering.
-            if (allMixinClasses != null) {
-                for (ClassSymbol classSym : allMixinClasses) {
+            if (mixinClasses != null) {
+                for (ClassSymbol classSym : mixinClasses) {
                     // Construct and add: public static int DEP$name;
                     addDefinition(makeField(Flags.STATIC | Flags.PUBLIC, syms.intType, classDCNT$Name(classSym), null));
                 }
@@ -3210,13 +3210,13 @@ however this is what we need */
             }
             
             // Construct a static count accessor method (DCNT$)
-            makeDCNT$(useConstants, depMap, allMixinClasses);
+            makeDCNT$(useConstants, depMap, mixinClasses);
         }
         
         //
         // The method constructs the DCNT$ method for the current class.
         //
-        public void makeDCNT$(final boolean useConstants, final HashMap<Name, Integer> depMap, final List<ClassSymbol> allMixinClasses) {
+        public void makeDCNT$(final boolean useConstants, final HashMap<Name, Integer> depMap, final List<ClassSymbol> mixinClasses) {
             StaticMethodBuilder smb = new StaticMethodBuilder(defs.depCount_FXObjectFieldName, syms.intType) {
                 @Override
                 public void initialize() {
@@ -3241,8 +3241,8 @@ however this is what we need */
                         JCExpression countExpr = isFirstTier ? Int(0) : Call(makeType(superClassSym.type), defs.depCount_FXObjectFieldName);
                             
                         // Create base counts for mixins
-                        if (allMixinClasses != null && !allMixinClasses.isEmpty()) {
-                            for (ClassSymbol classSym : allMixinClasses) {
+                        if (mixinClasses != null && !mixinClasses.isEmpty()) {
+                            for (ClassSymbol classSym : mixinClasses) {
                                 Name mixinName = classDCNT$Name(classSym);
                                 addStmt(Stmt(m().Assign(id(mixinName), countExpr)));
                                 countExpr = PLUS(id(mixinName),
@@ -3313,8 +3313,8 @@ however this is what we need */
         //
         // This method generates all the mixin DCNT$ for the current class.
         //
-        public void makeNeededMixinDCNT$(List<ClassSymbol> allMixinClasses) {
-            for (ClassSymbol classSym : allMixinClasses) {
+        public void makeNeededMixinDCNT$(List<ClassSymbol> mixinClasses) {
+            for (ClassSymbol classSym : mixinClasses) {
                 makeMixinDCNT$(classSym, true);
             }
         }
@@ -3326,7 +3326,7 @@ however this is what we need */
                                      final List<VarInfo> varInfos,
                                      final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap,
                                      final HashMap<Name, Integer> depMap,
-                                     final List<ClassSymbol> allMixinClasses) {
+                                     final List<ClassSymbol> mixinClasses) {
             MethodBuilder mb = new MethodBuilder(defs.update_FXObjectMethodName, syms.booleanType) {
                 // Number fo dependencies in this class.
                 int depCount = depMap.size();
@@ -3508,8 +3508,8 @@ however this is what we need */
                     beginBlock();
                     
                     // Add mixins to the default chain.
-                    if (allMixinClasses != null) {
-                        for (ClassSymbol classSym : allMixinClasses) {
+                    if (mixinClasses != null) {
+                        for (ClassSymbol classSym : mixinClasses) {
                             // Begin if block.
                             beginBlock();
                             
@@ -3537,7 +3537,7 @@ however this is what we need */
                         }
                     
                         JCExpression tagExpr = isMixinClass() && !isScript() ? MINUS(depNumArg(), Call(classDCNT$Name(getCurrentOwner()))) :
-                                                useConstants                 ? depNumArg() :
+                                               useConstants                  ? depNumArg() :
                                                                                MINUS(depNumArg(), id(defs.depCount_FXObjectFieldName));
                         // Construct and add: switch(varNum - VCNT$) { ... }
                         addStmt(m().Switch(tagExpr, cases.toList()));
@@ -3546,8 +3546,10 @@ however this is what we need */
                     } else if (!defaults.isEmpty()) {
                         addStmts(defaults);
                         
-                        if (!(superClassSym != null && !isMixinClass())) {
+                        if (isMixinClass() || superClassSym == null) {
                             addStmt(Return(False()));
+                        } else {
+                            callSuper();
                         }
                     } else {
                         buildIf(false);
