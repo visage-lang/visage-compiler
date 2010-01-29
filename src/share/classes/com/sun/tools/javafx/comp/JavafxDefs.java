@@ -78,6 +78,7 @@ public class JavafxDefs {
     public static final String varMap_FXObjectFieldPrefix = "MAP$";
     public static final String depCount_FXObjectFieldString = "DCNT$";
     public static final String dep_FXObjectFieldString = "DEP$";
+    public static final String scriptLevelAccess_FXObjectFieldString = "$script$";
 
     /**
      * Class suffixes
@@ -641,7 +642,7 @@ public class JavafxDefs {
         varNum_ArgName = names.fromString("varNum$");
         depNum_ArgName = names.fromString("depNum$");
         scriptClassSuffixName = names.fromString(scriptClassSuffix);
-        scriptLevelAccess_FXObjectFieldName = names.fromString("$scriptLevel$");
+        scriptLevelAccess_FXObjectFieldName = names.fromString(scriptLevelAccess_FXObjectFieldString);
 
         // KeyValueTarget.Type field names
         BYTE_KeyValueTargetTypeFieldName = names.fromString("BYTE");
@@ -808,10 +809,14 @@ public class JavafxDefs {
     }
 
     public Name scriptLevelAccessField(Name.Table names, Symbol clazz) {
-        StringBuilder buf = new StringBuilder();
-        buf.append(scriptLevelAccess_FXObjectFieldName);
-        buf.append(clazz.getQualifiedName().toString().replace('.', '$'));
-        buf.append('$');
-        return names.fromString(buf);
+        return names.fromString(scriptLevelAccess_FXObjectFieldString + mangleClassName(clazz, true) + "$");
+    }
+    
+    public String mangleClassName(Symbol clazz, boolean useFull) {
+        if (useFull) {
+            return clazz.getQualifiedName().toString().replace('.', '$');
+        } else {
+            return clazz.name.toString();
+        }
     }
 }

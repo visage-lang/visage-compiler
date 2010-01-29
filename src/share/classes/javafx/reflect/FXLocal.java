@@ -585,7 +585,7 @@ public class FXLocal {
             "VCNT$",
             "VOFF$",
             "MAP$",
-            "$scriptLevel$"
+            "$script$"
         };
 
 	private void ensureVOffInitialized() {

@@ -586,13 +586,11 @@ public abstract class JavafxTranslationSupport {
     }
 
     Name varMapName(ClassSymbol sym) {
-        String className = sym.fullname.toString();
-        return names.fromString(varMap_FXObjectFieldPrefix + className.replace('.', '$'));
+        return names.fromString(varMap_FXObjectFieldPrefix + defs.mangleClassName(sym, true));
     }
 
     Name varGetMapName(ClassSymbol sym) {
-        String className = sym.fullname.toString();
-        return names.fromString(varGetMapString + className.replace('.', '$'));
+        return names.fromString(varGetMapString + defs.mangleClassName(sym, true));
     }
     
     Name attributeOffsetName(Symbol sym) {
@@ -667,7 +665,7 @@ public abstract class JavafxTranslationSupport {
         String selectorString = "";
         
         if (sym.isStatic()) {
-            selectorString = sym.owner.toString().replace('.', '$');
+            selectorString = defs.mangleClassName(sym.owner, false);
         } else if (selector != null &&
                    !(selector instanceof JavafxVarSymbol && ((JavafxVarSymbol)selector).isSpecial())) {
             selectorString = selector.toString();
@@ -677,7 +675,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     Name classDCNT$Name(Symbol classSym) {
-        return names.fromString(defs.depCount_FXObjectFieldString + classSym.toString().replace('.', '$'));
+        return names.fromString(defs.depCount_FXObjectFieldString + defs.mangleClassName(classSym, false));
     }
 
     boolean isBoundFunctionResult(Symbol sym) {
@@ -729,7 +727,7 @@ public abstract class JavafxTranslationSupport {
         // var in subclass, but with different type fails
         if (!vsym.isStatic() && vsym.hasScriptOnlyAccess() && (vsym.isExternallySeen() || types.isMixin(owner))) {
             // mangle name to hide it
-            sname = owner.toString().replace('.', '$') + '$' + sname;
+            sname = defs.mangleClassName(owner, false) + '$' + sname;
         }
         return names.fromString( prefix + sname );
     }
