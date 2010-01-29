@@ -472,12 +472,11 @@ public class Timeline {
      * @profile common
      */
     public function play() {
-        pauseRequested = false;
         if(rate != 0.0) {
             // timeline not yet started, so just start it
             if(clip == null or not clip.isRunning()) {
                 start();
-            } else if(paused) {
+            } else if(paused or pausing) {
                 resume();
             }
         }
@@ -485,14 +484,16 @@ public class Timeline {
 
 
     function start() {
-        starting = true;
-        stopping = false;
-        validate();
-        if (time == 0.0ms) {
-            initKeyValues();
+        if (not starting) {
+            starting = true;
+            stopping = false;
+            validate();
+            if (time == 0.0ms) {
+                initKeyValues();
+            }
+            buildClip();
+            clip.start();
         }
-        buildClip();
-        clip.start();
     }
 
     /**
@@ -518,7 +519,6 @@ public class Timeline {
      *  @profile common
      */
     public function playFromStart() {
-        pauseRequested = false;
         if(rate != 0.0) {
             rate = Math.abs(rate);
             jumpTo(0, true);
@@ -568,14 +568,7 @@ public class Timeline {
     // pause() is called right after play() but the clip has not started yet
 
     // is true just after play() is called and till begin() is called at adapter
-    var starting = false on replace wasStarting {
-        if (wasStarting and not starting and pauseRequested) {
-            pauseRequested = false;
-            pause();
-        };
-    }
-    // is true if pause() is called during starting==true
-    var pauseRequested = false;
+    var starting = false;
 
     var stopping = false;
     /**
@@ -592,7 +585,6 @@ public class Timeline {
      */
     public function stop(): Void {
         stopping = true;
-        pauseRequested = false;
         if(clip != null) {
             clip.stop();
         }
@@ -603,6 +595,8 @@ public class Timeline {
             movePlayhead(0);
         }
     }
+
+    var pausing = false;
 
     /**
      * Pauses the animation.  If the animation is not currently running,
@@ -617,9 +611,8 @@ public class Timeline {
      *  @profile common
      */
     public function pause() {
-        if (starting) {
-            pauseRequested = true;
-        } else {
+        if (not stopping and not pausing and not paused) {
+            pausing = true;
             clip.pause();
         }
     }
@@ -631,7 +624,6 @@ public class Timeline {
      *
      */
     function resume() {
-        pauseRequested = false;
         if(clip != null) {
             clip.resume();
         }
@@ -1043,10 +1035,9 @@ public class Timeline {
     function createAdapter():TimingTarget {
         TimingTargetAdapter {
             override function begin() : Void {
-                if (not pauseRequested) {
-                    paused = false;
-                }
+                paused = false;
                 starting = false;
+                pausing = false;
                 running = true;
                 isReverse = false;
                 stopping = false;
@@ -1092,17 +1083,20 @@ public class Timeline {
             }
 
             override function pause() : Void {
+                pausing = false;
                 paused = true;
                 currentRate = 0.0;
             }
 
             override function resume() : Void {
+                pausing = false;
                 paused = false;
                 updateCurrentRate();
-                }
+            }
 
             override function end() : Void {
                 starting = false;
+                pausing = false;
                 running = false;
                 paused = false;
                 currentRate = 0.0;
