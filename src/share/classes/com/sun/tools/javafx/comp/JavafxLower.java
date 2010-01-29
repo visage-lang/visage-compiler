@@ -1165,33 +1165,24 @@ public class JavafxLower implements JavafxVisitor {
 
                 JFXExpression initExpr;
 
-                if (holdBindsOutsideSubclass || hasNameConflicts(tree.type.tsym, partExpr)) { // enable bound object literal initializer scoping to object literal level.
+                // Determine if bound object literal initializer should be scoped to object literal level.
+                if ((holdBindsOutsideSubclass && preTrans.hasSideEffectsInBind(partExpr)) || hasNameConflicts(tree.type.tsym, partExpr)) {
                     // Shread the expression outside the class, so that the context is correct
                     // The variable should be marked as script private as it shouldn't
                     // be accessible from outside.
 
-                    Symbol initSym = JavafxTreeInfo.symbol(partExpr);
-                    // FIXME: revisit this - more opportunities to optimze here.
-                    // Check if we can avoid more local class wrapping around object
-                    // literal class.
-                    //TODO: I don't think the static test makes sense, but we could broaden this a lot to include anything immutable
-                    if (partExpr.getFXTag() == JavafxTag.LITERAL ||
-                        (initSym != null && initSym.isStatic())) {
-                        initExpr = partExpr;
-                    } else {
-                        JFXVar shred = makeVar(
+                    JFXVar shred = makeVar(
                             part.pos(),
                             JavafxFlags.SCRIPT_PRIVATE,
                             part.name + "$ol",
                             part.getBindStatus(),
                             lowerExpr(partExpr, part.sym.type),
                             part.sym.type);
-                        JFXIdent sid = m.Ident(shred.name);
-                        sid.sym = shred.sym;
-                        sid.type = part.sym.type;
-                        locals.append(shred);
-                        initExpr = sid;
-                    }
+                    JFXIdent sid = m.Ident(shred.name);
+                    sid.sym = shred.sym;
+                    sid.type = part.sym.type;
+                    locals.append(shred);
+                    initExpr = sid;
                 } else {
                     initExpr = partExpr; // lowered with class
                 }

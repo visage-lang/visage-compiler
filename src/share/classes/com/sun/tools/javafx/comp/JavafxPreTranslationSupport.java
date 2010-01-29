@@ -350,5 +350,36 @@ public class JavafxPreTranslationSupport {
         }
         return true;
     }
+
+    //TODO: unify with hasSideEffects in TranslationSupport
+    boolean hasSideEffectsInBind(JFXExpression expr) {
+        class SideEffectScanner extends JavafxTreeScanner {
+
+            boolean hse = false;
+
+            private void markSideEffects() {
+                hse = true;
+            }
+
+            @Override
+            public void visitAssign(JFXAssign tree) {
+                // In case we add back assignment
+                markSideEffects();
+            }
+
+            @Override
+            public void visitInstanciate(JFXInstanciate tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+                markSideEffects();
+            }
+        }
+        SideEffectScanner scanner = new SideEffectScanner();
+        scanner.scan(expr);
+        return scanner.hse;
+    }
 }
 
