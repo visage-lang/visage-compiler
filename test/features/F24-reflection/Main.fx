@@ -59,7 +59,7 @@ for (cls in clsString.getSuperClasses(true))
     if ( not cls.getName().equals("class net.sourceforge.cobertura.coveragedata.HasBeenInstrumented")) {
         System.out.println("  {cls}");
     }
-
+ 
 System.out.println("String methods:");
 for (meth in clsString.getFunctions(false))
      System.out.println("  {meth}");
