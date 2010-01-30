@@ -40,18 +40,25 @@ System.out.println("clsSimple={clsSimple} jfx-class:{clsSimple.isJfxType()} mixi
 System.out.println("Simpl.super: {clsSimple.getSuperClasses(false)}");
 System.out.println("Simpl.super (inherited also):");
 for (cls in clsSimple.getSuperClasses(true))
-    System.out.println("  {cls}");
-
+    // this class appears when we run the tests with instrumentation, but it is not in our
+    // EXPECTED file.
+    if ( "{cls}" != "class net.sourceforge.cobertura.coveragedata.HasBeenInstrumented") {
+        System.out.println("  {cls}");
+    }
 var clsString = context.findClass("java.lang.String");
 System.out.println("clsString={clsString} jfx-class:{clsString.isJfxType()} mixin:{clsString.isMixin()}");
 
 System.out.println("String .super (direct only):");
 for (cls in clsString.getSuperClasses(false))
-    System.out.println("  {cls}");
+    if ( "{cls}" != "class net.sourceforge.cobertura.coveragedata.HasBeenInstrumented") {
+        System.out.println("  {cls}");
+    }
 
 System.out.println("String .super (inherited also):");
 for (cls in clsString.getSuperClasses(true))
-    System.out.println("  {cls}");
+    if ( not cls.getName().equals("class net.sourceforge.cobertura.coveragedata.HasBeenInstrumented")) {
+        System.out.println("  {cls}");
+    }
 
 System.out.println("String methods:");
 for (meth in clsString.getFunctions(false))
@@ -188,7 +195,9 @@ System.out.println("myAnonRectRef.getClassType: {myAnonRectClass}");
 System.out.println("myAnonRectRef.super: {myAnonRectClass.getSuperClasses(false)}");
 System.out.println("myAnonRectRef.super (inherited also):");
 for (cls in myAnonRectClass.getSuperClasses(true))
-    System.out.println("  {cls}");
+    if (not cls.getName().equals("class net.sourceforge.cobertura.coveragedata.HasBeenInstrumented")) {
+        System.out.println("  {cls}");
+    }
 
 var clsMain = context.findClass("Main");
 System.out.println("Main.getFunction(\"repeat\"): {clsMain.getFunction("repeat", context.getIntegerType(), context.getStringType())}");
