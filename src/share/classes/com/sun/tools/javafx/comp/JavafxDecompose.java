@@ -359,7 +359,6 @@ public class JavafxDecompose implements JavafxVisitor {
             res.boundElseVar = synthVar("else", falsepart, falsepart.type, false);
             // Add a size field to hold the previous size on condition switch
             JFXVar v = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
-            v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
             res.boundSizeVar = v;
         }
         result = res;
@@ -452,7 +451,7 @@ public class JavafxDecompose implements JavafxVisitor {
         res.type = tree.type;
         if (bindStatus.isBound() && types.isSequence(tree.type) && !isBoundFunctionResult(tree)) {
             JFXVar v = shredVar("sii", res, tree.type);
-            JFXVar sz = makeSizeVar(v.pos(), JavafxDefs.UNDEFINED_MARKER_INT, JavafxBindStatus.UNBOUND);
+            JFXVar sz = makeSizeVar(v.pos(), JavafxDefs.UNDEFINED_MARKER_INT, JavafxBindStatus.UNBOUND, false/*why?*/);
             res = fxmake.IdentSequenceProxy(v.name, v.sym, sz.sym);
         }
         result = res;
@@ -589,7 +588,6 @@ public class JavafxDecompose implements JavafxVisitor {
             if (bindStatus.isBound() && types.isSequence(tree.type)) {
                 // Add a size field to hold the previous size on selector switch
                 JFXVar v = makeSizeVar(diagPos, 0);
-                v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH | Flags.PRIVATE;
                 res.boundSize = v;
             }
             result = res;
@@ -875,13 +873,16 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     private JFXVar makeSizeVar(DiagnosticPosition diagPos, int initial) {
-        return makeSizeVar( diagPos,  initial, JavafxBindStatus.UNIDIBIND);
+        return makeSizeVar( diagPos,  initial, JavafxBindStatus.UNIDIBIND, true);
     }
 
-    private JFXVar makeSizeVar(DiagnosticPosition diagPos, int initial, JavafxBindStatus bindStatus) {
+    private JFXVar makeSizeVar(DiagnosticPosition diagPos, int initial, JavafxBindStatus bindStatus, boolean bareSynth) {
         JFXExpression initialSize = fxmake.at(diagPos).Literal(initial);
         initialSize.type = syms.intType;
         JFXVar v = makeVar(diagPos, "size", initialSize, bindStatus, syms.intType);
+        if (bareSynth) {
+            v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
+        }
         return v;
     }
 
@@ -918,29 +919,30 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXSequenceRange res = fxmake.at(tree.pos).RangeSequence(lower, upper, stepOrNull, tree.isExclusive());
         res.type = tree.type;
         if (bindStatus.isBound()) {
-            // now add a size temp var
+            // now add a size var
             res.boundSizeVar = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
-            res.boundSizeVar.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
         }
         result = res;
     }
 
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
-        List<JFXExpression> items;
+        JFXSequenceExplicit res;
         if (bindStatus.isBound()) {
-            items = List.nil(); // bound should not use items - non-null for pretty-printing
-        } else {
-            items = decomposeComponents(tree.getItems());
-        }
-        JFXSequenceExplicit res = fxmake.at(tree.pos).ExplicitSequence(items);
-        res.type = tree.type;
-        if (bindStatus.isBound()) {
+            // bound should not use items - non-null for pretty-printing
+            res = fxmake.at(tree.pos).ExplicitSequence(List.<JFXExpression>nil());
             ListBuffer<JFXVar> vb = ListBuffer.lb();
             for (JFXExpression item : tree.getItems()) {
                 vb.append(shredVar("item", decompose(item), item.type));
             }
             res.boundItemsVars = vb.toList();
+
+            // now add a size var
+            res.boundSizeVar = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
+        } else {
+            List<JFXExpression> items = decomposeComponents(tree.getItems());
+            res = fxmake.at(tree.pos).ExplicitSequence(items);
         }
+        res.type = tree.type;
         result = res;
     }
 
