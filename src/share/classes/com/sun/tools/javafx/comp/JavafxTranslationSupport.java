@@ -83,6 +83,7 @@ public abstract class JavafxTranslationSupport {
     protected final JavafxSymtab syms;
     protected final JavafxTypes types;
     protected final Options options;
+    protected final JavafxPreTranslationSupport preTrans;
 
     /*
      * other instance information
@@ -99,6 +100,7 @@ public abstract class JavafxTranslationSupport {
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
         options = Options.instance(context);
+        preTrans = JavafxPreTranslationSupport.instance(context);
 
         syntheticNameCounter = 0;
     }
@@ -169,46 +171,6 @@ public abstract class JavafxTranslationSupport {
         return false;
     }
 
-    boolean isImmutable(Symbol sym, Name name) {
-        if (sym.kind != Kinds.VAR) {
-            return true;
-        }
-        JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
-        Symbol owner = sym.owner;
-        boolean isKnown = vsym.isLocal() || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
-        boolean isAssignedTo = vsym.isAssignedTo();
-        boolean isDefinedBound = vsym.isDefinedBound();
-        return
-                    name == names._this ||
-                    name == names._super ||
-                    name == fxmake.ScriptAccessSymbol(owner).name ||
-                    isKnown && vsym.isDef() && !isDefinedBound || // unbound def
-                    isKnown && !vsym.isWritableOutsideScript() && !isAssignedTo && !isDefinedBound; // never reassigned
-     }
-
-    boolean isImmutable(JFXIdent tree) {
-        return isImmutable(tree.sym, tree.getName());
-    }
-
-    boolean isImmutable(final JFXSelect tree) {
-        return isImmutableSelector(tree) && isImmutable(tree.sym, tree.getIdentifier());
-    }
-
-    boolean isImmutableSelector(final JFXSelect tree) {
-        if (tree.sym.isStatic()) {
-            // If the symbol is static, no matter what the selector is, the selectot is immutable
-            return true;
-        }
-        final JFXExpression selector = tree.getExpression();
-        if (selector instanceof JFXIdent) {
-            return isImmutable((JFXIdent) selector);
-        } else if (selector instanceof JFXSelect) {
-            return isImmutable((JFXSelect) selector);
-        } else {
-            return false;
-        }
-    }
-
     boolean hasDependencies(JFXExpression expr, final Set<Symbol> exclusions) {
         class DependencyScanner extends JavafxTreeScanner {
 
@@ -237,14 +199,14 @@ public abstract class JavafxTranslationSupport {
 
             @Override
             public void visitIdent(JFXIdent tree) {
-                if (!exclusions.contains(tree.sym) && !isImmutable(tree)) {
+                if (!exclusions.contains(tree.sym) && !preTrans.isImmutable(tree)) {
                     markHasDependencies();
                 }
             }
 
             @Override
             public void visitSelect(JFXSelect tree) {
-                if (!isImmutable(tree)) {
+                if (!preTrans.isImmutable(tree)) {
                     markHasDependencies();
                 }
             }

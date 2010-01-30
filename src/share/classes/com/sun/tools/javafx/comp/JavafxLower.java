@@ -1142,7 +1142,7 @@ public class JavafxLower implements JavafxVisitor {
         boolean holdBindsOutsideSubclass = false;
         if (tree.isBound()) {
             for (JFXObjectLiteralPart part : tree.getParts()) {
-                if (!part.isExplicitlyBound() && part.getExpression().getFXTag() != JavafxTag.LITERAL) {
+                if (!part.isExplicitlyBound() && !preTrans.isImmutable(part.getExpression())) {
                     // A bound object literal with non-explicitly bound initializer
                     // requires continuity of binds
                     holdBindsOutsideSubclass = true;
