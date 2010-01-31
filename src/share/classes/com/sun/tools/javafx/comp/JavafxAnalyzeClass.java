@@ -210,12 +210,6 @@ class JavafxAnalyzeClass {
             return (getFlags() & JavafxFlags.VARMARK_BARE_SYNTH) != 0;
         }
         
-        // Returns true if the var is a private bare synth.
-        public boolean isHiddenBareSynth() {
-            long flags = JavafxFlags.VARMARK_BARE_SYNTH | Flags.PRIVATE;
-            return (getFlags() & flags) == flags;
-        }
-        
         // Returns true if the var is read only.
         public boolean isReadOnly() {
             return isDef() || (hasBoundDefinition() && !hasBiDiBoundDefinition());

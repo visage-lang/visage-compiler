@@ -451,7 +451,7 @@ public class JavafxDecompose implements JavafxVisitor {
         res.type = tree.type;
         if (bindStatus.isBound() && types.isSequence(tree.type) && !isBoundFunctionResult(tree)) {
             JFXVar v = shredVar("sii", res, tree.type);
-            JFXVar sz = makeSizeVar(v.pos(), JavafxDefs.UNDEFINED_MARKER_INT, JavafxBindStatus.UNBOUND, false/*why?*/);
+            JFXVar sz = makeSizeVar(v.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
             res = fxmake.IdentSequenceProxy(v.name, v.sym, sz.sym);
         }
         result = res;
@@ -873,16 +873,13 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     private JFXVar makeSizeVar(DiagnosticPosition diagPos, int initial) {
-        return makeSizeVar( diagPos,  initial, JavafxBindStatus.UNIDIBIND, true);
+        return makeIntVar(diagPos, "sz", initial);
     }
 
-    private JFXVar makeSizeVar(DiagnosticPosition diagPos, int initial, JavafxBindStatus bindStatus, boolean bareSynth) {
+    private JFXVar makeIntVar(DiagnosticPosition diagPos, String label, int initial) {
         JFXExpression initialSize = fxmake.at(diagPos).Literal(initial);
         initialSize.type = syms.intType;
-        JFXVar v = makeVar(diagPos, "size", initialSize, bindStatus, syms.intType);
-        if (bareSynth) {
-            v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
-        }
+        JFXVar v = makeVar(diagPos, label, initialSize, JavafxBindStatus.UNBOUND, syms.intType);
         return v;
     }
 
