@@ -88,6 +88,7 @@ public abstract class BoundFor<T, PT> extends FXBase {
             int sz = container.size$(inductionSeqVarNum);
 
             uninitialized = false;
+            replaceParts(0, 0, sz, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
             replaceParts(0, 0, sz, FXObject.PHASE_TRANS$CASCADE_TRIGGER);
         }
     }

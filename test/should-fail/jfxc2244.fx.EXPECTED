@@ -1,6 +1,4 @@
-test/should-fail/jfxc2244.fx:4: incompatible types
-found   : Integer
-required: function():void
+test\should-fail\jfxc2244.fx:4: A sequence is not a valid expression for this operation, I am looking for an expression that yields 'function():void'
 var f:function () = [2];
-                     ^
+                    ^
 1 error

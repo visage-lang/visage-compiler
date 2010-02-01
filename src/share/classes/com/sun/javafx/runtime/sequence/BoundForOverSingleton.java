@@ -75,7 +75,7 @@ public abstract class BoundForOverSingleton<T, PT> extends BoundFor<T, PT> {
         assert pendingTriggers == 0;
 
         if (inPartChange) {
-            // Part change will handle update
+            firePartsChange(true, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT);
             return true;
         }
         if (DEBUG) System.err.println(".trig update$ id: " + forVarNum + ", ipart: " + ipart + ", " + lowestInvalidPart + " ... " + highestInvalidPart);
@@ -202,6 +202,16 @@ public abstract class BoundForOverSingleton<T, PT> extends BoundFor<T, PT> {
             getPart(ips).adjustIndex$(deltaParts);
         }
 
+        inWholesaleUpdate = false;
+
+        if (pendingTriggers == 0) {
+            firePartsChange(outstandingInvalidations, startPart, endPart, newEndPart);
+        }
+    }
+
+    private void firePartsChange(boolean clash, int startPart, int endPart, int newEndPart) {
+        assert pendingTriggers == 0;
+
         // Set-up to lazily update lengths
         int previousSize = sizeAtLastTrigger;
         sizeAtLastTrigger = numParts;
@@ -211,7 +221,7 @@ public abstract class BoundForOverSingleton<T, PT> extends BoundFor<T, PT> {
         int invEndPos;
         int newEndPos;
 
-        if (outstandingInvalidations) {
+        if (clash) {
             // Trying to change parts and do individual update at the same time -- invalidate everything
             invStartPos = 0;
             invEndPos = previousSize;
@@ -242,8 +252,8 @@ public abstract class BoundForOverSingleton<T, PT> extends BoundFor<T, PT> {
                 FXObject.PHASE_TRANS$CASCADE_TRIGGER);
 
         inPartChange = false;
-        inWholesaleUpdate = false;
         highestInvalidPart = -1;
+        pendingTriggers = 0;  // just in case
     }
 
     public int size() {
