@@ -61,6 +61,7 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.mjavac.tree.JCTree.JCAssert;
 import com.sun.tools.mjavac.tree.JCTree.JCBlock;
 import com.sun.tools.mjavac.tree.JCTree.JCCatch;
 import com.sun.tools.mjavac.util.Options;
@@ -639,7 +640,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     Name classDCNT$Name(Symbol classSym) {
-        return names.fromString(defs.depCount_FXObjectFieldString + classSym.toString().replace('.', '$'));
+        return names.fromString(JavafxDefs.depCount_FXObjectFieldString + classSym.toString().replace('.', '$'));
     }
 
     boolean isBoundFunctionResult(Symbol sym) {
@@ -1015,6 +1016,13 @@ public abstract class JavafxTranslationSupport {
          */
         protected JCExpression Select(JCExpression selector, Name name) {
             return (selector==null)? id(name) : m().Select(selector, name);
+        }
+
+        /**
+         * An assertion
+         */
+        protected JCAssert Assert(JCExpression cond) {
+            return m().Assert(cond, null);
         }
 
         /**

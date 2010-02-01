@@ -2415,9 +2415,7 @@ however this is what we need */
             } else {
                 if (!(ai instanceof MixinClassVarInfo)) {
                     if (ai.generateSequenceAccessors()) {
-                        if (ai.isHiddenBareSynth()) {
-                            // on replace savedVar
-                        } else if (!ai.isOverride()) {
+                        if (!ai.isOverride()) {
                             makeSeqGetterAccessorMethod(ai, bodyType);
                             makeSeqGetElementAccessorMethod(ai, bodyType);
                             makeSeqGetSizeAccessorMethod(ai, bodyType);
@@ -2462,7 +2460,7 @@ however this is what we need */
                     }                    
                } else {
                     // Mixins in a normal class.
-                    if (ai.needsCloning() && !ai.isHiddenBareSynth()) {
+                    if (ai.needsCloning()) {
                         boolean hasInit = ai.hasInitializer() || ai.hasBoundDefinition();
                         bodyType = hasInit ? BODY_NORMAL : BODY_MIXIN;
                         
