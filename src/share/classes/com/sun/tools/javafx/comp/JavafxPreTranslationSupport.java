@@ -336,19 +336,28 @@ public class JavafxPreTranslationSupport {
     }
 
     boolean isNullable(JFXExpression expr) {
-        if (expr.type.isPrimitive()) {
+        if (!types.isNullable(expr.type)) {
             return false;
         }
-        if (types.isSameType(expr.type, syms.javafx_StringType)) {
-            return false;
+        while (true) {
+            switch (expr.getFXTag()) {
+                case OBJECT_LITERAL:
+                    return false;
+                case PARENS:
+                    expr = ((JFXParens)expr).getExpression();
+                    break;
+                case BLOCK_EXPRESSION:
+                    expr = ((JFXBlock)expr).getValue();
+                    break;
+                case CONDEXPR:
+                {
+                    JFXIfExpression ife = (JFXIfExpression)expr;
+                    return isNullable(ife.getTrueExpression()) || isNullable(ife.getFalseExpression());
+                }
+                default:
+                    return true;
+            }
         }
-        if (types.isSameType(expr.type, syms.javafx_DurationType)) {
-            return false;
-        }
-        if (expr.getFXTag() == JavafxTag.OBJECT_LITERAL) {
-            return false;
-        }
-        return true;
     }
 
     //TODO: unify with hasSideEffects in TranslationSupport
