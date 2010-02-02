@@ -1166,7 +1166,7 @@ public class JavafxLower implements JavafxVisitor {
                 JFXExpression initExpr;
 
                 // Determine if bound object literal initializer should be scoped to object literal level.
-                if ((holdBindsOutsideSubclass && preTrans.hasSideEffectsInBind(partExpr)) || hasNameConflicts(tree.type.tsym, partExpr)) {
+                if (true || (holdBindsOutsideSubclass && preTrans.hasSideEffectsInBind(partExpr)) || hasNameConflicts(tree.type.tsym, partExpr)) {
                     // Shread the expression outside the class, so that the context is correct
                     // The variable should be marked as script private as it shouldn't
                     // be accessible from outside.
