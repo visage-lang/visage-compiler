@@ -1060,95 +1060,123 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      *
      */
     private class BoundExplicitSequenceTranslator extends BoundSequenceTranslator {
-        private final List<JFXVar> vars;
+        private final List<JavafxVarSymbol> itemSyms;
+        private final List<JavafxVarSymbol> itemLengthSyms;
         private final Type elemType;
         private final int length;
+        private final JavafxVarSymbol sizeSym;
+        private final JavafxVarSymbol lowestSym;
+        private final JavafxVarSymbol highestSym;
+        private final JavafxVarSymbol pendingSym;
+        private final JavafxVarSymbol newLengthSym;
+        private final JavafxVarSymbol changeStartSym;
+        private final JavafxVarSymbol changeEndSym;
+        private final JavafxVarSymbol ignoreInvalidationsSym;
+
+        private boolean DEBUG = false;
+
         BoundExplicitSequenceTranslator(JFXSequenceExplicit tree) {
             super(tree.pos());
-            this.vars = tree.boundItemsVars;
-            this.length = vars.length();
+            this.itemSyms = tree.boundItemsSyms;
+            this.itemLengthSyms = tree.boundItemLengthSyms;
+            this.length = itemSyms.length();
             this.elemType = types.elementType(tree.type);
-        }
-
-        private boolean isNullable(int index) {
-            Type type = type(index);
-            //TODO: better test that looks at the actual expression (eg. object literal)
-            return !type.isPrimitive() &&
-                    type != syms.javafx_StringType &&
-                    type != syms.javafx_DurationType;
+            this.sizeSym = tree.boundSizeSym;
+            this.lowestSym = tree.boundLowestInvalidPartSym;
+            this.highestSym = tree.boundHighestInvalidPartSym;
+            this.pendingSym = tree.boundPendingTriggersSym;
+            this.newLengthSym = tree.boundNewLengthSym;
+            this.changeStartSym = tree.boundChangeStartPosSym;
+            this.changeEndSym = tree.boundChangeEndPosSym;
+            this.ignoreInvalidationsSym = tree.boundIgnoreInvalidationsSym;
         }
 
         private boolean isSequence(int index) {
             return types.isSequence(type(index));
         }
 
-        private JavafxVarSymbol vsym(int index) {
-            return vars.get(index).sym;
+        private JavafxVarSymbol itemLengthSym(int index) {
+            return itemLengthSyms.get(index);
+        }
+
+        private JavafxVarSymbol itemSym(int index) {
+            return itemSyms.get(index);
         }
 
         private Type type(int index) {
-            return vars.get(index).type;
+            return itemSym(index).type;
         }
 
-        private JCExpression CallGetter(int index) {
-            return Getter(vsym(index));
-        }
-
-        private JCExpression computeSize(int index, JCExpression value) {
-            if (isSequence(index)) {
-                return CallSize(vsym(index));
-            } else if (isNullable(index)) {
-                return If (EQnull(value), Int(0), Int(1));
+        private JCStatement Update(int index) {
+            if (itemLengthSym(index) == null) {
+                return Stmt(Getter(itemSym(index)));
             } else {
-                return Int(1);
+                return SetStmt(itemLengthSym(index),
+                           isSequence(index)?
+                                CallSize(itemSym(index)) :
+                                If (EQnull(Getter(itemSym(index))), Int(0), Int(1))
+                      );
             }
         }
 
-        private JCExpression computeSize(int index) {
-            return computeSize(index, Get(vsym(index)));
+        private JCStatement UpdateAll() {
+            ListBuffer<JCStatement> upds = ListBuffer.lb();
+            for (int i = 0; i < length; ++i) {
+                upds.append(Update(i));
+            }
+            return Block(upds);
         }
 
-        private JCExpression cummulativeSize(int index) {
+        private JCExpression PassiveLength(int index) {
+            if (itemLengthSym(index) == null) {
+                return Int(1);
+            } else {
+                return isSequence(index)?
+                                CallSize(itemSym(index)) :
+                                If (EQnull(Getter(itemSym(index))), Int(0), Int(1));
+            }
+        }
+
+        private JCExpression CachedLength(int index) {
+            JavafxVarSymbol lenSym = itemLengthSym(index);
+            return lenSym==null? Int(1) : Get(lenSym);
+        }
+
+        private JCExpression CummulativeCachedSize(int index) {
             JCExpression sum = Int(0);
             for (int i = 0; i < index; ++i) {
-                sum = PLUS(sum, computeSize(i));
+                sum = PLUS(sum, CachedLength(i));
             }
             return sum;
         }
 
         private JCExpression GetElement(int index, JCExpression pos) {
             if (isSequence(index)) {
-                return Call(attributeGetElementName(vsym(index)), pos);
+                return Call(attributeGetElementName(itemSym(index)), pos);
             } else {
-                return Get(vsym(index));
+                return Get(itemSym(index));
             }
         }
 
         JCStatement makeSizeBody() {
-            JCVariableDecl vSize = TmpVar("size", syms.intType, cummulativeSize(length));
-
-            // Initialize the singleton synthetic item vars (during IS_VALID phase)
-            // Bound sequences don't have a value
-            ListBuffer<JCStatement> varInits = ListBuffer.lb();
-            for (int i = 0; i < length; ++i) {
-                if (!isSequence(i)) {
-                    varInits.append(SetStmt(vsym(i), CallGetter(i)));
-                }
-            }
+            JCVariableDecl vSize = TmpVar("size", syms.intType, CummulativeCachedSize(length));
 
             return
                 Block(
                     If(isSequenceDormant(),
                         Block(
-                            varInits,
+                            UpdateAll(),
                             vSize,
                             setSequenceActive(),
+                            SetStmt(sizeSym, id(vSize)),
                             CallSeqInvalidateUndefined(targetSymbol),
                             CallSeqTriggerInitial(targetSymbol, id(vSize)),
                             Return(id(vSize))
                         )
                     ),
-                    Return(cummulativeSize(length))
+                    DEBUG? Debug("size pending=", Get(pendingSym)) : null,
+                    DEBUG? Debug("   size=", Get(sizeSym)) : null,
+                    Return(Get(sizeSym))
                 );
         }
 
@@ -1180,6 +1208,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
             stmts.appendList(Stmts(
+                    DEBUG? Debug("GetElement pending=", Get(pendingSym)) : null,
+                    DEBUG? Debug("   size=", Get(sizeSym)) : null,
                     If(LT(posArg(), Int(0)),
                         Return(DefaultValue(elemType))
                     ),
@@ -1191,7 +1221,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 ));
             for (int index = 0; index < length; ++index) {
                 stmts.appendList(Stmts(
-                        Assign(vNext, PLUS(id(vNext), computeSize(index))),
+                        Assign(vNext, PLUS(id(vNext), PassiveLength(index))),
                         If(LT(posArg(), id(vNext)),
                             Return(GetElement(index, MINUS(posArg(), id(vStart))))
                         ),
@@ -1203,72 +1233,143 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return Block(stmts);
         }
 
-        /**
-         */
-        private JCStatement makeItemInvalidate(int index) {
-            JCVariableDecl vStart = TmpVar("start", syms.intType, cummulativeSize(index));
-
-            if (isSequence(index)) {
-                return
-                    If (isSequenceActive(),
+        private JCStatement makeItemInvalidatePhase(int index) {
+            return
+                Block(
+                    If (LT(Get(highestSym), Int(0)),
                         Block(
-                            If (IsInvalidatePhase(),
+                            Assert(EQ(Get(highestSym), Undefined())),
+                            Assert(EQ(Get(pendingSym), Int(0))),
+                            DEBUG? Debug("inv 1st #"+index+" pending=", Get(pendingSym)) : null,
+                            SetStmt(highestSym, Int(index)),
+                            SetStmt(lowestSym, Int(index)),
+                            SetStmt(pendingSym, Int(1)),
+                            SetStmt(newLengthSym, Int(0)),
+                            SetStmt(changeStartSym, CummulativeCachedSize(index)),
+                            SetStmt(changeEndSym, PLUS(Get(changeStartSym), CachedLength(index))),
+                            CallSeqInvalidateUndefined(targetSymbol)
+                        ),
+                    /*Else (already have invalid parts)*/
+                        Block(
+                            DEBUG? Debug("inv #"+index+" pending=", Get(pendingSym)) : null,
+                            SetStmt(pendingSym, PLUS(Get(pendingSym), Int(1))),
+                            If (LT(Int(index), Get(lowestSym)),
                                 Block(
-                                    CallSeqInvalidateUndefined(targetSymbol)
-                                ),
-                            /*Else (Trigger phase)*/
+                                    SetStmt(changeStartSym, CummulativeCachedSize(index)),
+                                    SetStmt(lowestSym, Int(index))
+                                )
+                            ),
+                            If (GT(Int(index), Get(highestSym)),
                                 Block(
+                                    SetStmt(changeEndSym, CummulativeCachedSize(index+1)),
+                                    SetStmt(highestSym, Int(index))
+                                )
+                            )
+                        )
+                    )
+                );
+        }
+
+        private JCStatement makeItemTriggerPhase(int index, boolean isSequence) {
+            JCStatement triggerChanged =
+                Block(
+                    SetStmt(highestSym, Undefined()),
+                    DEBUG? Debug("bulk #"+index+" changeStart=", Get(changeStartSym)) : null,
+                    CallSeqTrigger(targetSymbol,
+                        Get(changeStartSym),
+                        Get(changeEndSym),
+                        MINUS(Get(newLengthSym), Get(changeStartSym))
+                    )
+                );
+            JCStatement fire;
+            if (isSequence) {
+                fire =
+                    Block(
+                        If (
+                            AND(
+                                EQ(Get(highestSym), Int(index)),
+                                EQ(Get(lowestSym), Int(index))
+                            ),
+                            Block(
+                                    SetStmt(highestSym, Undefined()),
                                     If (IsUnchangedTrigger(),
                                         Block(
+                                            DEBUG? Debug("uncng #"+index, Int(index)) : null,
                                             CallSeqTriggerUnchanged(targetSymbol) // Pass it on
                                         ),
                                     /*else (real trigger)*/
                                         Block(
-                                            vStart,
+                                            DEBUG? Debug("one #"+index+" changeStart=", Get(changeStartSym)) : null,
+                                            DEBUG? Debug("   endPos=", endPosArg()) : null,
                                             CallSeqTrigger(targetSymbol,
-                                                PLUS(id(vStart), startPosArg()),
+                                                PLUS(Get(changeStartSym), startPosArg()),
                                                 If (EQ(endPosArg(), Undefined()),
                                                     Undefined(),
-                                                    PLUS(id(vStart), endPosArg())
+                                                    PLUS(Get(changeStartSym), endPosArg())
                                                 ),
                                                 newLengthArg()
                                             )
                                         )
                                     )
-                                )
+                            ),
+                            triggerChanged
+                        )
+                    );
+            } else {
+                fire = triggerChanged;
+            }
+
+            JCVariableDecl vOldLength = TmpVar("oldLen", syms.intType, CachedLength(index));
+            JCVariableDecl vNewLength = TmpVar("newLen", syms.intType, CachedLength(index));
+
+            return
+                Block(
+                    Assert(AND(GE(Int(index), Get(lowestSym)), LE(Int(index), Get(highestSym)))),
+                    Assert(GT(Get(pendingSym), Int(0))),
+                    SetStmt(pendingSym, MINUS(Get(pendingSym), Int(1))),
+                    vOldLength,
+                    SetStmt(ignoreInvalidationsSym, True()),
+                    Update(index),
+                    SetStmt(ignoreInvalidationsSym, False()),
+                    vNewLength,
+                    SetStmt(sizeSym, PLUS(Get(sizeSym), MINUS(id(vNewLength), id(vOldLength)))),
+                    If (EQ(Get(highestSym), Int(index)),
+                        SetStmt(newLengthSym, CummulativeCachedSize(index+1))
+                    ),
+                    DEBUG? Debug("trig #"+index+"  pending = ", Get(pendingSym)) : null,
+                    If (EQ(Get(pendingSym), Int(0)),
+                        fire
+                    )
+                );
+        }
+
+        /**
+         * Invalidate addition for an element in the sequence
+         */
+        private JCStatement makeItemInvalidateInner(int index) {
+            return
+                    If (AND(isSequenceActive(), NOT(Get(ignoreInvalidationsSym))),
+                        Block(
+                            If (IsInvalidatePhase(),
+                                makeItemInvalidatePhase(index),
+                            /*Else (Trigger phase)*/
+                                makeItemTriggerPhase(index, isSequence(index))
                             )
                         ));
+        }
 
-            } else {
-                //TODO: this is eager even for fixed length
-                JCVariableDecl vOldLen = TmpVar("oldLen", syms.intType, computeSize(index));
-                JCVariableDecl vValue = TmpVar("value", type(index), CallGetter(index));
-                JCVariableDecl vNewLen = TmpVar("newLen", syms.intType, computeSize(index, id(vValue)));
-
+        /**
+         * Invalidate addition for an element in the sequence
+         */
+        private JCStatement makeItemInvalidate(int index) {
+            if (isSequence(index)) {
                 return
-                        PhaseCheckedBlock(vsym(index),
-                            If (isSequenceActive(),
-                                Block(
-                                    If (IsInvalidatePhase(),
-                                        Block(
-                                            CallSeqInvalidateUndefined(targetSymbol)
-                                        ),
-                                    /*Else (Trigger phase)*/
-                                        Block(
-                                            vOldLen,
-                                            vStart,
-                                            vValue,
-                                            vNewLen,
-                                            CallSeqTrigger(targetSymbol,
-                                                id(vStart),
-                                                PLUS(id(vStart), id(vOldLen)),
-                                                id(vNewLen)
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        );
+                    makeItemInvalidateInner(index);
+            } else {
+                return
+                    PhaseCheckedBlock(itemSym(index),
+                        makeItemInvalidateInner(index)
+                    );
             }
         }
 
@@ -1277,7 +1378,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         void setupInvalidators() {
             for (int index = 0; index < length; ++index) {
-                addInvalidator(vsym(index), makeItemInvalidate(index));
+                addInvalidator(itemSym(index), makeItemInvalidate(index));
             }
          }
     }

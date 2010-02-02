@@ -923,21 +923,40 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+        DiagnosticPosition diagPos = tree.pos();
         JFXSequenceExplicit res;
         if (bindStatus.isBound()) {
             // bound should not use items - non-null for pretty-printing
-            res = fxmake.at(tree.pos).ExplicitSequence(List.<JFXExpression>nil());
-            ListBuffer<JFXVar> vb = ListBuffer.lb();
+            res = fxmake.at(diagPos).ExplicitSequence(List.<JFXExpression>nil());
+            int n = 0;
+            ListBuffer<JavafxVarSymbol> vb = ListBuffer.lb();
+            ListBuffer<JavafxVarSymbol> vblen = ListBuffer.lb();
             for (JFXExpression item : tree.getItems()) {
-                vb.append(shredVar("item", decompose(item), item.type));
+                vb.append(shredVar("item"+n, decompose(item), item.type).sym);
+                JavafxVarSymbol lenSym = null;
+                if (preTrans.isNullable(item)) {
+                    lenSym = makeIntVar(item.pos(), "len"+n, 0).sym;
+                }
+                vblen.append(lenSym);
+                ++n;
             }
-            res.boundItemsVars = vb.toList();
+            res.boundItemsSyms = vb.toList();
+            res.boundItemLengthSyms = vblen.toList();
 
-            // now add a size var
-            res.boundSizeVar = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
+            // now add a synth vars
+            res.boundSizeSym = makeSizeVar(diagPos, JavafxDefs.UNDEFINED_MARKER_INT).sym;
+            res.boundLowestInvalidPartSym = makeIntVar(diagPos, "low", JavafxDefs.UNDEFINED_MARKER_INT).sym;
+            res.boundHighestInvalidPartSym = makeIntVar(diagPos, "high", JavafxDefs.UNDEFINED_MARKER_INT).sym;
+            res.boundPendingTriggersSym = makeIntVar(diagPos, "pending", 0).sym;
+            res.boundNewLengthSym = makeIntVar(diagPos, "newLen", 0).sym;
+            res.boundChangeStartPosSym = makeIntVar(diagPos, "cngStart", 0).sym;
+            res.boundChangeEndPosSym = makeIntVar(diagPos, "cngEnd", 0).sym;
+            JFXExpression falseLit = fxmake.Literal(TypeTags.BOOLEAN, 0);
+            falseLit.type = syms.booleanType;
+            res.boundIgnoreInvalidationsSym = makeVar(diagPos, "ignore", falseLit, JavafxBindStatus.UNBOUND, syms.booleanType).sym;
         } else {
             List<JFXExpression> items = decomposeComponents(tree.getItems());
-            res = fxmake.at(tree.pos).ExplicitSequence(items);
+            res = fxmake.at(diagPos).ExplicitSequence(items);
         }
         res.type = tree.type;
         result = res;

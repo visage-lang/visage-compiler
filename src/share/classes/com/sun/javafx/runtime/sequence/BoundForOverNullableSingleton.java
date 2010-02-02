@@ -52,7 +52,9 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
                 // and send a blanket invalidation
                 highestInvalidPart = lowestInvalidPart = ipart;
                 pendingTriggers = 1;
-                blanketInvalidationOfBoundFor();
+                if (!inPartChange) {
+                    blanketInvalidationOfBoundFor();
+                }
             } else {
                 // Already have invalid parts, encompass ours
                 ++pendingTriggers;
@@ -115,16 +117,16 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
     public void replaceParts(int startPart, int endPart, int insertedParts, int phase) {
         if (uninitialized)
             return;
+        boolean outstandingInvalidations = highestInvalidPart >= 0;
         if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE) {
             if (DEBUG) System.err.println("inv replaceParts id: " + forVarNum + ", inPartChange: " + inPartChange);
-            if (!inPartChange) {
-                inPartChange = true;
+            if (!inPartChange && !outstandingInvalidations) {
                 blanketInvalidationOfBoundFor();
             }
+            inPartChange = true;
             return;
         }
         if (DEBUG) System.err.println("+trig replaceParts id: " + forVarNum + ", startPart: " + startPart + ", endPart: " + endPart + ", insertedParts: " + insertedParts);
-        boolean outstandingInvalidations = highestInvalidPart >= 0;
 
         if (startPart < 0) {
             // This is a no-change trigger
