@@ -59,7 +59,12 @@ class TypeInference3 extends TypeInference2 {
 var context : FXLocal.Context = FXLocal.getContext();
 var classRef = context.findClass("ReflectionTest.TypeInference3");
 System.out.println("Reflecting class {classRef.getName()}");
-System.out.println("Inherited SuperClasses of TypeInference3 => {classRef.getSuperClasses(true)}");
+System.out.println("Inherited SuperClasses of TypeInference3 =>");
+for (superx in classRef.getSuperClasses(true)) {
+   if (not superx.getName().equals("net.sourceforge.cobertura.coveragedata.HasBeenInstrumented")) {
+        println("  class {superx.getName()}");
+   }
+}
 for (attr in classRef.getVariables(true)) {
   System.out.println(" Type of {attr.getName()} is inferred as {attr.getType()}") ;
 }

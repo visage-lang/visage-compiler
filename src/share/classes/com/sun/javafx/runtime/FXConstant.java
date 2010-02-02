@@ -44,6 +44,9 @@ public final class FXConstant extends FXBase {
     public static int VCNT$() {
         return 1;
     }
+    public static int DCNT$() {
+        return 0;
+    }
 
     @Override
     public int count$() {

@@ -34,19 +34,19 @@ public abstract class BoundForOverSequence<T, PT> extends BoundForOverVaryingAbs
 
     // Called by invalidate when the result of a part changes.
     @Override
-    public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
+    public boolean update$(FXObject src, final int depNum, int startPos, int endPos, int newLength, final int phase) {
         if (uninitialized || inWholesaleUpdate)
-            return;
+            return true;
         if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE) {
             blanketInvalidationOfBoundFor();
-            return;
+            return true;
         }
         //System.err.println("updateForPart src: " + ((FXForPart)src).getIndex$() + ", newLength: " + newLength);
 
         if (startPos < 0) {
             // This is a no-change trigger, just pass it on
             container.invalidate$(forVarNum, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, 0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
-            return;
+            return true;
         }
 
         // Do invalidation
@@ -69,6 +69,7 @@ public abstract class BoundForOverSequence<T, PT> extends BoundForOverVaryingAbs
         // Send invalidation
         //System.out.println("ipart: " + ipart + ", oldStart: " + oldStartPos + ", oldEndPos: " + oldEndPos + ", newEndPos: " + newEndPos + ", insertedLength: " + insertedLength);
         container.invalidate$(forVarNum, oldStartPos, oldEndPos, insertedLength, phase);
+        return true;
     }
 
     // Called by invalidate when the input sequence changes.

@@ -18,13 +18,13 @@ public class DependentsTest extends JavaFXTestCase {
         FXBase dep2 = new FXBase();
 
         // check dependent addition
-        src.addDependent$(0, dep1);
+        src.addDependent$(0, dep1, 0);
         assertEquals(1, src.getListenerCount$());
-        src.addDependent$(1, dep1);
+        src.addDependent$(1, dep1, 1);
         assertEquals(2, src.getListenerCount$());
-        src.addDependent$(0, dep2);
+        src.addDependent$(0, dep2, 0);
         assertEquals(3, src.getListenerCount$());
-        src.addDependent$(1, dep2);
+        src.addDependent$(1, dep2, 1);
         assertEquals(4, src.getListenerCount$());
 
         // check removals
@@ -47,26 +47,28 @@ public class DependentsTest extends JavaFXTestCase {
 
         // check that update$ method is called as expected
         final int[] numTimesDep1Updated = new int[1];
-        // create two dependents and register for different 'varNum's.
+        // create two dependents and register for different 'depNum's.
         final FXBase dep1 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 numTimesDep1Updated[0]++;
                 assertSame(src, srcObj);
-                assertEquals(0, varNum);
+                assertEquals(0, depNum);
+                return true;
             }
         };
-        src.addDependent$(0, dep1);
+        src.addDependent$(0, dep1, 0);
         final int[] numTimesDep2Updated = new int[1];
         final FXBase dep2 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 numTimesDep2Updated[0]++;
                 assertSame(src, srcObj);
-                assertEquals(1, varNum);
+                assertEquals(1, depNum);
+                return true;
             }
         };
-        src.addDependent$(1, dep2);
+        src.addDependent$(1, dep2, 1);
 
         // update zeroth var
         src.notifyDependents$(0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
@@ -92,27 +94,29 @@ public class DependentsTest extends JavaFXTestCase {
 
         // check that update$ method is called as expected
         final int[] numTimesDep1Updated = new int[1];
-        // create two dependents and register for different 'varNum's.
+        // create two dependents and register for different 'depNum's.
         final FXBase dep1 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 numTimesDep1Updated[0]++;
                 assertSame(src, srcObj);
-                assertEquals(0, varNum);
+                assertEquals(0, depNum);
+                return true;
             }
         };
         final int[] numTimesDep2Updated = new int[1];
         final FXBase dep2 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
-                srcObj.addDependent$(0, dep1);
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
+                srcObj.addDependent$(0, dep1, 0);
                 numTimesDep2Updated[0]++;
                 assertSame(src, srcObj);
-                assertEquals(1, varNum);
+                assertEquals(1, depNum);
+                return true;
             }
         };
 
-        src.addDependent$(1, dep2);
+        src.addDependent$(1, dep2, 1);
         src.notifyDependents$(1, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
         assertEquals(0, numTimesDep1Updated[0]);
         assertEquals(1, numTimesDep2Updated[0]);
@@ -132,28 +136,30 @@ public class DependentsTest extends JavaFXTestCase {
 
         // check that update$ method is called as expected
         final int[] numTimesDep1Updated = new int[1];
-        // create two dependents and register for different 'varNum's.
+        // create two dependents and register for different 'depNum's.
         final FXBase dep1 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 numTimesDep1Updated[0]++;
                 assertSame(src, srcObj);
-                assertEquals(0, varNum);
+                assertEquals(0, depNum);
+                return true;
             }
         };
         final int[] numTimesDep2Updated = new int[1];
         final FXBase dep2 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 srcObj.removeDependent$(0, dep1);
                 numTimesDep2Updated[0]++;
                 assertSame(src, srcObj);
-                assertEquals(1, varNum);
+                assertEquals(1, depNum);
+                return true;
             }
         };
 
-        src.addDependent$(0, dep1);
-        src.addDependent$(1, dep2);
+        src.addDependent$(0, dep1, 0);
+        src.addDependent$(1, dep2, 1);
 
         src.notifyDependents$(0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
         src.notifyDependents$(1, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
@@ -176,30 +182,32 @@ public class DependentsTest extends JavaFXTestCase {
         };
 
         final int[] numTimesDep1Updated = new int[1];
-        // create two dependents and register for different 'varNum's.
+        // create two dependents and register for different 'depNum's.
         final FXBase dep1 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 numTimesDep1Updated[0]++;
                 assertSame(src, srcObj);
-                assertEquals(0, varNum);
+                assertEquals(0, depNum);
                 srcObj.removeDependent$(0, this);
+                return true;
             }
         };
 
         final int[] numTimesDep2Updated = new int[1];
-        // create two dependents and register for different 'varNum's.
+        // create two dependents and register for different 'depNum's.
         final FXBase dep2 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 numTimesDep2Updated[0]++;
                 assertSame(src, srcObj);
+                return true;
             }
         };
 
-        src.addDependent$(0, dep2);
-        src.addDependent$(0, dep1);
-        src.addDependent$(1, dep2);
+        src.addDependent$(0, dep2, 0);
+        src.addDependent$(0, dep1, 0);
+        src.addDependent$(1, dep2, 1);
         assertEquals(3, src.getListenerCount$());
         src.notifyDependents$(0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
         assertEquals(1, numTimesDep1Updated[0]);
@@ -219,59 +227,62 @@ public class DependentsTest extends JavaFXTestCase {
         final FXBase[] dependents = new FXBase[3];
         final FXBase dep0 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (deleter[0] == 0) {
                    for (FXBase fx : dependents) {
                        srcObj.removeDependent$(0, fx);
                    }
                 }
+                return true;
             }
         };
         final FXBase dep1 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (deleter[0] == 1) {
                    for (FXBase fx : dependents) {
                        srcObj.removeDependent$(0, fx);
                    }
                 }
+                return true;
             }
         };
         final FXBase dep2 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (deleter[0] == 2) {
                    for (FXBase fx : dependents) {
                        srcObj.removeDependent$(0, fx);
                    }
                 }
+                return true;
             }
         };
         dependents[0] = dep0;
         dependents[1] = dep1;
         dependents[2] = dep2;
 
-        src.addDependent$(0, dep0);
-        src.addDependent$(0, dep1);
-        src.addDependent$(0, dep2);
+        src.addDependent$(0, dep0, 0);
+        src.addDependent$(0, dep1, 0);
+        src.addDependent$(0, dep2, 0);
         assertEquals(3, src.getListenerCount$());
         // remove all from the first inserted dependent
         deleter[0] = 0;
         src.notifyDependents$(0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
         assertEquals(0, src.getListenerCount$());
 
-        src.addDependent$(0, dep0);
-        src.addDependent$(0, dep1);
-        src.addDependent$(0, dep2);
+        src.addDependent$(0, dep0, 0);
+        src.addDependent$(0, dep1, 0);
+        src.addDependent$(0, dep2, 0);
         assertEquals(3, src.getListenerCount$());
         // remove all from the second (middle) inserted dependent
         deleter[0] = 1;
         src.notifyDependents$(0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
         assertEquals(0, src.getListenerCount$());
 
-        src.addDependent$(0, dep0);
-        src.addDependent$(0, dep1);
-        src.addDependent$(0, dep2);
+        src.addDependent$(0, dep0, 0);
+        src.addDependent$(0, dep1, 0);
+        src.addDependent$(0, dep2, 0);
         assertEquals(3, src.getListenerCount$());
         // removal all from the last inserted dependent
         deleter[0] = 2;
@@ -296,9 +307,10 @@ public class DependentsTest extends JavaFXTestCase {
         final int[] numTimesDepUpdated = new int[1];
         final FXBase dep = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 numTimesDepUpdated[0]++;
-                assertEquals(0, varNum);
+                assertEquals(0, depNum);
+                return true;
             }
         };
 
@@ -307,13 +319,13 @@ public class DependentsTest extends JavaFXTestCase {
         assertEquals(0, src2.getListenerCount$());
 
         // add one listener for "src1"
-        src1.addDependent$(0, dep);
+        src1.addDependent$(0, dep, 0);
         assertEquals(1, src1.getListenerCount$());
         src1.notifyDependents$(0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
         assertEquals(1, numTimesDepUpdated[0]);
 
         // switch the dependence of "dep" from "src1" to "src2"
-        dep.switchDependence$(src1, 0, src2, 0);
+        dep.switchDependence$(src1, 0, src2, 0, 0);
         assertEquals(0, src1.getListenerCount$());
         assertEquals(1, src2.getListenerCount$());
 
@@ -334,12 +346,13 @@ public class DependentsTest extends JavaFXTestCase {
 
         final FXBase dep = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 // switch dependence of current object
-                this.switchDependence$(src1, 0, src2, 0);
+                this.switchDependence$(src1, 0, src2, 0, 0);
+                return true;
             }
         };
-        src1.addDependent$(0, dep);
+        src1.addDependent$(0, dep, 0);
         assertEquals(1, src1.getListenerCount$());
         assertEquals(0, src2.getListenerCount$());
         src1.notifyDependents$(0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
@@ -361,32 +374,35 @@ public class DependentsTest extends JavaFXTestCase {
         final FXBase[] dependents = new FXBase[3];
         final FXBase dep0 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (switcher[0] == 0) {
                    for (FXBase fx : dependents) {
-                       fx.switchDependence$(src1, 0, src2, 0);
+                       fx.switchDependence$(src1, 0, src2, 0, 0);
                    }
                 }
+                return true;
             }
         };
         final FXBase dep1 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (switcher[0] == 1) {
                    for (FXBase fx : dependents) {
-                       fx.switchDependence$(src1, 0, src2, 0);
+                       fx.switchDependence$(src1, 0, src2, 0, 0);
                    }
                 }
+                return true;
             }
         };
         final FXBase dep2 = new FXBase() {
             @Override
-            public void update$(FXObject srcObj, int varNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (switcher[0] == 2) {
                    for (FXBase fx : dependents) {
-                       fx.switchDependence$(src1, 0, src2, 0);
+                       fx.switchDependence$(src1, 0, src2, 0, 0);
                    }
                 }
+                return true;
             }
         };
 
@@ -396,9 +412,9 @@ public class DependentsTest extends JavaFXTestCase {
         dependents[0] = dep0;
         dependents[1] = dep1;
         dependents[2] = dep2;
-        src1.addDependent$(0, dep0);
-        src1.addDependent$(0, dep1);
-        src1.addDependent$(0, dep2);
+        src1.addDependent$(0, dep0, 0);
+        src1.addDependent$(0, dep1, 0);
+        src1.addDependent$(0, dep2, 0);
         assertEquals(3, src1.getListenerCount$());
         // switch all from the first inserted dependent
         switcher[0] = 0;
@@ -409,9 +425,9 @@ public class DependentsTest extends JavaFXTestCase {
             src2.removeDependent$(0, d);
         }
 
-        src1.addDependent$(0, dep0);
-        src1.addDependent$(0, dep1);
-        src1.addDependent$(0, dep2);
+        src1.addDependent$(0, dep0, 0);
+        src1.addDependent$(0, dep1, 0);
+        src1.addDependent$(0, dep2, 0);
         assertEquals(3, src1.getListenerCount$());
         assertEquals(0, src2.getListenerCount$());
         // switch all from the second (middle) inserted dependent
@@ -423,9 +439,9 @@ public class DependentsTest extends JavaFXTestCase {
             src2.removeDependent$(0, d);
         }
 
-        src1.addDependent$(0, dep0);
-        src1.addDependent$(0, dep1);
-        src1.addDependent$(0, dep2);
+        src1.addDependent$(0, dep0, 0);
+        src1.addDependent$(0, dep1, 0);
+        src1.addDependent$(0, dep2, 0);
         assertEquals(3, src1.getListenerCount$());
         // switch all from the last inserted dependent
         switcher[0] = 2;
@@ -442,8 +458,8 @@ public class DependentsTest extends JavaFXTestCase {
         };
 
         FXBase dep = new FXBase();
-        src.addDependent$(0, dep);
-        src.addDependent$(1, dep);
+        src.addDependent$(0, dep, 0);
+        src.addDependent$(1, dep, 1);
         assertEquals(2, src.getListenerCount$());
 
         // remove something that was *not* added as dependent

@@ -74,6 +74,12 @@ public class JavafxTypes extends Types {
         writer = ClassWriter.instance(context);
     }
 
+    public boolean isNullable(Type type) {
+            return !type.isPrimitive() &&
+                    type != syms.javafx_StringType &&
+                    type != syms.javafx_DurationType;
+    }
+
     public boolean isSequence(Type type) {
         return type != Type.noType && type != null
             && type.tag != TypeTags.ERROR

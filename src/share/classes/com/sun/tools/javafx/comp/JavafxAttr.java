@@ -868,8 +868,7 @@ public class JavafxAttr implements JavafxVisitor {
                             tree.rhs.type != null &&
                             lhsVar.type != tree.rhs.type) {
                         tree.type = tree.lhs.type = lhsVar.type = lhsSym.type = types.normalize(tree.rhs.type);
-                        JFXExpression jcExpr = fxmake.at(tree.pos()).Ident(lhsSym);
-                        lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(jcExpr, lhsVar.getJFXType().getCardinality()));
+                        lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(fxmake.Type(lhsSym.type), lhsVar.getJFXType().getCardinality()));
                 }
             }
         }
@@ -1257,9 +1256,9 @@ public class JavafxAttr implements JavafxVisitor {
             if  (var == null || var instanceof JFXErroneousVar) continue;
 
             Type declType = attribType(var.getJFXType(), forExprEnv);
+            attribVar(var, forExprEnv);
             JFXExpression expr = (JFXExpression)clause.getSequenceExpression();
             Type exprType = types.upperBound(attribExpr(expr, forExprEnv));
-            attribVar(var, forExprEnv);
             chk.checkNonVoid(((JFXTree)clause).pos(), exprType);
 
             Type elemtype;
@@ -3108,27 +3107,43 @@ public class JavafxAttr implements JavafxVisitor {
         result = tree.type = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
-    //@Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         Type elemType = null;
         Type expected = pt;
-        for (JFXExpression expr : tree.getItems()) {
-                Type itemType = attribTree(expr, env, VAL,
-                        expected, Sequenceness.PERMITTED);
-                if (types.isSequence(itemType) || types.isArray(itemType)) {
-                    itemType = types.isSequence(itemType) ? types.elementType(itemType) : types.elemtype(itemType);
-                }
-                itemType = chk.checkNonVoid(expr, itemType);
-                if (elemType == null || itemType.tag == NONE || itemType.tag == ERROR)
-                    elemType = itemType;
-                else
-                    elemType = unionType(tree, itemType, elemType);
+        Type elemExpected = null;
+        Type componentType = Type.noType;
+        if (types.isSequence(pt)) {
+            elemExpected = types.elementType(pt);
+            if (!types.isNullable(elemExpected)) {
+                componentType = pt;  // handle null
             }
+        }
+        for (JFXExpression expr : tree.getItems()) {
+            Type itemType = attribTree(expr, env, VAL,
+                    componentType, Sequenceness.PERMITTED);
+            if (itemType.tag == BOT) {
+                if (elemExpected != null) {
+                    itemType = elemExpected;
+                    expr.setType(elemExpected);
+                }
+            } else if (types.isSequence(itemType)) {
+                itemType = types.elementType(itemType);
+            } else if (types.isArray(itemType)) {
+                itemType = types.elemtype(itemType);
+            }
+
+            itemType = chk.checkNonVoid(expr, itemType);
+            if (elemType == null || itemType.tag == NONE || itemType.tag == ERROR) {
+                elemType = itemType;
+            } else {
+                elemType = unionType(tree, itemType, elemType);
+            }
+        }
         Type owntype = elemType.tag == ERROR ? elemType : types.sequenceType(elemType);
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         if (owntype == result && pt.tag != NONE && pt != syms.javafx_UnspecifiedType && pt != syms.objectType) {
-             result = tree.type = expected;
-         }
+            result = tree.type = expected;
+        }
     }
 
     //@Override

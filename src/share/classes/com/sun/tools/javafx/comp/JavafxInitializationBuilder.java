@@ -343,6 +343,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             javaCodeMaker.setContext(false, iDefinitions);
             javaCodeMaker.makeMemberVariableAccessorInterfaceMethods(classVarInfos);
+            javaCodeMaker.makeMixinDCNT$(analysis.getCurrentClassSymbol(), false);
             javaCodeMaker.makeFunctionInterfaceMethods();
             javaCodeMaker.makeOuterAccessorInterfaceMembers();
             javaCodeMaker.setContext(false, cDefinitions);
@@ -522,6 +523,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         JCIdent varNumArg() {
             return makeMethodArg(defs.varNum_ArgName, syms.intType);
+        }
+        
+        JCIdent depNumArg() {
+            return makeMethodArg(defs.depNum_ArgName, syms.intType);
         }
 
         JCIdent updateInstanceArg() {
@@ -876,6 +881,13 @@ however this is what we need */
                 }
             }
             
+            // This method adds a new statement to the front of the current lists of statements.
+            public void prependStmt(JCStatement stmt) {
+                if (stmt != null) {
+                    stmts.prepend(stmt);
+                }
+            }
+            
             // This method adds several statements to the current lists of statements.
             public void addStmts(List<JCStatement> list) {
                 stmts.appendList(list);
@@ -956,17 +968,22 @@ however this is what we need */
                 
                 return methodSymbol;
             }
-
-            // This method generates a call to the mixin symbol.
-            public void callMixin(ClassSymbol mixin) {
+            
+            // This method generates a call statement to the mixin symbol.
+            public JCStatement callMixinStmt(ClassSymbol mixin) {
                 List<JCExpression> mixinArgs =  List.<JCExpression>of(getReceiverOrThis()).appendList(argList());
                 JCExpression selector = makeType(mixin.type, false);
  
                 if (isVoidReturnType) {
-                    addStmt(CallStmt(selector, methodName, mixinArgs));
+                    return CallStmt(selector, methodName, mixinArgs);
                 } else {
-                    addStmt(Return(Call(selector, methodName, mixinArgs)));
+                   return Return(Call(selector, methodName, mixinArgs));
                 }
+            }
+
+            // This method generates a call to the mixin symbol.
+            public void callMixin(ClassSymbol mixin) {
+                addStmt(callMixinStmt(mixin));
             }
 
             // This method generates all the calls for immediate mixins.
@@ -976,17 +993,26 @@ however this is what we need */
                 }
             }
             
-            // This method generates the call for the super class.
-            public void callSuper() {
+            // This method generates the call statement for the super class.
+            public JCStatement callSuperStmt() {
                 if (superClassSym != null && !isMixinClass()) {
                     List<JCExpression> superArgs = argList();
                     
                     if (isVoidReturnType) {
-                        addStmt(CallStmt(id(names._super), methodName, superArgs));
+                        return CallStmt(id(names._super), methodName, superArgs);
                     } else {
-                        addStmt(Return(Call(id(names._super), methodName, superArgs)));
+                        return Return(Call(id(names._super), methodName, superArgs));
                     }
                  }
+                 
+                 return null;
+            }
+
+            // This method generates the call for the super class.
+            public void callSuper() {
+                if (superClassSym != null && !isMixinClass()) {
+                    addStmt(callSuperStmt());
+                }
             }
             
             // Return the method flags.
@@ -1206,45 +1232,6 @@ however this is what we need */
             public void generateMixin() {
                 callMixin((ClassSymbol)varSym.owner);
             }
-
-            // This method generates FXBase.switchDependence$ calls for all the
-            // bound select expressions that use the current var as the selector.
-            protected void generateSwitchDependences() {
-                if (!varInfo.boundBinders().isEmpty()) {
-                    for (VarInfo dependent : varInfo.boundBinders()) {
-                        JCExpression rcvr = getReceiverOrThis(varInfo.sym);
-                        for (DependentPair depPair : dependent.boundBoundSelects()) {
-                            // static variables and sequences are handled diffently
-                            if (depPair.instanceSym != varInfo.sym ||
-                                depPair.referencedSym.isStatic() ||
-                                types.isSequence(depPair.referencedSym.type)) {
-                                continue;
-                            }
-                            if (isMixinVar(depPair.referencedSym)) {
-                                JCExpression oldOffset = If(EQnull(id(defs.varOldValue_LocalVarName)),
-                                    Int(0),
-                                    Offset(id(defs.varOldValue_LocalVarName), depPair.referencedSym));
-                                    addStmt(Stmt(oldOffset));
-                                JCExpression newOffset = If(EQnull(Get(varInfo.sym)),
-                                    Int(0),
-                                    Offset(Get(varInfo.sym), depPair.referencedSym));
-                                    addStmt(Stmt(newOffset));
-                                    addStmt(CallStmt(defs.FXBase_switchDependence,
-                                    rcvr,
-                                id(defs.varOldValue_LocalVarName), oldOffset,
-                                    Get(varInfo.sym), newOffset));
-                            } else {
-                                JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(depPair.referencedSym));
-                                addStmt(offsetVar);
-                                addStmt(CallStmt(defs.FXBase_switchDependence,
-                                    rcvr,
-                                    id(defs.varOldValue_LocalVarName), id(offsetVar),
-                                    Get(varInfo.sym), id(offsetVar)));
-                            }
-                        }
-                    }
-                }
-            }
         }
         
         //
@@ -1446,12 +1433,31 @@ however this is what we need */
                         (varInfo.isStatic() && !varInfo.getSymbol().hasScriptOnlyAccess()) ||
                         varInfo.onInvalidate() != null;
         }
+
+        //
+        // Determine if this var needs to call switchDependence in onReplace
+        //
+        private boolean needSwitchDependence(VarInfo varInfo) {
+            for (VarInfo dependent : varInfo.boundBinders()) {
+                for (DependentPair depPair : dependent.boundBoundSelects()) {
+                    // static variables and sequences are handled diffently
+                    if (depPair.instanceSym != varInfo.sym ||
+                        depPair.referencedSym.isStatic() ||
+                        types.isSequence(depPair.referencedSym.type)) {
+                        continue;
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
         
         //
         // Determine if this var needs an on replace method.
         //
         private boolean needOnReplaceAccessorMethod(VarInfo varInfo) {
-            return varInfo.onReplace() != null ||
+            return needSwitchDependence(varInfo) ||
+                   varInfo.onReplace() != null ||
                    varInfo.isMixinVar() ||
                    !(!varInfo.isOverride() && isLeaf(varInfo));
         }
@@ -1578,10 +1584,7 @@ however this is what we need */
                              *
                              *    public static int get$foo(final int pos$) {
                              *        final Pointer ifx$0tmp = get$$$bound$result$foo();
-                             *        if (ifx$0tmp != null)
-                             *            return (Integer)ifx$0tmp.get(pos$);
-                             *        else
-                             *            return 0;
+                             *        return ifx$0tmp != null ? (Integer)ifx$0tmp.get(pos$) : 0;
                              *    }
                              */
                             JCVariableDecl tmpPtrVar = TmpVar("tmp", syms.javafx_PointerType, Getter(varInfo.boundFuncResultInitSym()));
@@ -1592,11 +1595,9 @@ however this is what we need */
                                     id(tmpPtrVar),
                                     defs.get_PointerMethodName,
                                     posArg());
-                            addStmt(OptIf(ptrNonNullCond, 
-                                        Return(castFromObject(apply, varInfo.getElementType())),
-                                        Return(makeDefaultValue(varInfo.pos(), varInfo.getElementType()))
-                                      )
-                                   );
+                            addStmt(Return(If(ptrNonNullCond, 
+                                        castFromObject(apply, varInfo.getElementType()),
+                                        makeDefaultValue(varInfo.pos(), varInfo.getElementType()))));
                         } else {
                             addStmt(varInfo.boundElementGetter());
                         }
@@ -1655,8 +1656,11 @@ however this is what we need */
 
                             // Add the receiver of the current Var symbol as dependency to the Pointer, so that
                             // we will get notification whenever the result of the bound function evaluation changes.
-                            JCExpression receiver = getReceiverOrThis(varSym);
-                            addStmt(CallStmt(defs.Pointer_switchDependence,id(oldPtrVar), id(newPtrVar), receiver));
+                            addStmt(CallStmt(defs.Pointer_switchDependence,
+                                             id(oldPtrVar),
+                                             id(newPtrVar),
+                                             getReceiverOrThis(varSym),
+                                             DepNum(getReceiver(varSym), null, varInfo.boundFuncResultInitSym())));
 
                             JCStatement setValid = FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID_DEFAULT_APPLIED);
                             JCExpression apply = Call(
@@ -1982,8 +1986,11 @@ however this is what we need */
 
                                 // Add the receiver of the current Var symbol as dependency to the Pointer, so that
                                 // we will get notification whenever the result of the bound function evaluation changes.
-                                JCExpression receiver = getReceiverOrThis(varSym);
-                                addStmt(CallStmt(defs.Pointer_switchDependence, id(oldPtrVar), id(newPtrVar), receiver));
+                                addStmt(CallStmt(defs.Pointer_switchDependence,
+                                                 id(oldPtrVar),
+                                                 id(newPtrVar),
+                                                 getReceiverOrThis(varSym),
+                                                 DepNum(getReceiver(varSym), null, varInfo.boundFuncResultInitSym())));
 
                                 // We have a Pointer - we need to call Pointer.get() and cast the result.
                                 initValue = castFromObject(Call(id(newPtrVar), defs.get_PointerMethodName), varSym.type);
@@ -2010,8 +2017,6 @@ however this is what we need */
 
                             // Release cycle lock.
                             addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
-
-                            generateSwitchDependences();
 
                             // Is it bound and invalid?
                             JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT, defs.varFlagIS_BOUND_INVALID);
@@ -2105,8 +2110,6 @@ however this is what we need */
 
                     // Set the var.
                     makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, false);
-
-                    generateSwitchDependences();
                     
                     // return $var;
                     addStmt(Return(Get(proxyVarSym)));
@@ -2284,6 +2287,8 @@ however this is what we need */
                         callMixin((ClassSymbol)varSym.owner);
                     }
 
+                    generateSwitchDependences();
+
                     // Fetch the on replace statement or null.
                     JCStatement onReplace = varInfo.onReplaceAsInline();
     
@@ -2291,6 +2296,43 @@ however this is what we need */
                     if (onReplace != null) {
                         // Insert the trigger.
                         addStmt(onReplace);
+                    }
+                }
+
+                // This method generates FXBase.switchDependence$ calls for all the
+                // bound select expressions that use the current var as the selector.
+                private void generateSwitchDependences() {
+                    for (VarInfo dependent : varInfo.boundBinders()) {
+                        JCExpression rcvr = getReceiverOrThis(varInfo.sym);
+                        for (DependentPair depPair : dependent.boundBoundSelects()) {
+                            // static variables and sequences are handled diffently
+                            if (depPair.instanceSym != varInfo.sym ||
+                                depPair.referencedSym.isStatic() ||
+                                types.isSequence(depPair.referencedSym.type)) {
+                                continue;
+                            }
+                            if (isMixinVar(depPair.referencedSym)) {
+                                JCExpression oldOffset = If(EQnull(id(oldValueName)),
+                                    Int(0),
+                                    Offset(id(oldValueName), depPair.referencedSym));
+                                JCExpression newOffset = If(EQnull(id(newValueName)),
+                                    Int(0),
+                                    Offset(id(newValueName), depPair.referencedSym));
+                                addStmt(CallStmt(defs.FXBase_switchDependence,
+                                    rcvr,
+                                    id(oldValueName), oldOffset,
+                                    id(newValueName), newOffset,
+                                    DepNum(getReceiver(depPair.instanceSym), depPair.instanceSym, depPair.referencedSym)));
+                            } else {
+                                JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(depPair.referencedSym));
+                                addStmt(offsetVar);
+                                addStmt(CallStmt(defs.FXBase_switchDependence,
+                                    rcvr,
+                                    id(oldValueName), id(offsetVar),
+                                    id(newValueName), id(offsetVar),
+                                    DepNum(getReceiver(depPair.instanceSym), depPair.instanceSym, depPair.referencedSym)));
+                            }
+                        }
                     }
                 }
             };
@@ -2373,9 +2415,7 @@ however this is what we need */
             } else {
                 if (!(ai instanceof MixinClassVarInfo)) {
                     if (ai.generateSequenceAccessors()) {
-                        if (ai.isHiddenBareSynth()) {
-                            // on replace savedVar
-                        } else if (!ai.isOverride()) {
+                        if (!ai.isOverride()) {
                             makeSeqGetterAccessorMethod(ai, bodyType);
                             makeSeqGetElementAccessorMethod(ai, bodyType);
                             makeSeqGetSizeAccessorMethod(ai, bodyType);
@@ -2420,7 +2460,7 @@ however this is what we need */
                     }                    
                } else {
                     // Mixins in a normal class.
-                    if (ai.needsCloning() && !ai.isHiddenBareSynth()) {
+                    if (ai.needsCloning()) {
                         boolean hasInit = ai.hasInitializer() || ai.hasBoundDefinition();
                         bodyType = hasInit ? BODY_NORMAL : BODY_MIXIN;
                         
@@ -2493,7 +2533,6 @@ however this is what we need */
 
         //
         // This method generates an enumeration for each of the class's instance attributes.
-        // of the class.
         //
         public void makeAttributeNumbers(List<VarInfo> attrInfos, int varCount) {
             // Reset diagnostic position to current class.
@@ -2580,12 +2619,12 @@ however this is what we need */
             StaticMethodBuilder smb = new StaticMethodBuilder(defs.count_FXObjectFieldName, syms.intType) {
                 @Override
                 public void statements() {
-                    // Start if block.
-                    beginBlock();
-        
                     if (analysis.isFirstTier()) {
                         addStmt(Return(Int(varCount)));
                     } else {
+                        // Start if block.
+                        beginBlock();
+            
                         // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
                         JCExpression setVCNT$Expr = superClassSym == null ?  Int(varCount) :
                                                                              PLUS(Call(makeType(superClassSym.type), defs.count_FXObjectFieldName),
@@ -2629,6 +2668,11 @@ however this is what we need */
             MethodBuilder smb = new MethodBuilder(defs.count_FXObjectMethodName, syms.intType) {
                 @Override
                 public void statements() {
+                    if (!analysis.isFirstTierNoMixins()) {
+                        // Construct and add: DCNT$();
+                        addStmt(CallStmt(defs.depCount_FXObjectFieldName));
+                    }
+                    
                     if (analysis.isFirstTier()) {
                         // Construct and add: return n;
                         addStmt(Return(Int(varCount)));
@@ -2777,10 +2821,20 @@ however this is what we need */
                 isScript() ? analysis.getScriptUpdateMap() : analysis.getClassUpdateMap();
             final List<VarInfo> varInfos = isScript() ? analysis.scriptVarInfos() : analysis.classVarInfos();
             final int varCount = isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount();
+            HashMap<Name, Integer> depMap = getDepMap(varInfos, updateMap);
+            final boolean useMixins = !isScript() && !isMixinClass();
+            List<ClassSymbol> mixinClasses = useMixins ? analysis.getImmediateMixins() : null;
+            boolean useConstants = analysis.isFirstTierNoMixins() || isMixinClass();
             
             makeApplyDefaultsMethod(varInfos, varCount);
             makeInitVarsMethod(varInfos, updateMap);
-            makeUpdateMethod(varInfos, updateMap);
+            makeDependencyNumbers(useConstants, depMap, mixinClasses);
+            
+            if (useMixins) {
+                makeNeededMixinDCNT$(mixinClasses);
+            }
+
+            makeUpdateMethod(useConstants, varInfos, updateMap, depMap, mixinClasses);
             
             if ((isScript() || !isMixinClass()) && varCount > 0) {
                 makeGetMethod(varInfos, varCount);
@@ -2992,7 +3046,8 @@ however this is what we need */
         //
         // This method sets up the initial var state.
         //
-        private void makeInitVarsMethod(final List<VarInfo> attrInfos, final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap) {
+        private void makeInitVarsMethod(final List<VarInfo> attrInfos,
+                                        final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap) {
             MethodBuilder mb = new MethodBuilder(defs.initVars_FXObjectMethodName, syms.voidType) {
                 @Override
                 public void statements() {
@@ -3019,183 +3074,293 @@ however this is what we need */
                         }
                     }
             
-                    ListBuffer<JCStatement> initFlags = endBlockAsBuffer();
+                    if (isBoundFuncClass) {
+                        /*
+                         * For each bound function param (FXObject+varNum pair), at the
+                         * end of object creation register "this" as a dependent by
+                         * calling addDependent$ method:
+                         *
+                         *     boundFuncObjParam1.addDependent$(boundFunctionVarNumParam1, this);
+                         *     boundFuncObjParam2.addDependent$(boundFunctionVarNumParam2, this);
+                         *     ....
+                         */
+                        for (VarInfo vi : attrInfos) {
+                            if (vi.isParameter()) {
+                                // call FXObject.addDependent$(int varNum, FXObject dep)
+                                Symbol varSym = vi.getSymbol();
+                                addStmt(CallStmt(
+                                        id(boundFunctionObjectParamName(varSym.name)),
+                                        defs.FXBase_addDependent.methodName,
+                                        id(boundFunctionVarNumParamName(varSym.name)),
+                                        getReceiverOrThis(),
+                                        DepNum(null, null, varSym)));
+                            }
+                        }
+                    }
+
+                    ListBuffer<JCStatement> inits = endBlockAsBuffer();
                     
                     // Emit super vars first
                     callSuper();
                     
                     // Mixins and current class next.
-                    addStmts(initFlags);
+                    addStmts(inits);
                     
                     // Emit method only if there was anything beyond the super call.
-                    buildIf(!initFlags.isEmpty());
+                    buildIf(!inits.isEmpty());
                 }
 
                 private void addFixedDependent(JavafxVarSymbol instanceVar, JavafxVarSymbol referenceVar) {
                     addStmt(CallStmt(defs.FXBase_addDependent,
                             Get(instanceVar),
                             Offset(Get(instanceVar), referenceVar),
-                            id(names._this)));
+                            getReceiverOrThis(),
+                            DepNum(null, instanceVar, referenceVar)));
                 }
             };
             
             mb.build();
         }
-    
+        
+        //
+        // This method generates a map for the class's dependency numbers.
+        //
+        public HashMap<Name, Integer> getDepMap(List<VarInfo> attrInfos,
+                                                final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap) {
+            // Set up dependency map.
+            HashMap<Name, Integer> depMap = new HashMap<Name, Integer>();
+            int depCount = 0;
+            
+            for (VarInfo vi : attrInfos) {
+                if (vi.isInitWithBoundFuncResult()) {
+                    JavafxVarSymbol varSym = vi.getSymbol();
+                    Symbol initSym = vi.boundFuncResultInitSym();
+                    Name depName = depName(null, initSym);
+                    
+                    if (!depMap.containsKey(depName)) {
+                        depMap.put(depName, new Integer(depCount));
+                        depCount++;
+                    }
+                }
+            }
+
+            if (isBoundFuncClass) {
+                MethodSymbol msym = (MethodSymbol) getCurrentClassSymbol().owner;
+                List<VarSymbol> params = msym.params();
+
+                for (VarSymbol mParam : params) {
+                    Scope.Entry e = getCurrentClassSymbol().members().lookup(mParam.name);
+                    if (e.sym.kind == Kinds.VAR) {
+                        JavafxVarSymbol param = (JavafxVarSymbol) e.sym;
+                        Name depName = depName(null, param);
+                        
+                        if (!depMap.containsKey(depName)) {
+                            depMap.put(depName, new Integer(depCount));
+                            depCount++;
+                        }
+                    }
+                }
+            }
+
+            for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
+                HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
+
+                for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
+                    Name depName = depName(instanceVar, referenceVar);
+                    
+                    if (!depMap.containsKey(depName)) {
+                        depMap.put(depName, new Integer(depCount));
+                        depCount++;
+                    }
+                }
+            }
+            
+            return depMap;
+        }
+
+        //
+        // This method generates an enumeration for each of the class's dependencies.
+        //
+        public void makeDependencyNumbers(final boolean useConstants, final HashMap<Name, Integer> depMap, List<ClassSymbol> mixinClasses) {
+            // Reset diagnostic position to current class.
+            resetDiagPos();
+
+            // Construct a static count variable (DCNT$), -1 indicates dep count has not been initialized.
+            int initCount = useConstants ? depMap.size() : -1;
+            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.depCount_FXObjectFieldName, initCount));
+            
+            // Mixin class base numbering.
+            if (mixinClasses != null) {
+                for (ClassSymbol classSym : mixinClasses) {
+                    // Construct and add: public static int DEP$name;
+                    addDefinition(makeField(Flags.STATIC | Flags.PUBLIC, syms.intType, classDCNT$Name(classSym), null));
+                }
+            }
+
+            // Accumulate dependency numbering.
+            for (Name depName : depMap.keySet()) {
+                int num = depMap.get(depName).intValue();
+                JCExpression init = useConstants ? Int(num) : null;
+                long flags = useConstants ? (Flags.FINAL | Flags.STATIC | Flags.PUBLIC) :
+                                            (Flags.STATIC | Flags.PUBLIC);
+                // Construct and add: public static int DEP$name = n;
+                addDefinition(makeField(flags, syms.intType, depName, init));
+            }
+            
+            // Construct a static count accessor method (DCNT$)
+            makeDCNT$(useConstants, depMap, mixinClasses);
+        }
+        
+        //
+        // The method constructs the DCNT$ method for the current class.
+        //
+        public void makeDCNT$(final boolean useConstants, final HashMap<Name, Integer> depMap, final List<ClassSymbol> mixinClasses) {
+            StaticMethodBuilder smb = new StaticMethodBuilder(defs.depCount_FXObjectFieldName, syms.intType) {
+                @Override
+                public void initialize() {
+                    needsReceiver = false;
+                }
+
+                @Override
+                public void statements() {
+                    // Number fo dependencies in this class.
+                    int depCount = depMap.size();
+              
+                    if (useConstants) {
+                        addStmt(Return(Int(depCount)));
+                    } else {
+                        // Start if block.
+                        beginBlock();
+                        
+                        // Check if super is required.
+                        boolean isFirstTier = analysis.isFirstTier() || superClassSym == null;
+
+                        // Base for first dependency number.
+                        JCExpression countExpr = isFirstTier ? Int(0) : Call(makeType(superClassSym.type), defs.depCount_FXObjectFieldName);
+                            
+                        // Create base counts for mixins
+                        if (mixinClasses != null && !mixinClasses.isEmpty()) {
+                            for (ClassSymbol classSym : mixinClasses) {
+                                Name mixinName = classDCNT$Name(classSym);
+                                addStmt(Stmt(m().Assign(id(mixinName), countExpr)));
+                                countExpr = PLUS(id(mixinName),
+                                                 Call(makeType(classSym.type, false), defs.depCount_FXObjectFieldName));
+                            }
+                            
+                            // last mixin + depCount
+                            countExpr = PLUS(countExpr, Int(depCount));
+                        } else {
+                            // super class + depCount
+                            countExpr = isFirstTier ? Int(depCount) :
+                                                      PLUS(Call(makeType(superClassSym.type), defs.depCount_FXObjectFieldName),
+                                                           Int(depCount));
+                        }
+                        
+                        // Set this classes count.
+                        Name countName = names.fromString("$count");
+                        addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.depCount_FXObjectFieldName), countExpr)));
+            
+                        // Accumulate dependency numbering.
+                        for (Name depName : depMap.keySet()) {
+                            int num = depMap.get(depName).intValue();
+                            // DCNT$ - n + i;
+                            JCExpression setDEP$Expr = PLUS(id(countName), Int(num - depCount));
+                            // DEP$ = DCNT$ - n + i;
+                            addStmt(Stmt(m().Assign(id(depName), setDEP$Expr)));
+                        }
+        
+                        // DCNT$ == -1
+                        JCExpression condition = EQ(id(defs.depCount_FXObjectFieldName), Int(-1));
+                        // if (DCNT$ == -1) { ...
+                        addStmt(OptIf(condition,
+                                endBlock()));
+                        // return DCNT$;
+                        addStmt(Return(id(defs.depCount_FXObjectFieldName)));
+                    }
+                }
+            };
+            
+            smb.build();
+        }
+        
+        //
+        // This method constructs an interface for a mixin's DCNT$.
+        //
+        public void makeMixinDCNT$(final ClassSymbol classSym, final boolean needsBody) {
+            MethodBuilder mb = new MethodBuilder(classDCNT$Name(classSym), syms.intType) {
+                @Override
+                public void initialize() {
+                    bodyType = needsBody ? BODY_NORMAL : BODY_NONE;
+                    needsReceiver = false;
+                }
+                
+                @Override
+                public long rawFlags() {
+                    return needsBody ? Flags.PUBLIC : (Flags.PUBLIC | Flags.ABSTRACT);
+                }
+                
+                @Override
+                public void statements() {
+                    addStmt(Return(id(classDCNT$Name(classSym))));
+                }
+            };
+            
+            mb.build();
+        }
+        
+        //
+        // This method generates all the mixin DCNT$ for the current class.
+        //
+        public void makeNeededMixinDCNT$(List<ClassSymbol> mixinClasses) {
+            for (ClassSymbol classSym : mixinClasses) {
+                makeMixinDCNT$(classSym, true);
+            }
+        }
+        
         //
         // This method constructs the current class's update$ method.
         //
-        public void makeUpdateMethod(final List<VarInfo> varInfos, final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap) {
-            MethodBuilder mb = new MethodBuilder(defs.update_FXObjectMethodName, syms.voidType) {
+        public void makeUpdateMethod(final boolean useConstants,
+                                     final List<VarInfo> varInfos,
+                                     final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap,
+                                     final HashMap<Name, Integer> depMap,
+                                     final List<ClassSymbol> mixinClasses) {
+            MethodBuilder mb = new MethodBuilder(defs.update_FXObjectMethodName, syms.booleanType) {
+                // Number fo dependencies in this class.
+                int depCount = depMap.size();
+                // Condition expression for each dependent.
+                JCExpression[] depCondExpr;
+                // Statement lists for each dependent.
+                ListBuffer<JCStatement>[] depStats;
+                
                 @Override
                 public void initialize() {
                     addParam(updateInstanceArg());
-                    addParam(varNumArg());
+                    addParam(depNumArg());
                     addParam(startPosArg());
                     addParam(endPosArg());
                     addParam(newLengthArg());
                     addParam(phaseArg());
+                    
+                    // Construct buffers for each dependency.
+                    depCondExpr = new JCExpression[depCount];
+                    depStats = new ListBuffer[depCount];
+                    for (int i = 0; i < depCount; i++) {
+                        depStats[i] = ListBuffer.lb();
+                    }
                 }
-            
-                @Override
-                public void statements() {
-                    /*
-                     * If the current class has bound function call expressions in bind call sites,
-                     * then we would have introduced Pointer synthetic instance vars to store
-                     * bound call result. We need to check if the update$ call is from the Pointer
-                     * value change. If so, invalidate appropriate bound function result cache var.
-                     * Note that the bound function call may not yet have been called - only after
-                     * first call, the Pointer synthetic var has non-null value. So we need to check
-                     * check null Pointer value.
-                     */
-                    for (VarInfo vi : varInfos) {
-                        JCStatement ifReferenceStmt = null;
-                        if (vi.isInitWithBoundFuncResult()) {
-                            JavafxVarSymbol varSym = vi.getSymbol();
-                            Symbol initSym = vi.boundFuncResultInitSym();
-                            Name ptrVarName = attributeValueName(initSym);
-                            beginBlock();
-
-                            /**
-                             * For each "foo" field that stores result of a bound function call expression,
-                             * we generate pointer dependency update check as follows:
-                             *
-                             *    if ($$$bound$result$foo != null &&
-                             *        (varNum$ == $$$bound$result$foo.getVarNum() &&
-                             *        instance$ == $$$bound$result$foo.getFXObject())) {
-                             *        invalidate$foo(phase$);
-                             *    }
-                             */
-                            // ptrVar != null
-                            JCExpression ptrNonNullCond = NEnull(id(ptrVarName));
-                            // varNum$ == ptrVar.getVarNum()
-                            JCExpression varNumCond = EQ(varNumArg(), Call(id(ptrVarName), defs.getVarNum_PointerMethodName));
-                            // instance$ == ptrVar.getFXObject()
-                            JCExpression objCond = EQ(updateInstanceArg(), Call(id(ptrVarName), defs.getFXObject_PointerMethodName));
-                            // && of above two conditions
-                            JCExpression ifReferenceCond = AND(ptrNonNullCond , AND(varNumCond, objCond));
-                            // invalidate the synthetic instance field for this param
-
-                            addStmt(invalidate(types.isSequence(varSym.type), varSym));
-
-                            ifReferenceStmt = OptIf(ifReferenceCond,
-                                    endBlock(),
-                                    ifReferenceStmt);
-                            addStmt(ifReferenceStmt);
-                        }
-                    }
-                    /*
-                     * For bound functions, we generate a local class. If the current
-                     * class is such a class, we need to invalidate the synthetic
-                     * bound function param instance fields from the input FXObject
-                     * and varNum pairs.
-                     */
-                    if (isBoundFuncClass) {
-                        MethodSymbol msym = (MethodSymbol) getCurrentClassSymbol().owner;
-                        List<VarSymbol> params = msym.params();
-
-                        /*
-                         * For each bound function param "foo", we generate
-                         *
-                         *     if (varNum$ == $$boundVarNum$foo && instance$ == $$boundInstance$foo) {
-                         *          invalidate$local_klass2$foo(phase$);
-                         *          // or sequence version of invalidate..
-                         *     }
-                         */
-                        JCStatement ifReferenceStmt = null;
-                        for (VarSymbol mParam : params) {
-                            Scope.Entry e = getCurrentClassSymbol().members().lookup(mParam.name);
-                            if (e.sym.kind == Kinds.VAR) {
-                                JavafxVarSymbol param = (JavafxVarSymbol) e.sym;
-
-                                beginBlock();
-                                // varNum$ == $$boundVarNum$foo
-                                JCExpression varNumCond = EQ(varNumArg(), id(boundFunctionVarNumParamName(param.name)));
-                                // instance$ == $$boundInstance$foo
-                                JCExpression objCond = EQ(updateInstanceArg(), id(boundFunctionObjectParamName(param.name)));
-                                // && of above two conditions
-                                JCExpression ifReferenceCond = AND(varNumCond, objCond);
-                                // invalidate the synthetic instance field for this param
-
-                                addStmt(invalidate(types.isSequence(param.type), param));
-
-                                ifReferenceStmt = OptIf(ifReferenceCond,
-                                        endBlock(),
-                                        ifReferenceStmt);
-                                addStmt(ifReferenceStmt);
-                            }
-                        }
-                    }
-                    // Loop for instance symbol.
-                    for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
-                        JavafxVarSymbol scriptAccess = null;
-                        HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
-                        beginBlock();
-
-                        // Loop for reference symbol.
-                        JCStatement ifReferenceStmt = null;
-                        for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
-                            HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
-                            beginBlock();
- 
-                            // Loop for local vars.
-                            for (VarInfo varInfo : referenceSet) {
-                                if (depGraphWriter != null) {
-                                    depGraphWriter.writeInterObjectDependency(instanceVar, referenceVar);
-                                }
-                                addStmt(invalidate(varInfo.generateSequenceAccessors(), varInfo.proxyVarSym()));
-                            }
-
-                            if (referenceVar.isStatic() && !instanceVar.isSpecial()) {
-                                JavafxClassSymbol classSym = (JavafxClassSymbol)referenceVar.owner;
-                                scriptAccess = fxmake.ScriptAccessSymbol(classSym);
-                            }
-
-                            // Reference the class with the instance, if it is script-level append the suffix
-                            JCExpression offsetExpr = Offset(referenceVar);
-                            if (isMixinVar(referenceVar)) {
-                                offsetExpr = If(EQnull(Get(instanceVar)), Int(0), Offset(Get(instanceVar), referenceVar));
-                            }
-                            ifReferenceStmt = OptIf(EQ(varNumArg(), offsetExpr), 
-                                    endBlock(),
-                                    ifReferenceStmt);
-                        }
-                        addStmt(ifReferenceStmt);
-                        
-                        JCExpression ifInstanceCond = EQ(updateInstanceArg(), Get(scriptAccess != null ? scriptAccess : instanceVar));
-                        addStmt(OptIf(ifInstanceCond,
-                                endBlock()));
-                    }
-                    
-                    if (stmts.nonEmpty()) {
-                        callSuper();
-                    }
-                    
-                    callMixins();
-                    
-                    buildIf(stmts.nonEmpty());
+                
+                // This method adds a clause to the list of statements for a dependency.
+                public void addDepClause(Symbol selector, Symbol sym, JCExpression objCond, JCStatement invalStmt) {
+                    Name depName = depName(selector, sym);
+                    Integer enumeration = depMap.get(depName);
+                    assert enumeration != null : "Missing dependency.";
+                    int i = enumeration.intValue();
+                    depCondExpr[i] = objCond;
+                    depStats[i].append(invalStmt);
                 }
-
+                
+                // This method constructs an invalidate statement for the given var.
                 JCStatement invalidate(boolean isSequence, JavafxVarSymbol vsym) {
                     if (isSequence) {
                         // Sequence: update$ is only used on select, so, for sequences, we can just pass through
@@ -3209,10 +3374,189 @@ however this is what we need */
                         return CallStmt(attributeInvalidateName(vsym), phaseArg());
                     }
                 }
+
+                // This method adds clauses for bound function results.
+                public void addBoundFuncResultClauses() {
+                    //
+                    // If the current class has bound function call expressions in bind call sites,
+                    // then we would have introduced Pointer synthetic instance vars to store
+                    // bound call result. We need to check if the update$ call is from the Pointer
+                    // value change. If so, invalidate appropriate bound function result cache var.
+                    // Note that the bound function call may not yet have been called - only after
+                    // first call, the Pointer synthetic var has non-null value. So we need to check
+                    // check null Pointer value.
+                    //
+                    for (VarInfo vi : varInfos) {
+                        JCStatement ifReferenceStmt = null;
+                        if (vi.isInitWithBoundFuncResult()) {
+                            JavafxVarSymbol varSym = vi.getSymbol();
+                            Symbol initSym = vi.boundFuncResultInitSym();
+                            Name ptrVarName = attributeValueName(initSym);
+
+                            //
+                            // For each "foo" field that stores result of a bound function call expression,
+                            // we generate pointer dependency update check as follows:
+                            //
+                            //    if (instance$ == $$$bound$result$foo.getFXObject()) {
+                            //        invalidate$foo(phase$);
+                            //    }
+                            //
+                            // instance$ == ptrVar.getFXObject()
+                            JCExpression objCond = EQ(updateInstanceArg(), Call(id(ptrVarName), defs.getFXObject_PointerMethodName));
+                            // invalidate$foo(phase$);
+                            JCStatement invalStat = invalidate(types.isSequence(varSym.type), varSym);
+                            // Add statement to dependency.
+                            addDepClause(null, initSym, objCond, invalStat);
+                        }
+                    }
+                }
+                
+                // This method adds clauses for bound function parameters.
+                public void addBoundFuncParamClauses() {
+                    //
+                    // For bound functions, we generate a local class. If the current
+                    // class is such a class, we need to invalidate the synthetic
+                    // bound function param instance fields from the input FXObject
+                    // and varNum pairs.
+                    //
+                    if (isBoundFuncClass) {
+                        MethodSymbol msym = (MethodSymbol) getCurrentClassSymbol().owner;
+                        List<VarSymbol> params = msym.params();
+
+                        //
+                        // For each bound function param "foo", we generate
+                        //
+                        //     if (varNum$ == $$boundVarNum$foo && instance$ == $$boundInstance$foo) {
+                        //          invalidate$local_klass2$foo(phase$);
+                        //          // or sequence version of invalidate..
+                        //     }
+                        //
+                        for (VarSymbol mParam : params) {
+                            Scope.Entry e = getCurrentClassSymbol().members().lookup(mParam.name);
+                            if (e.sym.kind == Kinds.VAR) {
+                                JavafxVarSymbol param = (JavafxVarSymbol) e.sym;
+                                
+                                // instance$ == $$boundInstance$foo
+                                JCExpression objCond = EQ(updateInstanceArg(), id(boundFunctionObjectParamName(param.name)));
+                                // invalidate$local_klass2$foo(phase$);
+                                JCStatement invalStat = invalidate(types.isSequence(param.type), param);
+                                // Add statement to dependency.
+                                addDepClause(null, param, objCond, invalStat);
+                            }
+                        }
+                    }
+                }
+                
+                // This method adds clauses for inter-instance dependencies.
+                public void addInstanceClauses() {
+                    // Loop for instance symbol.
+                    for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
+                        JavafxVarSymbol scriptAccess = null;
+                        HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
+ 
+                        // Loop for reference symbol.
+                        JCStatement ifReferenceStmt = null;
+                        for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
+                            HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
+ 
+                            // Loop for local vars.
+                            for (VarInfo varInfo : referenceSet) {
+                                if (depGraphWriter != null) {
+                                    depGraphWriter.writeInterObjectDependency(instanceVar, referenceVar);
+                                }
+                                
+                                if (referenceVar.isStatic() && !instanceVar.isSpecial()) {
+                                    JavafxClassSymbol classSym = (JavafxClassSymbol)referenceVar.owner;
+                                    scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                                }
+
+                                // instance == selector
+                                JCExpression objCond = EQ(updateInstanceArg(), Get(scriptAccess != null ? scriptAccess : instanceVar));
+                                // invalidate$var(phase$);
+                                JCStatement invalStat = invalidate(varInfo.generateSequenceAccessors(), varInfo.proxyVarSym());
+                                // Add statement to dependency.
+                                addDepClause(instanceVar, referenceVar, objCond, invalStat);
+                            }
+                        }
+                    }
+                }
+            
+                @Override
+                public void statements() {
+                    // Gather clauses for invalidation. 
+                    addBoundFuncResultClauses();
+                    addBoundFuncParamClauses();
+                    addInstanceClauses();
+                    
+                    // Construct the switch.
+                    ListBuffer<JCCase> cases = ListBuffer.lb();
+                    for (Name depName : depMap.keySet()) {
+                        Integer enumeration = depMap.get(depName);
+                        int i = enumeration.intValue();
+                        JCStatement caseBody = If(depCondExpr[i],
+                                                    Block(depStats[i].toList(),
+                                                    Return(True())),
+                                                 // else 
+                                                    null);
+                        JCExpression tag = Int(useConstants ? i : i - depCount);
+                        cases.append(m().Case(tag, List.<JCStatement>of(caseBody, m().Break(null))));
+                    }
+
+                    // Prepare to accumulate default.
+                    beginBlock();
+                    
+                    // Add mixins to the default chain.
+                    if (mixinClasses != null) {
+                        for (ClassSymbol classSym : mixinClasses) {
+                            // Begin if block.
+                            beginBlock();
+                            
+                            // Call mixin update.
+                            callMixin(classSym);
+                            
+                            // if (depNum$ >= DCNT$mixn) 
+                            prependStmt(If(GE(depNumArg(), id(classDCNT$Name(classSym))),
+                                           endBlock(),
+                                           null));
+                        }
+                    }
+                    
+                    if (cases.nonEmpty()) {
+                        // Add in super call.
+                        callSuper();
+                    }
+                        
+                    // Default statements.
+                    List<JCStatement> defaults = endBlockAsList();
+                    
+                    if (cases.nonEmpty()) {
+                        if (!defaults.isEmpty()) {
+                            cases.append(m().Case(null, defaults));
+                        }
+                    
+                        JCExpression tagExpr = isMixinClass() && !isScript() ? MINUS(depNumArg(), Call(classDCNT$Name(getCurrentOwner()))) :
+                                               useConstants                  ? depNumArg() :
+                                                                               MINUS(depNumArg(), id(defs.depCount_FXObjectFieldName));
+                        // Construct and add: switch(varNum - VCNT$) { ... }
+                        addStmt(m().Switch(tagExpr, cases.toList()));
+                        
+                        addStmt(Return(False()));
+                    } else if (!defaults.isEmpty()) {
+                        addStmts(defaults);
+                        
+                        if (isMixinClass() || superClassSym == null) {
+                            addStmt(Return(False()));
+                        } else {
+                            callSuper();
+                        }
+                    } else {
+                        buildIf(false);
+                    }
+                }
             };
             
             mb.build();
-         }
+        }
         
         //
         // This method constructs the current class's get$ method.
@@ -3259,7 +3603,7 @@ however this is what we need */
             vcmb.build();
         }
          
-         //
+        //
         // This method constructs the current class's getAsXXX$ methods.
         //
         public void makeGetAsMethods(List<VarInfo> attrInfos, final int varCount) {
@@ -3335,7 +3679,7 @@ however this is what we need */
             }
         }
          
-       //
+        //
         // This method constructs the current class's size$(varnum) method.
         //
         public void makeSizeMethod(List<VarInfo> attrInfos, int varCount) {
@@ -3775,30 +4119,6 @@ however this is what we need */
             }
             params.append(Param(syms.booleanType, dummyParamName));
             types.append(syms.booleanType);
-
-            if (isBoundFuncClass) {
-                /*
-                 * For each bound function param (FXObject+varNum pair), at the
-                 * end of object creation register "this" as a dependent by
-                 * calling addDependent$ method:
-                 *
-                 *     boundFuncObjParam1.addDependent$(boundFunctionVarNumParam1, this);
-                 *     boundFuncObjParam2.addDependent$(boundFunctionVarNumParam2, this);
-                 *     ....
-                 */
-                for (VarInfo vi : varInfos) {
-                    if (vi.isParameter()) {
-                        // call FXObject.addDependent$(int varNum, FXObject dep)
-                        Symbol varSym = vi.getSymbol();
-                        stmts.append(CallStmt(
-                                id(boundFunctionObjectParamName(varSym.name)),
-                                defs.FXBase_addDependent.methodName,
-                                id(boundFunctionVarNumParamName(varSym.name)),
-                                id(names._this)));
-                    }
-                }
-            }
-
     
             makeConstructor(params.toList(), types.toList(), stmts.toList());
         }

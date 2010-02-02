@@ -15,13 +15,8 @@
 [ A, x, 1.5, A, A, A, A, false ]
 -----------
 [ A, x, 1.5, A, A, A, A, false ]
-[2..1]
-[ A ]
-[ A, x, A, 1.5, A, A, A, A, false ]
------------
-[ A, x, A, 1.5, A, A, A, A, false ]
-[4..3]
-[ A ]
+[2..2]
+[ A, 1.5, A ]
 [ A, x, A, 1.5, A, A, A, A, A, false ]
 -----------
 [ A, x, A, 1.5, A, A, A, A, A, false ]

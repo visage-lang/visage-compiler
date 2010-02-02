@@ -336,19 +336,131 @@ public class JavafxPreTranslationSupport {
     }
 
     boolean isNullable(JFXExpression expr) {
-        if (expr.type.isPrimitive()) {
+        if (!types.isNullable(expr.type)) {
             return false;
         }
-        if (types.isSameType(expr.type, syms.javafx_StringType)) {
+        while (true) {
+            switch (expr.getFXTag()) {
+                case OBJECT_LITERAL:
+                    return false;
+                case PARENS:
+                    expr = ((JFXParens)expr).getExpression();
+                    break;
+                case BLOCK_EXPRESSION:
+                    expr = ((JFXBlock)expr).getValue();
+                    break;
+                case CONDEXPR:
+                {
+                    JFXIfExpression ife = (JFXIfExpression)expr;
+                    return isNullable(ife.getTrueExpression()) || isNullable(ife.getFalseExpression());
+                }
+                default:
+                    return true;
+            }
+        }
+    }
+
+    //TODO: unify with hasSideEffects in TranslationSupport
+    boolean hasSideEffectsInBind(JFXExpression expr) {
+        class SideEffectScanner extends JavafxTreeScanner {
+
+            boolean hse = false;
+
+            private void markSideEffects() {
+                hse = true;
+            }
+
+            @Override
+            public void visitAssign(JFXAssign tree) {
+                // In case we add back assignment
+                markSideEffects();
+            }
+
+            @Override
+            public void visitInstanciate(JFXInstanciate tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+                markSideEffects();
+            }
+        }
+        SideEffectScanner scanner = new SideEffectScanner();
+        scanner.scan(expr);
+        return scanner.hse;
+    }
+
+    boolean isImmutable(JFXExpression tree) {
+        switch (tree.getFXTag()) {
+            case IDENT: {
+                JFXIdent id = (JFXIdent) tree;
+                return isImmutable(id.sym, id.getName());
+            }
+            case SELECT: {
+                JFXSelect sel = (JFXSelect) tree;
+                return isImmutableSelector(sel) && isImmutable(sel.sym, sel.getIdentifier());
+            }
+            case LITERAL:
+            case TIME_LITERAL:
+                return true;
+            case PARENS:
+                return isImmutable(((JFXParens)tree).getExpression());
+            case SEQUENCE_RANGE: {
+                JFXSequenceRange rng = (JFXSequenceRange) tree;
+                return isImmutable(rng.getLower()) && isImmutable(rng.getUpper()) && (rng.getStepOrNull()==null || isImmutable(rng.getStepOrNull()));
+            }
+            case SEQUENCE_EXPLICIT: {
+                JFXSequenceExplicit se = (JFXSequenceExplicit) tree;
+                for (JFXExpression item : se.getItems()) {
+                    if (!isImmutable(item)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            default:
+                if (tree instanceof JFXUnary) {
+                    if (tree.getFXTag().isIncDec()) {
+                        return false;
+                    } else {
+                        return isImmutable(((JFXUnary)tree).getExpression());
+                    }
+                }
+                return false;
+        }
+    }
+
+    private boolean isImmutable(Symbol sym, Name name) {
+        if (sym.kind != Kinds.VAR) {
+            return true;
+        }
+        JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
+        Symbol owner = sym.owner;
+        boolean isKnown = vsym.isLocal() || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
+        boolean isAssignedTo = vsym.isAssignedTo();
+        boolean isDefinedBound = vsym.isDefinedBound();
+        return
+                    name == names._this ||
+                    name == names._super ||
+                    (owner instanceof JavafxClassSymbol && name == fxmake.ScriptAccessSymbol(owner).name) ||
+                    isKnown && vsym.isDef() && !isDefinedBound || // unbound def
+                    isKnown && !vsym.isWritableOutsideScript() && !isAssignedTo && !isDefinedBound; // never reassigned
+     }
+
+    private boolean isImmutableSelector(final JFXSelect tree) {
+        if (tree.sym.isStatic()) {
+            // If the symbol is static, no matter what the selector is, the selectot is immutable
+            return true;
+        }
+        final JFXExpression selector = tree.getExpression();
+        if (selector instanceof JFXIdent) {
+            return isImmutable((JFXIdent) selector);
+        } else if (selector instanceof JFXSelect) {
+            return isImmutable((JFXSelect) selector);
+        } else {
             return false;
         }
-        if (types.isSameType(expr.type, syms.javafx_DurationType)) {
-            return false;
-        }
-        if (expr.getFXTag() == JavafxTag.OBJECT_LITERAL) {
-            return false;
-        }
-        return true;
     }
 }
 

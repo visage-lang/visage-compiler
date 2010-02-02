@@ -106,6 +106,9 @@ import com.sun.javafx.runtime.sequence.Sequences;
     public int count$() { return VCNT$(); }
     public static int VCNT$() { return VCNT$; }
 
+    private static final int DCNT$ = 0;
+    public static int DCNT$() { return DCNT$; }
+
     public int getFlags$(final int varNum) {
         return 0;
     }
@@ -156,12 +159,12 @@ import com.sun.javafx.runtime.sequence.Sequences;
     public void setDependentsManager$internal$(final DependentsManager depMgr) {
         DependentsManager$internal$ = depMgr;
     }
-    public void addDependent$(final int varNum, FXObject dep) {
-        addDependent$(this, varNum, dep);
+    public void addDependent$(final int varNum, FXObject dep, final int depNum) {
+        addDependent$(this, varNum, dep, depNum);
     }
-    public static void addDependent$(FXObject obj, final int varNum, FXObject dep) {
+    public static void addDependent$(FXObject obj, final int varNum, FXObject dep, final int depNum) {
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-        DependentsManager.get(obj).addDependent(obj, varNum, dep);
+        DependentsManager.get(obj).addDependent(obj, varNum, dep, depNum);
     }
     public void removeDependent$(final int varNum, FXObject dep) {
         removeDependent$(this, varNum, dep);
@@ -170,12 +173,12 @@ import com.sun.javafx.runtime.sequence.Sequences;
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
         DependentsManager.get(obj).removeDependent(obj, varNum, dep);
     }
-    public void switchDependence$(FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
-        switchDependence$(this, oldBindee, oldNum, newBindee, newNum);
+    public void switchDependence$(FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum, final int depNum) {
+        switchDependence$(this, oldBindee, oldNum, newBindee, newNum, depNum);
     }
-    public static void switchDependence$(FXObject obj, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
+    public static void switchDependence$(FXObject obj, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum, final int depNum) {
         if (oldBindee != newBindee) {
-            DependentsManager.get(obj).switchDependence(obj, oldBindee, oldNum, newBindee, newNum);
+            DependentsManager.get(obj).switchDependence(obj, oldBindee, oldNum, newBindee, newNum, depNum);
         }
     }
     public void notifyDependents$(final int varNum, final int phase) {
@@ -196,8 +199,8 @@ import com.sun.javafx.runtime.sequence.Sequences;
             DependentsManager.get(obj).notifyDependents(obj, varNum, startPos, endPos, newLength, phase);
         }
     }
-    public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {}
-    public static void update$(FXObject obj, FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {}
+    public boolean update$(FXObject src, final int depNum, int startPos, int endPos, int newLength, final int phase) { return false; }
+    public static boolean update$(FXObject obj, FXObject src, final int depNum, int startPos, int endPos, int newLength, final int phase) { return false; }
     public int getListenerCount$() {
         return DependentsManager.get(this).getListenerCount(this);
     }

@@ -25,6 +25,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 
 import com.sun.tools.mjavac.util.List;
 
@@ -35,7 +36,16 @@ import com.sun.tools.mjavac.util.List;
 public class JFXSequenceExplicit extends JFXAbstractSequenceCreator implements SequenceExplicitTree {
     private final List<JFXExpression> items;
 
-    public List<JFXVar> boundItemsVars;
+    public List<JavafxVarSymbol> boundItemsSyms;
+    public List<JavafxVarSymbol> boundItemLengthSyms;
+    public JavafxVarSymbol boundLowestInvalidPartSym;
+    public JavafxVarSymbol boundHighestInvalidPartSym;
+    public JavafxVarSymbol boundPendingTriggersSym;
+    public JavafxVarSymbol boundNewLengthSym;
+    public JavafxVarSymbol boundChangeStartPosSym;
+    public JavafxVarSymbol boundChangeEndPosSym;
+    public JavafxVarSymbol boundIgnoreInvalidationsSym;
+    public JavafxVarSymbol boundSizeSym;
 
     public JFXSequenceExplicit(List<JFXExpression> items) {
         this.items = items;

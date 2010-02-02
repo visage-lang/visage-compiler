@@ -115,20 +115,20 @@ public class Pointer implements KeyValueTarget {
     }
 
     public void addDependency(FXObject dep) {
-        obj.addDependent$(varnum, dep);
+        obj.addDependent$(varnum, dep, 0);
     }
 
     public void removeDependency(FXObject dep) {
         obj.removeDependent$(varnum, dep);
     }
 
-    public static void switchDependence(Pointer oldPtr, Pointer newPtr, FXObject dep) {
+    public static void switchDependence(Pointer oldPtr, Pointer newPtr, FXObject dep, int depNum) {
         if (oldPtr != newPtr) {
             FXObject oldSrc = (oldPtr != null)? oldPtr.getFXObject() : null;
             FXObject newSrc = (newPtr != null)? newPtr.getFXObject() : null;
             int oldVarNum = (oldPtr != null)? oldPtr.getVarNum() : 0;
             int newVarNum = (newPtr != null)? newPtr.getVarNum() : 0;
-            dep.switchDependence$(oldSrc, oldVarNum, newSrc, newVarNum);
+            dep.switchDependence$(oldSrc, oldVarNum, newSrc, newVarNum, depNum);
         }
     }
 
@@ -178,12 +178,13 @@ public class Pointer implements KeyValueTarget {
         final int thisVarNum = getVarNum();
         FXObject listener = new FXBase() {
             @Override
-            public void update$(FXObject src, final int varNum,
+            public boolean update$(FXObject src, final int depNum,
                     int startPos, int endPos, int newLength, final int phase) {
                 if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
                     // update value from "src"
-                    thisObj.set$(thisVarNum, src.get$(varNum));
+                    thisObj.set$(thisVarNum, src.get$(depNum));
                 }
+                return true;
             }
         };
         // initial update from "srcPtr"

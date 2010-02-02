@@ -172,7 +172,8 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                             CallStmt(defs.FXBase_addDependent,
                                         selector(),
                                         Offset(selector(), refSym),
-                                        getReceiverOrThis(selectorSym)
+                                        getReceiverOrThis(selectorSym),
+                                        DepNum(getReceiver(selectorSym), selectorSym, refSym)
                             ),
                             CallSeqInvalidateUndefined(targetSymbol),
                             CallSeqTriggerInitial(targetSymbol, CallSize(concreteSelector(), refSym))

@@ -1134,9 +1134,10 @@ public class SequencesBase {
         return newValue;
     }
 
-    public static <T> void set(FXObject instance, int varNum, Sequence<? extends T> newValue) {
+    public static <T> Sequence<? extends T> set(FXObject instance, int varNum, Sequence<? extends T> newValue) { 
         //TODO: should give slice invalidations, as if below, but should actually set to the new sequence
         replaceSlice(instance, varNum, newValue, 0, instance.size$(varNum));
+        return newValue;
     }
 
     public static <T> Sequence<? extends T> set(Sequence<? extends T> oldValue, T newValue, int index) {

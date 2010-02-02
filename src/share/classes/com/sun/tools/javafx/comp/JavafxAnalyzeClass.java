@@ -210,12 +210,6 @@ class JavafxAnalyzeClass {
             return (getFlags() & JavafxFlags.VARMARK_BARE_SYNTH) != 0;
         }
         
-        // Returns true if the var is a private bare synth.
-        public boolean isHiddenBareSynth() {
-            long flags = JavafxFlags.VARMARK_BARE_SYNTH | Flags.PRIVATE;
-            return (getFlags() & flags) == flags;
-        }
-        
         // Returns true if the var is read only.
         public boolean isReadOnly() {
             return isDef() || (hasBoundDefinition() && !hasBiDiBoundDefinition());
@@ -1173,7 +1167,12 @@ class JavafxAnalyzeClass {
     //
     // Returns true if the current class inherits directly from FXBase.
     //
-    public boolean isFirstTier() { return superClassSym !=  null && isFXBase(superClassSym);}
+    public boolean isFirstTier() { return superClassSym !=  null && isFXBase(superClassSym); }
+
+    //
+    // Returns true if the current class inherits directly from FXBase and has no mixins.
+    //
+    public boolean isFirstTierNoMixins() { return isFirstTier() && allMixins.isEmpty(); }
 
     //
     // Returns the var count for the current class.

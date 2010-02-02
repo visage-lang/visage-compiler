@@ -1066,9 +1066,11 @@ public class FXDOTWriter {
                 String varName = name.substring(FXField.voffPrefix.length() - 1);
                 // Determine the class prefix for the var.
                 String className = getClassName(field.getDeclaringClass()).replaceAll("\\.", "\\$");
+                String simpleClassName = field.getDeclaringClass().getSimpleName();
                 // Strip down to the user declared name.
-                String bareName = varName.startsWith(className, 1) ? varName.substring(className.length() + 2) :
-                                                                     varName.substring(1);
+                String bareName = varName.startsWith(className, 1)       ? varName.substring(className.length() + 2) :
+                                  varName.startsWith(simpleClassName, 1) ? varName.substring(simpleClassName.length() + 2) :
+                                                                           varName.substring(1);
                 // Get the field offset.
                 int voff = getIntValue(field, null);
                 // Add the field to the list.
