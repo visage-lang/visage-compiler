@@ -1312,7 +1312,14 @@ public class JavafxAttr implements JavafxVisitor {
 
         forExprEnv.tree = tree; // before, we were not in loop!
         attribTree(tree.getBodyExpression(), forExprEnv, VAL, pt.tag != ERROR ? pt : Type.noType, Sequenceness.PERMITTED);
-
+        if (!tree.getBodyExpression().type.isErroneous() &&
+                tree.getBodyExpression().type.tag != VOID &&
+                (pt.tag == NONE ||
+                pt == syms.javafx_UnspecifiedType)) {
+            Type blockElemType = types.elementTypeOrType(tree.getBodyExpression().type);
+            Type typeToCheck = types.sequenceType(types.normalize(blockElemType));
+            attribTree(tree.getBodyExpression(), forExprEnv, VAL, typeToCheck, Sequenceness.PERMITTED);
+        }
         Type bodyType = tree.getBodyExpression().type;
         if (bodyType == syms.unreachableType)
             log.error(tree.getBodyExpression(), MsgSym.MESSAGE_UNREACHABLE_STMT);
@@ -2737,71 +2744,67 @@ public class JavafxAttr implements JavafxVisitor {
 
     //@Override
     public void visitLiteral(JFXLiteral tree) {
-        if (tree.typetag == TypeTags.BOT && types.isSequence(pt))
-            result = tree.type = pt;
-        else {
-            Type expected = types.elementTypeOrType(pt);
-            if (tree.value instanceof Double) {
-                double dvalue = ((Double) tree.value).doubleValue();
-                double dabs = Math.abs(dvalue);
-                boolean fitsInFloat = Double.isInfinite(dvalue) || dvalue == 0.0 ||
-                        (dabs <= Float.MAX_VALUE && dabs >= Float.MIN_VALUE);
-                if (isPrimitiveOrBoxed(expected, DOUBLE) || (expected.tag == UNKNOWN && !fitsInFloat)) {
-                    tree.typetag = TypeTags.DOUBLE;
-                }
-                else {
-                    if (isPrimitiveOrBoxed(expected, FLOAT) && !fitsInFloat) {
-                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Number", tree.value.toString());
-                    }
-                    tree.typetag = TypeTags.FLOAT;
-                    tree.value = Float.valueOf((float) dvalue);
-                }
+        Type expected = types.elementTypeOrType(pt);
+        if (tree.value instanceof Double) {
+            double dvalue = ((Double) tree.value).doubleValue();
+            double dabs = Math.abs(dvalue);
+            boolean fitsInFloat = Double.isInfinite(dvalue) || dvalue == 0.0 ||
+                    (dabs <= Float.MAX_VALUE && dabs >= Float.MIN_VALUE);
+            if (isPrimitiveOrBoxed(expected, DOUBLE) || (expected.tag == UNKNOWN && !fitsInFloat)) {
+                tree.typetag = TypeTags.DOUBLE;
             }
-            else if ((tree.value instanceof Integer || tree.value instanceof Long) &&
-                    tree.typetag != TypeTags.BOOLEAN) {
-                long lvalue = ((Number) tree.value).longValue();
-                if (isPrimitiveOrBoxed(expected, BYTE)) {
-                    if (lvalue != (byte) lvalue) {
-                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Byte", tree.value.toString());
-                    }
-                    tree.typetag = TypeTags.BYTE;
-                    tree.value = Byte.valueOf((byte) lvalue);
+            else {
+                if (isPrimitiveOrBoxed(expected, FLOAT) && !fitsInFloat) {
+                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Number", tree.value.toString());
                 }
-                else if (isPrimitiveOrBoxed(expected, SHORT)) {
-                    if (lvalue != (short) lvalue) {
-                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Short", tree.value.toString());
-                    }
-                    tree.typetag = TypeTags.SHORT;
-                    tree.value = Short.valueOf((short) lvalue);
-                }
-                else if (isPrimitiveOrBoxed(expected, CHAR)  && lvalue == (char) lvalue) {
-                    tree.typetag = TypeTags.CHAR;
-                }
-                else if (isPrimitiveOrBoxed(expected, FLOAT)) {
-                    tree.typetag = TypeTags.FLOAT;
-                    tree.value = Float.valueOf(lvalue);
-                }
-                else if (isPrimitiveOrBoxed(expected, DOUBLE)) {
-                    tree.typetag = TypeTags.DOUBLE;
-                    tree.value = Double.valueOf(lvalue);
-                }
-                else if (isPrimitiveOrBoxed(expected, INT) || tree.typetag == TypeTags.INT) {
-                    if (tree.typetag == TypeTags.LONG) {
-                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Integer", tree.value.toString());
-                    }
-                    tree.typetag = TypeTags.INT;
-                    if (! (tree.value instanceof Integer))
-                        tree.value = Integer.valueOf((int) lvalue);
-                }
-                else {
-                    tree.typetag = TypeTags.LONG;
-                    if (! (tree.value instanceof Long))
-                        tree.value = Long.valueOf(lvalue);
-                }
+                tree.typetag = TypeTags.FLOAT;
+                tree.value = Float.valueOf((float) dvalue);
             }
-            result = check(
-                tree, litType(tree.typetag, pt), VAL, pkind, pt, pSequenceness);
         }
+        else if ((tree.value instanceof Integer || tree.value instanceof Long) &&
+                tree.typetag != TypeTags.BOOLEAN) {
+            long lvalue = ((Number) tree.value).longValue();
+            if (isPrimitiveOrBoxed(expected, BYTE)) {
+                if (lvalue != (byte) lvalue) {
+                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Byte", tree.value.toString());
+                }
+                tree.typetag = TypeTags.BYTE;
+                tree.value = Byte.valueOf((byte) lvalue);
+            }
+            else if (isPrimitiveOrBoxed(expected, SHORT)) {
+                if (lvalue != (short) lvalue) {
+                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Short", tree.value.toString());
+                }
+                tree.typetag = TypeTags.SHORT;
+                tree.value = Short.valueOf((short) lvalue);
+            }
+            else if (isPrimitiveOrBoxed(expected, CHAR)  && lvalue == (char) lvalue) {
+                tree.typetag = TypeTags.CHAR;
+            }
+            else if (isPrimitiveOrBoxed(expected, FLOAT)) {
+                tree.typetag = TypeTags.FLOAT;
+                tree.value = Float.valueOf(lvalue);
+            }
+            else if (isPrimitiveOrBoxed(expected, DOUBLE)) {
+                tree.typetag = TypeTags.DOUBLE;
+                tree.value = Double.valueOf(lvalue);
+            }
+            else if (isPrimitiveOrBoxed(expected, INT) || tree.typetag == TypeTags.INT) {
+                if (tree.typetag == TypeTags.LONG) {
+                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Integer", tree.value.toString());
+                }
+                tree.typetag = TypeTags.INT;
+                if (! (tree.value instanceof Integer))
+                    tree.value = Integer.valueOf((int) lvalue);
+            }
+            else {
+                tree.typetag = TypeTags.LONG;
+                if (! (tree.value instanceof Long))
+                    tree.value = Long.valueOf(lvalue);
+            }
+        }
+        result = check(
+                tree, litType(tree.typetag, pt), VAL, pkind, pt, pSequenceness);
     }
     //where
     /** Return the type of a literal with given type tag.
@@ -2809,13 +2812,14 @@ public class JavafxAttr implements JavafxVisitor {
     private Type litType(int tag, Type pt) {
         switch (tag) {
             case TypeTags.CLASS: return syms.stringType;
-            case TypeTags.BOT: return types.isSequence(pt) ?
-                syms.javafx_EmptySequenceType :
+            case TypeTags.BOT: return types.isSequence(pt) &&
+                                      !types.isNullable(types.elementType(pt)) ?
+                pt :
                 syms.botType;
             default: return syms.typeOfTag[tag];
         }
     }
-
+    
     //@Override
     public void visitErroneous(JFXErroneous tree) {
       //  if (tree.getErrorTrees() != null)
@@ -3107,42 +3111,37 @@ public class JavafxAttr implements JavafxVisitor {
         result = tree.type = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
+    //@Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         Type elemType = null;
-        Type expected = pt;
-        Type elemExpected = null;
-        Type componentType = Type.noType;
-        if (types.isSequence(pt)) {
-            elemExpected = types.elementType(pt);
-            if (!types.isNullable(elemExpected)) {
-                componentType = pt;  // handle null
-            }
-        }
+        boolean errorFound = false;
         for (JFXExpression expr : tree.getItems()) {
             Type itemType = attribTree(expr, env, VAL,
-                    componentType, Sequenceness.PERMITTED);
-            if (itemType.tag == BOT) {
-                if (elemExpected != null) {
-                    itemType = elemExpected;
-                    expr.setType(elemExpected);
-                }
-            } else if (types.isSequence(itemType)) {
-                itemType = types.elementType(itemType);
-            } else if (types.isArray(itemType)) {
-                itemType = types.elemtype(itemType);
+                    pt, Sequenceness.PERMITTED);
+            if (types.isSequence(itemType) || types.isArray(itemType)) {
+                itemType = types.isSequence(itemType) ? types.elementType(itemType) : types.elemtype(itemType);
             }
-
             itemType = chk.checkNonVoid(expr, itemType);
-            if (elemType == null || itemType.tag == NONE || itemType.tag == ERROR) {
+            if (elemType == null || itemType.tag == NONE || itemType.tag == ERROR) {                
                 elemType = itemType;
-            } else {
+            }
+            else
                 elemType = unionType(tree, itemType, elemType);
+            errorFound |= elemType.isErroneous() || itemType.isErroneous();
+        }
+        
+        if (!errorFound && 
+                (pt.tag == NONE ||
+                 pt == syms.javafx_UnspecifiedType)) {
+            Type typeToCheck = types.sequenceType(types.normalize(elemType));
+            for (JFXExpression expr : tree.getItems()) {
+                attribTree(expr, env, VAL, typeToCheck, Sequenceness.PERMITTED);
             }
         }
         Type owntype = elemType.tag == ERROR ? elemType : types.sequenceType(elemType);
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         if (owntype == result && pt.tag != NONE && pt != syms.javafx_UnspecifiedType && pt != syms.objectType) {
-            result = tree.type = expected;
+             result = tree.type = pt;
         }
     }
 
