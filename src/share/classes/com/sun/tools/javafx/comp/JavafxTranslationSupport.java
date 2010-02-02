@@ -83,6 +83,7 @@ public abstract class JavafxTranslationSupport {
     protected final JavafxSymtab syms;
     protected final JavafxTypes types;
     protected final Options options;
+    protected final JavafxPreTranslationSupport preTrans;
 
     /*
      * other instance information
@@ -99,6 +100,7 @@ public abstract class JavafxTranslationSupport {
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
         options = Options.instance(context);
+        preTrans = JavafxPreTranslationSupport.instance(context);
 
         syntheticNameCounter = 0;
     }
@@ -169,46 +171,6 @@ public abstract class JavafxTranslationSupport {
         return false;
     }
 
-    boolean isImmutable(Symbol sym, Name name) {
-        if (sym.kind != Kinds.VAR) {
-            return true;
-        }
-        JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
-        Symbol owner = sym.owner;
-        boolean isKnown = vsym.isLocal() || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
-        boolean isAssignedTo = vsym.isAssignedTo();
-        boolean isDefinedBound = vsym.isDefinedBound();
-        return
-                    name == names._this ||
-                    name == names._super ||
-                    name == fxmake.ScriptAccessSymbol(owner).name ||
-                    isKnown && vsym.isDef() && !isDefinedBound || // unbound def
-                    isKnown && !vsym.isWritableOutsideScript() && !isAssignedTo && !isDefinedBound; // never reassigned
-     }
-
-    boolean isImmutable(JFXIdent tree) {
-        return isImmutable(tree.sym, tree.getName());
-    }
-
-    boolean isImmutable(final JFXSelect tree) {
-        return isImmutableSelector(tree) && isImmutable(tree.sym, tree.getIdentifier());
-    }
-
-    boolean isImmutableSelector(final JFXSelect tree) {
-        if (tree.sym.isStatic()) {
-            // If the symbol is static, no matter what the selector is, the selectot is immutable
-            return true;
-        }
-        final JFXExpression selector = tree.getExpression();
-        if (selector instanceof JFXIdent) {
-            return isImmutable((JFXIdent) selector);
-        } else if (selector instanceof JFXSelect) {
-            return isImmutable((JFXSelect) selector);
-        } else {
-            return false;
-        }
-    }
-
     boolean hasDependencies(JFXExpression expr, final Set<Symbol> exclusions) {
         class DependencyScanner extends JavafxTreeScanner {
 
@@ -237,14 +199,14 @@ public abstract class JavafxTranslationSupport {
 
             @Override
             public void visitIdent(JFXIdent tree) {
-                if (!exclusions.contains(tree.sym) && !isImmutable(tree)) {
+                if (!exclusions.contains(tree.sym) && !preTrans.isImmutable(tree)) {
                     markHasDependencies();
                 }
             }
 
             @Override
             public void visitSelect(JFXSelect tree) {
-                if (!isImmutable(tree)) {
+                if (!preTrans.isImmutable(tree)) {
                     markHasDependencies();
                 }
             }
@@ -338,6 +300,10 @@ public abstract class JavafxTranslationSupport {
         return sym.owner.kind == Kinds.MTH;
     }
     
+    protected boolean isBoundFuncClass(ClassSymbol sym) {
+        return (sym.flags_field & JavafxFlags.FX_BOUND_FUNCTION_CLASS) != 0L;
+    }
+
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, String str) {
         assert str.indexOf('<') < 0 : "attempt to parse a type with 'Identifier'.  Use TypeTree";
         JCExpression tree = null;
@@ -590,7 +556,7 @@ public abstract class JavafxTranslationSupport {
         String className = sym.fullname.toString();
         return names.fromString(varGetMapString + className.replace('.', '$'));
     }
-
+    
     Name attributeOffsetName(Symbol sym) {
         return prefixedAttributeName(sym, offset_AttributeFieldPrefix);
     }
@@ -657,6 +623,23 @@ public abstract class JavafxTranslationSupport {
 
     Name boundFunctionVarNumParamName(Name suffix) {
         return names.fromString(boundFunctionVarNumParamPrefix + suffix);
+    }
+
+    Name depName(Symbol selector, Symbol sym) {
+        String selectorString = "";
+        
+        if (sym.isStatic()) {
+            selectorString = sym.owner.toString().replace('.', '$');
+        } else if (selector != null &&
+                   !(selector instanceof JavafxVarSymbol && ((JavafxVarSymbol)selector).isSpecial())) {
+            selectorString = selector.toString();
+        }
+
+        return names.fromString(dep_FXObjectFieldString + selectorString + "$_$" + sym.toString());
+    }
+
+    Name classDCNT$Name(Symbol classSym) {
+        return names.fromString(defs.depCount_FXObjectFieldString + classSym.toString().replace('.', '$'));
     }
 
     boolean isBoundFunctionResult(Symbol sym) {
@@ -954,6 +937,14 @@ public abstract class JavafxTranslationSupport {
             return JavafxTranslationSupport.this.isLocalClass(sym);
         }
         
+        public boolean isBoundFuncClass() {
+            return JavafxTranslationSupport.this.isBoundFuncClass((ClassSymbol)enclosingClassDecl.sym);
+        }
+                
+        public boolean isBoundFuncClass(ClassSymbol sym) {
+            return JavafxTranslationSupport.this.isBoundFuncClass(sym);
+        }
+        
         public boolean isMixinVar(Symbol sym) {
             JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             Symbol owner = varSym.owner;
@@ -964,6 +955,12 @@ public abstract class JavafxTranslationSupport {
             JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             Symbol owner = varSym.owner;
             return owner instanceof ClassSymbol && isLocalClass((ClassSymbol)owner);
+        }
+        
+        public boolean isBoundFuncParameter(Symbol sym) {
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
+            Symbol owner = varSym.owner;
+            return owner instanceof ClassSymbol && isBoundFuncClass((ClassSymbol)owner);
         }
         
         public boolean setIsScript(boolean newState) {
@@ -1737,6 +1734,18 @@ public abstract class JavafxTranslationSupport {
             }
             
             return Offset(varSym);
+        }
+
+        public JCExpression DepNum(JCExpression selector, Symbol selectorSym, Symbol sym) {
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
+            Name depName = depName(selectorSym, varSym);
+            
+            if (isMixinClass()) {
+                return PLUS(Call(classDCNT$Name(enclosingClassDecl.sym)), id(depName));
+            }
+            
+            return Select(selector, depName);
         }
 
         public JCExpression VarFlags(Symbol sym) {

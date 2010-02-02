@@ -41,9 +41,9 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
 
     // Called by invalidate when the result of a part changes.
     @Override
-    public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
+    public boolean update$(FXObject src, final int depNum, int startPos, int endPos, int newLength, final int phase) {
         if (uninitialized || inWholesaleUpdate)
-            return;
+            return true;
         int ipart = ((FXForPart) src).getIndex$();
         if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE) {
             if (DEBUG) System.err.println("inv update$ id: " + forVarNum + ", ipart: " + ipart + ", " + lowestInvalidPart + " ... " + highestInvalidPart);
@@ -63,20 +63,20 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
                     highestInvalidPart = ipart;
                 }
             }
-            return;
+            return true;
         }
         --pendingTriggers;
         if (DEBUG) System.err.println("+trig update$ id: " + forVarNum + ", ipart: " + ipart + ", " + lowestInvalidPart + " ... " + highestInvalidPart);
 
         if (pendingTriggers > 0) {
             // Trigger when all the part triggers have come in
-            return;
+            return true;
         }
         assert pendingTriggers == 0;
 
         if (inPartChange) {
             // Part change will handle update
-            return;
+            return true;
         }
         if (DEBUG) System.err.println(".trig update$ id: " + forVarNum + ", ipart: " + ipart + ", " + lowestInvalidPart + " ... " + highestInvalidPart);
 
@@ -101,6 +101,7 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
         // Send invalidation
         if (DEBUG) System.err.println("-trig update$ id: " + forVarNum + ", ipart: " + ipart + ", oldStart: " + oldStartPos + ", oldEndPos: " + oldEndPos + ", newEndPos: " + newEndPos + ", insertedLength: " + insertedLength);
         container.invalidate$(forVarNum, oldStartPos, oldEndPos, insertedLength, FXObject.PHASE_TRANS$CASCADE_TRIGGER);
+        return true;
     }
 
     void showStates(String label) {

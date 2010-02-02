@@ -48,8 +48,8 @@ class MinWeakRefsDepsMgr extends DependentsManager {
        return thisRef;
     }
 
-    public void addDependent(FXObject bindee, final int varNum, FXObject binder) {
-        Dep dep = Dep.newDependency(binder);
+    public void addDependent(FXObject bindee, final int varNum, FXObject binder, final int depNum) {
+        Dep dep = Dep.newDependency(binder, depNum);
         dep.linkToBindee(bindee, varNum);
         // FIXME: revisit this - is this a good time to call cleanup?
         WeakBinderRef.checkForCleanups();
@@ -104,10 +104,14 @@ class MinWeakRefsDepsMgr extends DependentsManager {
                 if (binder == null) {
                     binderRef.cleanup();
                 } else {
+                     boolean handled = true;
                     try {
-                        binder.update$(bindee, varNum, startPos, endPos, newLength, phase);
+                        handled = binder.update$(bindee, dep.depNum, startPos, endPos, newLength, phase);
                     } catch (RuntimeException re) {
                         ErrorHandler.bindException(re);
+                    }
+                    if (!handled) {
+                        binderRef.cleanup();
                     }
                 }
             }
@@ -383,9 +387,12 @@ class Dep implements BinderLinkable {
 
     Dep nextInBindees;
     DepChain chain;
+    
+    int depNum;
 
-    static Dep newDependency(FXObject binder) {
+    static Dep newDependency(FXObject binder, int depNum) {
         Dep dep = new Dep();
+        dep.depNum = depNum;
         MinWeakRefsDepsMgr binderDepMgr =
                 (MinWeakRefsDepsMgr) DependentsManager.get(binder);
         WeakBinderRef binderRef = binderDepMgr.getThisRef(binder);

@@ -87,15 +87,30 @@ function inspectClass( context: FXLocal.Context, clzName:String, fxov: FXObjectV
 		System.out.println("About class {clsTestClass.getName()}");
 		var cname = clsTestClass.toString();
 		println("{cname}");
-		print("  Super classes of {clsTestClass.getName()}:"); println( clsTestClass.getSuperClasses(true) );
+		println("  Super classes of {clsTestClass.getName()}:");
+                for (superx in clsTestClass.getSuperClasses(true)) {
+                   if (not superx.getName().equals("net.sourceforge.cobertura.coveragedata.HasBeenInstrumented")) {
+                        println("    class {superx.getName()}");
+                   }
+                }
+
 		println("  Mixin class: {clsTestClass.isMixin() }");
 		println("  JavaFX Type: {clsTestClass.isJfxType()}");
-		for( clz in clsTestClass.getSuperClasses(true) )
-		  if( not clz.equals( clsTestClass )) {
-			 if(clz.isAssignableFrom( clsTestClass )){ println("  {clz.toString()} is assignable from {cname}")
-			 }else { println("  {clz.toString()} is not assignable from {cname}") }
-		  if(clsTestClass.isAssignableFrom ( clz )){ println("  {cname} is assignable from {clz.toString()}")
-		  } else { println("  {cname} is not assignable from {clz.toString()}") }
+		for( clz in clsTestClass.getSuperClasses(true) ) {
+                  if (not clz.getName().equals("net.sourceforge.cobertura.coveragedata.HasBeenInstrumented")) {
+                      if (not clz.equals(clsTestClass)) {
+			  if (clz.isAssignableFrom( clsTestClass )) {
+                              println("  {clz.toString()} is assignable from {cname}")
+			  } else {
+                              println("  {clz.toString()} is not assignable from {cname}")
+                          }
+    	  	          if (clsTestClass.isAssignableFrom ( clz )){
+                              println("  {cname} is assignable from {clz.toString()}")
+		           } else {
+                              println("  {cname} is not assignable from {clz.toString()}")
+                           }
+                      }
+                  }
 		}
 		// public boolean isAssignableFrom(FXClassType cls) {}
 		println("MEMBERS of {clsTestClass.toString()}");

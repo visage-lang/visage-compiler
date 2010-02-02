@@ -11,6 +11,8 @@
  * @run
  */
 
+import javafx.util.Sequences;
+
 class Fred {
    var width: Number;
    var height: Number;
@@ -24,8 +26,10 @@ function calcX(p1: Number) {
 // println("jj: calcX = {p1}");
     return p1;
 }
+var seen : Number[];
+
 function calcY(p1: Number, p2: Number) {
-    println("jj: calcY = {p2}");
+    insert p2 into seen;
     return p2;
 }
 
@@ -48,4 +52,6 @@ var mypp = PP{
         yy: bind pieRadiusY
 };
 
+println(Sequences.sort(seen));
 pieRadiusX = 60;
+println(Sequences.sort(seen));

@@ -868,8 +868,7 @@ public class JavafxAttr implements JavafxVisitor {
                             tree.rhs.type != null &&
                             lhsVar.type != tree.rhs.type) {
                         tree.type = tree.lhs.type = lhsVar.type = lhsSym.type = types.normalize(tree.rhs.type);
-                        JFXExpression jcExpr = fxmake.at(tree.pos()).Ident(lhsSym);
-                        lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(jcExpr, lhsVar.getJFXType().getCardinality()));
+                        lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(fxmake.Type(lhsSym.type), lhsVar.getJFXType().getCardinality()));
                 }
             }
         }
@@ -1257,9 +1256,9 @@ public class JavafxAttr implements JavafxVisitor {
             if  (var == null || var instanceof JFXErroneousVar) continue;
 
             Type declType = attribType(var.getJFXType(), forExprEnv);
+            attribVar(var, forExprEnv);
             JFXExpression expr = (JFXExpression)clause.getSequenceExpression();
             Type exprType = types.upperBound(attribExpr(expr, forExprEnv));
-            attribVar(var, forExprEnv);
             chk.checkNonVoid(((JFXTree)clause).pos(), exprType);
 
             Type elemtype;

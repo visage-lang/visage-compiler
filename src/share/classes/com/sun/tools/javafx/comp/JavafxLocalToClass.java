@@ -118,7 +118,8 @@ public class JavafxLocalToClass {
     enum BlockKind {
         FUNCTION,
         TRIGGER,
-        LOOP
+        LOOP,
+        CATCH
     }
 
     /**
@@ -190,9 +191,8 @@ public class JavafxLocalToClass {
         @Override
         public void visitCatch(JFXCatch tree) {
             // Skip param
-
-            // Scan catch body normally
-            scan(tree.body);
+            // The body of the catch begins a new chunk
+            blockWithin((JFXBlock) tree.getBlock(), BlockKind.CATCH);
         }
 
         @Override
@@ -275,6 +275,12 @@ public class JavafxLocalToClass {
             public void visitForExpression(JFXForExpression tree) {
                 needed |= needsToBeInflatedToClass(tree.getBodyExpression()) && referencesMutatedLocal(tree);
                 super.visitForExpression(tree);
+            }
+
+            @Override
+            public void visitCatch(JFXCatch tree) {
+                needed |= needsToBeInflatedToClass(tree.getBlock()) && referencesMutatedLocal(tree);
+                super.visitCatch(tree);
             }
 
             @Override

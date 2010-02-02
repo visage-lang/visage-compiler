@@ -153,6 +153,10 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     public boolean isMixinClass() {
         return (sym.flags_field & JavafxFlags.MIXIN) != 0;
     }
+    
+    public boolean isBoundFuncClass() {
+        return (sym.flags_field & JavafxFlags.FX_BOUND_FUNCTION_CLASS) != 0L;
+    }
 
     @Override
     public JavafxTag getFXTag() {

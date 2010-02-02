@@ -119,14 +119,14 @@ public interface FXObject {
     // dependents management
     public DependentsManager getDependentsManager$internal$();
     public void     setDependentsManager$internal$(final DependentsManager depMgr);
-    public void     addDependent$        (final int varNum, FXObject dep);
+    public void     addDependent$        (final int varNum, FXObject dep, final int depNum);
     public void     removeDependent$     (final int varNum, FXObject dep);
     // Earlier 'this' object was dependent on { oldBindee, varNum }.
     // Now, change the dependence to { newBindee, varNum }
-    public void     switchDependence$    (FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum);
+    public void     switchDependence$    (FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum, final int depNum);
     public void     notifyDependents$    (final int varNum, final int phase);
     public void     notifyDependents$    (int varNum, int startPos, int endPos, int newLength, int phase);
-    public void     update$ (FXObject src, int varNum, int startPos, int endPos, int newLength, int phase);
+    public boolean  update$ (FXObject src, int depNum, int startPos, int endPos, int newLength, int phase);
 // for testing - the listener count is the number of distinct {varNum, dep} pairs
     public int      getListenerCount$();
 

@@ -920,7 +920,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     CallStmt(defs.FXBase_addDependent,
                                         selector(),
                                         Offset(selector(), refSym),
-                                        getReceiverOrThis(selectorSym)
+                                        getReceiverOrThis(selectorSym),
+                                        DepNum(getReceiver(selectorSym), selectorSym, refSym)
                                     )
                                 ),
                                 CallSeqTrigger(targetSymbol,
