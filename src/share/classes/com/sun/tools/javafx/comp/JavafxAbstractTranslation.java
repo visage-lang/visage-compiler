@@ -1915,10 +1915,12 @@ public abstract class JavafxAbstractTranslation
                     if (selectorSym.isSpecial()) {
                         addInterClassBindee(selectorSym, refSym);
                     } else if (canChange()) {
-                        // cases that need a null check are the same as cases that have changing dependencies
-                        buildDependencies(selectorSym);
-                        addBindee(selectorSym);
-                        addInterClassBindee(selectorSym, refSym);
+                        if (tree.sym instanceof JavafxVarSymbol) {
+                            // cases that need a null check are the same as cases that have changing dependencies
+                            buildDependencies(selectorSym);
+                            addBindee(selectorSym);
+                            addInterClassBindee(selectorSym, refSym);
+                        }
                     }
                 }
             }
