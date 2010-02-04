@@ -117,8 +117,10 @@ public interface FXObject {
     public void restrictSet$(final int varNum);
 
     // dependents management
-    public DependentsManager getDependentsManager$internal$();
-    public void     setDependentsManager$internal$(final DependentsManager depMgr);
+    public WeakBinderRef getThisRef$internal$();
+    public DepChain getDepChain$internal$();
+    public void setDepChain$internal$(DepChain depChain);
+    
     public void     addDependent$        (final int varNum, FXObject dep, final int depNum);
     public void     removeDependent$     (final int varNum, FXObject dep);
     // Earlier 'this' object was dependent on { oldBindee, varNum }.

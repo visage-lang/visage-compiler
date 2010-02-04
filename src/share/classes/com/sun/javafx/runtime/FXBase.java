@@ -152,60 +152,67 @@ import com.sun.javafx.runtime.sequence.Sequences;
     }
 
     // dependents management
-    public DependentsManager DependentsManager$internal$;
-    public DependentsManager getDependentsManager$internal$() {
-        return DependentsManager$internal$;
+    public WeakBinderRef ThisRef$internal$;
+    public DepChain DepChain$internal$;
+
+    public WeakBinderRef getThisRef$internal$() {
+       if (ThisRef$internal$ == null) {
+           ThisRef$internal$ = new WeakBinderRef(this);
+       }
+       return ThisRef$internal$;
     }
-    public void setDependentsManager$internal$(final DependentsManager depMgr) {
-        DependentsManager$internal$ = depMgr;
+
+    public DepChain getDepChain$internal$() {
+        return DepChain$internal$;
     }
+
+    public void setDepChain$internal$(DepChain depChain) {
+        this.DepChain$internal$ = depChain;
+    }
+
     public void addDependent$(final int varNum, FXObject dep, final int depNum) {
         addDependent$(this, varNum, dep, depNum);
     }
     public static void addDependent$(FXObject obj, final int varNum, FXObject dep, final int depNum) {
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-        DependentsManager.get(obj).addDependent(obj, varNum, dep, depNum);
+        DependentsManager.addDependent(obj, varNum, dep, depNum);
     }
     public void removeDependent$(final int varNum, FXObject dep) {
         removeDependent$(this, varNum, dep);
     }
     public static void removeDependent$(FXObject obj, final int varNum, FXObject dep) {
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-        DependentsManager.get(obj).removeDependent(obj, varNum, dep);
+        DependentsManager.removeDependent(obj, varNum, dep);
     }
     public void switchDependence$(FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum, final int depNum) {
         switchDependence$(this, oldBindee, oldNum, newBindee, newNum, depNum);
     }
     public static void switchDependence$(FXObject obj, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum, final int depNum) {
         if (oldBindee != newBindee) {
-            DependentsManager.get(obj).switchDependence(obj, oldBindee, oldNum, newBindee, newNum, depNum);
+            DependentsManager.switchDependence(obj, oldBindee, oldNum, newBindee, newNum, depNum);
         }
     }
     public void notifyDependents$(final int varNum, final int phase) {
         notifyDependents$(this, varNum, phase);
     }
     public static void notifyDependents$(FXObject obj, final int varNum, final int phase) {
-        if (obj.getDependentsManager$internal$() != null) {
-            assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-            DependentsManager.get(obj).notifyDependents(obj, varNum, 0, Sequences.UNDEFINED_MARKER_INT, Sequences.UNDEFINED_MARKER_INT, phase);
-        }
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        DependentsManager.notifyDependents(obj, varNum, 0, Sequences.UNDEFINED_MARKER_INT, Sequences.UNDEFINED_MARKER_INT, phase);
     }
     public void notifyDependents$(int varNum, int startPos, int endPos, int newLength, int phase) {
         notifyDependents$(this, varNum, startPos, endPos, newLength, phase);
     }
     public static void notifyDependents$(FXObject obj, final int varNum, int startPos, int endPos, int newLength, final int phase) {
-        if (obj.getDependentsManager$internal$() != null) {
-            assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-            DependentsManager.get(obj).notifyDependents(obj, varNum, startPos, endPos, newLength, phase);
-        }
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        DependentsManager.notifyDependents(obj, varNum, startPos, endPos, newLength, phase);
     }
     public boolean update$(FXObject src, final int depNum, int startPos, int endPos, int newLength, final int phase) { return false; }
     public static boolean update$(FXObject obj, FXObject src, final int depNum, int startPos, int endPos, int newLength, final int phase) { return false; }
     public int getListenerCount$() {
-        return DependentsManager.get(this).getListenerCount(this);
+        return DependentsManager.getListenerCount(this);
     }
     public static int getListenerCount$(FXObject src) {
-        return DependentsManager.get(src).getListenerCount(src);
+        return DependentsManager.getListenerCount(src);
     }
 
     public Object get$(int varNum) {

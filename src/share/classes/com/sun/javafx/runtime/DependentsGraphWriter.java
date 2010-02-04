@@ -205,7 +205,7 @@ public final class DependentsGraphWriter {
             return;
         }
         allObjects.put(bindee, bindee);
-        List<FXObject> dependents = DependentsManager.get(bindee).getDependents(bindee);
+        List<FXObject> dependents = DependentsManager.getDependents(bindee);
         for (FXObject binder : dependents) {
             // write dependence b/w binder and bindee
             writeDependency(binder, bindee);

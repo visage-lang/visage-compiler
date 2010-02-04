@@ -432,7 +432,8 @@ public class FXLocal {
             "getAsInt$",
             "getAsLong$",
             "getAsShort$",
-            "getDependentsManager$internal$",
+            "getDepChain$internal$",
+            "getThisRef$internal$",
             "getListenerCount$",
             "getType$",
             "initialize$",
@@ -445,7 +446,7 @@ public class FXLocal {
             "printBitsAction$",
             "removeDependent$",
             "restrictSet$",
-            "setDependentsManager$internal$",
+            "setDepChain$internal$",
             "switchDependence$",
             "userInit$",
             "getFlags$",
@@ -956,9 +957,8 @@ public class FXLocal {
 		throw new IllegalArgumentException("not an instance of " + this.owner);
 	    // check if instance acually has a variable represented by this
 	    FXObject src = (FXObject)((Value)instance).asObject();
-	    DependentsManager deps = DependentsManager.get(src);
 	    ListenerAdapter adapter = new ListenerAdapter(listener);
-	    deps.addDependent(src, this.offset, adapter, 0);
+	    src.addDependent$(this.offset, adapter, 0);
             return adapter;
         }
         
@@ -966,8 +966,7 @@ public class FXLocal {
 	    if (!this.owner.isAssignableFrom(instance.getType()))
 		throw new IllegalArgumentException("not an instance of " + this.owner);
 	    FXObject src = (FXObject)((Value)instance).asObject();
-	    DependentsManager deps = DependentsManager.get(src);
-	    deps.removeDependent(src, this.offset, (ListenerAdapter)id);
+	    src.removeDependent$(this.offset, (ListenerAdapter)id);
         }
 
     }
