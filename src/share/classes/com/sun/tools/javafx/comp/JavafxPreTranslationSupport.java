@@ -177,7 +177,6 @@ public class JavafxPreTranslationSupport {
         }
 
         ct.supertype_field = syms.javafx_FXBaseType;
-        classSym.addSuperType(syms.javafx_FXBaseType);
 
         return classSym;
     }

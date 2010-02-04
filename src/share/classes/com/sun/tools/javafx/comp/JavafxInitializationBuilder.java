@@ -187,7 +187,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
            ListBuffer<JCStatement> translatedInitBlocks, ListBuffer<JCStatement> translatedPostInitBlocks) {
 
         DiagnosticPosition diagPos = cDecl.pos();
-        Type superType = types.superType(cDecl);
+        Type superType = types.supertype(cDecl.type);
         ClassSymbol outerTypeSym = outerTypeSymbol(cDecl.sym); // null unless inner class with outer reference
         boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
 

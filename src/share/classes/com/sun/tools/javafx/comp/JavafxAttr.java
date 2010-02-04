@@ -3899,7 +3899,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
         }
 
-        for (Type t : types.supertypes(origin)) {
+        for (Type t : types.supertypesClosure(origin.type)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;
                 Scope.Entry e = c.members().lookup(m.name);

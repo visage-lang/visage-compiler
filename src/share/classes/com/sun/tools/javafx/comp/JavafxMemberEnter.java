@@ -172,8 +172,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 if (tsym instanceof ClassSymbol) {
                     // also import inherited names
                     if (tsym instanceof JavafxClassSymbol) {
-                        JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
-                        for (Type superType : jfxTsym.getSuperTypes()) {
+                        for (Type superType : types.supertypes(tsym.type)) {
                             importFrom(superType.tsym);
                         }
                     } else {
@@ -212,8 +211,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 if (tsym instanceof ClassSymbol) {
                     // also import inherited names
                     if (tsym instanceof JavafxClassSymbol) {
-                        JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
-                        for (Type superType : jfxTsym.getSuperTypes()) {
+                        for (Type superType : types.supertypes(tsym.type)) {
                             importFrom(superType.tsym);
                         }
                     } else {
@@ -288,8 +286,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
                 // also import inherited names
                 if (tsym instanceof JavafxClassSymbol) {
-                    JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
-                    for (Type superType : jfxTsym.getSuperTypes()) {
+                    for (Type superType : types.supertypes(tsym.type)) {
                         importFrom(superType.tsym);
                     }
                 } else {
@@ -327,8 +324,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
                 // also import inherited names
                 if (tsym instanceof JavafxClassSymbol) {
-                    JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
-                    for (Type superType : jfxTsym.getSuperTypes()) {
+                    for (Type superType : types.supertypes(tsym.type)) {
                         importFrom(superType.tsym);
                     }
                 } else {
@@ -805,11 +801,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 }
             }
             ct.supertype_field = supertype;
-            if (sym != null && sym instanceof JavafxClassSymbol) {
-                if (supertype != null && supertype != Type.noType) {
-                    ((JavafxClassSymbol)sym).addSuperType(supertype);
-                }
-            }
 
             // Determine interfaces.
             List<JFXExpression> interfaceTrees = tree.getImplementing();
@@ -834,16 +825,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 ct.interfaces_field = List.of(syms.annotationType);
             } else {
                 ct.interfaces_field = interfaces.toList();
-                for (Type intf : interfaces.toList()) {
-                    if (sym != null && sym instanceof JavafxClassSymbol) {
-                        if (intf != null && intf != Type.noType) {
-                            ((JavafxClassSymbol)sym).addSuperType(intf);
-                        }
-                    }
-                }
             }
-
-                ct.interfaces_field = interfaces.toList();
 
             if (c.fullname == names.java_lang_Object) {
                 if (tree.getExtending().head != null) {

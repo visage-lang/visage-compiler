@@ -456,7 +456,7 @@ public class JavafxCheck {
        }
 
         // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
-        for (Type baseType : types.supertypes(found.tsym, found)) {
+        for (Type baseType : types.supertypesClosure(found, true)) {
             if (types.isAssignable(baseType, req, convertWarner(pos, found, req)))
                 return realFound;
         }
@@ -809,7 +809,7 @@ public class JavafxCheck {
             return;
 
         boolean isOk = false;
-        List<Type> supertypes = csym.getSuperTypes();
+        List<Type> supertypes = types.supertypes(csym.type);
         if (supertypes.isEmpty()) {
             isOk = types.isSameType(syms.objectType, t);
         }
@@ -1690,7 +1690,7 @@ public class JavafxCheck {
                 return;
             }
         }
-        for (Type t : types.supertypes(origin)) {
+        for (Type t : types.supertypesClosure(origin.type)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;
                 Scope.Entry e = c.members().lookup(m.name);
@@ -1742,7 +1742,7 @@ public class JavafxCheck {
         checkVarOverride(diagPos, vsym, (ClassSymbol)vsym.owner, true);
     }
     void checkVarOverride(DiagnosticPosition diagPos, JavafxVarSymbol vsym, ClassSymbol origin, boolean overrides) {
-        for (Type t : types.supertypes(origin)) {
+        for (Type t : types.supertypesClosure(origin.type)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;
 
