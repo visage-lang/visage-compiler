@@ -29,6 +29,14 @@ import com.sun.tools.mjavac.util.Log;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.util.MsgSym;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Collect and print statistics on optimization.
@@ -53,6 +61,8 @@ public class JavafxOptimizationStatistics {
     
     private int proxyMethodCount;
     private int concreteFieldCount;
+
+    private Map<Class, Integer> translatorMap;
     
     /**
      * Context set-up
@@ -87,6 +97,13 @@ public class JavafxOptimizationStatistics {
         proxyMethodCount = 0;
         concreteFieldCount = 0;
 
+        translatorMap = new HashMap<Class, Integer>();
+    }
+
+    public void recordTranslator(Class translator) {
+        Integer mCnt = translatorMap.get(translator);
+        int cnt = mCnt==null? 0 : mCnt;
+        translatorMap.put(translator, cnt+1);
     }
 
     public void recordClassVar(JavafxVarSymbol vsym) {
@@ -191,7 +208,34 @@ public class JavafxOptimizationStatistics {
     private void printConcreteFieldData() {
         show("Concrete field count", concreteFieldCount);
     }
-    
+
+    private void printTranslators() {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        List<Map.Entry<Class, Integer>> me = new ArrayList(translatorMap.entrySet());
+        Collections.<Map.Entry<Class, Integer>>sort(me, new Comparator() {
+
+            public int compare(Object o1, Object o2) {
+                Map.Entry<Class, Integer> e1 = (Map.Entry<Class, Integer>)o1;
+                Map.Entry<Class, Integer> e2 = (Map.Entry<Class, Integer>)o2;
+                int v1 = (int)e1.getValue();
+                int v2 = (int)e2.getValue();
+                if (v1==v2) {
+                    return e1.getKey().getName().compareTo(e2.getKey().getName());
+                } else {
+                    return v2-v1;
+                }
+            }
+        });
+        for (Map.Entry<Class, Integer> pair : me) {
+            Class k = pair.getKey();
+            String name = k.getSimpleName().length()==0? k.getName() : k.getSimpleName();
+            printWriter.printf("\n%5d  %s", (int) pair.getValue(), name);
+        }
+        printWriter.close();
+        log.note(MsgSym.MESSAGE_JAVAFX_OPTIMIZATION_STATISTIC, "Translators", stringWriter.toString());
+    }
+
     public void printData(String which) {
         if (which.contains("i")) {
             printInstanceVariableData();
@@ -207,6 +251,9 @@ public class JavafxOptimizationStatistics {
         }
         if (which.contains("f")) {
             printConcreteFieldData();
+        }
+        if (which.contains("t")) {
+            printTranslators();
         }
     }
  }

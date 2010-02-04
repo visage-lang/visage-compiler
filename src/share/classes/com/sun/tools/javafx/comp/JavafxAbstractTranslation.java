@@ -234,7 +234,8 @@ public abstract class JavafxAbstractTranslation
      */
     protected JCExpression convertNullability(final DiagnosticPosition diagPos, final JCExpression expr,
             final JFXExpression inExpr, final Type outType) {
-        return (new Translator(diagPos) {
+        class ConvertNullabilityTranslator extends Translator {
+            ConvertNullabilityTranslator(DiagnosticPosition diagPos) { super(diagPos); }
 
             Result doit() {
                 throw new IllegalArgumentException();
@@ -262,7 +263,8 @@ public abstract class JavafxAbstractTranslation
                 }
                 return expr;
             }
-        }).doitExpr();
+        }
+        return new ConvertNullabilityTranslator(diagPos).doitExpr();
     }
 
     /********** Result types **********/
@@ -761,6 +763,7 @@ public abstract class JavafxAbstractTranslation
 
         Translator(DiagnosticPosition diagPos) {
             super(diagPos, currentClass(), receiverContext() == ReceiverContext.ScriptAsStatic);
+            optStat.recordTranslator(this.getClass());
         }
 
         abstract Result doit();
