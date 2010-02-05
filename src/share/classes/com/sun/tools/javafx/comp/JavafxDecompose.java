@@ -79,6 +79,7 @@ public class JavafxDecompose implements JavafxVisitor {
     protected final JavafxSymtab syms;
     protected final JavafxTypes types;
     protected final ClassReader reader;
+    protected final JavafxOptimizationStatistics optStat;
 
     public static JavafxDecompose instance(Context context) {
         JavafxDecompose instance = context.get(decomposeKey);
@@ -98,6 +99,7 @@ public class JavafxDecompose implements JavafxVisitor {
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
         reader = ClassReader.instance(context);
+        optStat = JavafxOptimizationStatistics.instance(context);
     }
 
     /**
@@ -120,7 +122,10 @@ public class JavafxDecompose implements JavafxVisitor {
     private <T extends JFXTree> T decompose(T tree) {
         if (tree == null)
             return null;
+        boolean ib = bindStatus != JavafxBindStatus.UNBOUND;
+        if (ib) optStat.recordDecomposeEnter(tree.getClass());
         tree.accept(this);
+        if (ib) optStat.recordDecomposeExit();
         result.type = tree.type;
         return (T)result;
     }
@@ -172,6 +177,7 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     private JFXVar makeVar(DiagnosticPosition diagPos, Name vName, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
+        optStat.recordSynthVar();
         long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
         JavafxVarSymbol sym = new JavafxVarSymbol(types, names, flags, vName, types.normalize(type), varOwner);
         varOwner.members().enter(sym);
@@ -189,6 +195,7 @@ public class JavafxDecompose implements JavafxVisitor {
     }
     
     private JFXVar shredVar(String label, JFXExpression pose, Type type, JavafxBindStatus bindStatus) {
+        optStat.recordShreds();
         Name tmpName = tempName(label);
         // If this shred var initialized with a call to a bound function?
         JFXVar ptrVar = makeTempBoundResultName(tmpName, pose);

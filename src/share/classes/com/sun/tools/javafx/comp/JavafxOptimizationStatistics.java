@@ -37,6 +37,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Collect and print statistics on optimization.
@@ -62,6 +63,36 @@ public class JavafxOptimizationStatistics {
     private int proxyMethodCount;
     private int concreteFieldCount;
 
+    private class DecomposeData implements Comparable {
+        String name;
+        int count;
+        int synthVars;
+        int shreds;
+        DecomposeData(Class tree) {
+            this.name = tree.getSimpleName();
+        }
+
+        DecomposeData(String name) {
+            this.name = name;
+        }
+
+        String name() {
+            return name;
+        }
+
+        public int compareTo(Object o) {
+            DecomposeData dd = (DecomposeData) o;
+            if (synthVars != dd.synthVars) {
+                return dd.synthVars - synthVars;
+            } else {
+                return name().compareTo(dd.name());
+            }
+        }
+    }
+    private Stack<DecomposeData> decomposeStack;
+    private DecomposeData unbound;
+
+    private Map<Class, DecomposeData> decomposeMap;
     private Map<Class, Integer> translatorMap;
     
     /**
@@ -97,7 +128,34 @@ public class JavafxOptimizationStatistics {
         proxyMethodCount = 0;
         concreteFieldCount = 0;
 
+        decomposeStack = new Stack<DecomposeData>();
+        unbound = new DecomposeData("<unbound>");
+        unbound.count = 1;
+        decomposeStack.push(unbound);
+        decomposeMap = new HashMap<Class, DecomposeData>();
         translatorMap = new HashMap<Class, Integer>();
+    }
+
+    public void recordDecomposeEnter(Class treeClass) {
+        DecomposeData dd = decomposeMap.get(treeClass);
+        if (dd == null) {
+            dd = new DecomposeData(treeClass);
+            decomposeMap.put(treeClass, dd);
+        }
+        decomposeStack.push(dd);
+        dd.count++;
+    }
+
+    public void recordDecomposeExit() {
+        decomposeStack.pop();
+    }
+
+    public void recordSynthVar() {
+        decomposeStack.peek().synthVars++;
+    }
+
+    public void recordShreds() {
+        decomposeStack.peek().shreds++;
     }
 
     public void recordTranslator(Class translator) {
@@ -236,6 +294,22 @@ public class JavafxOptimizationStatistics {
         log.note(MsgSym.MESSAGE_JAVAFX_OPTIMIZATION_STATISTIC, "Translators", stringWriter.toString());
     }
 
+    private void printDecompose() {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        List<DecomposeData> ldd = new ArrayList(decomposeMap.values());
+        ldd.add(unbound);
+        Collections.<DecomposeData>sort(ldd);
+        printWriter.println("\n\nSynth  Shred  Count  Synth  Shred  Tree");
+        printWriter.println(    "  All    All           Per    Per    ");
+        for (DecomposeData dd : ldd) {
+            printWriter.printf("\n%5d  %5d  %5d  %5.1f  %5.1f  %s",
+                    dd.synthVars, dd.shreds, dd.count, ((double)dd.synthVars)/dd.count, ((double)dd.shreds)/dd.count, dd.name());
+        }
+        printWriter.close();
+        log.note(MsgSym.MESSAGE_JAVAFX_OPTIMIZATION_STATISTIC, "Decompose", stringWriter.toString());
+    }
+
     public void printData(String which) {
         if (which.contains("i")) {
             printInstanceVariableData();
@@ -254,6 +328,9 @@ public class JavafxOptimizationStatistics {
         }
         if (which.contains("t")) {
             printTranslators();
+        }
+        if (which.contains("d")) {
+            printDecompose();
         }
     }
  }
