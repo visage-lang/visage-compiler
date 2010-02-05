@@ -1158,6 +1158,50 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             }
         }
 
+        private JCExpression GetSize() {
+            if (sizeSym == null) {
+                return Int(length);
+            } else {
+                return Get(sizeSym);
+            }
+        }
+
+        private JCStatement SetSizeStmt(JCExpression value) {
+            if (sizeSym == null) {
+                return null;
+            } else {
+                return SetStmt(sizeSym, value);
+            }
+        }
+
+        private JCExpression GetChangeStart() {
+            if (changeStartSym == null) {
+                return Get(lowestSym);
+            } else {
+                return Get(changeStartSym);
+            }
+        }
+
+        private JCStatement SetChangeStartStmt(JCExpression value) {
+            if (changeStartSym == null) {
+                return null;
+            } else {
+                return SetStmt(changeStartSym, value);
+            }
+        }
+
+        private JCStatement SetChangeEndStmt(JCExpression value) {
+            if (changeEndSym == null) {
+                return null;
+            } else {
+                return SetStmt(changeEndSym, value);
+            }
+        }
+
+        private boolean isNullable() {
+            return newLengthSym != null;
+        }
+
         JCStatement makeSizeBody() {
             JCVariableDecl vSize = TmpVar("size", syms.intType, CummulativeCachedSize(length));
 
@@ -1168,15 +1212,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             UpdateAll(),
                             vSize,
                             setSequenceActive(),
-                            SetStmt(sizeSym, id(vSize)),
+                            SetSizeStmt(id(vSize)),
                             CallSeqInvalidateUndefined(targetSymbol),
                             CallSeqTriggerInitial(targetSymbol, id(vSize)),
                             Return(id(vSize))
                         )
                     ),
                     DEBUG? Debug("size pending=", Get(pendingSym)) : null,
-                    DEBUG? Debug("   size=", Get(sizeSym)) : null,
-                    Return(Get(sizeSym))
+                    DEBUG? Debug("   size=", GetSize()) : null,
+                    Return(GetSize())
                 );
         }
 
@@ -1209,7 +1253,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             stmts.appendList(Stmts(
                     DEBUG? Debug("GetElement pending=", Get(pendingSym)) : null,
-                    DEBUG? Debug("   size=", Get(sizeSym)) : null,
+                    DEBUG? Debug("   size=", GetSize()) : null,
                     If(LT(posArg(), Int(0)),
                         Return(DefaultValue(elemType))
                     ),
@@ -1244,9 +1288,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             SetStmt(highestSym, Int(index)),
                             SetStmt(lowestSym, Int(index)),
                             SetStmt(pendingSym, Int(1)),
-                            SetStmt(newLengthSym, Int(0)),
-                            SetStmt(changeStartSym, CummulativeCachedSize(index)),
-                            SetStmt(changeEndSym, PLUS(Get(changeStartSym), CachedLength(index))),
+                            SetChangeStartStmt(CummulativeCachedSize(index)),
+                            SetChangeEndStmt(PLUS(GetChangeStart(), CachedLength(index))),
                             CallSeqInvalidateUndefined(targetSymbol)
                         ),
                     /*Else (already have invalid parts)*/
@@ -1255,13 +1298,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             SetStmt(pendingSym, PLUS(Get(pendingSym), Int(1))),
                             If (LT(Int(index), Get(lowestSym)),
                                 Block(
-                                    SetStmt(changeStartSym, CummulativeCachedSize(index)),
+                                    SetChangeStartStmt(CummulativeCachedSize(index)),
                                     SetStmt(lowestSym, Int(index))
                                 )
                             ),
                             If (GT(Int(index), Get(highestSym)),
                                 Block(
-                                    SetStmt(changeEndSym, CummulativeCachedSize(index+1)),
+                                    SetChangeEndStmt(CummulativeCachedSize(index+1)),
                                     SetStmt(highestSym, Int(index))
                                 )
                             )
@@ -1271,16 +1314,29 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCStatement makeItemTriggerPhase(int index, boolean isSequence) {
+            JCVariableDecl vEnd = TmpVar("hi", syms.intType, PLUS(Get(highestSym), Int(1)));
+
             JCStatement triggerChanged =
-                Block(
-                    SetStmt(highestSym, Undefined()),
-                    DEBUG? Debug("bulk #"+index+" changeStart=", Get(changeStartSym)) : null,
-                    CallSeqTrigger(targetSymbol,
-                        Get(changeStartSym),
-                        Get(changeEndSym),
-                        MINUS(Get(newLengthSym), Get(changeStartSym))
-                    )
-                );
+                    isNullable()?
+                        Block(
+                            SetStmt(highestSym, Undefined()),
+                            DEBUG? Debug("bulk #"+index+" changeStart=", GetChangeStart()) : null,
+                            CallSeqTrigger(targetSymbol,
+                                GetChangeStart(),
+                                Get(changeEndSym),
+                                MINUS(Get(newLengthSym), GetChangeStart())
+                            )
+                        ) :
+                        Block(
+                            vEnd,
+                            SetStmt(highestSym, Undefined()),
+                            DEBUG? Debug("bulk #"+index+" changeStart=", Get(lowestSym)) : null,
+                            CallSeqTrigger(targetSymbol,
+                                Get(lowestSym),
+                                id(vEnd),
+                                MINUS(id(vEnd), Get(lowestSym))
+                            )
+                        );
             JCStatement fire;
             if (isSequence) {
                 fire =
@@ -1299,13 +1355,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         ),
                                     /*else (real trigger)*/
                                         Block(
-                                            DEBUG? Debug("one #"+index+" changeStart=", Get(changeStartSym)) : null,
+                                            DEBUG? Debug("one #"+index+" changeStart=", GetChangeStart()) : null,
                                             DEBUG? Debug("   endPos=", endPosArg()) : null,
                                             CallSeqTrigger(targetSymbol,
-                                                PLUS(Get(changeStartSym), startPosArg()),
+                                                PLUS(GetChangeStart(), startPosArg()),
                                                 If (EQ(endPosArg(), Undefined()),
                                                     Undefined(),
-                                                    PLUS(Get(changeStartSym), endPosArg())
+                                                    PLUS(GetChangeStart(), endPosArg())
                                                 ),
                                                 newLengthArg()
                                             )
@@ -1332,10 +1388,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     Update(index),
                     SetStmt(ignoreInvalidationsSym, False()),
                     vNewLength,
-                    SetStmt(sizeSym, PLUS(Get(sizeSym), MINUS(id(vNewLength), id(vOldLength)))),
-                    If (EQ(Get(highestSym), Int(index)),
-                        SetStmt(newLengthSym, CummulativeCachedSize(index+1))
-                    ),
+                    SetSizeStmt(PLUS(GetSize(), MINUS(id(vNewLength), id(vOldLength)))),
+                    isNullable()?
+                        If (EQ(Get(highestSym), Int(index)),
+                            SetStmt(newLengthSym, CummulativeCachedSize(index+1))
+                        ) :
+                        null,
                     DEBUG? Debug("trig #"+index+"  pending = ", Get(pendingSym)) : null,
                     If (EQ(Get(pendingSym), Int(0)),
                         fire

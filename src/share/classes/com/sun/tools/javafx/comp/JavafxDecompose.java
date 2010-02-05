@@ -935,6 +935,7 @@ public class JavafxDecompose implements JavafxVisitor {
         if (bindStatus.isBound()) {
             // bound should not use items - non-null for pretty-printing
             res = fxmake.at(diagPos).ExplicitSequence(List.<JFXExpression>nil());
+            boolean hasNullable = false;
             int n = 0;
             ListBuffer<JavafxVarSymbol> vb = ListBuffer.lb();
             ListBuffer<JavafxVarSymbol> vblen = ListBuffer.lb();
@@ -943,6 +944,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 JavafxVarSymbol lenSym = null;
                 if (preTrans.isNullable(item)) {
                     lenSym = makeIntVar(item.pos(), "len"+n, 0).sym;
+                    hasNullable = true;
                 }
                 vblen.append(lenSym);
                 ++n;
@@ -951,13 +953,15 @@ public class JavafxDecompose implements JavafxVisitor {
             res.boundItemLengthSyms = vblen.toList();
 
             // now add a synth vars
-            res.boundSizeSym = makeSizeVar(diagPos, JavafxDefs.UNDEFINED_MARKER_INT).sym;
             res.boundLowestInvalidPartSym = makeIntVar(diagPos, "low", JavafxDefs.UNDEFINED_MARKER_INT).sym;
             res.boundHighestInvalidPartSym = makeIntVar(diagPos, "high", JavafxDefs.UNDEFINED_MARKER_INT).sym;
             res.boundPendingTriggersSym = makeIntVar(diagPos, "pending", 0).sym;
-            res.boundNewLengthSym = makeIntVar(diagPos, "newLen", 0).sym;
-            res.boundChangeStartPosSym = makeIntVar(diagPos, "cngStart", 0).sym;
-            res.boundChangeEndPosSym = makeIntVar(diagPos, "cngEnd", 0).sym;
+            if (hasNullable) {
+                res.boundSizeSym = makeSizeVar(diagPos, JavafxDefs.UNDEFINED_MARKER_INT).sym;
+                res.boundNewLengthSym = makeIntVar(diagPos, "newLen", 0).sym;
+                res.boundChangeStartPosSym = makeIntVar(diagPos, "cngStart", 0).sym;
+                res.boundChangeEndPosSym = makeIntVar(diagPos, "cngEnd", 0).sym;
+            }
             JFXExpression falseLit = fxmake.Literal(TypeTags.BOOLEAN, 0);
             falseLit.type = syms.booleanType;
             res.boundIgnoreInvalidationsSym = makeVar(diagPos, "ignore", falseLit, JavafxBindStatus.UNBOUND, syms.booleanType).sym;
