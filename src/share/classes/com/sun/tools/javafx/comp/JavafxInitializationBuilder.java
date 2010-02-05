@@ -200,7 +200,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<FuncInfo> classFuncInfos = analysis.classFuncInfos();
         List<FuncInfo> scriptFuncInfos = analysis.scriptFuncInfos();
         
-        boolean hasStatics = !scriptVarInfos.isEmpty() || !scriptFuncInfos.isEmpty();
+        boolean hasStatics = !scriptVarInfos.isEmpty();
         
         int classVarCount = analysis.getClassVarCount();
         int scriptVarCount = analysis.getScriptVarCount();
@@ -252,6 +252,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             if (isScriptClass) {
                 javaCodeMaker.makeInitClassMaps(initClassMap);
+                javaCodeMaker.gatherFunctions(scriptFuncInfos);
 
                 if  (hasStatics) {
                     ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
@@ -259,7 +260,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // script-level into class X
                     javaCodeMaker.makeAttributeFields(scriptVarInfos);
                     javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
-                    javaCodeMaker.gatherFunctions(scriptFuncInfos);
     
                     // script-level into class X.X$Script
                     javaCodeMaker.setContext(true, sDefinitions);
@@ -308,6 +308,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             if (isScriptClass) {
                 javaCodeMaker.makeInitClassMaps(initClassMap);
+                javaCodeMaker.gatherFunctions(scriptFuncInfos);
 
                 if  (hasStatics) {
                     ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
@@ -317,7 +318,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.setContext(true, cDefinitions);
                     javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
                     javaCodeMaker.setContext(false, cDefinitions);
-                    javaCodeMaker.gatherFunctions(scriptFuncInfos);
     
                     // script-level into class X.X$Script
                     javaCodeMaker.setContext(true, sDefinitions);
