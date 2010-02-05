@@ -1,0 +1,97 @@
+test/should-fail/jfxc4072.fx:8: warning: Forward reference: variable b might not have been initialized.
+   var a:Integer = b; //warn
+                   ^
+test/should-fail/jfxc4072.fx:9: warning: Forward reference: variable c might not have been initialized.
+   var b:Integer = this.c; //warn
+                       ^
+test/should-fail/jfxc4072.fx:10: warning: Forward reference: variable d might not have been initialized.
+   var c:Integer = A.d; //warn
+                    ^
+test/should-fail/jfxc4072.fx:11: warning: Forward reference: variable e might not have been initialized.
+   var d:Integer = jfxc4072.A.e; //warn
+                             ^
+test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable i might not have been initialized.
+   var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
+                     ^
+test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable i might not have been initialized.
+   var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
+                            ^
+test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable i might not have been initialized.
+   var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
+                                 ^
+test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable i might not have been initialized.
+   var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
+                                               ^
+test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable h might not have been initialized.
+   var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
+                                                   ^
+test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable h might not have been initialized.
+   var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
+                                                          ^
+test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable h might not have been initialized.
+   var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
+                                                               ^
+test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable h might not have been initialized.
+   var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
+                                                                             ^
+test/should-fail/jfxc4072.fx:18: warning: Forward reference: variable m might not have been initialized.
+   var m:Integer = m; //warn
+                   ^
+test/should-fail/jfxc4072.fx:19: warning: Forward reference: variable n might not have been initialized.
+   var n:Integer = this.n; //warn
+                       ^
+test/should-fail/jfxc4072.fx:20: warning: Forward reference: variable o might not have been initialized.
+   var o:Integer = A.o; //warn
+                    ^
+test/should-fail/jfxc4072.fx:21: warning: Forward reference: variable p might not have been initialized.
+   var p:Integer = jfxc4072.A.p; //warn
+                             ^
+test/should-fail/jfxc4072.fx:24: warning: Forward reference: variable b1 might not have been initialized.
+      var a1:Integer = b1; //warn
+                       ^
+test/should-fail/jfxc4072.fx:28: warning: Forward reference: variable f1 might not have been initialized.
+      var e1:Integer = { f1; e1; 1 } //warn
+                         ^
+test/should-fail/jfxc4072.fx:28: warning: Forward reference: variable e1 might not have been initialized.
+      var e1:Integer = { f1; e1; 1 } //warn
+                             ^
+test/should-fail/jfxc4072.fx:31: warning: Forward reference: variable h1 might not have been initialized.
+      var h1:Integer = h1; //warn
+                       ^
+test/should-fail/jfxc4072.fx:35: warning: Forward reference: variable b might not have been initialized.
+var a:Integer = b; //warn
+                ^
+test/should-fail/jfxc4072.fx:36: warning: Forward reference: variable c might not have been initialized.
+var b:Integer = jfxc4072.c; //warn
+                        ^
+test/should-fail/jfxc4072.fx:40: warning: Forward reference: variable g might not have been initialized.
+var f:Integer = { g; jfxc4072.g; f; jfxc4072.f; 1}; //warn
+                  ^
+test/should-fail/jfxc4072.fx:40: warning: Forward reference: variable g might not have been initialized.
+var f:Integer = { g; jfxc4072.g; f; jfxc4072.f; 1}; //warn
+                             ^
+test/should-fail/jfxc4072.fx:40: warning: Forward reference: variable f might not have been initialized.
+var f:Integer = { g; jfxc4072.g; f; jfxc4072.f; 1}; //warn
+                                 ^
+test/should-fail/jfxc4072.fx:40: warning: Forward reference: variable f might not have been initialized.
+var f:Integer = { g; jfxc4072.g; f; jfxc4072.f; 1}; //warn
+                                            ^
+test/should-fail/jfxc4072.fx:43: warning: Forward reference: variable i might not have been initialized.
+var i:Integer = i; //warn
+                ^
+test/should-fail/jfxc4072.fx:44: warning: Forward reference: variable j might not have been initialized.
+var j:Integer = jfxc4072.j; //warn
+                        ^
+test/should-fail/jfxc4072.fx:47: warning: Forward reference: variable b1 might not have been initialized.
+   var a1:Integer = b1; //warn
+                    ^
+test/should-fail/jfxc4072.fx:51: warning: Forward reference: variable f1 might not have been initialized.
+   var e1:Integer = { f1; e1 } //warn
+                      ^
+test/should-fail/jfxc4072.fx:51: warning: Forward reference: variable e1 might not have been initialized.
+   var e1:Integer = { f1; e1 } //warn
+                          ^
+test/should-fail/jfxc4072.fx:54: warning: Forward reference: variable h1 might not have been initialized.
+   var h1:Integer = h1; //warn
+                    ^
+32 warnings
