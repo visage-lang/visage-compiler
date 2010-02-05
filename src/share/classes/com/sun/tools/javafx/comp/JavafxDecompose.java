@@ -952,15 +952,17 @@ public class JavafxDecompose implements JavafxVisitor {
             res.boundItemsSyms = vb.toList();
             res.boundItemLengthSyms = vblen.toList();
 
-            // now add a synth vars
-            res.boundLowestInvalidPartSym = makeIntVar(diagPos, "low", JavafxDefs.UNDEFINED_MARKER_INT).sym;
-            res.boundHighestInvalidPartSym = makeIntVar(diagPos, "high", JavafxDefs.UNDEFINED_MARKER_INT).sym;
-            res.boundPendingTriggersSym = makeIntVar(diagPos, "pending", 0).sym;
-            if (hasNullable) {
-                res.boundSizeSym = makeSizeVar(diagPos, JavafxDefs.UNDEFINED_MARKER_INT).sym;
-                res.boundNewLengthSym = makeIntVar(diagPos, "newLen", 0).sym;
-                res.boundChangeStartPosSym = makeIntVar(diagPos, "cngStart", 0).sym;
-                res.boundChangeEndPosSym = makeIntVar(diagPos, "cngEnd", 0).sym;
+            // now add synth vars
+            if (tree.getItems().length() > 1  || types.isArrayOrSequenceType(res.boundItemsSyms.get(0).type)) {
+                res.boundLowestInvalidPartSym = makeIntVar(diagPos, "low", JavafxDefs.UNDEFINED_MARKER_INT).sym;
+                res.boundHighestInvalidPartSym = makeIntVar(diagPos, "high", JavafxDefs.UNDEFINED_MARKER_INT).sym;
+                res.boundPendingTriggersSym = makeIntVar(diagPos, "pending", 0).sym;
+                if (hasNullable) {
+                    res.boundSizeSym = makeSizeVar(diagPos, JavafxDefs.UNDEFINED_MARKER_INT).sym;
+                    res.boundNewLengthSym = makeIntVar(diagPos, "newLen", 0).sym;
+                    res.boundChangeStartPosSym = makeIntVar(diagPos, "cngStart", 0).sym;
+                    res.boundChangeEndPosSym = makeIntVar(diagPos, "cngEnd", 0).sym;
+                }
             }
             JFXExpression falseLit = fxmake.Literal(TypeTags.BOOLEAN, 0);
             falseLit.type = syms.booleanType;

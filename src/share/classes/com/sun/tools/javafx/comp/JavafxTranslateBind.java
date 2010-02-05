@@ -1059,55 +1059,44 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      *
      *
      */
-    private class BoundExplicitSequenceTranslator extends BoundSequenceTranslator {
+    private abstract class AbstractBoundExplicitSequenceTranslator extends BoundSequenceTranslator {
         private final List<JavafxVarSymbol> itemSyms;
         private final List<JavafxVarSymbol> itemLengthSyms;
-        private final Type elemType;
-        private final int length;
-        private final JavafxVarSymbol sizeSym;
-        private final JavafxVarSymbol lowestSym;
-        private final JavafxVarSymbol highestSym;
-        private final JavafxVarSymbol pendingSym;
-        private final JavafxVarSymbol newLengthSym;
-        private final JavafxVarSymbol changeStartSym;
-        private final JavafxVarSymbol changeEndSym;
-        private final JavafxVarSymbol ignoreInvalidationsSym;
+        final JavafxVarSymbol ignoreInvalidationsSym;
+        final Type elemType;
+        final int length;
 
-        private boolean DEBUG = false;
+        boolean DEBUG = false;
 
-        BoundExplicitSequenceTranslator(JFXSequenceExplicit tree) {
+        AbstractBoundExplicitSequenceTranslator(JFXSequenceExplicit tree) {
             super(tree.pos());
             this.itemSyms = tree.boundItemsSyms;
             this.itemLengthSyms = tree.boundItemLengthSyms;
             this.length = itemSyms.length();
             this.elemType = types.elementType(tree.type);
-            this.sizeSym = tree.boundSizeSym;
-            this.lowestSym = tree.boundLowestInvalidPartSym;
-            this.highestSym = tree.boundHighestInvalidPartSym;
-            this.pendingSym = tree.boundPendingTriggersSym;
-            this.newLengthSym = tree.boundNewLengthSym;
-            this.changeStartSym = tree.boundChangeStartPosSym;
-            this.changeEndSym = tree.boundChangeEndPosSym;
             this.ignoreInvalidationsSym = tree.boundIgnoreInvalidationsSym;
         }
 
-        private boolean isSequence(int index) {
+        abstract JCStatement makeItemInvalidatePhase(int index);
+        abstract JCStatement makeItemTriggerPhase(int index, boolean isSequence);
+
+        boolean isSequence(int index) {
             return types.isSequence(type(index));
         }
 
-        private JavafxVarSymbol itemLengthSym(int index) {
+        JavafxVarSymbol itemLengthSym(int index) {
             return itemLengthSyms.get(index);
         }
 
-        private JavafxVarSymbol itemSym(int index) {
+        JavafxVarSymbol itemSym(int index) {
             return itemSyms.get(index);
         }
 
-        private Type type(int index) {
+        Type type(int index) {
             return itemSym(index).type;
         }
 
-        private JCStatement Update(int index) {
+        JCStatement Update(int index) {
             if (itemLengthSym(index) == null) {
                 return Stmt(Getter(itemSym(index)));
             } else {
@@ -1119,15 +1108,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             }
         }
 
-        private JCStatement UpdateAll() {
+        JCStatement UpdateAll() {
             ListBuffer<JCStatement> upds = ListBuffer.lb();
             for (int i = 0; i < length; ++i) {
                 upds.append(Update(i));
             }
-            return Block(upds);
+            return 
+                    upds.length()==1?
+                        upds.first() :
+                        Block(upds);
         }
 
-        private JCExpression PassiveLength(int index) {
+        JCExpression PassiveLength(int index) {
             if (itemLengthSym(index) == null) {
                 return Int(1);
             } else {
@@ -1137,12 +1129,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             }
         }
 
-        private JCExpression CachedLength(int index) {
+        JCExpression CachedLength(int index) {
             JavafxVarSymbol lenSym = itemLengthSym(index);
             return lenSym==null? Int(1) : Get(lenSym);
         }
 
-        private JCExpression CummulativeCachedSize(int index) {
+        JCExpression CummulativeCachedSize(int index) {
             JCExpression sum = Int(0);
             for (int i = 0; i < index; ++i) {
                 sum = PLUS(sum, CachedLength(i));
@@ -1150,12 +1142,77 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return sum;
         }
 
-        private JCExpression GetElement(int index, JCExpression pos) {
+        JCExpression GetElement(int index, JCExpression pos) {
             if (isSequence(index)) {
                 return Call(attributeGetElementName(itemSym(index)), pos);
             } else {
                 return Get(itemSym(index));
             }
+        }
+
+        /**
+         * Invalidate addition for an element in the sequence
+         */
+        private JCStatement makeItemInvalidateInner(int index) {
+            return
+                    If (AND(isSequenceActive(), NOT(Get(ignoreInvalidationsSym))),
+                        Block(
+                            If (IsInvalidatePhase(),
+                                makeItemInvalidatePhase(index),
+                            /*Else (Trigger phase)*/
+                                makeItemTriggerPhase(index, isSequence(index))
+                            )
+                        ));
+        }
+
+        /**
+         * Invalidate addition for an element in the sequence
+         */
+        private JCStatement makeItemInvalidate(int index) {
+            if (isSequence(index)) {
+                return
+                    makeItemInvalidateInner(index);
+            } else {
+                return
+                    PhaseCheckedBlock(itemSym(index),
+                        makeItemInvalidateInner(index)
+                    );
+            }
+        }
+
+        /**
+         * For each item, and for size, set-up the invalidate method
+         */
+        void setupInvalidators() {
+            for (int index = 0; index < length; ++index) {
+                addInvalidator(itemSym(index), makeItemInvalidate(index));
+            }
+         }
+    }
+
+    /**
+     * Bound explicit sequence Translator ["hi", [2..k], x]
+     *
+     *
+     */
+    private class BoundExplicitSequenceTranslator extends AbstractBoundExplicitSequenceTranslator {
+        private final JavafxVarSymbol sizeSym;
+        private final JavafxVarSymbol lowestSym;
+        private final JavafxVarSymbol highestSym;
+        private final JavafxVarSymbol pendingSym;
+        private final JavafxVarSymbol newLengthSym;
+        private final JavafxVarSymbol changeStartSym;
+        private final JavafxVarSymbol changeEndSym;
+
+        BoundExplicitSequenceTranslator(JFXSequenceExplicit tree) {
+            super(tree);
+            this.sizeSym = tree.boundSizeSym;
+            this.lowestSym = tree.boundLowestInvalidPartSym;
+            this.highestSym = tree.boundHighestInvalidPartSym;
+            this.pendingSym = tree.boundPendingTriggersSym;
+            this.newLengthSym = tree.boundNewLengthSym;
+            this.changeStartSym = tree.boundChangeStartPosSym;
+            this.changeEndSym = tree.boundChangeEndPosSym;
         }
 
         private JCExpression GetSize() {
@@ -1277,7 +1334,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return Block(stmts);
         }
 
-        private JCStatement makeItemInvalidatePhase(int index) {
+        JCStatement makeItemInvalidatePhase(int index) {
             return
                 Block(
                     If (LT(Get(highestSym), Int(0)),
@@ -1313,7 +1370,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 );
         }
 
-        private JCStatement makeItemTriggerPhase(int index, boolean isSequence) {
+        JCStatement makeItemTriggerPhase(int index, boolean isSequence) {
             JCVariableDecl vEnd = TmpVar("hi", syms.intType, PLUS(Get(highestSym), Int(1)));
 
             JCStatement triggerChanged =
@@ -1400,45 +1457,72 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     )
                 );
         }
+    }
 
-        /**
-         * Invalidate addition for an element in the sequence
-         */
-        private JCStatement makeItemInvalidateInner(int index) {
+    /**
+     * Bound explicit sequence Translator [x]
+     *
+     *
+     */
+    private class BoundExplicitSingletonSequenceTranslator extends AbstractBoundExplicitSequenceTranslator {
+
+        BoundExplicitSingletonSequenceTranslator(JFXSequenceExplicit tree) {
+            super(tree);
+        }
+
+        JCStatement makeSizeBody() {
+            JCVariableDecl vSize = TmpVar("size", syms.intType, PassiveLength(0));
+
             return
-                    If (AND(isSequenceActive(), NOT(Get(ignoreInvalidationsSym))),
+                Block(
+                    If(isSequenceDormant(),
                         Block(
-                            If (IsInvalidatePhase(),
-                                makeItemInvalidatePhase(index),
-                            /*Else (Trigger phase)*/
-                                makeItemTriggerPhase(index, isSequence(index))
-                            )
-                        ));
+                            UpdateAll(),
+                            vSize,
+                            setSequenceActive(),
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, id(vSize)),
+                            Return(id(vSize))
+                        )
+                    ),
+                    Return(PassiveLength(0))
+                );
         }
 
-        /**
-         * Invalidate addition for an element in the sequence
-         */
-        private JCStatement makeItemInvalidate(int index) {
-            if (isSequence(index)) {
-                return
-                    makeItemInvalidateInner(index);
-            } else {
-                return
-                    PhaseCheckedBlock(itemSym(index),
-                        makeItemInvalidateInner(index)
-                    );
-            }
+        JCStatement makeGetElementBody() {
+            return
+                Block(
+                    If(NE(posArg(), Int(0)),
+                        Return(DefaultValue(elemType))
+                    ),
+                    If (isSequenceDormant(),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    Return(Getter(itemSym(0)))
+                );
         }
 
-        /**
-         * For each item, and for size, set-up the invalidate method
-         */
-        void setupInvalidators() {
-            for (int index = 0; index < length; ++index) {
-                addInvalidator(itemSym(index), makeItemInvalidate(index));
-            }
-         }
+        JCStatement makeItemInvalidatePhase(int index) {
+            return
+                CallSeqInvalidateUndefined(targetSymbol);
+        }
+
+        JCStatement makeItemTriggerPhase(int index, boolean isSequence) {
+            JCVariableDecl vOldLength = TmpVar("oldLen", syms.intType, CachedLength(index));
+
+            return
+                Block(
+                    vOldLength,
+                    SetStmt(ignoreInvalidationsSym, True()),
+                    Update(index),
+                    SetStmt(ignoreInvalidationsSym, False()),
+                    CallSeqTrigger(targetSymbol,
+                        Int(0),
+                        id(vOldLength),
+                        CachedLength(index)
+                    )
+                );
+        }
     }
 
     /**
@@ -2804,7 +2888,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
-        result = new BoundExplicitSequenceTranslator(tree).doit();
+        if (tree.boundPendingTriggersSym == null) {
+            result = new BoundExplicitSingletonSequenceTranslator(tree).doit();
+        } else {
+            result = new BoundExplicitSequenceTranslator(tree).doit();
+        }
     }
 
     @Override
