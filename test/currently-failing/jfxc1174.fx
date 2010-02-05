@@ -1,7 +1,8 @@
 /**
  * Regress test for JFXC-1174 - Bi-directional bind with inverse and functions compiles fine but throws runtime exception
+ * was: test/compile-error
  *
- * @test/compile-error
+ * @test
  */
 
 var a = 5;
