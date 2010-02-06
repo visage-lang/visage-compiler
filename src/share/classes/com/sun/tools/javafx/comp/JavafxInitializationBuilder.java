@@ -1354,7 +1354,7 @@ however this is what we need */
         //
         public JCStatement getDefaultInitStatement(VarInfo varInfo) {
             JCStatement init = varInfo.getDefaultInitStatement();
-            
+
             if (init == null || varInfo.hasBoundDefinition()) {
                 JavafxVarSymbol varSym = varInfo.getSymbol();
                 
@@ -1388,7 +1388,7 @@ however this is what we need */
                     }
                 }
                 if (init == null && varInfo.isSequence()) {
-                    if (!varInfo.hasBoundDefinition()) {
+                    if (!varInfo.hasBoundDefinition() && varInfo.useAccessors()) {
                         init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
                     }
                 }

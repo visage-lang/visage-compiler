@@ -119,7 +119,6 @@ public class JavafxVarSymbol extends VarSymbol {
                 (!hasScriptOnlyAccess() ||
                 (flags_field & VARUSE_NEED_ACCESSOR) != 0 ||
                 (isBindAccess() && isAssignedTo()) ||
-                (isSequence() && (isAssignedTo() || !isBindAccess())) ||
                 (owner.flags_field & MIXIN) != 0);
     }
 
