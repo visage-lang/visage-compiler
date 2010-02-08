@@ -67,6 +67,9 @@ public class JavafxDecompose implements JavafxVisitor {
     private Symbol currentVarSymbol;
     private Symbol currentClass = null;
     private boolean inScriptLevel = true;
+    private JFXVarInit varInitContext = null;
+    private boolean allowDebinding = false;
+
     // Map of shreded (Ident) selectors in bound select expressions.
     // Used in shred optimization.
     private Map<Symbol, JFXExpression> shrededSelectors;
@@ -109,7 +112,7 @@ public class JavafxDecompose implements JavafxVisitor {
         bindStatus = JavafxBindStatus.UNBOUND;
         lbVar = null;
         synthNames = new HashSet<String>();
-        attrEnv.toplevel = decompose(attrEnv.toplevel);
+        attrEnv.toplevel = inlineShreddedVarInits(decompose(attrEnv.toplevel));
         synthNames = null;
         lbVar = null;
     }
@@ -165,10 +168,48 @@ public class JavafxDecompose implements JavafxVisitor {
     private List<JFXExpression> decomposeComponents(List<JFXExpression> trees) {
         if (trees == null)
             return null;
-        ListBuffer<JFXExpression> lb = new ListBuffer<JFXExpression>();
+        ListBuffer<JFXExpression> lb =  ListBuffer.lb();
         for (JFXExpression tree: trees)
             lb.append(decomposeComponent(tree));
         return lb.toList();
+    }
+    
+    private <T extends JFXTree> T inlineShreddedVarInits(T tree) {
+        new JavafxTreeScanner() {
+            private void unwindVarInit(JFXVarInit vi, ListBuffer<JFXExpression> elb) {
+                for (JFXVarInit cvi : vi.getShreddedVarInits()) {
+                    unwindVarInit(cvi, elb);
+                }
+                elb.append(vi);
+            }
+
+            private List<JFXExpression> process(JFXExpression expr) {
+                scan(expr);
+                if (expr instanceof JFXVarInit) {
+                    ListBuffer<JFXExpression> elb = ListBuffer.lb();
+                    unwindVarInit((JFXVarInit) expr, elb);
+                    return elb.toList();
+                } else {
+                    return List.of(expr);
+                }
+            }
+
+            @Override
+            public void visitBlockExpression(JFXBlock tree) {
+                ListBuffer<JFXExpression> elb = ListBuffer.lb();
+                for (JFXExpression expr : tree.stats) {
+                    elb.appendList(process(expr));
+                }
+                if (tree.value != null) {
+                    List<JFXExpression> val = process(tree.value);
+                    for (int i = 0; i < (val.length() - 1); ++i) {
+                        elb.append(val.get(i));
+                    }
+                }
+                tree.stats = elb.toList();
+            }
+        }.scan(tree);
+        return tree;
     }
 
     private JFXVar makeVar(DiagnosticPosition diagPos, String label, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
@@ -222,21 +263,34 @@ public class JavafxDecompose implements JavafxVisitor {
             return null;
         }
         if (bindStatus.isBound()) {
-            return unconditionalShred(tree, contextType);
+            JFXVarInit prevVarInitContext = varInitContext;
+            JFXVarInit ourVarInit = null;
+            JavafxBindStatus prevBindStatus = bindStatus;
+            if (allowDebinding && preTrans.isImmutable(tree)) {
+                bindStatus = JavafxBindStatus.UNBOUND;
+                if (prevVarInitContext != null) {
+                    ourVarInit = fxmake.VarInit(null);
+                    varInitContext = ourVarInit;
+                }
+            }
+            JFXExpression pose = decompose(tree);
+            Type varType = tree.type;
+            if (tree.type == syms.botType && contextType != null) {
+                // If the tree type is bottom, try to use contextType
+                varType = contextType;
+            }
+            JFXVar v = shredVar("", pose, varType, bindStatus);
+            if (ourVarInit != null) {
+                ourVarInit.resetVar(v);
+                prevVarInitContext.addShreddedVarInit(ourVarInit);
+            }
+            varInitContext = prevVarInitContext;
+            JFXExpression shred = id(v);
+            bindStatus = prevBindStatus;
+            return shred;
         } else {
             return decompose(tree);
         }
-    }
-
-    private JFXIdent unconditionalShred(JFXExpression tree, Type contextType) {
-        JFXExpression pose = decompose(tree);
-        Type varType = tree.type;
-        if (tree.type == syms.botType && contextType != null) {
-            // If the tree type is bottom, try to use contextType
-            varType = contextType;
-        }
-        JFXVar v = shredVar("", pose, varType, bindStatus);
-        return id(v);
     }
 
     private JFXExpression shred(JFXExpression tree) {
@@ -773,6 +827,12 @@ public class JavafxDecompose implements JavafxVisitor {
                             tree.getBindStatus() :
                             prevBindStatus;
 
+        JFXVarInit vsi = tree.getVarInit();
+        JFXVarInit prevVarInitContext = varInitContext;
+        boolean prevAllowDebinding = allowDebinding;
+        varInitContext = vsi;
+        allowDebinding = !tree.sym.hasForwardReference(); // No debinding for forward referenced var
+
         JFXExpression initExpr = decompose(tree.getInitializer());
         // Is this a bound var and initialized with a Pointer result
         // from a bound function call? If so, we need to create Pointer
@@ -789,12 +849,13 @@ public class JavafxDecompose implements JavafxVisitor {
                     onInvalidate);
         res.sym = tree.sym;
         res.type = tree.type;
-        JFXVarInit vsi = tree.getVarInit();
         if (vsi != null) {
             // update the var in the var-init
             vsi.resetVar(res);
         }
 
+        allowDebinding = prevAllowDebinding;
+        varInitContext = prevVarInitContext;
         bindStatus = prevBindStatus;
         inScriptLevel = wasInScriptLevel;
         currentVarSymbol = prevVarSymbol;

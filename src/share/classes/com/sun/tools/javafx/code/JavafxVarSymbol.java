@@ -162,15 +162,20 @@ public class JavafxVarSymbol extends VarSymbol {
     }
 
     public boolean isDefinedBound() {
+        //TODO: this bit, it would appear, is not see for shreds
         return (flags_field & VARUSE_BOUND_INIT) != 0;
     }
 
     public boolean isWritableOutsideScript() {
-        return (flags_field & PUBLIC | PROTECTED | PACKAGE_ACCESS) != 0;
+        return !isDef() && (flags_field & PUBLIC | PROTECTED | PACKAGE_ACCESS) != 0;
     }
 
     public boolean isMutatedWithinScript() {
         return (flags_field & (VARUSE_ASSIGNED_TO | VARUSE_SELF_REFERENCE | VARUSE_FORWARD_REFERENCE)) != 0L;
+    }
+
+    public boolean canChange() {
+        return isWritableOutsideScript() || isMutatedWithinScript() || isDefinedBound();
     }
 
     public boolean isMutatedLocal() {
