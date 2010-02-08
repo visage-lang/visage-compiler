@@ -112,7 +112,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
     private JFXVar createIndexVar(JFXForExpressionInClause clause, Symbol owner) {
         // Create the method parameter
         // $index$
-        Name indexParamName = names.fromString("$index$"); //FIXME-move to defs.
+        Name indexParamName = names.fromString(defs.dollarIndexNamePrefix());
         Name indexName = JavafxTranslationSupport.indexVarName(clause.getVar().getName(), names);
         JavafxVarSymbol indexParamSym = new JavafxVarSymbol(types, names,Flags.FINAL | Flags.PARAMETER, indexParamName, syms.intType, owner);
 
@@ -171,7 +171,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
     }
 
     public Name resultVarName(Name name) {
-        return names.fromString("$result$" + name.toString());
+        return names.fromString(defs.resultDollarNamePrefix() + name.toString());
     }
 
     @Override

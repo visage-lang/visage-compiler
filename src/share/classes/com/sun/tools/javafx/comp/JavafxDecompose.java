@@ -361,9 +361,9 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression falsepart = decomposeComponent(tree.falsepart);
         JFXIfExpression res = fxmake.at(tree.pos).Conditional(cond, truepart, falsepart);
         if (bindStatus.isBound() && types.isSequence(tree.type)) {
-            res.boundCondVar = synthVar("cond", cond, cond.type, false);
-            res.boundThenVar = synthVar("then", truepart, truepart.type, false);
-            res.boundElseVar = synthVar("else", falsepart, falsepart.type, false);
+            res.boundCondVar = synthVar(defs.condNamePrefix(), cond, cond.type, false);
+            res.boundThenVar = synthVar(defs.thenNamePrefix(), truepart, truepart.type, false);
+            res.boundElseVar = synthVar(defs.elseNamePrefix(), falsepart, falsepart.type, false);
             // Add a size field to hold the previous size on condition switch
             JFXVar v = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
             res.boundSizeVar = v;
@@ -457,7 +457,7 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression res = fxmake.at(tree.pos).Apply(tree.typeargs, fn, args);
         res.type = tree.type;
         if (bindStatus.isBound() && types.isSequence(tree.type) && !isBoundFunctionResult(tree)) {
-            JFXVar v = shredVar("sii", res, tree.type);
+            JFXVar v = shredVar(defs.siiNamePrefix(), res, tree.type);
             JFXVar sz = makeSizeVar(v.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
             res = fxmake.IdentSequenceProxy(v.name, v.sym, sz.sym);
         }
@@ -828,7 +828,7 @@ public class JavafxDecompose implements JavafxVisitor {
                     throw new AssertionError("the statements in a bound block should already be just VarInit");
                 }
             }
-            JFXVar v = shredVar("value", decompose(tree.value), tree.type);
+            JFXVar v = shredVar(defs.valueNamePrefix(), decompose(tree.value), tree.type);
             JFXVarInit vi = fxmake.at(tree.value.pos()).VarInit(v);
             vi.type = tree.type;
             stats = tree.stats.append(vi);
@@ -880,7 +880,7 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     private JFXVar makeSizeVar(DiagnosticPosition diagPos, int initial) {
-        return makeIntVar(diagPos, "sz", initial);
+        return makeIntVar(diagPos, defs.sizeNamePrefix(), initial);
     }
 
     private JFXVar makeIntVar(DiagnosticPosition diagPos, String label, int initial) {
@@ -891,7 +891,7 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     private JFXVar makeSaveVar(DiagnosticPosition diagPos, Type type) {
-        JFXVar v = makeVar(diagPos, "save", null, JavafxBindStatus.UNBOUND, type);
+        JFXVar v = makeVar(diagPos, defs.saveNamePrefix(), null, JavafxBindStatus.UNBOUND, type);
         v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
         return v;
     }
@@ -912,9 +912,9 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression stepOrNull;
         if (bindStatus.isBound()) {
             Type elemType = types.elementType(tree.type);
-            lower = synthVar("lower", tree.getLower(), elemType);
-            upper = synthVar("upper", tree.getUpper(), elemType);
-            stepOrNull = synthVar("step", tree.getStepOrNull(), elemType);
+            lower = synthVar(defs.lowerNamePrefix(), tree.getLower(), elemType);
+            upper = synthVar(defs.upperNamePrefix(), tree.getUpper(), elemType);
+            stepOrNull = synthVar(defs.stepNamePrefix(), tree.getStepOrNull(), elemType);
         } else {
             lower = decomposeComponent(tree.getLower());
             upper = decomposeComponent(tree.getUpper());
@@ -940,10 +940,10 @@ public class JavafxDecompose implements JavafxVisitor {
             ListBuffer<JavafxVarSymbol> vb = ListBuffer.lb();
             ListBuffer<JavafxVarSymbol> vblen = ListBuffer.lb();
             for (JFXExpression item : tree.getItems()) {
-                vb.append(shredVar("item"+n, decompose(item), item.type).sym);
+                vb.append(shredVar(defs.itemNamePrefix()+n, decompose(item), item.type).sym);
                 JavafxVarSymbol lenSym = null;
                 if (preTrans.isNullable(item)) {
-                    lenSym = makeIntVar(item.pos(), "len"+n, 0).sym;
+                    lenSym = makeIntVar(item.pos(), defs.lengthNamePrefix()+n, 0).sym;
                     hasNullable = true;
                 }
                 vblen.append(lenSym);
@@ -954,19 +954,19 @@ public class JavafxDecompose implements JavafxVisitor {
 
             // now add synth vars
             if (tree.getItems().length() > 1  || types.isArrayOrSequenceType(res.boundItemsSyms.get(0).type)) {
-                res.boundLowestInvalidPartSym = makeIntVar(diagPos, "low", JavafxDefs.UNDEFINED_MARKER_INT).sym;
-                res.boundHighestInvalidPartSym = makeIntVar(diagPos, "high", JavafxDefs.UNDEFINED_MARKER_INT).sym;
-                res.boundPendingTriggersSym = makeIntVar(diagPos, "pending", 0).sym;
+                res.boundLowestInvalidPartSym = makeIntVar(diagPos, defs.lowNamePrefix(), JavafxDefs.UNDEFINED_MARKER_INT).sym;
+                res.boundHighestInvalidPartSym = makeIntVar(diagPos, defs.highNamePrefix(), JavafxDefs.UNDEFINED_MARKER_INT).sym;
+                res.boundPendingTriggersSym = makeIntVar(diagPos, defs.pendingNamePrefix(), 0).sym;
                 if (hasNullable) {
                     res.boundSizeSym = makeSizeVar(diagPos, JavafxDefs.UNDEFINED_MARKER_INT).sym;
-                    res.boundNewLengthSym = makeIntVar(diagPos, "newLen", 0).sym;
-                    res.boundChangeStartPosSym = makeIntVar(diagPos, "cngStart", 0).sym;
-                    res.boundChangeEndPosSym = makeIntVar(diagPos, "cngEnd", 0).sym;
+                    res.boundNewLengthSym = makeIntVar(diagPos, defs.newLenNamePrefix(), 0).sym;
+                    res.boundChangeStartPosSym = makeIntVar(diagPos, defs.cngStartNamePrefix(), 0).sym;
+                    res.boundChangeEndPosSym = makeIntVar(diagPos, defs.cngEndNamePrefix(), 0).sym;
                 }
             }
             JFXExpression falseLit = fxmake.Literal(TypeTags.BOOLEAN, 0);
             falseLit.type = syms.booleanType;
-            res.boundIgnoreInvalidationsSym = makeVar(diagPos, "ignore", falseLit, JavafxBindStatus.UNBOUND, syms.booleanType).sym;
+            res.boundIgnoreInvalidationsSym = makeVar(diagPos, defs.ignoreNamePrefix(), falseLit, JavafxBindStatus.UNBOUND, syms.booleanType).sym;
         } else {
             List<JFXExpression> items = decomposeComponents(tree.getItems());
             res = fxmake.at(diagPos).ExplicitSequence(items);
@@ -1030,7 +1030,7 @@ public class JavafxDecompose implements JavafxVisitor {
                     inductionType);
             JFXExpression init = fxmake.Literal(TypeTags.BOT, null);
             init.type = helperType;
-            Name helperName = preTrans.makeUniqueVarNameIn(names.fromString("helper$"+currentVarSymbol.name), varOwner);
+            Name helperName = preTrans.makeUniqueVarNameIn(names.fromString(defs.helperDollarNamePrefix()+currentVarSymbol.name), varOwner);
             JFXVar helper = makeVar(tree, helperName, init, JavafxBindStatus.UNBOUND, helperType);
             //helper.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
             clause.boundHelper = helper;

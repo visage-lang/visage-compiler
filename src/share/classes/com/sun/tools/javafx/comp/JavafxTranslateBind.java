@@ -2412,7 +2412,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             );
 
             Type helperType = clause.boundHelper.type;
-            JCVariableDecl indexParam = Var(syms.intType, names.fromString("$index$"), null); // FIXME
+            JCVariableDecl indexParam = Var(syms.intType, names.fromString(defs.dollarIndexNamePrefix()), null);
             Type partType = types.applySimpleGenericType(syms.javafx_FXForPartInterfaceType, inductionType);
             JCMethodDecl makeDecl = Method(Flags.PUBLIC,
                                         partType,
