@@ -2751,13 +2751,17 @@ public abstract class JavafxAbstractTranslation
                         applyDefaultsExpr);
             }
 
-            addPreface(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));
+            // Ready to init value.
+            JCStatement clearFlagsStmt = CallStmt(id(receiverName), defs.varFlagActionChange, id(loopName),
+                                                  Int(0), id(defs.varFlagINIT_READY));
+
+            addPreface(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, Block(clearFlagsStmt, loopBody)));
         }
 
         void makeSetVarFlags(Name receiverName, Type contextType) {
             for (JavafxVarSymbol vsym : varSyms) {
                 JCExpression flagsToSet = (vsym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0 ?
-                    id(defs.varFlagINIT_OBJ_LIT_DEFAULT) :
+                    id(defs.varFlagINIT_OBJ_LIT_BIND) :
                     id(defs.varFlagINIT_OBJ_LIT);
 
                 addPreface(CallStmt(
@@ -3773,7 +3777,7 @@ public abstract class JavafxAbstractTranslation
             if (vsym.useAccessors() || !var.isLiteralInit()) {
                 return toResult(
                         BlockExpression(
-                            FlagChangeStmt(vsym, defs.varFlagAWAIT_VARINIT, null),
+                            FlagChangeStmt(vsym, null, defs.varFlagINIT_READY),
                             CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym)),
                             Get(vsym)
                         ),

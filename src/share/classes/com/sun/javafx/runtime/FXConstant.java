@@ -85,7 +85,7 @@ public final class FXConstant extends FXBase {
 
     public FXConstant() {
         this(false);
-        initialize$();
+        initialize$(true);
     }
 
     public FXConstant(final boolean dummy) {

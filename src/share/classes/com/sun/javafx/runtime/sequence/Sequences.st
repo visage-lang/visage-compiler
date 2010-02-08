@@ -84,9 +84,9 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
 
     public static void replaceSlice(FXObject instance, int varNum, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
         int flags = instance.getFlags\$(varNum);
-        boolean wasUninitialized = (flags & FXObject.VFLGS\$DEFAULT_APPLIED) == 0;
-        instance.setFlags\$(varNum, flags | FXObject.VFLGS\$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
-        if ((flags & FXObject.VFLGS\$INIT_BOUND_READONLY) == FXObject.VFLGS\$INIT_BOUND_READONLY) {
+		boolean wasUninitialized = (flags & FXObject.VFLGS\$INITIALIZED_STATE_BIT) == 0
+        instance.setBits\$(varNum, flags | FXObject.VFLGS\$INIT\$INITIALIZED_DEFAULT);
+        if ((flags & FXObject.VFLGS\$IS_BOUND_READONLY) == FXObject.VFLGS\$IS_BOUND_READONLY) {
             throw new AssignToBoundException("Cannot mutate bound sequence");
         }
         Sequence<? extends $Tboxed$> oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
@@ -94,7 +94,7 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
             SequenceProxy sp = (SequenceProxy) oldValue;
             instance = sp.instance();
             varNum = sp.varNum();
-            instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+            instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT\$INITIALIZED_DEFAULT);
             oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
         }
         int oldSize = oldValue.size();
