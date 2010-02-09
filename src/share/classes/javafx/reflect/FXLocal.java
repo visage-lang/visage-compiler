@@ -1141,18 +1141,14 @@ public class FXLocal {
                 FXObject instance = (FXObject)obj;
             
                 if (initMembers == null) {
-                    instance.initialize$(true);
+                    instance.initialize$();
                 } else {
                     int count = count();
                     
-                    instance.initVars$();
-                    
                     for (int offset = 0; offset < count; offset++ ) {
-                        instance.varChangeBits$(offset, 0, FXObject.VFLGS$INIT$READY);
-                        
                         if (initMembers[offset] != null) {
                             initMembers[offset].setValue(this, initValues[offset]);
-                        } else {
+                        } else if (instance.varTestBits$(offset, FXObject.VFLGS$DEFAULT_APPLIED, 0)) {
                             instance.applyDefaults$(offset);
                         }
                     }

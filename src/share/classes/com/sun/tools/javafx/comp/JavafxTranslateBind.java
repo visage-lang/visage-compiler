@@ -140,11 +140,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     hasSequenceInitializer = true;
                 }
             }
-            
             if (!hasSequenceInitializer) {
-                condition = bindNeedsDefault(targetSymbol);
+                // Always create a new instance if the default has not been applied yet
+                condition = FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null);
             }
-            
             super.initInstanceVariables(instName);
         }
 
@@ -314,7 +313,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 if (condition != null) {
                     // Always call function if the default has not been applied yet
                     full = TypeCast(targetType, Type.noType,
-                              If (OR(condition, bindNeedsDefault(targetSymbol)),
+                              If (OR(condition, FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null)),
                                   full,
                                   Get(targetSymbol)));
                 }
@@ -828,7 +827,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     If (isSequenceDormant(),
                         Block(
                             setSequenceActive(),
-                            FlagChangeStmt(selectorSym, defs.varFlagINIT_STATE_MASK, defs.varFlagVALID_DEFAULT_APPLIED),
+                            FlagChangeStmt(selectorSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID_DEFAULT_APPLIED),
                             CallStmt(attributeInvalidateName(selectorSym), id(defs.phaseTransitionBE_INVALIDATE)),
                             CallStmt(attributeInvalidateName(selectorSym), id(defs.phaseTransitionBE_TRIGGER))
                         )
@@ -1636,7 +1635,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             if (var == null) {
                 return null;
             } else {
-                return FlagChangeStmt(var.getSymbol(), defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID);
+                return FlagChangeStmt(var.getSymbol(), defs.varFlagSTATE_MASK, defs.varFlagStateVALID);
             }
         }
 
@@ -2573,7 +2572,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCStatement MarkValid(JavafxVarSymbol sym) {
-            return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID);
+            return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID);
         }
 
         private JCStatement MarkInvalid(JavafxVarSymbol sym) {

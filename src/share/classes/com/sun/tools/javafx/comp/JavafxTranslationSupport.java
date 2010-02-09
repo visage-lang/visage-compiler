@@ -1361,14 +1361,6 @@ public abstract class JavafxTranslationSupport {
             return Stmt(FlagAction(offset, defs.varFlagActionChange, clearBits, setBits, true));
         }
 
-        // Specialized test for checking to see if a var is init ready in a bind expression.
-        // The var flags have been copied to a local varFlags$.
-        protected JCExpression bindNeedsDefault(JavafxVarSymbol varSym) {
-            return EQ(BITAND(id(defs.varFlags_LocalVarName),
-                             id(defs.varFlagINITIALIZED_STATE_BIT)),
-                      Int(0));
-        }
-
         //
         // Methods to generate simple constants.
         //
