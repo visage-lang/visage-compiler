@@ -650,11 +650,24 @@ public class JavafxLower implements JavafxVisitor {
                     types.isArrayOrSequenceType(item.type) ?
                 that.type :
                 types.elementType(that.type);
-            buf.append(lowerExpr(item, typeToCheck));
+            flatten(lowerExpr(item, typeToCheck), buf);
         }
-        result = m.at(that.pos).ExplicitSequence(buf.toList()).setType(that.type);
+        result = buf.length() == 1 && types.isSequence(buf.toList().head.type) ?
+            buf.toList().head :
+            m.at(that.pos).ExplicitSequence(buf.toList()).setType(that.type);
     }
-
+    //where
+    private void flatten(JFXExpression item, ListBuffer<JFXExpression> items) {
+        if (item.getFXTag() == JavafxTag.SEQUENCE_EXPLICIT) {
+            JFXSequenceExplicit nestedSeq = (JFXSequenceExplicit)item;
+            for (JFXExpression nestedItem : nestedSeq.getItems()) {
+                flatten(nestedItem, items);
+            }
+        }
+        else {
+            items.append(item);
+        }
+    }
     public void visitSequenceIndexed(JFXSequenceIndexed that) {
         JFXExpression index = lowerExpr(that.getIndex(), syms.intType);
         JFXExpression seq = lowerExpr(that.getSequence());
