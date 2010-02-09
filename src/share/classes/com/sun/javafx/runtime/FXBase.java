@@ -244,7 +244,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
      */
     public FXBase() {
         this(false);
-        initialize$(true);
+        initialize$();
     }
 
     /**
@@ -256,14 +256,14 @@ import com.sun.javafx.runtime.sequence.Sequences;
         count$();
     }
 
-    public void initialize$(boolean applyDefaults) {
+    public void initialize$() {
         initVars$();
-        if (applyDefaults) applyDefaults$();
+        applyDefaults$();
         complete$();
     }
-    public static void initialize$(FXObject obj, boolean applyDefaults) {
+    public static void initialize$(FXObject obj) {
         obj.initVars$();
-        if (applyDefaults) obj.applyDefaults$();
+        obj.applyDefaults$();
         obj.complete$();
     }
 
@@ -285,14 +285,12 @@ import com.sun.javafx.runtime.sequence.Sequences;
     public void applyDefaults$() {
         int cnt = count$();
         for (int inx = 0; inx < cnt; inx += 1) {
-            varChangeBits$(inx, 0, VFLGS$INIT$READY);
             applyDefaults$(inx);
         }
     }
     public static void applyDefaults$(FXObject obj) {
         int cnt = obj.count$();
         for (int inx = 0; inx < cnt; inx += 1) {
-            obj.varChangeBits$(inx, 0, VFLGS$INIT$READY);
             obj.applyDefaults$(inx);
         }
     }
