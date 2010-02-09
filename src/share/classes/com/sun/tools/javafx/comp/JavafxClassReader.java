@@ -505,7 +505,7 @@ public class JavafxClassReader extends ClassReader {
             if (ct.supertype_field != null && 
                 ct.supertype_field.tsym != null &&
                 ct.supertype_field.tsym.kind == TYP) {
-                csym.addSuperType(ct.supertype_field);
+                
             }
             
             ListBuffer<Type> interfaces = new ListBuffer<Type>();
@@ -530,7 +530,6 @@ public class JavafxClassReader extends ClassReader {
                     } else {
                         itype = translateType(itype);
                         interfaces.append(itype);
-                        csym.addSuperType(itype);
                     }
                 }
             }
@@ -548,7 +547,6 @@ public class JavafxClassReader extends ClassReader {
                     } else {
                         itype = translateType(itype);
                         interfaces.append(itype);
-                        csym.addSuperType(itype);
                     }
                 }
             }

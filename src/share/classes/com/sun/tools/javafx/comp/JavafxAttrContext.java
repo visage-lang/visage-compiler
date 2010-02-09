@@ -77,9 +77,6 @@ public class JavafxAttrContext {
      */
     boolean inInvalidate = false;
 
-    
-    public boolean inSelect = false;
-
     /** Duplicate this context, replacing scope field and copying all others.
      */
     JavafxAttrContext dup(Scope scope) {

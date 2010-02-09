@@ -569,7 +569,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** Emit Java-like source corresponding to translated tree.
      */
-    void printOptimizationStatistics(JavafxEnv<JavafxAttrContext> env) {
+    void printOptimizationStatistics() {
         String which = options.get("optstats");
         if (which != null) {
             optStat.printData(which);
@@ -1125,6 +1125,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
     public List<JavafxEnv<JavafxAttrContext>> prepForBackEnd(List<JavafxEnv<JavafxAttrContext>> envs) {
+        printOptimizationStatistics();
         for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
             prepForBackEnd(l.head);
         }
@@ -1135,7 +1136,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         if (verboseCompilePolicy)
             Log.printLines(log.noticeWriter, "[prep-for-back-end " + env.enclClass.sym + "]");
         printJavaSource(env);
-        printOptimizationStatistics(env);
 
         JavaFileObject prev = log.useSource(
                                   env.enclClass.sym.sourcefile != null ?

@@ -432,7 +432,8 @@ public class FXLocal {
             "getAsInt$",
             "getAsLong$",
             "getAsShort$",
-            "getDependentsManager$internal$",
+            "getDepChain$internal$",
+            "getThisRef$internal$",
             "getListenerCount$",
             "getType$",
             "initialize$",
@@ -445,7 +446,7 @@ public class FXLocal {
             "printBitsAction$",
             "removeDependent$",
             "restrictSet$",
-            "setDependentsManager$internal$",
+            "setDepChain$internal$",
             "switchDependence$",
             "userInit$",
             "getFlags$",
@@ -956,9 +957,8 @@ public class FXLocal {
 		throw new IllegalArgumentException("not an instance of " + this.owner);
 	    // check if instance acually has a variable represented by this
 	    FXObject src = (FXObject)((Value)instance).asObject();
-	    DependentsManager deps = DependentsManager.get(src);
 	    ListenerAdapter adapter = new ListenerAdapter(listener);
-	    deps.addDependent(src, this.offset, adapter, 0);
+	    src.addDependent$(this.offset, adapter, 0);
             return adapter;
         }
         
@@ -966,8 +966,7 @@ public class FXLocal {
 	    if (!this.owner.isAssignableFrom(instance.getType()))
 		throw new IllegalArgumentException("not an instance of " + this.owner);
 	    FXObject src = (FXObject)((Value)instance).asObject();
-	    DependentsManager deps = DependentsManager.get(src);
-	    deps.removeDependent(src, this.offset, (ListenerAdapter)id);
+	    src.removeDependent$(this.offset, (ListenerAdapter)id);
         }
 
     }
@@ -1142,14 +1141,18 @@ public class FXLocal {
                 FXObject instance = (FXObject)obj;
             
                 if (initMembers == null) {
-                    instance.initialize$();
+                    instance.initialize$(true);
                 } else {
                     int count = count();
                     
+                    instance.initVars$();
+                    
                     for (int offset = 0; offset < count; offset++ ) {
+                        instance.varChangeBits$(offset, 0, FXObject.VFLGS$INIT$READY);
+                        
                         if (initMembers[offset] != null) {
                             initMembers[offset].setValue(this, initValues[offset]);
-                        } else if (instance.varTestBits$(offset, FXObject.VFLGS$DEFAULT_APPLIED, 0)) {
+                        } else {
                             instance.applyDefaults$(offset);
                         }
                     }

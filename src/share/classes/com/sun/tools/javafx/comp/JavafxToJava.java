@@ -496,12 +496,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    private ExpressionResult translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
+    private ExpressionResult translateDefinitionalAssignmentToSetExpression(final DiagnosticPosition diagPos,
             final JFXExpression init,
             final JavafxVarSymbol vsym,
             final Name instanceName) {
 
-        return new ExpressionTranslator(diagPos) {
+        class DefinitionalAssignmentTranslator extends ExpressionTranslator {
+            DefinitionalAssignmentTranslator(DiagnosticPosition diagPos) { super(diagPos); }
             protected ExpressionResult doit() {
                 assert !vsym.isParameter() : "Parameters are not initialized";
                 setSubstitution(init, vsym);
@@ -526,7 +527,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 }
                 return toResult(res, vsym.type);
             }
-        }.doit();
+        }
+        return new DefinitionalAssignmentTranslator(diagPos).doit();
     }
 
     /**

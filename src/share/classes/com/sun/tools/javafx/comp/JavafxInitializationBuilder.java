@@ -187,7 +187,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
            ListBuffer<JCStatement> translatedInitBlocks, ListBuffer<JCStatement> translatedPostInitBlocks) {
 
         DiagnosticPosition diagPos = cDecl.pos();
-        Type superType = types.superType(cDecl);
+        Type superType = types.supertype(cDecl.type);
         ClassSymbol outerTypeSym = outerTypeSymbol(cDecl.sym); // null unless inner class with outer reference
         boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
 
@@ -200,7 +200,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<FuncInfo> classFuncInfos = analysis.classFuncInfos();
         List<FuncInfo> scriptFuncInfos = analysis.scriptFuncInfos();
         
-        boolean hasStatics = !scriptVarInfos.isEmpty() || !scriptFuncInfos.isEmpty();
+        boolean hasStatics = !scriptVarInfos.isEmpty();
         
         int classVarCount = analysis.getClassVarCount();
         int scriptVarCount = analysis.getScriptVarCount();
@@ -252,6 +252,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             if (isScriptClass) {
                 javaCodeMaker.makeInitClassMaps(initClassMap);
+                javaCodeMaker.gatherFunctions(scriptFuncInfos);
 
                 if  (hasStatics) {
                     ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
@@ -259,7 +260,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // script-level into class X
                     javaCodeMaker.makeAttributeFields(scriptVarInfos);
                     javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
-                    javaCodeMaker.gatherFunctions(scriptFuncInfos);
     
                     // script-level into class X.X$Script
                     javaCodeMaker.setContext(true, sDefinitions);
@@ -308,6 +308,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             if (isScriptClass) {
                 javaCodeMaker.makeInitClassMaps(initClassMap);
+                javaCodeMaker.gatherFunctions(scriptFuncInfos);
 
                 if  (hasStatics) {
                     ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
@@ -317,7 +318,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.setContext(true, cDefinitions);
                     javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
                     javaCodeMaker.setContext(false, cDefinitions);
-                    javaCodeMaker.gatherFunctions(scriptFuncInfos);
     
                     // script-level into class X.X$Script
                     javaCodeMaker.setContext(true, sDefinitions);
@@ -1092,16 +1092,22 @@ however this is what we need */
                 boolean needsInvalidate = needInvalidateAccessorMethod(varInfo);
                 boolean needsOnReplace = needOnReplaceAccessorMethod(varInfo);
                 
-                Name initFlags = varInfo.isReadOnly() ? defs.varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY :
-                                                        defs.varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED; 
+                // Set read only bit (trapdoor.)
+                if (varInfo.isReadOnly()) {
+                     addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagIS_READONLY));
+                }
                     
-                if (needsInvalidate || needsOnReplace) {
+                if ((!inGet && needsInvalidate) || needsOnReplace) {
                     // T varOldValue$ = $var;
                     addStmt(Var(Flags.FINAL, type, defs.varOldValue_LocalVarName, Get(proxyVarSym)));
-                    // short varFlags$ = VFLG$var;
-                    addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
-                    // Set DEFAULT_APPLIED;
-                    addStmt(FlagChangeStmt(proxyVarSym, null, initFlags));
+                    
+                    if (!inGet) {
+                        // short varFlags$ = VFLG$var;
+                        addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
+                        
+                        // Set the state valid and mark defaults as applied
+                        addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
+                    }
                     
                     beginBlock();
                     
@@ -1125,22 +1131,28 @@ however this is what we need */
                         NOT(Call(defs.Checks_equals, id(defs.varOldValue_LocalVarName), id(newValueName)))
                       : NE(id(defs.varOldValue_LocalVarName), id(newValueName));
                     // Default-Not_applied
-                    JCExpression defaultAppliedTest = FlagTest(defs.varFlags_LocalVarName, defs.varFlagDEFAULT_APPLIED, null);
+                    JCExpression defaultAppliedTest = FlagTest(defs.varFlags_LocalVarName, defs.varFlagINITIALIZED_STATE_BIT, null);
 
                     addStmt(
                         OptIf (OR(valueChangedTest, defaultAppliedTest), endBlock(), null));
                 
-                    // Set the state valid and mark defaults as applied, but don't cancel an invalidation in progress
-                    addStmt(
-                        If(FlagTest(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagStateTRIGGERED),
-                            Block(FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID))));
-                
+                    if (inGet) {
+                        // Set the state valid and mark defaults as applied
+                        addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
+                    }
                 } else {
+                    // Set the state valid and mark defaults as applied
+                    addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
+                
                     // var = varNewValue$
                     addStmt(SetStmt(proxyVarSym, id(newValueName)));
+                }
                 
-                    // Set the state valid and mark defaults as applied
-                    addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, initFlags));
+                if (needsInvalidate) {
+                    // Set the state valid and mark defaults as applied, but don't cancel an invalidation in progress
+                    addStmt(
+                        If(FlagTest(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_TRIGGERED),
+                            Block(FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID))));
                 }
             }
         }
@@ -1354,7 +1366,7 @@ however this is what we need */
         //
         public JCStatement getDefaultInitStatement(VarInfo varInfo) {
             JCStatement init = varInfo.getDefaultInitStatement();
-            
+
             if (init == null || varInfo.hasBoundDefinition()) {
                 JavafxVarSymbol varSym = varInfo.getSymbol();
                 
@@ -1374,11 +1386,11 @@ however this is what we need */
                         }
                     } else if(!varInfo.isOverride()) {
                         if (!varInfo.generateSequenceAccessors()) {
-                            init = Block(FlagChangeStmt(varSym, null, defs.varFlagDEFAULT_APPLIED),
+                            init = Block(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
                                          CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym))
                                         );
                         } else {
-                            init = Block(FlagChangeStmt(varSym, null, defs.varFlagDEFAULT_APPLIED),
+                            init = Block(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
                                          CallStmt(attributeInvalidateName(varSym),
                                                   Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_INVALIDATE)),
                                          CallStmt(attributeInvalidateName(varSym),
@@ -1388,7 +1400,7 @@ however this is what we need */
                     }
                 }
                 if (init == null && varInfo.isSequence()) {
-                    if (!varInfo.hasBoundDefinition()) {
+                    if (!varInfo.hasBoundDefinition() && varInfo.useAccessors()) {
                         init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
                     }
                 }
@@ -1487,26 +1499,15 @@ however this is what we need */
                                                                          varInfo, bodyType) {
                 @Override
                 public void statements() {
-                    JCStatement initIf = null;
-                    if (!varInfo.isStatic() && !(isAnonClass() && varInfo.hasBoundDefinition())) {
-                        // Prepare to accumulate body of if.
+                    // Wrapping if (!init pending)
                         beginBlock();
-
-                        // applyDefaults$(VOFF$var)
-                        addStmt(CallStmt(defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
-
-                        // Is it uninitialized (and not bound)
-                        JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED, null);
-
-                        // if (uninitialized) { applyDefaults$(VOFF$var); }
-                        initIf = OptIf(initCondition, endBlock(), null);
-                    }
 
                     if (isBoundFuncClass && varInfo.isParameter()) {
                         // Prepare to accumulate body of if.
                         beginBlock();
                         // Lock cycles.
-                        addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagCYCLE));
+                        addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING));
+                        
                         /*
                          * if "foo" is the variable name, then we generate
                          *
@@ -1520,14 +1521,14 @@ however this is what we need */
                         JCExpression castGet = typeCast(varInfo.getRealType(), syms.objectType, get$call);
                         addStmt(SetStmt(varSym, castGet));
 
-                        // Is it invalid?
-                        JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT, defs.varFlagIS_BOUND_INVALID);
-
                         // Release cycle lock.
-                        addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
+                        addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
+
+                        // Is it invalid?
+                        JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
                         
                         // if (invalid) { set$var(init/bound expression); }
-                        addStmt(OptIf(condition, endBlock(), initIf));
+                        addStmt(OptIf(condition, endBlock(), null));
                     } else {  
                         // Begin if block.
                         beginBlock();
@@ -1544,8 +1545,14 @@ however this is what we need */
                         
                         // If (seq$ == null && isBound) { seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq); }
                         addStmt(OptIf(AND(EQ(Get(proxyVarSym), defaultValue(varInfo)), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND)),
-                                endBlock(), initIf));
+                                endBlock(), null));
                     }
+                    
+                    // if (!init pending)
+                    JCExpression initPendingExpr = NOT(FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING));
+                    addStmt(OptIf(initPendingExpr,
+                                  endBlock(),
+                                  null));
                     
                     // Construct and add: return $var;
                     addStmt(Return(Get(proxyVarSym)));
@@ -1662,7 +1669,7 @@ however this is what we need */
                                              getReceiverOrThis(varSym),
                                              DepNum(getReceiver(varSym), null, varInfo.boundFuncResultInitSym())));
 
-                            JCStatement setValid = FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID_DEFAULT_APPLIED);
+                            JCStatement setValid = FlagChangeStmt(proxyVarSym, defs.varFlagINIT_STATE_MASK, defs.varFlagVALID_DEFAULT_APPLIED);
                             JCExpression apply = Call(
                                     Getter(varInfo.boundFuncResultInitSym()),
                                     defs.size_PointerMethodName);
@@ -1889,6 +1896,9 @@ however this is what we need */
                 @Override
                 public void statements() {
                     if (varInfo.isBareSynth()) {
+                        // short varFlags$ = VFLG$var;
+                        addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
+                        
                         // for a bare-synthethic, just return bound-expression
                         addStmt(
                             TryWithErrorHandler(varInfo.hasSafeInitializer(),
@@ -1896,28 +1906,17 @@ however this is what we need */
                                 Return(varInfo.boundInit()),
                                 Return(defaultValue(varInfo))));
                     } else {
-                        JCStatement initIf = null;                        
-                        if (!varInfo.isStatic() && !(isAnonClass() && varInfo.hasBoundDefinition())) {
-                            // Prepare to accumulate body of if.
-                            beginBlock();
-    
-                                // applyDefaults$(VOFF$var)
-                            addStmt(CallStmt(defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
-    
-                            // Is it uninitialized (and not bound)
-                            JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED, null);
-    
-                            // if (uninitialized) { applyDefaults$(VOFF$var); }
-                            initIf = OptIf(initCondition,
-                                    endBlock());
-                        }
-
                         if (isBoundFuncClass && varInfo.isParameter()) {
+                            // Wrapping if (!init pending)
+                            beginBlock();
+    
                             // Prepare to accumulate body of if.
                             beginBlock();
 
+                            // short varFlags$ = VFLG$var;
+                            addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
                             // Lock cycles.
-                            addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagCYCLE));
+                            addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING));
                             
                             /*
                              * if "foo" is the variable name, then we generate
@@ -1935,25 +1934,32 @@ however this is what we need */
                             // Set the var.
                             makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, true);
                             
-                            // Release cycle lock.
-                            addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
-                            
                             // Is it invalid?
-                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT, defs.varFlagIS_BOUND_INVALID);
+                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
 
                             // if (invalid) { set$var(init/bound expression); }
                             addStmt(OptIf(condition, 
                                     endBlock(),
-                                    initIf));
+                                    null));
 
+                            // if (!init pending)
+                            JCExpression initPendingExpr = NOT(FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING));
+                            addStmt(OptIf(initPendingExpr,
+                                          endBlock(),
+                                          null));
                         } else if (varInfo.hasBoundDefinition()) {
+                            // Wrapping if (!init pending)
+                            beginBlock();
+                    
                             // Prepare to accumulate body of if.
                             beginBlock();
                             // Set to new value. Bogus assert, it seems an local var can be bound have no init.
                             // assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
 
+                            // short varFlags$ = VFLG$var;
+                            addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
                             // Lock cycles.
-                            addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagCYCLE));
+                            addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING));
                             
                             // set$var(init/bound expression)   
                             JCExpression initValue = varInfo.boundInit();
@@ -2015,18 +2021,19 @@ however this is what we need */
                                 makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, true);
                             }
 
-                            // Release cycle lock.
-                            addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
-
                             // Is it bound and invalid?
-                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT, defs.varFlagIS_BOUND_INVALID);
+                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
 
                             // if (bound and invalid) { set$var(init/bound expression); }
                             addStmt(OptIf(condition,
                                     endBlock(),
-                                    initIf));
-                        } else {
-                            addStmt(initIf);
+                                    null));
+                    
+                            // if (!init pending)
+                            JCExpression initPendingExpr = NOT(FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING));
+                            addStmt(OptIf(initPendingExpr,
+                                          endBlock(),
+                                          null));
                         }
 
                         // Construct and add: return $var;
@@ -2231,7 +2238,7 @@ however this is what we need */
 
                         // Call the get$var to force evaluation.
                         if (varInfo.onReplace() != null) {
-                            addStmt(OptIf(NOT(FlagTest(proxyVarSym, defs.varFlagIS_EAGER, null)),
+                            addStmt(OptIf(FlagTest(proxyVarSym, defs.varFlagIS_EAGER, defs.varFlagIS_EAGER),
                                           Block(Stmt(Getter(proxyVarSym)))));
                         }
 
@@ -2882,26 +2889,15 @@ however this is what we need */
                             // Construct the case.
                             beginBlock();
 
-                            // Set initialized flag if need be.
-                            if (!varInfo.useAccessors()) {
-                                if (varInfo.hasInitializer()) {
-                                    addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED));
-                                } else {
-                                    addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagDEFAULT_APPLIED));
-                                }
-                            } else if (varInfo.hasInitializer()) {
-                                addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagIS_INITIALIZED));
-                            }
-
-                            // Variable with self-reference needs to have its VARINIT flag set eagerly
-                            if (varInfo.hasSelfReference()) {
-                                addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagDEFAULT_APPLIED_VARINIT));
-                            }
-                            
                             if (varInfo instanceof MixinClassVarInfo && !varInfo.hasInitializer()) {
                                 // Call the appropriate mixin owner.
                                 callMixin((ClassSymbol)varInfo.getSymbol().owner);
                             } else {
+                                // Set initialized flag if need be.
+                                if (!varInfo.useAccessors() && !varInfo.hasInitializer()) {
+                                    addStmt(FlagChangeStmt(varInfo.proxyVarSym(), defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                                }
+                            
                                 // Get body of applyDefaults$.
                                 addStmt(getDefaultInitStatement(varInfo));
                             }
@@ -2960,9 +2956,9 @@ however this is what we need */
                     // Control build.
                     buildIf(stmts.nonEmpty());
 
-                    // if (!default_applied && !varinit)
-                    JCExpression ifExpr = FlagTest(varNumArg(), defs.varFlagDEFAULT_APPLIED_VARINIT, null);
-                    // if (!default_applied && !varinit) { body }
+                    // if (init ready)
+                    JCExpression ifExpr = FlagTest(varNumArg(), defs.varFlagINIT_MASK, defs.varFlagINIT_READY);
+                    // if (init ready) { body }
                     addStmt(OptIf(ifExpr, endBlock()));
                 }
             };
@@ -2998,15 +2994,9 @@ however this is what we need */
             JCExpression setBits = null;
   
             if (useSimpleInit(ai)) {
-                setBits = bitOrFlags(setBits, defs.varFlagDEFAULT_APPLIED, defs.varFlagIS_INITIALIZED);
-            } else {
-                if (isBound) {
-                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagStateTRIGGERED);
-                }
-                
-                if (ai.hasVarInit()) {
-                    setBits = bitOrFlags(setBits, defs.varFlagAWAIT_VARINIT);
-                }
+                setBits =  bitOrFlags(setBits, defs.varFlagINIT_INITIALIZED_DEFAULT);
+            } else if (isBound) {
+                setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagSTATE_TRIGGERED, defs.varFlagINIT_READY);
             }
             
             // Read only is normally marked after the default is set (set once).
@@ -3994,7 +3984,7 @@ however this is what we need */
             if (isScriptLevel) {
                 stmts.append(Stmt(m().Assign(id(scriptLevelAccessSym),
                                              m().NewClass(null, null, id(scriptName), List.<JCExpression>of(False()), null))));
-                stmts.append(CallStmt(id(scriptLevelAccessSym), defs.initialize_FXObjectMethodName));
+                stmts.append(CallStmt(id(scriptLevelAccessSym), defs.initialize_FXObjectMethodName, False()));
             }
             
             if (isLibrary) {
@@ -4062,12 +4052,12 @@ however this is what we need */
         public void makeJavaEntryConstructor() {
             //    public Foo() {
             //        this(false);
-            //        initialize$();
+            //        initialize$(true);
             //    }
             makeConstructor(List.<JCVariableDecl>nil(), List.<Type>nil(),
                 Stmts(
                     CallStmt(names._this, False()),
-                    CallStmt(defs.initialize_FXObjectMethodName)
+                    CallStmt(defs.initialize_FXObjectMethodName, isScript() || isAnonClass() ? False() : True())
                 )
             );
         }

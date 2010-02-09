@@ -27,13 +27,11 @@ import com.sun.javafx.runtime.FXObject;
 public abstract class BoundForOverVaryingAbstract<T, PT> extends BoundFor<T, PT> {
 
     protected int[] cumulatedLengths;
-    protected boolean areCumulatedLengthsValid = false;
     private int cacheIndex;
     private int cachePart;
 
     public BoundForOverVaryingAbstract(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         super(container, forVarNum, inductionSeqVarNum, dependsOnIndex);
-        resetCache();
     }
 
 
@@ -45,27 +43,56 @@ public abstract class BoundForOverVaryingAbstract<T, PT> extends BoundFor<T, PT>
     
     public int size() {
         initializeIfNeeded();
-        return cumLength(numParts);
+        if (state != BOUND_FOR_STATE_PARTS_STABLE || pendingTriggers > 0) {
+            return cumLength(numParts);
+        } else {
+            return sizeAtLastTrigger;
+        }
+    }
+
+    @Override
+    protected int decacheLengths() {
+        cachePart = 0;
+        int previousSize = sizeAtLastTrigger;
+        if (cumulatedLengths == null ||
+                    cumulatedLengths.length < numParts ||
+                    cumulatedLengths.length > (numParts+10)) {
+            cumulatedLengths = new int[numParts];
+        }
+        sizeAtLastTrigger = calculateCumLength(numParts, cumulatedLengths);
+        return previousSize;
+    }
+
+    private int calculateCumLength(int ipart, int[] lengths) {
+        inWholesaleUpdate = true;
+        int sum = 0;
+        for (int ips = 0; ips < ipart; ++ips) {
+            sum += size(ips);
+            if (lengths != null) {
+                cumulatedLengths[ips] = sum;
+            }
+        }
+        inWholesaleUpdate = false;
+        return sum;
     }
 
     protected int cumLength(int ipart) {
         if (ipart <= 0) {
             return 0;
+        } else if (state != BOUND_FOR_STATE_PARTS_STABLE || pendingTriggers > 0) {
+            // Calculate without touching cache
+            return calculateCumLength(ipart, null);
+        } else {
+            return cumulatedLengths[ipart - 1];
         }
-        if (!areCumulatedLengthsValid) {
-            if (cumulatedLengths == null) {
-                cumulatedLengths = new int[numParts];
-            }
+    }
 
-            // We have invalid lengths, recompute them all
-            int sum = 0;
-            for (int ips = 0; ips < numParts; ++ips) {
-                sum += size(ips);
-                cumulatedLengths[ips] = sum;
-            }
-            areCumulatedLengthsValid = true;
+    protected int cachedCumLength(int ipart) {
+        if (ipart <= 0) {
+            return 0;
+        } else {
+            return cumulatedLengths[ipart - 1];
         }
-        return cumulatedLengths[ipart-1];
     }
 
     public T get(int index) {
@@ -74,14 +101,25 @@ public abstract class BoundForOverVaryingAbstract<T, PT> extends BoundFor<T, PT>
         if (index < 0)
             return null;
 
+        int i = 0;
+        int cumPrev = 0;
+        if (state != BOUND_FOR_STATE_PARTS_STABLE || pendingTriggers > 0) {
+            // Calculate without touching cache
+            for (;; i++) {
+                if (i >= numParts) {
+                    return null;
+                }
+                int cum = cumLength(i + 1);
+                if (index < cum) {
+                    return get(i, index - cumPrev);
+                }
+                cumPrev = cum;
+            }
+        }
         // FIXME - should use binary search if not in cache.
-        int i, cumPrev;
         if (index >= cacheIndex) {
             i = cachePart;
             cumPrev = cumLength(i);
-        } else {
-            i = 0;
-            cumPrev = 0;
         }
         for (;; i++) {
             if (i >= numParts)
@@ -94,10 +132,6 @@ public abstract class BoundForOverVaryingAbstract<T, PT> extends BoundFor<T, PT>
             }
             cumPrev = cum;
         }
-    }
-
-    protected void resetCache() {
-        cachePart = 0;
     }
 }
 

@@ -58,6 +58,7 @@ import com.sun.tools.javafx.util.MsgSym;
 import com.sun.javafx.api.JavafxBindStatus;
 
 import com.sun.tools.javafx.code.JavafxVarSymbol;
+import java.util.LinkedHashSet;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /** Type checking helper class for the attribution phase.
@@ -456,7 +457,7 @@ public class JavafxCheck {
        }
 
         // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
-        for (Type baseType : types.supertypes(found.tsym, found)) {
+        for (Type baseType : types.supertypesClosure(found, true)) {
             if (types.isAssignable(baseType, req, convertWarner(pos, found, req)))
                 return realFound;
         }
@@ -757,11 +758,7 @@ public class JavafxCheck {
                 }
             }
             if (initSym instanceof VarSymbol) {
-                if ((initSym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0) {
-                    log.error(init.pos(),
-                              MsgSym.MESSAGE_JAVAFX_BOUND_VAR_IN_BIDI_BIND);
-                }
-                else if (pt != null && bindStatus.isBidiBind() && !types.isSameType(pt, initSym.type)) {
+                if (pt != null && bindStatus.isBidiBind() && !types.isSameType(pt, initSym.type)) {
                     log.error(init.pos(), 
                               MsgSym.MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND,
                               types.toJavaFXString(initSym.type),
@@ -809,7 +806,7 @@ public class JavafxCheck {
             return;
 
         boolean isOk = false;
-        List<Type> supertypes = csym.getSuperTypes();
+        List<Type> supertypes = types.supertypes(csym.type);
         if (supertypes.isEmpty()) {
             isOk = types.isSameType(syms.objectType, t);
         }
@@ -1690,7 +1687,7 @@ public class JavafxCheck {
                 return;
             }
         }
-        for (Type t : types.supertypes(origin)) {
+        for (Type t : types.supertypesClosure(origin.type)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;
                 Scope.Entry e = c.members().lookup(m.name);
@@ -1742,7 +1739,7 @@ public class JavafxCheck {
         checkVarOverride(diagPos, vsym, (ClassSymbol)vsym.owner, true);
     }
     void checkVarOverride(DiagnosticPosition diagPos, JavafxVarSymbol vsym, ClassSymbol origin, boolean overrides) {
-        for (Type t : types.supertypes(origin)) {
+        for (Type t : types.supertypesClosure(origin.type)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;
 
@@ -2285,5 +2282,148 @@ public class JavafxCheck {
         } else {
             return syms.makeFunctionType(m);
         }
+    }
+
+    public void checkForwardReferences(JFXTree tree) {
+        class ForwardReferenceChecker extends JavafxTreeScanner {
+            List<Set<JavafxVarSymbol>> scopes = List.nil();
+            boolean inSelect = false;
+
+            @Override
+            public void visitClassDeclaration(JFXClassDeclaration tree) {
+                beginScope();
+                addVars(tree.getMembers());
+                super.visitClassDeclaration(tree);
+                endScope();
+            }
+
+            @Override
+            public void visitFunctionValue(JFXFunctionValue tree) {
+                beginScope();
+                super.visitFunctionValue(tree);
+                endScope();
+            }
+
+            @Override
+            public void visitOnReplace(JFXOnReplace tree) {
+                beginScope();
+                super.visitOnReplace(tree);
+                endScope();
+            }
+
+            @Override
+            public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+                beginScope();
+                super.visitKeyFrameLiteral(tree);
+                endScope();
+            }
+
+            @Override
+            public void visitInterpolateValue(JFXInterpolateValue tree) {
+                beginScope();
+                super.visitInterpolateValue(tree);
+                endScope();
+            }
+
+            @Override
+            public void visitInitDefinition(JFXInitDefinition tree) {
+                beginScope();
+                super.visitInitDefinition(tree);
+                endScope();
+            }
+
+            @Override
+            public void visitPostInitDefinition(JFXPostInitDefinition tree) {
+                beginScope();
+                super.visitPostInitDefinition(tree);
+                endScope();
+            }
+
+            @Override
+            public void visitBlockExpression(JFXBlock tree) {
+                addVars(tree.stats);
+                addVar(tree.value);
+                super.visitBlockExpression(tree);
+            }
+
+            @Override
+            public void visitIdent(JFXIdent tree) {                
+                checkForwardReference(tree, tree.sym);
+            }
+
+            @Override
+            public void visitSelect(JFXSelect tree) {
+                boolean prevInSelect = inSelect;
+                try {
+                    Symbol selectedSym = JavafxTreeInfo.symbolFor(tree.selected);
+                    boolean shouldWarn = selectedSym != null &&
+                            (selectedSym.kind == TYP ||
+                            (selectedSym.kind == VAR &&
+                            selectedSym.name == names._this));
+                    if (shouldWarn) {
+                        checkForwardReference(tree, tree.sym);
+                    }
+                    super.visitSelect(tree);
+                }
+                finally {
+                    inSelect = prevInSelect;
+                }
+            }
+
+            @Override
+            public void visitVarInit(JFXVarInit tree) {
+                currentScope().remove(tree.getSymbol());
+            }
+
+            @Override
+            public void visitVar(JFXVar tree) {
+                super.scan(tree.getInitializer());
+                currentScope().remove(tree.getSymbol());
+                super.scan(tree.getOnReplace());
+                super.scan(tree.getOnInvalidate());
+            }
+
+            private void checkForwardReference(JFXExpression tree, Symbol s) {
+                if (currentScope().contains(s) && !tree.isBound()) {
+                    log.warning(tree.pos(),
+                            MsgSym.MESSAGE_ILLEGAL_FORWARD_REF,
+                            rs.kindName(VAR),
+                            s);
+                }
+            }
+
+            private void beginScope() {
+                Set<JavafxVarSymbol> scope = new LinkedHashSet<JavafxVarSymbol>();
+                scopes = scopes.prepend(scope);
+            }
+
+            private void endScope() {
+                scopes = scopes.tail;
+            }
+
+            private Set<JavafxVarSymbol> currentScope() {
+                return scopes.head;
+            }
+
+            private void addVars(List<? extends JFXTree> trees) {
+                for (JFXTree t : trees) {
+                    addVar(t);
+                }
+            }
+
+            private void addVar(JFXTree tree) {
+                if (tree != null) {
+                    JavafxVarSymbol sym = null;
+                    switch (tree.getFXTag()) {
+                        case VAR_DEF: sym = ((JFXVar)tree).getSymbol(); break;
+                        case VAR_SCRIPT_INIT: sym = ((JFXVarInit)tree).getSymbol(); break;
+                    }
+                    if (sym != null) {
+                        currentScope().add(sym);
+                    }
+                }
+            }
+        }
+        new ForwardReferenceChecker().scan(tree);
     }
 }

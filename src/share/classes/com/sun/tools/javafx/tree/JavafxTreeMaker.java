@@ -874,7 +874,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
      public JFXVarInit VarInit(JFXVar var) {
          JFXVarInit tree = new JFXVarInit(var);
-         tree.pos = var.pos;
+         tree.pos = (var==null) ? Position.NOPOS : var.pos;
          return tree;
      }
 

@@ -57,15 +57,6 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
     }
 
     private static Sequence<? extends $Tboxed$> replaceSlice(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
-        if (preReplaceSlice(oldValue, newValue, startPos, endPos)) {
-            return replaceSliceInternal(oldValue, newValue, startPos, endPos, false);
-        }
-        else {
-            return oldValue;
-        }
-    }
-    //where
-    private static Sequence<? extends $Tboxed$> replaceSliceInternal(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int startPos, int endPos/*exclusive*/, boolean hasTrigger) {
         int oldSize = oldValue.size();
         if (startPos < 0)
             startPos = 0;
@@ -76,41 +67,26 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
         else if (endPos < startPos)
             endPos = startPos;
 
+        /* Probably not a worthwhile optimization.
+        if (endPos == startPos+1 && newValue == oldValue.getAs$T$(startPos)) {
+            return oldValue;
+        }
+        */
         $T$ArraySequence arr;
         if (! (oldValue instanceof $T$ArraySequence)
             || (arr = ($T$ArraySequence) oldValue).isShared()) {
             arr = new $T$ArraySequence(oldValue);
             arr.incrementSharing();
         }
-        arr.replace(startPos, endPos, newValue, hasTrigger);
+        arr.replace(startPos, endPos, newValue, false);
         return arr;
-    }
-    //where
-    private static boolean preReplaceSlice(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
-        int oldSize = oldValue.size();
-        if (startPos < 0)
-            startPos = 0;
-        else if (startPos > oldSize)
-            startPos = oldSize;
-        if (endPos > oldSize)
-            endPos = oldSize;
-        else if (endPos < startPos)
-            endPos = startPos;
-
-        if (endPos == startPos+1 && newValue == oldValue.getAs$T$(startPos)) {
-            // FIXME set valid??
-            return false;
-        }
-        else {
-            return true;
-        }
     }
 
     public static void replaceSlice(FXObject instance, int varNum, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
-        boolean wasUninitialized =
-                instance.varTestBits\$(varNum, FXObject.VFLGS\$DEFAULT_APPLIED, 0);
-        instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
-        if (instance.varTestBits\$(varNum, FXObject.VFLGS\$INIT_BOUND_READONLY, FXObject.VFLGS\$INIT_BOUND_READONLY)) {
+        int flags = instance.getFlags\$(varNum);
+		boolean wasUninitialized = (flags & FXObject.VFLGS\$INITIALIZED_STATE_BIT) == 0;
+        instance.setFlags\$(varNum, flags | FXObject.VFLGS\$INIT\$INITIALIZED_DEFAULT);
+        if ((flags & FXObject.VFLGS\$IS_BOUND_READONLY) == FXObject.VFLGS\$IS_BOUND_READONLY) {
             throw new AssignToBoundException("Cannot mutate bound sequence");
         }
         Sequence<? extends $Tboxed$> oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
@@ -118,14 +94,31 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
             SequenceProxy sp = (SequenceProxy) oldValue;
             instance = sp.instance();
             varNum = sp.varNum();
-            instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+            instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT\$INITIALIZED_DEFAULT);
             oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
         }
-        if (preReplaceSlice(oldValue, newValue, startPos, endPos) ||
+        int oldSize = oldValue.size();
+        if (startPos < 0)
+            startPos = 0;
+        else if (startPos > oldSize)
+            startPos = oldSize;
+        if (endPos > oldSize)
+            endPos = oldSize;
+        else if (endPos < startPos)
+            endPos = startPos;
+
+        if (endPos != startPos+1 || newValue != oldValue.getAs$T$(startPos) ||
             wasUninitialized) {
             instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.PHASE_TRANS\$CASCADE_INVALIDATE);
-            Sequence<? extends $Tboxed$> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos, true);
-            instance.seq\$(varNum, arr);
+            $T$ArraySequence arr;
+            if (! (oldValue instanceof $T$ArraySequence)
+                || (arr = ($T$ArraySequence) oldValue).isShared()) {
+                arr = new $T$ArraySequence(oldValue);
+                arr.incrementSharing();
+            }
+            arr.replace(startPos, endPos, newValue, true);
+            if (arr != oldValue)
+                instance.seq\$(varNum, arr);
             instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.PHASE_TRANS\$CASCADE_TRIGGER);
         }
     }

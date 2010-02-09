@@ -27,8 +27,9 @@ import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 import com.sun.tools.mjavac.util.Name;
-import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.mjavac.util.ListBuffer;
+import java.util.List;
 
 /**
  * Initialization of a var inline in a local context.
@@ -42,10 +43,12 @@ import com.sun.tools.javafx.code.JavafxVarSymbol;
  */
 public class JFXVarInit extends JFXExpression implements VariableTree {
     private JFXVar var;
+    private ListBuffer<JFXVarInit> shreddedVarInits;
 
     protected JFXVarInit(JFXVar var) {
         this.var = var;
-        var.setVarInit(this);
+        if (var!=null)
+            var.setVarInit(this);
     }
     
     public JFXVar getVar() {
@@ -76,6 +79,21 @@ public class JFXVarInit extends JFXExpression implements VariableTree {
 
     public void accept(JavafxVisitor v) {
         v.visitVarInit(this);
+    }
+
+    public void addShreddedVarInit(JFXVarInit vi) {
+        if (shreddedVarInits == null) {
+            shreddedVarInits = ListBuffer.lb();
+        }
+        shreddedVarInits.append(vi);
+    }
+
+    public ListBuffer<JFXVarInit> getShreddedVarInits() {
+        if (shreddedVarInits == null) {
+            return ListBuffer.<JFXVarInit>lb();
+        } else {
+            return shreddedVarInits;
+        }
     }
 
     public JFXType getJFXType() {

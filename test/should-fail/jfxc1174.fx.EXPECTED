@@ -1,4 +1,0 @@
-test/should-fail/jfxc1174.fx:10: Bound variables not supported for bind with inverse.
-var d = bind c with inverse;
-             ^
-1 error

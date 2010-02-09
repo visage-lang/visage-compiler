@@ -177,7 +177,6 @@ public class JavafxPreTranslationSupport {
         }
 
         ct.supertype_field = syms.javafx_FXBaseType;
-        classSym.addSuperType(syms.javafx_FXBaseType);
 
         return classSym;
     }
@@ -392,6 +391,7 @@ public class JavafxPreTranslationSupport {
     }
 
     boolean isImmutable(JFXExpression tree) {
+        //TODO: add for-loop, sequence indexed, string expression
         switch (tree.getFXTag()) {
             case IDENT: {
                 JFXIdent id = (JFXIdent) tree;
@@ -403,9 +403,29 @@ public class JavafxPreTranslationSupport {
             }
             case LITERAL:
             case TIME_LITERAL:
+            case SEQUENCE_EMPTY:
                 return true;
             case PARENS:
                 return isImmutable(((JFXParens)tree).getExpression());
+            case BLOCK_EXPRESSION: {
+                JFXBlock be = (JFXBlock) tree;
+                for (JFXExpression stmt : be.getStmts()) {
+                    //TODO: OPT probably many false positive cases
+                    if (stmt instanceof JFXVar) {
+                        JFXVar var = (JFXVar) stmt;
+                        if (!isImmutable(var.getInitializer())) {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+                return isImmutable(be.getValue());
+            }
+            case CONDEXPR: {
+                JFXIfExpression ife = (JFXIfExpression) tree;
+                return isImmutable(ife.getCondition()) && isImmutable(ife.getTrueExpression()) && isImmutable(ife.getFalseExpression());
+            }
             case SEQUENCE_RANGE: {
                 JFXSequenceRange rng = (JFXSequenceRange) tree;
                 return isImmutable(rng.getLower()) && isImmutable(rng.getUpper()) && (rng.getStepOrNull()==null || isImmutable(rng.getStepOrNull()));
@@ -424,10 +444,14 @@ public class JavafxPreTranslationSupport {
                     if (tree.getFXTag().isIncDec()) {
                         return false;
                     } else {
-                        return isImmutable(((JFXUnary)tree).getExpression());
+                        return isImmutable(((JFXUnary) tree).getExpression());
                     }
+                } else if (tree instanceof JFXBinary) {
+                    JFXBinary b = (JFXBinary) tree;
+                    return isImmutable(b.lhs) && isImmutable(b.rhs);
+                } else {
+                    return false;
                 }
-                return false;
         }
     }
 
@@ -437,15 +461,11 @@ public class JavafxPreTranslationSupport {
         }
         JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
         Symbol owner = sym.owner;
-        boolean isKnown = vsym.isLocal() || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
-        boolean isAssignedTo = vsym.isAssignedTo();
-        boolean isDefinedBound = vsym.isDefinedBound();
         return
                     name == names._this ||
                     name == names._super ||
                     (owner instanceof JavafxClassSymbol && name == fxmake.ScriptAccessSymbol(owner).name) ||
-                    isKnown && vsym.isDef() && !isDefinedBound || // unbound def
-                    isKnown && !vsym.isWritableOutsideScript() && !isAssignedTo && !isDefinedBound; // never reassigned
+                    !vsym.canChange();
      }
 
     private boolean isImmutableSelector(final JFXSelect tree) {

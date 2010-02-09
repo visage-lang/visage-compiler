@@ -234,7 +234,8 @@ public abstract class JavafxAbstractTranslation
      */
     protected JCExpression convertNullability(final DiagnosticPosition diagPos, final JCExpression expr,
             final JFXExpression inExpr, final Type outType) {
-        return (new Translator(diagPos) {
+        class ConvertNullabilityTranslator extends Translator {
+            ConvertNullabilityTranslator(DiagnosticPosition diagPos) { super(diagPos); }
 
             Result doit() {
                 throw new IllegalArgumentException();
@@ -262,7 +263,8 @@ public abstract class JavafxAbstractTranslation
                 }
                 return expr;
             }
-        }).doitExpr();
+        }
+        return new ConvertNullabilityTranslator(diagPos).doitExpr();
     }
 
     /********** Result types **********/
@@ -761,6 +763,7 @@ public abstract class JavafxAbstractTranslation
 
         Translator(DiagnosticPosition diagPos) {
             super(diagPos, currentClass(), receiverContext() == ReceiverContext.ScriptAsStatic);
+            optStat.recordTranslator(this.getClass());
         }
 
         abstract Result doit();
@@ -1915,62 +1918,15 @@ public abstract class JavafxAbstractTranslation
                     if (selectorSym.isSpecial()) {
                         addInterClassBindee(selectorSym, refSym);
                     } else if (canChange()) {
-                        // cases that need a null check are the same as cases that have changing dependencies
-                        buildDependencies(selectorSym);
-                        addBindee(selectorSym);
-                        addInterClassBindee(selectorSym, refSym);
+                        if (tree.sym instanceof JavafxVarSymbol) {
+                            // cases that need a null check are the same as cases that have changing dependencies
+                            addBindee(selectorSym);
+                            addInterClassBindee(selectorSym, refSym);
+                        }
                     }
                 }
             }
             return (ExpressionResult) super.doit();
-        }
-
-        protected void buildDependencies(Symbol selectorSym) {
-            if (types.isJFXClass(selectorSym.owner) && types.isJFXClass(tree.sym.owner)) {
-                JavafxVarSymbol varSym = (JavafxVarSymbol)tree.sym;
-                
-                if (varSym.isStatic()) {
-                    // Since the receiver is constant ($scriptaccess$) then 'this' gets added to initVars$ (do once)
-                } else {
-                    Type selectorType = selectorSym.type;
-    
-                    JCVariableDecl oldSelector = TmpVar(selectorType, Get(selectorSym));
-                    addPreface(oldSelector);
-                    JCVariableDecl newSelector = TmpVar(selectorType, Getter(selectorSym));
-                    addPreface(newSelector);
-            
-                    if (isMixinVar(varSym)) {
-                        JCExpression oldOffset =
-                            If(EQnull(id(oldSelector)),
-                                Int(0),
-                                Offset(id(oldSelector), varSym));
-                        JCExpression newOffset =
-                            If(EQnull(id(newSelector)),
-                                Int(0),
-                                Offset(id(newSelector), varSym));
-                        JCExpression depNum =
-                            If(EQnull(id(newSelector)),
-                                Int(0),
-                                Offset(id(newSelector), varSym));
-                        addSwitchDependence(id(oldSelector), id(newSelector), oldOffset, newOffset,
-                                            DepNum(getReceiver(selectResSym), selectorSym, varSym));
-                    } else {
-                        JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(varSym));
-                        addPreface(offsetVar);
-                        addSwitchDependence(id(oldSelector), id(newSelector), id(offsetVar), id(offsetVar),
-                                            DepNum(getReceiver(selectResSym), selectorSym, varSym));
-                    }
-                }
-            }
-        }
-
-        protected void addSwitchDependence(JCExpression oldSelector, JCExpression newSelector, JCExpression oldOffset, JCExpression newOffset, JCExpression depNum) {
-            JCExpression rcvr = getReceiverOrThis(selectResSym);
-            addPreface(CallStmt(defs.FXBase_switchDependence,
-                    rcvr,
-                    oldSelector, oldOffset,
-                    newSelector, newOffset,
-                    depNum));
         }
     }
 
@@ -2795,13 +2751,17 @@ public abstract class JavafxAbstractTranslation
                         applyDefaultsExpr);
             }
 
-            addPreface(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));
+            // Ready to init value.
+            JCStatement clearFlagsStmt = CallStmt(id(receiverName), defs.varFlagActionChange, id(loopName),
+                                                  Int(0), id(defs.varFlagINIT_READY));
+
+            addPreface(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, Block(clearFlagsStmt, loopBody)));
         }
 
         void makeSetVarFlags(Name receiverName, Type contextType) {
             for (JavafxVarSymbol vsym : varSyms) {
                 JCExpression flagsToSet = (vsym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0 ?
-                    id(defs.varFlagINIT_OBJ_LIT_DEFAULT) :
+                    id(defs.varFlagINIT_OBJ_LIT_BIND) :
                     id(defs.varFlagINIT_OBJ_LIT);
 
                 addPreface(CallStmt(
@@ -3817,7 +3777,7 @@ public abstract class JavafxAbstractTranslation
             if (vsym.useAccessors() || !var.isLiteralInit()) {
                 return toResult(
                         BlockExpression(
-                            FlagChangeStmt(vsym, defs.varFlagAWAIT_VARINIT, null),
+                            FlagChangeStmt(vsym, null, defs.varFlagINIT_READY),
                             CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym)),
                             Get(vsym)
                         ),

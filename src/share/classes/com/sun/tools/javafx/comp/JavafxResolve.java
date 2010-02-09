@@ -298,7 +298,7 @@ public class JavafxResolve {
         private
         boolean isProtectedAccessible(Symbol sym, ClassSymbol c, Type site) {
             while (c != null &&
-                   !(types.isSuperType(types.erasure(sym.owner.type), c) &&
+                   !(types.isSubtype(c.type, types.erasure(sym.owner.type)) &&
                      (c.flags() & INTERFACE) == 0 &&
                      // In JLS 2e 6.6.2.1, the subclass restriction applies
                      // only to instance fields and methods -- types are excluded
@@ -490,7 +490,7 @@ public class JavafxResolve {
          // Javafx class.
          // Now try to find the filed in all of the Javafx supertypes.
          if (bestSoFar.kind > AMBIGUOUS && c instanceof JavafxClassSymbol) {
-             List<Type> supertypes = ((JavafxClassSymbol)c).getSuperTypes();
+             List<Type> supertypes = types.supertypes(c.type);
              for (Type tp : supertypes) {
                  if (tp != null && tp.tag == CLASS) {
                      sym = findField(env, site, name, tp.tsym);
@@ -519,7 +519,7 @@ public class JavafxResolve {
         if (!types.isMixin(s1.owner) &&
                 !types.isMixin(s2.owner))
             return false;
-        List<Type> supertypes = types.orderedSupertypeClosure(site);
+        List<Type> supertypes = types.supertypesClosure(site);
         int i1 = indexInSupertypeList(supertypes, s1.owner.type);
         int i2 = indexInSupertypeList(supertypes, s2.owner.type);
         return i1 <= i2 && i1 != -1 && i2 != -1;
@@ -1005,7 +1005,7 @@ public class JavafxResolve {
         // Javafx class.
         // Now try to find the filed in all of the Javafx supertypes.
         if (bestSoFar.kind > AMBIGUOUS && intype.tsym instanceof JavafxClassSymbol) {
-            List<Type> supertypes = ((JavafxClassSymbol)intype.tsym).getSuperTypes();
+            List<Type> supertypes = types.supertypes(intype);
             for (Type tp : supertypes) {
                 bestSoFar = findMemberWithoutAccessChecks(env, site, name, expected, tp,
                         bestSoFar, allowBoxing, useVarargs, operator);                
@@ -2188,7 +2188,7 @@ public class JavafxResolve {
             };
             // 'package' access
             boolean foundInherited = false;
-            for (Type supType : types.supertypes(clazz, clazz.type)) {
+            for (Type supType : types.supertypesClosure(clazz.type, true)) {
                 if (supType.tsym == sym.owner) {
                     foundInherited = true;
                     break;

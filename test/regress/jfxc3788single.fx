@@ -29,5 +29,5 @@ var content:Object[] = bind for (i in [1,2,3]) x + i
       }; 
 x = 42;
 if (onrCnt != 2) {
-  println("expected four on-replace calls, got {onrCnt}");
+  println("expected two on-replace calls, got {onrCnt}");
 }

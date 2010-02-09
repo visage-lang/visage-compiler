@@ -546,11 +546,6 @@ public class JavafxAttr implements JavafxVisitor {
         if (sym.kind == VAR) {
             JavafxVarSymbol v = (JavafxVarSymbol)sym;
 
-            // ..., evaluate its initializer, if it has one, and check for
-            // illegal forward reference.
-            checkInit(tree, env, v);
-            checkForward(tree, env, v);
-
             if (env.info.inInvalidate &&
                     sym == env.info.enclVar) {
                 log.error(tree.pos(), MsgSym.MESSAGE_CANNOT_REF_INVALIDATE_VAR, sym);
@@ -578,14 +573,12 @@ public class JavafxAttr implements JavafxVisitor {
             if ((pkind & TYP) != 0) skind = skind | TYP | PCK;
             if ((pkind & (VAL | MTH)) != 0) skind = skind | VAL | TYP;
         }
-        boolean inSelectPrev = env.info.inSelect;
-        env.info.inSelect = true;
         // Attribute the qualifier expression, and determine its symbol (if any).
         Type site = attribTree(tree.selected, env, skind,
                 Infer.anyPoly, Sequenceness.PERMITTED);
         boolean wasPrimitive = site.isPrimitive();
         site = types.boxedTypeOrType(site);
-        env.info.inSelect = inSelectPrev;
+        
         if ((pkind & (PCK | TYP)) == 0)
             site = capture(site); // Capture field access
 
@@ -645,10 +638,6 @@ public class JavafxAttr implements JavafxVisitor {
         // If that symbol is a variable, ...
         if (sym.kind == VAR) {
             JavafxVarSymbol v = (JavafxVarSymbol)sym;
-
-            // ..., evaluate its initializer, if it has one, and check for
-            // illegal forward reference.
-            checkInit(tree, env, v);
             
             // If we are expecting a variable (as opposed to a value), check
             // that the variable is assignable in the current environment.
@@ -1312,7 +1301,14 @@ public class JavafxAttr implements JavafxVisitor {
 
         forExprEnv.tree = tree; // before, we were not in loop!
         attribTree(tree.getBodyExpression(), forExprEnv, VAL, pt.tag != ERROR ? pt : Type.noType, Sequenceness.PERMITTED);
-
+        if (!tree.getBodyExpression().type.isErroneous() &&
+                tree.getBodyExpression().type.tag != VOID &&
+                (pt.tag == NONE ||
+                pt == syms.javafx_UnspecifiedType)) {
+            Type blockElemType = types.elementTypeOrType(tree.getBodyExpression().type);
+            Type typeToCheck = types.sequenceType(types.normalize(blockElemType));
+            attribTree(tree.getBodyExpression(), forExprEnv, VAL, typeToCheck, Sequenceness.PERMITTED);
+        }
         Type bodyType = tree.getBodyExpression().type;
         if (bodyType == syms.unreachableType)
             log.error(tree.getBodyExpression(), MsgSym.MESSAGE_UNREACHABLE_STMT);
@@ -2737,71 +2733,67 @@ public class JavafxAttr implements JavafxVisitor {
 
     //@Override
     public void visitLiteral(JFXLiteral tree) {
-        if (tree.typetag == TypeTags.BOT && types.isSequence(pt))
-            result = tree.type = pt;
-        else {
-            Type expected = types.elementTypeOrType(pt);
-            if (tree.value instanceof Double) {
-                double dvalue = ((Double) tree.value).doubleValue();
-                double dabs = Math.abs(dvalue);
-                boolean fitsInFloat = Double.isInfinite(dvalue) || dvalue == 0.0 ||
-                        (dabs <= Float.MAX_VALUE && dabs >= Float.MIN_VALUE);
-                if (isPrimitiveOrBoxed(expected, DOUBLE) || (expected.tag == UNKNOWN && !fitsInFloat)) {
-                    tree.typetag = TypeTags.DOUBLE;
-                }
-                else {
-                    if (isPrimitiveOrBoxed(expected, FLOAT) && !fitsInFloat) {
-                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Number", tree.value.toString());
-                    }
-                    tree.typetag = TypeTags.FLOAT;
-                    tree.value = Float.valueOf((float) dvalue);
-                }
+        Type expected = types.elementTypeOrType(pt);
+        if (tree.value instanceof Double) {
+            double dvalue = ((Double) tree.value).doubleValue();
+            double dabs = Math.abs(dvalue);
+            boolean fitsInFloat = Double.isInfinite(dvalue) || dvalue == 0.0 ||
+                    (dabs <= Float.MAX_VALUE && dabs >= Float.MIN_VALUE);
+            if (isPrimitiveOrBoxed(expected, DOUBLE) || (expected.tag == UNKNOWN && !fitsInFloat)) {
+                tree.typetag = TypeTags.DOUBLE;
             }
-            else if ((tree.value instanceof Integer || tree.value instanceof Long) &&
-                    tree.typetag != TypeTags.BOOLEAN) {
-                long lvalue = ((Number) tree.value).longValue();
-                if (isPrimitiveOrBoxed(expected, BYTE)) {
-                    if (lvalue != (byte) lvalue) {
-                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Byte", tree.value.toString());
-                    }
-                    tree.typetag = TypeTags.BYTE;
-                    tree.value = Byte.valueOf((byte) lvalue);
+            else {
+                if (isPrimitiveOrBoxed(expected, FLOAT) && !fitsInFloat) {
+                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Number", tree.value.toString());
                 }
-                else if (isPrimitiveOrBoxed(expected, SHORT)) {
-                    if (lvalue != (short) lvalue) {
-                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Short", tree.value.toString());
-                    }
-                    tree.typetag = TypeTags.SHORT;
-                    tree.value = Short.valueOf((short) lvalue);
-                }
-                else if (isPrimitiveOrBoxed(expected, CHAR)  && lvalue == (char) lvalue) {
-                    tree.typetag = TypeTags.CHAR;
-                }
-                else if (isPrimitiveOrBoxed(expected, FLOAT)) {
-                    tree.typetag = TypeTags.FLOAT;
-                    tree.value = Float.valueOf(lvalue);
-                }
-                else if (isPrimitiveOrBoxed(expected, DOUBLE)) {
-                    tree.typetag = TypeTags.DOUBLE;
-                    tree.value = Double.valueOf(lvalue);
-                }
-                else if (isPrimitiveOrBoxed(expected, INT) || tree.typetag == TypeTags.INT) {
-                    if (tree.typetag == TypeTags.LONG) {
-                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Integer", tree.value.toString());
-                    }
-                    tree.typetag = TypeTags.INT;
-                    if (! (tree.value instanceof Integer))
-                        tree.value = Integer.valueOf((int) lvalue);
-                }
-                else {
-                    tree.typetag = TypeTags.LONG;
-                    if (! (tree.value instanceof Long))
-                        tree.value = Long.valueOf(lvalue);
-                }
+                tree.typetag = TypeTags.FLOAT;
+                tree.value = Float.valueOf((float) dvalue);
             }
-            result = check(
-                tree, litType(tree.typetag, pt), VAL, pkind, pt, pSequenceness);
         }
+        else if ((tree.value instanceof Integer || tree.value instanceof Long) &&
+                tree.typetag != TypeTags.BOOLEAN) {
+            long lvalue = ((Number) tree.value).longValue();
+            if (isPrimitiveOrBoxed(expected, BYTE)) {
+                if (lvalue != (byte) lvalue) {
+                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Byte", tree.value.toString());
+                }
+                tree.typetag = TypeTags.BYTE;
+                tree.value = Byte.valueOf((byte) lvalue);
+            }
+            else if (isPrimitiveOrBoxed(expected, SHORT)) {
+                if (lvalue != (short) lvalue) {
+                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Short", tree.value.toString());
+                }
+                tree.typetag = TypeTags.SHORT;
+                tree.value = Short.valueOf((short) lvalue);
+            }
+            else if (isPrimitiveOrBoxed(expected, CHAR)  && lvalue == (char) lvalue) {
+                tree.typetag = TypeTags.CHAR;
+            }
+            else if (isPrimitiveOrBoxed(expected, FLOAT)) {
+                tree.typetag = TypeTags.FLOAT;
+                tree.value = Float.valueOf(lvalue);
+            }
+            else if (isPrimitiveOrBoxed(expected, DOUBLE)) {
+                tree.typetag = TypeTags.DOUBLE;
+                tree.value = Double.valueOf(lvalue);
+            }
+            else if (isPrimitiveOrBoxed(expected, INT) || tree.typetag == TypeTags.INT) {
+                if (tree.typetag == TypeTags.LONG) {
+                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Integer", tree.value.toString());
+                }
+                tree.typetag = TypeTags.INT;
+                if (! (tree.value instanceof Integer))
+                    tree.value = Integer.valueOf((int) lvalue);
+            }
+            else {
+                tree.typetag = TypeTags.LONG;
+                if (! (tree.value instanceof Long))
+                    tree.value = Long.valueOf(lvalue);
+            }
+        }
+        result = check(
+                tree, litType(tree.typetag, pt), VAL, pkind, pt, pSequenceness);
     }
     //where
     /** Return the type of a literal with given type tag.
@@ -2809,13 +2801,14 @@ public class JavafxAttr implements JavafxVisitor {
     private Type litType(int tag, Type pt) {
         switch (tag) {
             case TypeTags.CLASS: return syms.stringType;
-            case TypeTags.BOT: return types.isSequence(pt) ?
-                syms.javafx_EmptySequenceType :
+            case TypeTags.BOT: return types.isSequence(pt) &&
+                                      !types.isNullable(types.elementType(pt)) ?
+                pt :
                 syms.botType;
             default: return syms.typeOfTag[tag];
         }
     }
-
+    
     //@Override
     public void visitErroneous(JFXErroneous tree) {
       //  if (tree.getErrorTrees() != null)
@@ -3107,42 +3100,37 @@ public class JavafxAttr implements JavafxVisitor {
         result = tree.type = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
+    //@Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         Type elemType = null;
-        Type expected = pt;
-        Type elemExpected = null;
-        Type componentType = Type.noType;
-        if (types.isSequence(pt)) {
-            elemExpected = types.elementType(pt);
-            if (!types.isNullable(elemExpected)) {
-                componentType = pt;  // handle null
-            }
-        }
+        boolean errorFound = false;
         for (JFXExpression expr : tree.getItems()) {
             Type itemType = attribTree(expr, env, VAL,
-                    componentType, Sequenceness.PERMITTED);
-            if (itemType.tag == BOT) {
-                if (elemExpected != null) {
-                    itemType = elemExpected;
-                    expr.setType(elemExpected);
-                }
-            } else if (types.isSequence(itemType)) {
-                itemType = types.elementType(itemType);
-            } else if (types.isArray(itemType)) {
-                itemType = types.elemtype(itemType);
+                    pt, Sequenceness.PERMITTED);
+            if (types.isSequence(itemType) || types.isArray(itemType)) {
+                itemType = types.isSequence(itemType) ? types.elementType(itemType) : types.elemtype(itemType);
             }
-
             itemType = chk.checkNonVoid(expr, itemType);
-            if (elemType == null || itemType.tag == NONE || itemType.tag == ERROR) {
+            if (elemType == null || itemType.tag == NONE || itemType.tag == ERROR) {                
                 elemType = itemType;
-            } else {
+            }
+            else
                 elemType = unionType(tree, itemType, elemType);
+            errorFound |= elemType.isErroneous() || itemType.isErroneous();
+        }
+        
+        if (!errorFound && 
+                (pt.tag == NONE ||
+                 pt == syms.javafx_UnspecifiedType)) {
+            Type typeToCheck = types.sequenceType(types.normalize(elemType));
+            for (JFXExpression expr : tree.getItems()) {
+                attribTree(expr, env, VAL, typeToCheck, Sequenceness.PERMITTED);
             }
         }
         Type owntype = elemType.tag == ERROR ? elemType : types.sequenceType(elemType);
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         if (owntype == result && pt.tag != NONE && pt != syms.javafx_UnspecifiedType && pt != syms.objectType) {
-            result = tree.type = expected;
+             result = tree.type = pt;
         }
     }
 
@@ -3483,50 +3471,6 @@ public class JavafxAttr implements JavafxVisitor {
             return check(tree, owntype, sym.kind, pkind, pt, pSequenceness);
         }
 
-        /** Check that variable is initialized and evaluate the variable's
-         *  initializer, if not yet done. Also check that variable is not
-         *  referenced before it is defined.
-         *  @param tree    The tree making up the variable reference.
-         *  @param env     The current environment.
-         *  @param v       The variable's symbol.
-         */
-        private void checkInit(JFXTree tree,
-                               JavafxEnv<JavafxAttrContext> env,
-                               JavafxVarSymbol v) {
-            v.getConstValue(); // ensure initializer is evaluated
-            checkEnumInitializer(tree, env, v);
-        }
-        private void checkForward(JFXTree tree,
-                               JavafxEnv<JavafxAttrContext> env,
-                               JavafxVarSymbol v
-                               ) {
-            // A forward reference is diagnosed if the declaration position
-            // of the variable is greater than the current tree position
-            // and the tree and variable definition share the same enclosing 
-            // scope. A forward reference to a def variable whose initializer is
-            // an object literal is always allowed. Selection on such variables
-            // is only allowed when it occurs within bound/function/class context.
-            if ((v.pos > tree.pos || env.info.enclVar == v) &&
-                (env.info.inSelect ? true : !isObjLiteralDef(v)) &&
-                inSameEnclosingScope(v, env))
-                log.warning(tree.pos(), MsgSym.MESSAGE_ILLEGAL_FORWARD_REF, Resolve.kindName(v.kind), v);
-        }
-        //where
-        private boolean isObjLiteralDef(JavafxVarSymbol v) {
-            return (v.flags() & JavafxFlags.OBJ_LIT_INIT) != 0;         
-        }
-        //where
-        public boolean inSameEnclosingScope(Symbol s, JavafxEnv<JavafxAttrContext> env) {
-            while (env != null) {
-                Symbol s2 = env.info.scope.owner;
-                if (s.owner == s2) return true;
-                if (isBound(env) || isClassOrFuncDef(env, true))
-                    return false;
-                env = env.outer;
-            }
-            return false;
-        }
-        //where
         public boolean isClassOrFuncDef(JavafxEnv<JavafxAttrContext> env, boolean discardRun) {
             return isFunctionDef(env, discardRun) ||
                    env.tree.getFXTag() == JavafxTag.FUNCTIONEXPRESSION ||                   
@@ -3541,73 +3485,7 @@ public class JavafxAttr implements JavafxVisitor {
             return env.tree.getFXTag() == JavafxTag.FUNCTION_DEF && (!discardRun ||
                     !(((JFXFunctionDefinition)env.tree).name.equals(syms.runMethodName)));
         }
-        //where
-        private boolean isBound(JavafxEnv<JavafxAttrContext> env) {
-            return (env.tree.getFXTag() == JavafxTag.VAR_DEF &&
-                    ((JFXVar)env.tree).isBound()) ||
-                    (env.tree.getFXTag() == JavafxTag.OBJECT_LITERAL_PART &&
-                    ((JFXObjectLiteralPart)env.tree).isBound()) ||
-                    (env.tree.getFXTag() == JavafxTag.OVERRIDE_ATTRIBUTE_DEF &&
-                    ((JFXOverrideClassVar)env.tree).isBound());
-        }
-        /**
-         * Check for illegal references to static members of enum.  In
-         * an enum type, constructors and initializers may not
-         * reference its static members unless they are constant.
-         *
-         * @param tree    The tree making up the variable reference.
-         * @param env     The current environment.
-         * @param v       The variable's symbol.
-         * @see JLS 3rd Ed. (8.9 Enums)
-         */
-        private void checkEnumInitializer(JFXTree tree, JavafxEnv<JavafxAttrContext> env, JavafxVarSymbol v) {
-            // JLS 3rd Ed.:
-            //
-            // "It is a compile-time error to reference a static field
-            // of an enum type that is not a compile-time constant
-            // (15.28) from constructors, instance initializer blocks,
-            // or instance variable initializer expressions of that
-            // type. It is a compile-time error for the constructors,
-            // instance initializer blocks, or instance variable
-            // initializer expressions of an enum constant e to refer
-            // to itself or to an enum constant of the same type that
-            // is declared to the right of e."
-            if (isNonStaticEnumField(v)) {
-                ClassSymbol enclClass = env.info.scope.owner.enclClass();
-
-                if (enclClass == null || enclClass.owner == null)
-                    return;
-
-                // See if the enclosing class is the enum (or a
-                // subclass thereof) declaring v.  If not, this
-                // reference is OK.
-                if (v.owner != enclClass && !types.isSubtype(enclClass.type, v.owner.type))
-                    return;
-
-                // If the reference isn't from an initializer, then
-                // the reference is OK.
-                if (!JavafxResolve.isInitializer(env))
-                    return;
-
-                log.error(tree.pos(), MsgSym.MESSAGE_ILLEGAL_ENUM_STATIC_REF);
-            }
-        }
-
-        private boolean isNonStaticEnumField(JavafxVarSymbol v) {
-            return Flags.isEnum(v.owner) && Flags.isStatic(v) && !Flags.isConstant(v);
-        }
-
-        /** Can the given symbol be the owner of code which forms part
-         *  if class initialization? This is the case if the symbol is
-         *  a type or field, or if the symbol is the synthetic method.
-         *  owning a block.
-         */
-        private boolean canOwnInitializer(Symbol sym) {
-            return
-                (sym.kind & (VAR | TYP)) != 0 ||
-                (sym.kind == MTH && (sym.flags() & BLOCK) != 0);
-        }
-
+        
     Warner noteWarner = new Warner();
 
     /**
@@ -3827,6 +3705,10 @@ public class JavafxAttr implements JavafxVisitor {
         // method conform to the method they implement.
         chk.checkImplementations(tree);
 
+        if (tree.isScriptClass) {
+            chk.checkForwardReferences(tree);
+        }
+
         Scope enclScope = JavafxEnter.enterScope(env);
         for (List<JFXTree> l = tree.getMembers(); l.nonEmpty(); l = l.tail) {
             if (l.head instanceof JFXFunctionDefinition)
@@ -3900,7 +3782,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
         }
 
-        for (Type t : types.supertypes(origin)) {
+        for (Type t : types.supertypesClosure(origin.type)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;
                 Scope.Entry e = c.members().lookup(m.name);

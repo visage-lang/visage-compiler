@@ -35,8 +35,6 @@ import com.sun.tools.mjavac.jvm.ClassWriter;
 import static com.sun.tools.mjavac.code.Kinds.*;
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.TypeTags.*;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  *
@@ -184,27 +182,6 @@ public class JavafxTypes extends Types {
         return isSequence(t) ? elementType(t) : t;
     }
 
-    public void getSupertypes(Symbol clazz, ListBuffer<Type> supertypes,Set<Type> dupSet) {
-        if (clazz != null) {
-            Type supType = supertype(clazz.type);
-            if (supType != null && supType != Type.noType && !dupSet.contains(supType)) {
-                supertypes.append(supType);
-                dupSet.add(supType);
-                getSupertypes(supType.tsym, supertypes,dupSet);
-            }
-
-            if (clazz instanceof JavafxClassSymbol) {
-                for (Type superType : ((JavafxClassSymbol)clazz).getSuperTypes()) {
-                    if (!dupSet.contains(superType)) {
-                        supertypes.append(superType);
-                        dupSet.add(superType);
-                        getSupertypes(superType.tsym, supertypes,dupSet);
-                    }
-                }
-            }
-        }
-    }
-
     public Type makeUnionType(Type s, Type t) {
         Type lub = lub(s.baseType(), t.baseType());
         if (lub.isCompound()) {
@@ -230,42 +207,11 @@ public class JavafxTypes extends Types {
         }
         return lub;
     }
-
-    public List<Type> supertypes(Symbol clazz) {
-        return supertypes(clazz, null);
-    }
-
-    public List<Type> supertypes(Symbol clazz, Type includeOrNull) {
-        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-        Set<Type> superSet = new HashSet<Type>();
-        if (includeOrNull != null) {
-            supertypes.append(includeOrNull);
-            superSet.add(includeOrNull);
-        }
-
-        getSupertypes(clazz, supertypes, superSet);
-
-        return supertypes.toList();
-    }
-
-    public boolean isSuperType (Type maybeSuper, ClassSymbol sym) {
-        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-        Set superSet = new HashSet<Type>();
-        supertypes.append(sym.type);
-        superSet.add(sym.type);
-        getSupertypes(sym, supertypes, superSet);
-        for (Type t : supertypes) {
-            if (isSameType(t,maybeSuper)) {
-                return true;
-            }
-        }
-        return false;
-    }
     
     @Override
     public boolean isSubtype(Type t, Type s, boolean capture) {
         boolean b = super.isSubtype(t, s, capture);
-        if (!b && s.isCompound()) {
+        if (!b && s.tag == CLASS && s.isCompound()) {
             for (Type s2 : interfaces(s).prepend(supertype(s))) {
                 if (!isSubtype(t, s2, capture))
                     return false;
@@ -292,7 +238,7 @@ public class JavafxTypes extends Types {
             if (t.tsym == sym)
                 return t;
 
-            for (Type st : interfaces(t).prepend(supertype(t))) {
+            for (Type st : supertypes(t)) {
                 if (st.tag == CLASS || st.tag == TYPEVAR || st.tag == ERROR) {
                     Type x = asSuper(st, sym);
                     if (x != null)
@@ -320,15 +266,6 @@ public class JavafxTypes extends Types {
             return t;
         }
     };
-    
-    public Type superType(JFXClassDeclaration cDecl) {
-        // JFXC-2868 - Mixins: JavafxTypes.superType is complex and likely wrong.
-        if (! (cDecl.type instanceof ClassType))
-            return null;
-        ClassType cType = (ClassType) cDecl.type;
-        Type superType = cType.supertype_field;
-        return superType;
-    }
 
     @Override
     public boolean isConvertible (Type t, Type s, Warner warn) {
@@ -466,7 +403,7 @@ public class JavafxTypes extends Types {
                             return m;
                 }
             }
-            List<Type> supers = c.getSuperTypes();
+            List<Type> supers = supertypes(c.type);
             for (List<Type> l = supers; l.nonEmpty(); l = l.tail) {
                 MethodSymbol m = implementation(msym, l.head.tsym, checkResult);
                 if (m != null)
@@ -501,23 +438,35 @@ public class JavafxTypes extends Types {
      * @param t the type for which the supertypes list is to be retrieved
      * @return list of ordered supertypes
      */
-    public List<Type> orderedSupertypeClosure(Type t) {
-        ListBuffer<Type> buf = ListBuffer.lb();
-        orderedSupertypeClosure(t, buf);
-        return buf.toList();
+    public List<Type> supertypesClosure(Type t) {
+        return supertypesClosure(t, false);
     }
 
-    private void orderedSupertypeClosure(Type t, ListBuffer<Type> buf) {
-        if (t == null || buf.contains(t)) {
+    public List<Type> supertypesClosure(Type t, boolean includeThis) {
+        ListBuffer<Type> buf = ListBuffer.lb();
+        supertypesClosure(t, buf);
+        return includeThis ? buf.toList() :
+            buf.toList().tail;
+    }
+    //where
+    private void supertypesClosure(Type t, ListBuffer<Type> buf) {
+        if (t == null || t.tag == NONE || buf.contains(t)) {
             return;
         }
         else {
             buf.append(t);
-            orderedSupertypeClosure(supertype(t), buf);
+            supertypesClosure(supertype(t), buf);
             for (Type i : interfaces(t)) {
-                orderedSupertypeClosure(i, buf);
+                supertypesClosure(i, buf);
             }
         }
+    }
+
+    public List<Type> supertypes(Type t) {
+        Type sup = supertype(t);
+        return (sup == null || sup.tag == NONE) ?
+            interfaces(t) :
+            interfaces(t).prepend(sup);
     }
 
     public void clearCaches() {

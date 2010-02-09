@@ -448,7 +448,7 @@ public class JavafxLocalToClass {
      *   }
      */
     private void inflateBlockToClass(JFXBlock block, BlockKind bkind) {
-        final Name funcName = preTrans.syntheticName("doit$$");
+        final Name funcName = preTrans.syntheticName(defs.doitDollarNamePrefix());
 
         String classNamePrefix;
         if (owner instanceof MethodSymbol && (owner.flags() & JavafxFlags.BOUND) != 0L) {
@@ -537,7 +537,7 @@ public class JavafxLocalToClass {
             }
 
             private JFXVar makeExceptionParameter(Type exceptionType) {
-                JFXVar param = fxmake.Param(preTrans.syntheticName("expt$"), preTrans.makeTypeTree(exceptionType));
+                JFXVar param = fxmake.Param(preTrans.syntheticName(defs.exceptionDollarNamePrefix()), preTrans.makeTypeTree(exceptionType));
                 param.setType(exceptionType);
                 param.sym = new JavafxVarSymbol(types, names, 0L, param.name, param.type, owner);
                 return param;
@@ -615,7 +615,7 @@ public class JavafxLocalToClass {
                 JavafxVarSymbol resVarSym = new JavafxVarSymbol(types,
                         names,
                         0L,
-                        preTrans.syntheticName("res$"),
+                        preTrans.syntheticName(defs.resDollarNamePrefix()),
                         types.normalize(block.type),
                         doit.sym);
                 JFXVar resVar = fxmake.Var(resVarSym.name,
