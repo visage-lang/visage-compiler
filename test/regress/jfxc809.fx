@@ -34,7 +34,7 @@ t.x=100;
 
 System.out.println("D--------");
 var u = bind t.x
-   on replace {System.out.println("ux ={u}");}
+   on replace {System.out.println("ux ={u}");} //this does not print when t.x is changed
 
 t.x = 200;
 

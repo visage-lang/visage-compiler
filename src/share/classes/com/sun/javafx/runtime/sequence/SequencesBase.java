@@ -999,9 +999,9 @@ public class SequencesBase {
 
     public static <T> void replaceSlice(FXObject instance, int varNum, T newValue, int startPos, int endPos/*exclusive*/) {
         boolean wasUninitialized =
-                instance.varTestBits$(varNum, FXObject.VFLGS$INITIALIZED_STATE_BIT, 0);
-        instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
-        if (instance.varTestBits$(varNum, FXObject.VFLGS$IS_BOUND_READONLY, FXObject.VFLGS$IS_BOUND_READONLY)) {
+                instance.varTestBits$(varNum, FXObject.VFLGS$DEFAULT_APPLIED, 0);
+        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+        if (instance.varTestBits$(varNum, FXObject.VFLGS$INIT_BOUND_READONLY, FXObject.VFLGS$INIT_BOUND_READONLY)) {
             throw new AssignToBoundException("Cannot mutate bound sequence");
         }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
@@ -1009,7 +1009,7 @@ public class SequencesBase {
             SequenceProxy sp = (SequenceProxy) oldValue;
             instance = sp.instance();
             varNum = sp.varNum();
-            instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+            instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
             oldValue = (Sequence<? extends T>) instance.get$(varNum);
         }
         if (preReplaceSlice(oldValue, newValue, startPos, endPos) ||
@@ -1102,9 +1102,9 @@ public class SequencesBase {
 
     public static <T> void replaceSlice(FXObject instance, int varNum, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
         boolean wasUninitialized = 
-                instance.varTestBits$(varNum, FXObject.VFLGS$INITIALIZED_STATE_BIT, 0);
-        instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
-        if (instance.varTestBits$(varNum, FXObject.VFLGS$IS_BOUND_READONLY, FXObject.VFLGS$IS_BOUND_READONLY)) {
+                instance.varTestBits$(varNum, FXObject.VFLGS$DEFAULT_APPLIED, 0);
+        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+        if (instance.varTestBits$(varNum, FXObject.VFLGS$INIT_BOUND_READONLY, FXObject.VFLGS$INIT_BOUND_READONLY)) {
             throw new AssignToBoundException("Cannot mutate bound sequence");
         }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
@@ -1112,7 +1112,7 @@ public class SequencesBase {
             SequenceProxy sp = (SequenceProxy) oldValue;
             instance = sp.instance();
             varNum = sp.varNum();
-            instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+            instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
             oldValue = (Sequence<? extends T>) instance.get$(varNum);
         }
         if (preReplaceSlice(oldValue, newValues, startPos, endPos) ||
@@ -1168,13 +1168,13 @@ public class SequencesBase {
     public static <T> void insert(FXObject instance, int varNum, T newValue) {
         if (newValue == null)
             return;
-        instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
             SequenceProxy sp = (SequenceProxy) oldValue;
             instance = sp.instance();
             varNum = sp.varNum();
-            instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+            instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
             oldValue = (Sequence<? extends T>) instance.get$(varNum);
         }
         int oldSize = oldValue.size();
@@ -1199,13 +1199,13 @@ public class SequencesBase {
         int inserted = values.size();
         if (inserted == 0)
             return;
-        instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
             SequenceProxy sp = (SequenceProxy) oldValue;
             instance = sp.instance();
             varNum = sp.varNum();
-            instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+            instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
             oldValue = (Sequence<? extends T>) instance.get$(varNum);
         }
         int oldSize = oldValue.size();
@@ -1250,7 +1250,7 @@ public class SequencesBase {
     }
 
     public static <T> void deleteValue(FXObject instance, int varNum, T value) {
-        if (instance.varTestBits$(varNum, FXObject.VFLGS$IS_BOUND_READONLY, FXObject.VFLGS$IS_BOUND_READONLY)) {
+        if (instance.varTestBits$(varNum, FXObject.VFLGS$INIT_BOUND_READONLY, FXObject.VFLGS$INIT_BOUND_READONLY)) {
             throw new AssignToBoundException("Cannot mutate bound sequence");
         }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
