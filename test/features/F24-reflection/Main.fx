@@ -39,26 +39,27 @@ var clsSimple = smplRef.getType();
 System.out.println("clsSimple={clsSimple} jfx-class:{clsSimple.isJfxType()} mixin:{clsSimple.isMixin()}");
 System.out.println("Simpl.super: {clsSimple.getSuperClasses(false)}");
 System.out.println("Simpl.super (inherited also):");
-for (cls in clsSimple.getSuperClasses(true))
-    // this class appears when we run the tests with instrumentation, but it is not in our
-    // EXPECTED file.
-    if ( "{cls}" != "class net.sourceforge.cobertura.coveragedata.HasBeenInstrumented") {
-        System.out.println("  {cls}");
+
+function listSupers(theClass: javafx.reflect.FXClassType, flag: Boolean) {
+    def skipMe = "net.sourceforge.cobertura.coveragedata.HasBeenInstrumented";
+    for (cls in theClass.getSuperClasses(flag)) {
+        // this class appears when we run the tests with instrumentation, but it is not in our
+        // EXPECTED file.
+        if (not cls.getName().equals(skipMe)) {
+            System.out.println("  {cls}");
+        }
     }
+}
+listSupers(clsSimple, true);
+
 var clsString = context.findClass("java.lang.String");
 System.out.println("clsString={clsString} jfx-class:{clsString.isJfxType()} mixin:{clsString.isMixin()}");
 
 System.out.println("String .super (direct only):");
-for (cls in clsString.getSuperClasses(false))
-    if ( "{cls}" != "class net.sourceforge.cobertura.coveragedata.HasBeenInstrumented") {
-        System.out.println("  {cls}");
-    }
+listSupers(clsString, false);
 
 System.out.println("String .super (inherited also):");
-for (cls in clsString.getSuperClasses(true))
-    if ( not cls.getName().equals("class net.sourceforge.cobertura.coveragedata.HasBeenInstrumented")) {
-        System.out.println("  {cls}");
-    }
+listSupers(clsString, true);
  
 System.out.println("String methods:");
 for (meth in clsString.getFunctions(false))
@@ -194,11 +195,7 @@ var myAnonRectClass = myAnonRectRef.getClassType();
 System.out.println("myAnonRectRef.getClassType: {myAnonRectClass}");
 System.out.println("myAnonRectRef.super: {myAnonRectClass.getSuperClasses(false)}");
 System.out.println("myAnonRectRef.super (inherited also):");
-for (cls in myAnonRectClass.getSuperClasses(true))
-    if (not cls.getName().equals("class net.sourceforge.cobertura.coveragedata.HasBeenInstrumented")) {
-        System.out.println("  {cls}");
-    }
-
+listSupers(myAnonRectClass, true);
 var clsMain = context.findClass("Main");
 System.out.println("Main.getFunction(\"repeat\"): {clsMain.getFunction("repeat", context.getIntegerType(), context.getStringType())}");
 
