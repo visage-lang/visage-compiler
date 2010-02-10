@@ -1603,7 +1603,9 @@ however this is what we need */
                         }
                     } else if (varInfo.useAccessors()) {
                         // Construct and add: return $var.get(pos$);
-                        addStmt(Return(Call(Get(proxyVarSym), defs.get_SequenceMethodName, posArg())));
+                        JavafxTypeRepresentation typeRep = types.typeRep(varInfo.getElementType());
+                        Name getMethodName = defs.typedGet_SequenceMethodName[typeRep.ordinal()];
+                        addStmt(Return(Call(Get(proxyVarSym), getMethodName, posArg())));
                     }
                 }
             };
