@@ -231,6 +231,21 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         // ---- Stolen from BoundSequenceTranslator ----
         //TODO: unify
 
+        private Name activeFlagBit = defs.varFlagSEQUENCE_LIVE;
+        JavafxVarSymbol flagSymbol = (JavafxVarSymbol)targetSymbol;
+
+        JCExpression isSequenceActive() {
+            return FlagTest(flagSymbol, activeFlagBit, activeFlagBit);
+        }
+
+        JCExpression isSequenceDormant() {
+            return FlagTest(flagSymbol, activeFlagBit, null);
+        }
+
+        JCStatement setSequenceActive() {
+            return FlagChangeStmt(flagSymbol, null, activeFlagBit);
+        }
+
         protected JCExpression getReceiverForCallHack(Symbol sym) {
             if (sym.isStatic()) {
                 return makeType(sym.owner.type, false);
