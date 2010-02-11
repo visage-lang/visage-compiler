@@ -274,6 +274,9 @@ class JavafxAnalyzeClass {
         // Predicate for static var test.
         public boolean isStatic() { return sym.isStatic(); }
 
+        // Predicate for synthetic var test.
+        public boolean isSynthetic() { return (getFlags() & Flags.SYNTHETIC) != 0L; }
+        
         // Predicate for protexted var test.
         public boolean isProtectedAccess() { return (getFlags() & Flags.PROTECTED) != 0L; }
         
@@ -397,6 +400,7 @@ class JavafxAnalyzeClass {
                                ", type=" + getSymbol().type +
                                ", owner=" + getSymbol().owner +
                                (isStatic() ? ", static" : "") +
+                               (isSynthetic() ? ", synthetic" : "") +
                                (useAccessors() ? ", useAccessors" : "") +
                                (needsCloning() ? ", clone" : "") +
                                (isDef() ? ", isDef" : "") +

@@ -1141,14 +1141,18 @@ public class FXLocal {
                 FXObject instance = (FXObject)obj;
             
                 if (initMembers == null) {
-                    instance.initialize$();
+                    instance.initialize$(true);
                 } else {
                     int count = count();
                     
+                    instance.initVars$();
+                    
                     for (int offset = 0; offset < count; offset++ ) {
+                        instance.varChangeBits$(offset, 0, FXObject.VFLGS$INIT$READY);
+                        
                         if (initMembers[offset] != null) {
                             initMembers[offset].setValue(this, initValues[offset]);
-                        } else if (instance.varTestBits$(offset, FXObject.VFLGS$DEFAULT_APPLIED, 0)) {
+                        } else {
                             instance.applyDefaults$(offset);
                         }
                     }
@@ -1182,10 +1186,10 @@ public class FXLocal {
                 initValues[offset] = value;
 
                 FXObject instance = (FXObject)obj;
-                //((FXObject)obj).varChangeBits$(offset, FXObject.VFLGS$ALL_FLAGS, FXObject.VFLGS$INIT_OBJ_LIT_BIND);
+                ((FXObject)obj).varChangeBits$(offset, FXObject.VFLGS$ALL_FLAGS, FXObject.VFLGS$INIT_OBJ_LIT_BIND);
 
-                //boolean isBound = (instance.getFlags$(offset) & FXObject.VFLGS$IS_BOUND) != 0;
-                //instance.setFlags$(offset, isBound ? FXObject.VFLGS$INIT_OBJ_LIT_BIND : FXObject.VFLGS$INIT_OBJ_LIT);
+                boolean isBound = (instance.getFlags$(offset) & FXObject.VFLGS$IS_BOUND) != 0;
+                instance.setFlags$(offset, isBound ? FXObject.VFLGS$INIT_OBJ_LIT_BIND : FXObject.VFLGS$INIT_OBJ_LIT);
             }
         }
     }
