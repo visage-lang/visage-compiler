@@ -323,6 +323,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_RUN_FUNCTION_PARAM = "javafx.run.function.param";
     public static final String MESSAGE_JAVAFX_INDEXOF_NOT_FOUND = "javafx.indexof.not.found";
     public static final String MESSAGE_JAVAFX_KEYFRAME_LIT = "javafx.keyframe.literal";
+    public static final String MESSAGE_JAVAFX_TRY_CATCH = "javafx.try.catch";
     public static final String MESSAGE_JAVAFX_SEQ_OR_ARRAY = "javafx.seq.or.array";
     public static final String MESSAGE_JAVAFX_OBJ_OR_SEQ = "javafx.obj.or.seq";
     public static final String MESSAGE_JAVAFX_LOOSE_IN_LIB = "javafx.loose.expr.in.lib";
