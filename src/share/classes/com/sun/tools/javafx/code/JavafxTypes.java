@@ -439,26 +439,35 @@ public class JavafxTypes extends Types {
      * @return list of ordered supertypes
      */
     public List<Type> supertypesClosure(Type t) {
-        return supertypesClosure(t, false);
+        return supertypesClosure(t, false, false);
     }
 
     public List<Type> supertypesClosure(Type t, boolean includeThis) {
-        ListBuffer<Type> buf = ListBuffer.lb();
-        supertypesClosure(t, buf);
-        return includeThis ? buf.toList() :
-            buf.toList().tail;
+        return supertypesClosure(t, includeThis, false);
+    }
+
+    public List<Type> supertypesClosure(Type t, boolean includeThis, boolean ascending) {
+        List<Type> closure = supertypesClosure(t, ListBuffer.<Type>lb(), ascending);
+        return includeThis ? closure :
+            ascending ? 
+                closure.reverse().tail.reverse() :
+                closure.tail;
     }
     //where
-    private void supertypesClosure(Type t, ListBuffer<Type> buf) {
-        if (t == null || t.tag == NONE || buf.contains(t)) {
-            return;
+    private List<Type> supertypesClosure(Type t, ListBuffer<Type> seenTypes, boolean ascending) {
+        if (t == null || t.tag == NONE || seenTypes.contains(t)) {
+            return List.nil();
         }
         else {
-            buf.append(t);
-            supertypesClosure(supertype(t), buf);
+            seenTypes.append(t);
+            List<Type> closure = supertypesClosure(supertype(t), seenTypes, ascending);
             for (Type i : interfaces(t)) {
-                supertypesClosure(i, buf);
+                closure = closure.appendList(supertypesClosure(i, seenTypes, ascending));
             }
+            closure = ascending ?
+                closure.append(t) :
+                closure.prepend(t);
+            return closure;
         }
     }
 
