@@ -6,7 +6,7 @@
  */
 
 var cond = true;
-def bc = bind cond on replace { print("cond: {cond} -- size: {sizeof bi} -- content: "); println(bi) };
 def bi = bind if (cond) [1..3] else [];
+def bc = bind cond on replace { print("cond: {cond} -- size: {sizeof bi} -- content: "); println(bi) };
 println(bi);
 cond = false;

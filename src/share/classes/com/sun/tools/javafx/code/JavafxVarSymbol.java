@@ -27,6 +27,7 @@ import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Name;
 import static com.sun.tools.mjavac.code.Flags.*;
 
@@ -43,6 +44,7 @@ public class JavafxVarSymbol extends VarSymbol {
     private Type elementType = null;
     private final boolean isDotClass;
     private boolean isExternallySeen;
+    private int varIndex = -1;
 
     private Type lastSeenType;
     private final JavafxTypes types;
@@ -182,4 +184,28 @@ public class JavafxVarSymbol extends VarSymbol {
         return !isMember() && isMutatedWithinScript();
     }
 
+    public int getVarIndex() {
+        return varIndex;
+    }
+
+    public void setVarIndex(int varIndex) {
+        this.varIndex = varIndex;
+    }
+
+    public int getAbsoluteIndex(Type site) {
+        types.supertypesClosure(site);
+        return isLocal() || isStatic() ?
+            getVarIndex() :
+            getVarIndex() + baseIndex((TypeSymbol)owner, site);
+    }
+    //where
+    private int baseIndex(TypeSymbol tsym, Type site) {
+        List<Type> closure = types.supertypesClosure(site, false, true);
+        int baseIdx = 0;
+        for (Type t : closure) {
+            if (types.isSameType(t, tsym.type)) break;
+            baseIdx += ((JavafxClassSymbol)t.tsym).getMemberVarCount();
+        }
+        return baseIdx;
+    }
 }

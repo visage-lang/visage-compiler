@@ -186,7 +186,7 @@ public class JavafxPreTranslationSupport {
     }
 
     public MethodSymbol makeDummyMethodSymbol(Symbol owner, Name name) {
-        return new MethodSymbol(Flags.BLOCK, name, null, owner);
+        return new MethodSymbol(Flags.BLOCK, name, null, owner.enclClass());
     }
 
     JFXType makeTypeTree(Type type) {

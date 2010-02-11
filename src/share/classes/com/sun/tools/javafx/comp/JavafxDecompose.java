@@ -219,7 +219,7 @@ public class JavafxDecompose implements JavafxVisitor {
 
     private JFXVar makeVar(DiagnosticPosition diagPos, Name vName, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
         optStat.recordSynthVar();
-        long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
+        long flags = JavafxFlags.SCRIPT_PRIVATE | Flags.SYNTHETIC | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
         JavafxVarSymbol sym = new JavafxVarSymbol(types, names, flags, vName, types.normalize(type), varOwner);
         varOwner.members().enter(sym);
         JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags);
@@ -1001,7 +1001,7 @@ public class JavafxDecompose implements JavafxVisitor {
             ListBuffer<JavafxVarSymbol> vb = ListBuffer.lb();
             ListBuffer<JavafxVarSymbol> vblen = ListBuffer.lb();
             for (JFXExpression item : tree.getItems()) {
-                vb.append(shredVar(defs.itemNamePrefix()+n, decompose(item), item.type).sym);
+                vb.append(synthVar(defs.itemNamePrefix()+n, item, item.type).sym);
                 JavafxVarSymbol lenSym = null;
                 if (preTrans.isNullable(item)) {
                     lenSym = makeIntVar(item.pos(), defs.lengthNamePrefix()+n, 0).sym;
