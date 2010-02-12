@@ -468,16 +468,36 @@ public class JavafxAttr implements JavafxVisitor {
     private void checkTypeCycle(JFXTree tree, Symbol sym) {
         if (sym.type == null) {
             JFXVar var = varSymToTree.get(sym);
-            if (var != null)
-                log.note(var, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL, sym.name);
+            if (var != null) {
+		JavaFileObject prevSource = log.currentSource();
+		try {
+		    //we need to switch log source as the var def could be
+		    //in another source w.r.t. the current one
+		    log.useSource(sym.outermostClass().sourcefile);
+		    log.note(var, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL, sym.name);
+		}
+		finally {
+		    log.useSource(prevSource);
+		}
+	    }
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
             sym.type = syms.errType;
         }
         else if (sym.type instanceof MethodType &&
                 sym.type.getReturnType() == syms.unknownType) {
             JFXFunctionDefinition fun = methodSymToTree.get(sym);
-            if (fun != null)
-                log.note(fun, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL, sym.name);
+            if (fun != null) {
+		JavaFileObject prevSource = log.currentSource();
+		try {
+		    //we need to switch log source as the func def could be
+		    //in another source w.r.t. the current one
+		    log.useSource(sym.outermostClass().sourcefile);
+		    log.note(fun, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL, sym.name);
+		}
+		finally {
+		    log.useSource(prevSource);
+		}
+	    }
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
             if (pt instanceof MethodType)
                 ((MethodType)pt).restype = syms.errType;
