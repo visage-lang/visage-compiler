@@ -949,7 +949,7 @@ public class JavafxLower implements JavafxVisitor {
                     return res;
                 }
             }
-            default: return m.Literal(TypeTags.BOT, null);
+            default: return m.Literal(TypeTags.BOT, null).setType(syms.botType);
         }
     }
 
