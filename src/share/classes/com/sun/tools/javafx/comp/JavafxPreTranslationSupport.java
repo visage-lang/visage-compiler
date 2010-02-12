@@ -439,6 +439,10 @@ public class JavafxPreTranslationSupport {
                 }
                 return true;
             }
+            case TYPECAST: {
+                JFXTypeCast tc = (JFXTypeCast) tree;
+                return isImmutable(tc.getExpression());
+            }
             default:
                 if (tree instanceof JFXUnary) {
                     if (tree.getFXTag().isIncDec()) {

@@ -270,8 +270,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         JFXIdent ident = (JFXIdent)arg;
                         targs.append(getReceiverOrThis(ident.sym));
                         targs.append(Offset(ident.sym));
+                    } else if (preTrans.isImmutable(arg)) {
+                        // pass FXConstant wrapper for argument expression
+                        targs.append(Call(defs.FXConstant_make, translateExpr(arg, arg.type)));
+                        // pass FXConstant.VOFF$value as offset value
+                        targs.append(Select(makeType(syms.javafx_FXConstantType), defs.varOFF$valueName));
                     } else {
-                        TODO("non-Ident in bound call");
+                        TODO("non-Ident and non-immutable in bound call");
                     }
                 }
                 return targs.toList();
@@ -282,7 +287,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         @Override
         JCExpression translateArg(JFXExpression arg, Type formal) {
-            if (conditionallyReevaluate && arg instanceof JFXIdent) {
+            if (conditionallyReevaluate && arg instanceof JFXIdent && !preTrans.isImmutable(arg)) {
                 // if no args have changed, don't call function, just return previous value
                 Symbol sym = ((JFXIdent) arg).sym;
                 addBindee((JavafxVarSymbol) sym);   //TODO: isn't this redundant?
