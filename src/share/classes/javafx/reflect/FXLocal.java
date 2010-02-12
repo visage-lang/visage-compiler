@@ -25,7 +25,6 @@ package javafx.reflect;
 
 import java.lang.reflect.*;
 import java.lang.annotation.Annotation;
-import com.sun.javafx.runtime.annotation.Package;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,6 @@ import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.DependentsManager;
-import com.sun.javafx.runtime.annotation.*;
 
 /**
  * Implement JavaFX rfeflection on top of {@java.lang.reflect}.
@@ -137,68 +135,16 @@ public class FXLocal {
         static final int VARIABLE_STRING_LENGTH = VARIABLE_STRING.length();
 
         public FXType makeTypeRef(Type typ) {
-            if (typ instanceof ParameterizedType) {
-                ParameterizedType ptyp = (ParameterizedType) typ;
-                Type raw = ptyp.getRawType();
-                Type[] targs = ptyp.getActualTypeArguments();
-                if (raw instanceof Class) {
-                    String rawName = ((Class) raw).getName();
-                    if (FXClassType.SEQUENCE_CLASSNAME.equals(rawName) &&
-                        targs.length == 1) {
-                        return new FXSequenceType(makeTypeRef(targs[0]));
-                    }
-                    if (FXClassType.OBJECT_VARIABLE_CLASSNAME.equals(rawName) &&
-                            targs.length == 1) {
-                        return makeTypeRef(targs[0]);
-                    }
-                    if (FXClassType.SEQUENCE_VARIABLE_CLASSNAME.equals(rawName) &&
-                        targs.length == 1) {
-                        return new FXSequenceType(makeTypeRef(targs[0]));
-                    }
-                    if (rawName.startsWith(FXClassType.FUNCTION_CLASSNAME_PREFIX)) {
-                        FXType[] prtypes = new FXType[targs.length-1];
-                        for (int i = prtypes.length;  --i >= 0; )
-                            prtypes[i] = makeTypeRef(targs[i+1]);
-                        FXType rettype;
-                        if (targs[0] == java.lang.Void.class)
-                            rettype = FXPrimitiveType.voidType;
-                        else
-                            rettype = makeTypeRef(targs[0]);
-                        return new FXFunctionType(prtypes, rettype);
-                    }
-                }
-                           
-                typ = raw;
-            }
-            if (typ instanceof WildcardType) {
-                WildcardType wtyp = (WildcardType) typ;
-                Type[] upper = wtyp.getUpperBounds();
-                Type[] lower = wtyp.getLowerBounds();
-                typ = lower.length > 0 ? lower[0] : wtyp.getUpperBounds()[0];
-                if (typ instanceof Class) {
-                    String rawName = ((Class) typ).getName();
-                    // Kludge, because generics don't handle primitive types.
-                    FXType ptype = getPrimitiveType(rawName);
-                    if (ptype != null)
-                        return ptype;
-                }
-                return makeTypeRef(typ);
-            }
-            if (typ instanceof GenericArrayType) {
-                FXType elType = makeTypeRef(((GenericArrayType) typ).getGenericComponentType());
-                return new FXJavaArrayType(elType);
-            }
-            if (typ instanceof TypeVariable) {
-                // KLUDGE
-                typ = Object.class;
-            }
+            Object t = PlatformUtils.resolveGeneric(this, typ);
+            if (t instanceof FXType)
+                return (FXType) t;
         
-            Class clas = (Class) typ;
+            Class clas = (Class) t;
             if (clas.isArray()) {
                 FXType elType = makeTypeRef(clas.getComponentType());
                 return new FXJavaArrayType(elType);
             }
-            String rawName = ((Class) typ).getName();
+            String rawName = clas.getName();
             int rawLength = rawName.length();
             if (rawLength > LOCATION_PREFIX_LENGTH + VARIABLE_STRING_LENGTH &&
                     rawName.startsWith(LOCATION_PREFIX) &&
@@ -237,7 +183,7 @@ public class FXLocal {
             if (typ == Void.TYPE)
                 return FXPrimitiveType.voidType;
 
-            return makeClassRef((Class) typ);
+            return makeClassRef(clas);
         }
 
         /** Create a reference to a given Class. */
@@ -323,7 +269,7 @@ public class FXLocal {
             super(context, modifiers);
             this.refClass = refClass;
             this.refInterface = refInterface;
-            this.name = refClass.getCanonicalName();
+            this.name = PlatformUtils.getCanonicalName(refClass);
         }
 
         public Class getJavaImplementationClass() { return refClass; }
@@ -488,7 +434,7 @@ public class FXLocal {
                 Method m = methods[i];
                 if (m.isSynthetic())
                     continue;
-                if (m.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null)
+                if (PlatformUtils.checkInherited(m) > 0)
                     continue;
                 String mname = m.getName();
                     
@@ -520,14 +466,16 @@ public class FXLocal {
         }
     
         FXFunctionMember asFunctionMember(Method m, Context context) {
-            java.lang.reflect.Type[] ptypes = m.getGenericParameterTypes();
+            java.lang.reflect.Type[] ptypes = PlatformUtils.getGenericParameterTypes(m);
+            /*
             if (m.isVarArgs()) {
                 // ????
             }
+            */
             FXType[] prtypes = new FXType[ptypes.length];
             for (int j = 0; j < ptypes.length;  j++)
                 prtypes[j] = context.makeTypeRef(ptypes[j]);
-            java.lang.reflect.Type gret = m.getGenericReturnType();
+            java.lang.reflect.Type gret = PlatformUtils.getGenericReturnType(m);
             FXFunctionType type = new FXFunctionType(prtypes, context.makeTypeRef(gret));
             return new FXLocal.FunctionMember(m, this, type);
         }
@@ -568,11 +516,13 @@ public class FXLocal {
             }
             return deflt;
         }
+
+        static Object[] NO_ARGS = { };
         
         static protected int callMethodIntOrDefault(java.lang.reflect.Method method, int deflt) {
             if (method != null) {
                 try {
-                    deflt = ((Integer)method.invoke(null)).intValue();
+                    deflt = ((Integer)method.invoke(null, NO_ARGS)).intValue();
                 } catch (Throwable ex) {
                 }
             }
@@ -594,7 +544,7 @@ public class FXLocal {
 	    // force initialization.
 	    if ((this.modifiers & VOFF_INITIALIZED) == 0) {
 		try {
-		    refClass.getMethod("VCNT$").invoke(null);
+		    refClass.getMethod("VCNT$").invoke(null, NO_ARGS);
 		} catch (Throwable e) {
 		} 
 		this.modifiers |= VOFF_INITIALIZED;
@@ -616,14 +566,13 @@ public class FXLocal {
                 fields = filter(cls.getFields(), cls);
             }
             fieldLoop: for (java.lang.reflect.Field fld : fields) {
-                if (fld.isSynthetic()) {
+                if (PlatformUtils.isSynthetic(fld)) {
                     continue;
                 }
                 String fname = fld.getName();
                 
-                SourceName sourceName = fld.getAnnotation(SourceName.class);
-                String sname;
-                if (sourceName == null) {
+                String sname = PlatformUtils.getSourceNameFromAnnotation(fld);
+                if (sname == null) {
                     int dollar = fname.lastIndexOf('$');
                     if (dollar == -1) {
                         sname = fname;
@@ -637,8 +586,6 @@ public class FXLocal {
                             continue fieldLoop;
                         sname = fname.substring(dollar + 1);
                     }
-                } else {
-                    sname = sourceName.value();
                 }
                
                 if (requiredName != null && !requiredName.equals(sname)) {
@@ -672,8 +619,11 @@ public class FXLocal {
             try {
                 Object instance;
                 if (isJfxType()) {
-                    Constructor cons = cls.getDeclaredConstructor(Boolean.TYPE);
-                    instance = cons.newInstance(Boolean.TRUE);
+                    // Note that Java5-style varargs are not supported on CDC.
+                    Class[] types = { Boolean.TYPE };
+                    Constructor cons = cls.getDeclaredConstructor(types);
+                    Object[] args = { Boolean.TRUE };
+                    instance = cons.newInstance(args);
                 }
                 else {
                     instance = cls.newInstance();
@@ -702,25 +652,23 @@ public class FXLocal {
         }
 
         public boolean isPublic() {
-            if (isJfxType())
-                return getAnnotation(Public.class) != null;
-            else {
-                Class cls = refClass;
-                return (cls.getModifiers() & Modifier.PUBLIC) != 0;
-            }
+            int p = PlatformUtils.checkPublic(this);
+            if (p >= 0)
+                return p > 0;
+            Class cls = refClass;
+            return (cls.getModifiers() & Modifier.PUBLIC) != 0;
         }
 
         public boolean isProtected() {
-            return getAnnotation(Protected.class) != null;
+            return PlatformUtils.isProtected(this);
         }
 
         public boolean isPackage() {
-            if (isJfxType())
-                return getAnnotation(Package.class) != null;
-            else {
-                Class cls = refClass;
-                return (cls.getModifiers() & Modifier.PUBLIC) == 0;
-            }
+            int p = PlatformUtils.checkPackage(this);
+            if (p >= 0)
+                return p > 0;
+            Class cls = refClass;
+            return (cls.getModifiers() & Modifier.PUBLIC) == 0;
         }
     }
     
@@ -849,7 +797,8 @@ public class FXLocal {
                 if (fld != null || setter != null) {
                    
                     if (setter != null) {
-                        setter.invoke(robj, ((Value) value).asObject());
+                        Object[] args = { ((Value) value).asObject() };
+                        setter.invoke(robj, args);
                         return;
                     } else {
                         // FIXME: yet to be implemented for compiled binds
@@ -882,57 +831,47 @@ public class FXLocal {
             return (mods & Modifier.STATIC) != 0;
         }
 
-        public <T extends Annotation> T getAnnotation (Class<T> clas) {
-            if (fld != null)
-                return fld.getAnnotation(clas);
-            if (getter != null)
-                return getter.getAnnotation(clas);
-            return null;
-        }
-
         public boolean isPublic() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Public.class) != null;
-            else {
-                int mods = getter != null ? getter.getModifiers()
-                        : fld.getModifiers();
-                return (mods & Modifier.PUBLIC) != 0;
-            }
+            int p = PlatformUtils.checkPublic(this);
+            if (p >= 0)
+                return p > 0;
+            int mods = getter != null ? getter.getModifiers()
+                    : fld.getModifiers();
+            return (mods & Modifier.PUBLIC) != 0;
         }
 
         public boolean isProtected() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Protected.class) != null;
-            else {
-                int mods = getter != null ? getter.getModifiers()
-                        : fld.getModifiers();
-                return (mods & Modifier.PROTECTED) != 0;
-            }
+            int p = PlatformUtils.checkProtected(this);
+            if (p >= 0)
+                return p > 0;
+            int mods = getter != null ? getter.getModifiers()
+                    : fld.getModifiers();
+            return (mods & Modifier.PROTECTED) != 0;
         }
 
         public boolean isPackage() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Package.class) != null;
-            else {
-                int mods = getter != null ? getter.getModifiers()
-                        : fld.getModifiers();
-                int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
-                return (mods & mask) == 0;
-            }
+            int p = PlatformUtils.checkPackage(this);
+            if (p >= 0)
+                return p > 0;
+            int mods = getter != null ? getter.getModifiers()
+                    : fld.getModifiers();
+            int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
+            return (mods & mask) == 0;
         }
 
         public boolean isPublicInit() {
-            return getAnnotation(PublicInitable.class) != null;
+            return PlatformUtils.isPublicInit(this);
         }
 
         public boolean isPublicRead() {
-            return getAnnotation(PublicReadable.class) != null;
+            return PlatformUtils.isPublicRead(this);
         }
 
         public boolean isDef() {
-            if (fld != null && ! getDeclaringClass().isJfxType())
-                return (fld.getModifiers() & Modifier.FINAL) != 0;
-            return getAnnotation(Def.class) != null;
+            int d = PlatformUtils.checkDef(this);
+            if (d >= 0)
+                return d > 0;
+            return fld != null && (fld.getModifiers() & Modifier.FINAL) != 0;
         }
 
         static class ListenerAdapter extends com.sun.javafx.runtime.FXBase implements FXChangeListenerID {
@@ -1026,32 +965,29 @@ public class FXLocal {
             }
         }
 
-        public <T extends Annotation> T getAnnotation (Class<T> clas) {
-            return method.getAnnotation(clas);
-        }
-
         public boolean isPublic() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Public.class) != null;
+            int p = PlatformUtils.checkPublic(this);
+            if (p >= 0)
+                return p > 0;
             else
                 return (method.getModifiers() & Modifier.PUBLIC) != 0;
         }
 
         public boolean isProtected() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Protected.class) != null;
+            int p = PlatformUtils.checkProtected(this);
+            if (p >= 0)
+                return p > 0;
             else
                 return (method.getModifiers() & Modifier.PROTECTED) != 0;
         }
 
         public boolean isPackage() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Package.class) != null;
-            else {
-                int mods = method.getModifiers();
-                int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
-                return (mods & mask) == 0;
-            }
+            int p = PlatformUtils.checkPackage(this);
+            if (p >= 0)
+                return p > 0;
+            int mods = method.getModifiers();
+            int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
+            return (mods & mask) == 0;
         }
     }
 
