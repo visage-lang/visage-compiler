@@ -71,8 +71,10 @@ public class JavafxDecompose implements JavafxVisitor {
     private boolean allowDebinding = false;
 
     // Map of shreded (Ident) selectors in bound select expressions.
-    // Used in shred optimization.
+    // Used in shred optimization. We use two maps - one for instance level
+    // expressions and one for script level expressions.
     private Map<Symbol, JFXExpression> shrededSelectors;
+    private Map<Symbol, JFXExpression> scriptShrededSelectors;
 
     protected final JavafxTreeMaker fxmake;
     protected final JavafxPreTranslationSupport preTrans;
@@ -637,11 +639,14 @@ public class JavafxDecompose implements JavafxVisitor {
                     sym instanceof VarSymbol) {
                     if (selectSym.owner == currentClass && !(selectSym.isStatic() ^ inScriptLevel)) {
                         selected = tree.selected;
-                    } else if (shrededSelectors.containsKey(selectSym)) {
-                        selected = shrededSelectors.get(selectSym);
                     } else {
-                        selected = shred(tree.selected);
-                        shrededSelectors.put(selectSym, selected);
+                        Map<Symbol, JFXExpression> shredMap = inScriptLevel? scriptShrededSelectors : shrededSelectors;
+                        if (shredMap.containsKey(selectSym)) {
+                            selected = shredMap.get(selectSym);
+                        } else {
+                            selected = shred(tree.selected);
+                            shredMap.put(selectSym, selected);
+                        }
                     }
                 } else {
                     selected = shred(tree.selected);
@@ -683,7 +688,9 @@ public class JavafxDecompose implements JavafxVisitor {
         Symbol prevVarOwner = varOwner;
         Symbol prevClass = currentClass;
         Map<Symbol, JFXExpression> prevShredExprs = shrededSelectors;
+        Map<Symbol, JFXExpression> prevScriptShredExprs = scriptShrededSelectors;
         shrededSelectors = new HashMap<Symbol, JFXExpression>();
+        scriptShrededSelectors = new HashMap<Symbol, JFXExpression>();
         currentClass = varOwner = tree.sym;
         ListBuffer<JFXTree> prevLbVar = lbVar;
         lbVar = ListBuffer.<JFXTree>lb();
@@ -695,6 +702,7 @@ public class JavafxDecompose implements JavafxVisitor {
         varOwner = prevVarOwner;
         currentClass = prevClass;
         shrededSelectors = prevShredExprs;
+        scriptShrededSelectors = prevScriptShredExprs;
         result = tree;
         bindStatus = prevBindStatus;
     }
