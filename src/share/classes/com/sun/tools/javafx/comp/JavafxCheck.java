@@ -1708,7 +1708,7 @@ public class JavafxCheck {
             }
         } else {
             if (declaredOverride) {
-                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, m);
+                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, rs.kindName(m), m);
             }
         }
     }

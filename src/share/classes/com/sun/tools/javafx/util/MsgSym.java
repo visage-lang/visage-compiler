@@ -369,7 +369,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_REPORT_BIND_ACCESS = "javafx.report.bind.access";
     public static final String MESSAGE_JAVAFX_REPORT_INIT_ACCESS = "javafx.report.init.access";
     public static final String MESSAGE_JAVAFX_DEF_MUST_HAVE_INIT = "javafx.def.must.have.init";
-    public static final String MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT = "javafx.function.declared.overrride.does.not.override";
+    public static final String MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT = "javafx.declared.overrride.does.not.override";
     public static final String MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE = "javafx.function.overrides.another.should.be.declared.override";
     public static final String MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER = "javafx.var.overrides.member";
     public static final String MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER = "javafx.def.overrides.member";
@@ -431,6 +431,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_CANNOT_INIT_STATIC_OBJECT_LITERAL = "javafx.cannot.init.static.object.literal";
     public static final String MESSAGE_JAVAFX_REPEATED_MIXIN = "javafx.repeated.mixin";
     public static final String MESSAGE_JAVAFX_DUPLICATE_TRIGGER_DEF = "javafx.duplicate.trigger.def";
+    public static final String MESSAGE_JAVAFX_DUPLICATE_VAR_OVERRIDE = "javafx.duplicate.var.override";
     public static final String MESSAGE_JAVAFX_PURE_MIXIN = "javafx.pure.mixin";
     public static final String MESSAGE_JAVAFX_ONLY_MIXINS_AND_INTERFACES = "javafx.only.mixins.and.interfaces";
     public static final String MESSAGE_JAVAFX_MIXIN_CANNOT_BE_INSTANTIATED = "javafx.mixin.cant.be.instantiated";

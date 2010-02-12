@@ -13,6 +13,7 @@ class A {
 
 class B extends A {
   var b1 = 4;
+  var b2 = 5;
   override var a1 = a2; //forward ref
   override var a2 = b1; //forward ref
 }
@@ -23,5 +24,5 @@ class C extends B {
   override var a2 = b1; //forward ref
   override var a3 = c1; //forward ref
   override var b1 = c1; //forward ref
-  override var b1 = a4; //ok!
+  override var b2 = a4; //ok!
 }

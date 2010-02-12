@@ -49,6 +49,8 @@ public class JavafxVarSymbol extends VarSymbol {
     private Type lastSeenType;
     private final JavafxTypes types;
 
+    private List<Symbol> overridingClasses = List.nil();
+
     /** Construct a variable symbol, given its flags, name, type and owner.
      */
     public JavafxVarSymbol(JavafxTypes types, Name.Table names, long flags, Name name, Type type, Symbol owner) {
@@ -207,5 +209,13 @@ public class JavafxVarSymbol extends VarSymbol {
             baseIdx += ((JavafxClassSymbol)t.tsym).getMemberVarCount();
         }
         return baseIdx;
+    }
+
+    public void addOverridingClass(Symbol s) {
+        overridingClasses = overridingClasses.append(s);
+    }
+
+    public boolean isOverridenIn(Symbol s) {
+        return overridingClasses.contains(s);
     }
 }
