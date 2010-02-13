@@ -527,7 +527,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         void setupInvalidators() {
             mergeResults(exprResult);
-            addInvalidator(targetSymbol, makeInvalidateSelf());
+ //           addInvalidator(targetSymbol, makeInvalidateSelf());
         }
     }
 
@@ -573,6 +573,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         Block(
                             Stmt(m().Assign(id(sizeVar), makeSizeValue())),
                             SetStmt(sizeSym, id(sizeVar)),
+                            setSequenceActive(),
                             CallSeqInvalidateUndefined(targetSymbol),
                             CallSeqTriggerInitial(targetSymbol, id(sizeVar))
                         )
@@ -722,8 +723,21 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
-            return Return(CallSize(exprSym));
-        }
+            JCVariableDecl vSize = TmpVar(syms.intType, CallSize(exprSym));
+
+            return
+                Block(
+                    vSize,
+                    If (isSequenceDormant(),
+                        Block(
+                            setSequenceActive(),
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, id(vSize))
+                        )
+                    ),
+                    Return(id(vSize))
+                );
+       }
 
         JCStatement makeGetElementBody() {
             //we could have a sequence of Object converted into sequence of Integers
@@ -905,7 +919,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl newSize = TmpVar(syms.intType, getSize());
 
             return
-                    PhaseCheckedBlock(selectorSym,
+                PhaseCheckedBlock(selectorSym,
                         If (IsInvalidatePhase(),
                             Block(
                                 If (NEnull(selector()),
@@ -953,7 +967,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         private JCStatement makeInvalidateSelf() {
             return
                 Block(
-                    setSequenceActive(),
+//                    setSequenceActive(),
                     If (IsTriggerPhase(),
                         SetStmt(sizeSym,
                             PLUS(
@@ -995,8 +1009,20 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * Size accessor -- pass through
          */
         JCStatement makeSizeBody() {
+            JCVariableDecl vSize = TmpVar("size", syms.intType, CallSize(argSym));
+
             return
-                Return (CallSize(argSym));
+                Block(
+                    vSize,
+                    If (isSequenceDormant(),
+                        Block(
+                            setSequenceActive(),
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, id(vSize))
+                        )
+                    ),
+                    Return(id(vSize))
+                );
         }
 
         /**
@@ -1005,7 +1031,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         JCStatement makeGetElementBody() {
             return
-                Return ( CallGetElement(argSym, MINUS( MINUS(CallSize(argSym), Int(1)), posArg()) ) );
+                Block(
+                    If (isSequenceDormant(),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    Return ( CallGetElement(argSym, MINUS( MINUS(CallSize(argSym), Int(1)), posArg()) ) )
+                );
         }
 
         /**
@@ -2510,7 +2541,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 Block(
                     If(EQnull(Get(helperSym)),
-                        Stmt(Set(clause.boundHelper.sym, createHelper))
+                        Block(
+                            setSequenceActive(),
+                            Stmt(Set(clause.boundHelper.sym, createHelper))
+                        )
                     ),
                     Return(Call(Get(clause.boundHelper.sym), defs.size_SequenceMethodName))
                 );

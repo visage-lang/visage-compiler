@@ -421,6 +421,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
     // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter
     // to handle the instantiation of the classes that access outer members
+    @SuppressWarnings("element-type-mismatch")
     private ClassSymbol outerTypeSymbol(Symbol csym) {
         if (csym != null && toJava.getHasOuters().containsKey(csym)) {
             Symbol typeOwner = csym.owner;
@@ -639,7 +640,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                  }
                  
                  for (String bindee : bindeesSet) {
-                    if (annoBindeesString != "") annoBindeesString += ",";
+                    if (!annoBindeesString.isEmpty()) annoBindeesString += ",";
                     annoBindeesString += bindee;
                  }
            }
@@ -1284,35 +1285,35 @@ however this is what we need */
                 JCStatement ifStmt = null;
                 
                 // Iterate thru each var.
-                for (VarInfo varInfo : attrInfos) {
+                for (VarInfo ai : attrInfos) {
                     // Set to the var position.
-                    setDiagPos(varInfo.pos());
+                    setDiagPos(ai.pos());
                     
                     // Constrain the var.
-                    if (varInfo.needsCloning() && !varInfo.isBareSynth()) {
+                    if (ai.needsCloning() && !ai.isBareSynth()) {
                         // Construct the case.
                         beginBlock();
                         
                         // Generate statements.
-                        this.varInfo = varInfo;
-                        this.varSym = varInfo.getSymbol();
-                        this.proxyVarSym = varInfo.proxyVarSym();
-                        this.isSequence = varInfo.isSequence();
-                        this.type = varInfo.getRealType();
-                        this.elementType = isSequence ? varInfo.getElementType() : null;
+                        this.varInfo = ai;
+                        this.varSym = ai.getSymbol();
+                        this.proxyVarSym = ai.proxyVarSym();
+                        this.isSequence = ai.isSequence();
+                        this.type = ai.getRealType();
+                        this.elementType = isSequence ? ai.getElementType() : null;
                         statements();
                         
                         if (!stmts.isEmpty()) {
-                            if (!isMixinClass() && varInfo.getEnumeration() != -1) {
+                            if (!isMixinClass() && ai.getEnumeration() != -1) {
                                 // case tag number
-                                JCExpression tag = Int(analysis.isFirstTier() ? varInfo.getEnumeration() :
-                                                                               (varInfo.getEnumeration() - varCount));
+                                JCExpression tag = Int(analysis.isFirstTier() ? ai.getEnumeration() :
+                                                                               (ai.getEnumeration() - varCount));
                                 // Add the case, something like:
                                 // case i: statement;
                                 cases.append(m().Case(tag, endBlockAsList()));
                             } else {
                                 // Test to see if it's the correct var.
-                                ifStmt = OptIf(EQ(Offset(varInfo.getSymbol()), varNumArg()), endBlock(), ifStmt);
+                                ifStmt = OptIf(EQ(Offset(ai.getSymbol()), varNumArg()), endBlock(), ifStmt);
                             }
                         } else {
                             endBlock();
@@ -1594,8 +1595,15 @@ however this is what we need */
                             addStmt(Return(If(ptrNonNullCond, 
                                         castFromObject(apply, varInfo.getElementType()),
                                         makeDefaultValue(varInfo.pos(), varInfo.getElementType()))));
-                        } else {
+                        } else if (varInfo.isSynthetic()) {
                             addStmt(varInfo.boundElementGetter());
+                        } else {
+                            addStmt(
+                                If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING),
+                                    Return (DefaultValue(this.elementType)),
+                                    varInfo.boundElementGetter()
+                                )
+                            );
                         }
                     } else if (varInfo.useAccessors()) {
                         // Construct and add: return $var.get(pos$);
@@ -1669,8 +1677,15 @@ however this is what we need */
                                         Return(Int(JavafxDefs.UNDEFINED_MARKER_INT))
                                       )
                                    );
-                        } else {
+                        } else if (varInfo.isSynthetic()) {
                             addStmt(varInfo.boundSizeGetter());
+                        } else {
+                            addStmt(
+                                If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING),
+                                    Return (Int(0)),
+                                    varInfo.boundSizeGetter()
+                                )
+                            );
                         }
                     } else if (varInfo.useAccessors()) {
                         // Construct and add: return $var.size();
@@ -1702,6 +1717,8 @@ however this is what we need */
                     // Handle invalidators if present.
                     List<BindeeInvalidator> invalidatees = varInfo.boundInvalidatees();
                     boolean hasInvalidators = !invalidatees.isEmpty();
+
+                    beginBlock();
 
                     if (hasInvalidators) {
                         // Insert invalidators.
@@ -1766,6 +1783,13 @@ however this is what we need */
                             )
                         );
                     }
+
+                    //TODO: no test needed if non-bound and not overriddable
+                    addStmt(
+                        OptIf (FlagTest(proxyVarSym, defs.varFlagSEQUENCE_LIVE, defs.varFlagSEQUENCE_LIVE),
+                            endBlock()
+                        )
+                    );
                 }
             };
 
@@ -2993,7 +3017,12 @@ however this is what we need */
             if (ai.isSynthetic()) {
                 setBits = bitOrFlags(setBits, defs.varFlagINIT_READY);
             }
-            
+
+            if (ai.generateSequenceAccessors() && !isBound && (ai.hasInitializer() || (ai.isDirectOwner() && !ai.isOverride()))) {
+                // Non-bound sequences are immediately live
+                setBits = bitOrFlags(setBits, defs.varFlagSEQUENCE_LIVE);
+            }
+
             // Read only is normally marked after the default is set (set once).
             if (isReadonly && (isBound ||
                                (!ai.hasInitializer() && !(ai instanceof MixinClassVarInfo)) ||
@@ -3018,7 +3047,7 @@ however this is what we need */
             if (ai.hasBoundDefinition() || ai.hasInitializer()) {
                 clearBits = BITAND(oldFlags, id(defs.varFlagIS_EAGER));
             }
-            
+
             if (setBits != null) {
                 setBits = BITOR(clearBits, setBits);
             } else if (clearBits != oldFlags) {

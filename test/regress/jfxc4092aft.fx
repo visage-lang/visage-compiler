@@ -8,7 +8,7 @@
  */
 
 class jfxc4092aft {
-  var x = 4 on replace { if (seq != [x, [0..x/5], x]) println("MISMATCH: seq: {seq}") }
+  var x = 4 on replace { if (sizeof seq > 0 and seq != [x, [0..x/5], x]) println("MISMATCH: x: seq: {seq}") }
   var sx = [2];
   function foo(z : Integer) { println("Foo z: {z}"); z}
   var seq = bind [foo(x), [0..x/5], foo(x)];

@@ -462,6 +462,7 @@ public class JavafxDefs {
     final Name varFlagVALID_DEFAULT_APPLIED;
     final Name varFlagINIT_INITIALIZED_DEFAULT_READONLY;
     final Name varFlagINIT_OBJ_LIT;
+    final Name varFlagINIT_OBJ_LIT_SEQUENCE;
     final Name varFlagINIT_OBJ_LIT_BIND;
     
     final Name varFlagALL_FLAGS;
@@ -704,6 +705,7 @@ public class JavafxDefs {
         varFlagVALID_DEFAULT_APPLIED             = names.fromString("VFLGS$VALID_DEFAULT_APPLIED");
         varFlagINIT_INITIALIZED_DEFAULT_READONLY = names.fromString("VFLGS$INIT$INITIALIZED_DEFAULT_READONLY");
         varFlagINIT_OBJ_LIT                      = names.fromString("VFLGS$INIT_OBJ_LIT");
+        varFlagINIT_OBJ_LIT_SEQUENCE             = names.fromString("VFLGS$INIT_OBJ_LIT_SEQUENCE");
         varFlagINIT_OBJ_LIT_BIND                 = names.fromString("VFLGS$INIT_OBJ_LIT_BIND");
 
         

@@ -164,8 +164,11 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
          * size$ method
          */
         JCStatement makeSizeBody() {
+            JCVariableDecl vSize = TmpVar("size", syms.intType, CallSize(concreteSelector(), refSym));
+
             return
                 Block(
+                    vSize,
                     If (isSequenceDormant(),
                         Block(
                             setSequenceActive(),
@@ -176,10 +179,10 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                                         DepNum(getReceiver(selectorSym), selectorSym, refSym)
                             ),
                             CallSeqInvalidateUndefined(targetSymbol),
-                            CallSeqTriggerInitial(targetSymbol, CallSize(concreteSelector(), refSym))
+                            CallSeqTriggerInitial(targetSymbol, id(vSize))
                         )
                     ),
-                    Return (CallSize(concreteSelector(), refSym))
+                    Return (id(vSize))
                 );
         }
 
@@ -189,7 +192,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         JCStatement makeGetElementBody() {
             return
                 Block(
-                    If (NOT(isSequenceActive()),
+                    If (isSequenceDormant(),
                         Stmt(CallSize(targetSymbol))
                     ),
                     Return (CallGetElement(concreteSelector(), refSym, posArg()))
@@ -279,8 +282,20 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
          * size$ method
          */
         JCStatement makeSizeBody() {
+            JCVariableDecl vSize = TmpVar("size", syms.intType, CallSize(refSym));
+
             return
-                Return (CallSize(refSym) );
+                Block(
+                    vSize,
+                    If (isSequenceDormant(),
+                        Block(
+                            setSequenceActive(),
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, id(vSize))
+                        )
+                    ),
+                    Return (id(vSize))
+                );
         }
 
         /**
@@ -288,7 +303,12 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
          */
         JCStatement makeGetElementBody() {
             return
-                Return (CallGetElement(refSym, posArg()));
+                Block(
+                    If (isSequenceDormant(),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    Return (CallGetElement(refSym, posArg()))
+                );
         }
     }
 

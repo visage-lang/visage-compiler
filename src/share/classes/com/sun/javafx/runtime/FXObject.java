@@ -79,6 +79,7 @@ public interface FXObject {
     public static final int VFLGS$VALID_DEFAULT_APPLIED                        = VFLGS$INIT$INITIALIZED_DEFAULT | VFLGS$STATE$VALID;
     public static final int VFLGS$INIT$INITIALIZED_DEFAULT_READONLY            = VFLGS$INIT$INITIALIZED_DEFAULT | VFLGS$IS_READONLY;
     public static final int VFLGS$INIT_OBJ_LIT                                 = VFLGS$INIT$READY;
+    public static final int VFLGS$INIT_OBJ_LIT_SEQUENCE                        = VFLGS$INIT$READY | VFLGS$SEQUENCE_LIVE;
     public static final int VFLGS$INIT_OBJ_LIT_BIND                            = VFLGS$INIT$READY;
 
     public static final int VFLGS$ALL_FLAGS = -1;
