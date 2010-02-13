@@ -96,24 +96,18 @@ public class PlatformUtils {
        return getAnnotation(vmem, ann) != null ? 1 : 0;
     }
 
-    static int checkPublic(FXLocal.VarMember vmem) {
-        return checkAccess(vmem, Public.class);
-    }
-
-    static int checkProtected(FXLocal.VarMember vmem) {
-        return checkAccess(vmem, Protected.class);
-    }
-
-    static int checkPackage(FXLocal.VarMember vmem) {
-        return checkAccess(vmem, Package.class);
-    }
-
-    static boolean isPublicInit(FXLocal.VarMember vmem) {
-        return getAnnotation(vmem, PublicInitable.class) != null;
-    }
-
-    static boolean isPublicRead(FXLocal.VarMember vmem) {
-        return getAnnotation(vmem, PublicReadable.class) != null;
+    static boolean checkAccessAnnotations(FXLocal.VarMember vmem) {
+        if (getAnnotation(vmem, Public.class) != null)
+             vmem.flags |= FXLocal.VarMember.IS_PUBLIC;
+        if (getAnnotation(vmem, Protected.class) != null)
+            vmem.flags |= FXLocal.VarMember.IS_PROTECTED;
+        if (getAnnotation(vmem, Package.class) != null)
+            vmem.flags |= FXLocal.VarMember.IS_PACKAGE;
+        if (getAnnotation(vmem, PublicInitable.class) != null)
+            vmem.flags |= FXLocal.VarMember.IS_PUBLIC_INIT;
+        if (getAnnotation(vmem, PublicReadable.class) != null)
+            vmem.flags |= FXLocal.VarMember.IS_PUBLIC_READ;
+        return true;
     }
 
     static int checkDef(FXLocal.VarMember vmem) {

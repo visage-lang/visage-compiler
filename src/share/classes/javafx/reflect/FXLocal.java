@@ -499,24 +499,6 @@ public class FXLocal {
             return method;
         }
 
-        static protected java.lang.reflect.Field getFieldOrNull(Class cls, String name) {
-            java.lang.reflect.Field field = null;
-            try {
-                field = cls.getField(name);
-            } catch (Throwable ex) {
-            }
-            return field;
-        }
-
-        static protected int getFieldIntOrDefault(Class cls, String name, int deflt) {
-            try {
-                java.lang.reflect.Field field = cls.getField(name);
-                deflt = field.getInt(null);
-            } catch (Throwable ex) {
-            }
-            return deflt;
-        }
-
         static Object[] NO_ARGS = { };
         
         static protected int callMethodIntOrDefault(java.lang.reflect.Method method, int deflt) {
@@ -553,13 +535,26 @@ public class FXLocal {
 
 
         protected void getVariables(FXMemberFilter filter, SortedMemberArray<? super FXVarMember> result) {
+            VarMember[] varTable = this.variables;
+            if (varTable != null) {
+                String requiredName = filter.getRequiredName();
+                if (requiredName != null) {
+                    VarMember v = varTable[searchVariable(varTable, requiredName)];
+                    if (v != null)
+                        result.insert(v);
+                } else {
+                    for (int i = varTable.length; --i >= 0; ) {
+                        VarMember v = varTable[i];
+                        if (v != null && filter.accept(v))
+                            result.insert(v);
+                    }
+                }
+                return;
+            }
             Context ctxt = getReflectionContext();
             Class cls = refClass;
-            String requiredName = filter.getRequiredName();
-            // FIXME possible optimization if requiredName != null
-            // In that case we could use Class.getDeclaredField(String).
-            // However, it's tricky because we need to try all possible renamings.
             java.lang.reflect.Field[] fields;
+            ArrayList<VarMember> varList = new ArrayList<VarMember>();
             try {
                 fields = cls.getDeclaredFields();
             } catch (SecurityException e) {
@@ -588,28 +583,60 @@ public class FXLocal {
                     }
                 }
                
-                if (requiredName != null && !requiredName.equals(sname)) {
-                    continue;
-                }
-                    
-                java.lang.reflect.Type gtype = fld.getGenericType();
-                FXType tr = ctxt.makeTypeRef(gtype);
+                FXType tr = ctxt.makeTypeRef(fld.getGenericType());
 		
 		ensureVOffInitialized();
-                int offset  = getFieldIntOrDefault(cls, "VOFF" + fname, -1);
+                int offset;
+                try {
+                    java.lang.reflect.Field field = cls.getField("VOFF" + fname);
+                    offset = field.getInt(null);
+                } catch (Throwable ex) {
+                    offset = -1;
+                }
+
                 VarMember ref = new VarMember(sname, this, tr, offset);
                 ref.fld = fld;
-                if (refInterface != null)
-                    cls = refInterface;
-                ref.getter = getMethodOrNull(cls, "get" + fname);
-
-                if (ref.getter != null) {
-                    Class type = ref.getter.getReturnType();
-                    ref.setter = getMethodOrNull(cls, "set" + fname, type);
-                }
+                varList.add(ref);
 
                 if (filter != null && filter.accept(ref))
                     result.insert(ref);
+            }
+
+            // Enter varList into the varTable hash-table.
+            int nvars = varList.size();
+            // We want the varTable hash-table to be at most 75% full.
+            int varTableSize = 8;
+            while (4 * nvars > 3 * varTableSize)
+                varTableSize += varTableSize;
+            varTable = new VarMember[varTableSize];
+            while (--nvars >= 0) {
+                VarMember v = varList.get(nvars);
+                varTable[searchVariable(varTable, v.name)] = v;
+            }
+            this.variables = varTable;
+        }
+
+        // A simple hash-table keyed vt variable name.
+        VarMember[] variables;
+
+        /** A simple hash-table search algorithm.
+         * @param variables The hash-table.  Its length must be a power of two,
+         *    and there must be at least one unused slot.
+         * @param name The name of the VarMember to search for.
+         * @return The index of a slot in {@code variables} that matches the name,
+         *     or null if there is no such slot.
+         */
+        static int searchVariable(VarMember[] variables, String name) {
+            int hash = name.hashCode();
+            int size = variables.length;
+            int h = 12347 * hash + hash;
+            int mask = size - 1;
+            int i = h & mask;
+            for (;;) {
+                VarMember v = variables[i];
+                if (v == null || v.name.equals(name))
+                    return i;
+                i = (i + 53) & mask;
             }
         }
 
@@ -715,14 +742,21 @@ public class FXLocal {
     }
 
     static class VarMember extends FXVarMember {
-        Method accessMethod;
         Field fld;
         Method getter;
         Method setter;
         FXType type;
         String name;
-        FXClassType owner;
+        ClassType owner;
         int offset;
+        static final int GETTER_SETTER_SET = 1;
+        static final int ACCESS_FLAGS_SET = 2;
+        static final int IS_PUBLIC = 4;
+        static final int IS_PROTECTED = IS_PUBLIC << 1;
+        static final int IS_PACKAGE = IS_PUBLIC << 2;
+        static final int IS_PUBLIC_INIT = IS_PUBLIC << 3;
+        static final int IS_PUBLIC_READ = IS_PUBLIC << 4;
+        int flags;
     
         public VarMember(String name, ClassType owner, FXType type, int offset) {
             this.name = name;
@@ -741,10 +775,26 @@ public class FXLocal {
             return offset;
         }
 
+        private void checkGetterSetter() {
+            if ((flags & GETTER_SETTER_SET) != 0)
+                return;
+            Class cls = owner.refInterface;
+            if (cls == null)
+                cls = owner.refClass;
+            Method g = ClassType.getMethodOrNull(cls, "get" + name);
+            getter = g;
+            flags |= GETTER_SETTER_SET;
+            if (g != null) {
+                Class rtype = g.getReturnType();
+                setter = ClassType.getMethodOrNull(cls, "set" + name, rtype);
+            }
+        }
+
         @Override
         public FXValue getValue(FXObjectValue obj) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
+                checkGetterSetter();
                 if (fld != null || getter != null) {
                     Context context =
                         (Context) owner.getReflectionContext();
@@ -794,6 +844,7 @@ public class FXLocal {
                     Sequences.set((FXObject)robj, offset,(Sequence)((Value) value).asObject());
                     return;
                 }
+                checkGetterSetter();
                 if (fld != null || setter != null) {
                    
                     if (setter != null) {
@@ -825,46 +876,55 @@ public class FXLocal {
             return owner;
         }
 
+        private void checkAccessFlags() {
+            if ((flags & ACCESS_FLAGS_SET) != 0)
+                return;
+            flags |= ACCESS_FLAGS_SET;
+            checkGetterSetter();
+            if (! getDeclaringClass().isJfxType()
+                    || ! PlatformUtils.checkAccessAnnotations(this)) {
+                int mods = getter != null ? getter.getModifiers()
+                        : fld.getModifiers();
+                if ((mods & Modifier.PUBLIC) != 0)
+                    flags |= IS_PUBLIC;
+                if ((mods & Modifier.PROTECTED) != 0)
+                    flags |= IS_PROTECTED;
+                int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
+                if ((mods & mask) == 0)
+                    flags |= IS_PACKAGE;
+             }
+        }
+
         public boolean isStatic() {
+            checkGetterSetter();
             int mods = getter != null ? getter.getModifiers()
                     : fld.getModifiers();
             return (mods & Modifier.STATIC) != 0;
         }
 
         public boolean isPublic() {
-            int p = PlatformUtils.checkPublic(this);
-            if (p >= 0)
-                return p > 0;
-            int mods = getter != null ? getter.getModifiers()
-                    : fld.getModifiers();
-            return (mods & Modifier.PUBLIC) != 0;
+            checkAccessFlags();
+            return (flags & IS_PUBLIC) != 0;
         }
 
         public boolean isProtected() {
-            int p = PlatformUtils.checkProtected(this);
-            if (p >= 0)
-                return p > 0;
-            int mods = getter != null ? getter.getModifiers()
-                    : fld.getModifiers();
-            return (mods & Modifier.PROTECTED) != 0;
+             checkAccessFlags();
+            return (flags & IS_PROTECTED) != 0;
         }
 
         public boolean isPackage() {
-            int p = PlatformUtils.checkPackage(this);
-            if (p >= 0)
-                return p > 0;
-            int mods = getter != null ? getter.getModifiers()
-                    : fld.getModifiers();
-            int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
-            return (mods & mask) == 0;
+            checkAccessFlags();
+            return (flags & IS_PACKAGE) != 0;
         }
 
         public boolean isPublicInit() {
-            return PlatformUtils.isPublicInit(this);
+            checkAccessFlags();
+            return (flags & IS_PUBLIC_INIT) != 0;
         }
 
         public boolean isPublicRead() {
-            return PlatformUtils.isPublicRead(this);
+            checkAccessFlags();
+            return (flags & IS_PUBLIC_READ) != 0;
         }
 
         public boolean isDef() {
