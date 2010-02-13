@@ -40,8 +40,10 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import static com.sun.tools.mjavac.code.TypeTags.*;
 import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.util.Options;
 import javax.tools.JavaFileObject;
 
 /**
@@ -58,7 +60,9 @@ public class JavafxPreTranslationSupport {
     private final JavafxCheck chk;
     private final JavafxTypes types;
     private final JavafxSymtab syms;
+    private final JavafxOptimizationStatistics optStat;
 
+    private final boolean debugNames;
     private int tmpCount = 0;
 
     protected static final Context.Key<JavafxPreTranslationSupport> preTranslation =
@@ -81,6 +85,10 @@ public class JavafxPreTranslationSupport {
         chk = JavafxCheck.instance(context);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
+        optStat = JavafxOptimizationStatistics.instance(context);
+
+        String opt = Options.instance(context).get("debugNames");
+        debugNames = opt != null && !opt.startsWith("n");
     }
 
     // Just adds a counter. prefix is expected to include "$"
@@ -196,28 +204,58 @@ public class JavafxPreTranslationSupport {
         return (JFXType)fxmake.TypeClass(typeExpr, types.isSequence(type) ? Cardinality.ANY : Cardinality.SINGLETON, (ClassSymbol)type.tsym).setType(type);
     }
 
-    JFXVar BoundLocalVar(Type type, Name name, JFXExpression boundExpr, Symbol owner) {
-        return Var(JavafxFlags.IS_DEF, type, name, JavafxBindStatus.UNIDIBIND, boundExpr, owner);
+    JFXVar BoundLocalVar(DiagnosticPosition diagPos, Type type, Name name, JFXExpression boundExpr, Symbol owner) {
+        return Var(diagPos, JavafxFlags.IS_DEF, type, name, JavafxBindStatus.UNIDIBIND, boundExpr, owner);
     }
 
-    JFXVar LocalVar(Type type, Name name, JFXExpression expr, Symbol owner) {
-        return Var(0L, type, name, JavafxBindStatus.UNBOUND, expr, owner);
+    JFXVar LocalVar(DiagnosticPosition diagPos, Type type, Name name, JFXExpression expr, Symbol owner) {
+        return Var(diagPos,0L, type, name, JavafxBindStatus.UNBOUND, expr, owner);
     }
 
-    JFXVar Var(long flags, Type type, Name name, JavafxBindStatus bindStatus, JFXExpression expr, Symbol owner) {
-        JFXVar var = fxmake.Var(
-                name,
-                makeTypeTree(type),
-                fxmake.Modifiers(flags),
-                expr,
-                bindStatus,
-                null, null);
-        var.type = type;
-        var.sym = new JavafxVarSymbol(
+    private static final String idChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private String suffixGen() {
+        final int dig = idChars.length();
+        int i = ++tmpCount;
+        StringBuffer sb = new StringBuffer();
+        while (i > 0) {
+            int md = i % dig;
+            char ch = idChars.charAt(md);
+            sb.append(ch);
+            i -= md;
+            i = i / dig;
+        }
+        return sb.toString();
+    }
+
+    JFXVar SynthVar(DiagnosticPosition diagPos, JavafxVarSymbol vsymParent, String id, JFXExpression initExpr, JavafxBindStatus bindStatus, Type type, boolean inScriptLevel, Symbol owner) {
+        optStat.recordSynthVar(id);
+        String ns = "_$" + suffixGen();
+        if (debugNames) {
+            ns = (vsymParent==null? "" : vsymParent.toString() + "$") + id + ns;
+        }
+        Name name = names.fromString(ns);
+
+        long flags = JavafxFlags.SCRIPT_PRIVATE | Flags.SYNTHETIC | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
+        JFXVar var = Var(diagPos, flags, types.normalize(type), name, bindStatus, initExpr, owner);
+        owner.members().enter(var.sym);
+        return var;
+    }
+
+    JFXVar Var(DiagnosticPosition diagPos, long flags, Type type, Name name, JavafxBindStatus bindStatus, JFXExpression expr, Symbol owner) {
+        JavafxVarSymbol vsym = new JavafxVarSymbol(
                 types,
                 names,
                 flags,
                 name, type, owner);
+        JFXVar var = fxmake.at(diagPos).Var(
+                name,
+                makeTypeTree(vsym.type),
+                fxmake.at(diagPos).Modifiers(flags),
+                expr,
+                bindStatus,
+                null, null);
+        var.type = vsym.type;
+        var.sym = vsym;
         return var;
     }
     

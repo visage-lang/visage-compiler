@@ -25,10 +25,8 @@ package com.sun.tools.javafx.comp;
 import com.sun.javafx.runtime.Entry;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
-import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypeRepresentation;
 import com.sun.tools.mjavac.code.Symbol;
-import com.sun.tools.mjavac.util.Options;
 import java.util.regex.Pattern;
 
 /**
@@ -194,8 +192,6 @@ public class JavafxDefs {
             this.methodName = names.fromString(methodString);
         }
     }
-
-    private final boolean debugNames;
 
     /**
      * RuntimeMethod definitions
@@ -543,10 +539,7 @@ public class JavafxDefs {
     protected JavafxDefs(Context context) {
         context.put(jfxDefsKey, this);
 
-        debugNames = Options.instance(context).get("debugNames") != null;
-
         final Name.Table names = Name.Table.instance(context);
-        final JavafxSymtab syms = (JavafxSymtab) (JavafxSymtab.instance(context));
 
         // Initialize Duration method names
         add_DurationMethodName = names.fromString("add");
@@ -842,127 +835,124 @@ public class JavafxDefs {
     }
 
     // Name prefixes used for synthetic variable names.
-    // If -XDdebugNames option is used, then the names are readable and longer.
-    // Or else small (unreadable) names are used to compress the .class size.
 
     public String itemNamePrefix() {
-        return debugNames ? "item" : "i";
+        return "item";
     }
 
     public String valueNamePrefix() {
-        return debugNames ? "value" : "v";
+        return "value";
     }
 
     public String ignoreNamePrefix() {
-        return debugNames ? "ignore" : "ig";
-
+        return "ignore";
     }
 
     public String saveNamePrefix() {
-        return debugNames ? "save" : "s";
+        return "save";
     }
 
     public String sizeNamePrefix() {
-        return debugNames ? "size" : "sz";
+        return "size";
     }
 
     public String lengthNamePrefix() {
-        return debugNames ? "len" : "l";
+        return "length";
     }
 
     public String lowNamePrefix() {
-        return debugNames ? "low" : "lo";
+        return "lowestInvalid";
     }
 
     public String highNamePrefix() {
-        return debugNames ? "high" : "hi";
+        return "highestInvalid";
     }
 
     public String pendingNamePrefix() {
-        return debugNames ? "pending" : "p";
+        return "pending";
     }
 
     public String newLenNamePrefix() {
-        return debugNames ? "newLen" : "nl";
+        return "newLen";
     }
 
     public String cngStartNamePrefix() {
-        return debugNames ?"cngStart" : "cs";
+        return "changeStart";
     }
 
     public String cngEndNamePrefix() {
-        return debugNames ? "cngEnd" : "ce";
+        return "changeEnd";
     }
 
     public String lowerNamePrefix() {
-        return debugNames ? "lower" : "lw";
+        return "lower";
     }
 
     public String upperNamePrefix() {
-        return debugNames ? "upper" : "up";
+        return "upper";
     }
 
     public String stepNamePrefix() {
-        return debugNames ? "step" : "st";
+        return "step";
     }
 
-    public String siiNamePrefix() {
-        return "sii";
+    public String functionResultNamePrefix() {
+        return "functionResult";
     }
 
     public String helperDollarNamePrefix() {
-        return debugNames ? "helper$" : "h$";
+        return "helper$";
     }
 
     public String condNamePrefix() {
-        return debugNames ? "cond" : "c";
+        return "cond";
     }
 
     public String thenNamePrefix() {
-        return debugNames ? "then" : "t";
+        return "then";
     }
 
     public String elseNamePrefix() {
-        return debugNames ? "else" : "e";
+        return "else";
     }
 
     public String doitDollarNamePrefix() {
-        return debugNames ? "doit$$" : "d$$";
+        return "doit$$";
     }
 
     public String resDollarNamePrefix() {
-        return debugNames ? "res$" : "r$";
+        return "res$";
     }
 
     public String exceptionDollarNamePrefix() {
-        return debugNames ? "expt$" : "e$";
+        return "expt$";
     }
 
     public String dollarIndexNamePrefix() {
-        return debugNames ? "$index$" : "$i$";
+        return "$index$";
     }
 
     public String resultDollarNamePrefix() {
-        return debugNames ? "$result$" : "$r$";
+        return "$result$";
     }
 
     public String posNamePrefix() {
-        return debugNames ? "pos" : "p";
+        return "pos";
     }
 
     public String indexNamePrefix() {
-        return debugNames ? "index" : "i";
+        return "index";
     }
 
     public String exprNamePrefix() {
-        return debugNames ? "expr" : "e";
+        return "expr";
     }
 
     public String oldValueNamePrefix() {
-        return debugNames ? "oldValue" : "ov";
+        return "oldValue";
     }
 
     public String resNamePrefix() {
-        return debugNames ? "res" : "r";
+        return "res";
     }
 }
