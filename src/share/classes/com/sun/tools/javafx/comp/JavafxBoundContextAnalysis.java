@@ -66,9 +66,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     private void mark(JFXBoundMarkable tree) {
-        if (bindStatus != JavafxBindStatus.UNBOUND) {
-            tree.markBound(bindStatus);
-        }
+        tree.markBound(bindStatus);
     }
 
     @Override
