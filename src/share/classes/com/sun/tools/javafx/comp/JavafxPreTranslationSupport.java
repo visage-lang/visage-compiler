@@ -25,6 +25,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
+import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -428,7 +429,21 @@ public class JavafxPreTranslationSupport {
         return scanner.hse;
     }
 
+    boolean isImmutable(List<JFXExpression> trees) {
+        for (JFXExpression item : trees) {
+            if (!isImmutable(item)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     boolean isImmutable(JFXExpression tree) {
+//        boolean im = isImmutableReal(tree);
+//        System.err.println((im? "IMM: " : "MUT: ") + tree);
+//        return im;
+//    }
+//    boolean isImmutableReal(JFXExpression tree) {
         //TODO: add for-loop, sequence indexed, string expression
         switch (tree.getFXTag()) {
             case IDENT: {
@@ -437,7 +452,7 @@ public class JavafxPreTranslationSupport {
             }
             case SELECT: {
                 JFXSelect sel = (JFXSelect) tree;
-                return isImmutableSelector(sel) && isImmutable(sel.sym, sel.getIdentifier());
+                return (sel.sym.isStatic() || isImmutable(sel.getExpression())) && isImmutable(sel.sym, sel.getIdentifier());
             }
             case LITERAL:
             case TIME_LITERAL:
@@ -459,6 +474,29 @@ public class JavafxPreTranslationSupport {
                     }
                 }
                 return isImmutable(be.getValue());
+            }
+            case FOR_EXPRESSION: {
+                JFXForExpression fe = (JFXForExpression) tree;
+                for (JFXForExpressionInClause clause : fe.getForExpressionInClauses()) {
+                    if (!isImmutable(clause.getSequenceExpression())) {
+                        return false;
+                    }
+                    if (clause.getWhereExpression() != null && !isImmutable(clause.getWhereExpression())) {
+                        return false;
+                    }
+                }
+                return isImmutable(fe.getBodyExpression());
+            }
+            case APPLY: {
+                JFXFunctionInvocation finv = (JFXFunctionInvocation) tree;
+                JFXExpression meth = finv.meth;
+                Symbol refSym = JavafxTreeInfo.symbol(meth);
+                return
+                        isImmutable(meth) &&                       // method being called won't change
+                        isImmutable(finv.getArguments()) &&        // arguments won't change
+                        !(meth.type instanceof FunctionType) &&    // not a function value call -- over-cautious
+                        (refSym instanceof MethodSymbol) &&        // call to a method, protects the next check -- over-cautious
+                        (refSym.flags() & JavafxFlags.BOUND) == 0; // and isn't a call to a bound function
             }
             case CONDEXPR: {
                 JFXIfExpression ife = (JFXIfExpression) tree;
@@ -509,20 +547,5 @@ public class JavafxPreTranslationSupport {
                     (owner instanceof JavafxClassSymbol && name == fxmake.ScriptAccessSymbol(owner).name) ||
                     !vsym.canChange();
      }
-
-    private boolean isImmutableSelector(final JFXSelect tree) {
-        if (tree.sym.isStatic()) {
-            // If the symbol is static, no matter what the selector is, the selectot is immutable
-            return true;
-        }
-        final JFXExpression selector = tree.getExpression();
-        if (selector instanceof JFXIdent) {
-            return isImmutable((JFXIdent) selector);
-        } else if (selector instanceof JFXSelect) {
-            return isImmutable((JFXSelect) selector);
-        } else {
-            return false;
-        }
-    }
 }
 
