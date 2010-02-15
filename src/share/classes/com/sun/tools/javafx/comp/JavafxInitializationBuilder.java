@@ -1378,12 +1378,9 @@ however this is what we need */
 
             // If we need to prime the on replace trigger.
             if ((hasOnReplace || isOverride) && isBound) {
-                JCStatement poke;
-                if (genSequences) {
-                    poke = CallStmt(attributeSizeName(varSym));
-                } else {
-                    poke = Stmt(Getter(varSym));
-                }
+                JCStatement poke = genSequences?
+                    CallStmt(attributeSizeName(varSym)) :
+                    Stmt(Getter(varSym));
                 if (init != null) {
                     init = Block(init, poke);
                 } else {
@@ -1391,18 +1388,22 @@ however this is what we need */
                 }
             }
             if (hasOnReplace && (init == null) && !isOverride) {
-                if (!genSequences) {
-                    init = Block(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
-                            CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym)));
+                if (genSequences) {
+                    init =
+                        Block(
+                            FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
+                            CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)),
+                            CallSeqTriggerInitial(varSym, Int(0))
+                        );
                 } else {
-                    init = Block(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
-                            CallStmt(attributeInvalidateName(varSym),
-                            Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_INVALIDATE)),
-                            CallStmt(attributeInvalidateName(varSym),
-                            Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_TRIGGER)));
+                    init =
+                        Block(
+                            FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
+                            CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym))
+                        );
                 }
             }
-            if (init == null && varInfo.isSequence() && !isBound && varInfo.useAccessors()) {
+            if ((init == null) && varInfo.isSequence() && !isBound && varInfo.useAccessors()) {
                 init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
             }
  
