@@ -1286,13 +1286,11 @@ public abstract class JavafxAbstractTranslation
     class SelectTranslator extends NullCheckTranslator {
 
         protected final JFXSelect tree;
-        protected final boolean isFunctionReference;
         protected final Name name;
 
         protected SelectTranslator(JFXSelect tree) {
             super(tree.pos(), tree.sym, tree.type);
             this.tree = tree;
-            this.isFunctionReference = tree.type instanceof FunctionType && refSym.type instanceof MethodType;
             this.name = tree.getIdentifier();
         }
 
@@ -1303,17 +1301,8 @@ public abstract class JavafxAbstractTranslation
 
         @Override
         JCExpression fullExpression(JCExpression tToCheck) {
-            if (isFunctionReference) {
-                MethodType mtype = (MethodType) refSym.type;
-                JCExpression tc = staticReference?
-                    tToCheck :
-                    addTempVar(tree.selected.type, tToCheck);
-                JCExpression translated = Select(tc, name);
-                return new FunctionValueTranslator(translated, null, diagPos, mtype, fullType).doitExpr();
-            } else {
-                JCExpression translated = Select(tToCheck, name);
-                return convertVariableReference(translated, refSym);
-            }
+            JCExpression translated = Select(tToCheck, name);
+            return convertVariableReference(translated, refSym);
         }
     }
 
@@ -1493,7 +1482,7 @@ public abstract class JavafxAbstractTranslation
                 full = app;
                 if (useInvoke) {
                     if (resultType != syms.voidType) {
-                        full = typeCast(resultType, meth.type.getReturnType(), full);
+                        full = typeCast(resultType, syms.objectType, full);
                     }
                 }
             }
@@ -1551,8 +1540,7 @@ public abstract class JavafxAbstractTranslation
                     // pass FXConstant.VOFF$value as offset value
                     targs.append(Select(makeType(syms.javafx_FXConstantType), defs.varOFF$valueName));
                 }
-            }
-            else {
+            } else {
                 boolean handlingVarargs = false;
                 Type formal = null;
                 List<Type> t = formals;
@@ -1566,7 +1554,14 @@ public abstract class JavafxAbstractTranslation
                             handlingVarargs = true;
                         }
                     }
-                    targs.append(translateArg(arg, formal));
+                    JCExpression argExpr = translateArg(arg, formal);
+                    
+                    // Proper cast to Object.
+                    if (useInvoke) {
+                        argExpr = typeCast(types.boxedTypeOrType(formal), formal, argExpr);
+                    }
+                    
+                    targs.append(argExpr);
                 }
                 if (magicPointerMakeFunction) {
                     // Pointer.make has just two arguments (inst, varNum) -- we need to
@@ -2530,18 +2525,6 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
-    JFXClassDeclaration functionValueClass() {
-        //we need a synthetic enclosing JFX class declaration so that
-        //translation can handle getReceiver() calls trasparently
-        //probably this would be unnecessary if we lowered func values away
-        boolean inMixin = types.isMixin(currentClass().sym);
-        JFXClassDeclaration funClass = fxmake.ClassDeclaration(null, names.empty, List.<JFXExpression>nil(), List.<JFXTree>nil());
-        funClass.sym = new ClassSymbol(inMixin ? JavafxFlags.MIXIN : 0, names.empty, currentFunction() != null ? currentFunction().sym : currentClass().sym);
-        funClass.type = new Type.ClassType(currentClass().type, List.<Type>nil(), funClass.sym);
-        funClass.sym.type = funClass.type;
-        return funClass;
-    }
-
     class FunctionValueTranslator extends ExpressionTranslator {
 
         private final JCExpression meth;
@@ -2560,68 +2543,46 @@ public abstract class JavafxAbstractTranslation
         protected ExpressionResult doit() {
             return toResult(doitExpr(), resultType);
         }
+        
+        protected JCTree translateInvokeCase() {
+            JFXBlock bexpr = def.getBodyExpression();
+            JCBlock body;
+            
+            if (bexpr == null) {
+                body = Block();
+            } else {
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                
+                int argNum = 0;
+                for (JFXVar fxVar : def.getParams()) {
+                    setDiagPos(fxVar);
+                    Type paramType = fxVar.sym.type;
+                    
+                    // (cast)args$[i]; 
+                    JCExpression initialValue = typeCast(paramType, syms.objectType, m().Indexed(id(defs.args_ArgName), Int(argNum)));
+                    stmts.append(Var(Flags.FINAL, paramType, fxVar.getName(), initialValue));
+                
+                    if (types.isSequence(paramType)) {
+                        stmts.append(CallStmt(id(fxVar.getName()), defs.incrementSharing_SequenceMethodName));
+                    }
+                    
+                    argNum++;
+                }
+
+                setDiagPos(bexpr);
+                stmts.appendList(translateToStatementsResult(bexpr, mtype.getReturnType()).statements());
+                body = Block(stmts);
+            }
+
+            return body;
+        }
 
         JCExpression doitExpr() {
-            ListBuffer<JCTree> members = new ListBuffer<JCTree>();
-            if (def != null) {
-                JFXClassDeclaration prevClass = currentClass();
-                try {
-                    setCurrentClass(functionValueClass());
-                    // Translate the definition, maintaining the current inInstanceContext
-                    members.append(translateFunction(def, true));
-                }
-                finally {
-                    setCurrentClass(prevClass);
-                }
-            }
-            JCExpression encl = null;
-            int nargs = mtype.argtypes.size();
-            Type ftype = syms.javafx_FunctionTypes[nargs];
-            JCExpression t = QualifiedTree(ftype.tsym.getQualifiedName().toString());
-            ListBuffer<JCExpression> typeargs = new ListBuffer<JCExpression>();
-            Type rtype = types.boxedTypeOrType(mtype.restype);
-            typeargs.append(makeType(rtype));
-            ListBuffer<JCVariableDecl> params = new ListBuffer<JCVariableDecl>();
-            ListBuffer<JCExpression> margs = new ListBuffer<JCExpression>();
-            int i = 0;
-            for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
-                Name pname = make.paramName(i++);
-                Type ptype = types.boxedTypeOrType(l.head);
-                JCVariableDecl param = Param(ptype, pname);
-                params.append(param);
-                JCExpression marg = id(pname);
-                margs.append(marg);
-                typeargs.append(makeType(ptype));
-            }
-
-            // The backend's Attr skips SYNTHETIC methods when looking for a matching method.
-            long flags = Flags.PUBLIC | Flags.BRIDGE; // | SYNTHETIC;
-
-            JCExpression call = make.Apply(null, meth, margs.toList());
-
-            List<JCStatement> stats;
-            if (mtype.restype == syms.voidType) {
-                stats = List.of(Stmt(call), Return(Null()));
-            } else {
-                if (mtype.restype.isPrimitive()) {
-                    call = makeBox(diagPos, call, mtype.restype);
-                }
-                stats = List.<JCStatement>of(Return(call));
-            }
-            JCMethodDecl bridgeDef = m().MethodDef(
-                    m().Modifiers(flags),
-                    defs.invoke_MethodName,
-                    makeType(rtype),
-                    List.<JCTypeParameter>nil(),
-                    params.toList(),
-                    m().Types(mtype.getThrownTypes()),
-                    Block(stats),
-                    null);
-
-            members.append(bridgeDef);
-            JCClassDecl cl = m().AnonymousClassDef(m().Modifiers(0), members.toList());
-            List<JCExpression> nilArgs = List.nil();
-            return m().NewClass(encl, nilArgs, make.TypeApply(t, typeargs.toList()), nilArgs, cl);
+            boolean isScriptContext = receiverContext() == ReceiverContext.ScriptAsStatic;
+            int selector = currentClass().addInvokeCase(translateInvokeCase(), isScriptContext);
+            JCExpression funcClassType = QualifiedTree(syms.javafx_FunctionType.tsym.getQualifiedName().toString());
+            List<JCExpression> funcValueArgs = List.<JCExpression>of(getReceiverOrThis(), FuncNum(selector));
+            return m().NewClass(null, List.<JCExpression>nil(), funcClassType, funcValueArgs, null);
         }
     }
 
@@ -3891,7 +3852,6 @@ public abstract class JavafxAbstractTranslation
     }
 
     public void visitFunctionValue(JFXFunctionValue tree) {
-        System.out.println(this.getClass().getCanonicalName());
         disallowedInBind();
     }
 

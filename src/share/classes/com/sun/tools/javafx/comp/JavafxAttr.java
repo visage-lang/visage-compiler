@@ -3286,11 +3286,6 @@ public class JavafxAttr implements JavafxVisitor {
             nargs++;
         }
         MethodType mtype = new MethodType(argtypes.toList(), restype, null, syms.methodClass);
-        if (nargs > JavafxSymtab.MAX_FIXED_PARAM_LENGTH) {
-            log.error(tree, MsgSym.MESSAGE_TOO_MANY_PARAMETERS);
-            tree.type = result = syms.objectType;
-            return;
-        }
         FunctionType ftype = syms.makeFunctionType(typarams.toList(), mtype);
         Type type = sequenceType(ftype, tree.getCardinality());
         tree.type = type;

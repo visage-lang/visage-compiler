@@ -82,8 +82,8 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_EmptySequenceType;
     public final Type javafx_SequenceTypeErasure;
     public final Type javafx_ShortArray;
-    static public final int MAX_FIXED_PARAM_LENGTH = 8;
-    public final Type[] javafx_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
+    public final Type javafx_ObjectArray;
+    public final Type javafx_FunctionType;
     public final Type javafx_FXObjectType;
     public final Type javafx_FXMixinType;
     public final Type javafx_FXBaseType;
@@ -136,7 +136,7 @@ public class JavafxSymtab extends Symtab {
 
     private JavafxTypes types;
 
-    public static final String functionClassPrefix =
+    public static final String functionClassString =
             "com.sun.javafx.functions.Function";
 
     public static void preRegister(final Context context) {
@@ -211,6 +211,7 @@ public class JavafxSymtab extends Symtab {
         javafx_EmptySequenceType = types.sequenceType(botType);
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
         javafx_ShortArray = new ArrayType(shortType, arrayClass);
+        javafx_ObjectArray = new ArrayType(objectType, arrayClass);
         javafx_KeyValueType = enterClass("javafx.animation.KeyValue");
         javafx_KeyFrameType = enterClass("javafx.animation.KeyFrame");
         javafx_KeyValueTargetType = enterClass("javafx.animation.KeyValueTarget");
@@ -234,9 +235,7 @@ public class JavafxSymtab extends Symtab {
         javafx_staticAnnotationType = enterClass(staticAnnotationClassNameString);
         javafx_inheritedAnnotationType = enterClass(inheritedAnnotationClassNameString);
         javafx_sourceNameAnnotationType = enterClass(sourceNameAnnotationClassNameString);
-        for (int i = MAX_FIXED_PARAM_LENGTH; i >= 0;  i--) {
-            javafx_FunctionTypes[i] = enterClass(functionClassPrefix+i);
-        }
+        javafx_FunctionType = enterClass(functionClassString);
 
         booleanTypeName = names.fromString("Boolean");
         charTypeName = names.fromString("Character");
@@ -316,26 +315,12 @@ public class JavafxSymtab extends Symtab {
                 argtypes.append(a);
         }
         MethodType mtype = new MethodType(argtypes.toList(), restype, null, methodClass);
-        return makeFunctionType(typarams, mtype);
+        return makeFunctionType(mtype);
     }
 
-    public FunctionType makeFunctionType(List<Type> typarams, MethodType mtype) {
-        int nargs = typarams.size()-1;
-        assert (nargs <= MAX_FIXED_PARAM_LENGTH);
-        Type funtype = javafx_FunctionTypes[nargs];
-        return new FunctionType(funtype.getEnclosingType(), typarams, funtype.tsym, mtype);
-    }
-
-    /** Given a MethodType, create the corresponding FunctionType.
-     */
     public FunctionType makeFunctionType(MethodType mtype) {
-        Type rtype = mtype.restype;
-        ListBuffer<Type> typarams = new ListBuffer<Type>();
-        typarams.append(boxedTypeOrType(rtype));
-        for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
-            typarams.append(boxedTypeOrType(l.head));
-        }
-        return makeFunctionType(typarams.toList(), mtype);
+        Type funtype = javafx_FunctionType;
+        return new FunctionType(funtype.getEnclosingType(), List.<Type>nil(), funtype.tsym, mtype);
     }
 
     /** Make public. */

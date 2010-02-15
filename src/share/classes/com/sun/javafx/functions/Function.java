@@ -22,6 +22,28 @@
  */
 
 package com.sun.javafx.functions;
+import com.sun.javafx.runtime.FXObject;
 
-public interface Function<R> {
+public class Function {
+    // Class that implements the function.
+    final private FXObject implementor;
+    
+    // Function number.
+    final private int selector;
+    
+    public Function(final FXObject implementor, final int selector) {
+        this.implementor = implementor;
+        this.selector = selector;
+    }
+    
+    // Get the implementor to invoke the function.
+    public Object invoke(Object... args) {
+        return implementor.invoke$(selector, args);
+    }
+    
+    // Format for easier debugging.
+    @Override
+    public String toString() {
+        return implementor.getClass().getName() + ".function<" + selector + ">";
+    }
 }

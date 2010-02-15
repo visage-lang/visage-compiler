@@ -79,6 +79,7 @@ public class JavafxDefs {
     public static final String varMap_FXObjectFieldPrefix = "MAP$";
     public static final String depCount_FXObjectFieldString = "DCNT$";
     public static final String dep_FXObjectFieldString = "DEP$";
+    public static final String funcCount_FXObjectFieldString = "FCNT$";
     public static final String scriptLevelAccess_FXObjectFieldString = "$script$";
 
     /**
@@ -271,6 +272,7 @@ public class JavafxDefs {
      * FXObject method Names
      */
     final Name applyDefaults_FXObjectMethodName;
+    final Name invoke_FXObjectMethodName;
     final Name count_FXObjectMethodName;
     final Name get_FXObjectMethodName;
     final Name set_FXObjectMethodName;
@@ -366,6 +368,7 @@ public class JavafxDefs {
 
     final Name count_FXObjectFieldName;
     final Name depCount_FXObjectFieldName;
+    final Name funcCount_FXObjectFieldName;
     final Name outerAccessor_FXObjectFieldName;
     final Name scriptLevelAccess_FXObjectFieldName;
 
@@ -405,6 +408,8 @@ public class JavafxDefs {
     final Name updateInstance_ArgName;
     final Name obj_ArgName;
     final Name value_ArgName;
+    final Name number_ArgName;
+    final Name args_ArgName;
 
     /**
      * Method prefixes for attributes as Name
@@ -596,6 +601,7 @@ public class JavafxDefs {
         flags_AttributeFieldPrefixName = names.fromString(flags_AttributeFieldPrefix);
         count_FXObjectFieldName = names.fromString(count_FXObjectFieldString);
         depCount_FXObjectFieldName = names.fromString(depCount_FXObjectFieldString);
+        funcCount_FXObjectFieldName = names.fromString(funcCount_FXObjectFieldString);
         typeParameterName = names.fromString("T");
         init_MethodSymbolName = names.fromString("$init$def$name");
         postinit_MethodSymbolName = names.fromString("$postinit$def$name");
@@ -635,6 +641,7 @@ public class JavafxDefs {
         initVarsAttributeMethodPrefixName = names.fromString(initVars_AttributeMethodPrefix);
         initVars_FXObjectMethodName = initVarsAttributeMethodPrefixName;
         applyDefaults_FXObjectMethodName = names.fromString(applyDefaults_AttributeMethodPrefix);
+        invoke_FXObjectMethodName = names.fromString("invoke$");
         applyDefaults_AttributeMethodPrefixName = names.fromString(applyDefaults_AttributeMethodPrefix);
         update_FXObjectMethodName = names.fromString("update$");
         getElement_FXObjectMethodName = names.fromString(getElement_AttributeMethodPrefix);
@@ -650,6 +657,8 @@ public class JavafxDefs {
         updateInstance_ArgName = names.fromString("instance$");
         obj_ArgName = names.fromString("object$");
         value_ArgName = names.fromString("value$");
+        number_ArgName = names.fromString("number$");
+        args_ArgName = names.fromString("args$");
         varNum_ArgName = names.fromString("varNum$");
         depNum_ArgName = names.fromString("depNum$");
         scriptClassSuffixName = names.fromString(scriptClassSuffix);
@@ -811,7 +820,8 @@ public class JavafxDefs {
                 getElement_FXObjectMethodName,
                 size_FXObjectMethodName,
                 count_FXObjectFieldName,
-                depCount_FXObjectFieldName
+                depCount_FXObjectFieldName,
+                funcCount_FXObjectFieldName
              };
      
         // Initialize per Kind names and types

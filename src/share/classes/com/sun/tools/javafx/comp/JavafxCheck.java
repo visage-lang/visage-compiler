@@ -2276,12 +2276,7 @@ public class JavafxCheck {
     }
         
     public Type checkFunctionType(DiagnosticPosition pos, MethodType m) {
-        if (m.argtypes.length() > JavafxSymtab.MAX_FIXED_PARAM_LENGTH) {
-            log.error(pos, MsgSym.MESSAGE_TOO_MANY_PARAMETERS);
-            return syms.errType;
-        } else {
-            return syms.makeFunctionType(m);
-        }
+        return syms.makeFunctionType(m);
     }
 
     public void checkForwardReferences(JFXTree tree) {
