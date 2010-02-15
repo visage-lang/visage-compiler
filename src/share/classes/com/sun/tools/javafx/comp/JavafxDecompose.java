@@ -64,15 +64,17 @@ public class JavafxDecompose implements JavafxVisitor {
     private ListBuffer<JFXTree> lbVar;
     private Set<String> synthNames;
     private Symbol varOwner = null;
-    private Symbol currentVarSymbol;
+    private JavafxVarSymbol currentVarSymbol;
     private Symbol currentClass = null;
     private boolean inScriptLevel = true;
     private JFXVarInit varInitContext = null;
     private boolean allowDebinding = false;
 
     // Map of shreded (Ident) selectors in bound select expressions.
-    // Used in shred optimization.
+    // Used in shred optimization. We use two maps - one for instance level
+    // expressions and one for script level expressions.
     private Map<Symbol, JFXExpression> shrededSelectors;
+    private Map<Symbol, JFXExpression> scriptShrededSelectors;
 
     protected final JavafxTreeMaker fxmake;
     protected final JavafxPreTranslationSupport preTrans;
@@ -212,23 +214,19 @@ public class JavafxDecompose implements JavafxVisitor {
         return tree;
     }
 
-    private JFXVar makeVar(DiagnosticPosition diagPos, String label, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
-        Name vName = tempName(label);
-        return makeVar(diagPos, vName, pose, bindStatus, type);
+    private JFXVar makeVar(DiagnosticPosition diagPos, String label, JFXExpression initExpr, JavafxBindStatus bindStatus, Type type) {
+        JFXVar var = preTrans.SynthVar(diagPos, currentVarSymbol, label, initExpr, bindStatus, type, inScriptLevel, varOwner);
+        lbVar.append(var);
+        return var;
     }
 
     private JFXVar makeVar(DiagnosticPosition diagPos, Name vName, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
-        optStat.recordSynthVar();
-        long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
-        JavafxVarSymbol sym = new JavafxVarSymbol(types, names, flags, vName, types.normalize(type), varOwner);
-        varOwner.members().enter(sym);
-        JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags);
-        JFXType fxType = preTrans.makeTypeTree(sym.type);
-        JFXVar v = fxmake.at(diagPos).Var(vName, fxType, mod, pose, bindStatus, null, null);
-        v.sym = sym;
-        v.type = sym.type;
-        lbVar.append(v);
-        return v;
+        optStat.recordSynthVar("synth");
+        long flags = JavafxFlags.SCRIPT_PRIVATE | Flags.SYNTHETIC | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
+        JFXVar var = preTrans.Var(diagPos, flags, types.normalize(type), vName, bindStatus, pose, varOwner);
+        varOwner.members().enter(var.sym);
+        lbVar.append(var);
+        return var;
     }
 
     private JFXVar shredVar(String label, JFXExpression pose, Type type) {
@@ -244,7 +242,7 @@ public class JavafxDecompose implements JavafxVisitor {
         if (ptrVar != null) {
             return makeVar(pose.pos(), tmpName, id(ptrVar), bindStatus, type);
         } else {
-            return makeVar(pose.pos(), tmpName, pose, bindStatus, type);
+            return makeVar(pose.pos(), label, pose, bindStatus, type);
         }
     }
 
@@ -310,7 +308,11 @@ public class JavafxDecompose implements JavafxVisitor {
         ListBuffer<JFXExpression> lb = new ListBuffer<JFXExpression>();
         Type paramType = paramTypes != null? paramTypes.head : null;
         for (JFXExpression tree: trees) {
-            lb.append(shred(tree, paramType));
+            if (tree != null && preTrans.isImmutable(tree)) {
+                lb.append(tree);
+            } else {
+                lb.append(shred(tree, paramType));
+            }
             if (paramTypes != null) {
                 paramTypes = paramTypes.tail;
                 paramType = paramTypes.head;
@@ -511,7 +513,7 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression res = fxmake.at(tree.pos).Apply(tree.typeargs, fn, args);
         res.type = tree.type;
         if (bindStatus.isBound() && types.isSequence(tree.type) && !isBoundFunctionResult(tree)) {
-            JFXVar v = shredVar(defs.siiNamePrefix(), res, tree.type);
+            JFXVar v = shredVar(defs.functionResultNamePrefix(), res, tree.type);
             JFXVar sz = makeSizeVar(v.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
             res = fxmake.IdentSequenceProxy(v.name, v.sym, sz.sym);
         }
@@ -633,11 +635,14 @@ public class JavafxDecompose implements JavafxVisitor {
                     sym instanceof VarSymbol) {
                     if (selectSym.owner == currentClass && !(selectSym.isStatic() ^ inScriptLevel)) {
                         selected = tree.selected;
-                    } else if (shrededSelectors.containsKey(selectSym)) {
-                        selected = shrededSelectors.get(selectSym);
                     } else {
-                        selected = shred(tree.selected);
-                        shrededSelectors.put(selectSym, selected);
+                        Map<Symbol, JFXExpression> shredMap = inScriptLevel? scriptShrededSelectors : shrededSelectors;
+                        if (shredMap.containsKey(selectSym)) {
+                            selected = shredMap.get(selectSym);
+                        } else {
+                            selected = shred(tree.selected);
+                            shredMap.put(selectSym, selected);
+                        }
                     }
                 } else {
                     selected = shred(tree.selected);
@@ -679,7 +684,9 @@ public class JavafxDecompose implements JavafxVisitor {
         Symbol prevVarOwner = varOwner;
         Symbol prevClass = currentClass;
         Map<Symbol, JFXExpression> prevShredExprs = shrededSelectors;
+        Map<Symbol, JFXExpression> prevScriptShredExprs = scriptShrededSelectors;
         shrededSelectors = new HashMap<Symbol, JFXExpression>();
+        scriptShrededSelectors = new HashMap<Symbol, JFXExpression>();
         currentClass = varOwner = tree.sym;
         ListBuffer<JFXTree> prevLbVar = lbVar;
         lbVar = ListBuffer.<JFXTree>lb();
@@ -691,6 +698,7 @@ public class JavafxDecompose implements JavafxVisitor {
         varOwner = prevVarOwner;
         currentClass = prevClass;
         shrededSelectors = prevShredExprs;
+        scriptShrededSelectors = prevScriptShredExprs;
         result = tree;
         bindStatus = prevBindStatus;
     }
@@ -770,8 +778,8 @@ public class JavafxDecompose implements JavafxVisitor {
    }
 
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
-        Symbol prevVarSymbol = currentVarSymbol;
-        currentVarSymbol = tree.sym;
+        JavafxVarSymbol prevVarSymbol = currentVarSymbol;
+        currentVarSymbol = (JavafxVarSymbol)tree.sym;
         if (tree.isExplicitlyBound())
             throw new AssertionError("bound parts should have been converted to overrides");
         JFXExpression expr = shred(tree.getExpression(), tree.sym.type);
@@ -814,7 +822,7 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitVar(JFXVar tree) {
         boolean wasInScriptLevel = inScriptLevel;
         inScriptLevel = tree.isStatic();
-        Symbol prevVarSymbol = currentVarSymbol;
+        JavafxVarSymbol prevVarSymbol = currentVarSymbol;
         currentVarSymbol = tree.sym;
 
         JavafxBindStatus prevBindStatus = bindStatus;
@@ -1001,7 +1009,7 @@ public class JavafxDecompose implements JavafxVisitor {
             ListBuffer<JavafxVarSymbol> vb = ListBuffer.lb();
             ListBuffer<JavafxVarSymbol> vblen = ListBuffer.lb();
             for (JFXExpression item : tree.getItems()) {
-                vb.append(shredVar(defs.itemNamePrefix()+n, decompose(item), item.type).sym);
+                vb.append(synthVar(defs.itemNamePrefix()+n, item, item.type).sym);
                 JavafxVarSymbol lenSym = null;
                 if (preTrans.isNullable(item)) {
                     lenSym = makeIntVar(item.pos(), defs.lengthNamePrefix()+n, 0).sym;
@@ -1164,7 +1172,7 @@ public class JavafxDecompose implements JavafxVisitor {
         boolean wasInScriptLevel = inScriptLevel;
         inScriptLevel = tree.isStatic();
         JavafxBindStatus prevBindStatus = bindStatus;
-        Symbol prevVarSymbol = currentVarSymbol;
+        JavafxVarSymbol prevVarSymbol = currentVarSymbol;
         currentVarSymbol = tree.sym;
         // on-replace is always unbound
         bindStatus = JavafxBindStatus.UNBOUND;

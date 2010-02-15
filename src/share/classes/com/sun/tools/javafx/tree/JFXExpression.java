@@ -56,9 +56,7 @@ public abstract class JFXExpression extends JFXTree implements ExpressionTree, J
     }
 
     public void markBound(JavafxBindStatus bindStatus) {
-        if (!this.bindStatus.isBound()) {
-            this.bindStatus = bindStatus;
-        }
+        this.bindStatus = bindStatus;
     }
 
     public JavafxBindStatus getBindStatus() {

@@ -1,0 +1,4 @@
+test/should-fail/jfxc3994a.fx:17: variable x declared 'override' but does not override another variable.
+    override var x = "";
+                 ^
+1 error

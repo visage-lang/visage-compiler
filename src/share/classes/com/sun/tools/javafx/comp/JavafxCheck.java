@@ -1708,7 +1708,7 @@ public class JavafxCheck {
             }
         } else {
             if (declaredOverride) {
-                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, m);
+                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, rs.kindName(m), m);
             }
         }
     }
@@ -2286,20 +2286,38 @@ public class JavafxCheck {
 
     public void checkForwardReferences(JFXTree tree) {
         class ForwardReferenceChecker extends JavafxTreeScanner {
-            List<Set<JavafxVarSymbol>> scopes = List.nil();
-            boolean inSelect = false;
+            
+            class VarScope {
+                VarScope(boolean isStatic) {
+                    this.isStatic = isStatic;
+                }
+                Set<JavafxVarSymbol> uninited_vars = new LinkedHashSet<JavafxVarSymbol>();;
+                Set<JavafxVarSymbol> forward_set_vars = new LinkedHashSet<JavafxVarSymbol>();;
+                int overrideVarIdx = Integer.MAX_VALUE;
+                boolean isStatic = false;
+            }
+
+            List<VarScope> scopes = List.nil();
+            ClassSymbol enclClass = null;
 
             @Override
             public void visitClassDeclaration(JFXClassDeclaration tree) {
-                beginScope();
-                addVars(tree.getMembers());
-                super.visitClassDeclaration(tree);
-                endScope();
+                ClassSymbol prevClass = enclClass;
+                try {
+                    enclClass = tree.sym;
+                    beginScope();
+                    addVars(tree.getMembers());
+                    super.visitClassDeclaration(tree);
+                    endScope();
+                }
+                finally {
+                    enclClass = prevClass;
+                }
             }
 
             @Override
             public void visitFunctionValue(JFXFunctionValue tree) {
-                beginScope();
+                beginScope(tree.definition.sym.isStatic());
                 super.visitFunctionValue(tree);
                 endScope();
             }
@@ -2353,55 +2371,108 @@ public class JavafxCheck {
 
             @Override
             public void visitSelect(JFXSelect tree) {
-                boolean prevInSelect = inSelect;
-                try {
-                    Symbol selectedSym = JavafxTreeInfo.symbolFor(tree.selected);
-                    boolean shouldWarn = selectedSym != null &&
-                            (selectedSym.kind == TYP ||
-                            (selectedSym.kind == VAR &&
-                            selectedSym.name == names._this));
+                Symbol selectedSym = JavafxTreeInfo.symbolFor(tree.selected);
+                boolean shouldWarn = false;
+                if (selectedSym != null) {
+                    if (selectedSym.kind == TYP) {
+                        shouldWarn = true;
+                    }
+                    if (selectedSym.kind == VAR) {
+                        if (selectedSym.name == names._this ||
+                                selectedSym.name == names._super) {
+                            shouldWarn = true;
+                        }
+                    }
                     if (shouldWarn) {
                         checkForwardReference(tree, tree.sym);
                     }
-                    super.visitSelect(tree);
                 }
-                finally {
-                    inSelect = prevInSelect;
-                }
+
+                super.visitSelect(tree);
             }
 
             @Override
             public void visitVarInit(JFXVarInit tree) {
-                currentScope().remove(tree.getSymbol());
+                currentScope().uninited_vars.remove(tree.getSymbol());
             }
 
             @Override
             public void visitVar(JFXVar tree) {
-                super.scan(tree.getInitializer());
-                currentScope().remove(tree.getSymbol());
-                super.scan(tree.getOnReplace());
-                super.scan(tree.getOnInvalidate());
+                if (tree.getSymbol() != null) {
+                    boolean prevIsStatic = currentScope().isStatic;
+                    try {
+                        currentScope().isStatic = tree.getSymbol().isStatic();
+                        super.scan(tree.getInitializer());
+                        currentScope().uninited_vars.remove(tree.getSymbol());
+                        super.scan(tree.getOnReplace());
+                        super.scan(tree.getOnInvalidate());
+                    }
+                    finally {
+                        currentScope().isStatic = prevIsStatic;
+                    }
+                }
+            }
+
+            @Override
+            public void visitAssign(JFXAssign tree) {
+                Symbol s = JavafxTreeInfo.symbolFor(tree.lhs);
+                JavafxVarSymbol vsym = (s != null && s.kind == VAR) ?
+                    (JavafxVarSymbol)s : null;
+                if (vsym != null) {
+                    currentScope().forward_set_vars.add(vsym);
+                }
+                super.visitAssign(tree);
+                if (vsym != null) {
+                    currentScope().forward_set_vars.remove(vsym);
+                }
+            }
+
+            @Override
+            public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+                if (tree.getSymbol() != null) {
+                    int prevOverrideVarIdx = currentScope().overrideVarIdx;
+                    try {
+                        currentScope().overrideVarIdx = tree.getSymbol().getAbsoluteIndex(enclClass.type);
+                        scan(tree.getInitializer());
+                    }
+                    finally {
+                        currentScope().overrideVarIdx = prevOverrideVarIdx;
+                    }
+                }
             }
 
             private void checkForwardReference(JFXExpression tree, Symbol s) {
-                if (currentScope().contains(s) && !tree.isBound()) {
-                    log.warning(tree.pos(),
-                            MsgSym.MESSAGE_ILLEGAL_FORWARD_REF,
-                            rs.kindName(VAR),
-                            s);
+                if (s != null && s instanceof JavafxVarSymbol) {
+                    JavafxVarSymbol vsym = (JavafxVarSymbol)s;
+                    if (!tree.isBound() &&
+                            vsym.name != names._this &&
+                            vsym.name != names._super &&
+                            !currentScope().forward_set_vars.contains(vsym) &&
+                            currentScope().isStatic == vsym.isStatic() &&
+                            (currentScope().uninited_vars.contains(s) ||
+                            (currentScope().overrideVarIdx <= vsym.getAbsoluteIndex(enclClass.type) &&
+                            enclClass.isSubClass(s.owner, types)))) {
+                        log.warning(tree.pos(),
+                                MsgSym.MESSAGE_ILLEGAL_FORWARD_REF,
+                                rs.kindName(VAR),
+                                s);
+                    }
                 }
             }
 
             private void beginScope() {
-                Set<JavafxVarSymbol> scope = new LinkedHashSet<JavafxVarSymbol>();
-                scopes = scopes.prepend(scope);
+                beginScope(false);
+            }
+
+            private void beginScope(boolean staticScope) {
+                scopes = scopes.prepend(new VarScope(staticScope));
             }
 
             private void endScope() {
                 scopes = scopes.tail;
             }
 
-            private Set<JavafxVarSymbol> currentScope() {
+            private VarScope currentScope() {
                 return scopes.head;
             }
 
@@ -2419,7 +2490,7 @@ public class JavafxCheck {
                         case VAR_SCRIPT_INIT: sym = ((JFXVarInit)tree).getSymbol(); break;
                     }
                     if (sym != null) {
-                        currentScope().add(sym);
+                        currentScope().uninited_vars.add(sym);
                     }
                 }
             }

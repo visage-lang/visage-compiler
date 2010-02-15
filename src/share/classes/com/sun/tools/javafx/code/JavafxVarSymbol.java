@@ -27,6 +27,7 @@ import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Name;
 import static com.sun.tools.mjavac.code.Flags.*;
 
@@ -43,10 +44,18 @@ public class JavafxVarSymbol extends VarSymbol {
     private Type elementType = null;
     private final boolean isDotClass;
     private boolean isExternallySeen;
+    private int varIndex = -1;
 
     private Type lastSeenType;
     private final JavafxTypes types;
 
+    private List<Symbol> overridingClasses = List.nil();
+
+/****
+    private boolean isForwardReferenced = false;
+    private boolean hasForwardReferencesInInit = false;
+****/
+    
     /** Construct a variable symbol, given its flags, name, type and owner.
      */
     public JavafxVarSymbol(JavafxTypes types, Name.Table names, long flags, Name name, Type type, Symbol owner) {
@@ -152,7 +161,15 @@ public class JavafxVarSymbol extends VarSymbol {
     public boolean hasSelfReference() {
         return (flags_field & VARUSE_SELF_REFERENCE) != 0;
     }
+/****
+    public void setIsForwardReferenced() {
+        isForwardReferenced = true;
+    }
 
+    public boolean isForwardReferenced() {
+        return isForwardReferenced;
+    }
+***/
     public boolean hasForwardReference() {
         return (flags_field & VARUSE_FORWARD_REFERENCE) != 0;
     }
@@ -182,4 +199,36 @@ public class JavafxVarSymbol extends VarSymbol {
         return !isMember() && isMutatedWithinScript();
     }
 
+    public int getVarIndex() {
+        return varIndex;
+    }
+
+    public void setVarIndex(int varIndex) {
+        this.varIndex = varIndex;
+    }
+
+    public int getAbsoluteIndex(Type site) {
+        types.supertypesClosure(site);
+        return isLocal() || isStatic() ?
+            getVarIndex() :
+            getVarIndex() + baseIndex((TypeSymbol)owner, site);
+    }
+    //where
+    private int baseIndex(TypeSymbol tsym, Type site) {
+        List<Type> closure = types.supertypesClosure(site, false, true);
+        int baseIdx = 0;
+        for (Type t : closure) {
+            if (types.isSameType(t, tsym.type)) break;
+            baseIdx += ((JavafxClassSymbol)t.tsym).getMemberVarCount();
+        }
+        return baseIdx;
+    }
+
+    public void addOverridingClass(Symbol s) {
+        overridingClasses = overridingClasses.append(s);
+    }
+
+    public boolean isOverridenIn(Symbol s) {
+        return overridingClasses.contains(s);
+    }
 }

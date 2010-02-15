@@ -323,6 +323,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_RUN_FUNCTION_PARAM = "javafx.run.function.param";
     public static final String MESSAGE_JAVAFX_INDEXOF_NOT_FOUND = "javafx.indexof.not.found";
     public static final String MESSAGE_JAVAFX_KEYFRAME_LIT = "javafx.keyframe.literal";
+    public static final String MESSAGE_JAVAFX_TRY_CATCH = "javafx.try.catch";
     public static final String MESSAGE_JAVAFX_SEQ_OR_ARRAY = "javafx.seq.or.array";
     public static final String MESSAGE_JAVAFX_OBJ_OR_SEQ = "javafx.obj.or.seq";
     public static final String MESSAGE_JAVAFX_LOOSE_IN_LIB = "javafx.loose.expr.in.lib";
@@ -368,7 +369,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_REPORT_BIND_ACCESS = "javafx.report.bind.access";
     public static final String MESSAGE_JAVAFX_REPORT_INIT_ACCESS = "javafx.report.init.access";
     public static final String MESSAGE_JAVAFX_DEF_MUST_HAVE_INIT = "javafx.def.must.have.init";
-    public static final String MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT = "javafx.function.declared.overrride.does.not.override";
+    public static final String MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT = "javafx.declared.overrride.does.not.override";
     public static final String MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE = "javafx.function.overrides.another.should.be.declared.override";
     public static final String MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER = "javafx.var.overrides.member";
     public static final String MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER = "javafx.def.overrides.member";
@@ -430,6 +431,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_CANNOT_INIT_STATIC_OBJECT_LITERAL = "javafx.cannot.init.static.object.literal";
     public static final String MESSAGE_JAVAFX_REPEATED_MIXIN = "javafx.repeated.mixin";
     public static final String MESSAGE_JAVAFX_DUPLICATE_TRIGGER_DEF = "javafx.duplicate.trigger.def";
+    public static final String MESSAGE_JAVAFX_DUPLICATE_VAR_OVERRIDE = "javafx.duplicate.var.override";
     public static final String MESSAGE_JAVAFX_PURE_MIXIN = "javafx.pure.mixin";
     public static final String MESSAGE_JAVAFX_ONLY_MIXINS_AND_INTERFACES = "javafx.only.mixins.and.interfaces";
     public static final String MESSAGE_JAVAFX_MIXIN_CANNOT_BE_INSTANTIATED = "javafx.mixin.cant.be.instantiated";

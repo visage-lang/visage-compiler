@@ -251,7 +251,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
      */
     public FXBase() {
         this(false);
-        initialize$();
+        initialize$(true);
     }
 
     /**
@@ -263,22 +263,24 @@ import com.sun.javafx.runtime.sequence.Sequences;
         count$();
     }
 
-    public void initialize$() {
+    public void initialize$(boolean applyDefaults) {
         initVars$();
-        applyDefaults$();
+        if (applyDefaults) applyDefaults$();
         complete$();
     }
-    public static void initialize$(FXObject obj) {
+    public static void initialize$(FXObject obj, boolean applyDefaults) {
         obj.initVars$();
-        obj.applyDefaults$();
+        if (applyDefaults) obj.applyDefaults$();
         obj.complete$();
     }
 
     public void complete$() {
+        hindInit$();
         userInit$();
         postInit$();
     }
     public static void complete$(FXObject obj) {
+        obj.hindInit$();
         obj.userInit$();
         obj.postInit$();
     }
@@ -292,16 +294,20 @@ import com.sun.javafx.runtime.sequence.Sequences;
     public void applyDefaults$() {
         int cnt = count$();
         for (int inx = 0; inx < cnt; inx += 1) {
+            varChangeBits$(inx, 0, VFLGS$INIT$READY);
             applyDefaults$(inx);
         }
     }
     public static void applyDefaults$(FXObject obj) {
         int cnt = obj.count$();
         for (int inx = 0; inx < cnt; inx += 1) {
+            obj.varChangeBits$(inx, 0, VFLGS$INIT$READY);
             obj.applyDefaults$(inx);
         }
     }
 
+    public        void hindInit$()             {}
+    public static void hindInit$(FXObject obj) {}
     public        void userInit$()             {}
     public static void userInit$(FXObject obj) {}
     public        void postInit$()             {}

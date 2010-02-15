@@ -1,5 +1,5 @@
-on replace bseq bounds: 0..-1 -> [ 10, 11, 12, 13 ]
 on replace aseq bounds: 0..-1 -> [ 10, 11, 12, 13 ]
+on replace bseq bounds: 0..-1 -> [ 10, 11, 12, 13 ]
 on replace bseq bounds: 4..3 -> [ 10, 11, 12, 13, 101 ]
 on replace aseq bounds: 4..3 -> [ 10, 11, 12, 13, 101 ]
 on replace bseq bounds: 5..4 -> [ 10, 11, 12, 13, 101, 102 ]

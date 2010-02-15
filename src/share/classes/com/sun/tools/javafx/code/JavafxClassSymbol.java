@@ -44,6 +44,8 @@ public class JavafxClassSymbol extends ClassSymbol {
     public JavafxVarSymbol thisSymbol;
     public JavafxVarSymbol superSymbol;
     public JavafxVarSymbol scriptAccessSymbol;
+    private int memberVarCount = 0;
+    private int scriptVarCount = 0;
     
     /** Creates a new instance of JavafxClassSymbol */
     public JavafxClassSymbol(long flags, Name name, Symbol owner) {
@@ -66,5 +68,19 @@ public class JavafxClassSymbol extends ClassSymbol {
                 if (t.tsym == base) return true;
         }
         return false;
+    }
+
+    public void addVar(JavafxVarSymbol vsym, boolean isScriptVar) {
+        vsym.setVarIndex(isScriptVar ?
+            scriptVarCount++ :
+            memberVarCount++);
+    }
+
+    public int getMemberVarCount() {
+        return memberVarCount;
+    }
+
+    public int getScriptVarCount() {
+        return scriptVarCount;
     }
 }

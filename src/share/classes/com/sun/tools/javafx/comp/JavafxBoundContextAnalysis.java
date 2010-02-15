@@ -66,9 +66,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     private void mark(JFXBoundMarkable tree) {
-        if (bindStatus != JavafxBindStatus.UNBOUND) {
-            tree.markBound(bindStatus);
-        }
+        tree.markBound(bindStatus);
     }
 
     @Override
@@ -211,6 +209,16 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
                     diags.fragment(MsgSym.MESSAGE_JAVAFX_KEYFRAME_LIT));
         }
         super.visitKeyFrameLiteral(tree);
+    }
+
+    @Override
+    public void visitTry(JFXTry tree) {
+        if (bindStatus != JavafxBindStatus.UNBOUND) {
+            log.error(tree.pos(),
+                    MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT,
+                    diags.fragment(MsgSym.MESSAGE_JAVAFX_TRY_CATCH));
+        }
+        super.visitTry(tree);
     }
 
     @Override

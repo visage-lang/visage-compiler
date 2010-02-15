@@ -468,16 +468,36 @@ public class JavafxAttr implements JavafxVisitor {
     private void checkTypeCycle(JFXTree tree, Symbol sym) {
         if (sym.type == null) {
             JFXVar var = varSymToTree.get(sym);
-            if (var != null)
-                log.note(var, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL, sym.name);
+            if (var != null) {
+		JavaFileObject prevSource = log.currentSource();
+		try {
+		    //we need to switch log source as the var def could be
+		    //in another source w.r.t. the current one
+		    log.useSource(sym.outermostClass().sourcefile);
+		    log.note(var, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL, sym.name);
+		}
+		finally {
+		    log.useSource(prevSource);
+		}
+	    }
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
             sym.type = syms.errType;
         }
         else if (sym.type instanceof MethodType &&
                 sym.type.getReturnType() == syms.unknownType) {
             JFXFunctionDefinition fun = methodSymToTree.get(sym);
-            if (fun != null)
-                log.note(fun, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL, sym.name);
+            if (fun != null) {
+		JavaFileObject prevSource = log.currentSource();
+		try {
+		    //we need to switch log source as the func def could be
+		    //in another source w.r.t. the current one
+		    log.useSource(sym.outermostClass().sourcefile);
+		    log.note(fun, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL, sym.name);
+		}
+		finally {
+		    log.useSource(prevSource);
+		}
+	    }
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
             if (pt instanceof MethodType)
                 ((MethodType)pt).restype = syms.errType;
@@ -1133,20 +1153,29 @@ public class JavafxAttr implements JavafxVisitor {
         // let the owner of the environment be a freshly
         // created BLOCK-method.
         JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
+        //find overriden var
+        Type type = null;
+        Symbol idSym = rs.findIdentInType(localEnv, localEnv.enclClass.type, tree.getName(), VAR);
+        if (idSym != null) {
+            idSym.complete();
+            id.sym = idSym;
+            id.type = type = tree.type = idSym.type;
 
-        Type type = attribExpr(id, localEnv);
-        tree.type = type;
-        Symbol sym = id.sym;
+            if (idSym.kind < ERRONEOUS) {
+                tree.sym = (JavafxVarSymbol)idSym;
+            }
+            else {
+                //we couldn't find the overriden var
+                log.error(id.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, rs.kindName(VAR), tree.getName());
+            }
+        }
 
         for (JFXOnReplace.Kind triggerKind : JFXOnReplace.Kind.values()) {
             JFXOnReplace trigger = tree.getTrigger(triggerKind);
             if (trigger != null) {
                 if (triggerKind == JFXOnReplace.Kind.ONINVALIDATE) {
                     localEnv.info.inInvalidate = true;
-                    localEnv.info.enclVar = sym;
-//                    if (!tree.isBound()) {
-//                        log.error(trigger.pos(), MsgSym.MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED, sym);
-//                    }
+                    localEnv.info.enclVar = idSym;
                 }
 
                 JFXVar oldValue = trigger.getOldValue();
@@ -1161,19 +1190,27 @@ public class JavafxAttr implements JavafxVisitor {
             }
         }
 
-        // Must reference an attribute
-        if (sym.kind != VAR) {
-            log.error(id.pos(), MsgSym.MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE,id.getName());
-        } else if (localEnv.outer.tree.getFXTag() != JavafxTag.CLASS_DEF) {
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_CLASS_VAR_FROM_FUNCTION, sym.name, sym.owner);
-        } else {
-            JavafxVarSymbol v = (JavafxVarSymbol) sym;
-            tree.sym = v;
-            if (tree.isBound()) {
-                // If it is overridden with a bound, it is a bound init
-                v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+        if (idSym.kind < ERRONEOUS) {
+            // Must reference an attribute
+            if (idSym.kind != VAR) {
+                log.error(id.pos(), MsgSym.MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE,id.getName());
+            } else if (localEnv.outer.tree.getFXTag() != JavafxTag.CLASS_DEF) {
+                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_CLASS_VAR_FROM_FUNCTION, idSym.name, idSym.owner);
+            } else {
+                JavafxVarSymbol v = (JavafxVarSymbol) idSym;
+                if (v.isOverridenIn(env.enclClass.sym)) {
+                    log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_DUPLICATE_VAR_OVERRIDE, idSym.name, idSym.owner);
+                }
+                else {
+                    v.addOverridingClass(env.enclClass.sym);
+                    tree.sym = v;
+                    if (tree.isBound()) {
+                        // If it is overridden with a bound, it is a bound init
+                        v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+                    }
+                    finishOverrideAttribute(tree, env);
+                }
             }
-            finishOverrideAttribute(tree, env);
         }
     }
 
@@ -1951,7 +1988,7 @@ public class JavafxAttr implements JavafxVisitor {
                 chk.checkOverride(tree, m);
             } else {
                 if ((m.flags() & JavafxFlags.OVERRIDE) != 0) {
-                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, m);
+                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, rs.kindName(m), m);
                 }
             }
         }

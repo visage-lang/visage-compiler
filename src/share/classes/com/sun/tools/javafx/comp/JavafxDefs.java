@@ -25,10 +25,8 @@ package com.sun.tools.javafx.comp;
 import com.sun.javafx.runtime.Entry;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
-import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypeRepresentation;
 import com.sun.tools.mjavac.code.Symbol;
-import com.sun.tools.mjavac.util.Options;
 import java.util.regex.Pattern;
 
 /**
@@ -195,8 +193,6 @@ public class JavafxDefs {
         }
     }
 
-    private final boolean debugNames;
-
     /**
      * RuntimeMethod definitions
      *
@@ -283,6 +279,7 @@ public class JavafxDefs {
     final Name update_FXObjectMethodName;
     final Name complete_FXObjectMethodName;
     final Name initialize_FXObjectMethodName;
+    final Name hindInit_FXObjectMethodName;
     final Name userInit_FXObjectMethodName;
     final Name postInit_FXObjectMethodName;
     final Name initVars_FXObjectMethodName;
@@ -433,32 +430,38 @@ public class JavafxDefs {
     final Name varFlagRESTING_STATE_BIT;
     final Name varFlagBE_STATE_BIT;
     final Name varFlagINVALID_STATE_BIT;
-    final Name varFlagIS_BOUND;
-    final Name varFlagIS_READONLY;
-    final Name varFlagDEFAULT_APPLIED;
-    final Name varFlagIS_INITIALIZED;
-    final Name varFlagAWAIT_VARINIT;
-    final Name varFlagCYCLE;
+    final Name varFlagDEFAULT_STATE_BIT;
+    final Name varFlagINITIALIZED_STATE_BIT;
     final Name varFlagIS_EAGER;
     final Name varFlagSEQUENCE_LIVE;
+    final Name varFlagIS_BOUND;
+    final Name varFlagIS_READONLY;
 
     final Name varFlagSTATE_MASK;
-    final Name varFlagStateVALID;
-    final Name varFlagStateVALID_DEFAULT_APPLIED;
-    final Name varFlagStateTRIGGERED;
 
-    final Name varFlagIS_BOUND_INVALID;
-    final Name varFlagIS_BOUND_INVALID_CYCLE;
-    final Name varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT;
-    final Name varFlagIS_BOUND_DEFAULT_APPLIED;
-    final Name varFlagIS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED;
-    final Name varFlagDEFAULT_APPLIED_VARINIT;
+    final Name varFlagSTATE_VALID;
+    final Name varFlagSTATE_CASCADE_INVALID;
+    final Name varFlagSTATE_BE_INVALID;
+    final Name varFlagSTATE_TRIGGERED;
     
+    final Name varFlagINIT_MASK;
+    
+    final Name varFlagINIT_PENDING;
+    final Name varFlagINIT_READY;
+    final Name varFlagINIT_INITIALIZED;
+    final Name varFlagINIT_INITIALIZED_DEFAULT;
+    
+    final Name varFlagINIT_BOUND_MASK;
+    final Name varFlagINIT_STATE_MASK;
+    
+    final Name varFlagIS_BOUND_READONLY;
+    final Name varFlagIS_BOUND_INVALID;
+    final Name varFlagVALID_DEFAULT_APPLIED;
+    final Name varFlagINIT_INITIALIZED_DEFAULT_READONLY;
     final Name varFlagINIT_OBJ_LIT;
-    final Name varFlagINIT_OBJ_LIT_DEFAULT;
-    final Name varFlagINIT_BOUND_READONLY;
-    final Name varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED;
-    final Name varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY;
+    final Name varFlagINIT_OBJ_LIT_SEQUENCE;
+    final Name varFlagINIT_OBJ_LIT_BIND;
+    
     final Name varFlagALL_FLAGS;
 
     /**
@@ -537,10 +540,7 @@ public class JavafxDefs {
     protected JavafxDefs(Context context) {
         context.put(jfxDefsKey, this);
 
-        debugNames = Options.instance(context).get("debugNames") != null;
-
         final Name.Table names = Name.Table.instance(context);
-        final JavafxSymtab syms = (JavafxSymtab) (JavafxSymtab.instance(context));
 
         // Initialize Duration method names
         add_DurationMethodName = names.fromString("add");
@@ -601,6 +601,7 @@ public class JavafxDefs {
         target_InterpolateMethodName = names.fromString("target");
         value_InterpolateMethodName = names.fromString("value");
         interpolate_InterpolateMethodName = names.fromString("interpolate");
+        hindInit_FXObjectMethodName = names.fromString("hindInit$");
         userInit_FXObjectMethodName = names.fromString("userInit$");
         postInit_FXObjectMethodName = names.fromString("postInit$");
         incrementSharing_SequenceMethodName = names.fromString("incrementSharing");
@@ -667,17 +668,43 @@ public class JavafxDefs {
         varFlagRestrictSet = names.fromString("restrictSet$");
 
         // Initialize VFLG Names
-        varFlagRESTING_STATE_BIT = names.fromString("VFLGS$RESTING_STATE_BIT");
-        varFlagBE_STATE_BIT = names.fromString("VFLGS$BE_STATE_BIT");
-        varFlagINVALID_STATE_BIT = names.fromString("VFLGS$INVALID_STATE_BIT");
-        varFlagIS_BOUND = names.fromString("VFLGS$IS_BOUND");
-        varFlagIS_READONLY = names.fromString("VFLGS$IS_READONLY");
-        varFlagDEFAULT_APPLIED = names.fromString("VFLGS$DEFAULT_APPLIED");
-        varFlagIS_INITIALIZED = names.fromString("VFLGS$IS_INITIALIZED");
-        varFlagAWAIT_VARINIT = names.fromString("VFLGS$AWAIT_VARINIT");
-        varFlagCYCLE = names.fromString("VFLGS$CYCLE");
-        varFlagIS_EAGER = names.fromString("VFLGS$IS_EAGER");
-        varFlagSEQUENCE_LIVE = names.fromString("VFLGS$SEQUENCE_LIVE");
+        varFlagRESTING_STATE_BIT                 = names.fromString("VFLGS$RESTING_STATE_BIT");
+        varFlagBE_STATE_BIT                      = names.fromString("VFLGS$BE_STATE_BIT");
+        varFlagINVALID_STATE_BIT                 = names.fromString("VFLGS$INVALID_STATE_BIT");
+        varFlagDEFAULT_STATE_BIT                 = names.fromString("VFLGS$DEFAULT_STATE_BIT");
+        varFlagINITIALIZED_STATE_BIT             = names.fromString("VFLGS$INITIALIZED_STATE_BIT");
+        varFlagIS_EAGER                          = names.fromString("VFLGS$IS_EAGER");
+        varFlagSEQUENCE_LIVE                     = names.fromString("VFLGS$SEQUENCE_LIVE");
+        varFlagIS_BOUND                          = names.fromString("VFLGS$IS_BOUND");
+        varFlagIS_READONLY                       = names.fromString("VFLGS$IS_READONLY");
+        
+        varFlagSTATE_MASK                        = names.fromString("VFLGS$STATE_MASK");
+        
+        varFlagSTATE_VALID                       = names.fromString("VFLGS$STATE$VALID");
+        varFlagSTATE_CASCADE_INVALID             = names.fromString("VFLGS$STATE$CASCADE_INVALID");
+        varFlagSTATE_BE_INVALID                  = names.fromString("VFLGS$STATE$BE_INVALID");
+        varFlagSTATE_TRIGGERED                   = names.fromString("VFLGS$STATE$TRIGGERED");
+        
+        varFlagINIT_MASK                         = names.fromString("VFLGS$INIT$MASK");
+        
+        varFlagINIT_PENDING                      = names.fromString("VFLGS$INIT$PENDING");
+        varFlagINIT_READY                        = names.fromString("VFLGS$INIT$READY");
+        varFlagINIT_INITIALIZED                  = names.fromString("VFLGS$INIT$INITIALIZED");
+        varFlagINIT_INITIALIZED_DEFAULT          = names.fromString("VFLGS$INIT$INITIALIZED_DEFAULT");
+        
+        varFlagINIT_BOUND_MASK                   = names.fromString("VFLGS$INIT$BOUND_MASK");
+        varFlagINIT_STATE_MASK                   = names.fromString("VFLGS$INIT$STATE$MASK");
+        
+        varFlagIS_BOUND_READONLY                 = names.fromString("VFLGS$IS_BOUND_READONLY");
+        varFlagIS_BOUND_INVALID                  = names.fromString("VFLGS$IS_BOUND_INVALID");
+        varFlagVALID_DEFAULT_APPLIED             = names.fromString("VFLGS$VALID_DEFAULT_APPLIED");
+        varFlagINIT_INITIALIZED_DEFAULT_READONLY = names.fromString("VFLGS$INIT$INITIALIZED_DEFAULT_READONLY");
+        varFlagINIT_OBJ_LIT                      = names.fromString("VFLGS$INIT_OBJ_LIT");
+        varFlagINIT_OBJ_LIT_SEQUENCE             = names.fromString("VFLGS$INIT_OBJ_LIT_SEQUENCE");
+        varFlagINIT_OBJ_LIT_BIND                 = names.fromString("VFLGS$INIT_OBJ_LIT_BIND");
+
+        
+        varFlagALL_FLAGS                         = names.fromString("VFLGS$ALL_FLAGS");
 
 
         phaseTransitionBE_INVALIDATE = names.fromString("PHASE_TRANS$BE_INVALIDATE");
@@ -689,23 +716,6 @@ public class JavafxDefs {
         phaseTransitionPHASE = names.fromString("PHASE_TRANS$PHASE");
         phaseINVALIDATE = names.fromString("PHASE$INVALIDATE");
         phaseTRIGGER = names.fromString("PHASE$TRIGGER");
-
-        varFlagSTATE_MASK = names.fromString("VFLGS$STATE_MASK");
-        varFlagStateVALID = names.fromString("VFLGS$STATE$VALID");
-        varFlagStateVALID_DEFAULT_APPLIED = names.fromString("VFLGS$VALID_DEFAULT_APPLIED");
-        varFlagStateTRIGGERED = names.fromString("VFLGS$STATE$TRIGGERED");
-        varFlagIS_BOUND_INVALID = names.fromString("VFLGS$IS_BOUND_INVALID");
-        varFlagIS_BOUND_INVALID_CYCLE = names.fromString("VFLGS$IS_BOUND_INVALID_CYCLE");
-        varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT = names.fromString("VFLGS$IS_BOUND_INVALID_CYCLE_AWAIT_VARINIT");
-        varFlagIS_BOUND_DEFAULT_APPLIED = names.fromString("VFLGS$IS_BOUND_DEFAULT_APPLIED");
-        varFlagIS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED = names.fromString("VFLGS$IS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED");
-        varFlagDEFAULT_APPLIED_VARINIT = names.fromString("VFLGS$DEFAULT_APPLIED_VARINIT");
-        varFlagINIT_OBJ_LIT = names.fromString("VFLGS$INIT_OBJ_LIT");
-        varFlagINIT_OBJ_LIT_DEFAULT = names.fromString("VFLGS$INIT_OBJ_LIT_DEFAULT");
-        varFlagINIT_BOUND_READONLY = names.fromString("VFLGS$INIT_BOUND_READONLY");
-        varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED = names.fromString("VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED");
-        varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY = names.fromString("VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY");
-        varFlagALL_FLAGS = names.fromString("VFLGS$ALL_FLAGS");
 
         varOFF$valueName = names.fromString("VOFF$value");
 
@@ -827,127 +837,124 @@ public class JavafxDefs {
     }
 
     // Name prefixes used for synthetic variable names.
-    // If -XDdebugNames option is used, then the names are readable and longer.
-    // Or else small (unreadable) names are used to compress the .class size.
 
     public String itemNamePrefix() {
-        return debugNames ? "item" : "i";
+        return "item";
     }
 
     public String valueNamePrefix() {
-        return debugNames ? "value" : "v";
+        return "value";
     }
 
     public String ignoreNamePrefix() {
-        return debugNames ? "ignore" : "ig";
-
+        return "ignore";
     }
 
     public String saveNamePrefix() {
-        return debugNames ? "save" : "s";
+        return "save";
     }
 
     public String sizeNamePrefix() {
-        return debugNames ? "size" : "sz";
+        return "size";
     }
 
     public String lengthNamePrefix() {
-        return debugNames ? "len" : "l";
+        return "length";
     }
 
     public String lowNamePrefix() {
-        return debugNames ? "low" : "lo";
+        return "lowestInvalid";
     }
 
     public String highNamePrefix() {
-        return debugNames ? "high" : "hi";
+        return "highestInvalid";
     }
 
     public String pendingNamePrefix() {
-        return debugNames ? "pending" : "p";
+        return "pending";
     }
 
     public String newLenNamePrefix() {
-        return debugNames ? "newLen" : "nl";
+        return "newLen";
     }
 
     public String cngStartNamePrefix() {
-        return debugNames ?"cngStart" : "cs";
+        return "changeStart";
     }
 
     public String cngEndNamePrefix() {
-        return debugNames ? "cngEnd" : "ce";
+        return "changeEnd";
     }
 
     public String lowerNamePrefix() {
-        return debugNames ? "lower" : "lw";
+        return "lower";
     }
 
     public String upperNamePrefix() {
-        return debugNames ? "upper" : "up";
+        return "upper";
     }
 
     public String stepNamePrefix() {
-        return debugNames ? "step" : "st";
+        return "step";
     }
 
-    public String siiNamePrefix() {
-        return "sii";
+    public String functionResultNamePrefix() {
+        return "functionResult";
     }
 
     public String helperDollarNamePrefix() {
-        return debugNames ? "helper$" : "h$";
+        return "helper$";
     }
 
     public String condNamePrefix() {
-        return debugNames ? "cond" : "c";
+        return "cond";
     }
 
     public String thenNamePrefix() {
-        return debugNames ? "then" : "t";
+        return "then";
     }
 
     public String elseNamePrefix() {
-        return debugNames ? "else" : "e";
+        return "else";
     }
 
     public String doitDollarNamePrefix() {
-        return debugNames ? "doit$$" : "d$$";
+        return "doit$$";
     }
 
     public String resDollarNamePrefix() {
-        return debugNames ? "res$" : "r$";
+        return "res$";
     }
 
     public String exceptionDollarNamePrefix() {
-        return debugNames ? "expt$" : "e$";
+        return "expt$";
     }
 
     public String dollarIndexNamePrefix() {
-        return debugNames ? "$index$" : "$i$";
+        return "$index$";
     }
 
     public String resultDollarNamePrefix() {
-        return debugNames ? "$result$" : "$r$";
+        return "$result$";
     }
 
     public String posNamePrefix() {
-        return debugNames ? "pos" : "p";
+        return "pos";
     }
 
     public String indexNamePrefix() {
-        return debugNames ? "index" : "i";
+        return "index";
     }
 
     public String exprNamePrefix() {
-        return debugNames ? "expr" : "e";
+        return "expr";
     }
 
     public String oldValueNamePrefix() {
-        return debugNames ? "oldValue" : "ov";
+        return "oldValue";
     }
 
     public String resNamePrefix() {
-        return debugNames ? "res" : "r";
+        return "res";
     }
 }

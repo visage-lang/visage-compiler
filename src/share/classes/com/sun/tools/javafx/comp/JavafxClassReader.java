@@ -611,6 +611,7 @@ public class JavafxClassReader extends ClassReader {
                         v = scriptAccessSymbol;
                     } else {
                         v = new JavafxVarSymbol(fxTypes, names, flags, name, type, csym);
+                        csym.addVar(v, (flags & STATIC) != 0);
                     }
                     csym.members_field.enter(v);
                     priorNames.add(name);

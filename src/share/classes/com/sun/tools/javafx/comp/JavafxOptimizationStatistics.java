@@ -150,7 +150,7 @@ public class JavafxOptimizationStatistics {
         decomposeStack.pop();
     }
 
-    public void recordSynthVar() {
+    public void recordSynthVar(String id) {
         decomposeStack.peek().synthVars++;
     }
 

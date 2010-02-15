@@ -25,6 +25,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
+import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -40,8 +41,10 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import static com.sun.tools.mjavac.code.TypeTags.*;
 import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.util.Options;
 import javax.tools.JavaFileObject;
 
 /**
@@ -58,7 +61,9 @@ public class JavafxPreTranslationSupport {
     private final JavafxCheck chk;
     private final JavafxTypes types;
     private final JavafxSymtab syms;
+    private final JavafxOptimizationStatistics optStat;
 
+    private final boolean debugNames;
     private int tmpCount = 0;
 
     protected static final Context.Key<JavafxPreTranslationSupport> preTranslation =
@@ -81,6 +86,10 @@ public class JavafxPreTranslationSupport {
         chk = JavafxCheck.instance(context);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
+        optStat = JavafxOptimizationStatistics.instance(context);
+
+        String opt = Options.instance(context).get("debugNames");
+        debugNames = opt != null && !opt.startsWith("n");
     }
 
     // Just adds a counter. prefix is expected to include "$"
@@ -186,7 +195,7 @@ public class JavafxPreTranslationSupport {
     }
 
     public MethodSymbol makeDummyMethodSymbol(Symbol owner, Name name) {
-        return new MethodSymbol(Flags.BLOCK, name, null, owner);
+        return new MethodSymbol(Flags.BLOCK, name, null, owner.enclClass());
     }
 
     JFXType makeTypeTree(Type type) {
@@ -196,28 +205,58 @@ public class JavafxPreTranslationSupport {
         return (JFXType)fxmake.TypeClass(typeExpr, types.isSequence(type) ? Cardinality.ANY : Cardinality.SINGLETON, (ClassSymbol)type.tsym).setType(type);
     }
 
-    JFXVar BoundLocalVar(Type type, Name name, JFXExpression boundExpr, Symbol owner) {
-        return Var(JavafxFlags.IS_DEF, type, name, JavafxBindStatus.UNIDIBIND, boundExpr, owner);
+    JFXVar BoundLocalVar(DiagnosticPosition diagPos, Type type, Name name, JFXExpression boundExpr, Symbol owner) {
+        return Var(diagPos, JavafxFlags.IS_DEF, type, name, JavafxBindStatus.UNIDIBIND, boundExpr, owner);
     }
 
-    JFXVar LocalVar(Type type, Name name, JFXExpression expr, Symbol owner) {
-        return Var(0L, type, name, JavafxBindStatus.UNBOUND, expr, owner);
+    JFXVar LocalVar(DiagnosticPosition diagPos, Type type, Name name, JFXExpression expr, Symbol owner) {
+        return Var(diagPos,0L, type, name, JavafxBindStatus.UNBOUND, expr, owner);
     }
 
-    JFXVar Var(long flags, Type type, Name name, JavafxBindStatus bindStatus, JFXExpression expr, Symbol owner) {
-        JFXVar var = fxmake.Var(
-                name,
-                makeTypeTree(type),
-                fxmake.Modifiers(flags),
-                expr,
-                bindStatus,
-                null, null);
-        var.type = type;
-        var.sym = new JavafxVarSymbol(
+    private static final String idChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private String suffixGen() {
+        final int dig = idChars.length();
+        int i = ++tmpCount;
+        StringBuffer sb = new StringBuffer();
+        while (i > 0) {
+            int md = i % dig;
+            char ch = idChars.charAt(md);
+            sb.append(ch);
+            i -= md;
+            i = i / dig;
+        }
+        return sb.toString();
+    }
+
+    JFXVar SynthVar(DiagnosticPosition diagPos, JavafxVarSymbol vsymParent, String id, JFXExpression initExpr, JavafxBindStatus bindStatus, Type type, boolean inScriptLevel, Symbol owner) {
+        optStat.recordSynthVar(id);
+        String ns = "_$" + suffixGen();
+        if (debugNames) {
+            ns = (vsymParent==null? "" : vsymParent.toString() + "$") + id + ns;
+        }
+        Name name = names.fromString(ns);
+
+        long flags = JavafxFlags.SCRIPT_PRIVATE | Flags.SYNTHETIC | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
+        JFXVar var = Var(diagPos, flags, types.normalize(type), name, bindStatus, initExpr, owner);
+        owner.members().enter(var.sym);
+        return var;
+    }
+
+    JFXVar Var(DiagnosticPosition diagPos, long flags, Type type, Name name, JavafxBindStatus bindStatus, JFXExpression expr, Symbol owner) {
+        JavafxVarSymbol vsym = new JavafxVarSymbol(
                 types,
                 names,
                 flags,
                 name, type, owner);
+        JFXVar var = fxmake.at(diagPos).Var(
+                name,
+                makeTypeTree(vsym.type),
+                fxmake.at(diagPos).Modifiers(flags),
+                expr,
+                bindStatus,
+                null, null);
+        var.type = vsym.type;
+        var.sym = vsym;
         return var;
     }
     
@@ -390,7 +429,21 @@ public class JavafxPreTranslationSupport {
         return scanner.hse;
     }
 
+    boolean isImmutable(List<JFXExpression> trees) {
+        for (JFXExpression item : trees) {
+            if (!isImmutable(item)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     boolean isImmutable(JFXExpression tree) {
+//        boolean im = isImmutableReal(tree);
+//        System.err.println((im? "IMM: " : "MUT: ") + tree);
+//        return im;
+//    }
+//    boolean isImmutableReal(JFXExpression tree) {
         //TODO: add for-loop, sequence indexed, string expression
         switch (tree.getFXTag()) {
             case IDENT: {
@@ -399,7 +452,7 @@ public class JavafxPreTranslationSupport {
             }
             case SELECT: {
                 JFXSelect sel = (JFXSelect) tree;
-                return isImmutableSelector(sel) && isImmutable(sel.sym, sel.getIdentifier());
+                return (sel.sym.isStatic() || isImmutable(sel.getExpression())) && isImmutable(sel.sym, sel.getIdentifier());
             }
             case LITERAL:
             case TIME_LITERAL:
@@ -422,6 +475,29 @@ public class JavafxPreTranslationSupport {
                 }
                 return isImmutable(be.getValue());
             }
+            case FOR_EXPRESSION: {
+                JFXForExpression fe = (JFXForExpression) tree;
+                for (JFXForExpressionInClause clause : fe.getForExpressionInClauses()) {
+                    if (!isImmutable(clause.getSequenceExpression())) {
+                        return false;
+                    }
+                    if (clause.getWhereExpression() != null && !isImmutable(clause.getWhereExpression())) {
+                        return false;
+                    }
+                }
+                return isImmutable(fe.getBodyExpression());
+            }
+            case APPLY: {
+                JFXFunctionInvocation finv = (JFXFunctionInvocation) tree;
+                JFXExpression meth = finv.meth;
+                Symbol refSym = JavafxTreeInfo.symbol(meth);
+                return
+                        isImmutable(meth) &&                       // method being called won't change
+                        isImmutable(finv.getArguments()) &&        // arguments won't change
+                        !(meth.type instanceof FunctionType) &&    // not a function value call -- over-cautious
+                        (refSym instanceof MethodSymbol) &&        // call to a method, protects the next check -- over-cautious
+                        (refSym.flags() & JavafxFlags.BOUND) == 0; // and isn't a call to a bound function
+            }
             case CONDEXPR: {
                 JFXIfExpression ife = (JFXIfExpression) tree;
                 return isImmutable(ife.getCondition()) && isImmutable(ife.getTrueExpression()) && isImmutable(ife.getFalseExpression());
@@ -438,6 +514,10 @@ public class JavafxPreTranslationSupport {
                     }
                 }
                 return true;
+            }
+            case TYPECAST: {
+                JFXTypeCast tc = (JFXTypeCast) tree;
+                return isImmutable(tc.getExpression());
             }
             default:
                 if (tree instanceof JFXUnary) {
@@ -467,20 +547,5 @@ public class JavafxPreTranslationSupport {
                     (owner instanceof JavafxClassSymbol && name == fxmake.ScriptAccessSymbol(owner).name) ||
                     !vsym.canChange();
      }
-
-    private boolean isImmutableSelector(final JFXSelect tree) {
-        if (tree.sym.isStatic()) {
-            // If the symbol is static, no matter what the selector is, the selectot is immutable
-            return true;
-        }
-        final JFXExpression selector = tree.getExpression();
-        if (selector instanceof JFXIdent) {
-            return isImmutable((JFXIdent) selector);
-        } else if (selector instanceof JFXSelect) {
-            return isImmutable((JFXSelect) selector);
-        } else {
-            return false;
-        }
-    }
 }
 

@@ -228,14 +228,6 @@ public class JavafxLower implements JavafxVisitor {
         return makeVar(diagPos, 0L, name, JavafxBindStatus.UNBOUND, init, type);
     }
     
-    private JFXVar makeVar(DiagnosticPosition diagPos, long flags, String name, JFXExpression init, Type type) {
-        return makeVar(diagPos, flags, name, JavafxBindStatus.UNBOUND, init, type);
-    }
-
-    private JFXVar makeVar(DiagnosticPosition diagPos, String name, JavafxBindStatus bindStatus, JFXExpression init, Type type) {
-        return makeVar(diagPos, 0L, name, bindStatus, init, type);
-    }
-
     private JFXVar makeVar(DiagnosticPosition diagPos, long flags, String name, JavafxBindStatus bindStatus, JFXExpression init, Type type) {
         JavafxVarSymbol vsym = new JavafxVarSymbol(types, names, flags, tempName(name), types.normalize(type), preTrans.makeDummyMethodSymbol(currentClass));
         return makeVar(diagPos, vsym, bindStatus, init);
@@ -690,7 +682,6 @@ public class JavafxLower implements JavafxVisitor {
         JFXExpression upper = lowerExpr(that.getUpper(), types.elementType(that.type));
         JFXExpression step = lowerExpr(that.getStepOrNull(), types.elementType(that.type));
         JFXSequenceRange res = m.at(that.pos).RangeSequence(lower, upper, step, that.isExclusive());
-        res.boundSizeVar = that.boundSizeVar;
         result = res.setType(that.type);
     }
 
@@ -949,7 +940,7 @@ public class JavafxLower implements JavafxVisitor {
                     return res;
                 }
             }
-            default: return m.Literal(TypeTags.BOT, null);
+            default: return m.Literal(TypeTags.BOT, null).setType(syms.botType);
         }
     }
 
