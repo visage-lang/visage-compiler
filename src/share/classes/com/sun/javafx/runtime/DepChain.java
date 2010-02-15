@@ -49,7 +49,7 @@ public class DepChain implements BinderLinkable {
      */
     DepChain child0, child1;
 
-    Object /*union<DepChain,MinWeakRefsDepsMgr>*/ parent;
+    Object /*union<DepChain,WeakBinderRef>*/ parent;
 
     public void setNextBinder(Dep next) {
         dependencies = next;
@@ -72,8 +72,9 @@ public class DepChain implements BinderLinkable {
     }
 
     /** Find the DepChain for the given varNum, or create it if not found. */
-    public static DepChain findForce(int varNum, DepChain cur, Object parent) {
-        // If selector==-1 then cur == ((MinWeakRefsDepsMgr) parent).dependencies.
+    public static DepChain findForce(int varNum, DepChain cur, WeakBinderRef bindee) {
+        Object parent = bindee;
+        // If selector==-1 then cur == ((WeakBinderRef) parent).get().getDepChain$internal$()
         // If selector==0 then cur == ((DepChain) parent).child0.
         // If selector==1 then cur == ((DepChain) parent).child1.
         int selector = -1;
@@ -137,11 +138,15 @@ public class DepChain implements BinderLinkable {
 
     /** Replace parent.selector by dep, returning old value. */
     private static DepChain replace(Object parent, int selector, DepChain dep) {
-        DepChain old;
+        DepChain old = null;
         if (selector == -1) {
-            FXObject fxObj = (FXObject) parent;
-            old = fxObj.getDepChain$internal$();
-            fxObj.setDepChain$internal$(dep);
+            WeakBinderRef wref = (WeakBinderRef) parent;
+            FXObject fxObj = wref.get();
+            // FIXME : do we need this null check here?
+            if (fxObj != null) {
+                old = fxObj.getDepChain$internal$();
+                fxObj.setDepChain$internal$(dep);
+            }
         }
         else {
             DepChain pchain = (DepChain) parent;
@@ -158,9 +163,13 @@ public class DepChain implements BinderLinkable {
 
     /** Replace this.parent by replacement. */
     void replaceParent(DepChain replacement) {
-        if (parent instanceof FXObject)
-            ((FXObject) parent).setDepChain$internal$(replacement);
-        else {
+        if (parent instanceof WeakBinderRef) {
+            FXObject obj = ((WeakBinderRef)parent).get();
+            // FIXME : do we need this null check here?
+            if (obj != null) {
+                obj.setDepChain$internal$(replacement);
+            }
+        } else {
             DepChain pchain = (DepChain) parent;
             if (pchain.child0 == this)
                 pchain.child0 = replacement;

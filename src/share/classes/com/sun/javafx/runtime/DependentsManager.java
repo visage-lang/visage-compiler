@@ -199,7 +199,7 @@ class Dep implements BinderLinkable {
     }
 
     void linkToBindee(FXObject bindee, int bindeeVarNum) {
-        DepChain chain = DepChain.findForce(bindeeVarNum, bindee.getDepChain$internal$(), bindee);
+        DepChain chain = DepChain.findForce(bindeeVarNum, bindee.getDepChain$internal$(), bindee.getThisRef$internal$());
         // Link into binder chain of bindee
         Dep firstBinder = chain.dependencies;
         nextInBinders = firstBinder;
