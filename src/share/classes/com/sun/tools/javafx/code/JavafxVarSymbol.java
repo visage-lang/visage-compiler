@@ -43,6 +43,7 @@ public class JavafxVarSymbol extends VarSymbol {
     private Type elementType = null;
     private final boolean isDotClass;
     private boolean isExternallySeen;
+    private boolean isCapturedByFunctionValue;
 
     private Type lastSeenType;
     private final JavafxTypes types;
@@ -146,6 +147,15 @@ public class JavafxVarSymbol extends VarSymbol {
 
     public boolean isExternallySeen() {
         return isExternallySeen;
+    }
+
+    
+    public boolean isCapturedByFunctionValue() {
+        return isCapturedByFunctionValue;
+    }
+
+    public void setIsCapturedByFunctionValue() {
+        isCapturedByFunctionValue = true;
     }
 
     // Predicate for self-reference in init.

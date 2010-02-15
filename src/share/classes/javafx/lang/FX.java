@@ -25,7 +25,7 @@ package javafx.lang;
 
 import java.util.Vector;
 import com.sun.javafx.runtime.Entry;
-import com.sun.javafx.functions.Function0;
+import com.sun.javafx.functions.Function;
 import com.sun.javafx.runtime.SystemProperties;
 import com.sun.javafx.runtime.FXExit;
 import com.sun.javafx.runtime.FXObject;
@@ -234,7 +234,7 @@ public class FX {
      * @throws NullPointerException if the action if null
      * @profile common
      */
-    public static int addShutdownAction(Function0<Void> action) {
+    public static int addShutdownAction(Function action) {
         if (action == null) {
             throw new NullPointerException("Action function can not be null");
         } else {
@@ -270,7 +270,7 @@ public class FX {
      * @throws NullPointerException if the action if null
      * @profile common
      */
-    public static void deferAction(Function0<Void> action) {
+    public static void deferAction(Function action) {
         if (action == null) {
             throw new NullPointerException("Action function can not be null");
         } else {
@@ -387,9 +387,9 @@ public class FX {
                 return;
             }
             while (!actions.isEmpty()) {
-                Function0<Void> action = null;
+                Function action = null;
                 // Execute LIFO Action
-                action = (Function0<Void>) actions.lastElement();
+                action = (Function) actions.lastElement();
                 actions.remove(actions.lastIndexOf(action));
                 if (action != null) {
                     try {

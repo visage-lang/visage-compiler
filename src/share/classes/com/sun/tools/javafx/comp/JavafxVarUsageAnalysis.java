@@ -30,6 +30,8 @@ import com.sun.tools.mjavac.util.Context;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  *
@@ -42,6 +44,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     private boolean inLHS;
     private JavafxBindStatus bindStatus;
     private JFXClassDeclaration currentClass;
+    private Set<JavafxVarSymbol> varsInCurrentFunctionValue;
     
     public static JavafxVarUsageAnalysis instance(Context context) {
         JavafxVarUsageAnalysis instance = context.get(varUsageKey);
@@ -186,6 +189,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitVar(JFXVar tree) {
+        if (varsInCurrentFunctionValue == null)
+            varsInCurrentFunctionValue = new HashSet<JavafxVarSymbol>();
+        varsInCurrentFunctionValue.add(tree.sym);
         scanVar(tree);
     }
     
@@ -251,11 +257,13 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
        JavafxBindStatus wasBindStatus = bindStatus;
        inLHS = false;
        bindStatus = JavafxBindStatus.UNBOUND;
-
+       Set<JavafxVarSymbol> prevVars = varsInCurrentFunctionValue;
+       varsInCurrentFunctionValue = null;
        super.visitFunctionValue(tree);
 
        bindStatus = wasBindStatus;
        inLHS = wasLHS;
+       varsInCurrentFunctionValue = prevVars;
     }
 
     @Override
@@ -321,6 +329,13 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitIdent(JFXIdent tree) {
+        if (tree.sym instanceof JavafxVarSymbol) {
+            JavafxVarSymbol sym = (JavafxVarSymbol) tree.sym;
+            if (varsInCurrentFunctionValue == null ||
+                ! varsInCurrentFunctionValue.contains(sym)) {
+                sym.setIsCapturedByFunctionValue();
+            }
+        }
         markVarAccess(tree.sym);
     }
     
