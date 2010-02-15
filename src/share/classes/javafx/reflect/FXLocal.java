@@ -1182,11 +1182,7 @@ public class FXLocal {
                 initMembers[offset] = attr;
                 initValues[offset] = value;
 
-                FXObject instance = (FXObject)obj;
-                ((FXObject)obj).varChangeBits$(offset, FXObject.VFLGS$ALL_FLAGS, FXObject.VFLGS$INIT_OBJ_LIT_BIND);
-
-                boolean isBound = (instance.getFlags$(offset) & FXObject.VFLGS$IS_BOUND) != 0;
-                instance.setFlags$(offset, isBound ? FXObject.VFLGS$INIT_OBJ_LIT_BIND : FXObject.VFLGS$INIT_OBJ_LIT);
+                ((FXObject)obj).setFlags$(offset, FXObject.VFLGS$INIT_OBJ_LIT);
             }
         }
     }
