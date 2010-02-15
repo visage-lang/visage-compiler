@@ -1376,40 +1376,36 @@ however this is what we need */
 
             JCStatement init = varInfo.getDefaultInitStatement();
 
-            if (init == null || varInfo.hasBoundDefinition()) {
-
-                // If we need to prime the on replace trigger.
-                if (hasOnReplace || isOverride) {
-                    if (isBound) {
-                        JCStatement poke;
-                        if (genSequences) {
-                            poke = CallStmt(attributeSizeName(varSym));
-                        } else {
-                            poke = Stmt(Getter(varSym));
-                        }
-                        if (init != null) {
-                            init = Block(init, poke);
-                        } else {
-                            init = poke;
-                        }
-                    } else if (!isOverride) {
-                        if (!genSequences) {
-                            init = Block(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
-                                    CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym)));
-                        } else {
-                            init = Block(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
-                                    CallStmt(attributeInvalidateName(varSym),
-                                    Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_INVALIDATE)),
-                                    CallStmt(attributeInvalidateName(varSym),
-                                    Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_TRIGGER)));
-                        }
-                    }
+            // If we need to prime the on replace trigger.
+            if ((hasOnReplace || isOverride) && isBound) {
+                JCStatement poke;
+                if (genSequences) {
+                    poke = CallStmt(attributeSizeName(varSym));
+                } else {
+                    poke = Stmt(Getter(varSym));
                 }
-                if (init == null && varInfo.isSequence() && !isBound && varInfo.useAccessors()) {
-                    init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
+                if (init != null) {
+                    init = Block(init, poke);
+                } else {
+                    init = poke;
                 }
             }
-
+            if (hasOnReplace && (init == null) && !isOverride) {
+                if (!genSequences) {
+                    init = Block(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
+                            CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym)));
+                } else {
+                    init = Block(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
+                            CallStmt(attributeInvalidateName(varSym),
+                            Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_INVALIDATE)),
+                            CallStmt(attributeInvalidateName(varSym),
+                            Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_TRIGGER)));
+                }
+            }
+            if (init == null && varInfo.isSequence() && !isBound && varInfo.useAccessors()) {
+                init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
+            }
+ 
             return init;
         }
        
