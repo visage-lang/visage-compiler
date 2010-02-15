@@ -663,7 +663,9 @@ public class JavafxLocalToClass {
         final JavafxClassSymbol classSym = (JavafxClassSymbol) klass.sym;
         VarAndClassConverter vc = new VarAndClassConverter(classSym);
         for (JFXTree mem : klass.getMembers()) {
-            vc.scan(mem);
+            if (needsToBeInflatedToClass(mem)) {
+                vc.scan(mem);
+            }
         }
         klass.setMembers(klass.getMembers().appendList(vc.varsAsMembers()));
     }
