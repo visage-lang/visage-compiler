@@ -213,6 +213,7 @@ public class MsgSym {
     public static final String MESSAGE_DUPLICATE_ANNOTATION = "duplicate.annotation";
     public static final String MESSAGE_CLASH_WITH_PKG_OF_SAME_NAME = "clash.with.pkg.of.same.name";
     public static final String MESSAGE_ILLEGAL_FORWARD_REF = "illegal.forward.ref";
+    public static final String MESSAGE_MAYBE_FORWARD_REF = "maybe.forward.ref";
     public static final String MESSAGE_INTF_EXPECTED_HERE = "intf.expected.here";
     public static final String MESSAGE_NO_INTF_EXPECTED_HERE = "no.intf.expected.here";
     public static final String MESSAGE_CANNOT_INHERIT_FROM_FINAL = "cant.inherit.from.final";

@@ -1,16 +1,16 @@
-test/should-fail/jfxc4072c.fx:20: warning: Forward reference: variable m1 might not have been initialized.
+test/should-fail/jfxc4072c.fx:20: warning: Forward reference: variable m1 is not initialized.
     override var a1 = m1; //this is a forward ref!
                       ^
-test/should-fail/jfxc4072c.fx:21: warning: Forward reference: variable m1 might not have been initialized.
+test/should-fail/jfxc4072c.fx:21: warning: Forward reference: variable m1 is not initialized.
     override var a2 = m1; //this is a forward ref!
                       ^
-test/should-fail/jfxc4072c.fx:22: warning: Forward reference: variable m1 might not have been initialized.
+test/should-fail/jfxc4072c.fx:22: warning: Forward reference: variable m1 is not initialized.
     override var a3 = m1; //this is a forward ref!
                       ^
-test/should-fail/jfxc4072c.fx:23: warning: Forward reference: variable m1 might not have been initialized.
+test/should-fail/jfxc4072c.fx:23: warning: Forward reference: variable m1 is not initialized.
     override var a4 = m1; //this is a forward ref!
                       ^
-test/should-fail/jfxc4072c.fx:24: warning: Forward reference: variable b1 might not have been initialized.
+test/should-fail/jfxc4072c.fx:24: warning: Forward reference: variable b1 is not initialized.
     override var m1 = b1; //this is a forward ref!
                       ^
 5 warnings
