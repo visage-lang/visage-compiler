@@ -279,6 +279,7 @@ public class JavafxDefs {
     final Name update_FXObjectMethodName;
     final Name complete_FXObjectMethodName;
     final Name initialize_FXObjectMethodName;
+    final Name hindInit_FXObjectMethodName;
     final Name userInit_FXObjectMethodName;
     final Name postInit_FXObjectMethodName;
     final Name initVars_FXObjectMethodName;
@@ -600,6 +601,7 @@ public class JavafxDefs {
         target_InterpolateMethodName = names.fromString("target");
         value_InterpolateMethodName = names.fromString("value");
         interpolate_InterpolateMethodName = names.fromString("interpolate");
+        hindInit_FXObjectMethodName = names.fromString("hindInit$");
         userInit_FXObjectMethodName = names.fromString("userInit$");
         postInit_FXObjectMethodName = names.fromString("postInit$");
         incrementSharing_SequenceMethodName = names.fromString("incrementSharing");

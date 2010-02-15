@@ -275,10 +275,12 @@ import com.sun.javafx.runtime.sequence.Sequences;
     }
 
     public void complete$() {
+        hindInit$();
         userInit$();
         postInit$();
     }
     public static void complete$(FXObject obj) {
+        obj.hindInit$();
         obj.userInit$();
         obj.postInit$();
     }
@@ -304,6 +306,8 @@ import com.sun.javafx.runtime.sequence.Sequences;
         }
     }
 
+    public        void hindInit$()             {}
+    public static void hindInit$(FXObject obj) {}
     public        void userInit$()             {}
     public static void userInit$(FXObject obj) {}
     public        void postInit$()             {}

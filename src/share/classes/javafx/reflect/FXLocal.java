@@ -394,6 +394,7 @@ public class FXLocal {
             "restrictSet$",
             "setDepChain$internal$",
             "switchDependence$",
+            "hindInit$",
             "userInit$",
             "getFlags$",
             "setFlags$",

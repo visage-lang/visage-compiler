@@ -51,6 +51,11 @@ public class JavafxVarSymbol extends VarSymbol {
 
     private List<Symbol> overridingClasses = List.nil();
 
+/****
+    private boolean isForwardReferenced = false;
+    private boolean hasForwardReferencesInInit = false;
+****/
+    
     /** Construct a variable symbol, given its flags, name, type and owner.
      */
     public JavafxVarSymbol(JavafxTypes types, Name.Table names, long flags, Name name, Type type, Symbol owner) {
@@ -156,7 +161,15 @@ public class JavafxVarSymbol extends VarSymbol {
     public boolean hasSelfReference() {
         return (flags_field & VARUSE_SELF_REFERENCE) != 0;
     }
+/****
+    public void setIsForwardReferenced() {
+        isForwardReferenced = true;
+    }
 
+    public boolean isForwardReferenced() {
+        return isForwardReferenced;
+    }
+***/
     public boolean hasForwardReference() {
         return (flags_field & VARUSE_FORWARD_REFERENCE) != 0;
     }

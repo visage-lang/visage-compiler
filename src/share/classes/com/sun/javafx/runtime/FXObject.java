@@ -149,6 +149,7 @@ public interface FXObject {
     public void     initVars$     ();
     public void     applyDefaults$();
     public void     applyDefaults$(final int varNum);
+    public void     hindInit$     ();
     public void     userInit$     ();
     public void     postInit$     ();
     public void     complete$     ();
