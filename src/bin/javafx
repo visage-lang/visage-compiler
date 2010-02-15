@@ -92,7 +92,7 @@ exec_java() {
 	then
 	    EMUL="${EMUL_CMD}.exe"
 	fi
-	eval "${EMUL_CMD}" "$jargs"
+	eval \""${EMUL_CMD}"\" "$jargs"
 	exit $?
     else
         if [ ! -x "$JAVA_CMD" ] ; then
