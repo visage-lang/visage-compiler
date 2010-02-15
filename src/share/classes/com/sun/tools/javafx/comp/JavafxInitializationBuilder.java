@@ -1368,16 +1368,21 @@ however this is what we need */
         // This method returns the default statement for a given var.
         //
         public JCStatement getDefaultInitStatement(VarInfo varInfo) {
+            JavafxVarSymbol varSym = varInfo.getSymbol();
+            boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
+            boolean isOverride = varInfo.isOverride();
+            boolean genSequences = varInfo.generateSequenceAccessors();
+            boolean isBound = varInfo.hasBoundDefinition();
+
             JCStatement init = varInfo.getDefaultInitStatement();
 
             if (init == null || varInfo.hasBoundDefinition()) {
-                JavafxVarSymbol varSym = varInfo.getSymbol();
-                
+
                 // If we need to prime the on replace trigger.
-                if (varInfo.onReplaceAsInline() != null || varInfo.isOverride()) {
-                    if (varInfo.hasBoundDefinition()) {
+                if (hasOnReplace || isOverride) {
+                    if (isBound) {
                         JCStatement poke;
-                        if (varInfo.generateSequenceAccessors()) {
+                        if (genSequences) {
                             poke = CallStmt(attributeSizeName(varSym));
                         } else {
                             poke = Stmt(Getter(varSym));
@@ -1387,31 +1392,27 @@ however this is what we need */
                         } else {
                             init = poke;
                         }
-                    } else if(!varInfo.isOverride()) {
-                        if (!varInfo.generateSequenceAccessors()) {
+                    } else if (!isOverride) {
+                        if (!genSequences) {
                             init = Block(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
-                                         CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym))
-                                        );
+                                    CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym)));
                         } else {
                             init = Block(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
-                                         CallStmt(attributeInvalidateName(varSym),
-                                                  Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_INVALIDATE)),
-                                         CallStmt(attributeInvalidateName(varSym),
-                                              Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_TRIGGER))
-                                         );
+                                    CallStmt(attributeInvalidateName(varSym),
+                                    Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_INVALIDATE)),
+                                    CallStmt(attributeInvalidateName(varSym),
+                                    Int(0), Int(0), Int(0), id(defs.phaseTransitionCASCADE_TRIGGER)));
                         }
                     }
                 }
-                if (init == null && varInfo.isSequence()) {
-                    if (!varInfo.hasBoundDefinition() && varInfo.useAccessors()) {
-                        init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
-                    }
+                if (init == null && varInfo.isSequence() && !isBound && varInfo.useAccessors()) {
+                    init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
                 }
             }
 
             return init;
         }
-        
+       
         //
         // Determine if this override needs an invalidate method
         // Must be in sync with makeInvalidateAccessorMethod
