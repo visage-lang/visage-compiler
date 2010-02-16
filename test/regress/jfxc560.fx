@@ -1,4 +1,5 @@
 /*
+ * @compilearg -XDfwdRefError=false
  * @test
  * @run
  *

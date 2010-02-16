@@ -2305,8 +2305,8 @@ public class JavafxCheck {
         class ForwardReferenceChecker extends JavafxTreeScanner {
 
 	    ForwardReferenceChecker() {
-		warnOnly = options.get("fwdRefError") == null ||
-			!options.get("fwdRefError").contains("true");
+		warnOnly = options.get("fwdRefError") != null &&
+			options.get("fwdRefError").contains("false");
 	    }
             
             class VarScope {
