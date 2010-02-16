@@ -477,7 +477,8 @@ public class JavafxTreeInfo {
             return symbolFor(((JFXFunctionInvocation) node).meth);
         case TOPLEVEL:
             return ((JFXScript) node).packge;
-
+        case ON_REPLACE:
+                return symbolFor(((JFXOnReplace) node).getOldValue());
         default:
             return null;
         }
@@ -539,6 +540,12 @@ public class JavafxTreeInfo {
                 // not need to interrogate the list.
                 //
                 return tree.pos;
+
+            case VAR_DEF:
+
+                // Ask the JFXVar for its start position and return it
+                //
+                return ((JFXVar)tree).getStartPosition();
 
             default:
 
@@ -602,6 +609,8 @@ public class JavafxTreeInfo {
             return getEndPos(((JFXTypeClass) tree).getClassName(), endPositions);
           case TIME_LITERAL:
             return tree.pos + tree.toString().length();
+          case VAR_DEF:
+            return ((JFXVar) tree).getEndPosition(endPositions);
         }
         return JavafxTreeInfo.getStartPos(tree);
     }
