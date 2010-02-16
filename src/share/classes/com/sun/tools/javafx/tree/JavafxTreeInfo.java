@@ -479,6 +479,7 @@ public class JavafxTreeInfo {
             return ((JFXScript) node).packge;
         case ON_REPLACE:
                 return symbolFor(((JFXOnReplace) node).getOldValue());
+                
         default:
             return null;
         }
@@ -540,12 +541,6 @@ public class JavafxTreeInfo {
                 // not need to interrogate the list.
                 //
                 return tree.pos;
-
-            case VAR_DEF:
-
-                // Ask the JFXVar for its start position and return it
-                //
-                return ((JFXVar)tree).getStartPosition();
 
             default:
 
