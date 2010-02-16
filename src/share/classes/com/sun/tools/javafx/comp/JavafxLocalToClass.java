@@ -268,6 +268,7 @@ public class JavafxLocalToClass {
                 needed |= tree.getOnReplace() != null;
                 needed |= tree.getOnInvalidate() != null;
                 needed |= hasSelfReference(tree);
+                needed |= tree.sym.isCapturedByFunctionValue();
                 super.visitVar(tree);
             }
 

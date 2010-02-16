@@ -1027,7 +1027,7 @@
                 COMPILATION SECTION
                 ===================
             -->
-    <target depends="init,generated-java,-pre-compile,-do-compile" description="Compile project." name="compile"/>
+    <target depends="init,generated-java,-pre-compile,-do-compile,-post-compile" description="Compile project." name="compile"/>
     <target depends="init,generated-java,-pre-compile,-force-recompile" name="-do-compile-single">
         <fail unless="javac.includes">Must select some files in the IDE or set javac.includes
         </fail>

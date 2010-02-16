@@ -1286,11 +1286,13 @@ public abstract class JavafxAbstractTranslation
     class SelectTranslator extends NullCheckTranslator {
 
         protected final JFXSelect tree;
+        protected final boolean isFunctionReference;
         protected final Name name;
 
         protected SelectTranslator(JFXSelect tree) {
             super(tree.pos(), tree.sym, tree.type);
             this.tree = tree;
+            this.isFunctionReference = tree.type instanceof FunctionType && refSym.type instanceof MethodType;
             this.name = tree.getIdentifier();
         }
 
@@ -1301,8 +1303,17 @@ public abstract class JavafxAbstractTranslation
 
         @Override
         JCExpression fullExpression(JCExpression tToCheck) {
-            JCExpression translated = Select(tToCheck, name);
-            return convertVariableReference(translated, refSym);
+            if (isFunctionReference) {
+                MethodType mtype = (MethodType) refSym.type;
+                JCExpression tc = staticReference?
+                    tToCheck :
+                    addTempVar(tree.selected.type, tToCheck);
+                JCExpression translated = Select(tc, name);
+                return new FunctionValueTranslator(translated, null, diagPos, mtype, fullType).doitExpr();
+            } else {
+                JCExpression translated = Select(tToCheck, name);
+                return convertVariableReference(translated, refSym);
+            }
         }
     }
 
@@ -1841,8 +1852,7 @@ public abstract class JavafxAbstractTranslation
 
             if (tree.type instanceof FunctionType && sym.type instanceof MethodType) {
                 MethodType mtype = (MethodType) sym.type;
-                JFXFunctionDefinition def = null; // FIXME
-                return new FunctionValueTranslator(convert, def, tree.pos(), mtype, tree.type).doitExpr();
+                return new FunctionValueTranslator(convert, null, tree.pos(), mtype, tree.type).doitExpr();
             }
 
             return convertVariableReference(convert, sym);
@@ -2545,22 +2555,37 @@ public abstract class JavafxAbstractTranslation
         }
         
         protected JCTree translateInvokeCase() {
-            JFXBlock bexpr = def.getBodyExpression();
+            setDiagPos(diagPos);
             JCBlock body;
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            int argNum = 0;
             
-            if (bexpr == null) {
-                body = Block();
-            } else {
-                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            if (def == null) {
+                ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
                 
-                int argNum = 0;
+                for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
+                    Name paramName = make.paramName(argNum);
+                    Type paramType = l.head;
+                    JCExpression initialValue = typeCast(paramType, syms.objectType, m().Indexed(id(defs.args_ArgName), Int(argNum)));
+                    stmts.append(Var(Flags.FINAL, paramType, paramName, initialValue));
+                    args.append(id(paramName));
+                    argNum++;
+                }
+
+                if (mtype.getReturnType() == syms.voidType) {
+                    stmts.append(m().Exec(m().Apply(null, meth, args.toList())));
+                } else {
+                    stmts.append(m().Return(m().Apply(null, meth, args.toList())));
+                }
+            } else {
+                JFXBlock bexpr = def.getBodyExpression();
+                
                 for (JFXVar fxVar : def.getParams()) {
                     setDiagPos(fxVar);
+                    Name paramName = fxVar.getName();
                     Type paramType = fxVar.sym.type;
-                    
-                    // (cast)args$[i]; 
                     JCExpression initialValue = typeCast(paramType, syms.objectType, m().Indexed(id(defs.args_ArgName), Int(argNum)));
-                    stmts.append(Var(Flags.FINAL, paramType, fxVar.getName(), initialValue));
+                    stmts.append(Var(Flags.FINAL, paramType, paramName, initialValue));
                 
                     if (types.isSequence(paramType)) {
                         stmts.append(CallStmt(id(fxVar.getName()), defs.incrementSharing_SequenceMethodName));
@@ -2571,10 +2596,14 @@ public abstract class JavafxAbstractTranslation
 
                 setDiagPos(bexpr);
                 stmts.appendList(translateToStatementsResult(bexpr, mtype.getReturnType()).statements());
-                body = Block(stmts);
             }
-
-            return body;
+            
+            JCStatement arityCheck = If(NE(Select(id(defs.args_ArgName), defs.length_ArrayFieldName), Int(argNum)),
+                                          Throw(syms.javafx_java_lang_RuntimeExceptionType, "Wrong number of arguments"),
+                                          null);
+            stmts.prepend(arityCheck);
+            
+            return Block(stmts);
         }
 
         JCExpression doitExpr() {
