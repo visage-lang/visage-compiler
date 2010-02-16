@@ -487,6 +487,7 @@ public class Timeline {
         if (not starting) {
             starting = true;
             stopping = false;
+            pausing = false;
             validate();
             if (time == 0.0ms) {
                 initKeyValues();
@@ -567,13 +568,13 @@ public class Timeline {
         }
     }
 
-    // the following two vars are used for delayed invokation of pause() if
-    // pause() is called right after play() but the clip has not started yet
-
-    // is true just after play() is called and till begin() is called at adapter
+    // The following 3 variables indicate that play()/stop()/pause() had been called,
+    // but the corresponding begin()/resume()/end()/pause() callback at timing target
+    // hasn't arrived yet
     var starting = false;
-
     var stopping = false;
+    var pausing = false;
+
     /**
      * Stops the animation and resets the play head to its initial position.
      * If the animation is not currently running, this method has no effect.
@@ -598,8 +599,6 @@ public class Timeline {
             movePlayhead(0);
         }
     }
-
-    var pausing = false;
 
     /**
      * Pauses the animation.  If the animation is not currently running,
@@ -628,6 +627,7 @@ public class Timeline {
      */
     function resume() {
         if(clip != null) {
+            pausing = false;
             clip.resume();
         }
     }
