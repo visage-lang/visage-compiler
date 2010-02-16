@@ -23,15 +23,15 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import static com.sun.tools.javac.code.Kinds.*;
-import com.sun.tools.javac.comp.Attr;
-import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Env;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.util.*;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
+import static com.sun.tools.mjavac.code.Kinds.*;
+import com.sun.tools.mjavac.comp.Attr;
+import com.sun.tools.mjavac.comp.AttrContext;
+import com.sun.tools.mjavac.comp.Env;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.tree.JCTree.*;
+import com.sun.tools.mjavac.util.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
 
@@ -158,7 +158,7 @@ public class BlockExprAttr extends Attr  {
 //                if (l.head.getTag() == JCTree.VARDEF) sym = ((JCVariableDecl) l.head).sym;
 //                if (sym == null ||
 //                    sym.kind != VAR ||
-//                    ((VarSymbol) sym).getConstValue() == null)
+//                    ((JavafxVarSymbol) sym).getConstValue() == null)
 //                    log.error(l.head.pos(), "icls.cant.have.static.decl");
 //            }
         }

@@ -41,9 +41,9 @@ import java.util.Map;
 import javax.tools.*;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.comp.*;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * Simple interface to the JavaFX Script compiler using JSR 199 Compiler API.

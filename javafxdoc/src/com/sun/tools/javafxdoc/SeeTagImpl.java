@@ -23,7 +23,7 @@
 
 package com.sun.tools.javafxdoc;
 
-import com.sun.tools.javac.util.*;
+import com.sun.tools.mjavac.util.*;
 
 import com.sun.javadoc.*;
 

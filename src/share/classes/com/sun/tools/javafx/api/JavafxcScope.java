@@ -23,8 +23,8 @@
 
 package com.sun.tools.javafx.api;
 
-import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.util.Context;
+import com.sun.tools.mjavac.code.Symtab;
+import com.sun.tools.mjavac.util.Context;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;

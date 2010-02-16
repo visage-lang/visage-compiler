@@ -23,26 +23,24 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.comp.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javac.tree.*;
+import com.sun.tools.mjavac.comp.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.jvm.*;
+import com.sun.tools.mjavac.tree.*;
 
-import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.mjavac.code.Type.*;
+import com.sun.tools.mjavac.code.Symbol.*;
 
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.TypeTags.*;
 import javax.lang.model.element.ElementVisitor;
 
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
-import java.util.HashSet;
-import java.util.Set;
 
 /** Helper class for name resolution, used mostly by the attribution phase.
  *
@@ -65,6 +63,7 @@ public class JavafxResolve {
     JavafxAttr attr;
     JavafxTreeInfo treeinfo;
     JavafxTypes types;
+    JavafxDefs defs;
     public final boolean boxingEnabled; // = source.allowBoxing();
     public final boolean varargsEnabled; // = source.allowVarargs();
     private final boolean debugResolve;
@@ -105,6 +104,7 @@ public class JavafxResolve {
         Options options = Options.instance(context);
         debugResolve = options.get("debugresolve") != null;
         attr = JavafxAttr.instance(context);
+        defs = JavafxDefs.instance(context);
     }
 
     /** error symbols, which are returned when resolution fails
@@ -298,12 +298,12 @@ public class JavafxResolve {
         private
         boolean isProtectedAccessible(Symbol sym, ClassSymbol c, Type site) {
             while (c != null &&
-                   !(types.isSuperType(types.erasure(sym.owner.type), c) &&
+                   !(types.isSubtype(c.type, types.erasure(sym.owner.type)) &&
                      (c.flags() & INTERFACE) == 0 &&
                      // In JLS 2e 6.6.2.1, the subclass restriction applies
                      // only to instance fields and methods -- types are excluded
                      // regardless of whether they are declared 'static' or not.
-                     ((sym.flags() & STATIC) != 0 || sym.kind == TYP || types.isSuperType(site, c))))
+                     ((sym.flags() & STATIC) != 0 || sym.kind == TYP || site.tsym.isSubClass(c, types))))
                 c = c.owner.enclClass();
             return c != null;
         }
@@ -490,7 +490,7 @@ public class JavafxResolve {
          // Javafx class.
          // Now try to find the filed in all of the Javafx supertypes.
          if (bestSoFar.kind > AMBIGUOUS && c instanceof JavafxClassSymbol) {
-             List<Type> supertypes = ((JavafxClassSymbol)c).getSuperTypes();
+             List<Type> supertypes = types.supertypes(c.type);
              for (Type tp : supertypes) {
                  if (tp != null && tp.tag == CLASS) {
                      sym = findField(env, site, name, tp.tsym);
@@ -507,12 +507,32 @@ public class JavafxResolve {
              l = l.tail) {
             sym = findField(env, site, name, l.head.tsym);
             if (bestSoFar.kind < AMBIGUOUS && sym.kind < AMBIGUOUS &&
-                sym.owner != bestSoFar.owner)
+                sym.owner != bestSoFar.owner && !mixableIn(bestSoFar, sym, site))
                 bestSoFar = new AmbiguityError(bestSoFar, sym);
             else if (sym.kind < bestSoFar.kind)
                 bestSoFar = sym;
         }
         return bestSoFar;
+    }
+    //where
+    boolean mixableIn(Symbol s1, Symbol s2, Type site) {
+        if (!types.isMixin(s1.owner) &&
+                !types.isMixin(s2.owner))
+            return false;
+        List<Type> supertypes = types.supertypesClosure(site);
+        int i1 = indexInSupertypeList(supertypes, s1.owner.type);
+        int i2 = indexInSupertypeList(supertypes, s2.owner.type);
+        return i1 <= i2 && i1 != -1 && i2 != -1;
+    }
+
+    int indexInSupertypeList(List<Type> ts, Type t) {
+        int count = 0;
+        for (Type t2 : ts) {
+            if (types.isSameType(t, t2))
+                return count;
+            count++;
+        }
+        return -1;
     }
 
     /** Resolve a field identifier, throw a fatal error if not found.
@@ -522,10 +542,10 @@ public class JavafxResolve {
      *                   identifier is searched.
      *  @param name      The identifier's name.
      */
-    public VarSymbol resolveInternalField(DiagnosticPosition pos, JavafxEnv<JavafxAttrContext> env,
+    public JavafxVarSymbol resolveInternalField(DiagnosticPosition pos, JavafxEnv<JavafxAttrContext> env,
                                           Type site, Name name) {
         Symbol sym = findField(env, site, name, site.tsym);
-        if (sym.kind == VAR) return (VarSymbol)sym;
+        if (sym.kind == VAR) return (JavafxVarSymbol)sym;
         else throw new FatalError(
                  JCDiagnostic.fragment(MsgSym.MESSAGE_FATAL_ERR_CANNOT_LOCATE_FIELD,
                                 name));
@@ -536,7 +556,7 @@ public class JavafxResolve {
      *  @param env     The current environment.
      *  @param name    The name of the variable or field.
      */
-    Symbol findVar(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected) {
+    Symbol findVar(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected, boolean boxingEnabled, boolean varargsEnabled) {
         Symbol bestSoFar = expected.tag == METHOD ? methodNotFound : varNotFound;
         Symbol sym;
         JavafxEnv<JavafxAttrContext> env1 = env;
@@ -566,12 +586,7 @@ public class JavafxResolve {
                 //first try resolution without boxing
                 sym = findMember(env1, envClass, name,
                         expected,
-                        false, false, false);
-                //if not resolved yet, retry with boxing enabled
-                if (sym.kind >= WRONG_MTHS)
-                    sym = findMember(env1, envClass, name,
-                            expected,
-                            true, false, false);
+                        boxingEnabled, varargsEnabled, false);
 
                 if (sym.exists()) {
                     if (staticOnly) {
@@ -591,9 +606,6 @@ public class JavafxResolve {
                     if ((e.sym.flags_field & SYNTHETIC) != 0)
                         continue;
                     if ((e.sym.kind & (MTH|VAR)) != 0) {
-                        if (innerAccess || !attr.inSameEnclosingScope(e.sym, env)) {
-                            e.sym.flags_field |= JavafxFlags.VARUSE_INNER_ACCESS;
-                        }
                         if (checkArgs) {
                             return checkArgs(e.sym, mtype);
                         }
@@ -623,8 +635,8 @@ public class JavafxResolve {
                 else //method
                     return selectBest(env, origin, mtype,
                                            e.sym, bestSoFar,
-                                           true,
-                                           false,
+                                           boxingEnabled,
+                                           varargsEnabled,
                                            false);
             }
         }
@@ -646,8 +658,8 @@ public class JavafxResolve {
                 else //method
                     bestSoFar = selectBest(env, origin.type, mtype,
                                            e.sym, bestSoFar,
-                                           true,
-                                           false,
+                                           boxingEnabled,
+                                           varargsEnabled,
                                            false);
             }
         }
@@ -655,7 +667,7 @@ public class JavafxResolve {
         if (name == names.fromString("__DIR__") || name == names.fromString("__FILE__") 
 			|| name == names.fromString("__PROFILE__")) {
             Type type = syms.stringType;
-            return new VarSymbol(Flags.PUBLIC, name, type, env.enclClass.sym);
+            return new JavafxVarSymbol(types, names,Flags.PUBLIC, name, type, env.enclClass.sym);
         }
         
         if (bestSoFar.kind == VAR && bestSoFar.owner.type != origin.type)
@@ -801,7 +813,7 @@ public class JavafxResolve {
                 if (m2Abstract && !m1Abstract) return m1;
                 // both abstract or both concrete
                 if (!m1Abstract && !m2Abstract)
-                    return new AmbiguityError(m1, m2);
+                    return !mixableIn(m2, m1, site) ? new AmbiguityError(m1, m2) : m2;
                 // check for same erasure
                 if (!types.isSameType(m1.erasure(types), m2.erasure(types)))
                     return new AmbiguityError(m1, m2);
@@ -945,7 +957,7 @@ public class JavafxResolve {
                     // No argument list to disambiguate.
                     if (bestSoFar.kind == ABSENT_VAR || bestSoFar.kind == ABSENT_MTH)
                         bestSoFar = e.sym;
-                    else if (e.sym != bestSoFar)
+                    else if (e.sym != bestSoFar && !mixableIn(bestSoFar, e.sym, site))
                         bestSoFar = new AmbiguityError(bestSoFar, e.sym);
                 }
                 else if (e.sym.kind == MTH) {                    
@@ -993,7 +1005,7 @@ public class JavafxResolve {
         // Javafx class.
         // Now try to find the filed in all of the Javafx supertypes.
         if (bestSoFar.kind > AMBIGUOUS && intype.tsym instanceof JavafxClassSymbol) {
-            List<Type> supertypes = ((JavafxClassSymbol)intype.tsym).getSuperTypes();
+            List<Type> supertypes = types.supertypes(intype);
             for (Type tp : supertypes) {
                 bestSoFar = findMemberWithoutAccessChecks(env, site, name, expected, tp,
                         bestSoFar, allowBoxing, useVarargs, operator);                
@@ -1224,8 +1236,12 @@ public class JavafxResolve {
     Symbol findIdent(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected) {
         Symbol bestSoFar = expected.tag == METHOD ? methodNotFound : typeNotFound;
         Symbol sym;
-        if ((kind & (VAR|MTH)) != 0) {
-            sym = findVar(env, name, kind, expected);
+         if ((kind & (VAR|MTH)) != 0) {
+            sym = findVar(env, name, kind, expected, false, env.info.varArgs = false);
+            if (sym.kind >= WRONG_MTHS)
+                sym = findVar(env, name, kind, expected, true, env.info.varArgs = false);
+            if (sym.kind >= WRONG_MTHS)
+                sym = findVar(env, name, kind, expected, true, env.info.varArgs = true);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
         }
@@ -1574,12 +1590,12 @@ public class JavafxResolve {
      */
     Symbol resolveUnaryOperator(DiagnosticPosition pos, JavafxTag optag, JavafxEnv<JavafxAttrContext> env, Type arg) {
         // check for Duration unary minus
-        if (types.isSameType(arg, ((JavafxSymtab)syms).javafx_DurationType)) {
+        if (types.isSameType(arg, syms.javafx_DurationType)) {
             Symbol res = null;
             switch (optag) {
             case NEG:
                 res = resolveMethod(pos,  env,
-                                    names.fromString("negate"),
+                                    defs.negate_DurationMethodName,
                                     arg, List.<Type>nil());
                 break;
             }
@@ -1603,57 +1619,57 @@ public class JavafxResolve {
                                  Type left,
                                  Type right) {
         // Duration operator overloading
-        if (types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType) ||
-            types.isSameType(right, ((JavafxSymtab)syms).javafx_DurationType)) {
+        if (types.isSameType(left, syms.javafx_DurationType) ||
+            types.isSameType(right, syms.javafx_DurationType)) {
             Type dur = left;
             Symbol res = null;
             switch (optag) {
             case PLUS:
                 res = resolveMethod(pos,  env,
-                                     names.fromString("add"),
+                                     defs.add_DurationMethodName,
                                      dur, List.of(right));
                 break;
             case MINUS:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("sub"),
+                                     defs.sub_DurationMethodName,
                                      dur, List.of(right));
                 break;
             case MUL:
-                if (!types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType)) {
+                if (!types.isSameType(left, syms.javafx_DurationType)) {
                     left = right;
                     right = dur;
                     dur = left;
                 }
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("mul"),
+                                     defs.mul_DurationMethodName,
                                      dur,
                                      List.of(right));
                 break;
             case DIV:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("div"),
+                                     defs.div_DurationMethodName,
                                      dur, List.of(right));
                 break;
 
             //fix me...inline or move to static helper?
             case LT:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("lt"),
+                                     defs.lt_DurationMethodName,
                                      dur, List.of(right));
                 break;
             case LE:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("le"),
+                                     defs.le_DurationMethodName,
                                      dur, List.of(right));
                 break;
             case GT:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("gt"),
+                                     defs.gt_DurationMethodName,
                                      dur, List.of(right));
                 break;
             case GE:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("ge"),
+                                     defs.ge_DurationMethodName,
                                      dur, List.of(right));
                 break;
             }
@@ -1966,7 +1982,7 @@ public class JavafxResolve {
                         kindname = JCDiagnostic.fragment(MsgSym.KINDNAME_CONSTRUCTOR);
                         idname = site.tsym.name.toString();
                     }
-                    args = "(" + Type.toString(argtypes) + ")";
+                    args = "(" + types.toJavaFXString(argtypes) + ")";
                     if (typeargtypes != null && typeargtypes.nonEmpty())
                         typeargs = "<" + Type.toString(typeargtypes) + ">";
                 }
@@ -1991,7 +2007,7 @@ public class JavafxResolve {
                     else
                         log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE_LOCATION,
                                   kindname, idname, args, typeargs,
-                                  typeKindName(site), site);
+                                  typeKindName(site), types.toJavaFXString(site));
                 } else {
                     log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE, kindname, idname, args, typeargs);
                 }
@@ -2172,7 +2188,7 @@ public class JavafxResolve {
             };
             // 'package' access
             boolean foundInherited = false;
-            for (Type supType : types.supertypes(clazz, clazz.type)) {
+            for (Type supType : types.supertypesClosure(clazz.type, true)) {
                 if (supType.tsym == sym.owner) {
                     foundInherited = true;
                     break;

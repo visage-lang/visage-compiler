@@ -1,12 +1,3 @@
-Note: Optimization statistic: Script variable count: 7
-Note: Optimization statistic: Script variable Location count: 2
-Note: Optimization statistic: Script variable Slacker count: 2
-Note: Optimization statistic: Script variable direct count: 3
-Note: Optimization statistic: Script 'var' count: 4
-Note: Optimization statistic: Script 'var' Location count: 1
-Note: Optimization statistic: Script 'var' Slacker count: 2
-Note: Optimization statistic: Script 'var' direct count: 1
+Note: Optimization statistic: Script variable count: 6
+Note: Optimization statistic: Script 'var' count: 3
 Note: Optimization statistic: Script 'def' count: 3
-Note: Optimization statistic: Script 'def' Location count: 1
-Note: Optimization statistic: Script 'def' Slacker count: 0
-Note: Optimization statistic: Script 'def' direct count: 2

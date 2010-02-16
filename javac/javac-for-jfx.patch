@@ -1,7 +1,7 @@
-Index: com/sun/tools/javac/code/Symtab.java
---- com/sun/tools/javac/code/Symtab.java Base (BASE)
-+++ com/sun/tools/javac/code/Symtab.java Locally Modified (Based On LOCAL)
-@@ -55,8 +55,10 @@
+diff --git a/src/share/classes/com/sun/tools/javac/code/Symtab.java b/src/share/classes/com/sun/tools/javac/code/Symtab.java
+--- a/src/share/classes/com/sun/tools/javac/code/Symtab.java
++++ b/src/share/classes/com/sun/tools/javac/code/Symtab.java
+@@ -55,8 +55,10 @@ public class Symtab {
      /** Get the symbol table instance. */
      public static Symtab instance(Context context) {
          Symtab instance = context.get(symtabKey);
@@ -13,7 +13,7 @@ Index: com/sun/tools/javac/code/Symtab.java
          return instance;
      }
  
-@@ -219,7 +221,7 @@
+@@ -219,7 +221,7 @@ public class Symtab {
       *  @param res      The operation's result type.
       *  @param opcode   The operation's bytecode instruction.
       */
@@ -22,7 +22,7 @@ Index: com/sun/tools/javac/code/Symtab.java
                              Type left, Type right, Type res,
                              int opcode) {
          predefClass.members().enter(
-@@ -236,7 +238,7 @@
+@@ -236,7 +238,7 @@ public class Symtab {
       *  @param opcode1     First opcode.
       *  @param opcode2     Second opcode.
       */
@@ -31,7 +31,7 @@ Index: com/sun/tools/javac/code/Symtab.java
                              Type left, Type right, Type res,
                              int opcode1, int opcode2) {
          enterBinop(
-@@ -249,7 +251,7 @@
+@@ -249,7 +251,7 @@ public class Symtab {
       *  @param res      The operation's result type.
       *  @param opcode   The operation's bytecode instruction.
       */
@@ -40,7 +40,7 @@ Index: com/sun/tools/javac/code/Symtab.java
                                       Type arg,
                                       Type res,
                                       int opcode) {
-@@ -268,7 +270,7 @@
+@@ -268,7 +270,7 @@ public class Symtab {
      /** Enter a class into symbol table.
       *  @param    The name of the class.
       */
@@ -49,7 +49,7 @@ Index: com/sun/tools/javac/code/Symtab.java
          return reader.enterClass(names.fromString(s)).type;
      }
  
-@@ -420,6 +422,11 @@
+@@ -420,6 +422,11 @@ public class Symtab {
              arrayClass);
          arrayClass.members().enter(arrayCloneMethod);
  
@@ -61,7 +61,7 @@ Index: com/sun/tools/javac/code/Symtab.java
          // Enter operators.
          enterUnop("+", doubleType, doubleType, nop);
          enterUnop("+", floatType, floatType, nop);
-@@ -451,7 +458,6 @@
+@@ -451,7 +458,6 @@ public class Symtab {
          enterUnop("--", byteType, byteType, isub);
  
          enterUnop("!", booleanType, booleanType, bool_not);
@@ -69,10 +69,10 @@ Index: com/sun/tools/javac/code/Symtab.java
  
          // string concatenation
          enterBinop("+", stringType, objectType, stringType, string_add);
-Index: com/sun/tools/javac/comp/Attr.java
---- com/sun/tools/javac/comp/Attr.java Base (BASE)
-+++ com/sun/tools/javac/comp/Attr.java Locally Modified (Based On LOCAL)
-@@ -68,18 +68,18 @@
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Attr.java b/src/share/classes/com/sun/tools/javac/comp/Attr.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Attr.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Attr.java
+@@ -68,18 +68,18 @@ public class Attr extends JCTree.Visitor
      protected static final Context.Key<Attr> attrKey =
          new Context.Key<Attr>();
  
@@ -101,7 +101,7 @@ Index: com/sun/tools/javac/comp/Attr.java
  
      public static Attr instance(Context context) {
          Attr instance = context.get(attrKey);
-@@ -120,7 +120,7 @@
+@@ -120,7 +120,7 @@ public class Attr extends JCTree.Visitor
  
      /** Switch: relax some constraints for retrofit mode.
       */
@@ -110,7 +110,7 @@ Index: com/sun/tools/javac/comp/Attr.java
  
      /** Switch: support generics?
       */
-@@ -166,7 +166,7 @@
+@@ -166,7 +166,7 @@ public class Attr extends JCTree.Visitor
       *  @param pkind    The expected kind (or: protokind) of the tree
       *  @param pt       The expected type (or: prototype) of the tree
       */
@@ -119,7 +119,7 @@ Index: com/sun/tools/javac/comp/Attr.java
          if (owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
              if ((ownkind & ~pkind) == 0) {
                  owntype = chk.checkType(tree.pos(), owntype, pt);
-@@ -339,19 +339,19 @@
+@@ -339,19 +339,19 @@ public class Attr extends JCTree.Visitor
  
      /** Visitor argument: the current environment.
       */
@@ -143,7 +143,7 @@ Index: com/sun/tools/javac/comp/Attr.java
  
      /** Visitor method: attribute a tree, catching any completion failure
       *  exceptions. Return the tree's type.
-@@ -392,13 +392,13 @@
+@@ -392,13 +392,13 @@ public class Attr extends JCTree.Visitor
      /** Derived visitor method: attribute an expression tree with
       *  no constraints on the computed type.
       */
@@ -159,7 +159,7 @@ Index: com/sun/tools/javac/comp/Attr.java
          Type result = attribTree(tree, env, TYP, Type.noType);
          return result;
      }
-@@ -437,7 +437,7 @@
+@@ -437,7 +437,7 @@ public class Attr extends JCTree.Visitor
  
      /** Attribute a type argument list, returning a list of types.
       */
@@ -168,7 +168,7 @@ Index: com/sun/tools/javac/comp/Attr.java
          ListBuffer<Type> argtypes = new ListBuffer<Type>();
          for (List<JCExpression> l = trees; l.nonEmpty(); l = l.tail)
              argtypes.append(chk.checkRefType(l.head.pos(), attribType(l.head, env)));
-@@ -470,7 +470,7 @@
+@@ -470,7 +470,7 @@ public class Attr extends JCTree.Visitor
          attribStats(typarams, env);
      }
  
@@ -177,7 +177,7 @@ Index: com/sun/tools/javac/comp/Attr.java
          for (JCTypeParameter typaram : typarams) {
              Type bound = typaram.type.getUpperBound();
              if (bound != null && bound.tsym instanceof ClassSymbol) {
-@@ -1326,7 +1326,7 @@
+@@ -1326,7 +1326,7 @@ public class Attr extends JCTree.Visitor
           *  @param tree   The application node
           *  @param env    The environment current at the application.
           */
@@ -186,7 +186,7 @@ Index: com/sun/tools/javac/comp/Attr.java
              JCMethodDecl enclMethod = env.enclMethod;
              if (enclMethod != null && enclMethod.name == names.init) {
                  JCBlock body = enclMethod.body;
-@@ -2053,7 +2053,7 @@
+@@ -2053,7 +2053,7 @@ public class Attr extends JCTree.Visitor
           *  @param pkind      The set of expected kinds.
           *  @param pt         The expected type.
           */
@@ -195,7 +195,7 @@ Index: com/sun/tools/javac/comp/Attr.java
                       Type site,
                       Symbol sym,
                       Env<AttrContext> env,
-@@ -2679,7 +2679,7 @@
+@@ -2679,7 +2679,7 @@ public class Attr extends JCTree.Visitor
      }
  
      /** Finish the attribution of a class. */
@@ -204,7 +204,7 @@ Index: com/sun/tools/javac/comp/Attr.java
          JCClassDecl tree = (JCClassDecl)env.tree;
          assert c == tree.sym;
  
-@@ -2768,7 +2768,7 @@
+@@ -2768,7 +2768,7 @@ public class Attr extends JCTree.Visitor
      }
          // where
          /** check if a class is a subtype of Serializable, if that is available. */
@@ -213,7 +213,7 @@ Index: com/sun/tools/javac/comp/Attr.java
              try {
                  syms.serializableType.complete();
              }
-@@ -2779,7 +2779,7 @@
+@@ -2779,7 +2779,7 @@ public class Attr extends JCTree.Visitor
          }
  
          /** Check that an appropriate serialVersionUID member is defined. */
@@ -222,7 +222,7 @@ Index: com/sun/tools/javac/comp/Attr.java
  
              // check for presence of serialVersionUID
              Scope.Entry e = c.members().lookup(names.serialVersionUID);
-@@ -2804,7 +2804,7 @@
+@@ -2804,7 +2804,7 @@ public class Attr extends JCTree.Visitor
                  log.warning(TreeInfo.diagnosticPositionFor(svuid, tree), "constant.SVUID", c);
          }
  
@@ -231,10 +231,10 @@ Index: com/sun/tools/javac/comp/Attr.java
          return types.capture(type);
      }
  }
-Index: com/sun/tools/javac/comp/AttrContext.java
---- com/sun/tools/javac/comp/AttrContext.java Base (BASE)
-+++ com/sun/tools/javac/comp/AttrContext.java Locally Modified (Based On LOCAL)
-@@ -40,23 +40,23 @@
+diff --git a/src/share/classes/com/sun/tools/javac/comp/AttrContext.java b/src/share/classes/com/sun/tools/javac/comp/AttrContext.java
+--- a/src/share/classes/com/sun/tools/javac/comp/AttrContext.java
++++ b/src/share/classes/com/sun/tools/javac/comp/AttrContext.java
+@@ -40,23 +40,23 @@ public class AttrContext {
  
      /** The scope of local symbols.
       */
@@ -263,7 +263,7 @@ Index: com/sun/tools/javac/comp/AttrContext.java
  
      /** A list of type variables that are all-quantifed in current context.
       */
-@@ -64,11 +64,11 @@
+@@ -64,11 +64,11 @@ public class AttrContext {
  
      /** A record of the lint/SuppressWarnings currently in effect
       */
@@ -277,7 +277,7 @@ Index: com/sun/tools/javac/comp/AttrContext.java
          AttrContext info = new AttrContext();
          info.scope = scope;
          info.staticLevel = staticLevel;
-@@ -82,7 +82,7 @@
+@@ -82,7 +82,7 @@ public class AttrContext {
  
      /** Duplicate this context, copying all fields.
       */
@@ -286,10 +286,10 @@ Index: com/sun/tools/javac/comp/AttrContext.java
          return dup(scope);
      }
  
-Index: com/sun/tools/javac/comp/Check.java
---- com/sun/tools/javac/comp/Check.java Base (BASE)
-+++ com/sun/tools/javac/comp/Check.java Locally Modified (Based On LOCAL)
-@@ -56,13 +56,13 @@
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Check.java b/src/share/classes/com/sun/tools/javac/comp/Check.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Check.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Check.java
+@@ -56,13 +56,13 @@ public class Check {
      protected static final Context.Key<Check> checkKey =
          new Context.Key<Check>();
  
@@ -305,7 +305,7 @@ Index: com/sun/tools/javac/comp/Check.java
      private final boolean skipAnnotations;
      private final TreeInfo treeinfo;
  
-@@ -241,7 +241,7 @@
+@@ -241,7 +241,7 @@ public class Check {
       *  @param v             The symbol.
       *  @param s             The scope.
       */
@@ -314,7 +314,7 @@ Index: com/sun/tools/javac/comp/Check.java
          if (s.next != null) {
              for (Scope.Entry e = s.next.lookup(v.name);
                   e.scope != null && e.sym.owner == v.owner;
-@@ -262,7 +262,7 @@
+@@ -262,7 +262,7 @@ public class Check {
       *  @param c             The symbol.
       *  @param s             The scope.
       */
@@ -323,7 +323,7 @@ Index: com/sun/tools/javac/comp/Check.java
          if (s.next != null) {
              for (Scope.Entry e = s.next.lookup(c.name);
                   e.scope != null && e.sym.owner == c.owner;
-@@ -284,7 +284,7 @@
+@@ -284,7 +284,7 @@ public class Check {
       *  @param name          The class name.
       *  @param s             The enclosing scope.
       */
@@ -332,7 +332,7 @@ Index: com/sun/tools/javac/comp/Check.java
          for (Scope.Entry e = s.lookup(name); e.scope == s; e = e.next()) {
              if (e.sym.kind == TYP && e.sym.name != names.error) {
                  duplicateError(pos, e.sym);
-@@ -310,7 +310,7 @@
+@@ -310,7 +310,7 @@ public class Check {
       *    enclClass is the flat name of the enclosing class,
       *    classname is the simple name of the local class
       */
@@ -341,7 +341,7 @@ Index: com/sun/tools/javac/comp/Check.java
          for (int i=1; ; i++) {
              Name flatname = names.
                  fromString("" + c.owner.enclClass().flatname +
-@@ -330,7 +330,7 @@
+@@ -330,7 +330,7 @@ public class Check {
       *  @param found      The type that was found.
       *  @param req        The type that was required.
       */
@@ -350,7 +350,7 @@ Index: com/sun/tools/javac/comp/Check.java
          if (req.tag == ERROR)
              return req;
          if (found.tag == FORALL)
-@@ -570,7 +570,7 @@
+@@ -570,7 +570,7 @@ public class Check {
       *  @param flags         The set of modifiers given in a definition.
       *  @param sym           The defined symbol.
       */
@@ -359,7 +359,7 @@ Index: com/sun/tools/javac/comp/Check.java
          long mask;
          long implicit = 0;
          switch (sym.kind) {
-@@ -740,7 +740,7 @@
+@@ -740,7 +740,7 @@ public class Check {
      /** Visitor method: Validate a type expression, if it is not null, catching
       *  and reporting any completion failures.
       */
@@ -368,7 +368,7 @@ Index: com/sun/tools/javac/comp/Check.java
          try {
              if (tree != null) tree.accept(validator);
          } catch (CompletionFailure ex) {
-@@ -750,14 +750,14 @@
+@@ -750,14 +750,14 @@ public class Check {
  
      /** Visitor method: Validate a list of type expressions.
       */
@@ -385,7 +385,7 @@ Index: com/sun/tools/javac/comp/Check.java
          for (List<JCTypeParameter> l = trees; l.nonEmpty(); l = l.tail)
              validate(l.head);
      }
-@@ -1077,7 +1077,7 @@
+@@ -1077,7 +1077,7 @@ public class Check {
       *  @param origin       The class of which the overriding method
       *                      is a member.
       */
@@ -394,7 +394,7 @@ Index: com/sun/tools/javac/comp/Check.java
                         MethodSymbol m,
                         MethodSymbol other,
                         ClassSymbol origin) {
-@@ -1403,7 +1403,7 @@
+@@ -1403,7 +1403,7 @@ public class Check {
       *  @param pos          Position to be used for error reporting.
       *  @param c            The class.
       */
@@ -403,7 +403,7 @@ Index: com/sun/tools/javac/comp/Check.java
          try {
              MethodSymbol undef = firstUndef(c, c);
              if (undef != null) {
-@@ -1545,7 +1545,7 @@
+@@ -1545,7 +1545,7 @@ public class Check {
       *  method conform to the method they implement.
       *  @param tree         The class definition whose members are checked.
       */
@@ -412,7 +412,7 @@ Index: com/sun/tools/javac/comp/Check.java
          checkImplementations(tree, tree.sym);
      }
  //where
-@@ -1584,7 +1584,7 @@
+@@ -1584,7 +1584,7 @@ public class Check {
       *  @param pos          Position to be used for error reporting.
       *  @param c            The class whose interfaces are checked.
       */
@@ -421,7 +421,7 @@ Index: com/sun/tools/javac/comp/Check.java
          List<Type> supertypes = types.interfaces(c);
          Type supertype = types.supertype(c);
          if (supertype.tag == CLASS &&
-@@ -1606,7 +1606,7 @@
+@@ -1606,7 +1606,7 @@ public class Check {
       *  @param pos          Position to be used for error reporting.
       *  @param type         The type whose interfaces are checked.
       */
@@ -430,7 +430,7 @@ Index: com/sun/tools/javac/comp/Check.java
          checkClassBounds(pos, new HashMap<TypeSymbol,Type>(), type);
      }
  //where
-@@ -1829,7 +1829,7 @@
+@@ -1829,7 +1829,7 @@ public class Check {
          }
      }
  
@@ -439,7 +439,7 @@ Index: com/sun/tools/javac/comp/Check.java
          if (allowAnnotations &&
              lint.isEnabled(Lint.LintCategory.DEP_ANN) &&
              (s.flags() & DEPRECATED) != 0 &&
-@@ -1845,7 +1845,7 @@
+@@ -1845,7 +1845,7 @@ public class Check {
  
      /** Check for cycles in the graph of annotation elements.
       */
@@ -448,7 +448,7 @@ Index: com/sun/tools/javac/comp/Check.java
          if ((tree.sym.flags_field & ANNOTATION) == 0) return;
          assert (tree.sym.flags_field & LOCKED) == 0;
          try {
-@@ -1903,7 +1903,7 @@
+@@ -1903,7 +1903,7 @@ public class Check {
      /** Check for cycles in the graph of constructors calling other
       *  constructors.
       */
@@ -457,10 +457,10 @@ Index: com/sun/tools/javac/comp/Check.java
          Map<Symbol,Symbol> callMap = new HashMap<Symbol, Symbol>();
  
          // enter each constructor this-call into the map
-Index: com/sun/tools/javac/comp/ConstFold.java
---- com/sun/tools/javac/comp/ConstFold.java Base (BASE)
-+++ com/sun/tools/javac/comp/ConstFold.java Locally Modified (Based On LOCAL)
-@@ -42,7 +42,7 @@
+diff --git a/src/share/classes/com/sun/tools/javac/comp/ConstFold.java b/src/share/classes/com/sun/tools/javac/comp/ConstFold.java
+--- a/src/share/classes/com/sun/tools/javac/comp/ConstFold.java
++++ b/src/share/classes/com/sun/tools/javac/comp/ConstFold.java
+@@ -42,7 +42,7 @@ import static com.sun.tools.javac.jvm.By
   *  This code and its internal interfaces are subject to change or
   *  deletion without notice.</b>
   */
@@ -469,7 +469,7 @@ Index: com/sun/tools/javac/comp/ConstFold.java
      protected static final Context.Key<ConstFold> constFoldKey =
          new Context.Key<ConstFold>();
  
-@@ -153,7 +153,7 @@
+@@ -153,7 +153,7 @@ strictfp class ConstFold {
       *  @param left      The type of the operation's left operand.
       *  @param right     The type of the operation's right operand.
       */
@@ -478,7 +478,7 @@ Index: com/sun/tools/javac/comp/ConstFold.java
          try {
              if (opcode > ByteCodes.preMask) {
                  // we are seeing a composite instruction of the form xcmp; ifxx.
-@@ -330,7 +330,7 @@
+@@ -330,7 +330,7 @@ strictfp class ConstFold {
       *                    ttype.
       *  @param ttype      The target type of the coercion.
       */
@@ -487,10 +487,10 @@ Index: com/sun/tools/javac/comp/ConstFold.java
           // WAS if (etype.baseType() == ttype.baseType())
           if (etype.tsym.type == ttype.tsym.type)
               return etype;
-Index: com/sun/tools/javac/comp/Enter.java
---- com/sun/tools/javac/comp/Enter.java Base (BASE)
-+++ com/sun/tools/javac/comp/Enter.java Locally Modified (Based On LOCAL)
-@@ -95,11 +95,11 @@
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Enter.java b/src/share/classes/com/sun/tools/javac/comp/Enter.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Enter.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Enter.java
+@@ -95,11 +95,11 @@ public class Enter extends JCTree.Visito
  
      Log log;
      Symtab syms;
@@ -506,7 +506,7 @@ Index: com/sun/tools/javac/comp/Enter.java
      Lint lint;
      JavaFileManager fileManager;
  
-@@ -135,7 +135,7 @@
+@@ -135,7 +135,7 @@ public class Enter extends JCTree.Visito
      /** A hashtable mapping classes and packages to the environments current
       *  at the points of their definitions.
       */
@@ -515,7 +515,7 @@ Index: com/sun/tools/javac/comp/Enter.java
              new HashMap<TypeSymbol,Env<AttrContext>>();
  
      /** Accessor for typeEnvs
-@@ -156,7 +156,7 @@
+@@ -156,7 +156,7 @@ public class Enter extends JCTree.Visito
      /** The queue of all classes that might still need to be completed;
       *  saved and initialized by main().
       */
@@ -524,7 +524,7 @@ Index: com/sun/tools/javac/comp/Enter.java
  
      /** A dummy class to serve as enclClass for toplevel environments.
       */
-@@ -219,7 +219,7 @@
+@@ -219,7 +219,7 @@ public class Enter extends JCTree.Visito
       *  where the local scope is for type variables, and the this and super symbol
       *  only, and members go into the class member scope.
       */
@@ -533,7 +533,7 @@ Index: com/sun/tools/javac/comp/Enter.java
          return (env.tree.getTag() == JCTree.CLASSDEF)
              ? ((JCClassDecl) env.tree).sym.members_field
              : env.info.scope;
-@@ -235,7 +235,7 @@
+@@ -235,7 +235,7 @@ public class Enter extends JCTree.Visito
  
      /** Visitor result: the computed type.
       */
@@ -542,7 +542,7 @@ Index: com/sun/tools/javac/comp/Enter.java
  
      /** Visitor method: enter all classes in given tree, catching any
       *  completion failure exceptions. Return the tree's type.
-@@ -243,7 +243,7 @@
+@@ -243,7 +243,7 @@ public class Enter extends JCTree.Visito
       *  @param tree    The tree to be visited.
       *  @param env     The environment visitor argument.
       */
@@ -551,7 +551,7 @@ Index: com/sun/tools/javac/comp/Enter.java
          Env<AttrContext> prevEnv = this.env;
          try {
              this.env = env;
-@@ -258,7 +258,7 @@
+@@ -258,7 +258,7 @@ public class Enter extends JCTree.Visito
  
      /** Visitor method: enter classes of a list of trees, returning a list of types.
       */
@@ -560,7 +560,7 @@ Index: com/sun/tools/javac/comp/Enter.java
          ListBuffer<Type> ts = new ListBuffer<Type>();
          for (List<T> l = trees; l.nonEmpty(); l = l.tail)
              ts.append(classEnter(l.head, env));
-@@ -404,7 +404,7 @@
+@@ -404,7 +404,7 @@ public class Enter extends JCTree.Visito
      //where
          /** Does class have the same name as the file it appears in?
           */
@@ -569,10 +569,10 @@ Index: com/sun/tools/javac/comp/Enter.java
                                                          Env<AttrContext> env) {
              return env.toplevel.sourcefile.isNameCompatible(c.name.toString(),
                                                              JavaFileObject.Kind.SOURCE);
-Index: com/sun/tools/javac/comp/Flow.java
---- com/sun/tools/javac/comp/Flow.java Base (BASE)
-+++ com/sun/tools/javac/comp/Flow.java Locally Modified (Based On LOCAL)
-@@ -295,7 +295,7 @@
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Flow.java b/src/share/classes/com/sun/tools/javac/comp/Flow.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Flow.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Flow.java
+@@ -295,7 +295,7 @@ public class Flow extends TreeScanner {
  
      /** Complain that pending exceptions are not caught.
       */
@@ -581,10 +581,10 @@ Index: com/sun/tools/javac/comp/Flow.java
          for (PendingExit exit = pendingExits.next();
               exit != null;
               exit = pendingExits.next()) {
-Index: com/sun/tools/javac/comp/Infer.java
---- com/sun/tools/javac/comp/Infer.java Base (BASE)
-+++ com/sun/tools/javac/comp/Infer.java Locally Modified (Based On LOCAL)
-@@ -67,7 +67,7 @@
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Infer.java b/src/share/classes/com/sun/tools/javac/comp/Infer.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Infer.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Infer.java
+@@ -67,7 +67,7 @@ public class Infer {
      public static class NoInstanceException extends RuntimeException {
          private static final long serialVersionUID = 0;
  
@@ -593,10 +593,10 @@ Index: com/sun/tools/javac/comp/Infer.java
  
          JCDiagnostic diagnostic;
  
-Index: com/sun/tools/javac/comp/MemberEnter.java
---- com/sun/tools/javac/comp/MemberEnter.java Base (BASE)
-+++ com/sun/tools/javac/comp/MemberEnter.java Locally Modified (Based On LOCAL)
-@@ -65,7 +65,7 @@
+diff --git a/src/share/classes/com/sun/tools/javac/comp/MemberEnter.java b/src/share/classes/com/sun/tools/javac/comp/MemberEnter.java
+--- a/src/share/classes/com/sun/tools/javac/comp/MemberEnter.java
++++ b/src/share/classes/com/sun/tools/javac/comp/MemberEnter.java
+@@ -65,7 +65,7 @@ public class MemberEnter extends JCTree.
      private final Enter enter;
      private final Log log;
      private final Check chk;
@@ -605,7 +605,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
      private final Symtab syms;
      private final TreeMaker make;
      private final ClassReader reader;
-@@ -115,7 +115,7 @@
+@@ -115,7 +115,7 @@ public class MemberEnter extends JCTree.
       *  enter, as we only need to look up types.  This avoids
       *  unnecessarily deep recursion.
       */
@@ -614,7 +614,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
  
      /* ---------- Processing import clauses ----------------
       */
-@@ -126,7 +126,7 @@
+@@ -126,7 +126,7 @@ public class MemberEnter extends JCTree.
       *  @param toScope   The (import) scope in which imported classes
       *               are entered.
       */
@@ -623,7 +623,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
                             final TypeSymbol tsym,
                             Env<AttrContext> env) {
          // Check that packages imported from exist (JLS ???).
-@@ -414,7 +414,7 @@
+@@ -414,7 +414,7 @@ public class MemberEnter extends JCTree.
  
      /** Enter members for a class.
       */
@@ -632,7 +632,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
          if ((tree.mods.flags & Flags.ENUM) != 0 &&
              (types.supertype(tree.sym.type).tsym.flags() & Flags.ENUM) == 0) {
              addEnumMembers(tree, env);
-@@ -684,7 +684,7 @@
+@@ -684,7 +684,7 @@ public class MemberEnter extends JCTree.
   * Type completion
   *********************************************************************/
  
@@ -641,7 +641,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
          assert completionEnabled;
          try {
              // To prevent deep recursion, suppress completion of some
-@@ -769,7 +769,7 @@
+@@ -769,7 +769,7 @@ public class MemberEnter extends JCTree.
      }
  
      /** Queue processing of an attribute default value. */
@@ -650,10 +650,10 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
                                     final Env<AttrContext> localEnv,
                                     final MethodSymbol m) {
          annotate.later(new Annotate.Annotator() {
-Index: com/sun/tools/javac/comp/Resolve.java
---- com/sun/tools/javac/comp/Resolve.java Base (BASE)
-+++ com/sun/tools/javac/comp/Resolve.java Locally Modified (Based On LOCAL)
-@@ -52,8 +52,8 @@
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Resolve.java b/src/share/classes/com/sun/tools/javac/comp/Resolve.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Resolve.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Resolve.java
+@@ -52,8 +52,8 @@ public class Resolve {
          new Context.Key<Resolve>();
  
      Name.Table names;
@@ -664,7 +664,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
      Check chk;
      Infer infer;
      ClassReader reader;
-@@ -114,7 +114,7 @@
+@@ -114,7 +114,7 @@ public class Resolve {
      /** An environment is "static" if its static level is greater than
       *  the one of its outer environment
       */
@@ -673,7 +673,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
          return env.info.staticLevel > env.outer.info.staticLevel;
      }
  
-@@ -1074,7 +1074,7 @@
+@@ -1074,7 +1074,7 @@ public class Resolve {
       *  @param typeargtypes  The invocation's type arguments,
       *                   if we looked for a method.
       */
@@ -682,7 +682,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
                    DiagnosticPosition pos,
                    Type site,
                    Name name,
-@@ -1100,7 +1100,7 @@
+@@ -1100,7 +1100,7 @@ public class Resolve {
  
      /** Same as above, but without type arguments and arguments.
       */
@@ -691,7 +691,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
                    DiagnosticPosition pos,
                    Type site,
                    Name name,
-@@ -1369,7 +1369,7 @@
+@@ -1369,7 +1369,7 @@ public class Resolve {
       * @param c             The qualifier.
       * @param name          The identifier's name.
       */
@@ -700,7 +700,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
                         Env<AttrContext> env,
                         TypeSymbol c,
                         Name name) {
-@@ -1443,7 +1443,7 @@
+@@ -1443,7 +1443,7 @@ public class Resolve {
  
      /** A localized string describing a given kind.
       */
@@ -709,7 +709,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
          switch (kind) {
          case PCK: return JCDiagnostic.fragment("kindname.package");
          case TYP: return JCDiagnostic.fragment("kindname.class");
-@@ -1494,7 +1494,7 @@
+@@ -1494,7 +1494,7 @@ public class Resolve {
  
      /** A localized string describing a given set of kinds.
       */
@@ -718,7 +718,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
          StringBuffer key = new StringBuffer();
          key.append("kindname");
          if ((kind & VAL) != 0)
-@@ -1551,9 +1551,9 @@
+@@ -1551,9 +1551,9 @@ public class Resolve {
       *  Instances of this class indicate "Symbol not found".
       *  Instances of subclass indicate other errors.
       */
@@ -730,7 +730,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
              super(kind, 0, null, null, null);
              this.debugName = debugName;
              this.sym = sym;
-@@ -1566,7 +1566,7 @@
+@@ -1566,7 +1566,7 @@ public class Resolve {
          /** The symbol that was determined by resolution, or errSymbol if none
           *  was found.
           */
@@ -739,7 +739,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
  
          /** The symbol that was a close mismatch, or null if none was found.
           *  wrongSym is currently set if a simgle method with the correct name, but
-@@ -1627,7 +1627,7 @@
+@@ -1627,7 +1627,7 @@ public class Resolve {
           *  @param typeargtypes  The invocation's type arguments,
           *                   if we looked for a method.
           */
@@ -748,7 +748,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
                      List<Type> argtypes, List<Type> typeargtypes) {
              if (name != name.table.error) {
                  JCDiagnostic kindname = absentKindName(kind);
-@@ -1709,7 +1709,7 @@
+@@ -1709,7 +1709,7 @@ public class Resolve {
           *  @param typeargtypes  The invocation's type arguments,
           *                   if we looked for a method.
           */
@@ -757,7 +757,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
                      List<Type> argtypes, List<Type> typeargtypes) {
              if (sym.owner.type.tag != ERROR) {
                  if (sym.name == sym.name.table.init && sym.owner != site.tsym)
-@@ -1749,7 +1749,7 @@
+@@ -1749,7 +1749,7 @@ public class Resolve {
           *  @param typeargtypes  The invocation's type arguments,
           *                   if we looked for a method.
           */
@@ -766,7 +766,7 @@ Index: com/sun/tools/javac/comp/Resolve.java
                      DiagnosticPosition pos,
                      Type site,
                      Name name,
-@@ -1785,7 +1785,7 @@
+@@ -1785,7 +1785,7 @@ public class Resolve {
           *  @param typeargtypes  The invocation's type arguments,
           *                   if we looked for a method.
           */
@@ -775,10 +775,10 @@ Index: com/sun/tools/javac/comp/Resolve.java
                      List<Type> argtypes, List<Type> typeargtypes) {
              AmbiguityError pair = this;
              while (true) {
-Index: com/sun/tools/javac/jvm/ClassReader.java
---- com/sun/tools/javac/jvm/ClassReader.java Base (BASE)
-+++ com/sun/tools/javac/jvm/ClassReader.java Locally Modified (Based On LOCAL)
-@@ -68,7 +68,7 @@
+diff --git a/src/share/classes/com/sun/tools/javac/jvm/ClassReader.java b/src/share/classes/com/sun/tools/javac/jvm/ClassReader.java
+--- a/src/share/classes/com/sun/tools/javac/jvm/ClassReader.java
++++ b/src/share/classes/com/sun/tools/javac/jvm/ClassReader.java
+@@ -68,7 +68,7 @@ public class ClassReader extends ClassFi
      protected static final Context.Key<ClassReader> classReaderKey =
          new Context.Key<ClassReader>();
  
@@ -787,7 +787,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
  
      /** Switch: verbose output.
       */
-@@ -113,15 +113,15 @@
+@@ -113,15 +113,15 @@ public class ClassReader extends ClassFi
  
      /** The log to use for verbose output
       */
@@ -807,7 +807,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
  
      /** Force a completion failure on this name
       */
-@@ -140,7 +140,7 @@
+@@ -140,7 +140,7 @@ public class ClassReader extends ClassFi
      /** A hashtable containing the encountered top-level and member classes,
       *  indexed by flat names. The table does not contain local classes.
       */
@@ -816,7 +816,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
  
      /** A hashtable containing the encountered packages.
       */
-@@ -152,7 +152,7 @@
+@@ -152,7 +152,7 @@ public class ClassReader extends ClassFi
  
      /** The path name of the class file currently being read.
       */
@@ -825,7 +825,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
  
      /** The class or method currently being read.
       */
-@@ -281,7 +281,7 @@
+@@ -281,7 +281,7 @@ public class ClassReader extends ClassFi
  
      /** Read a character.
       */
@@ -834,7 +834,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          return (char)(((buf[bp++] & 0xFF) << 8) + (buf[bp++] & 0xFF));
      }
  
-@@ -455,7 +455,7 @@
+@@ -455,7 +455,7 @@ public class ClassReader extends ClassFi
  
      /** Read signature and convert to type.
       */
@@ -843,7 +843,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          int index = poolIdx[i];
          return sigToType(buf, index + 3, getChar(index + 1));
      }
-@@ -491,7 +491,7 @@
+@@ -491,7 +491,7 @@ public class ClassReader extends ClassFi
  
      /** Read name.
       */
@@ -852,7 +852,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          return (Name) (readPool(i));
      }
  
-@@ -502,8 +502,8 @@
+@@ -502,14 +502,14 @@ public class ClassReader extends ClassFi
      /** The unread portion of the currently read type is
       *  signature[sigp..siglimit-1].
       */
@@ -863,7 +863,14 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
      int siglimit;
      boolean sigEnterPhase = false;
  
-@@ -620,11 +620,11 @@
+     /** Convert signature to type, where signature is a name.
+      */
+-    Type sigToType(Name sig) {
++    protected Type sigToType(Name sig) {
+         return sig == null
+             ? null
+             : sigToType(sig.table.names, sig.index, sig.len);
+@@ -620,11 +620,11 @@ public class ClassReader extends ClassFi
          }
      }
  
@@ -878,7 +885,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          if (signature[sigp] != 'L')
              throw badClassFile("bad.class.signature",
                                 Convert.utf2string(signature, sigp, 10));
-@@ -723,7 +723,7 @@
+@@ -723,7 +723,7 @@ public class ClassReader extends ClassFi
      /** Convert (implicit) signature to list of types
       *  until `terminator' is encountered.
       */
@@ -887,7 +894,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          List<Type> head = List.of(null);
          List<Type> tail = head;
          while (signature[sigp] != terminator)
-@@ -836,7 +836,7 @@
+@@ -836,7 +836,7 @@ public class ClassReader extends ClassFi
  
      /** Read member attribute.
       */
@@ -896,7 +903,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          //- System.err.println(" z " + sym + ", " + attrName + ", " + attrLen);
          if (attrName == names.ConstantValue) {
              Object v = readPool(nextChar());
-@@ -1033,7 +1033,7 @@
+@@ -1033,7 +1033,7 @@ public class ClassReader extends ClassFi
  
      /** Read member attributes.
       */
@@ -905,7 +912,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          char ac = nextChar();
          for (int i = 0; i < ac; i++) {
              Name attrName = readName(nextChar());
-@@ -1101,7 +1101,7 @@
+@@ -1101,7 +1101,7 @@ public class ClassReader extends ClassFi
  
      /** Attach annotations.
       */
@@ -914,7 +921,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          int numAttributes = nextChar();
          if (numAttributes != 0) {
              ListBuffer<CompoundAnnotationProxy> proxies =
-@@ -1113,7 +1113,7 @@
+@@ -1113,7 +1113,7 @@ public class ClassReader extends ClassFi
                  else
                      proxies.append(proxy);
              }
@@ -923,7 +930,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          }
      }
  
-@@ -1139,7 +1139,7 @@
+@@ -1139,7 +1139,7 @@ public class ClassReader extends ClassFi
      void attachAnnotationDefault(final Symbol sym) {
          final MethodSymbol meth = (MethodSymbol)sym; // only on methods
          final Attribute value = readAttributeValue();
@@ -932,7 +939,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
      }
  
      Type readTypeOrClassSymbol(int i) {
-@@ -1157,7 +1157,7 @@
+@@ -1157,7 +1157,7 @@ public class ClassReader extends ClassFi
          return readType(i);
      }
  
@@ -941,7 +948,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          Type t = readTypeOrClassSymbol(nextChar());
          int numFields = nextChar();
          ListBuffer<Pair<Name,Attribute>> pairs =
-@@ -1243,7 +1243,7 @@
+@@ -1243,7 +1243,7 @@ public class ClassReader extends ClassFi
  
      /** A temporary proxy representing a compound attribute.
       */
@@ -950,7 +957,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          final List<Pair<Name,Attribute>> values;
          public CompoundAnnotationProxy(Type type,
                                        List<Pair<Name,Attribute>> values) {
-@@ -1271,11 +1271,17 @@
+@@ -1271,11 +1271,17 @@ public class ClassReader extends ClassFi
          }
      }
  
@@ -972,7 +979,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
              // also must fill in types!!!!
              ListBuffer<Attribute.Compound> buf =
                  new ListBuffer<Attribute.Compound>();
-@@ -1285,7 +1291,7 @@
+@@ -1285,7 +1291,7 @@ public class ClassReader extends ClassFi
              return buf.toList();
          }
  
@@ -981,7 +988,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
              ListBuffer<Pair<Symbol.MethodSymbol,Attribute>> buf =
                  new ListBuffer<Pair<Symbol.MethodSymbol,Attribute>>();
              for (List<Pair<Name,Attribute>> l = a.values;
-@@ -1312,29 +1318,29 @@
+@@ -1312,29 +1318,29 @@ public class ClassReader extends ClassFi
                  failure = ex;
              }
              // The method wasn't found: emit a warning and recover
@@ -1017,7 +1024,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
              return new MethodSymbol(PUBLIC | ABSTRACT, name, mt, container.tsym);
          }
  
-@@ -1391,8 +1397,8 @@
+@@ -1391,8 +1397,8 @@ public class ClassReader extends ClassFi
                  }
              }
              if (enumerator == null) {
@@ -1028,7 +1035,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
                  result = new Attribute.Error(enumTypeSym.type);
              } else {
                  result = new Attribute.Enum(enumTypeSym.type, enumerator);
-@@ -1402,7 +1408,7 @@
+@@ -1402,7 +1408,7 @@ public class ClassReader extends ClassFi
          public void visitArrayAttributeProxy(ArrayAttributeProxy proxy) {
              int length = proxy.values.length();
              Attribute[] ats = new Attribute[length];
@@ -1037,7 +1044,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
              int i = 0;
              for (List<Attribute> p = proxy.values; p.nonEmpty(); p = p.tail) {
                  ats[i++] = deproxy(elemtype, p.head);
-@@ -1415,52 +1421,62 @@
+@@ -1415,52 +1421,62 @@ public class ClassReader extends ClassFi
          }
      }
  
@@ -1115,7 +1122,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
              }
          }
      }
-@@ -1483,7 +1499,7 @@
+@@ -1483,7 +1499,7 @@ public class ClassReader extends ClassFi
  
      /** Read a method.
       */
@@ -1124,7 +1131,7 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          long flags = adjustMethodFlags(nextChar());
          Name name = readName(nextChar());
          Type type = readType(nextChar());
-@@ -1679,7 +1695,7 @@
+@@ -1679,7 +1695,7 @@ public class ClassReader extends ClassFi
      long adjustFieldFlags(long flags) {
          return flags;
      }
@@ -1133,10 +1140,22 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          if ((flags & ACC_BRIDGE) != 0) {
              flags &= ~ACC_BRIDGE;
              flags |= BRIDGE;
-Index: com/sun/tools/javac/jvm/Code.java
---- com/sun/tools/javac/jvm/Code.java Base (BASE)
-+++ com/sun/tools/javac/jvm/Code.java Locally Modified (Based On LOCAL)
-@@ -132,7 +132,7 @@
+diff --git a/src/share/classes/com/sun/tools/javac/jvm/ClassWriter.java b/src/share/classes/com/sun/tools/javac/jvm/ClassWriter.java
+--- a/src/share/classes/com/sun/tools/javac/jvm/ClassWriter.java
++++ b/src/share/classes/com/sun/tools/javac/jvm/ClassWriter.java
+@@ -414,7 +414,7 @@ public class ClassWriter extends ClassFi
+ 
+     /** Return signature of given type
+      */
+-    Name typeSig(Type type) {
++    public Name typeSig(Type type) {
+         assert sigbuf.length == 0;
+         //- System.out.println(" ? " + type);
+         assembleSig(type);
+diff --git a/src/share/classes/com/sun/tools/javac/jvm/Code.java b/src/share/classes/com/sun/tools/javac/jvm/Code.java
+--- a/src/share/classes/com/sun/tools/javac/jvm/Code.java
++++ b/src/share/classes/com/sun/tools/javac/jvm/Code.java
+@@ -132,7 +132,7 @@ public class Code {
  
      /** The current machine state (registers and stack).
       */
@@ -1145,7 +1164,7 @@ Index: com/sun/tools/javac/jvm/Code.java
  
      /** Is it forbidden to compactify code, because something is
       *  pointing to current location?
-@@ -153,7 +153,7 @@
+@@ -153,7 +153,7 @@ public class Code {
       *  We need this to emit line numbers lazily, which we need to do
       *  because of jump-to-jump optimization.
       */
@@ -1154,7 +1173,7 @@ Index: com/sun/tools/javac/jvm/Code.java
  
      /** Set true when a stackMap is needed at the current PC. */
      boolean pendingStackMap = false;
-@@ -1423,7 +1423,6 @@
+@@ -1423,7 +1423,6 @@ public class Code {
          State newState = state;
          for (; chain != null; chain = chain.next) {
              assert state != chain.state;
@@ -1162,7 +1181,7 @@ Index: com/sun/tools/javac/jvm/Code.java
              if (target >= cp) {
                  target = cp;
              } else if (get1(target) == goto_) {
-@@ -1569,7 +1568,7 @@
+@@ -1569,7 +1568,7 @@ public class Code {
   * Simulated VM machine state
   ****************************************************************************/
  
@@ -1171,7 +1190,7 @@ Index: com/sun/tools/javac/jvm/Code.java
          /** The set of registers containing values. */
          Bits defined;
  
-@@ -1577,7 +1576,7 @@
+@@ -1577,7 +1576,7 @@ public class Code {
          Type[] stack;
  
          /** The first stack position currently unused. */
@@ -1180,10 +1199,10 @@ Index: com/sun/tools/javac/jvm/Code.java
  
          /** The numbers of registers containing locked monitors. */
          int[] locks;
-Index: com/sun/tools/javac/jvm/Gen.java
---- com/sun/tools/javac/jvm/Gen.java Base (BASE)
-+++ com/sun/tools/javac/jvm/Gen.java Locally Modified (Based On LOCAL)
-@@ -56,7 +56,7 @@
+diff --git a/src/share/classes/com/sun/tools/javac/jvm/Gen.java b/src/share/classes/com/sun/tools/javac/jvm/Gen.java
+--- a/src/share/classes/com/sun/tools/javac/jvm/Gen.java
++++ b/src/share/classes/com/sun/tools/javac/jvm/Gen.java
+@@ -56,7 +56,7 @@ public class Gen extends JCTree.Visitor 
      protected static final Context.Key<Gen> genKey =
          new Context.Key<Gen>();
  
@@ -1192,7 +1211,7 @@ Index: com/sun/tools/javac/jvm/Gen.java
      private final Symtab syms;
      private final Check chk;
      private final Resolve rs;
-@@ -172,7 +172,7 @@
+@@ -172,7 +172,7 @@ public class Gen extends JCTree.Visitor 
  
      /** Code buffer, set by genMethod.
       */
@@ -1201,7 +1220,7 @@ Index: com/sun/tools/javac/jvm/Gen.java
  
      /** Items structure, set by genMethod.
       */
-@@ -188,7 +188,7 @@
+@@ -188,7 +188,7 @@ public class Gen extends JCTree.Visitor 
  
      /** The number of code-gen errors in this class.
       */
@@ -1210,7 +1229,7 @@ Index: com/sun/tools/javac/jvm/Gen.java
  
      /** A hash table mapping syntax trees to their ending source positions.
       */
-@@ -657,15 +657,15 @@
+@@ -657,15 +657,15 @@ public class Gen extends JCTree.Visitor 
  
      /** Visitor argument: The current environment.
       */
@@ -1229,7 +1248,24 @@ Index: com/sun/tools/javac/jvm/Gen.java
  
      /** Visitor method: generate code for a definition, catching and reporting
       *  any completion failures.
-@@ -2261,7 +2261,7 @@
+@@ -1628,14 +1628,14 @@ public class Gen extends JCTree.Visitor 
+ 
+     public void visitBreak(JCBreak tree) {
+         Env<GenContext> targetEnv = unwind(tree.target, env);
+-        assert code.state.stacksize == 0;
++        //assert code.state.stacksize == 0;
+         targetEnv.info.addExit(code.branch(goto_));
+         endFinalizerGaps(env, targetEnv);
+     }
+ 
+     public void visitContinue(JCContinue tree) {
+         Env<GenContext> targetEnv = unwind(tree.target, env);
+-        assert code.state.stacksize == 0;
++        //assert code.state.stacksize == 0;
+         targetEnv.info.addCont(code.branch(goto_));
+         endFinalizerGaps(env, targetEnv);
+     }
+@@ -2261,7 +2261,7 @@ public class Gen extends JCTree.Visitor 
      /** code generation contexts,
       *  to be used as type parameter for environments.
       */
@@ -1238,10 +1274,10 @@ Index: com/sun/tools/javac/jvm/Gen.java
  
          /** A chain for all unresolved jumps that exit the current environment.
           */
-Index: com/sun/tools/javac/jvm/Items.java
---- com/sun/tools/javac/jvm/Items.java Base (BASE)
-+++ com/sun/tools/javac/jvm/Items.java Locally Modified (Based On LOCAL)
-@@ -185,7 +185,7 @@
+diff --git a/src/share/classes/com/sun/tools/javac/jvm/Items.java b/src/share/classes/com/sun/tools/javac/jvm/Items.java
+--- a/src/share/classes/com/sun/tools/javac/jvm/Items.java
++++ b/src/share/classes/com/sun/tools/javac/jvm/Items.java
+@@ -185,7 +185,7 @@ public class Items {
  
      /** The base class of all items, which implements default behavior.
       */
@@ -1250,7 +1286,7 @@ Index: com/sun/tools/javac/jvm/Items.java
  
          /** The type code of values represented by this item.
           */
-@@ -197,7 +197,7 @@
+@@ -197,7 +197,7 @@ public class Items {
  
          /** Generate code to load this item onto stack.
           */
@@ -1259,7 +1295,7 @@ Index: com/sun/tools/javac/jvm/Items.java
              throw new AssertionError();
          }
  
-@@ -281,7 +281,7 @@
+@@ -281,7 +281,7 @@ public class Items {
              super(typecode);
          }
  
@@ -1268,7 +1304,7 @@ Index: com/sun/tools/javac/jvm/Items.java
              return this;
          }
  
-@@ -315,7 +315,7 @@
+@@ -315,7 +315,7 @@ public class Items {
              super(Code.typecode(type));
          }
  
@@ -1277,7 +1313,7 @@ Index: com/sun/tools/javac/jvm/Items.java
              code.emitop0(iaload + typecode);
              return stackItem[typecode];
          }
-@@ -358,7 +358,7 @@
+@@ -358,7 +358,7 @@ public class Items {
              this.isSuper = isSuper;
          }
  
@@ -1286,7 +1322,7 @@ Index: com/sun/tools/javac/jvm/Items.java
              code.emitop0(aload_0);
              return stackItem[typecode];
          }
-@@ -370,7 +370,7 @@
+@@ -370,7 +370,7 @@ public class Items {
  
      /** An item representing a local variable.
       */
@@ -1295,7 +1331,7 @@ Index: com/sun/tools/javac/jvm/Items.java
  
          /** The variable's register.
           */
-@@ -387,7 +387,7 @@
+@@ -387,7 +387,7 @@ public class Items {
              this.reg = reg;
          }
  
@@ -1304,7 +1340,7 @@ Index: com/sun/tools/javac/jvm/Items.java
              if (reg <= 3)
                  code.emitop0(iload_0 + Code.truncate(typecode) * 4 + reg);
              else
-@@ -438,7 +438,7 @@
+@@ -438,7 +438,7 @@ public class Items {
              this.member = member;
          }
  
@@ -1313,7 +1349,7 @@ Index: com/sun/tools/javac/jvm/Items.java
              code.emitop2(getstatic, pool.put(member));
              return stackItem[typecode];
          }
-@@ -479,7 +479,7 @@
+@@ -479,7 +479,7 @@ public class Items {
              this.nonvirtual = nonvirtual;
          }
  
@@ -1322,7 +1358,7 @@ Index: com/sun/tools/javac/jvm/Items.java
              code.emitop2(getfield, pool.put(member));
              return stackItem[typecode];
          }
-@@ -546,7 +546,7 @@
+@@ -546,7 +546,7 @@ public class Items {
              }
          }
  
@@ -1331,7 +1367,7 @@ Index: com/sun/tools/javac/jvm/Items.java
              switch (typecode) {
              case INTcode: case BYTEcode: case SHORTcode: case CHARcode:
                  int ival = ((Number)value).intValue();
-@@ -666,7 +666,7 @@
+@@ -666,7 +666,7 @@ public class Items {
              this.lhs = lhs;
          }
  
@@ -1340,7 +1376,7 @@ Index: com/sun/tools/javac/jvm/Items.java
              lhs.stash(typecode);
              lhs.store();
              return stackItem[typecode];
-@@ -724,7 +724,7 @@
+@@ -724,7 +724,7 @@ public class Items {
              this.falseJumps = falsejumps;
          }
  
@@ -1349,10 +1385,10 @@ Index: com/sun/tools/javac/jvm/Items.java
              Chain trueChain = null;
              Chain falseChain = jumpFalse();
              if (!isFalse()) {
-Index: com/sun/tools/javac/resources/compiler.properties
---- com/sun/tools/javac/resources/compiler.properties Base (BASE)
-+++ com/sun/tools/javac/resources/compiler.properties Locally Modified (Based On LOCAL)
-@@ -614,6 +614,15 @@
+diff --git a/src/share/classes/com/sun/tools/javac/resources/compiler.properties b/src/share/classes/com/sun/tools/javac/resources/compiler.properties
+--- a/src/share/classes/com/sun/tools/javac/resources/compiler.properties
++++ b/src/share/classes/com/sun/tools/javac/resources/compiler.properties
+@@ -614,6 +614,15 @@ compiler.misc.resume.abort=\
  compiler.misc.resume.abort=\
      R)esume, A)bort>
  
@@ -1368,10 +1404,10 @@ Index: com/sun/tools/javac/resources/compiler.properties
  #####
  
  ##
-Index: com/sun/tools/javac/tree/Pretty.java
---- com/sun/tools/javac/tree/Pretty.java Base (BASE)
-+++ com/sun/tools/javac/tree/Pretty.java Locally Modified (Based On LOCAL)
-@@ -56,7 +56,7 @@
+diff --git a/src/share/classes/com/sun/tools/javac/tree/Pretty.java b/src/share/classes/com/sun/tools/javac/tree/Pretty.java
+--- a/src/share/classes/com/sun/tools/javac/tree/Pretty.java
++++ b/src/share/classes/com/sun/tools/javac/tree/Pretty.java
+@@ -56,7 +56,7 @@ public class Pretty extends JCTree.Visit
       *  the output even though that detail would not be valid java
       *  soruce.
       */
@@ -1380,7 +1416,7 @@ Index: com/sun/tools/javac/tree/Pretty.java
  
      /** The output stream on which trees are printed.
       */
-@@ -81,19 +81,19 @@
+@@ -81,19 +81,19 @@ public class Pretty extends JCTree.Visit
  
      /** Align code to be indented to left margin.
       */
@@ -1403,7 +1439,7 @@ Index: com/sun/tools/javac/tree/Pretty.java
          lmargin = lmargin - width;
      }
  
-@@ -134,16 +134,16 @@
+@@ -134,16 +134,16 @@ public class Pretty extends JCTree.Visit
       *************************************************************************/
  
      /** Exception to propogate IOException through visitXXX methods */
@@ -1423,10 +1459,10 @@ Index: com/sun/tools/javac/tree/Pretty.java
  
      /** Visitor method: print expression tree.
       *  @param prec  The current precedence level.
-Index: com/sun/tools/javac/tree/TreeInfo.java
---- com/sun/tools/javac/tree/TreeInfo.java Base (BASE)
-+++ com/sun/tools/javac/tree/TreeInfo.java Locally Modified (Based On LOCAL)
-@@ -57,9 +57,9 @@
+diff --git a/src/share/classes/com/sun/tools/javac/tree/TreeInfo.java b/src/share/classes/com/sun/tools/javac/tree/TreeInfo.java
+--- a/src/share/classes/com/sun/tools/javac/tree/TreeInfo.java
++++ b/src/share/classes/com/sun/tools/javac/tree/TreeInfo.java
+@@ -57,9 +57,9 @@ public class TreeInfo {
  
      /** The names of all operators.
       */
@@ -1438,10 +1474,10 @@ Index: com/sun/tools/javac/tree/TreeInfo.java
          context.put(treeInfoKey, this);
  
          Name.Table names = Name.Table.instance(context);
-Index: com/sun/tools/javac/tree/TreeMaker.java
---- com/sun/tools/javac/tree/TreeMaker.java Base (BASE)
-+++ com/sun/tools/javac/tree/TreeMaker.java Locally Modified (Based On LOCAL)
-@@ -67,12 +67,12 @@
+diff --git a/src/share/classes/com/sun/tools/javac/tree/TreeMaker.java b/src/share/classes/com/sun/tools/javac/tree/TreeMaker.java
+--- a/src/share/classes/com/sun/tools/javac/tree/TreeMaker.java
++++ b/src/share/classes/com/sun/tools/javac/tree/TreeMaker.java
+@@ -67,12 +67,12 @@ public class TreeMaker implements JCTree
      public JCCompilationUnit toplevel;
  
      /** The current name table. */
@@ -1457,7 +1493,7 @@ Index: com/sun/tools/javac/tree/TreeMaker.java
  
      /** Create a tree maker with null toplevel and NOPOS as initial position.
       */
-@@ -87,7 +87,7 @@
+@@ -87,7 +87,7 @@ public class TreeMaker implements JCTree
  
      /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
       */
@@ -1466,10 +1502,10 @@ Index: com/sun/tools/javac/tree/TreeMaker.java
          this.pos = Position.FIRSTPOS;
          this.toplevel = toplevel;
          this.names = names;
-Index: com/sun/tools/javac/tree/TreeTranslator.java
---- com/sun/tools/javac/tree/TreeTranslator.java Base (BASE)
-+++ com/sun/tools/javac/tree/TreeTranslator.java Locally Modified (Based On LOCAL)
-@@ -46,7 +46,10 @@
+diff --git a/src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java b/src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java
+--- a/src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java
++++ b/src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java
+@@ -46,7 +46,10 @@ public class TreeTranslator extends JCTr
  
      /** Visitor result field: a tree
       */
@@ -1481,10 +1517,10 @@ Index: com/sun/tools/javac/tree/TreeTranslator.java
  
      /** Visitor method: Translate a single node.
       */
-Index: com/sun/tools/javac/util/Log.java
---- com/sun/tools/javac/util/Log.java Base (BASE)
-+++ com/sun/tools/javac/util/Log.java Locally Modified (Based On LOCAL)
-@@ -203,6 +203,10 @@
+diff --git a/src/share/classes/com/sun/tools/javac/util/Log.java b/src/share/classes/com/sun/tools/javac/util/Log.java
+--- a/src/share/classes/com/sun/tools/javac/util/Log.java
++++ b/src/share/classes/com/sun/tools/javac/util/Log.java
+@@ -203,6 +203,10 @@ public class Log {
       */
      private char[] buf = null;
  
@@ -1495,7 +1531,7 @@ Index: com/sun/tools/javac/util/Log.java
      /** The position in the buffer at which last error was reported
       */
      private int bp;
-@@ -256,6 +260,7 @@
+@@ -256,6 +260,7 @@ public class Log {
       */
      protected void setBuf(char[] newBuf) {
          buf = newBuf;
@@ -1503,7 +1539,7 @@ Index: com/sun/tools/javac/util/Log.java
          bp = 0;
          lineStart = 0;
          line = 1;
-@@ -324,7 +329,7 @@
+@@ -324,7 +329,7 @@ public class Log {
              return;
  
          int lineEnd = lineStart;
@@ -1512,7 +1548,7 @@ Index: com/sun/tools/javac/util/Log.java
              lineEnd++;
          if (lineEnd - lineStart == 0)
              return;
-@@ -336,12 +341,15 @@
+@@ -336,12 +341,15 @@ public class Log {
          writer.flush();
      }
  
@@ -1531,7 +1567,7 @@ Index: com/sun/tools/javac/util/Log.java
          }
      }
  
-@@ -353,7 +361,7 @@
+@@ -353,7 +361,7 @@ public class Log {
              return false;
          try {
              if (buf == null) {
@@ -1540,7 +1576,7 @@ Index: com/sun/tools/javac/util/Log.java
                  lineStart = 0;
                  line = 1;
              } else if (lineStart > pos) { // messages don't come in order
-@@ -361,10 +369,10 @@
+@@ -361,10 +369,10 @@ public class Log {
                  line = 1;
              }
              bp = lineStart;
@@ -1553,7 +1589,7 @@ Index: com/sun/tools/javac/util/Log.java
                      line++;
                      lineStart = bp;
                      break;
-@@ -374,7 +382,7 @@
+@@ -374,7 +382,7 @@ public class Log {
                      break;
                  }
              }
@@ -1562,7 +1598,7 @@ Index: com/sun/tools/javac/util/Log.java
          } catch (IOException e) {
              //e.printStackTrace();
              // FIXME: include e.getLocalizedMessage() in error message
-@@ -704,7 +712,7 @@
+@@ -704,7 +712,7 @@ public class Log {
          if (findLine(pos)) {
              int column = 0;
              for (bp = lineStart; bp < pos; bp++) {
@@ -1571,10 +1607,10 @@ Index: com/sun/tools/javac/util/Log.java
                      return 0;
                  if (buf[bp] == '\t')
                      column = (column / TabInc * TabInc) + TabInc;
-Index: com/sun/tools/javac/util/Paths.java
---- com/sun/tools/javac/util/Paths.java Base (BASE)
-+++ com/sun/tools/javac/util/Paths.java Locally Modified (Based On LOCAL)
-@@ -89,7 +89,7 @@
+diff --git a/src/share/classes/com/sun/tools/javac/util/Paths.java b/src/share/classes/com/sun/tools/javac/util/Paths.java
+--- a/src/share/classes/com/sun/tools/javac/util/Paths.java
++++ b/src/share/classes/com/sun/tools/javac/util/Paths.java
+@@ -89,7 +89,7 @@ public class Paths {
  
      private static boolean NON_BATCH_MODE = System.getProperty("nonBatchMode") != null;// TODO: Use -XD compiler switch for this.
      private static Map<File, PathEntry> pathExistanceCache = new ConcurrentHashMap<File, PathEntry>();
@@ -1583,7 +1619,7 @@ Index: com/sun/tools/javac/util/Paths.java
      private static Map<File, Boolean> isDirectory = new ConcurrentHashMap<File, Boolean>();
      private static Lock lock = new ReentrantLock();
  
-@@ -369,13 +369,13 @@
+@@ -369,13 +369,13 @@ public class Paths {
          // filenames, but if we do, we should redo all path-related code.
          private void addJarClassPath(File jarFile, boolean warn) {
              try {
@@ -1600,7 +1636,7 @@ Index: com/sun/tools/javac/util/Paths.java
                              }
                              return;
                          }
-@@ -386,7 +386,7 @@
+@@ -386,7 +386,7 @@ public class Paths {
                  }
  
                  if (!NON_BATCH_MODE) {
@@ -1609,7 +1645,7 @@ Index: com/sun/tools/javac/util/Paths.java
                      manifestEntries.put(jarFile, manifestsList);
                  }
  
-@@ -412,7 +412,7 @@
+@@ -412,7 +412,7 @@ public class Paths {
                          if (!NON_BATCH_MODE) {
                              lock.lock();
                              try {

@@ -25,13 +25,12 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.Tree;
 import java.util.Map;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.tree.JCTree;
 
 import com.sun.tools.javafx.code.JavafxFlags;
-import static com.sun.tools.javac.code.Flags.*;
 
 /** Utility class containing inspector methods for trees.
  *
@@ -189,11 +188,17 @@ public class JavafxTreeInfo {
     /** Return flags as a string, separated by " ".
      */
     public static String flagNames(long flags) {
+        return flagNames(flags, false);
+    }
+
+    /** Return flags as a string, separated by " ".
+     */
+    public static String flagNames(long flags, boolean pretty) {
         StringBuffer fsb = new StringBuffer(Flags.toString(flags));
         if ((flags & JavafxFlags.PACKAGE_ACCESS) != 0) {
             fsb.append("package ");
         }
-        if ((flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
+        if (!pretty && (flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
             fsb.append("script only (default) ");
         }
         if ((flags & JavafxFlags.PUBLIC_READ) != 0) {
@@ -361,6 +366,17 @@ public class JavafxTreeInfo {
             return null;
         }
     }
+    
+    public static void setSymbol(JFXTree tree, Symbol sym) {
+	tree = skipParens(tree);
+	switch (tree.getFXTag()) {
+	case IDENT:
+	    ((JFXIdent) tree).sym = sym; break;
+	case SELECT:
+	    ((JFXSelect) tree).sym = sym; break;
+	}
+    }
+
     /** If this tree is an identifier or a field, return its symbol,
      *  otherwise return null.
      */
@@ -375,6 +391,8 @@ public class JavafxTreeInfo {
             return symbol(((JFXSequenceIndexed) tree).getSequence());
         case SEQUENCE_SLICE:
             return symbol(((JFXSequenceSlice) tree).getSequence());
+        case VAR_REF:
+            return ((JFXVarRef)tree).getVarSymbol();
 	default:
 	    return null;
 	}
@@ -386,7 +404,7 @@ public class JavafxTreeInfo {
 
         if (tree == null) return tree;
         if (tree.getFXTag() == JavafxTag.PARENS)
-            return skipParens((JFXParens)tree);
+            return skipParens(((JFXParens)tree).expr);
         else
             return tree;
     }
@@ -403,7 +421,7 @@ public class JavafxTreeInfo {
         tree = skipParens(tree);
         switch (tree.getFXTag()) {
         case IDENT:
-            return ((JFXIdent) tree).name;
+            return ((JFXIdent) tree).getName();
         case SELECT:
             Name sname = fullName(((JFXSelect) tree).selected);
             return sname == null ? null : sname.append('.', name(tree));
@@ -418,7 +436,7 @@ public class JavafxTreeInfo {
     public static Name name(JFXTree tree) {
         switch (tree.getFXTag()) {
         case IDENT:
-            return ((JFXIdent) tree).name;
+            return ((JFXIdent) tree).getName();
         case SELECT:
             return ((JFXSelect) tree).name;
         default:
@@ -437,11 +455,13 @@ public class JavafxTreeInfo {
         case VAR_DEF:
             return ((JFXVar) node).sym;
         case VAR_SCRIPT_INIT:
-            return ((JFXVarScriptInit) node).getSymbol();
+            return ((JFXVarInit) node).getSymbol();
         case CLASS_DEF:
             return ((JFXClassDeclaration) node).sym;
         case FUNCTION_DEF:
             return ((JFXFunctionDefinition) node).sym;
+        case FUNCTIONEXPRESSION:
+            return symbolFor(((JFXFunctionValue) node).definition);
         case OBJECT_LITERAL_PART:
             return ((JFXObjectLiteralPart) node).sym;
         case TYPECLASS:
@@ -457,7 +477,9 @@ public class JavafxTreeInfo {
             return symbolFor(((JFXFunctionInvocation) node).meth);
         case TOPLEVEL:
             return ((JFXScript) node).packge;
-
+        case ON_REPLACE:
+                return symbolFor(((JFXOnReplace) node).getOldValue());
+                
         default:
             return null;
         }
@@ -582,6 +604,8 @@ public class JavafxTreeInfo {
             return getEndPos(((JFXTypeClass) tree).getClassName(), endPositions);
           case TIME_LITERAL:
             return tree.pos + tree.toString().length();
+          case VAR_DEF:
+            return ((JFXVar) tree).getEndPosition(endPositions);
         }
         return JavafxTreeInfo.getStartPos(tree);
     }

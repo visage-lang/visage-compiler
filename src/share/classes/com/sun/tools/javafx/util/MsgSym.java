@@ -213,6 +213,7 @@ public class MsgSym {
     public static final String MESSAGE_DUPLICATE_ANNOTATION = "duplicate.annotation";
     public static final String MESSAGE_CLASH_WITH_PKG_OF_SAME_NAME = "clash.with.pkg.of.same.name";
     public static final String MESSAGE_ILLEGAL_FORWARD_REF = "illegal.forward.ref";
+    public static final String MESSAGE_MAYBE_FORWARD_REF = "maybe.forward.ref";
     public static final String MESSAGE_INTF_EXPECTED_HERE = "intf.expected.here";
     public static final String MESSAGE_NO_INTF_EXPECTED_HERE = "no.intf.expected.here";
     public static final String MESSAGE_CANNOT_INHERIT_FROM_FINAL = "cant.inherit.from.final";
@@ -284,7 +285,11 @@ public class MsgSym {
     public static final String MESSAGE_TOO_MANY_PARAMETERS = "javafx.too.many.parameters";
     public static final String MESSAGE_BIND_TOO_COMPLEX = "javafx.bind.too.complex";
     public static final String MESSAGE_CATCH_WITHIN_EXPRESSION = "catch.within.expression";
-    public static final String MESSAGE_ON_REPLACE_IN_BIND_NOT_ALLOWED = "on.replace.in.bind.not.allowed";
+    public static final String MESSAGE_TRIGGER_IN_BIND_NOT_ALLOWED = "trigger.in.bind.not.allowed";
+    public static final String MESSAGE_TRIGGER_VAR_IN_BIND_MUST_HAVE_INIT = "var.in.bind.must.have.init";
+    public static final String MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED = "on.invalidate.unbound.not.allowed";
+    public static final String MESSAGE_CANNOT_INVALIDATE_UNBOUND_VAR = "cant.invalidate.unbound.var";
+    public static final String MESSAGE_CANNOT_REF_INVALIDATE_VAR = "cant.ref.invalidate.var";
 
     // kindname
     public static final String KINDNAME = "kindname";
@@ -319,7 +324,9 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_RUN_FUNCTION_PARAM = "javafx.run.function.param";
     public static final String MESSAGE_JAVAFX_INDEXOF_NOT_FOUND = "javafx.indexof.not.found";
     public static final String MESSAGE_JAVAFX_KEYFRAME_LIT = "javafx.keyframe.literal";
+    public static final String MESSAGE_JAVAFX_TRY_CATCH = "javafx.try.catch";
     public static final String MESSAGE_JAVAFX_SEQ_OR_ARRAY = "javafx.seq.or.array";
+    public static final String MESSAGE_JAVAFX_OBJ_OR_SEQ = "javafx.obj.or.seq";
     public static final String MESSAGE_JAVAFX_LOOSE_IN_LIB = "javafx.loose.expr.in.lib";
     public static final String MESSAGE_JAVAFX_LOOSE_IN_RUN = "javafx.loose.expr.in.run";
     public static final String MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE = "javafx.cannot.infer.return.type"; 
@@ -328,13 +335,19 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF = "javafx.type.infer.cycle.var.ref";
     public static final String MESSAGE_JAVAFX_FUNC_TYPE_INFER_CYCLE = "javafx.function.type.infer.cycle";
     public static final String MESSAGE_JAVAFX_VOID_SEQUENCE_NOT_ALLOWED = "javafx.void.sequence.not.allowed";
+    public static final String MESSAGE_JAVAFX_VOID_BLOCK_VALUE_NOT_ALLOWED = "javafx.void.block.val.not.allowed";
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED = "javafx.only.one.base.java.class.allowed"; 
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_CLASS_ALLOWED = "javafx.only.one.base.class.allowed";
     public static final String MESSAGE_NEW_FX_CLASS_NO_ARGS = "new.fxclass.no.args";
     public static final String MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT = "javafx.not.allowed.in.bind.context";
     public static final String MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND = "javafx.expr.unsupported.for.bidi.bind";
+    public static final String MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_BIND = "javafx.unsupported.type.in.bind";
+    public static final String MESSAGE_JAVAFX_UNSUPPORTED_TARGET_IN_BIND = "javafx.unsupported.target.in.bind";
+    public static final String MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_TRIGGER = "javafx.unsupported.type.in.trigger";
     public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";
+    public static final String MESSAGE_JAVAFX_BOUND_VAR_IN_BIDI_BIND = "javafx.bound.var.in.bidi.bind";
     public static final String MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_BIDI_BIND = "javafx.select.target.not.reevaluated.for.bidi.bind";
+    public static final String MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_ANIM = "javafx.select.target.not.reevaluated.for.anim";
     public static final String MESSAGE_JAVAFX_BOUND_OVERRIDE_METH = "javafx.bound.override.meth";
     public static final String MESSAGE_JAVAFX_NON_BOUND_OVERRIDE_METH = "javafx.non.bound.override.meth";
     public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_CLASS_VAR_FROM_FUNCTION = "javafx.cant.override.var.from.func";
@@ -357,7 +370,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_REPORT_BIND_ACCESS = "javafx.report.bind.access";
     public static final String MESSAGE_JAVAFX_REPORT_INIT_ACCESS = "javafx.report.init.access";
     public static final String MESSAGE_JAVAFX_DEF_MUST_HAVE_INIT = "javafx.def.must.have.init";
-    public static final String MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT = "javafx.function.declared.overrride.does.not.override";
+    public static final String MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT = "javafx.declared.overrride.does.not.override";
     public static final String MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE = "javafx.function.overrides.another.should.be.declared.override";
     public static final String MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER = "javafx.var.overrides.member";
     public static final String MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER = "javafx.def.overrides.member";
@@ -415,12 +428,16 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_OWN = "javafx.cannot.override.own";
     public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEF = "javafx.cannot.override.def";
     public static final String MESSAGE_JAVAFX_PACKAGE_IN_SCRIPT_EVAL_MODE = "javafx.package.in.script.eval.mode";
-    public static final String MESSAGE_JAVAFX_ALREAD_DEFINED_OBJECT_LITERAL = "javafx.already.defined.object.literal";
+    public static final String MESSAGE_JAVAFX_ALREADY_DEFINED_OBJECT_LITERAL = "javafx.already.defined.object.literal";
+    public static final String MESSAGE_JAVAFX_CANNOT_INIT_STATIC_OBJECT_LITERAL = "javafx.cannot.init.static.object.literal";
     public static final String MESSAGE_JAVAFX_REPEATED_MIXIN = "javafx.repeated.mixin";
+    public static final String MESSAGE_JAVAFX_DUPLICATE_TRIGGER_DEF = "javafx.duplicate.trigger.def";
+    public static final String MESSAGE_JAVAFX_DUPLICATE_VAR_OVERRIDE = "javafx.duplicate.var.override";
     public static final String MESSAGE_JAVAFX_PURE_MIXIN = "javafx.pure.mixin";
     public static final String MESSAGE_JAVAFX_ONLY_MIXINS_AND_INTERFACES = "javafx.only.mixins.and.interfaces";
     public static final String MESSAGE_JAVAFX_MIXIN_CANNOT_BE_INSTANTIATED = "javafx.mixin.cant.be.instantiated";
     public static final String MESSAGE_JAVAFX_FOR_OVER_ITERABLE_DISALLOWED_IN_BIND = "javafx.for.over.iterable.disallowed.in.bind";
     public static final String MESSAGE_JAVAFX_KEYVALUE_REQUIRED = "javafx.keyvalue.required";
     public static final String MESSAGE_JAVAFX_MANDATORY_COMMA = "javafx.mandatory.comma";
+    public static final String MESSAGE_JAVAFX_TYPES_INCOMPATIBLE_VARS = "javafx.types.incompatible.vars";
 }

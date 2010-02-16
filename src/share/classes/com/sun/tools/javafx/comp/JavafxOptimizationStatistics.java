@@ -23,13 +23,21 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Log;
+import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Log;
 import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.util.MsgSym;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 /**
  * Collect and print statistics on optimization.
@@ -40,32 +48,52 @@ public class JavafxOptimizationStatistics {
     
     private final Log log;
 
-    private int instanceVarLocationCount;
-    private int instanceVarSlackerCount;
-    private int instanceVarDirectCount;
-    private int instanceDefLocationCount;
-    private int instanceDefSlackerCount;
-    private int instanceDefDirectCount;
+    private int instanceVarCount;
+    private int instanceDefCount;
 
-    private int scriptVarLocationCount;
-    private int scriptVarSlackerCount;
-    private int scriptVarDirectCount;
-    private int scriptDefLocationCount;
-    private int scriptDefSlackerCount;
-    private int scriptDefDirectCount;
+    private int scriptVarCount;
+    private int scriptDefCount;
 
-    private int localBoundVarLocationCount;
-    private int localBoundVarDirectCount;
-    private int localBoundDefLocationCount;
-    private int localBoundDefDirectCount;
+    private int localBoundVarCount;
+    private int localBoundDefCount;
 
-    private int localUnboundVarLocationCount;
-    private int localUnboundVarDirectCount;
-    private int localUnboundDefLocationCount;
-    private int localUnboundDefDirectCount;
+    private int localUnboundVarCount;
+    private int localUnboundDefCount;
     
     private int proxyMethodCount;
     private int concreteFieldCount;
+
+    private class DecomposeData implements Comparable {
+        String name;
+        int count;
+        int synthVars;
+        int shreds;
+        DecomposeData(Class tree) {
+            this.name = tree.getSimpleName();
+        }
+
+        DecomposeData(String name) {
+            this.name = name;
+        }
+
+        String name() {
+            return name;
+        }
+
+        public int compareTo(Object o) {
+            DecomposeData dd = (DecomposeData) o;
+            if (synthVars != dd.synthVars) {
+                return dd.synthVars - synthVars;
+            } else {
+                return name().compareTo(dd.name());
+            }
+        }
+    }
+    private Stack<DecomposeData> decomposeStack;
+    private DecomposeData unbound;
+
+    private Map<Class, DecomposeData> decomposeMap;
+    private Map<Class, Integer> translatorMap;
     
     /**
      * Context set-up
@@ -85,118 +113,88 @@ public class JavafxOptimizationStatistics {
 
         log = Log.instance(context);
 
-        instanceVarLocationCount = 0;
-        instanceVarSlackerCount = 0;
-        instanceVarDirectCount = 0;
-        instanceDefLocationCount = 0;
-        instanceDefSlackerCount = 0;
-        instanceDefDirectCount = 0;
+        instanceVarCount = 0;
+        instanceDefCount = 0;
 
-        scriptVarLocationCount = 0;
-        scriptVarSlackerCount = 0;
-        scriptVarDirectCount = 0;
-        scriptDefLocationCount = 0;
-        scriptDefSlackerCount = 0;
-        scriptDefDirectCount = 0;
+        scriptVarCount = 0;
+        scriptDefCount = 0;
 
-        localBoundVarLocationCount = 0;
-        localBoundVarDirectCount = 0;
-        localBoundDefLocationCount = 0;
-        localBoundDefDirectCount = 0;
+        localBoundVarCount = 0;
+        localBoundDefCount = 0;
 
-        localUnboundVarLocationCount = 0;
-        localUnboundVarDirectCount = 0;
-        localUnboundDefLocationCount = 0;
-        localUnboundDefDirectCount = 0;
+        localUnboundVarCount = 0;
+        localUnboundDefCount = 0;
         
         proxyMethodCount = 0;
         concreteFieldCount = 0;
 
+        decomposeStack = new Stack<DecomposeData>();
+        unbound = new DecomposeData("<unbound>");
+        unbound.count = 1;
+        decomposeStack.push(unbound);
+        decomposeMap = new HashMap<Class, DecomposeData>();
+        translatorMap = new HashMap<Class, Integer>();
     }
 
-    public void recordClassVar(VarSymbol vsym, VarRepresentation varRep) {
-        long flags = vsym.flags();
-        boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
-        boolean isScript = (flags & Flags.STATIC) != 0;
-        switch (varRep) {
-            case SlackerLocation:
-            if (isScript) {
-                if (isDef) {
-                    ++scriptDefSlackerCount;
-                } else {
-                    ++scriptVarSlackerCount;
-                }
+    public void recordDecomposeEnter(Class treeClass) {
+        DecomposeData dd = decomposeMap.get(treeClass);
+        if (dd == null) {
+            dd = new DecomposeData(treeClass);
+            decomposeMap.put(treeClass, dd);
+        }
+        decomposeStack.push(dd);
+        dd.count++;
+    }
+
+    public void recordDecomposeExit() {
+        decomposeStack.pop();
+    }
+
+    public void recordSynthVar(String id) {
+        decomposeStack.peek().synthVars++;
+    }
+
+    public void recordShreds() {
+        decomposeStack.peek().shreds++;
+    }
+
+    public void recordTranslator(Class translator) {
+        Integer mCnt = translatorMap.get(translator);
+        int cnt = mCnt==null? 0 : mCnt;
+        translatorMap.put(translator, cnt+1);
+    }
+
+    public void recordClassVar(JavafxVarSymbol vsym) {
+        boolean isDef = vsym.isDef();
+        boolean isScript = vsym.isStatic();
+        if (isScript) {
+            if (isDef) {
+                ++scriptDefCount;
             } else {
-                if (isDef) {
-                    ++instanceDefSlackerCount;
-                } else {
-                    ++instanceVarSlackerCount;
-                }
+                ++scriptVarCount;
             }
-            break;
-            case AlwaysLocation:
-            if (isScript) {
-                if (isDef) {
-                    ++scriptDefLocationCount;
-                } else {
-                    ++scriptVarLocationCount;
-                }
+        } else {
+            if (isDef) {
+                ++instanceDefCount;
             } else {
-                if (isDef) {
-                    ++instanceDefLocationCount;
-                } else {
-                    ++instanceVarLocationCount;
-                }
+                ++instanceVarCount;
             }
-            break;
-            case NeverLocation:
-            if (isScript) {
-                if (isDef) {
-                    ++scriptDefDirectCount;
-                } else {
-                    ++scriptVarDirectCount;
-                }
-            } else {
-                if (isDef) {
-                    ++instanceDefDirectCount;
-                } else {
-                    ++instanceVarDirectCount;
-                }
-            }
-            break;
         }
     }
 
-    public void recordLocalVar(VarSymbol vsym, boolean isBound, boolean isLocation) {
-        long flags = vsym.flags();
-        boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
+    public void recordLocalVar(JavafxVarSymbol vsym, boolean isBound, boolean isLocation) {
+        boolean isDef = vsym.isDef();
         if (isBound) {
-            if (isLocation) {
-                if (isDef) {
-                    ++localBoundDefLocationCount;
-                } else {
-                    ++localBoundVarLocationCount;
-                }
+            if (isDef) {
+                ++localBoundDefCount;
             } else {
-                if (isDef) {
-                    ++localBoundDefDirectCount;
-                } else {
-                    ++localBoundVarDirectCount;
-                }
+                ++localBoundVarCount;
             }
         } else {
-            if (isLocation) {
-                if (isDef) {
-                    ++localUnboundDefLocationCount;
-                } else {
-                    ++localUnboundVarLocationCount;
-                }
+            if (isDef) {
+                ++localUnboundDefCount;
             } else {
-                if (isDef) {
-                    ++localUnboundDefDirectCount;
-                } else {
-                    ++localUnboundVarDirectCount;
-                }
+                ++localUnboundVarCount;
             }
         }
     }
@@ -214,107 +212,51 @@ public class JavafxOptimizationStatistics {
     }
     
     private void printInstanceVariableData() {
-        int instanceVariableLocationCount = instanceVarLocationCount + instanceDefLocationCount;
-        int instanceVariableDirectCount = instanceVarDirectCount + instanceDefDirectCount;
-        int instanceVariableSlackerCount = instanceVarSlackerCount + instanceDefSlackerCount;
-        int instanceVariableCount = instanceVariableLocationCount + instanceVariableDirectCount + instanceVariableSlackerCount;
+        int instanceVariableCount = instanceVarCount + instanceDefCount;
 
         show("Instance variable count", instanceVariableCount);
-        show("Instance variable Location count", instanceVariableLocationCount);
-        show("Instance variable Slacker count", instanceVariableSlackerCount);
-        show("Instance variable direct count", instanceVariableDirectCount);
         
-        show("Instance 'var' count", (instanceVarLocationCount + instanceVarSlackerCount + instanceVarDirectCount));
-        show("Instance 'var' Location count", instanceVarLocationCount);
-        show("Instance 'var' Slacker count", instanceVarSlackerCount);
-        show("Instance 'var' direct count", instanceVarDirectCount);
+        show("Instance 'var' count", instanceVarCount);
         
-        show("Instance 'def' count", (instanceDefLocationCount + instanceDefSlackerCount + instanceDefDirectCount));
-        show("Instance 'def' Location count", instanceDefLocationCount);
-        show("Instance 'def' Slacker count", instanceDefSlackerCount);
-        show("Instance 'def' direct count", instanceDefDirectCount);
+        show("Instance 'def' count", instanceDefCount);
     }
     
     private void printScriptVariableData() {
-        int scriptVariableLocationCount = scriptVarLocationCount + scriptDefLocationCount;
-        int scriptVariableDirectCount = scriptVarDirectCount + scriptDefDirectCount;
-        int scriptVariableSlackerCount = scriptVarSlackerCount + scriptDefSlackerCount;
-        int scriptVariableCount = scriptVariableLocationCount + scriptVariableDirectCount + scriptVariableSlackerCount;
+        int scriptVariableCount = scriptVarCount + scriptDefCount;
 
         show("Script variable count", scriptVariableCount);
-        show("Script variable Location count", scriptVariableLocationCount);
-        show("Script variable Slacker count", scriptVariableSlackerCount);
-        show("Script variable direct count", scriptVariableDirectCount);
         
-        show("Script 'var' count", (scriptVarLocationCount + scriptVarSlackerCount + scriptVarDirectCount));
-        show("Script 'var' Location count", scriptVarLocationCount);
-        show("Script 'var' Slacker count", scriptVarSlackerCount);
-        show("Script 'var' direct count", scriptVarDirectCount);
+        show("Script 'var' count", scriptVarCount);
         
-        show("Script 'def' count", (scriptDefLocationCount + scriptDefSlackerCount + scriptDefDirectCount));
-        show("Script 'def' Location count", scriptDefLocationCount);
-        show("Script 'def' Slacker count", scriptDefSlackerCount);
-        show("Script 'def' direct count", scriptDefDirectCount);
+        show("Script 'def' count", scriptDefCount);
     }
     
     private void printLocalVariableData() {
-        int localBoundVariableLocationCount = localBoundVarLocationCount + localBoundDefLocationCount;
-        int localBoundVariableDirectCount = localBoundVarDirectCount + localBoundDefDirectCount;
-        int localBoundVariableCount = localBoundVariableLocationCount + localBoundVariableDirectCount;
-        int localBoundVarCount = localBoundVarLocationCount + localBoundVarDirectCount;
-        int localBoundDefCount = localBoundDefLocationCount + localBoundDefDirectCount;
+        int localBoundVariableCount = localBoundVarCount + localBoundDefCount;
 
         show("Local bound variable count", localBoundVariableCount);
-        show("Local bound variable Location count", localBoundVariableLocationCount);
-        show("Local bound variable direct count", localBoundVariableDirectCount);
         
         show("Local bound 'var' count", localBoundVarCount);
-        show("Local bound 'var' Location count", localBoundVarLocationCount);
-        show("Local bound 'var' direct count", localBoundVarDirectCount);
         
         show("Local bound 'def' count", localBoundDefCount);
-        show("Local bound 'def' Location count", localBoundDefLocationCount);
-        show("Local bound 'def' direct count", localBoundDefDirectCount);
         
-        int localUnboundVariableLocationCount = localUnboundVarLocationCount + localUnboundDefLocationCount;
-        int localUnboundVariableDirectCount = localUnboundVarDirectCount + localUnboundDefDirectCount;
-        int localUnboundVariableCount = localUnboundVariableLocationCount + localUnboundVariableDirectCount;
-        int localUnboundVarCount = localUnboundVarLocationCount + localUnboundVarDirectCount;
-        int localUnboundDefCount = localUnboundDefLocationCount + localUnboundDefDirectCount;
+        int localUnboundVariableCount = localUnboundVarCount + localUnboundDefCount;
 
         show("Local unbound variable count", localUnboundVariableCount);
-        show("Local unbound variable Location count", localUnboundVariableLocationCount);
-        show("Local unbound variable direct count", localUnboundVariableDirectCount);
         
         show("Local unbound 'var' count", localUnboundVarCount);
-        show("Local unbound 'var' Location count", localUnboundVarLocationCount);
-        show("Local unbound 'var' direct count", localUnboundVarDirectCount);
         
         show("Local unbound 'def' count", localUnboundDefCount);
-        show("Local unbound 'def' Location count", localUnboundDefLocationCount);
-        show("Local unbound 'def' direct count", localUnboundDefDirectCount);
         
-        int localVariableLocationCount = localBoundVariableLocationCount + localUnboundVariableLocationCount;
-        int localVariableDirectCount = localBoundVariableDirectCount + localUnboundVariableDirectCount;
-        int localVariableCount = localVariableLocationCount + localVariableDirectCount;
+        int localVariableCount = localBoundVariableCount + localUnboundVariableCount;
         int localVarCount = localUnboundVarCount + localBoundVarCount;
         int localDefCount = localUnboundDefCount + localBoundDefCount;
-        int localVarLocationCount = localBoundVarLocationCount + localUnboundVarLocationCount;
-        int localVarDirectCount = localBoundVarDirectCount + localUnboundVarDirectCount;
-        int localDefLocationCount = localBoundDefLocationCount + localUnboundDefLocationCount;
-        int localDefDirectCount = localBoundDefDirectCount + localUnboundDefDirectCount;
 
         show("Local variable count", localVariableCount);
-        show("Local variable Location count", localVariableLocationCount);
-        show("Local variable direct count", localVariableDirectCount);
         
         show("Local 'var' count", localVarCount);
-        show("Local 'var' Location count", localVarLocationCount);
-        show("Local 'var' direct count", localVarDirectCount);
         
         show("Local 'def' count", localDefCount);
-        show("Local 'def' Location count", localDefLocationCount);
-        show("Local 'def' direct count", localDefDirectCount);
     }
     
     private void printProxyMethodData() {
@@ -324,7 +266,50 @@ public class JavafxOptimizationStatistics {
     private void printConcreteFieldData() {
         show("Concrete field count", concreteFieldCount);
     }
-    
+
+    private void printTranslators() {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        List<Map.Entry<Class, Integer>> me = new ArrayList(translatorMap.entrySet());
+        Collections.<Map.Entry<Class, Integer>>sort(me, new Comparator() {
+
+            public int compare(Object o1, Object o2) {
+                Map.Entry<Class, Integer> e1 = (Map.Entry<Class, Integer>)o1;
+                Map.Entry<Class, Integer> e2 = (Map.Entry<Class, Integer>)o2;
+                int v1 = (int)e1.getValue();
+                int v2 = (int)e2.getValue();
+                if (v1==v2) {
+                    return e1.getKey().getName().compareTo(e2.getKey().getName());
+                } else {
+                    return v2-v1;
+                }
+            }
+        });
+        for (Map.Entry<Class, Integer> pair : me) {
+            Class k = pair.getKey();
+            String name = k.getSimpleName().length()==0? k.getName() : k.getSimpleName();
+            printWriter.printf("\n%5d  %s", (int) pair.getValue(), name);
+        }
+        printWriter.close();
+        log.note(MsgSym.MESSAGE_JAVAFX_OPTIMIZATION_STATISTIC, "Translators", stringWriter.toString());
+    }
+
+    private void printDecompose() {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        List<DecomposeData> ldd = new ArrayList(decomposeMap.values());
+        ldd.add(unbound);
+        Collections.<DecomposeData>sort(ldd);
+        printWriter.println("\n\nSynth  Shred  Count  Synth  Shred  Tree");
+        printWriter.println(    "  All    All           Per    Per    ");
+        for (DecomposeData dd : ldd) {
+            printWriter.printf("\n%5d  %5d  %5d  %5.1f  %5.1f  %s",
+                    dd.synthVars, dd.shreds, dd.count, ((double)dd.synthVars)/dd.count, ((double)dd.shreds)/dd.count, dd.name());
+        }
+        printWriter.close();
+        log.note(MsgSym.MESSAGE_JAVAFX_OPTIMIZATION_STATISTIC, "Decompose", stringWriter.toString());
+    }
+
     public void printData(String which) {
         if (which.contains("i")) {
             printInstanceVariableData();
@@ -340,6 +325,12 @@ public class JavafxOptimizationStatistics {
         }
         if (which.contains("f")) {
             printConcreteFieldData();
+        }
+        if (which.contains("t")) {
+            printTranslators();
+        }
+        if (which.contains("d")) {
+            printDecompose();
         }
     }
  }

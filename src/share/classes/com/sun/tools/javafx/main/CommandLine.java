@@ -28,7 +28,7 @@ import java.io.Reader;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.StreamTokenizer;
-import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.mjavac.util.ListBuffer;
 
 /**
  * Various utility methods for processing Java tool command line arguments.

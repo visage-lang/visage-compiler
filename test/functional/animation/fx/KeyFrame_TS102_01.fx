@@ -49,6 +49,7 @@ var keepAlive : Timeline = Timeline {
 var t : Timeline = Timeline {
     keyFrames: [
 		KeyFrame {
+			// Negative time - should never be visited
 			time: -1s
 			canSkip: false
 			action: function() {				
@@ -88,11 +89,11 @@ function check() {
 	keepAlive.stop();
 
 	// undocumented behavior.
-	if(t0 > t1 or t0 > t2) {
+	if(t0 != 0 or t0 > t2 or t1 > t2) {
 		throw new AssertionError("test failed");
 	}
 
-	if(ea == false or eb == false or ec == false) {
+	if(ea or not eb or not ec) {
 		throw new AssertionError("test failed");
 	}
 }

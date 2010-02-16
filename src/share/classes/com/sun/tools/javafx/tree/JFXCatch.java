@@ -59,7 +59,7 @@ public class JFXCatch extends JFXTree implements CatchTree {
         return body;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitCatch(this, d);
     }

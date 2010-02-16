@@ -27,7 +27,7 @@ import com.sun.javadoc.*;
 
 import static com.sun.javadoc.LanguageVersion.*;
 
-import com.sun.tools.javac.util.List;
+import com.sun.tools.mjavac.util.List;
 
 import java.net.*;
 import java.lang.reflect.Method;
@@ -203,7 +203,7 @@ public class DocletInvoker {
      */
     @SuppressWarnings("unchecked")
     private Object invoke(String methodName, Object returnValueIfNonExistent,
-                          Class[] paramTypes, Object[] params)
+                          Class<?>[] paramTypes, Object[] params)
         throws DocletInvokeException {
             Method meth;
             try {

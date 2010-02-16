@@ -1,0 +1,61 @@
+test/should-fail/jfxc4072b.fx:27: warning: Forward reference: variable b is not initialized.
+   override var a = b; //warn
+                    ^
+test/should-fail/jfxc4072b.fx:28: warning: Forward reference: variable c is not initialized.
+   override var b = this.c; //warn
+                        ^
+test/should-fail/jfxc4072b.fx:29: warning: Forward reference: variable d is not initialized.
+   override var c = A.d; //warn
+                     ^
+test/should-fail/jfxc4072b.fx:30: warning: Forward reference: variable e is not initialized.
+   override var d = jfxc4072b.A.e; //warn
+                               ^
+test/should-fail/jfxc4072b.fx:34: warning: Forward reference: variable i is not initialized.
+   override var h = { i; super.i; this.i; A.i; jfxc4072b.A.i; h; super.h; this.h; A.h; jfxc4072b.A.h; } //warn
+                      ^
+test/should-fail/jfxc4072b.fx:34: warning: Forward reference: variable i is not initialized.
+   override var h = { i; super.i; this.i; A.i; jfxc4072b.A.i; h; super.h; this.h; A.h; jfxc4072b.A.h; } //warn
+                              ^
+test/should-fail/jfxc4072b.fx:34: warning: Forward reference: variable i is not initialized.
+   override var h = { i; super.i; this.i; A.i; jfxc4072b.A.i; h; super.h; this.h; A.h; jfxc4072b.A.h; } //warn
+                                      ^
+test/should-fail/jfxc4072b.fx:34: warning: Forward reference: variable i is not initialized.
+   override var h = { i; super.i; this.i; A.i; jfxc4072b.A.i; h; super.h; this.h; A.h; jfxc4072b.A.h; } //warn
+                                           ^
+test/should-fail/jfxc4072b.fx:34: warning: Forward reference: variable i is not initialized.
+   override var h = { i; super.i; this.i; A.i; jfxc4072b.A.i; h; super.h; this.h; A.h; jfxc4072b.A.h; } //warn
+                                                          ^
+test/should-fail/jfxc4072b.fx:34: warning: Forward reference: variable h is not initialized.
+   override var h = { i; super.i; this.i; A.i; jfxc4072b.A.i; h; super.h; this.h; A.h; jfxc4072b.A.h; } //warn
+                                                              ^
+test/should-fail/jfxc4072b.fx:34: warning: Forward reference: variable h is not initialized.
+   override var h = { i; super.i; this.i; A.i; jfxc4072b.A.i; h; super.h; this.h; A.h; jfxc4072b.A.h; } //warn
+                                                                      ^
+test/should-fail/jfxc4072b.fx:34: warning: Forward reference: variable h is not initialized.
+   override var h = { i; super.i; this.i; A.i; jfxc4072b.A.i; h; super.h; this.h; A.h; jfxc4072b.A.h; } //warn
+                                                                              ^
+test/should-fail/jfxc4072b.fx:34: warning: Forward reference: variable h is not initialized.
+   override var h = { i; super.i; this.i; A.i; jfxc4072b.A.i; h; super.h; this.h; A.h; jfxc4072b.A.h; } //warn
+                                                                                   ^
+test/should-fail/jfxc4072b.fx:34: warning: Forward reference: variable h is not initialized.
+   override var h = { i; super.i; this.i; A.i; jfxc4072b.A.i; h; super.h; this.h; A.h; jfxc4072b.A.h; } //warn
+                                                                                                  ^
+test/should-fail/jfxc4072b.fx:37: warning: Forward reference: variable m is not initialized.
+   override var m = m; //warn
+                    ^
+test/should-fail/jfxc4072b.fx:38: warning: Forward reference: variable n is not initialized.
+   override var n = this.n; //warn
+                        ^
+test/should-fail/jfxc4072b.fx:39: warning: Forward reference: variable o is not initialized.
+   override var o = A.o; //warn
+                     ^
+test/should-fail/jfxc4072b.fx:40: warning: Forward reference: variable p is not initialized.
+   override var p = jfxc4072b.A.p; //warn
+                               ^
+test/should-fail/jfxc4072b.fx:41: warning: Forward reference: variable r is not initialized.
+   override var q = super.r; //warn
+                         ^
+test/should-fail/jfxc4072b.fx:42: warning: Forward reference: variable r is not initialized.
+   override var r = super.r; //warn
+                         ^
+20 warnings

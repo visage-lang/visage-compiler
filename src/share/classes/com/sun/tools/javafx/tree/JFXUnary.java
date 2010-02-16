@@ -26,7 +26,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol;
 
 /**
  * JavaFX unary expressions
@@ -78,7 +78,7 @@ public class JFXUnary extends JFXExpression implements UnaryTree, Tree {
         }
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitUnary(this, data);
     }

@@ -26,9 +26,9 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.code.Symbol.MethodSymbol;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxFlags;
 
 /**
@@ -59,6 +59,10 @@ public class JFXFunctionDefinition extends JFXExpression implements FunctionDefi
         this.mods = mods;
         this.name = name;
         this.operation = new JFXFunctionValue(rettype, funParams, bodyExpression);
+    }
+
+    public boolean isStatic() {
+        return sym.isStatic();
     }
 
     public JFXBlock getBodyExpression() {

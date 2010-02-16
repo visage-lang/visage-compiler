@@ -12,6 +12,7 @@ import java.lang.Exception;
 var c = 0;
 try {
   var rs = bind [1..4 step c];
+  rs;
   println("BAD");
 } catch (exc : Exception) {
   println(exc);

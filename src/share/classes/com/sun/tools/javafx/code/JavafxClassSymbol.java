@@ -23,14 +23,15 @@
 
 package com.sun.tools.javafx.code;
 
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Types;
-import com.sun.tools.javac.code.Type.ErrorType;
-import com.sun.tools.javac.code.Type.ClassType;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.code.Types;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.Name;
+
+import static com.sun.tools.mjavac.code.TypeTags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 
 /**
  * Marker wrapper on class: this is a JavaFX class
@@ -39,38 +40,47 @@ import com.sun.tools.javac.util.Name;
  */
 public class JavafxClassSymbol extends ClassSymbol {
     public ClassSymbol jsymbol;
-    private List<Type> supertypes = List.<Type>nil();
+    public JavafxClassSymbol scriptSymbol;
+    public JavafxVarSymbol thisSymbol;
+    public JavafxVarSymbol superSymbol;
+    public JavafxVarSymbol scriptAccessSymbol;
+    private int memberVarCount = 0;
+    private int scriptVarCount = 0;
     
     /** Creates a new instance of JavafxClassSymbol */
     public JavafxClassSymbol(long flags, Name name, Symbol owner) {
         super(flags, name, owner);
     }
-    
-    public void addSuperType(Type type) {
-        if (this.type instanceof ErrorType &&
-                type instanceof ClassType)
-            type = new ErrorType((ClassSymbol) type.tsym);
-        supertypes = supertypes.append(type);
-    }
-    
-    public List<Type> getSuperTypes() {
-        return supertypes;
-    }
 
+    @Override
     public boolean isSubClass(Symbol base, Types types) {
-        // Trivial case.
-        if (this == base)
+        /** we need to override this because of the MIXIN flag **/
+        if (this == base) {
             return true;
-        // If a java class or type.
-        if (!(types instanceof JavafxTypes))
-            return super.isSubClass(base, types);
-        // Make sure the fx class is complete.
-        complete();
-        // Search the fx MI hierarchy.
-        List<Type> supers = getSuperTypes();
-        for (List<Type> l = supers; l.nonEmpty(); l = l.tail) {
-             if (l.head.tsym.isSubClass(base, types)) return true;
+        } else if ((base.flags() & (INTERFACE | JavafxFlags.MIXIN)) != 0) {
+            for (Type t = type; t.tag == CLASS; t = types.supertype(t))
+                for (List<Type> is = types.interfaces(t);
+                     is.nonEmpty();
+                     is = is.tail)
+                    if (is.head.tsym.isSubClass(base, types)) return true;
+        } else {
+            for (Type t = type; t.tag == CLASS; t = types.supertype(t))
+                if (t.tsym == base) return true;
         }
         return false;
+    }
+
+    public void addVar(JavafxVarSymbol vsym, boolean isScriptVar) {
+        vsym.setVarIndex(isScriptVar ?
+            scriptVarCount++ :
+            memberVarCount++);
+    }
+
+    public int getMemberVarCount() {
+        return memberVarCount;
+    }
+
+    public int getScriptVarCount() {
+        return scriptVarCount;
     }
 }

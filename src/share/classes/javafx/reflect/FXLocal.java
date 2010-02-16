@@ -24,6 +24,7 @@
 package javafx.reflect;
 
 import java.lang.reflect.*;
+import java.lang.annotation.Annotation;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +35,9 @@ import com.sun.javafx.functions.*;
 import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.annotation.SourceName;
-import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.DependentsManager;
 
 /**
  * Implement JavaFX rfeflection on top of {@java.lang.reflect}.
@@ -134,81 +135,31 @@ public class FXLocal {
         static final int VARIABLE_STRING_LENGTH = VARIABLE_STRING.length();
 
         public FXType makeTypeRef(Type typ) {
-            if (typ instanceof ParameterizedType) {
-                ParameterizedType ptyp = (ParameterizedType) typ;
-                Type raw = ptyp.getRawType();
-                Type[] targs = ptyp.getActualTypeArguments();
-                if (raw instanceof Class) {
-                    String rawName = ((Class) raw).getName();
-                    if (FXClassType.SEQUENCE_CLASSNAME.equals(rawName) &&
-                        targs.length == 1) {
-                        return new FXSequenceType(makeTypeRef(targs[0]));
-                    }
-                    if (FXClassType.OBJECT_VARIABLE_CLASSNAME.equals(rawName) &&
-                            targs.length == 1) {
-                        return makeTypeRef(targs[0]);
-                    }
-                    if (FXClassType.SEQUENCE_VARIABLE_CLASSNAME.equals(rawName) &&
-                        targs.length == 1) {
-                        return new FXSequenceType(makeTypeRef(targs[0]));
-                    }
-                    if (rawName.startsWith(FXClassType.FUNCTION_CLASSNAME_PREFIX)) {
-                        FXType[] prtypes = new FXType[targs.length-1];
-                        for (int i = prtypes.length;  --i >= 0; )
-                            prtypes[i] = makeTypeRef(targs[i+1]);
-                        FXType rettype;
-                        if (targs[0] == java.lang.Void.class)
-                            rettype = FXPrimitiveType.voidType;
-                        else
-                            rettype = makeTypeRef(targs[0]);
-                        return new FXFunctionType(prtypes, rettype);
-                    }
-                }
-                           
-                typ = raw;
-            }
-            if (typ instanceof WildcardType) {
-                WildcardType wtyp = (WildcardType) typ;
-                Type[] upper = wtyp.getUpperBounds();
-                Type[] lower = wtyp.getLowerBounds();
-                typ = lower.length > 0 ? lower[0] : wtyp.getUpperBounds()[0];
-                if (typ instanceof Class) {
-                    String rawName = ((Class) typ).getName();
-                    // Kludge, because generics don't handle primitive types.
-                    FXType ptype = getPrimitiveType(rawName);
-                    if (ptype != null)
-                        return ptype;
-                }
-                return makeTypeRef(typ);
-            }
-            if (typ instanceof GenericArrayType) {
-                FXType elType = makeTypeRef(((GenericArrayType) typ).getGenericComponentType());
-                return new FXJavaArrayType(elType);
-            }
-            if (typ instanceof TypeVariable) {
-                // KLUDGE
-                typ = Object.class;
-            }
+            Object t = PlatformUtils.resolveGeneric(this, typ);
+            if (t instanceof FXType)
+                return (FXType) t;
         
-            Class clas = (Class) typ;
+            Class clas = (Class) t;
             if (clas.isArray()) {
                 FXType elType = makeTypeRef(clas.getComponentType());
                 return new FXJavaArrayType(elType);
             }
-            String rawName = ((Class) typ).getName();
+            String rawName = clas.getName();
             int rawLength = rawName.length();
             if (rawLength > LOCATION_PREFIX_LENGTH + VARIABLE_STRING_LENGTH &&
                     rawName.startsWith(LOCATION_PREFIX) &&
                     rawName.endsWith(VARIABLE_STRING)) {
                 rawName = rawName.substring(LOCATION_PREFIX_LENGTH,
                         rawLength-VARIABLE_STRING_LENGTH);
-                int sequenceIndex = rawName.indexOf("Sequence");
-                boolean isSequence = sequenceIndex == rawName.length() - 8;
-                if (isSequence) {
-                    FXType ptype = getPrimitiveType(rawName.substring(0, sequenceIndex));
-                    if (ptype != null)
-                        return new FXSequenceType(ptype);
-                }
+                
+                if (rawName.endsWith("Sequence")) { 
+                    int newLength = rawName.length() - "Sequence".length(); 
+                    if (newLength != 0) rawName = rawName.substring(0, newLength - 1); 
+                    FXType ptype = getPrimitiveType(rawName); 
+                    if (ptype != null) 
+                        return new FXSequenceType(ptype); 
+                } 
+
                 FXType ptype = getPrimitiveType(rawName);
                 if (ptype != null)
                     return ptype;
@@ -232,23 +183,22 @@ public class FXLocal {
             if (typ == Void.TYPE)
                 return FXPrimitiveType.voidType;
 
-            return makeClassRef((Class) typ);
+            return makeClassRef(clas);
         }
 
         /** Create a reference to a given Class. */
         public ClassType makeClassRef(Class cls) {
             int modifiers = 0;
             try {
+
                 Class[] interfaces = cls.getInterfaces();
                 for (int i = 0;  i < interfaces.length;  i++ ) {
                     String iname = interfaces[i].getName();
                     if (iname.equals(FXOBJECT_NAME)) {
                         modifiers |= FXClassType.FX_CLASS;
-                        break;
                     } else if (iname.equals(FXMIXIN_NAME)) {
-                        modifiers |= FXClassType.FX_MIXIN | FXClassType.FX_CLASS;
-                        break;
-                    }
+                        modifiers |= FXClassType.FX_MIXIN;
+                    } 
                 }
                 
                 Class clsInterface = null;
@@ -283,6 +233,8 @@ public class FXLocal {
                 return ((FXPrimitiveType) type).clas;
             else if (type instanceof JavaArrayType)
                 return ((JavaArrayType) type).getJavaClass();
+            else if (type instanceof FXSequenceType)
+                return Sequence.class;
             else { // FIXME - handle other cases
                 ClassType ctyp = (ClassType) type;
                 return ctyp.isMixin() ? ctyp.refInterface : ctyp.refClass;
@@ -310,13 +262,14 @@ public class FXLocal {
     public static class ClassType extends FXClassType {
         Class refClass;
         Class refInterface;
+	protected static int VOFF_INITIALIZED = 1 << 16; // high to avoid collisions with masks added in parent class.
 
         public ClassType(Context context, int modifiers,
                 Class refClass, Class refInterface) {
             super(context, modifiers);
             this.refClass = refClass;
             this.refInterface = refInterface;
-            this.name = refClass.getCanonicalName();
+            this.name = PlatformUtils.getCanonicalName(refClass);
         }
 
         public Class getJavaImplementationClass() { return refClass; }
@@ -331,7 +284,7 @@ public class FXLocal {
          * @return the hash-code of the name.
          */
         public int hashCode() {
-            return name.hashCode();
+            return (name != null ? name : refClass.getName()).hashCode();
         }
     
         public boolean equals (Object obj) {
@@ -413,22 +366,55 @@ public class FXLocal {
         }
         
         static final String[] SYSTEM_METHOD_EXCLUDES = {
-            "userInit$",
-            "postInit$",
-            "addTriggers$",
+            // keep in alphabetical order 
+            "addDependent$",
+            "complete$",
+            "count$",
+            "getAsBoolean$",
+            "getAsByte$",
+            "getAsChar$",
+            "getAsDouble$",
+            "getAsFloat$",
+            "getAsInt$",
+            "getAsLong$",
+            "getAsShort$",
+            "getDepChain$internal$",
+            "getThisRef$internal$",
+            "getListenerCount$",
+            "getType$",
             "initialize$",
             "isInitialized$",
             "javafx$run$",
-            "complete$",
             "makeInitMap$",
-            "count$",
+            "notifyDependents$",
+            "postInit$",
+            "printBits$",
+            "printBitsAction$",
+            "removeDependent$",
+            "restrictSet$",
+            "setDepChain$internal$",
+            "switchDependence$",
+            "hindInit$",
+            "userInit$",
+            "getFlags$",
+            "setFlags$",
+            "varChangeBits$",
+            "varTestBits$",
             "VCNT$"
         };
         static final String[] SYSTEM_METHOD_PREFIXES = {
-            "get$",
-            "set$",
-            "loc$",
             "applyDefaults$",
+            "get$",
+            "elem$",
+            "initVars$",
+            "invalidate$",
+            "onReplace$",
+            "seq$",
+            "set$",
+            "size$",
+            "update$",
+            "DCNT$",
+            "DEP$",
             "GETMAP$",
             "VOFF$"
         };
@@ -449,7 +435,7 @@ public class FXLocal {
                 Method m = methods[i];
                 if (m.isSynthetic())
                     continue;
-                if (m.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null)
+                if (PlatformUtils.checkInherited(m) > 0)
                     continue;
                 String mname = m.getName();
                     
@@ -481,14 +467,16 @@ public class FXLocal {
         }
     
         FXFunctionMember asFunctionMember(Method m, Context context) {
-            java.lang.reflect.Type[] ptypes = m.getGenericParameterTypes();
+            java.lang.reflect.Type[] ptypes = PlatformUtils.getGenericParameterTypes(m);
+            /*
             if (m.isVarArgs()) {
                 // ????
             }
+            */
             FXType[] prtypes = new FXType[ptypes.length];
             for (int j = 0; j < ptypes.length;  j++)
                 prtypes[j] = context.makeTypeRef(ptypes[j]);
-            java.lang.reflect.Type gret = m.getGenericReturnType();
+            java.lang.reflect.Type gret = PlatformUtils.getGenericReturnType(m);
             FXFunctionType type = new FXFunctionType(prtypes, context.makeTypeRef(gret));
             return new FXLocal.FunctionMember(m, this, type);
         }
@@ -512,28 +500,12 @@ public class FXLocal {
             return method;
         }
 
-        static protected java.lang.reflect.Field getFieldOrNull(Class cls, String name) {
-            java.lang.reflect.Field field = null;
-            try {
-                field = cls.getField(name);
-            } catch (Throwable ex) {
-            }
-            return field;
-        }
-
-        static protected int getFieldIntOrDefault(Class cls, String name, int deflt) {
-            try {
-                java.lang.reflect.Field field = cls.getField(name);
-                deflt = field.getInt(null);
-            } catch (Throwable ex) {
-            }
-            return deflt;
-        }
+        static Object[] NO_ARGS = { };
         
         static protected int callMethodIntOrDefault(java.lang.reflect.Method method, int deflt) {
             if (method != null) {
                 try {
-                    deflt = ((Integer)method.invoke(null)).intValue();
+                    deflt = ((Integer)method.invoke(null, NO_ARGS)).intValue();
                 } catch (Throwable ex) {
                 }
             }
@@ -541,82 +513,145 @@ public class FXLocal {
         }
 
         static final String[] SYSTEM_VAR_PREFIXES = {
-            "VFLGS$",
+            "DCNT$",
+            "DEP$",
+            "VFLG$",
             "VCNT$",
             "VOFF$",
-            "MAP$"
+            "MAP$",
+            "$script$"
         };
 
+	private void ensureVOffInitialized() {
+	    // if no instances of this class have been created, there's no guarantee that VOFF$xxx are initialized,
+	    // force initialization.
+	    if ((this.modifiers & VOFF_INITIALIZED) == 0) {
+		try {
+		    refClass.getMethod("VCNT$").invoke(null, NO_ARGS);
+		} catch (Throwable e) {
+		} 
+		this.modifiers |= VOFF_INITIALIZED;
+	    }
+	}
+
+
         protected void getVariables(FXMemberFilter filter, SortedMemberArray<? super FXVarMember> result) {
+            VarMember[] varTable = this.variables;
+            if (varTable != null) {
+                String requiredName = filter.getRequiredName();
+                if (requiredName != null) {
+                    VarMember v = varTable[searchVariable(varTable, requiredName)];
+                    if (v != null)
+                        result.insert(v);
+                } else {
+                    for (int i = varTable.length; --i >= 0; ) {
+                        VarMember v = varTable[i];
+                        if (v != null && filter.accept(v))
+                            result.insert(v);
+                    }
+                }
+                return;
+            }
             Context ctxt = getReflectionContext();
             Class cls = refClass;
-            String requiredName = filter.getRequiredName();
-            // FIXME possible optimization if requiredName != null
-            // In that case we could use Class.getDeclaredField(String).
-            // However, it's tricky because we need to try all possible renamings.
             java.lang.reflect.Field[] fields;
+            ArrayList<VarMember> varList = new ArrayList<VarMember>();
             try {
                 fields = cls.getDeclaredFields();
             } catch (SecurityException e) {
                 fields = filter(cls.getFields(), cls);
             }
             fieldLoop: for (java.lang.reflect.Field fld : fields) {
-                if (fld.isSynthetic() ||
-                    fld.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null) {
+                if (PlatformUtils.isSynthetic(fld)) {
                     continue;
                 }
                 String fname = fld.getName();
-                if (fname.startsWith("loc$")) {
-                    fname = fname.substring(3);
-                    if (getFieldOrNull(cls, fname) != null) {
-                        continue;
+                
+                String sname = PlatformUtils.getSourceNameFromAnnotation(fld);
+                if (sname == null) {
+                    int dollar = fname.lastIndexOf('$');
+                    if (dollar == -1) {
+                        sname = fname;
+                    } else {
+                        for (String prefix : SYSTEM_VAR_PREFIXES) {
+                            if (fname.startsWith(prefix)) {
+                                continue fieldLoop;
+                            }
+                        }
+                        if (fname.endsWith("$internal$"))
+                            continue fieldLoop;
+                        sname = fname.substring(dollar + 1);
                     }
                 }
-                
-                SourceName sourceName = fld.getAnnotation(SourceName.class);
-                String sname = sourceName != null ? sourceName.value() : fname;
-                
-                for (String prefix : SYSTEM_VAR_PREFIXES) {
-                    if (sname.startsWith(prefix)) {
-                        continue fieldLoop;
-                    }
+               
+                FXType tr = ctxt.makeTypeRef(fld.getGenericType());
+		
+		ensureVOffInitialized();
+                int offset;
+                try {
+                    java.lang.reflect.Field field = cls.getField("VOFF" + fname);
+                    offset = field.getInt(null);
+                } catch (Throwable ex) {
+                    offset = -1;
                 }
-             
-                if (requiredName != null && !requiredName.equals(sname)) {
-                    continue;
-                }
-                    
-                java.lang.reflect.Type gtype = fld.getGenericType();
-                FXType tr = ctxt.makeTypeRef(gtype);
-                int offset  = getFieldIntOrDefault(cls, "VOFF" + fname, -1);
+
                 VarMember ref = new VarMember(sname, this, tr, offset);
                 ref.fld = fld;
-                if (!isMixin()) {
-                    ref.getter = getMethodOrNull(cls, "get" + fname);
- 
-                    if (ref.getter != null) {
-                        ref.fld = null;
-                        Class type = ref.getter.getReturnType();
-                        ref.setter = getMethodOrNull(cls, "set" + fname, type);
-                    }
-                    
-                    ref.loc_getter = getMethodOrNull(cls, "loc" + fname);
-                    ref.locfield = getFieldOrNull(cls, "loc" + fname);
-                }
-                
+                varList.add(ref);
+
                 if (filter != null && filter.accept(ref))
                     result.insert(ref);
             }
+
+            // Enter varList into the varTable hash-table.
+            int nvars = varList.size();
+            // We want the varTable hash-table to be at most 75% full.
+            int varTableSize = 8;
+            while (4 * nvars > 3 * varTableSize)
+                varTableSize += varTableSize;
+            varTable = new VarMember[varTableSize];
+            while (--nvars >= 0) {
+                VarMember v = varList.get(nvars);
+                varTable[searchVariable(varTable, v.name)] = v;
+            }
+            this.variables = varTable;
         }
 
-        public FXObjectValue allocate () {
+        // A simple hash-table keyed vt variable name.
+        VarMember[] variables;
+
+        /** A simple hash-table search algorithm.
+         * @param variables The hash-table.  Its length must be a power of two,
+         *    and there must be at least one unused slot.
+         * @param name The name of the VarMember to search for.
+         * @return The index of a slot in {@code variables} that matches the name,
+         *     or null if there is no such slot.
+         */
+        static int searchVariable(VarMember[] variables, String name) {
+            int hash = name.hashCode();
+            int size = variables.length;
+            int h = 12347 * hash + hash;
+            int mask = size - 1;
+            int i = h & mask;
+            for (;;) {
+                VarMember v = variables[i];
+                if (v == null || v.name.equals(name))
+                    return i;
+                i = (i + 53) & mask;
+            }
+        }
+
+        public ObjectValue allocate () {
             Class cls = refClass;
             Context context = getReflectionContext();
             try {
                 Object instance;
                 if (isJfxType()) {
-                    Constructor cons = cls.getDeclaredConstructor(Boolean.TYPE);
-                    instance = cons.newInstance(Boolean.TRUE);
+                    // Note that Java5-style varargs are not supported on CDC.
+                    Class[] types = { Boolean.TYPE };
+                    Constructor cons = cls.getDeclaredConstructor(types);
+                    Object[] args = { Boolean.TRUE };
+                    instance = cons.newInstance(args);
                 }
                 else {
                     instance = cls.newInstance();
@@ -637,6 +672,31 @@ public class FXLocal {
 
         public boolean isStatic() {
             return true;
+        }
+
+        Annotation getAnnotation (Class clas) {
+            Class cls = refClass;
+            return cls.getAnnotation(clas);
+        }
+
+        public boolean isPublic() {
+            int p = PlatformUtils.checkPublic(this);
+            if (p >= 0)
+                return p > 0;
+            Class cls = refClass;
+            return (cls.getModifiers() & Modifier.PUBLIC) != 0;
+        }
+
+        public boolean isProtected() {
+            return PlatformUtils.isProtected(this);
+        }
+
+        public boolean isPackage() {
+            int p = PlatformUtils.checkPackage(this);
+            if (p >= 0)
+                return p > 0;
+            Class cls = refClass;
+            return (cls.getModifiers() & Modifier.PUBLIC) == 0;
         }
     }
     
@@ -683,16 +743,21 @@ public class FXLocal {
     }
 
     static class VarMember extends FXVarMember {
-        Method accessMethod;
         Field fld;
         Method getter;
         Method setter;
-        Method loc_getter;
-        Field locfield;
         FXType type;
         String name;
-        FXClassType owner;
+        ClassType owner;
         int offset;
+        static final int GETTER_SETTER_SET = 1;
+        static final int ACCESS_FLAGS_SET = 2;
+        static final int IS_PUBLIC = 4;
+        static final int IS_PROTECTED = IS_PUBLIC << 1;
+        static final int IS_PACKAGE = IS_PUBLIC << 2;
+        static final int IS_PUBLIC_INIT = IS_PUBLIC << 3;
+        static final int IS_PUBLIC_READ = IS_PUBLIC << 4;
+        int flags;
     
         public VarMember(String name, ClassType owner, FXType type, int offset) {
             this.name = name;
@@ -711,24 +776,37 @@ public class FXLocal {
             return offset;
         }
 
+        private void checkGetterSetter() {
+            if ((flags & GETTER_SETTER_SET) != 0)
+                return;
+            Class cls = owner.refInterface;
+            if (cls == null)
+                cls = owner.refClass;
+            Method g = ClassType.getMethodOrNull(cls, "get" + name);
+            getter = g;
+            flags |= GETTER_SETTER_SET;
+            if (g != null) {
+                Class rtype = g.getReturnType();
+                setter = ClassType.getMethodOrNull(cls, "set" + name, rtype);
+            }
+        }
+
         @Override
         public FXValue getValue(FXObjectValue obj) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
-                if (fld != null || getter != null || loc_getter != null) {
+                checkGetterSetter();
+                if (fld != null || getter != null) {
                     Context context =
                         (Context) owner.getReflectionContext();
                     Object val;
-                    if (getter != null)
+                    if (getter != null) {
                         val = getter.invoke(robj, new Object[0]);
-                    else if (loc_getter != null)
-                        val = loc_getter.invoke(robj, new Object[0]);
-                    else
+                    } else {
+                        fld.setAccessible(true);
                         val = fld.get(robj);
-                    if (val instanceof ObjectLocation)
-                        val = ((ObjectLocation) val).get();
-                    else if (val instanceof SequenceLocation)
-                        val = ((SequenceLocation) val).get();
+                    }
+                    // FIXME: yet to be implemented for compiled binds
                     return context.mirrorOf(val, type);
                 }
             }
@@ -763,60 +841,22 @@ public class FXLocal {
         public void setValue(FXObjectValue obj, FXValue value) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
-                if (fld != null || getter != null || setter != null) {
+                if(type instanceof FXSequenceType && robj instanceof FXObject) {
+                    Sequences.set((FXObject)robj, offset,(Sequence)((Value) value).asObject());
+                    return;
+                }
+                checkGetterSetter();
+                if (fld != null || setter != null) {
                    
                     if (setter != null) {
-                        setter.invoke(robj, ((Value) value).asObject());
+                        Object[] args = { ((Value) value).asObject() };
+                        setter.invoke(robj, args);
                         return;
                     } else {
-                        Object loc = null;
-                        if (loc_getter != null) {
-                            loc = loc_getter.invoke(robj, noObjects);
-                        } else if (fld != null) {
-                            loc = fld.get(robj);
-                        }
-                        if (loc instanceof IntVariable) {
-                            ((IntVariable) loc).setAsInt(((FXIntegerValue) value).intValue());
-                            return;
-                        }
-                        if (loc instanceof BooleanVariable) {
-                            ((BooleanVariable) loc).setAsBoolean(((FXBooleanValue) value).booleanValue());
-                            return;
-                        }
-                        if (loc instanceof CharVariable) {
-                            ((CharVariable) loc).setAsChar((char) ((FXIntegerValue) value).intValue());
-                            return;
-                        }
-                        if (loc instanceof ByteVariable) {
-                            ((ByteVariable) loc).setAsByte((byte) ((FXIntegerValue) value).intValue());
-                            return;
-                        }
-                        if (loc instanceof ShortVariable) {
-                            ((ShortVariable) loc).setAsShort((short) ((FXIntegerValue) value).intValue());
-                            return;
-                        }
-                        if (loc instanceof LongVariable) {
-                            ((LongVariable) loc).setAsLong(((FXLongValue) value).longValue());
-                            return;
-                        }
-                        if (loc instanceof FloatVariable) {
-                            ((FloatVariable) loc).setAsFloat(((FXFloatValue) value).floatValue());
-                            return;
-                        }
-                        if (loc instanceof DoubleVariable) {
-                            ((DoubleVariable) loc).setAsDouble(((FXDoubleValue) value).doubleValue());
-                            return;
-                        }
-                        if (loc instanceof SequenceVariable) {
-                            ((SequenceVariable) loc).setAsSequence(((SequenceValue) value).asObject());
-                            return;
-                        }
-                        if (loc instanceof AbstractVariable) {
-                            ((AbstractVariable) loc).set(((Value) value).asObject());
-                            return;
-                        }
+                        // FIXME: yet to be implemented for compiled binds
                         if (fld != null) {
-                            fld.set(robj, value);
+                            fld.setAccessible(true);
+                            fld.set(robj, ((Value) value).asObject());
                             return;
                         }
                     }
@@ -837,57 +877,98 @@ public class FXLocal {
             return owner;
         }
 
+        private void checkAccessFlags() {
+            if ((flags & ACCESS_FLAGS_SET) != 0)
+                return;
+            flags |= ACCESS_FLAGS_SET;
+            checkGetterSetter();
+            if (! getDeclaringClass().isJfxType()
+                    || ! PlatformUtils.checkAccessAnnotations(this)) {
+                int mods = getter != null ? getter.getModifiers()
+                        : fld.getModifiers();
+                if ((mods & Modifier.PUBLIC) != 0)
+                    flags |= IS_PUBLIC;
+                if ((mods & Modifier.PROTECTED) != 0)
+                    flags |= IS_PROTECTED;
+                int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
+                if ((mods & mask) == 0)
+                    flags |= IS_PACKAGE;
+             }
+        }
+
         public boolean isStatic() {
+            checkGetterSetter();
             int mods = getter != null ? getter.getModifiers()
                     : fld.getModifiers();
             return (mods & Modifier.STATIC) != 0;
         }
-        
-        private Location getLoc(FXObjectValue obj) {
-            Object robj = obj == null ? null : ((ObjectValue) obj).obj;
-            return robj != null && offset != -1 ? ((FXObject)robj).loc$(offset) : null;
+
+        public boolean isPublic() {
+            checkAccessFlags();
+            return (flags & IS_PUBLIC) != 0;
         }
-        
-        public FXChangeListenerID addChangeListener(FXObjectValue instance, FXChangeListener listener) {
-            FXChangeListenerID id = new LocationChangeListener(listener);
-            Location location = getLoc(instance);
-            if (location == null || !(location instanceof AbstractVariable)) {
-                throw new RuntimeException("Cannot attach listener to field: " + name);
+
+        public boolean isProtected() {
+             checkAccessFlags();
+            return (flags & IS_PROTECTED) != 0;
+        }
+
+        public boolean isPackage() {
+            checkAccessFlags();
+            return (flags & IS_PACKAGE) != 0;
+        }
+
+        public boolean isPublicInit() {
+            checkAccessFlags();
+            return (flags & IS_PUBLIC_INIT) != 0;
+        }
+
+        public boolean isPublicRead() {
+            checkAccessFlags();
+            return (flags & IS_PUBLIC_READ) != 0;
+        }
+
+        public boolean isDef() {
+            int d = PlatformUtils.checkDef(this);
+            if (d >= 0)
+                return d > 0;
+            return fld != null && (fld.getModifiers() & Modifier.FINAL) != 0;
+        }
+
+        static class ListenerAdapter extends com.sun.javafx.runtime.FXBase implements FXChangeListenerID {
+            final FXChangeListener listener;
+            
+            ListenerAdapter(FXChangeListener listener) {
+                this.listener = listener;
             }
-            ((AbstractVariable)location).addChangeListener(id);
-            return id;
+            
+            @Override
+            public boolean update$(FXObject src, final int depNum, int startPos, int endPos, int newLength, int phase) {
+                // varNum does not matter, there is one change listener per <src, varNum> tuple.
+                if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
+                    this.listener.onChange();
+                }
+                return true;
+            }
+        }
+
+        public FXChangeListenerID addChangeListener(FXObjectValue instance, FXChangeListener listener) {
+	    if (!this.owner.isAssignableFrom(instance.getType()))
+		throw new IllegalArgumentException("not an instance of " + this.owner);
+	    // check if instance acually has a variable represented by this
+	    FXObject src = (FXObject)((Value)instance).asObject();
+	    ListenerAdapter adapter = new ListenerAdapter(listener);
+	    src.addDependent$(this.offset, adapter, 0);
+            return adapter;
         }
         
         public void removeChangeListener(FXObjectValue instance, FXChangeListenerID id) {
-            Location location = getLoc(instance);
-            if (location == null || !(location instanceof AbstractVariable) ||
-               !(id instanceof LocationChangeListener)) {
-                throw new RuntimeException("Cannot remove listener from field: " + name);
-            }
-            ((AbstractVariable)location).removeChangeListener(id);
+	    if (!this.owner.isAssignableFrom(instance.getType()))
+		throw new IllegalArgumentException("not an instance of " + this.owner);
+	    FXObject src = (FXObject)((Value)instance).asObject();
+	    src.removeDependent$(this.offset, (ListenerAdapter)id);
         }
-    }
 
-    /**
-     *
-     * @profile desktop
-     */
-    static class LocationChangeListener extends ChangeListener<Object> implements FXChangeListenerID {
-        FXChangeListener listener;
-        
-        LocationChangeListener(FXChangeListener listener) {
-            this.listener = listener;
-        }
-        
-        public void onChange(Object oldValue, Object newValue) {
-            onChange();
-        }
-        
-        void onChange() {
-            if (listener != null) {
-                listener.onChange();
-            }
-        }
     }
 
     static class FunctionMember extends FXFunctionMember {
@@ -943,6 +1024,31 @@ public class FXLocal {
             catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
+        }
+
+        public boolean isPublic() {
+            int p = PlatformUtils.checkPublic(this);
+            if (p >= 0)
+                return p > 0;
+            else
+                return (method.getModifiers() & Modifier.PUBLIC) != 0;
+        }
+
+        public boolean isProtected() {
+            int p = PlatformUtils.checkProtected(this);
+            if (p >= 0)
+                return p > 0;
+            else
+                return (method.getModifiers() & Modifier.PROTECTED) != 0;
+        }
+
+        public boolean isPackage() {
+            int p = PlatformUtils.checkPackage(this);
+            if (p >= 0)
+                return p > 0;
+            int mods = method.getModifiers();
+            int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
+            return (mods & mask) == 0;
         }
     }
 
@@ -1010,7 +1116,7 @@ public class FXLocal {
                 else {
                     Class cls = obj.getClass();
                     classType = type.getJavaImplementationClass() == cls ? type
-                            : type.getReflectionContext().makeClassRef(obj.getClass());
+                            : type.getReflectionContext().makeClassRef(cls);
                 }
             }
             return classType;
@@ -1032,15 +1138,18 @@ public class FXLocal {
                 FXObject instance = (FXObject)obj;
             
                 if (initMembers == null) {
-                    instance.initialize$();
+                    instance.initialize$(true);
                 } else {
                     int count = count();
-                    instance.addTriggers$();
+                    
+                    instance.initVars$();
                     
                     for (int offset = 0; offset < count; offset++ ) {
+                        instance.varChangeBits$(offset, 0, FXObject.VFLGS$INIT$READY);
+                        
                         if (initMembers[offset] != null) {
                             initMembers[offset].setValue(this, initValues[offset]);
-                        } else if (!instance.isInitialized$(offset)) {
+                        } else {
                             instance.applyDefaults$(offset);
                         }
                     }
@@ -1072,6 +1181,8 @@ public class FXLocal {
                 
                 initMembers[offset] = attr;
                 initValues[offset] = value;
+
+                ((FXObject)obj).setFlags$(offset, FXObject.VFLGS$INIT_OBJ_LIT);
             }
         }
     }
@@ -1196,22 +1307,7 @@ public class FXLocal {
             this.var = var;
         }
 
-        public AbstractVariable getAbstractVariable(FXObjectValue obj) {
-            try {
-                Object robj = obj == null ? null : ((ObjectValue) obj).obj;
-                if (var.getter != null) {
-                    Object val = var.getter.invoke(robj, new Object[0]);
-                    if (val instanceof AbstractVariable)
-                        return (AbstractVariable) val;
-                }
-                return null;
-            }
-            catch (RuntimeException ex) {
-                throw ex;
-            }
-            catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-        }
+        // FIXME: yet to be implemented for compiled binds
+        //    public AbstractVariable getAbstractVariable(FXObjectValue obj) {...}
     }
 }

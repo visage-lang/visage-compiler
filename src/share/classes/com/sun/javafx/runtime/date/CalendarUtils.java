@@ -146,7 +146,7 @@ public class CalendarUtils {
     }
 
     /**
-     * Mimics sprintf(buf, "%0*d", decaimal, width).
+     * Mimics sprintf(buf, "%0*d", value, width).
      */
     public static final StringBuilder sprintf0d(StringBuilder sb, int value, int width) {
         long d = value;
@@ -166,29 +166,4 @@ public class CalendarUtils {
         sb.append(d);
         return sb;
     }
-
-    /*
-     * The following unused function is commented out because it causes build problems.
-     * TODO: REMOVE THE FUNCTION
-     */
-    /*
-    public static final StringBuffer sprintf0d(StringBuffer sb, int value, int width) {
-        long d = value;
-        if (d < 0) {
-            sb.append('-');
-            d = -d;
-            --width;
-        }
-        int n = 10;
-        for (int i = 2; i < width; i++) {
-            n *= 10;
-        }
-        for (int i = 1; i < width && d < n; i++) {
-            sb.append('0');
-            n /= 10;
-        }
-        sb.append(d);
-        return sb;
-    }
-    */
 }

@@ -1,12 +1,3 @@
-Note: Optimization statistic: Instance variable count: 7
-Note: Optimization statistic: Instance variable Location count: 2
-Note: Optimization statistic: Instance variable Slacker count: 2
-Note: Optimization statistic: Instance variable direct count: 3
-Note: Optimization statistic: Instance 'var' count: 4
-Note: Optimization statistic: Instance 'var' Location count: 1
-Note: Optimization statistic: Instance 'var' Slacker count: 2
-Note: Optimization statistic: Instance 'var' direct count: 1
-Note: Optimization statistic: Instance 'def' count: 3
-Note: Optimization statistic: Instance 'def' Location count: 1
-Note: Optimization statistic: Instance 'def' Slacker count: 0
-Note: Optimization statistic: Instance 'def' direct count: 2
+Note: Optimization statistic: Instance variable count: 10
+Note: Optimization statistic: Instance 'var' count: 5
+Note: Optimization statistic: Instance 'def' count: 5

@@ -16,7 +16,7 @@ import java.lang.Thread;
 import java.lang.AssertionError;
 import java.lang.Throwable;
 import java.util.concurrent.TimeUnit;
-import com.sun.javafx.runtime.PointerFactory;
+import com.sun.javafx.runtime.Pointer;
 
 
 class XYZ {
@@ -29,20 +29,19 @@ class XYZ {
 
 var xyz = XYZ{};
 
-var pf: PointerFactory = PointerFactory {};
-var bps = bind pf.make(xyz.s); 
+var bps = bind Pointer.make(xyz.s); 
 var ps = bps.unwrap();
 
-var bpi = bind pf.make(xyz.i); 
+var bpi = bind Pointer.make(xyz.i); 
 var pi = bpi.unwrap();
 
-var bpb = bind pf.make(xyz.b); 
+var bpb = bind Pointer.make(xyz.b); 
 var pb = bpb.unwrap();
 
-var bpn = bind pf.make(xyz.n); 
+var bpn = bind Pointer.make(xyz.n); 
 var pn = bpn.unwrap();
 
-var bpd = bind pf.make(xyz.d); 
+var bpd = bind Pointer.make(xyz.d); 
 var pd = bpd.unwrap();
 
 var t : Timeline = Timeline {

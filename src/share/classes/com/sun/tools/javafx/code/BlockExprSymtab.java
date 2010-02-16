@@ -23,10 +23,10 @@
 
 package com.sun.tools.javafx.code;
 
-import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.util.Context;
+import com.sun.tools.mjavac.code.Symtab;
+import com.sun.tools.mjavac.util.Context;
 
-import static com.sun.tools.javac.jvm.ByteCodes.*;
+import static com.sun.tools.mjavac.jvm.ByteCodes.*;
 
 public class BlockExprSymtab extends Symtab {
     

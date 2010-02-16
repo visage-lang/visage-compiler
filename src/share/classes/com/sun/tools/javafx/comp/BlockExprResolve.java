@@ -23,16 +23,16 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.code.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.code.*;
 
-import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.comp.Resolve;
-import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.mjavac.code.Type.*;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.comp.Resolve;
+import com.sun.tools.mjavac.tree.JCTree.*;
 
-import static com.sun.tools.javac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.Kinds.*;
 
 /** Helper class for name resolution, used mostly by the attribution phase.
  *

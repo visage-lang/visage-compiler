@@ -30,7 +30,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.util.List;
+import com.sun.tools.mjavac.util.List;
 
 public class JFXErroneousOnReplace extends JFXOnReplace {
     
@@ -42,7 +42,8 @@ public class JFXErroneousOnReplace extends JFXOnReplace {
      */
     private JFXErroneous errNode;
 
-    protected JFXErroneousOnReplace(List<? extends JFXTree> errs) {
+    protected JFXErroneousOnReplace(List<? extends JFXTree> errs, Kind triggerKind) {
+        super(triggerKind);
         errNode = new JFXErroneous(errs);
     }
     

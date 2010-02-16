@@ -34,12 +34,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
-import com.sun.tools.javac.code.Source;
-import com.sun.tools.javac.code.Scope;
-import com.sun.tools.javac.jvm.Target;
-import com.sun.tools.javac.jvm.ClassReader;
+import com.sun.tools.mjavac.code.Source;
+import com.sun.tools.mjavac.code.Scope;
+import com.sun.tools.mjavac.jvm.Target;
+import com.sun.tools.mjavac.jvm.ClassReader;
 import com.sun.tools.javafx.main.JavafxOption.Option;
-import com.sun.tools.javac.util.*;
+import com.sun.tools.mjavac.util.*;
 import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
 import com.sun.tools.javafx.util.JavafxFileManager;
 import com.sun.tools.javafx.util.PlatformPlugin;
@@ -48,6 +48,7 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.DiagnosticListener;
+import com.sun.tools.javafx.comp.JavafxTranslationSupport.NotYetImplementedException;
 
 /** This class provides a commandline interface to the GJC compiler.
  *
@@ -62,7 +63,7 @@ public class Main {
         ClassLoader loader = Main.class.getClassLoader();
         if (loader != null) {
             loader.setPackageAssertionStatus("com.sun.tools.javafx", true);
-            loader.setPackageAssertionStatus("com.sun.tools.javac", true);
+            loader.setPackageAssertionStatus("com.sun.tools.mjavac", true);
         }
     }
 
@@ -224,9 +225,24 @@ public class Main {
             for (j=firstOptionToCheck; j<recognizedOptions.length; j++)
                 if (recognizedOptions[j].matches(flag)) break;
 
-            if (j == recognizedOptions.length) {
-                error(MsgSym.MESSAGE_ERR_INVALID_FLAG, flag);
-                return null;
+            if (options.get("mjavac") != null && flag.endsWith(".javadump")) {
+                File f = new File(flag);
+                if (!f.exists()) {
+                    error(MsgSym.MESSAGE_ERR_FILE_NOT_FOUND, f);
+                    return null;
+                }
+                if (!f.isFile()) {
+                    error(MsgSym.MESSAGE_ERR_FILE_NOT_FILE, f);
+                    return null;
+                }
+                if (!filenames.contains(f))
+                    filenames.append(f);
+                continue;
+            } else {
+                if (j == recognizedOptions.length) {
+                    error(MsgSym.MESSAGE_ERR_INVALID_FLAG, flag);
+                    return null;
+                }
             }
 
             Option option = recognizedOptions[j];
@@ -555,6 +571,18 @@ public class Main {
                        boolean preserveSymbols,
                        List<JavaFileObject> fileObjects)
     {
+        try {
+            String envArgs = System.getenv("JAVAFXC_OPTIONS");
+            if (envArgs != null && !envArgs.equals("")) {
+                String[] moreArgs = envArgs.split(" ");
+                String[] modifiedArgs = new String[args.length + moreArgs.length];
+                System.arraycopy(args, 0, modifiedArgs, 0, args.length);
+                System.arraycopy(moreArgs, 0, modifiedArgs, args.length, moreArgs.length);
+                args = modifiedArgs;
+            }
+        } catch (Exception ignored) {
+        }
+
         registerServices(context, args);
         if (options == null)
             options = Options.instance(context); // creates a new one
@@ -562,6 +590,8 @@ public class Main {
         filenames = new ListBuffer<File>();
         classnames = new ListBuffer<String>();
         JavafxCompiler comp = null;
+        JavafxJavaCompiler mjcomp = null;
+
         /*
          * TODO: Logic below about what is an acceptable command line
          * should be updated to take annotation processing semantics
@@ -621,12 +651,23 @@ public class Main {
                 for (JavaFileObject fo : otherFiles)
                     fileObjects = fileObjects.prepend(fo);
             }
-            comp.compile(fileObjects, classnames.toList(),
+
+            boolean useMJavac = options.get("mjavac") != null;
+            if (useMJavac) {
+                mjcomp = JavafxJavaCompiler.instance(context);
+                mjcomp.compile(fileObjects);
+
+                if (mjcomp.errorCount() != 0 ||
+                    options.get("-Werror") != null && mjcomp.warningCount() != 0)
+                    return EXIT_ERROR;
+            } else {
+                comp.compile(fileObjects, classnames.toList(),
                          namedImportScope, starImportScope, preserveSymbols);
 
-            if (comp.errorCount() != 0 ||
-                options.get("-Werror") != null && comp.warningCount() != 0)
-                return EXIT_ERROR;
+                if (comp.errorCount() != 0 ||
+                    options.get("-Werror") != null && comp.warningCount() != 0)
+                    return EXIT_ERROR;
+            }
         } catch (IOException ex) {
             ioMessage(ex);
             return EXIT_SYSERR;
@@ -639,6 +680,9 @@ public class Main {
         } catch (FatalError ex) {
             feMessage(ex);
             return EXIT_SYSERR;
+        } catch (NotYetImplementedException ex) {
+            Log.printLines(out, "ABORT: " + ex.getMessage());
+            return EXIT_ABNORMAL;
         } catch (ClientCodeException ex) {
             // as specified by javax.tools.JavaCompiler#getTask
             // and javax.tools.JavaCompiler.CompilationTask#call
@@ -655,6 +699,7 @@ public class Main {
             return EXIT_ABNORMAL;
         } finally {
             if (comp != null) comp.close();
+            if (mjcomp != null) mjcomp.close();
             filenames = null;
             options = null;
         }
@@ -737,7 +782,7 @@ public class Main {
     }
 
     private static final String javacBundleName =
-        "com.sun.tools.javac.resources.javac";
+        "com.sun.tools.mjavac.resources.javac";
 
     private static final String javafxBundleName =
         "com.sun.tools.javafx.resources.javafxcompiler";

@@ -28,9 +28,9 @@ import java.io.FileInputStream;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.tree.JFXClassDeclaration;
 
 /**

@@ -23,7 +23,7 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.mjavac.tree.JCTree;
 
     /* Tree tag values, identifying kinds of trees */
 public enum JavafxTag {
@@ -168,11 +168,15 @@ public enum JavafxTag {
      */
     VAR_DEF,
 
+    /** variable reference of the kind (inst, varNum)
+     */
+    VAR_REF,
+
     /** the run function initialization of a script-level var
      */
     VAR_SCRIPT_INIT,
 
-    /** loose trigger wrapper
+    /** var override
      */
     OVERRIDE_ATTRIBUTE_DEF,
 
@@ -231,6 +235,10 @@ public enum JavafxTag {
     /** insert statement
      */
     INSERT,
+
+    /** invalidate statement
+     */
+    INVALIDATE,
 
     /** delete statement
      */

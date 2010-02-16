@@ -138,6 +138,6 @@ class CoreInterpolator extends SimpleInterpolator {
     var i:com.sun.javafx.animation.Interpolator;
 
     override function curve(t: Number) : Number {
-        i.interpolate(t.floatValue())
+        i.interpolate(t)
     }
 }

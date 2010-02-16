@@ -75,7 +75,7 @@ public abstract class ArraySequence<T> extends AbstractSequence<T> {
      */
     private int sharing;
 
-    protected ArraySequence(TypeInfo<T, ?> ti) {
+    protected ArraySequence(TypeInfo<T> ti) {
         super(ti);
     }
 
@@ -138,6 +138,65 @@ public abstract class ArraySequence<T> extends AbstractSequence<T> {
             System.arraycopy(array, newGapStart, array, gapEnd + delta, - delta);
         gapEnd += delta;
         gapStart = newGapStart;
+
+        /*
+         * When shifting gap, we need to clear unused portions of the "new" gap
+         * with nulls. Without that ObjectArraySequences will leak objects.
+         * See JFXC-3337 (memory leak in bound for).
+         *
+         * For large gaps, we don't want to null every slot in new gap. We can
+         * ignore slots overlapping with "old" gap. In the line diagrams below,
+         * NGS is New Gap Start, NGE is New Gap End, OGS is Old Gap Start and
+         * OGE is Old Gap End. To clear with null slots, we re-use "clearOldValues"
+         * that is used to clean the preserved old elements for triggers.
+         */
+        int gapSize = gapEnd - gapStart;
+        if (delta > 0) {
+            if (gapSize < delta) {
+                //
+                //  |<--gapSize-->|--------|<--gapSize-->|
+                //  OGS          OGE      NGS           NGE
+                //  |<------ delta ------->|
+                //
+                // need to clear the entire new gap
+                clearOldValues(gapSize);
+            } else {
+                //
+                //  |<--delta-->|--------|<--delta-->|
+                //  OGS         NGS     OGE         NGE
+                //  |<------ gapSize---->|
+                //
+                // need to clear only the "delta" between NGE and OGE
+                clearOldValues(delta);
+            }
+
+        } else { // negative delta
+
+            if (gapSize < -delta) {
+
+                //
+                //  |<--gapSize-->|--------|<--gapSize-->|
+                //  NGS          NGE      OGS           OGE
+                //  |<------ delta ------->|
+                //
+                // need to clear the entire new gap
+                clearOldValues(gapSize);
+            } else {
+                //
+                //  |<--delta-->|--------|<--delta-->|
+                //  NGS         OGS     NGE         OGE
+                //  |<------ gapSize---->|
+                //
+                // need to clear only the "delta" between NGS and OGS
+
+                // do it by temporarily moving NGE to where OGS is
+                // and clear "delta" values from there.
+                int tmpGapEnd = gapEnd;
+                gapEnd = gapStart - delta;
+                clearOldValues(-delta);
+                gapEnd = tmpGapEnd;
+            }
+        }
     }
 
     /** Make sure gap is at least 'needed' elements long. */
@@ -183,7 +242,7 @@ public abstract class ArraySequence<T> extends AbstractSequence<T> {
     }
 
     @Override
-    public T get(int position) { // FIXME move to ArraySequence
+    public T get(int position) {
         if (position >= gapStart)
             position += gapEnd - gapStart;
         if (position < 0 || position >= getRawArrayLength())

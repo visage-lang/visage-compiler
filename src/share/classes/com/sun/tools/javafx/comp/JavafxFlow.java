@@ -23,10 +23,10 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.comp.Flow;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeMaker;
-import com.sun.tools.javac.util.Context;
+import com.sun.tools.mjavac.comp.Flow;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.tree.TreeMaker;
+import com.sun.tools.mjavac.util.Context;
 
 /**
  * Override error handling in Flow

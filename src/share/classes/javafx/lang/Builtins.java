@@ -23,7 +23,7 @@
 
 package javafx.lang;
 
-import com.sun.javafx.runtime.location.BindableLocation;
+import com.sun.javafx.runtime.FXObject;
 
 /**
  * These functions are automaticlly imported for
@@ -77,11 +77,28 @@ public class Builtins {
 
     /**
      * Test if an instance variable has been initialized.
-     * 
-     * @param varRef The variable to be tested.
-     * @return true if the object has been initialized already
+     *
+     * @param instance instance to be tested
+     * @param offset offset of variable to be tested
+     * @return true if the variable has been initialized
      */
-    public static boolean isInitialized(Object varRef) {
-        return ((BindableLocation) varRef).isInitialized();
+    @com.sun.javafx.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
+    public static boolean isInitialized(FXObject instance, int offset) {
+        return instance.varTestBits$(offset, FXObject.VFLGS$IS_BOUND, FXObject.VFLGS$IS_BOUND) ||
+               instance.varTestBits$(offset, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+    }
+
+    /**
+     * Test if an instance variable is bound.
+     *
+     * @param instance instance to be tested
+     * @param offset offset of variable to be tested
+     * @return true if the variable is bound
+     */
+    @com.sun.javafx.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
+    public static boolean isReadOnly(FXObject instance, int offset) {
+        return instance.varTestBits$(offset,
+                FXObject.VFLGS$IS_READONLY,
+                FXObject.VFLGS$IS_READONLY);
     }
 }

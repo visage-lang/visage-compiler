@@ -23,21 +23,22 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.code.Type.*;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.jvm.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.code.Type.*;
 
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.TypeTags.*;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.util.MsgSym;
 
@@ -61,9 +62,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     protected static final Context.Key<JavafxMemberEnter> javafxMemberEnterKey =
         new Context.Key<JavafxMemberEnter>();
     
-// JavaFX change
-    protected
-    final static boolean checkClash = true;
+    protected final static boolean checkClash = true;
 
     private final Name.Table names;
     private final JavafxEnter enter;
@@ -75,7 +74,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private final ClassReader reader;
     private final JavafxTodo todo;
     private final JavafxAnnotate annotate;
-    private final Types types;
+    private final JavafxTypes types;
     private final Target target;
 
     public static JavafxMemberEnter instance(Context context) {
@@ -98,7 +97,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         reader = JavafxClassReader.instance(context);
         todo = JavafxTodo.instance(context);
         annotate = JavafxAnnotate.instance(context);
-        types = Types.instance(context);
+        types = JavafxTypes.instance(context);
         target = Target.instance(context);
     }
 
@@ -173,8 +172,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 if (tsym instanceof ClassSymbol) {
                     // also import inherited names
                     if (tsym instanceof JavafxClassSymbol) {
-                        JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
-                        for (Type superType : jfxTsym.getSuperTypes()) {
+                        for (Type superType : types.supertypes(tsym.type)) {
                             importFrom(superType.tsym);
                         }
                     } else {
@@ -213,8 +211,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 if (tsym instanceof ClassSymbol) {
                     // also import inherited names
                     if (tsym instanceof JavafxClassSymbol) {
-                        JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
-                        for (Type superType : jfxTsym.getSuperTypes()) {
+                        for (Type superType : types.supertypes(tsym.type)) {
                             importFrom(superType.tsym);
                         }
                     } else {
@@ -289,8 +286,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
                 // also import inherited names
                 if (tsym instanceof JavafxClassSymbol) {
-                    JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
-                    for (Type superType : jfxTsym.getSuperTypes()) {
+                    for (Type superType : types.supertypes(tsym.type)) {
                         importFrom(superType.tsym);
                     }
                 } else {
@@ -328,8 +324,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
                 // also import inherited names
                 if (tsym instanceof JavafxClassSymbol) {
-                    JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
-                    for (Type superType : jfxTsym.getSuperTypes()) {
+                    for (Type superType : types.supertypes(tsym.type)) {
                         importFrom(superType.tsym);
                     }
                 } else {
@@ -436,7 +431,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         if (tree instanceof JFXBlock)
             visitBlockExpression((JFXBlock) tree);
         else
-            super.visitTree(tree);
+            super.visitTree(tree); //super.visitTree is a no-op because scan is overridden!!
     }
 
     @Override
@@ -572,7 +567,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
      */
     public JavafxEnv<JavafxAttrContext> initEnv(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> localEnv = env.dupto(new JavafxAttrContextEnv(tree, env.info.dup()));
-        if (tree.sym.owner.kind == TYP) {
+        if (tree.sym.isMember()) {
             localEnv.info.scope = new Scope.DelegatedScope(env.info.scope);
             localEnv.info.scope.owner = tree.sym;
         }
@@ -589,6 +584,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     @Override
     public void scan(JFXTree tree) {
+        //do nothing!
     }
 
     @Override
@@ -601,18 +597,24 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
 
         Scope enclScope = JavafxEnter.enterScope(env);
-        JavafxVarSymbol v = new JavafxVarSymbol(0, tree.name, null, enclScope.owner);
+        JavafxVarSymbol v = new JavafxVarSymbol(types, names,0, tree.name, null, enclScope.owner);
+        if (enclScope.owner.kind == TYP) {
+            ((JavafxClassSymbol)enclScope.owner).addVar(v, (tree.mods.flags & STATIC) != 0);
+        }
         attr.varSymToTree.put(v, tree);
         tree.sym = v;
         SymbolCompleter completer = new SymbolCompleter();
-            completer.env = env;
-            completer.tree = tree;
-            completer.attr = attr;
-            v.completer = completer;
+        completer.env = env;
+        completer.tree = tree;
+        completer.attr = attr;
+        v.completer = completer;
 
         v.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, v, tree);
-        if (tree.init != null) {
+        if (tree.getInitializer() != null) {
             v.flags_field |= HASINIT;
+        }
+        if (tree.isBound()) {
+            v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
         }
 
         if (chk.checkUnique(tree.pos(), v, env)) {
@@ -692,18 +694,13 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
     }
 
-    @Override
-    public void visitReturn(JFXReturn tree) {
-        super.visitReturn(tree);
-    }
+//    @Override
+//    public void visitClassDeclaration(JFXClassDeclaration that) {
+//        for (JFXExpression superClass : that.getSupertypes()) {
+//            attr.attribType(superClass, env);
+//        }
+//    }
 
-    @Override
-    public void visitClassDeclaration(JFXClassDeclaration that) {
-        for (JFXExpression superClass : that.getSupertypes()) {
-            attr.attribType(superClass, env);
-        }
-    }
-    
 /* ********************************************************************
  * Type completion
  *********************************************************************/
@@ -749,24 +746,15 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // Save class environment for later member enter (2) processing.
             halfcompleted.append(localEnv);
 
-            // If this is a toplevel-class, make sure any preceding import
-            // clauses have been seen.
-            if (c.owner.kind == PCK) {
-                for (JFXTree def : localEnv.toplevel.defs) {
-                    // Note we have to be careful to not yet visit member
-                    // classes (and attribute their super-type), until
-                    // we've set the super-types of this class.
-                    // Otherwise we risk a stack overflow, at least in the
-                    // tricky case of an inheritance cycle that includes the
-                    // module class.  There probably is a cleaner way ...
-                    if (def instanceof JFXImport)
-                         memberEnter(localEnv.toplevel, localEnv.enclosing(JavafxTag.TOPLEVEL));
-                }
-                todo.append(localEnv);
-            }
-
             // Mark class as not yet attributed.
             c.flags_field |= UNATTRIBUTED;
+
+            // If this is a toplevel script-class, make sure any preceding import
+            // clauses have been seen.
+            if (c.owner.kind == PCK) {
+                memberEnter(localEnv.toplevel, localEnv.enclosing(JavafxTag.TOPLEVEL));
+                todo.append(localEnv);
+            }
 
             if (c.owner.kind == TYP)
                 c.owner.complete();
@@ -805,7 +793,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 if ((sym.flags() & JavafxFlags.MIXIN) != 0)
                     c.flags_field |= JavafxFlags.MIXIN;
 
-                tree.setDifferentiatedExtendingImplementing(extending.toList(), implementing.toList(), mixing.toList());
+                tree.setDifferentiatedExtendingImplementingMixing(extending.toList(), implementing.toList(), mixing.toList());
             }
             
             if (supertype == null) {
@@ -816,11 +804,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 }
             }
             ct.supertype_field = supertype;
-            if (sym != null && sym instanceof JavafxClassSymbol) {
-                if (supertype != null && supertype != Type.noType) {
-                    ((JavafxClassSymbol)sym).addSuperType(supertype);
-                }
-            }
 
             // Determine interfaces.
             List<JFXExpression> interfaceTrees = tree.getImplementing();
@@ -845,16 +828,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 ct.interfaces_field = List.of(syms.annotationType);
             } else {
                 ct.interfaces_field = interfaces.toList();
-                for (Type intf : interfaces.toList()) {
-                    if (sym != null && sym instanceof JavafxClassSymbol) {
-                        if (intf != null && intf != Type.noType) {
-                            ((JavafxClassSymbol)sym).addSuperType(intf);
-                        }
-                    }
-                }
             }
-
-                ct.interfaces_field = interfaces.toList();
 
             if (c.fullname == names.java_lang_Object) {
                 if (tree.getExtending().head != null) {
@@ -874,14 +848,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // If this is a class, enter symbols for this and super into
             // current scope.
             if ((c.flags_field & INTERFACE) == 0) {
-                VarSymbol thisSym =
-                    new VarSymbol(FINAL | HASINIT, names._this, c.type, c);
+                JavafxVarSymbol thisSym = fxmake.ThisSymbol(c.type);
                 thisSym.pos = Position.FIRSTPOS;
                 localEnv.info.scope.enter(thisSym);
+                
                 if (ct.supertype_field.tag == CLASS && supertype != null) {
-                    VarSymbol superSym =
-                        new VarSymbol(FINAL | HASINIT, names._super,
-                                      supertype, c);
+                    JavafxVarSymbol superSym = fxmake.SuperSymbol(supertype, c);
                     superSym.pos = Position.FIRSTPOS;
                     localEnv.info.scope.enter(superSym);
                 }

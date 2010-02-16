@@ -23,91 +23,50 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.*;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
-
-import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.javafx.api.JavafxBindStatus;
 
+import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.util.Name;
+
 /**
- * Wrapper for loose triggers
+ * The override of an instance variable
  *
  * @author Robert Field
  */
-public class JFXOverrideClassVar extends JFXExpression implements TriggerTree {
+public class JFXOverrideClassVar extends JFXAbstractVar {
+
     private final JFXIdent expr;
-    private final JFXExpression init;
-    private final JavafxBindStatus bindStatus;
-    private final JFXOnReplace onReplace;
     
-    public VarSymbol sym;
-    
-    protected JFXOverrideClassVar(JFXIdent expr,
+    protected JFXOverrideClassVar(
+            Name name,
+            JFXType type,
+            JFXModifiers mods,
+            JFXIdent expr,
             JFXExpression init,
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
-            VarSymbol sym) {
+            JFXOnReplace onInvalidate,
+            JavafxVarSymbol sym) {
+        super(name, type, mods, init, bindStat, onReplace, onInvalidate, sym);
         this.expr = expr;
-        this.init = init;
-        this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
-        this.onReplace = onReplace;
-        this.sym = sym;
     }
     
     public void accept(JavafxVisitor v) {
         v.visitOverrideClassVar(this);
-    }
-    
-    public JFXIdent getId() {
-        return expr;
-    }
-
-    public JFXExpression getInitializer() {
-        return init;
-    }
-
-    public ExpressionTree getExpressionTree() {
-        return (ExpressionTree)expr;
-    }
-
-    public JavafxBindStatus getBindStatus() {
-        return bindStatus;
-    }
-
-    public boolean isBound() {
-        return bindStatus.isBound();
-    }
-
-    public boolean isUnidiBind() {
-        return bindStatus.isUnidiBind();
-    }
-
-    public boolean isBidiBind() {
-        return bindStatus.isBidiBind();
-    }
-
-    public boolean isLazy() {
-        return bindStatus.isLazy();
-    }
-
-    public OnReplaceTree getOnReplaceTree() {
-        return (OnReplaceTree) onReplace;
-    }
-
-    public JFXOnReplace getOnReplace() {
-        return onReplace;
-    }
-
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.TRIGGER_WRAPPER;
     }
 
     @Override
     public JavafxTag getFXTag() {
         return JavafxTag.OVERRIDE_ATTRIBUTE_DEF;
     }
+
+    public JFXIdent getId() {
+        return expr;
+    }
     
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitTrigger(this, data);
+    @Override
+    public boolean isOverride() {
+        return true;
     }
 }

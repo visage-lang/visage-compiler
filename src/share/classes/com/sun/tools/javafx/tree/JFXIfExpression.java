@@ -31,9 +31,14 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
  */
 public class JFXIfExpression extends JFXExpression implements ConditionalExpressionTree {
 
-    public JFXExpression cond;
-    public JFXExpression truepart;
-    public JFXExpression falsepart;
+    public final JFXExpression cond;
+    public final JFXExpression truepart;
+    public final JFXExpression falsepart;
+
+    public JFXVar boundCondVar;
+    public JFXVar boundThenVar;
+    public JFXVar boundElseVar;
+    public JFXVar boundSizeVar;
 
     protected JFXIfExpression(JFXExpression cond,
             JFXExpression truepart,
@@ -64,7 +69,7 @@ public class JFXIfExpression extends JFXExpression implements ConditionalExpress
         return falsepart;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitConditionalExpression(this, d);
     }

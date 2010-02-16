@@ -1,5 +1,10 @@
 Reflecting class ReflectionTest.TypeInference3
-Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference, class ReflectionTest.TypeInference2, class ReflectionTest.TypeInference3, class com.sun.javafx.runtime.FXBase, class java.lang.Object]
+Inherited SuperClasses of TypeInference3 =>
+  class ReflectionTest.TypeInference
+  class ReflectionTest.TypeInference2
+  class ReflectionTest.TypeInference3
+  class com.sun.javafx.runtime.FXBase
+  class java.lang.Object
  Type of anotherAttr is inferred as class java.lang.String
  Type of attr1 is inferred as class java.lang.Object
  Type of booleanAttr1 is inferred as Boolean
@@ -11,16 +16,16 @@ Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference,
  Type of intAttr1 is inferred as Integer
  Type of intAttr2 is inferred as Integer
  Type of intAttr3 is inferred as Integer
- Type of intSeq1 is inferred as java.lang.Integer[]
+ Type of intSeq1 is inferred as Integer[]
  Type of myAttr is inferred as class java.lang.String
- Type of newAttr is inferred as java.lang.Integer[]
+ Type of newAttr is inferred as Integer[]
  Type of numberAttr1 is inferred as Double
  Type of numberAttr2 is inferred as Double
  Type of objAttr1 is inferred as class java.lang.Object
  Type of objAttr2 is inferred as class java.lang.Object
  Type of seq2 is inferred as ReflectionTest.TypeInference[]
  Type of seq3 is inferred as java.lang.String[]
- Type of seq4 is inferred as java.lang.Float[]
+ Type of seq4 is inferred as Float[]
  Type of stringAttr3 is inferred as class java.lang.String
  Type of stringrAttr1 is inferred as class java.lang.String
  Type of stringrAttr2 is inferred as class java.lang.String
@@ -28,7 +33,7 @@ Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference,
  Return Type of method clone inferred as class java.lang.Object
  Return Type of method equals inferred as Boolean
  Return Type of method finalize inferred as Void
- Return Type of method func0$$bound$int inferred as class com.sun.javafx.runtime.location.IntLocation
+ Return Type of method func0$bFunc$int inferred as class com.sun.javafx.runtime.Pointer
  Return Type of method func1 inferred as class java.lang.String
  Return Type of method func2 inferred as class java.lang.String
  Return Type of method func3 inferred as Integer[]

@@ -1,7 +1,10 @@
-test/should-fail/jfxc1773a.fx:10: warning: Forward reference: variable w might not have been initialized.
-var x = w; //not allowed - w is referenced from the same named scope
-        ^
-test/should-fail/jfxc1773a.fx:19: warning: Forward reference: variable v might not have been initialized.
+test/should-fail/jfxc1773a.fx:19: warning: Forward reference: variable v is not initialized.
 Foo { a:v; } //not allowed - v is referenced from the same named scope
         ^
-2 warnings
+test/should-fail/jfxc1773a.fx:10: warning: Forward reference: variable w is not initialized.
+var x = w; //not allowed - w is referenced from the same named scope
+        ^
+test/should-fail/jfxc1773a.fx:11: warning: Forward reference: variable z is not initialized.
+var y = z; //not allowed, even if z is a def variable initialized by an object literal
+        ^
+3 warnings

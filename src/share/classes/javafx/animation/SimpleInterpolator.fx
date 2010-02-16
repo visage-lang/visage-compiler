@@ -25,7 +25,7 @@ package javafx.animation;
 import java.lang.Object;
 
 /**
- * A SimpleIterator is defined in terms of a "curve".
+ * A SimpleInterpolator is defined in terms of a "curve".
  * It can be used for any value type that either implements Interpolatable
  * or that extends java.lang.Number.
  *
@@ -95,6 +95,6 @@ public abstract class SimpleInterpolator extends Interpolator {
      * @profile common
      */
     public function interpolate(startValue:Integer, endValue:Integer, fraction:Number):Integer {
-        return (startValue + (endValue-startValue)*curve(fraction) + 0.5).intValue();
+        return (startValue + (endValue-startValue)*curve(fraction) + 0.5) as Integer;
     }
 }

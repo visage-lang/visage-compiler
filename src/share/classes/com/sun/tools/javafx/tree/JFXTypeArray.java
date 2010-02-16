@@ -57,7 +57,7 @@ public class JFXTypeArray extends JFXType implements TypeArrayTree {
         return JavafxTag.TYPEARRAY;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitTypeArray(this, d);
     }

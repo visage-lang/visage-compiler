@@ -26,7 +26,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.util.List;
+import com.sun.tools.mjavac.util.List;
 
 /**
  * Type referencing a class
@@ -68,7 +68,7 @@ public class JFXTypeFunctional extends JFXType implements TypeFunctionalTree {
         return JavafxTag.TYPEFUNC;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitTypeFunctional(this, d);
     }

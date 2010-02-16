@@ -20,17 +20,16 @@ println(s);
 println(db);
 println(wh);
 
-function f15print(display:String, result:String) : String { println(display); result }
 var xs = ["a","b","c"];
-var ys = bind for (x in xs) { f15print("body {indexof x}->{x}", "<{x}>") };
+var ys = bind for (x in xs) { "<{x}>" };
 println("ys:{for (y in ys) " {y}"}");
 xs[1]="w";
 println("ys:{for (y in ys) " {y}"}");
-//insert "v" before xs[1];
-//println("ys:{for (y in ys) " {y}"}");
+insert "v" before xs[1];
+println("ys:{for (y in ys) " {y}"}");
 
 var xis = [3,4,5,6];
-var yis = bind for (x in xis) { f15print("body ->{x}", "<{x}>") };
+var yis = bind for (x in xis) { "<{x}>" };
 println("yis:{for (y in yis) " {y}"}");
 xis[2]=9;
 println("yis:{for (y in yis) " {y}"}");

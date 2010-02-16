@@ -22,23 +22,27 @@
  */
 
 package com.sun.tools.javafx.code;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.code.Type.*;
+
+import com.sun.tools.javafx.comp.JavafxDefs;
+import static com.sun.tools.javafx.code.JavafxTypeRepresentation.*;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.code.Type.*;
 import java.util.HashMap;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.code.Symbol.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.TypeTags.*;
-import java.util.HashSet;
-import java.util.Set;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.jvm.ClassWriter;
+import static com.sun.tools.mjavac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.Flags.*;
+import static com.sun.tools.mjavac.code.TypeTags.*;
+
 /**
  *
  * @author bothner
  */
 public class JavafxTypes extends Types {
     JavafxSymtab syms;
+    ClassWriter writer;
 
     private HashMap<ClassSymbol, JFXClassDeclaration> fxClasses;
 
@@ -65,13 +69,40 @@ public class JavafxTypes extends Types {
     protected JavafxTypes(Context context) {
         super(context);
         syms = (JavafxSymtab) JavafxSymtab.instance(context);
+        writer = ClassWriter.instance(context);
     }
 
-   public boolean isSequence(Type type) {
-       return type != Type.noType && type != null
-                && type.tag != TypeTags.ERROR 
-                && type.tag != TypeTags.METHOD && type.tag != TypeTags.FORALL
-                && erasure(type) == syms.javafx_SequenceTypeErasure;
+    public boolean isNullable(Type type) {
+            return !type.isPrimitive() &&
+                    type != syms.javafx_StringType &&
+                    type != syms.javafx_DurationType;
+    }
+
+    public boolean isSequence(Type type) {
+        return type != Type.noType && type != null
+            && type.tag != TypeTags.ERROR
+            && type.tag != TypeTags.METHOD && type.tag != TypeTags.FORALL
+            && erasure(type) == syms.javafx_SequenceTypeErasure;
+    }
+
+    public boolean isSyntheticBuiltinsFunction(Symbol sym) {
+        return  sym != null && sym.kind == Kinds.MTH &&
+                (sym.flags_field & JavafxFlags.FUNC_IS_BUILTINS_SYNTH) != 0;
+    }
+
+    public boolean isSyntheticPointerFunction(Symbol sym) {
+        return  sym != null && sym.kind == Kinds.MTH &&
+                (sym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
+    }
+
+    public boolean isArrayOrSequenceType(Type type) {
+        return isArray(type) || isSequence(type);
+    }
+
+    public Type arrayOrSequenceElementType(Type type) {
+        return isArray(type) ?
+            elemtype(type) :
+            elementType(type);
     }
 
     public Type sequenceType(Type elemType) {
@@ -81,19 +112,40 @@ public class JavafxTypes extends Types {
         elemType = boxedTypeOrType(elemType);
         if (withExtends)
             elemType = new WildcardType(elemType, BoundKind.EXTENDS, syms.boundClass);
-        Type seqtype = syms.javafx_SequenceType;
-        List<Type> actuals = List.of(elemType);
-        Type clazzOuter = seqtype.getEnclosingType();
-        return new ClassType(clazzOuter, actuals, seqtype.tsym);
+        return applySimpleGenericType(syms.javafx_SequenceType, elemType);
     }
 
-     public Type arraySequenceType(Type elemType) {
-        if (elemType.isPrimitive())
-            elemType = boxedClass(elemType).type;
-        Type seqtype = syms.javafx_ArraySequenceType;
-        List<Type> actuals = List.of(elemType);
-        Type clazzOuter = seqtype.getEnclosingType();
-        return new ClassType(clazzOuter, actuals, seqtype.tsym);
+    public Type applySimpleGenericType(Type base, Type... parameter) {
+        List<Type> actuals = List.from(parameter);
+        Type clazzOuter = base.getEnclosingType();
+        return new ClassType(clazzOuter, actuals, base.tsym);
+    }
+
+    public JavafxTypeRepresentation typeRep(Type type) {
+        TypeSymbol tsym = type.tsym;
+
+        if (tsym == syms.booleanType.tsym) return TYPE_REPRESENTATION_BOOLEAN;
+        if (tsym == syms.charType.tsym) return TYPE_REPRESENTATION_CHAR;
+        if (tsym == syms.byteType.tsym) return TYPE_REPRESENTATION_BYTE;
+        if (tsym == syms.shortType.tsym) return TYPE_REPRESENTATION_SHORT;
+        if (tsym == syms.intType.tsym) return TYPE_REPRESENTATION_INT;
+        if (tsym == syms.longType.tsym) return TYPE_REPRESENTATION_LONG;
+        if (tsym == syms.floatType.tsym) return TYPE_REPRESENTATION_FLOAT;
+        if (tsym == syms.doubleType.tsym) return TYPE_REPRESENTATION_DOUBLE;
+        if (isSequence(type)) {
+            return TYPE_REPRESENTATION_SEQUENCE;
+        } else {
+            return TYPE_REPRESENTATION_OBJECT;
+        }
+    }
+
+    public Type arraySequenceType(Type elemType) {
+        if (elemType.isPrimitive()) {
+            String tname = typeRep(elemType).prefix();
+            return syms.enterClass(JavafxDefs.sequence_PackageString + "." + tname + "ArraySequence");
+        }
+        Type seqtype = syms.enterClass("com.sun.javafx.runtime.sequence.ObjectArraySequence");
+        return applySimpleGenericType(seqtype, elemType);
     }
 
     public Type boxedElementType(Type seqType) {
@@ -130,62 +182,36 @@ public class JavafxTypes extends Types {
         return isSequence(t) ? elementType(t) : t;
     }
 
-    public void getSupertypes(Symbol clazz, ListBuffer<Type> supertypes,Set<Type> dupSet) {
-        if (clazz != null) {
-            Type supType = supertype(clazz.type);
-            if (supType != null && supType != Type.noType && !dupSet.contains(supType)) {
-                supertypes.append(supType);
-                dupSet.add(supType);
-                getSupertypes(supType.tsym, supertypes,dupSet);
+    public Type makeUnionType(Type s, Type t) {
+        Type lub = lub(s.baseType(), t.baseType());
+        if (lub.isCompound()) {
+            //members of the compound type could not be ordered properly
+            //due to the fact that JavaFX allows MI through mixins
+            //the compound supertype should always be a JavaFX class
+            //while the superinterfaces should be mixins
+            Type clazz = null;
+            ListBuffer<Type> interfaces = new ListBuffer<Type>();
+            ListBuffer<Type> mixins = new ListBuffer<Type>();
+            for (Type st : interfaces(lub).prepend(supertype(lub))) {
+                if (isMixin(st.tsym))
+                    mixins.append(st);
+                else if (st.isInterface())
+                    interfaces.append(st);
+                else
+                    clazz = st;
             }
-
-            if (clazz instanceof JavafxClassSymbol) {
-                for (Type superType : ((JavafxClassSymbol)clazz).getSuperTypes()) {
-                    if (!dupSet.contains(superType)) {
-                        supertypes.append(superType);
-                        dupSet.add(superType);
-                        getSupertypes(superType.tsym, supertypes,dupSet);
-                    }
-                }
-            }
+            List<Type> supertypes = interfaces.toList().prependList(mixins.toList());
+            if (clazz != null)
+                supertypes = supertypes.prepend(clazz);
+            lub = makeCompoundType(supertypes);
         }
-    }
-
-    public List<Type> supertypes(Symbol clazz) {
-        return supertypes(clazz, null);
-    }
-
-    public List<Type> supertypes(Symbol clazz, Type includeOrNull) {
-        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-        Set<Type> superSet = new HashSet<Type>();
-        if (includeOrNull != null) {
-            supertypes.append(includeOrNull);
-            superSet.add(includeOrNull);
-        }
-
-        getSupertypes(clazz, supertypes, superSet);
-
-        return supertypes.toList();
-    }
-
-    public boolean isSuperType (Type maybeSuper, ClassSymbol sym) {
-        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-        Set superSet = new HashSet<Type>();
-        supertypes.append(sym.type);
-        superSet.add(sym.type);
-        getSupertypes(sym, supertypes, superSet);
-        for (Type t : supertypes) {
-            if (isSameType(t,maybeSuper)) {
-                return true;
-            }
-        }
-        return false;
+        return lub;
     }
     
     @Override
     public boolean isSubtype(Type t, Type s, boolean capture) {
         boolean b = super.isSubtype(t, s, capture);
-        if (!b && s.isCompound()) {
+        if (!b && s.tag == CLASS && s.isCompound()) {
             for (Type s2 : interfaces(s).prepend(supertype(s))) {
                 if (!isSubtype(t, s2, capture))
                     return false;
@@ -198,26 +224,48 @@ public class JavafxTypes extends Types {
 
     @Override
     public Type asSuper(Type t, Symbol sym) {
-        if (isMixin(sym)) {
-            JavafxClassSymbol tsym = (JavafxClassSymbol) t.tsym;
-            List<Type> supers = tsym.getSuperTypes();
-            for (List<Type> l = supers; l.nonEmpty(); l = l.tail) {
-                Type x = asSuper(l.head, sym);
-                if (x != null)
-                    return x;
-            }
-        }
-        return super.asSuper(t, sym);
+         return asSuper.visit(t, sym);
     }
-    
-    public Type superType(JFXClassDeclaration cDecl) {
-        // JFXC-2868 - Mixins: JavafxTypes.superType is complex and likely wrong.
-        if (! (cDecl.type instanceof ClassType))
+    // where
+    private SimpleVisitor<Type,Symbol> asSuper = new SimpleVisitor<Type,Symbol>() {
+
+        public Type visitType(Type t, Symbol sym) {
             return null;
-        ClassType cType = (ClassType) cDecl.type;
-        Type superType = cType.supertype_field;
-        return superType;
-    }
+        }
+
+        @Override
+        public Type visitClassType(ClassType t, Symbol sym) {
+            if (t.tsym == sym)
+                return t;
+
+            for (Type st : supertypes(t)) {
+                if (st.tag == CLASS || st.tag == TYPEVAR || st.tag == ERROR) {
+                    Type x = asSuper(st, sym);
+                    if (x != null)
+                        return x;
+                }
+             }
+             return null;
+        }
+
+        @Override
+        public Type visitArrayType(ArrayType t, Symbol sym) {
+            return isSubtype(t, sym.type) ? sym.type : null;
+        }
+
+        @Override
+        public Type visitTypeVar(TypeVar t, Symbol sym) {
+            if (t.tsym == sym)
+                return t;
+            else
+                return asSuper(t.bound, sym);
+        }
+
+        @Override
+        public Type visitErrorType(ErrorType t, Symbol sym) {
+            return t;
+        }
+    };
 
     @Override
     public boolean isConvertible (Type t, Type s, Warner warn) {
@@ -269,17 +317,36 @@ public class JavafxTypes extends Types {
             target == syms.botType)
             return true;
 
+        return isCastableNoConversion(source, target, warn);
+    }
+
+    public boolean isCastableNoConversion(Type source, Type target, Warner warn) {
+        if (isSequence(source) != isSequence(target) &&
+                !isSameType(source, syms.objectType) &&
+                !isSameType(target, syms.objectType))
+            return false;
+
+        if (source.isPrimitive() &&
+                !target.isPrimitive() &&
+                isSubtype(boxedClass(source).type, target))
+            return true;
+
+        if (target.isPrimitive() &&
+                !source.isPrimitive() &&
+                isSubtype(boxedClass(target).type, source))
+            return true;
+
         boolean isSourceFinal = (source.tsym.flags() & FINAL) != 0;
         boolean isTargetFinal = (target.tsym.flags() & FINAL) != 0;
         if (isMixin(source.tsym) && isMixin(target.tsym))
             return true;
         else if (isMixin(source.tsym) &&
-            !isTargetFinal || 
-            target.isInterface())
+            !isTargetFinal ||
+            (target.isInterface() && !isSequence(target)))
             return true;
         else if (isMixin(target.tsym) &&
             !isSourceFinal ||
-            target.isInterface())
+            (target.isInterface() && !isSequence(target)))
             return true;
         else //conversion between two primitives/Java classes
             return super.isCastable(source, target, warn);
@@ -297,6 +364,10 @@ public class JavafxTypes extends Types {
             return false;
         sym.complete();
         return (sym.flags_field & JavafxFlags.FX_CLASS) != 0;
+    }
+
+    public boolean isJFXFunction(Type t) {
+        return (t instanceof FunctionType);
     }
     
     public void addFxClass(ClassSymbol csym, JFXClassDeclaration cdecl) {
@@ -332,7 +403,7 @@ public class JavafxTypes extends Types {
                             return m;
                 }
             }
-            List<Type> supers = c.getSuperTypes();
+            List<Type> supers = supertypes(c.type);
             for (List<Type> l = supers; l.nonEmpty(); l = l.tail) {
                 MethodSymbol m = implementation(msym, l.head.tsym, checkResult);
                 if (m != null)
@@ -357,6 +428,54 @@ public class JavafxTypes extends Types {
         return
             this.isSubSignature(mt, ot) &&
             (!checkResult || this.resultSubtype(mt, ot, Warner.noWarnings));
+    }
+
+    /**
+     * Returns a list of all supertypes of t, without duplicates, where supertypes
+     * are listed according to the order in which they appear in t's extends clause.
+     * This method is used in order to implicitly resolve mixin conflicts.
+     *
+     * @param t the type for which the supertypes list is to be retrieved
+     * @return list of ordered supertypes
+     */
+    public List<Type> supertypesClosure(Type t) {
+        return supertypesClosure(t, false, false);
+    }
+
+    public List<Type> supertypesClosure(Type t, boolean includeThis) {
+        return supertypesClosure(t, includeThis, false);
+    }
+
+    public List<Type> supertypesClosure(Type t, boolean includeThis, boolean ascending) {
+        List<Type> closure = supertypesClosure(t, ListBuffer.<Type>lb(), ascending);
+        return includeThis ? closure :
+            ascending ? 
+                closure.reverse().tail.reverse() :
+                closure.tail;
+    }
+    //where
+    private List<Type> supertypesClosure(Type t, ListBuffer<Type> seenTypes, boolean ascending) {
+        if (t == null || t.tag == NONE || seenTypes.contains(t)) {
+            return List.nil();
+        }
+        else {
+            seenTypes.append(t);
+            List<Type> closure = supertypesClosure(supertype(t), seenTypes, ascending);
+            for (Type i : interfaces(t)) {
+                closure = closure.appendList(supertypesClosure(i, seenTypes, ascending));
+            }
+            closure = ascending ?
+                closure.append(t) :
+                closure.prepend(t);
+            return closure;
+        }
+    }
+
+    public List<Type> supertypes(Type t) {
+        Type sup = supertype(t);
+        return (sup == null || sup.tag == NONE) ?
+            interfaces(t) :
+            interfaces(t).prepend(sup);
     }
 
     public void clearCaches() {
@@ -498,5 +617,80 @@ public class JavafxTypes extends Types {
                 syms.isRunMethod(sym.owner))
             sym = sym.owner;
         return sym.location();
+    }
+
+    /**
+     * Computes a type which is suitable as a variable inferred type.
+     * This step is needed because the inferred type can contain captured
+     * types which makes the inferred type too specific.
+     *
+     * @param t the type to be normalized
+     * @return the normalized type
+     */
+    public Type normalize(Type t) {
+        class TypeNormalizer extends SimpleVisitor<Type, Boolean> {
+
+            @Override
+            public Type visitTypeVar(TypeVar t, Boolean preserveWildcards) {
+                return visit(t.getUpperBound(), preserveWildcards);
+            }
+
+            @Override
+            public Type visitCapturedType(CapturedType t, Boolean preserveWildcards) {
+                return visit(t.wildcard, preserveWildcards);
+            }
+
+            @Override
+            public Type visitWildcardType(WildcardType t, Boolean preserveWildcards) {
+                Type bound2 = visit(upperBound(t), preserveWildcards);
+                if (!preserveWildcards) {
+                    return bound2;
+                }
+                else if (t.kind != BoundKind.SUPER && !isSameType(bound2, upperBound(t))) {
+                    t = new WildcardType(bound2, BoundKind.EXTENDS, syms.boundClass);
+                }
+                return t;
+            }
+
+            @Override
+            public Type visitClassType(ClassType t, Boolean preserveWildcards) {
+                List<Type> args2 = visit(t.getTypeArguments(), true);
+                Type encl2 = visit(t.getEnclosingType(), false);
+                if (!isJFXFunction(t) &&
+                        (!isSameTypes(args2, t.getTypeArguments()) ||
+                        !isSameType(encl2, t.getEnclosingType()))) {
+                    t = new ClassType(encl2, args2, t.tsym);
+                }
+                return t;
+            }
+
+            public Type visitType(Type t, Boolean preserveWildcards) {
+                if (t == syms.botType) {
+                    return syms.objectType;
+                }
+                else if (isSameType(t, syms.javafx_EmptySequenceType)) {
+                    return sequenceType(syms.objectType);
+                }
+                else if (t == syms.unreachableType) {
+                    return syms.objectType;
+                }
+                else {
+                    return t;
+                }
+            }
+
+            public List<Type> visit(List<Type> ts, Boolean preserveWildcards) {
+                ListBuffer<Type> buf = ListBuffer.lb();
+                for (Type t : ts) {
+                    buf.append(visit(t, preserveWildcards));
+                }
+                return buf.toList();
+            }
+        }
+        return new TypeNormalizer().visit(t, false);
+    }
+
+    public String toSignature(Type t) {
+        return writer.typeSig(t).toString();
     }
 }

@@ -26,9 +26,9 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.util.List;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.util.List;
 
 /**
  * A class declaration
@@ -86,7 +86,13 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
     public java.util.List<VariableTree> getLocalVariables() {
         return convertList(VariableTree.class, localVars);
     }
-    
+
+    /**
+     *  For API uses only - object literals locals are desugared in a block
+     *  surrounding the object literal. This is done in JavafxLower. After lowering,
+     *  the compiler doesn't have to deal with them explicitly. Note that we still
+     *  need to maintain access for IDE.
+     */
     public List<JFXVar> getLocalvars() {
         return localVars;
     }

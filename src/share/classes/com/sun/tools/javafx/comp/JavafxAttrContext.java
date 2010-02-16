@@ -23,8 +23,8 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.code.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.code.*;
 
 /** Contains information specific to the attribute and enter
  *  passes, to be used in place of the generic field in environments.
@@ -69,8 +69,13 @@ public class JavafxAttrContext {
      */
     Symbol enclVar = null;
 
-    
-    public boolean inSelect = false;
+    /**
+     * Is this context nested inside an on-invalidate trigger? Used in
+     * conjuction with the above symbol in order to determine whether the
+     * target var of an on-invalidate trigger is being referenced from the
+     * trigger itself. Such access should be considered illegal.
+     */
+    boolean inInvalidate = false;
 
     /** Duplicate this context, replacing scope field and copying all others.
      */
@@ -84,6 +89,7 @@ public class JavafxAttrContext {
         info.tvars = tvars;
         info.lint = lint;
         info.enclVar = enclVar;
+        info.inInvalidate = inInvalidate;
         return info;
     }
 

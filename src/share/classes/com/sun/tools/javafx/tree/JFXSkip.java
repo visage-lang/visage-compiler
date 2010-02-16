@@ -44,7 +44,7 @@ public class JFXSkip extends JFXExpression implements EmptyStatementTree {
         return JavaFXKind.EMPTY_STATEMENT;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitEmptyStatement(this, d);
     }

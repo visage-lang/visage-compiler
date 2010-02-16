@@ -54,15 +54,14 @@
                 <ul id="master-list"><!-- |//class | //function-->
                     <xsl:for-each select="//script-var | //var | //script-function | //function | //class">
                         <xsl:sort select="@name"/>
+                        <xsl:if test="not(docComment/tags/treatasprivate)">
                         <li>
                             <xsl:attribute name="class">
                                 <xsl:call-template name="profile-class"/>    
-                                <xsl:if test="docComment/tags/treatasprivate">
-                                    <xsl:text>private</xsl:text>
-                                </xsl:if>
                             </xsl:attribute>
                             <xsl:apply-templates select="."/>
                         </li>
+                        </xsl:if>
                     </xsl:for-each>
                 </ul>
             </body>

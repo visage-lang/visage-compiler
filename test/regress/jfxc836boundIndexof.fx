@@ -4,10 +4,6 @@
  * @run
  */
 
-import java.lang.System;
-
-var enableBindingOverhaul;
-
 function xxxxx() {
   var modvalue = 2;
   var xs = [1..5];
@@ -16,20 +12,20 @@ function xxxxx() {
   var sseq = bind for (x in ["be", "bop", "bong", "bip"]) indexof x;
   var bseq = bind for (x in [true, true, false, true, false, false]) if (x) indexof x else 1000 * indexof x;
 
-  System.out.println(bfseq);
-  System.out.println(iseq);
-  System.out.println(sseq);
-  System.out.println(bseq);
+  println(bfseq);
+  println(iseq);
+  println(sseq);
+  println(bseq);
 
   insert 88 into xs;
 
-  System.out.println(bfseq);
-  System.out.println(iseq);
+  println(bfseq);
+  println(iseq);
 
   delete xs[0];
 
-  System.out.println(bfseq);
-  System.out.println(iseq);
+  println(bfseq);
+  println(iseq);
 }
 
 xxxxx()

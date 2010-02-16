@@ -53,7 +53,7 @@ public class JFXThrow extends JFXExpression implements ThrowTree {
         return expr;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitThrow(this, d);
     }

@@ -1,127 +1,292 @@
-/*
- * Copyright 2007-2009 Sun Microsystems, Inc.  All Rights Reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
- * CA 95054 USA or visit www.sun.com if you need additional information or
- * have any questions.
- */
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.location.*;
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.Sequences;
+import javafx.animation.KeyValueTarget;
+import javafx.animation.KeyValueTarget.Type;
+import com.sun.javafx.runtime.sequence.*;
 
 /**
- * PointerTest
+ * This class tests Pointer access of FXBase instance variables.
  *
- * @author Brian Goetz
+ * @author A. Sundararajan
  */
 public class PointerTest extends JavaFXTestCase {
-    public void testPointers() {
-        final SequenceVariable<Integer> seqvar = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
-        final SequenceVariable<Integer> seqexp = SequenceVariable.make(TypeInfo.Integer, false,
-                                                                       new SequenceBindingExpression<Integer>() {
-                                                                           public Sequence<? extends Integer> computeValue() {
-                                                                               return seqvar.getAsSequence();
-                                                                           }
-                                                                       }, seqvar);
-        final IntVariable intvar1 = IntVariable.make(3);
-        final IntVariable intvar2 = IntVariable.make(3);
+    private static class Counter extends FXBase {
+        public static final int VCNT$ = 1;
+        public int count$() { return VCNT$; }
 
-        Pointer pseqvar = Pointer.make(seqvar);
-        Pointer pseqexp = Pointer.make(seqexp);
-        Pointer pintvar1 = Pointer.make(intvar1);
-        Pointer pintvar2 = Pointer.make(intvar2);
-        Pointer[] pointers = new Pointer[] { pseqvar, pseqexp, pintvar1, pintvar2 };
-        for (int i=0; i<pointers.length; i++)
-            for (int j=0; j<pointers.length; j++)
-                if (i == j) {
-                    assertEquals(pointers[i], pointers[j]);
-                    assertEquals(pointers[i].hashCode(), pointers[j].hashCode());
-                }
-                else
-                    assertFalse(pointers[i].equals(pointers[j]));
+        private int $count;
+        public static final int VOFF$count = 0;
+           
+        public int get$count() { return $count; }
+        public void set$count(int count) { $count = count; } 
 
-        Pointer anotherPintvar2 = Pointer.make(intvar2);
-        assertEquals(pintvar2,  anotherPintvar2);
-        assertEquals(pintvar2.hashCode(),  anotherPintvar2.hashCode());
+        public Object get$(int varNum) {
+            switch (varNum) {
+                case 0: return get$count();
+                default: return super.get$(varNum);
+            }
+        }
 
-        /*
-        final FloatLocation asFloat = Locations.asFloatLocation(intvar1);
-        Pointer pdwrapper = Pointer.make(asFloat);
-        assertEquals(pintvar1, pdwrapper);
-        assertEquals(pintvar1.hashCode(), pdwrapper.hashCode());
-         * */
+        public void set$(int varNum, Object value) {
+            switch (varNum) {
+                case 0: set$count((Integer)value); break;
+                default: super.set$(varNum, value);
+            }
+        }
 
-        final ObjectLocation<Integer> asObject = intvar1;
-        Pointer powrapper = Pointer.make(asObject);
-        assertEquals(pintvar1, powrapper);
-        assertEquals(pintvar1.hashCode(), powrapper.hashCode());
-
-        assertEquals((Integer) 3, pintvar2.get());
-        assertEquals((Integer) 3, anotherPintvar2.get());
-        pintvar2.set(5);
-        assertEquals(5, intvar2.getAsInt());
-        assertEquals((Integer) 5, pintvar2.get());
-        assertEquals((Integer) 5, anotherPintvar2.get());
-
-        assertEquals((Sequence<Integer>) pseqvar.get(), 1, 2, 3);
-        pseqvar.set(Sequences.range(1, 5));
-        assertEquals(seqvar, 1, 2, 3, 4, 5);
-        assertEquals(seqexp, 1, 2, 3, 4, 5);
-        assertEquals((Sequence<Integer>) pseqvar.get(), 1, 2, 3, 4, 5);
-        assertEquals((Sequence<Integer>) pseqexp.get(), 1, 2, 3, 4, 5);
+        public Class getType$(int varNum) {
+            switch (varNum) {
+                case 0: return Integer.TYPE;
+                default: return super.getType$(varNum);
+            }
+        }
+    };
+ 
+    public void testPointerMake() {
+        Counter counter = new Counter();
+        // make a Pointer for varNum 0
+        assertNotNull(Pointer.make(Type.INTEGER, counter, 0));
     }
 
-    public void testTypes() {
-        final ByteLocation bv = ByteVariable.make((byte) 0);
-        final ShortLocation sv = ShortVariable.make((short) 0);
-        final IntLocation iv = IntVariable.make(0);
-        final LongLocation lv = LongVariable.make(0);
-        final FloatLocation fv = FloatVariable.make(0.0f);
-        final DoubleLocation dv = DoubleVariable.make(0.0);
+    public void testPointerAccess() {
+        Counter counter = new Counter();
+        // make a Pointer for varNum 0
+        Pointer ptr = Pointer.make(Type.INTEGER, counter, 0);
+        // check the type of the pointer
+        assertEquals(Type.INTEGER, ptr.getType());
 
-        Pointer pb = Pointer.make(bv);
-        Pointer ps = Pointer.make(sv);
-        Pointer pi = Pointer.make(iv);
-        Pointer pl = Pointer.make(lv);
-        Pointer pf = Pointer.make(fv);
-        Pointer pd = Pointer.make(dv);
+        // set through varNum
+        counter.set$(0, 1729);
+        // get through varNum, particular accessor and pointer
+        assertEquals(1729, counter.get$(0));
+        assertEquals(1729, counter.get$count());
+        assertEquals(1729, ptr.get());
 
-        assertEquals((byte) 0, pb.get());
-        assertEquals((short) 0, ps.get());
-        assertEquals(0, pi.get());
-        assertEquals(0L, pl.get());
-        assertEquals(0.0f, pf.get());
-        assertEquals(0.0, pd.get());
+        // set through accessor
+        counter.set$count(1674);
+        // get through varNum, particular accessor and pointer
+        assertEquals(1674, counter.get$(0));
+        assertEquals(1674, counter.get$count());
+        assertEquals(1674, ptr.get());
 
-        pb.set((byte) 1);
-        ps.set((short) 1);
-        pi.set(1);
-        pl.set(1L);
-        pf.set(1.0f);
-        pd.set(1.0);
+        // set through pointer
+        ptr.set(3333);
+        // get through varNum, particular accessor and pointer
+        assertEquals(3333, counter.get$(0));
+        assertEquals(3333, counter.get$count());
+        assertEquals(3333, ptr.get());
+    } 
 
-        assertEquals((byte) 1, pb.get());
-        assertEquals((short) 1, ps.get());
-        assertEquals(1, pi.get());
-        assertEquals(1L, pl.get());
-        assertEquals(1.0f, pf.get());
-        assertEquals(1.0, pd.get());
+    // test pointer access for all types
+    private static class AllTypeVarsHolder extends FXBase {
+        public static final int VCNT$ = 10;
+        public static int VCNT$() {
+            return VCNT$;
+        }
+        
+        public int count$() {
+            return VCNT$();
+        }
+
+        public static final int VOFF$byteVar = 0;
+        public static final int VOFF$shortVar = 1;
+        public static final int VOFF$intVar = 2;
+        public static final int VOFF$longVar = 3;
+        public static final int VOFF$floatVar = 4;
+        public static final int VOFF$doubleVar = 5;
+        public static final int VOFF$charVar = 6;
+        public static final int VOFF$booleanVar = 7;
+        public static final int VOFF$sequenceVar = 8;
+        public static final int VOFF$stringVar = 9;
+        
+        public byte $byteVar = 0;
+        public short $shortVar = 0;
+        public int $intVar = 0;
+        public long $longVar = 0L;
+        public float $floatVar = 0.0F;
+        public double $doubleVar = 0.0;
+        public char $charVar = ' ';
+        public boolean $booleanVar = false;
+        public Sequence<Integer> $sequenceVar;
+        public String $stringVar = "";
+        
+        public byte get$byteVar() {
+            return $byteVar;
+        }
+        
+        public void set$byteVar(byte varNewValue$) {
+            $byteVar = varNewValue$;
+        }
+        
+        public short get$shortVar() {
+            return $shortVar;
+        }
+        
+        public void set$shortVar(short varNewValue$) {
+            $shortVar = varNewValue$;
+        }
+        
+        public int get$intVar() {
+            return $intVar;
+        }
+        
+        public void set$intVar(int varNewValue$) {
+            $intVar = varNewValue$;
+        } 
+        
+        public long get$longVar() {
+            return $longVar;
+        }
+        
+        public void set$longVar(long varNewValue$) {
+            $longVar = varNewValue$;
+        }
+        
+        public float get$floatVar() {
+            return $floatVar;
+        }
+        
+        public void set$floatVar(float varNewValue$) {
+            $floatVar = varNewValue$;
+        }
+        
+        public double get$doubleVar() {
+            return $doubleVar;
+        }
+        
+        public void set$doubleVar(double varNewValue$) {
+            $doubleVar = varNewValue$;
+        }
+        
+        public char get$charVar() {
+            return $charVar;
+        }
+        
+        public void set$charVar(char varNewValue$) {
+            $charVar = varNewValue$;
+        }
+        
+        public boolean get$booleanVar() {
+            return $booleanVar;
+        }
+        
+        public void set$booleanVar(boolean varNewValue$) {
+            $booleanVar = varNewValue$;
+        }
+
+        public Sequence<Integer> get$sequenceVar() {
+            return $sequenceVar;
+        }
+        
+        public void set$sequenceVar(Sequence<Integer> varNewValue$) {
+            $sequenceVar = varNewValue$;
+        }
+
+        public String get$stringVar() {
+            return $stringVar;
+        }
+
+        public void set$stringVar(String varNewValue$) {
+            $stringVar = varNewValue$;
+        }
+
+        public Object get$(int varNum) {
+            switch (varNum) {
+                case VOFF$byteVar: return get$byteVar();
+                case VOFF$shortVar: return get$shortVar();
+                case VOFF$intVar: return get$intVar();
+                case VOFF$longVar: return get$longVar();
+                case VOFF$floatVar: return get$floatVar();
+                case VOFF$doubleVar: return get$doubleVar();
+                case VOFF$charVar: return get$charVar();
+                case VOFF$booleanVar: return get$booleanVar();
+                case VOFF$sequenceVar: return get$sequenceVar();
+                case VOFF$stringVar: return get$stringVar();
+                default: return super.get$(varNum); 
+            }
+        }
+
+        public void set$(int varNum, Object value) {
+            switch (varNum) {
+                case VOFF$byteVar: set$byteVar(((Number)value).byteValue()); break;
+                case VOFF$shortVar: set$shortVar(((Number)value).shortValue()); break;
+                case VOFF$intVar: set$intVar(((Number)value).intValue()); break;
+                case VOFF$longVar: set$longVar(((Number)value).longValue()); break;
+                case VOFF$floatVar: set$floatVar(((Number)value).floatValue()); break;
+                case VOFF$doubleVar: set$doubleVar(((Number)value).doubleValue()); break;
+                case VOFF$charVar: set$charVar(((Character)value).charValue()); break;
+                case VOFF$booleanVar: set$booleanVar(((Boolean)value).booleanValue()); break;
+                case VOFF$sequenceVar: set$sequenceVar((Sequence<Integer>)value); break;
+                case VOFF$stringVar: set$stringVar((String)value); break;
+                default: super.set$(varNum, value);  break;
+            }
+        }
+
+        public Class getType$(int varNum) {
+            switch (varNum) {
+                case VOFF$byteVar: return Byte.TYPE;
+                case VOFF$shortVar: return Short.TYPE;
+                case VOFF$intVar: return Integer.TYPE;
+                case VOFF$longVar: return Long.TYPE;
+                case VOFF$floatVar: return Float.TYPE;
+                case VOFF$doubleVar: return Double.TYPE;
+                case VOFF$charVar: return Character.TYPE;
+                case VOFF$booleanVar: return Boolean.TYPE;
+                case VOFF$sequenceVar: return Sequence.class;
+                case VOFF$stringVar: return String.class;
+                default: return super.getType$(varNum); 
+            }
+        }
     }
+
+    public void testPointerTypes() {
+        AllTypeVarsHolder fxObj = new AllTypeVarsHolder();
+
+        Pointer bytePtr = Pointer.make(Type.BYTE, fxObj, fxObj.VOFF$byteVar);
+        Pointer shortPtr = Pointer.make(Type.SHORT, fxObj, fxObj.VOFF$shortVar);
+        Pointer intPtr = Pointer.make(Type.INTEGER, fxObj, fxObj.VOFF$intVar);
+        Pointer longPtr = Pointer.make(Type.LONG, fxObj, fxObj.VOFF$longVar);
+        Pointer floatPtr = Pointer.make(Type.FLOAT, fxObj, fxObj.VOFF$floatVar);
+        Pointer doublePtr = Pointer.make(Type.DOUBLE, fxObj, fxObj.VOFF$doubleVar);
+        Pointer charPtr = Pointer.make(Type.INTEGER, fxObj, fxObj.VOFF$charVar);
+        Pointer booleanPtr = Pointer.make(Type.BOOLEAN, fxObj, fxObj.VOFF$booleanVar);
+        Pointer sequencePtr = Pointer.make(Type.SEQUENCE, fxObj, fxObj.VOFF$sequenceVar);
+        Pointer stringPtr = Pointer.make(Type.OBJECT, fxObj, fxObj.VOFF$stringVar);
+
+        bytePtr.set(Byte.valueOf((byte)1));
+        shortPtr.set(Short.valueOf((short)2));
+        intPtr.set(1729);
+        longPtr.set(444444L);
+        floatPtr.set(3.14F);
+        doublePtr.set(Math.E);
+        charPtr.set('J');
+        booleanPtr.set(true);
+        IntArraySequence seq = new IntArraySequence();
+        assertEquals(seq, seq);
+        int[] arr = { 8, 5, 7, 1, -1 };
+        seq.addFromArray(arr, 0, arr.length);
+        sequencePtr.set(seq);
+        stringPtr.set("JavaFX");
+
+        assertEquals(Byte.valueOf((byte)1), bytePtr.get());	
+        assertEquals(Byte.valueOf((byte)1), fxObj.get$(fxObj.VOFF$byteVar));	
+        assertEquals(Short.valueOf((short)2), shortPtr.get());
+        assertEquals(Short.valueOf((short)2), fxObj.get$(fxObj.VOFF$shortVar));
+        assertEquals(1729, intPtr.get());
+        assertEquals(1729, fxObj.get$(fxObj.VOFF$intVar));
+        assertEquals(444444L, longPtr.get());
+        assertEquals(444444L, fxObj.get$(fxObj.VOFF$longVar));
+        assertEquals(3.14F, floatPtr.get());
+        assertEquals(3.14F, fxObj.get$(fxObj.VOFF$floatVar));
+        assertEquals(Math.E, doublePtr.get());
+        assertEquals(Math.E, fxObj.get$(fxObj.VOFF$doubleVar));
+        assertEquals('J', charPtr.get());
+        assertEquals('J', fxObj.get$(fxObj.VOFF$charVar));
+        assertEquals(true, booleanPtr.get());
+        assertEquals(true, fxObj.get$(fxObj.VOFF$booleanVar));
+        assertEquals(true, Sequences.isEqual(seq, (Sequence)sequencePtr.get()));
+        assertEquals(true, Sequences.isEqual(seq, (Sequence)fxObj.get$(fxObj.VOFF$sequenceVar)));
+        assertEquals("JavaFX", stringPtr.get());
+        assertEquals("JavaFX", fxObj.get$(fxObj.VOFF$stringVar));
+    } 
 }

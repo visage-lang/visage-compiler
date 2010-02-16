@@ -51,15 +51,30 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE previnst, LPSTR cmdline, int cmdsho
     }
 
     // construct command
-    std::string cmd = "\"" + config.javacmd + "\" ";
+    std::string cmd;
+
+    if(config.profile_emulator.empty()) {
+        cmd = "\"" + config.javacmd + "\" ";
+    } else {
+        cmd = "\"" + util.evaluatePath(config.javafxpath, config.profile_emulator) + "\" ";
+    }
+
     if (! config.vmargs.empty()) {
         cmd += config.vmargs + " ";
+    }
+    if (! config.profile_vmargs.empty()) {
+        cmd += config.profile_vmargs + " ";
     }
     if (! config.profile_nativelibpath.empty()) {
         cmd += "-Djava.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_nativelibpath) + "\" ";
     }
     if (! config.profile_bootnativelibpath.empty()) {
         cmd += "-Dsun.boot.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_bootnativelibpath + "\" ");
+    }
+    if (! config.securitypolicy.empty()) {
+        cmd += "-Djava.security.policy=\"" + config.securitypolicy + "\" ";
+    } else if (! config.profile_security_policy.empty()) {
+        cmd += "-Djava.security.policy=\"" + util.evaluatePath(config.javafxpath, config.profile_security_policy + "\" ");
     }
     if (! config.profile_bootclasspath_prepend.empty()) {
         cmd += "\"-Xbootclasspath/p:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath_prepend) + "\" ";

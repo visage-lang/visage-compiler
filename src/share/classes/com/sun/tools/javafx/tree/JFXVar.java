@@ -24,11 +24,10 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
-
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.util.Name;
 import com.sun.javafx.api.JavafxBindStatus;
+
+import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * Variable declaration.
@@ -36,18 +35,12 @@ import com.sun.javafx.api.JavafxBindStatus;
  * @author Robert Field
  * @author Zhiqun Chen
  */
-public class JFXVar extends JFXExpression implements VariableTree {
-    public JFXModifiers mods;
-    public Name name;
-    public JFXExpression init;
-    public VarSymbol sym;
-    private JFXType jfxtype;
-    private final JavafxBindStatus bindStatus;
-    private final JFXOnReplace onReplace;
+public class JFXVar extends JFXAbstractVar implements VariableTree {
+    
+    private JFXVarInit varInit;
 
     protected JFXVar() {
-
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null);
     }
 
     protected JFXVar(Name name,
@@ -56,72 +49,23 @@ public class JFXVar extends JFXExpression implements VariableTree {
             JFXExpression init,
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
-            VarSymbol sym) {
-            this.mods = mods;
-            this.name = name;
-            this.init = init;
-            this.sym = sym;
-        this.jfxtype = jfxtype;
-        this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
-        this.onReplace = onReplace;
-        this.sym = sym;
-    }
-    
-    public Name getName() {
-        return name;
+            JFXOnReplace onInvalidate,
+            JavafxVarSymbol sym) {
+        super(name, jfxtype, mods, init, bindStat, onReplace, onInvalidate, sym);
     }
 
-    public VarSymbol getSymbol() {
-        return sym;
+    /**
+     * @return the varInit
+     */
+    public JFXVarInit getVarInit() {
+        return varInit;
     }
 
-    // for VariableTree
-    public JFXTree getType() {
-        return jfxtype;
-    }
-
-    public JFXExpression getInitializer() {
-        return init;
-    }
-
-    public void accept(JavafxVisitor v) {
-        v.visitVar(this);
-    }
-
-    public JFXType getJFXType() {
-        return jfxtype;
-    }
-
-    public void setJFXType(JFXType type) {
-        jfxtype = type;
-    }
-    
-    public OnReplaceTree getOnReplaceTree() {
-        return onReplace;        
-    }
-    
-    public JFXOnReplace getOnReplace() {
-        return onReplace;
-    }
-
-    public JavafxBindStatus getBindStatus() {
-        return bindStatus;
-    }
-
-    public boolean isBound() {
-        return bindStatus.isBound();
-    }
-
-    public boolean isUnidiBind() {
-        return bindStatus.isUnidiBind();
-    }
-
-    public boolean isBidiBind() {
-        return bindStatus.isBidiBind();
-    }
-
-    public boolean isLazy() {
-        return bindStatus.isLazy();
+    /**
+     * @param varInit the varInit to set
+     */
+    public void setVarInit(JFXVarInit varInit) {
+        this.varInit = varInit;
     }
 
     @Override
@@ -129,19 +73,11 @@ public class JFXVar extends JFXExpression implements VariableTree {
         return JavafxTag.VAR_DEF;
     }
     
-    public JFXModifiers getModifiers() {
-        return mods;
-    }
-    
     public boolean isOverride() {
         return false;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.VARIABLE;
+    public void accept(JavafxVisitor v) {
+        v.visitVar(this);
     }
-
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitVariable(this, data);
-     }
 }

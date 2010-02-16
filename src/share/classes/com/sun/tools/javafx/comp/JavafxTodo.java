@@ -23,7 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.util.*;
+import com.sun.tools.mjavac.util.*;
 
 /** A queue of all as yet unattributed classes.
  *

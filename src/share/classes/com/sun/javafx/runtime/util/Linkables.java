@@ -43,11 +43,15 @@ public abstract class Linkables {
     }
 
     public static<T extends Linkable<T>> void addAfter(Linkable<T> existing, T element) {
-        assert(existing.getNext() == null);
+        /*assert(existing.getNext() == null);
         assert(element.getPrev() == null);
-        assert(element.getNext() == null);
+        assert(element.getNext() == null);*/
+        T next = existing.getNext();
         existing.setNext(element);
         element.setPrev(existing);
+        element.setNext(next);
+        if (next != null)
+            next.setPrev(element);
     }
 
     public static<T extends Linkable<T>> void addAtEnd(Linkable<T> host, T element) {

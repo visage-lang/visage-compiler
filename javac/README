@@ -4,8 +4,11 @@ The OpenJDK project at https://jdk-jrl-sources.dev.java.net/ has a source
 base which consists of several separately-buildable projects; "langtools" 
 is the project where the javac source base and build reside.  This project 
 wraps the "langtools" to integrate the javac build into the OpenJFX Script
-compiler project's build.
+compiler project's build. 
 
+NOTE: once the javac.jar is built the ant scripts will rename the package
+names from com.sun.tools.javac to com.sun.tools.mjavac this is done by the
+renamer, please follow the instruction in the renamer directory.
 
 Initializing This Project
 

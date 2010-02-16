@@ -16,14 +16,15 @@ import com.sun.javafx.runtime.sequence.Sequences;
 var context : FXLocal.Context = FXLocal.getContext();
 
 class Square extends MyRect {
+   public def cc = 200;
    var atBlank : String;
    public var atPub : String;
    protected var atProt : String;
 };
 
 class Simple extends Square {
-   public var at1;
-   public var func : function(:String) : function();
+   public-init var at1;
+   public-read package var func : function(:String) : function();
 };
 
 //function run( ) {
@@ -38,20 +39,28 @@ var clsSimple = smplRef.getType();
 System.out.println("clsSimple={clsSimple} jfx-class:{clsSimple.isJfxType()} mixin:{clsSimple.isMixin()}");
 System.out.println("Simpl.super: {clsSimple.getSuperClasses(false)}");
 System.out.println("Simpl.super (inherited also):");
-for (cls in clsSimple.getSuperClasses(true))
-    System.out.println("  {cls}");
+
+function listSupers(theClass: javafx.reflect.FXClassType, flag: Boolean) {
+    def skipMe = "net.sourceforge.cobertura.coveragedata.HasBeenInstrumented";
+    for (cls in theClass.getSuperClasses(flag)) {
+        // this class appears when we run the tests with instrumentation, but it is not in our
+        // EXPECTED file.
+        if (not cls.getName().equals(skipMe)) {
+            System.out.println("  {cls}");
+        }
+    }
+}
+listSupers(clsSimple, true);
 
 var clsString = context.findClass("java.lang.String");
 System.out.println("clsString={clsString} jfx-class:{clsString.isJfxType()} mixin:{clsString.isMixin()}");
 
 System.out.println("String .super (direct only):");
-for (cls in clsString.getSuperClasses(false))
-    System.out.println("  {cls}");
+listSupers(clsString, false);
 
 System.out.println("String .super (inherited also):");
-for (cls in clsString.getSuperClasses(true))
-    System.out.println("  {cls}");
-
+listSupers(clsString, true);
+ 
 System.out.println("String methods:");
 for (meth in clsString.getFunctions(false))
      System.out.println("  {meth}");
@@ -82,13 +91,34 @@ for (v in attrsMyRect) {
   var vval = v.getValue(myRectRef);
   System.out.println("  {if (v.isStatic()) "static " else ""}{v.getName()} : {v.getType()} = {vval.getValueString()};") };
 
+function printAccessors(attr: FXVarMember) : Void {
+  if (attr.isPublicInit())
+    System.out.print("public-init ");
+  if (attr.isPublicRead())
+    System.out.print("public-read ");
+  if (attr.isPublic())
+    System.out.print("public ");
+  if (attr.isProtected())
+    System.out.print("protected ");
+  if (attr.isPackage())
+    System.out.print("package ");
+  if (attr.isDef())
+    System.out.print("def ")
+  else
+    System.out.print("var ");
+}
+
 System.out.println("Square attributes (only):");
 for (attr in context.findClass("Main.Square").getVariables(false)) {
-  System.out.println("  {attr.getName()} : {attr.getType()}") };
+  System.out.print("  "); printAccessors(attr);
+  System.out.println("{attr.getName()} : {attr.getType()}")
+};
 
 System.out.println("Simple attributes (only):");
 for (attr in context.findClass("Main.Simple").getVariables(false)) {
-  System.out.println("  {attr.getName()} : {attr.getType()}"); };
+  System.out.print("  "); printAccessors(attr);
+  System.out.println("{attr.getName()} : {attr.getType()}");
+};
 
 System.out.println("MyRect methods:");
 for (meth in clsMyRect.getFunctions(false)) {
@@ -165,9 +195,7 @@ var myAnonRectClass = myAnonRectRef.getClassType();
 System.out.println("myAnonRectRef.getClassType: {myAnonRectClass}");
 System.out.println("myAnonRectRef.super: {myAnonRectClass.getSuperClasses(false)}");
 System.out.println("myAnonRectRef.super (inherited also):");
-for (cls in myAnonRectClass.getSuperClasses(true))
-    System.out.println("  {cls}");
-
+listSupers(myAnonRectClass, true);
 var clsMain = context.findClass("Main");
 System.out.println("Main.getFunction(\"repeat\"): {clsMain.getFunction("repeat", context.getIntegerType(), context.getStringType())}");
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,40 +23,212 @@
 
 package com.sun.tools.javafx.code;
 
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.code.Kinds;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.Name;
+import static com.sun.tools.mjavac.code.Flags.*;
+
+import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /**
- * Marker wrapper on class: this is a JavaFX var
- * 
- * @author llitchev
+ * Class to hold and access variable information.
+ *
+ * @author Robert Field
  */
 public class JavafxVarSymbol extends VarSymbol {
-    public static final int TYPE_KIND_OBJECT = 0;
-    public static final int TYPE_KIND_BOOLEAN = 1;
-    public static final int TYPE_KIND_CHAR = 2;
-    public static final int TYPE_KIND_BYTE = 3;
-    public static final int TYPE_KIND_SHORT = 4;
-    public static final int TYPE_KIND_INT = 5;
-    public static final int TYPE_KIND_LONG = 6;
-    public static final int TYPE_KIND_FLOAT = 7;
-    public static final int TYPE_KIND_DOUBLE = 8;
-    public static final int TYPE_KIND_SEQUENCE = 9;
-    public static final int TYPE_KIND_COUNT = 10;
-    
-    static final String[] typePrefixes = new String[] { "Object", "Boolean", "Char", "Byte", "Short", "Int", "Long", "Float", "Double", "Sequence" };
-    public static String getTypePrefix(int index) { return typePrefixes[index]; }
-    
-    static final String[] accessorSuffixes = new String[] { "", "AsBoolean", "AsChar", "AsByte", "AsShort", "AsInt", "AsLong", "AsFloat", "AsDouble", "AsSequence" };
-    public static String getAccessorSuffix(int index) { return accessorSuffixes[index]; }
 
-    /** Creates a new instance of JavafxVarSymbol */
-    public JavafxVarSymbol(long flags,
-            Name name,
-            Type type,
-            Symbol owner) {
+    private JavafxTypeRepresentation typeRepresentation;
+    private Type elementType = null;
+    private final boolean isDotClass;
+    private boolean isExternallySeen;
+    private int varIndex = -1;
+
+    private Type lastSeenType;
+    private final JavafxTypes types;
+
+    private List<Symbol> overridingClasses = List.nil();
+
+/****
+    private boolean isForwardReferenced = false;
+    private boolean hasForwardReferencesInInit = false;
+****/
+    
+    /** Construct a variable symbol, given its flags, name, type and owner.
+     */
+    public JavafxVarSymbol(JavafxTypes types, Name.Table names, long flags, Name name, Type type, Symbol owner) {
         super(flags, name, type, owner);
+        this.types = types;
+        this.isDotClass = name == names._class;
+        this.isExternallySeen = false; 
+    }
+
+    private void syncType() {
+        if (lastSeenType != type) {
+            typeRepresentation = types.typeRep(type);
+            switch (typeRepresentation) {
+                case TYPE_REPRESENTATION_SEQUENCE:
+                    elementType = types.elementType(type);
+                    break;
+                case TYPE_REPRESENTATION_OBJECT:
+                    elementType = type;
+                    break;
+                default:
+                    elementType = null;
+                    break;
+            }
+            lastSeenType = type;
+        }
+    }
+
+    public boolean isMember() {
+            return owner.kind == Kinds.TYP && !isDotClass;
+    }
+
+    public boolean isFXMember() {
+        return isMember() && types.isJFXClass(owner);
+    }
+
+    public boolean isSequence() {
+        syncType();
+        return typeRepresentation.isSequence();
+    }
+
+    public Type getElementType() {
+        syncType();
+        return elementType;
+    }
+
+    public JavafxTypeRepresentation getTypeRepresentation() {
+        syncType();
+        return typeRepresentation;
+    }
+
+    public long instanceVarAccessFlags() {
+        return flags_field & JavafxAllInstanceVarFlags;
+    }
+
+    public boolean hasScriptOnlyAccess() {
+        long access = instanceVarAccessFlags();
+        return access == SCRIPT_PRIVATE || access == PRIVATE;
+    }
+
+    public boolean isSpecial() {
+        return (flags_field & JavafxFlags.VARUSE_SPECIAL) != 0;
+    }
+    
+    public boolean isBindAccess() {
+        return (flags_field & JavafxFlags.VARUSE_BIND_ACCESS) != 0;
+    }
+    
+    public boolean useAccessors() {
+        return isFXMember() && !isSpecial() &&
+                (!hasScriptOnlyAccess() ||
+                (flags_field & VARUSE_NEED_ACCESSOR) != 0 ||
+                (isBindAccess() && isAssignedTo()) ||
+                (owner.flags_field & MIXIN) != 0);
+    }
+
+    public boolean useGetters() {
+        return !isSpecial() && (useAccessors() || (flags_field & VARUSE_NON_LITERAL) != 0);
+    }
+
+    /** Either has a trigger or a sub-class may have a trigger. */
+    public boolean useTrigger() {
+        return ! hasScriptOnlyAccess() || (flags_field & VARUSE_HAS_TRIGGER) != 0;
+    }
+
+    // Predicate for def (constant) var.
+    public boolean isDef() {
+        return (flags_field & IS_DEF) != 0;
+    }
+
+    public boolean isParameter() {
+        return (flags_field & PARAMETER) != 0;
+    }
+
+    public void setIsExternallySeen() {
+        isExternallySeen = true;
+    }
+
+    public boolean isExternallySeen() {
+        return isExternallySeen;
+    }
+
+    // Predicate for self-reference in init.
+    public boolean hasSelfReference() {
+        return (flags_field & VARUSE_SELF_REFERENCE) != 0;
+    }
+/****
+    public void setIsForwardReferenced() {
+        isForwardReferenced = true;
+    }
+
+    public boolean isForwardReferenced() {
+        return isForwardReferenced;
+    }
+***/
+    public boolean hasForwardReference() {
+        return (flags_field & VARUSE_FORWARD_REFERENCE) != 0;
+    }
+
+    public boolean isAssignedTo() {
+        return (flags_field & VARUSE_ASSIGNED_TO) != 0;
+    }
+
+    public boolean isDefinedBound() {
+        //TODO: this bit, it would appear, is not see for shreds
+        return (flags_field & VARUSE_BOUND_INIT) != 0;
+    }
+
+    public boolean isWritableOutsideScript() {
+        return !isDef() && (flags_field & PUBLIC | PROTECTED | PACKAGE_ACCESS) != 0;
+    }
+
+    public boolean isMutatedWithinScript() {
+        return (flags_field & (VARUSE_ASSIGNED_TO | VARUSE_SELF_REFERENCE | VARUSE_FORWARD_REFERENCE)) != 0L;
+    }
+
+    public boolean canChange() {
+        return isWritableOutsideScript() || isMutatedWithinScript() || isDefinedBound();
+    }
+
+    public boolean isMutatedLocal() {
+        return !isMember() && isMutatedWithinScript();
+    }
+
+    public int getVarIndex() {
+        return varIndex;
+    }
+
+    public void setVarIndex(int varIndex) {
+        this.varIndex = varIndex;
+    }
+
+    public int getAbsoluteIndex(Type site) {
+        types.supertypesClosure(site);
+        return isLocal() || isStatic() ?
+            getVarIndex() :
+            getVarIndex() + baseIndex((TypeSymbol)owner, site);
+    }
+    //where
+    private int baseIndex(TypeSymbol tsym, Type site) {
+        List<Type> closure = types.supertypesClosure(site, false, true);
+        int baseIdx = 0;
+        for (Type t : closure) {
+            if (types.isSameType(t, tsym.type)) break;
+            baseIdx += ((JavafxClassSymbol)t.tsym).getMemberVarCount();
+        }
+        return baseIdx;
+    }
+
+    public void addOverridingClass(Symbol s) {
+        overridingClasses = overridingClasses.append(s);
+    }
+
+    public boolean isOverridenIn(Symbol s) {
+        return overridingClasses.contains(s);
     }
 }

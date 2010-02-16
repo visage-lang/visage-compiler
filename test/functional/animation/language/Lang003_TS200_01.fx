@@ -61,7 +61,7 @@ var t: Timeline = Timeline {
         },
 		KeyFrame {
             canSkip: false
-            time  : 0.1m
+            time  : 0.1m / 2   // 3s
             action: function() {
                 t3 = getDuration(s1);
 				//System.out.println("t3(6000) = {t3} [Diff = {t3-6000} ms]");
@@ -69,7 +69,7 @@ var t: Timeline = Timeline {
         },
         KeyFrame {
             canSkip: false
-            time  : 0.01h	// 36s
+            time  : 0.001h     // 3.6s
             action: function() {
                 t4 = getDuration(s1);
 				//System.out.println("t4(36000) = {t4} [Diff = {t4-36000} ms]");
@@ -81,8 +81,8 @@ var t: Timeline = Timeline {
 s1 = System.nanoTime();
 t.play();
 
-// check after 1m
-var timer = new Timer(60000, ActionListener {
+// check after 6 secs
+var timer = new Timer(6000, ActionListener {
      public function actionPerformed(e: ActionEvent) {
         FX.deferAction(function():Void {
      		if(not (t0 < t1 and t1 < t2 and t2 < t3 and t3 < t4)) {

@@ -11,8 +11,9 @@ var x = 1; // bound to
 def y = bind x; // bind def
 
 public class Foo {
+  function f() : Integer { 3 }
   var a = 3; // bound to
-  def b = bind a;  // bind def
+  def b = bind a + f();  // bind def
   var c = 0 // isInitialied
      on replace { if (isInitialized(c)) 0 else 1 }
 }

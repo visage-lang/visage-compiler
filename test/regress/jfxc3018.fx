@@ -1,6 +1,9 @@
 /**
  * Regress test for JFXC-3018 - Binding chain isn't updated when initialized.
  *
+ * This test should really generate an illegal forward reference error -- see JIRA.
+ * Left here to track changes in behavior.
+ *
  * @test
  * @run
  */

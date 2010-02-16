@@ -31,8 +31,8 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
  */
 public class JFXWhileLoop extends JFXExpression implements WhileLoopTree {
 
-    public JFXExpression cond;
-    public JFXExpression body;
+    public final JFXExpression cond;
+    public final JFXExpression body;
 
     protected JFXWhileLoop(JFXExpression cond, JFXExpression body) {
         this.cond = cond;
@@ -52,11 +52,10 @@ public class JFXWhileLoop extends JFXExpression implements WhileLoopTree {
         return cond;
     }
 
-    public JFXExpression getStatement() {
+    public JFXExpression getBody() {
         return body;
     }
 
-    @Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitWhileLoop(this, d);
     }

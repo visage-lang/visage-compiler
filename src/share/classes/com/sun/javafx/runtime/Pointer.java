@@ -24,78 +24,40 @@
 package com.sun.javafx.runtime;
 
 import javafx.animation.KeyValueTarget;
-import com.sun.javafx.runtime.location.*;
-import com.sun.javafx.runtime.sequence.Sequence;
 
 
 /**
  * Pointers
  *
  * @author Brian Goetz
+ * @author A. Sundararajan
  */
 public class Pointer implements KeyValueTarget {
-
-    private final Location location;
     private final Type type;
+    private final FXObject obj;
+    private final int varnum;
 
-    public static Pointer make(Location location) {
-        Type type = location instanceof IntLocation ? Type.INTEGER :
-                location instanceof DoubleLocation ? Type.DOUBLE :
-                        location instanceof FloatLocation ? Type.FLOAT :
-                                location instanceof ByteLocation ? Type.BYTE :
-                                        location instanceof LongLocation ? Type.LONG :
-                                                location instanceof ShortLocation ? Type.SHORT :
-                                                        location instanceof BooleanLocation ? Type.BOOLEAN :
-                                                                location instanceof SequenceLocation ? Type.SEQUENCE :
-                                                                        Type.OBJECT;
-        return new Pointer(location, type);
+    @com.sun.javafx.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Lcom/sun/javafx/runtime/Pointer;")
+    public static Pointer make(Type type, FXObject obj, int varnum) {
+        return new Pointer(type, obj, varnum);
     }
-
-    static Pointer make(IntLocation location) {
-        return new Pointer(location, Type.INTEGER);
-    }
-
-    static Pointer make(ShortLocation location) {
-        return new Pointer(location, Type.SHORT);
-    }
-
-    static Pointer make(ByteLocation location) {
-        return new Pointer(location, Type.BYTE);
-    }
-
-    static Pointer make(LongLocation location) {
-        return new Pointer(location, Type.LONG);
-    }
-
-    static Pointer make(DoubleLocation location) {
-        return new Pointer(location, Type.DOUBLE);
-    }
-
-    static Pointer make(FloatLocation location) {
-        return new Pointer(location, Type.FLOAT);
-    }
-
-    static Pointer make(BooleanLocation location) {
-        return new Pointer(location, Type.BOOLEAN);
-    }
-
-    static Pointer make(SequenceLocation location) {
-        return new Pointer(location, Type.SEQUENCE);
-    }
-
-    static Pointer make(ObjectLocation location) {
-        return new Pointer(location, Type.OBJECT);
-    }
-
+    
     public static boolean equals(Pointer p1, Pointer p2) {
         return (p1 == null) ? (p2 == null) : p1.equals(p2);
     }
 
-    private Pointer(Location location, Type type) {
-        while (location.isViewLocation())
-            location = location.getUnderlyingLocation();
-        this.location = location;
+    private Pointer(Type type, FXObject obj, int varnum) {
         this.type = type;
+        this.obj = obj;
+        this.varnum = varnum;
+    }
+
+    public FXObject getFXObject() {
+        return obj;
+    }
+
+    public int getVarNum() {
+        return varnum;
     }
 
     public Type getType() {
@@ -107,58 +69,26 @@ public class Pointer implements KeyValueTarget {
     }
     
     public Object get() {
-        switch (type) {
-            case BYTE:
-                return ((NumericLocation) location).getAsByte();
-            case SHORT:
-                return ((NumericLocation) location).getAsShort();
-            case INTEGER:
-                return ((NumericLocation) location).getAsInt();
-            case LONG:
-                return ((NumericLocation) location).getAsLong();
-            case FLOAT:
-                return ((NumericLocation) location).getAsFloat();
-            case DOUBLE:
-                return ((NumericLocation) location).getAsDouble();
-            case BOOLEAN:
-                return ((BooleanLocation) location).getAsBoolean();
-            case SEQUENCE:
-                return ((SequenceLocation<?>) location).getAsSequence();
-            default:
-                return ((ObjectLocation<?>) location).get();
-        }
+        return obj.get$(varnum);
+    }
+
+    public Object get(int pos) {
+        assert type == Type.SEQUENCE : "expecting a sequence type";
+        return obj.elem$(varnum, pos);
     }
 
     public void set(Object value) {
-        switch (type) {
-            case BYTE:
-                ((ByteLocation) location).setAsByte(((Number) value).byteValue());
-                break;
-            case SHORT:
-                ((ShortLocation) location).setAsShort(((Number) value).shortValue());
-                break;
-            case INTEGER:
-                ((IntLocation) location).setAsInt(((Number) value).intValue());
-                break;
-            case LONG:
-                ((LongLocation) location).setAsLong(((Number) value).longValue());
-                break;
-            case FLOAT:
-                ((FloatLocation) location).setAsFloat(((Number) value).floatValue());
-                break;
-            case DOUBLE:
-                ((DoubleLocation) location).setAsDouble(((Number) value).doubleValue());
-                break;
-            case BOOLEAN:
-                ((BooleanLocation) location).setAsBoolean((Boolean) value);
-                break;
-            case SEQUENCE:
-                ((SequenceLocation) location).setAsSequence((Sequence) value);
-                break;
-            case OBJECT:
-                ((ObjectLocation) location).set(value);
-                break;
-        }
+        obj.set$(varnum, value);
+    }
+
+    public void set(int pos, Object value) {
+        assert type == Type.SEQUENCE : "expecting a sequence type";
+        obj.set$(varnum, value);
+    }
+
+    public int size() {
+        assert type == Type.SEQUENCE : "expecting a sequence type";
+        return obj.size$(varnum);
     }
 
     public Object getValue() {
@@ -171,22 +101,97 @@ public class Pointer implements KeyValueTarget {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        else
-            return (o instanceof Pointer)
-                    && getUnderlyingLocation(location) == getUnderlyingLocation(((Pointer) o).location);
+        if (o instanceof Pointer) {
+            Pointer other = (Pointer)o;
+            return obj == other.obj && varnum == other.varnum;
+        } else {
+            return false;
+        }
     }
 
     @Override
     public int hashCode() {
-        Location loc = getUnderlyingLocation(location);
-        return loc != null ? loc.hashCode() : 0;
+        return System.identityHashCode(obj) ^ varnum;
     }
 
-    private static Location getUnderlyingLocation(Location loc) {
-        while (loc.isViewLocation())
-            loc = loc.getUnderlyingLocation();
-        return loc;
+    public void addDependency(FXObject dep) {
+        obj.addDependent$(varnum, dep, 0);
+    }
+
+    public void removeDependency(FXObject dep) {
+        obj.removeDependent$(varnum, dep);
+    }
+
+    public static void switchDependence(Pointer oldPtr, Pointer newPtr, FXObject dep, int depNum) {
+        if (oldPtr != newPtr) {
+            FXObject oldSrc = (oldPtr != null)? oldPtr.getFXObject() : null;
+            FXObject newSrc = (newPtr != null)? newPtr.getFXObject() : null;
+            int oldVarNum = (oldPtr != null)? oldPtr.getVarNum() : 0;
+            int newVarNum = (newPtr != null)? newPtr.getVarNum() : 0;
+            dep.switchDependence$(oldSrc, oldVarNum, newSrc, newVarNum, depNum);
+        }
+    }
+
+    /**
+     * A BoundPointer is returned from the Pointer.bind(Pointer) method.
+     * BoundPointer instance has to be kept alive till you want bind to be
+     * effective. You can explicitly unbind the pointer using the "unbind"
+     * method is this class.
+     */
+    public static class BoundPointer extends Pointer {
+        private Pointer srcPtr;
+        private FXObject listener;
+
+        private BoundPointer(Pointer destPtr, Pointer srcPtr, FXObject listener) {
+            super(destPtr.getType(), destPtr.getFXObject(), destPtr.getVarNum());
+            this.srcPtr = srcPtr;
+            this.listener = listener;
+        }
+
+        /**
+         * Uubind the current Pointer from the srcPtr. Repeated calls are fine
+         * but subsequent calls are just no-ops. After unbind call, the BoundPointer
+         * becomes effectively a regular, unbound Pointer. There is no need to
+         * explicitly call 'unbind'. If this BoundPointer instance is unreachable,
+         * GC will collect it and srcPtr will eventually see that the listener
+         * object is not alive and so remove it from it's dependencies.
+         */
+        public void unbind() {
+            if (srcPtr != null) {
+                srcPtr.removeDependency(listener);
+            }
+            // clear everything related to Pointer bind.
+            srcPtr = null;
+            listener = null;
+        }
+    }
+
+    /**
+     * Implements identity bind expression between "srcPtr" and the current Pointer.
+     * Whenever the value pointed by srcPtr changes, the current Pointer's value
+     * is set from that.
+     *
+     * @param srcPtr The source Pointer object to which the current Pointer is bound to
+     */
+    public BoundPointer bind(Pointer srcPtr) {
+        final FXObject thisObj = getFXObject();
+        final int thisVarNum = getVarNum();
+        FXObject listener = new FXBase() {
+            @Override
+            public boolean update$(FXObject src, final int depNum,
+                    int startPos, int endPos, int newLength, final int phase) {
+                if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
+                    // update value from "src"
+                    thisObj.set$(thisVarNum, src.get$(depNum));
+                }
+                return true;
+            }
+        };
+        // initial update from "srcPtr"
+        thisObj.set$(thisVarNum, srcPtr.getFXObject().get$(srcPtr.getVarNum()));
+        // add dependency so that we will get notified with update$ calls
+        srcPtr.addDependency(listener);
+        // return a BoundPointer so that use can call call "unbind()" later, if needed
+        return new BoundPointer(this, srcPtr, listener);
     }
 }

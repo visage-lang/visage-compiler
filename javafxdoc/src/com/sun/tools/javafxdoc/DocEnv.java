@@ -27,15 +27,15 @@ import java.util.*;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.code.Type.MethodType;
-import com.sun.tools.javac.comp.Check;
-import com.sun.tools.javac.parser.DocCommentScanner;
-import com.sun.tools.javac.parser.Token;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.code.Type.MethodType;
+import com.sun.tools.mjavac.comp.Check;
+import com.sun.tools.mjavac.parser.DocCommentScanner;
+import com.sun.tools.mjavac.parser.Token;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxAttr;
@@ -105,7 +105,7 @@ public class DocEnv {
     JavafxTypes types;
     
     /** scanner factory for converting raw doc-comment text */
-    com.sun.tools.javac.parser.Scanner.Factory scannerFactory;
+    com.sun.tools.mjavac.parser.Scanner.Factory scannerFactory;
 
     /** Allow documenting from class files? */
     boolean docClasses = false;
@@ -690,16 +690,20 @@ public class DocEnv {
         ClassSymbol cls = sym instanceof ClassSymbol ? (ClassSymbol)sym : sym.enclClass();
         return types.isJFXClass(cls);
     }
+
+    protected boolean isMixin(ClassSymbol tsym) {
+        return types.isMixin(tsym);
+    }
     
     protected boolean isSequence(Symbol sym) {
         return sym != null && types.isSequence(sym.type);
     }
     
-    protected com.sun.tools.javac.code.Type sequenceType(com.sun.tools.javac.code.Type type) {
+    protected com.sun.tools.mjavac.code.Type sequenceType(com.sun.tools.mjavac.code.Type type) {
         return types.elementType(type);
     }
     
-    protected String simpleFunctionalTypeName(com.sun.tools.javac.code.Type type) {
+    protected String simpleFunctionalTypeName(com.sun.tools.mjavac.code.Type type) {
         if (type instanceof FunctionType) {
             FunctionType func = (FunctionType)type;
             MethodType mtype = func.asMethodType();
@@ -708,8 +712,8 @@ public class DocEnv {
             if (mtype == null)
                 s.append("???");
             else {
-                com.sun.tools.javac.util.List<com.sun.tools.javac.code.Type> args = mtype.argtypes;
-                for (com.sun.tools.javac.util.List<com.sun.tools.javac.code.Type> l = args; 
+                com.sun.tools.mjavac.util.List<com.sun.tools.mjavac.code.Type> args = mtype.argtypes;
+                for (com.sun.tools.mjavac.util.List<com.sun.tools.mjavac.code.Type> l = args; 
                         l.nonEmpty(); l = l.tail) {
                     if (l != args)
                         s.append(',');
@@ -738,7 +742,7 @@ public class DocEnv {
     protected String processDocComment(String rawText) {
         if (rawText == null)
             return null;
-        com.sun.tools.javac.parser.Scanner scanner = scannerFactory.newScanner(rawText);
+        com.sun.tools.mjavac.parser.Scanner scanner = scannerFactory.newScanner(rawText);
         do { 
             scanner.nextToken(); 
         } while (scanner.token() != Token.EOF);

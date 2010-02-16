@@ -133,6 +133,18 @@ public class DateTime {
 
     /**
      * Converts this <code>DateTime</code> object to a
+     * <code>Long</code> instant value represented by the number of milliseconds
+     * since the Epoch (1970-01-01T00:00:00Z).     
+     *
+     * @treatasprivate
+     */
+    public function impl_toInstant():Long {
+        normalize();
+        instant;
+    }
+
+    /**
+     * Converts this <code>DateTime</code> object to a
      * <code>String</code> of the form defined by RFC 822:
      * <pre><code>
      *  EEE ',&nbsp;' dd '&nbsp;' MMM '&nbsp;' yyyy '&nbsp;' HH ':' mm ':' ss '&nbsp;' Z

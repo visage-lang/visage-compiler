@@ -26,9 +26,9 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.util.Position;
 
 /**
  *
@@ -39,8 +39,13 @@ public class JFXBlock extends JFXExpression implements BlockExpressionTree {
     public long flags;
     public List<JFXExpression> stats;
     public JFXExpression value;
+    // During attribution we rewrite return statement with the expression
+    // returned. See JavafxAttr.finishFunctionDefinition. In such cases, we
+    // save actual return statement in this field.
+    public JFXReturn returnStatement;
     /** Position of closing brace, optional. */
     public int endpos = Position.NOPOS;
+    public boolean isVoidValueAllowed = true;
 
     protected JFXBlock(long flags, List<JFXExpression> stats, JFXExpression value) {
         this.stats = stats;
@@ -53,8 +58,23 @@ public class JFXBlock extends JFXExpression implements BlockExpressionTree {
         this.flags = 0;
         this.value = null;
     }
+
+    /*
+     * This is used only by the extranal tree walkers. Internal tree walkers
+     * always use "stats" field directly. For external walkers, we want to
+     * present source return statement, if any instead of value alone. So, we
+     * return a modified list of statements with return statement or return value
+     * appended. See also JFXC-3284.
+     */
     public java.util.List<ExpressionTree> getStatements() {
-        return convertList(ExpressionTree.class, stats);
+        // form a new list with possible return statement, if any
+        List<JFXExpression> statements;
+        if (returnStatement == null && value == null) {
+            statements = stats;
+        } else {
+            statements = stats.append((returnStatement != null)? returnStatement : value);
+        }
+        return convertList(ExpressionTree.class, statements);
     }
 
     public List<JFXExpression> getStmts() {
@@ -74,7 +94,7 @@ public class JFXBlock extends JFXExpression implements BlockExpressionTree {
         return JavafxTag.BLOCK_EXPRESSION;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitBlockExpression(this, d);
     }

@@ -45,14 +45,14 @@ var target: Number = 0 on replace {
 }
 
 var t : Timeline = Timeline {
-    repeatCount: 20
+    repeatCount: 5
     keyFrames: [
 		KeyFrame {
 			time: 100ms
 			canSkip: false
 			action: function() {				
 				ea++;                
-                Thread.sleep(500);
+                Thread.sleep(310);
 			}
 		},		
 		KeyFrame {
@@ -90,11 +90,11 @@ function check(): Void {
         //System.out.println("2nd keyFrame: {eb}");
         //System.out.println("3rd keyFrame: {ec}");
 
-        if(eb == 20) {
+        if(eb == 5) {
             throw new AssertionError("test failed: didn't skipped");
         }
 
-        if(ea < 20 or ec < 20) {
+        if(ea < 5 or ec < 5) {
             throw new AssertionError("test failed: shouldn't be skipped");
         }
     }

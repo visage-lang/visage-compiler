@@ -33,12 +33,12 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SyntheticTree.SynthType;
 import com.sun.javafx.api.tree.TypeTree;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
-import com.sun.tools.javac.code.Flags;
-import static com.sun.tools.javac.code.Flags.*;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.util.Name.Table;
+import com.sun.tools.mjavac.code.Flags;
+import static com.sun.tools.mjavac.code.Flags.*;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.util.Name.Table;
 import com.sun.tools.javafx.code.JavafxFlags;
 import static com.sun.tools.javafx.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -177,19 +177,19 @@ public class JavafxScriptClassBuilder {
             @Override
             public void visitIdent(JFXIdent id) {
                 super.visitIdent(id);
-                if (id.name.equals(pseudoSourceFile)) {
+                if (id.getName().equals(pseudoSourceFile)) {
                     usesSourceFile = true;
                     markPosition(id);
                 }
-                if (id.name.equals(pseudoFile)) {
+                if (id.getName().equals(pseudoFile)) {
                     usesFile = true;
                     markPosition(id);
                 }
-                if (id.name.equals(pseudoDir)) {
+                if (id.getName().equals(pseudoDir)) {
                     usesDir = true;
                     markPosition(id);
                 }
-                if (id.name.equals(pseudoProfile)) {
+                if (id.getName().equals(pseudoProfile)) {
                     usesProfile = true;
                     markPosition(id);
 		}
@@ -319,7 +319,7 @@ public class JavafxScriptClassBuilder {
                         // The main-code will go into the run method.  The variable initializations should
                         // be in-place inline.   Place the variable initialization in 'value' so that
                         // it will wind up in the code of the run method.
-                        value = fxmake.VarScriptInit(decl);
+                        value = fxmake.VarInit(decl);
                     }
                     break;
                 }
@@ -415,14 +415,12 @@ public class JavafxScriptClassBuilder {
                     scriptClassDefs.toList());
             moduleClass.setGenType(SynthType.SYNTHETIC);
             moduleClass.setPos(module.getStartPosition());
-
-            // Check endpos for IDE
-            //
-            setEndPos(module, moduleClass, module);
-        
         } else {
             moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }
+        // Check endpos for IDE
+        //
+        setEndPos(module, moduleClass, module);
         
         moduleClass.isScriptClass   = true;
         moduleClass.runMethod       = userRunFunction;
@@ -477,7 +475,7 @@ public class JavafxScriptClassBuilder {
             JFXExpression sourceFileVar =
                 fxmake.at(diagPos).Var(pseudoSourceFile, getPseudoVarType(diagPos),
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
-                         fxmake.Literal(sourceName), JavafxBindStatus.UNBOUND, null);
+                         fxmake.Literal(sourceName), JavafxBindStatus.UNBOUND, null, null);
             pseudoDefs.append(sourceFileVar);
         }
         if (usesFile || usesDir) {
@@ -492,7 +490,7 @@ public class JavafxScriptClassBuilder {
             JFXExpression fileVar =
                 fxmake.at(diagPos).Var(pseudoFile, getPseudoVarType(diagPos),
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
-                         getFileURL, JavafxBindStatus.UNBOUND, null);
+                         getFileURL, JavafxBindStatus.UNBOUND, null, null);
             pseudoDefs.append(fileVar);
 
             if (usesDir) {
@@ -502,7 +500,7 @@ public class JavafxScriptClassBuilder {
                 pseudoDefs.append(
                     fxmake.at(diagPos).Var(pseudoDir, getPseudoVarType(diagPos),
                              fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
-                             getDirURL, JavafxBindStatus.UNBOUND, null));
+                             getDirURL, JavafxBindStatus.UNBOUND, null, null));
             }
         }
 	if (usesProfile) {
@@ -511,7 +509,7 @@ public class JavafxScriptClassBuilder {
            JFXExpression profileVar =
                 fxmake.at(diagPos).Var(pseudoProfile, getPseudoVarType(diagPos),
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
-                         getProfileString, JavafxBindStatus.UNBOUND, null);
+                         getProfileString, JavafxBindStatus.UNBOUND, null, null);
             pseudoDefs.append(profileVar);
 	}
         return pseudoDefs.toList();

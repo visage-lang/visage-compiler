@@ -1,0 +1,9 @@
+/**
+ * JFXC-3629 : Compiled bind: bind ... for ... { if ... then ... else {null} causes crash
+ *
+ * @test
+ */
+
+var j = for (x in [0,1]) {
+	if (true) null else null;
+}

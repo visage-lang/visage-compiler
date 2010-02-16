@@ -23,7 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javafx.tree.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;

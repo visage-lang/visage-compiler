@@ -23,9 +23,9 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * Creates a copy of a tree, using a given TreeMaker.
@@ -174,7 +174,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
     }
 
     public void visitIdent(JFXIdent tree) {
-        result = maker.at(tree.pos).Ident(tree.name);
+        result = maker.at(tree.pos).Ident(tree.getName());
     }
 
     public void visitLiteral(JFXLiteral tree) {
@@ -233,7 +233,9 @@ public class JavafxTreeCopier implements JavafxVisitor {
 
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         JFXExpression expr = copy(tree.getExpression());
-        result = maker.at(tree.pos).ObjectLiteralPart(tree.name, expr, null);
+        JFXObjectLiteralPart res = maker.at(tree.pos).ObjectLiteralPart(tree.name, expr, tree.getExplicitBindStatus());
+        res.markBound(tree.getBindStatus());
+        result = res;
     }
 
     public void visitTypeAny(JFXTypeAny tree) {
@@ -251,7 +253,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).TypeFunctional(params, restype, tree.getCardinality());
     }
 
-    @Override
+    //@Override
     public void visitTypeArray(JFXTypeArray tree) {
         JFXType elementType = copy(tree.getElementType());
         result = maker.at(tree.pos).TypeArray(elementType);
@@ -261,8 +263,13 @@ public class JavafxTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).TypeUnknown();
     }
 
-    @Override
-    public void visitVarScriptInit(JFXVarScriptInit tree) {
+    //@Override
+    public void visitVarInit(JFXVarInit tree) {
+    }
+
+    //@Override
+    public void visitVarRef(JFXVarRef tree) {
+        result = maker.at(tree.pos).VarRef(tree.getExpression(), tree.getVarRefKind());
     }
 
     public void visitVar(JFXVar tree) {
@@ -271,8 +278,9 @@ public class JavafxTreeCopier implements JavafxVisitor {
         JFXModifiers mods = copy(tree.getModifiers());
         JFXExpression init = copy(tree.getInitializer());
         JFXOnReplace onReplace = copy(tree.getOnReplace());
+        JFXOnReplace onInvalidate = copy(tree.getOnInvalidate());
         result = maker.at(tree.pos).Var(name, type, mods, 
-                                        init, tree.getBindStatus(), onReplace);
+                                        init, tree.getBindStatus(), onReplace, onInvalidate);
     }
 
     public void visitOnReplace(JFXOnReplace tree) {
@@ -339,6 +347,11 @@ public class JavafxTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).SequenceDelete(sequence, element);
     }
 
+    public void visitInvalidate(JFXInvalidate tree) {
+       JFXExpression variable = copy(tree.getVariable());
+       result = maker.at(tree.pos).Invalidate(variable);
+    }
+
     public void visitForExpression(JFXForExpression tree) {
         List<JFXForExpressionInClause> inClauses = copy(tree.inClauses);
         JFXExpression bodyExpr = copy(tree.bodyExpr);
@@ -346,10 +359,9 @@ public class JavafxTreeCopier implements JavafxVisitor {
     }
 
     public void visitForExpressionInClause(JFXForExpressionInClause tree) {
-        JFXVar var = copy(tree.var);
-        JFXExpression seqExpr = copy(tree.seqExpr);
-        JFXExpression whereExpr = copy(tree.whereExpr);
-        result = maker.at(tree.pos).InClause(var, seqExpr, whereExpr);
+        tree.seqExpr = copy(tree.seqExpr);
+        tree.setWhereExpr(copy(tree.getWhereExpression()));
+        result = tree;
     }
 
     public void visitIndexof(JFXIndexof tree) {
@@ -362,10 +374,14 @@ public class JavafxTreeCopier implements JavafxVisitor {
     }
 
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+        Name name = tree.getName();
+        JFXModifiers mods = copy(tree.getModifiers());
         JFXIdent expr = copy(tree.getId());
+        JFXType jfxtype = copy(tree.getJFXType());
         JFXExpression initializer = copy(tree.getInitializer());
-        JFXOnReplace onr = copy(tree.getOnReplace());
-        result = maker.at(tree.pos).OverrideClassVar(expr, initializer, tree.getBindStatus(), onr);
+        JFXOnReplace onReplace = copy(tree.getOnReplace());
+        JFXOnReplace onInvalidate = copy(tree.getOnInvalidate());
+        result = maker.at(tree.pos).OverrideClassVar(name, jfxtype, mods, expr, initializer, tree.getBindStatus(), onReplace, onInvalidate);
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {

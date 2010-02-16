@@ -23,19 +23,23 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.source.tree.Tree.Kind;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashSet;
 
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCAnnotation;
-import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
-import com.sun.tools.javac.tree.JCTree.JCImport;
-import com.sun.tools.javac.tree.Pretty;
-import com.sun.tools.javac.tree.TreeInfo;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.tree.JCTree.JCAnnotation;
+import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.mjavac.tree.JCTree.JCImport;
+import com.sun.tools.mjavac.tree.Pretty;
+import com.sun.tools.mjavac.tree.TreeInfo;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.comp.JavafxDefs;
+import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
+import com.sun.tools.mjavac.tree.JCTree.JCIdent;
+import com.sun.tools.mjavac.util.Options;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -49,25 +53,39 @@ import com.sun.tools.javafx.comp.JavafxDefs;
 public class JavaPretty extends Pretty {
 	private HashSet<Name> importedPackages = new HashSet<Name>();
 	private HashSet<Name> importedClasses = new HashSet<Name>();
+    private boolean seenImport;
 
-    public static final boolean showAnnotations = false;
+    public final boolean verbose;
 	
     public JavaPretty(Writer out, boolean sourceOutput, Context context) {
         super(out, sourceOutput);
 
+        Options options = Options.instance(context);
+        verbose = options.get("dumpverbosejava") != null;
+
 		JavafxDefs defs = JavafxDefs.instance(context);
-		importedPackages.add(defs.runtimePackageName);
-		importedPackages.add(defs.annotationPackageName);
-		importedPackages.add(defs.locationPackageName);
-		importedPackages.add(defs.sequencePackageName);
-		importedPackages.add(defs.functionsPackageName);
-                importedPackages.add(defs.javaLangPackageName);
+		    importedPackages.add(defs.runtime_PackageName);
+		    importedPackages.add(defs.annotation_PackageName);
+		    importedPackages.add(defs.sequence_PackageName);
+		    importedPackages.add(defs.functions_PackageName);
+            importedPackages.add(defs.javaLang_PackageName);
     }
 
     @Override
     public void visitAnnotation(JCAnnotation tree) {
-        if (showAnnotations) {
-            super.visitAnnotation(tree);
+        if (verbose) {
+            // Super class implementation prints only simple name for
+            // annotation type. So, com.sun.javafx.runtime.Package is
+            // printed as Package which clashes with java.lang.Package!!
+            try {
+                print("@");
+                print(tree.annotationType);
+                print("(");
+                printExprs(tree.args);
+                print(")");
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
     }
 
@@ -85,6 +103,7 @@ public class JavaPretty extends Pretty {
             if (tree.value != null) {
                 pretty.align();
                 pretty.printExpr(tree.value);
+                pretty.print(";");
             }
             pretty.undent();
             pretty.println();
@@ -95,8 +114,9 @@ public class JavaPretty extends Pretty {
         }
     }
 	
-	@Override
+    @Override
     public void visitImport(JCImport tree) {
+        printRuntimeImports();
 		super.visitImport(tree);
 
 		// save imports for later use
@@ -114,17 +134,45 @@ public class JavaPretty extends Pretty {
         }
     }
 
-	@Override
+    @Override
+    public void visitClassDef(JCClassDecl tree) {
+        printRuntimeImports();
+        super.visitClassDef(tree);
+    }
+
+    @Override
     public void visitSelect(JCFieldAccess tree) {
         try {
 			if (!importedPackages.contains(TreeInfo.fullName(tree.selected)) 
 					&& !importedClasses.contains(TreeInfo.fullName(tree))) {
 				printExpr(tree.selected, TreeInfo.postfixPrec);
-				print(".");
+                if (tree.selected.getKind() == Kind.IDENTIFIER) {
+                    if (! ((JCIdent)tree.selected).getName().isEmpty()) {
+                        print(".");
+                    }
+                } else {
+                    print(".");
+                }
 			}
             print(tree.name);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }	
+    }
+
+    private void printRuntimeImports() {
+        if (! seenImport) {
+            for (Name pkg : importedPackages) {
+                try {
+                    print("import ");
+                    print(pkg.toString());
+                    print(".*;");
+                    println();
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            }
+        }
+        seenImport = true;
+    }
 }

@@ -27,11 +27,13 @@ import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Scope;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
+import com.sun.tools.mjavac.code.Scope;
+import com.sun.tools.mjavac.tree.JCTree;
 
 /**
  * A class declaration
@@ -39,27 +41,34 @@ import com.sun.tools.javac.code.Scope;
 public class JFXClassDeclaration extends JFXExpression implements ClassDeclarationTree {
     public final JFXModifiers mods;
     private final Name name;
-    private List<JFXExpression> extending    = null;
-    private List<JFXExpression> implementing = null;
-    private List<JFXExpression> mixing       = null;
+    private List<JFXExpression> extending;
+    private List<JFXExpression> implementing;
+    private List<JFXExpression> mixing;
     private List<JFXTree> defs;
     private List<JFXExpression> supertypes;
-
-    public ClassSymbol sym;
+    private List<JavafxVarSymbol> objInitSyms;
     
+    public ClassSymbol sym;
     public JFXFunctionDefinition runMethod;
     public Scope runBodyScope;
-    public boolean isScriptClass = false;
+    public boolean isScriptClass;
+    public boolean hasBeenTranslated; // prevent multiple translations
 
-    public boolean hasBeenTranslated = false; // prevent multiple translations
-    
-    protected JFXClassDeclaration()
-    {
-        this.mods       = null;
-        this.name       = null;
+    protected JFXClassDeclaration() {
+        this.mods = null;
+        this.name = null;
+        this.extending = null;
+        this.implementing = null;
+        this.mixing = null;
+        this.defs = null;
         this.supertypes = null;
-        this.defs       = null;
-        this.sym        = null;
+        this.objInitSyms = null;
+        
+        this.sym = null;
+        this.runMethod = null;
+        this.runBodyScope = null;
+        this.isScriptClass = false;
+        this.hasBeenTranslated = false;
     }
     protected JFXClassDeclaration(JFXModifiers mods,
             Name name,
@@ -68,9 +77,22 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
             ClassSymbol sym) {
         this.mods = mods;
         this.name = name;           
-        this.supertypes = supertypes;
+        this.extending = null;
+        this.implementing = null;
+        this.mixing = null;
         this.defs = declarations;
+        this.supertypes = supertypes;
+        this.objInitSyms = null;
+        
         this.sym = sym;
+        this.runMethod = null;
+        this.runBodyScope = null;
+        this.isScriptClass = false;
+        this.hasBeenTranslated = false;
+    }
+
+    public boolean isScriptClass() {
+        return isScriptClass;
     }
 
     public java.util.List<ExpressionTree> getSupertypeList() {
@@ -109,7 +131,7 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         return mixing;
     }
 
-    public void setDifferentiatedExtendingImplementing(List<JFXExpression> extending,
+    public void setDifferentiatedExtendingImplementingMixing(List<JFXExpression> extending,
                                                        List<JFXExpression> implementing,
                                                        List<JFXExpression> mixing) {
         this.extending    = extending;
@@ -130,6 +152,10 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     
     public boolean isMixinClass() {
         return (sym.flags_field & JavafxFlags.MIXIN) != 0;
+    }
+    
+    public boolean isBoundFuncClass() {
+        return (sym.flags_field & JavafxFlags.FX_BOUND_FUNCTION_CLASS) != 0L;
     }
 
     @Override
@@ -167,5 +193,13 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
 
     public java.util.List<ExpressionTree> getMixins() {
         return convertList(ExpressionTree.class, mixing);
+    }
+    
+    public void setObjInitSyms(List<JavafxVarSymbol> syms) {
+        objInitSyms = syms;
+    }
+    
+    public List<JavafxVarSymbol> getObjInitSyms() {
+        return objInitSyms;
     }
 }

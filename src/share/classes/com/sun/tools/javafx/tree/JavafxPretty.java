@@ -30,18 +30,16 @@ import java.util.Map;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.javafx.api.tree.InterpolateValueTree;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.util.Convert;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.TypeTags;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.util.Convert;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.JavafxFlags;
-import java.util.Iterator;
 
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -233,9 +231,9 @@ public class JavafxPretty implements JavafxVisitor {
     /** Print a set of modifiers.
      */
     public void printFlags(long flags) throws IOException {
-        if ((flags & SYNTHETIC) != 0) print("/*synthetic*/ ");
-        print(JavafxTreeInfo.flagNames(flags));
-        if ((flags & StandardFlags) != 0) print(" ");
+        String sf = JavafxTreeInfo.flagNames(flags, true);
+        print(sf);
+        if (sf.length() > 0) print(" ");
         if ((flags & ANNOTATION) != 0) print("@");
     }
 
@@ -552,7 +550,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitUnary(JFXUnary tree) {
         try {
            if (tree.getFXTag() == JavafxTag.SIZEOF) {
@@ -624,7 +622,7 @@ public class JavafxPretty implements JavafxVisitor {
 
     public void visitIdent(JFXIdent tree) {
         try {
-            print(tree.name);
+            print(tree.getName());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -633,6 +631,8 @@ public class JavafxPretty implements JavafxVisitor {
     public void visitLiteral(JFXLiteral tree) {
         try {
             switch (tree.typetag) {
+                case TypeTags.BYTE:
+                case TypeTags.SHORT:
                 case TypeTags.INT:
                     print(tree.value.toString());
                     break;
@@ -738,6 +738,13 @@ public class JavafxPretty implements JavafxVisitor {
             print("class ");
             Name n = tree.getName();
             print(n == null ? "<anonymous>" : n);
+            if (tree.getSupertypes().nonEmpty()) {
+                print(" extends");
+                for (JFXExpression sup : tree.getSupertypes()) {
+                    print(" ");
+                    printExpr(sup);
+                }
+            }
             print(" {");
             println();
             indent();
@@ -802,7 +809,10 @@ public class JavafxPretty implements JavafxVisitor {
             pretty.printExprs(tree.getParams());
             fxpretty.variableScope = SCOPE_METHOD;
             pretty.print(")");
-            pretty.printExpr(tree.operation.rettype);
+            if (tree.operation.rettype != null && tree.operation.rettype.getFXTag() != JavafxTag.TYPEUNKNOWN) {
+                pretty.print(" : ");
+                pretty.printExpr(tree.operation.rettype);
+            }
             JFXBlock body = tree.getBodyExpression();
             if (body != null) {
                 pretty.print(" ");
@@ -872,13 +882,10 @@ public class JavafxPretty implements JavafxVisitor {
     void printBind(JavafxBindStatus bindStatus) {
         try {
             if (bindStatus.isUnidiBind()) {
-                print(" bind /*stays*/ ");
+                print(" bind ");
             }
             if (bindStatus.isBidiBind()) {
-                print(" bind /*tie*/ ");
-            }
-            if (bindStatus.isLazy()) {
-                print(" bind /*lazy*/ ");
+                print(" bind /*bi-directional*/ ");
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -953,7 +960,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
     
-    @Override
+    //@Override
     public void visitSequenceInsert(JFXSequenceInsert that) {
         try {
             print("insert ");
@@ -966,7 +973,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
     
-    @Override
+    //@Override
     public void visitSequenceDelete(JFXSequenceDelete that) {
         try {
             print("delete ");
@@ -982,7 +989,18 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
+    public void visitInvalidate(JFXInvalidate that) {
+        try {
+            print("invalidate ");
+            printExpr(that.getVariable());
+            print("; ");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    //@Override
     public void visitStringExpression(JFXStringExpression tree) {
         try {
             int i;
@@ -1016,7 +1034,8 @@ public class JavafxPretty implements JavafxVisitor {
                 print("(");
                 printExprs(tree.getArgs());
                 print(")");
-            } else {
+            }
+            {
                 // JFX instantiation
                 print(" {");
                 if (tree.getParts().nonEmpty()) {
@@ -1031,6 +1050,9 @@ public class JavafxPretty implements JavafxVisitor {
                     println();
                     align();
                 }
+                if (tree.getClassBody() != null) {
+                    printExpr(tree.getClassBody());
+                }
                 print("}");
             }
         } catch (IOException e) {
@@ -1042,7 +1064,7 @@ public class JavafxPretty implements JavafxVisitor {
         try {
             print(tree.getName());
             print(": ");
-            printBind(tree.getBindStatus());
+            printBind(tree.getExplicitBindStatus());
             printExpr(tree.getExpression());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -1096,7 +1118,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitTypeArray(JFXTypeArray tree) {
         try {
             print("nativearray of ");
@@ -1115,7 +1137,6 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     String ary(JFXType tree) {
-        String show;
         switch (tree.getCardinality()) {
             case ANY:
                 return "[]";
@@ -1125,16 +1146,24 @@ public class JavafxPretty implements JavafxVisitor {
         return "";
     }
 
-    @Override
-    public void visitVarScriptInit(JFXVarScriptInit tree) {
-        // REMOVE
+    public void visitVarInit(JFXVarInit tree) {
         try {
-        print("variable initialization for ");
-           print(tree.getVar());
-    } catch (IOException e) {
+            print("var-init: ");
+            print(tree.getVar());
+        } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-   }
+    }
+
+    //@Override
+    public void visitVarRef(JFXVarRef tree) {
+        try {
+            print(tree.getVarRefKind() + "(" + tree.getExpression() + ")");
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     public void visitVar(JFXVar tree) {
         try {
@@ -1151,15 +1180,24 @@ public class JavafxPretty implements JavafxVisitor {
                 }
             }
             print(tree.getName());
-            printTypeSpecifier(tree.getJFXType());
+            if (tree.getJFXType() != null && tree.getJFXType().getFXTag() != JavafxTag.TYPEANY) {
+                printTypeSpecifier(tree.getJFXType());
+            }
             if (variableScope != SCOPE_PARAMS) {
                 if (tree.getInitializer() != null) {
                     print(" = ");
+                    if (tree.isBound())
+                        print("bind ");
                     printExpr(tree.getInitializer());
+                    if (tree.isBidiBind())
+                        print(" with inverse");
                 }
             }
             if (tree.getOnReplace() != null) {
                 printExpr(tree.getOnReplace());
+            }
+            if (tree.getOnInvalidate() != null) {
+                printExpr(tree.getOnInvalidate());
             }
             print(";");
             if (variableScope == SCOPE_OUTER || variableScope == SCOPE_CLASS) {
@@ -1170,28 +1208,40 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    @Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         try {
-            print("override attribute ");
+            print("override var ");
             printExpr(tree.getId());
             if (tree.getInitializer() != null) {
                 print(" = ");
+                if (tree.isBound()) {
+                    print("bind ");
+                }
                 printExpr(tree.getInitializer());
+                if (tree.isBidiBind()) {
+                    print(" with inverse");
+                }
             }
             print(" ");
             align();
-            printExpr(tree.getOnReplace());
+            if (tree.getOnReplace() != null) {
+                printExpr(tree.getOnReplace());
+            }
+            if (tree.getOnInvalidate() != null) {
+                printExpr(tree.getOnInvalidate());
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
   
     
-    @Override
+    //@Override
     public void visitOnReplace(JFXOnReplace tree) {
         try {
-            print(" on replace");
+            String triggerKind = tree.getTriggerKind() == JFXOnReplace.Kind.ONREPLACE ?
+                "replace" : "invalidate";
+            print(" on " + triggerKind);
             if (tree.getOldValue() != null) {
                 print(" ");
                 printExpr(tree.getOldValue());
@@ -1219,7 +1269,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
     
     
-    @Override
+    //@Override
     public void visitForExpression(JFXForExpression tree) {
         try {
             boolean first = true;
@@ -1292,7 +1342,7 @@ public class JavafxPretty implements JavafxVisitor {
         }      
     }
 
-    @Override
+    //@Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         try {
 
@@ -1308,12 +1358,12 @@ public class JavafxPretty implements JavafxVisitor {
             } else {
                 print(that.seqExpr);
             }
-            if (that.whereExpr != null) {
+            if (that.getWhereExpression() != null) {
                 print(" where ");
-                if (that.whereExpr instanceof JFXErroneous) {
+                if (that.getWhereExpression() instanceof JFXErroneous) {
                     print("<erroreous where>");
                 } else {
-                    print(that.whereExpr);
+                    print(that.getWhereExpression());
                 }
             }
         } catch (IOException e) {

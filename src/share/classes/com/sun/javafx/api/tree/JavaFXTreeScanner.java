@@ -133,7 +133,7 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
 
     public R visitWhileLoop(WhileLoopTree node, P p) {
         R r = scan(node.getCondition(), p);
-        r = scanAndReduce(node.getStatement(), p, r);
+        r = scanAndReduce(node.getBody(), p, r);
         return r;
     }
 
@@ -239,8 +239,7 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
     }
     
     public R visitBlockExpression(BlockExpressionTree node, P p) {
-        R r = scan(node.getStatements(), p);
-        return scanAndReduce(node.getValue(), p, r);
+        return scan(node.getStatements(), p);
     }
 
     public R visitClassDeclaration(ClassDeclarationTree node, P p) {
@@ -301,6 +300,9 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
 
     public R visitOnReplace(OnReplaceTree node, P p) {
         R r = scan(node.getOldValue(), p);
+        r = scanAndReduce(node.getFirstIndex(), p, r);
+        r = scanAndReduce(node.getLastIndex(), p, r);
+        r = scanAndReduce(node.getNewElements(), p, r);
         return scanAndReduce(node.getBody(), p, r);
     }
 
@@ -356,6 +358,10 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
         return scanAndReduce(node.getStepOrNull(), p, r);
     }
 
+    public R visitVariableInvalidate(VariableInvalidateTree node, P p) {
+        return scan(node.getVariable(), p);
+    }
+
     public R visitStringExpression(StringExpressionTree node, P p) {
         return scan(node.getPartList(), p);
     }
@@ -389,7 +395,8 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
         R r = scan(node.getModifiers(), p);
 	r = scanAndReduce(node.getInitializer(), p, r);
         r = scanAndReduce(node.getJFXType(), p, r);
-        return scanAndReduce(node.getOnReplaceTree(), p, r);
+        r = scanAndReduce(node.getOnReplaceTree(), p, r);
+        return scanAndReduce(node.getOnInvalidateTree(), p, r);
     }
 
     public R visitMissingExpression(ExpressionTree node, P p) {

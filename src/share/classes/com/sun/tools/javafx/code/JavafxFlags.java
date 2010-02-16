@@ -22,7 +22,7 @@
  */
 
 package com.sun.tools.javafx.code;
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 
 /**
  * Some Javafx-specific flags for {@code Symbols}'s {@code flags_field}.
@@ -52,33 +52,41 @@ public class JavafxFlags {
     public static final long OBJ_LIT_INIT              = FIRST_FX_MOD_FLAG << 9;
     private static final long LAST_FX_MOD_FLAG         = OBJ_LIT_INIT;
 
-    // Var/def usage info -- all usage info is within the script only
-    private static final long FIRST_VARUSE_FLAG      = LAST_FX_MOD_FLAG << 1;
-    public static final long VARUSE_BOUND_INIT       = FIRST_VARUSE_FLAG << 0;  // defined as bound, initially, in obj lit, or override
-    public static final long VARUSE_HAS_ON_REPLACE   = FIRST_VARUSE_FLAG << 1;  // has 'on replace' either in definition or override
-    public static final long VARUSE_USED_IN_BIND     = FIRST_VARUSE_FLAG << 2;  // used in a bound expression
-    public static final long VARUSE_ASSIGNED_TO      = FIRST_VARUSE_FLAG << 3;  // assigned ("=") to outside of an init
-    public static final long VARUSE_INIT_ASSIGNED_TO = FIRST_VARUSE_FLAG << 4;  // assigned to inside of an init
-    public static final long VARUSE_OBJ_LIT_INIT     = FIRST_VARUSE_FLAG << 5;  // initialized in an obj lit, bound or not
-    public static final long VARUSE_OVERRIDDEN       = FIRST_VARUSE_FLAG << 6;  // var overridden in a subclass
-    public static final long VARUSE_INNER_ACCESS     = FIRST_VARUSE_FLAG << 7;  // var accessed within an inner class
-    public static final long VARUSE_SELF_REFERENCE   = FIRST_VARUSE_FLAG << 8;  // the initializing expression references the var
-    public static final long VARUSE_IS_INITIALIZED_USED
-                                                     = FIRST_VARUSE_FLAG << 9;  // the initializing expression references the var
-    public static final long VARUSE_COMPLEX_INITIAL_VALUE
-                                                     = FIRST_VARUSE_FLAG << 10; // the initial value is stateful or has side-effects
-    public static final long VARUSE_TMP_IN_INIT_EXPR = FIRST_VARUSE_FLAG << 11; // temp flag, set while inside var's initializing expression
-    public static final long VARUSE_OPT_TRIGGER      = FIRST_VARUSE_FLAG << 12;
-    // This last shift + the last for modifiers must be < 24 or we get overflow
+    // Flags on vars to inform translation
+    private static final long FIRST_VARMARK_FLAG       = LAST_FX_MOD_FLAG << 1;
+    public static final long VARMARK_BARE_SYNTH        = FIRST_VARMARK_FLAG << 0; // synthetic that should only have field and invalidate generated for it (no accessors)
+    private static final long LAST_VARMARK_FLAG        = VARMARK_BARE_SYNTH;
+
+    // Var/def usage info -- all usage info is within the script only 
+    private static final long FIRST_VARUSE_FLAG        = LAST_VARMARK_FLAG << 1;
+    public static final long VARUSE_HAS_TRIGGER        = FIRST_VARUSE_FLAG << 0;  // has 'on replace' or 'on invalidate' either in definition or override
+    public static final long VARUSE_BOUND_INIT         = FIRST_VARUSE_FLAG << 1;  // defined as bound, initially, in obj lit, or override
+    public static final long VARUSE_ASSIGNED_TO        = FIRST_VARUSE_FLAG << 2;  // assigned ("=") to
+    public static final long VARUSE_OBJ_LIT_INIT       = FIRST_VARUSE_FLAG << 3;  // initialized in an obj lit, bound or not
+    public static final long VARUSE_FORWARD_REFERENCE  = FIRST_VARUSE_FLAG << 4;  // used before referenced
+    public static final long VARUSE_SELF_REFERENCE     = FIRST_VARUSE_FLAG << 5;  // the initializing expression references the var
+    public static final long VARUSE_DEFINITION_SEEN    = FIRST_VARUSE_FLAG << 6;  // we have seen the definition of the var (for forward reference)
+    public static final long VARUSE_OPT_TRIGGER        = FIRST_VARUSE_FLAG << 7;  // for newElements in trigger: no usage except indexing or sizeof
+    public static final long VARUSE_TMP_IN_INIT_EXPR   = FIRST_VARUSE_FLAG << 8;  // temp flag, set while inside var's initializing expression
+    public static final long VARUSE_NEED_ACCESSOR      = FIRST_VARUSE_FLAG << 9;  // create accessor methods for this var
+    public static final long VARUSE_NON_LITERAL        = FIRST_VARUSE_FLAG << 10; // non-accessor still needs getter
+    public static final long VARUSE_BIND_ACCESS        = FIRST_VARUSE_FLAG << 11; // Accessed in bind.
+    public static final long VARUSE_VARREF             = FIRST_VARUSE_FLAG << 12; // Used in VarRef
+    public static final long VARUSE_SPECIAL            = FIRST_VARUSE_FLAG << 13; // Ignore in varuse analysis.
+    // WARNING - NO MORE BITS
+    // This last shift + the last for modifiers + the last on marks must be <= 25 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags
     private static final long FIRST_FX_FUNC_FLAG    = LAST_FX_MOD_FLAG << 1;
-    public static final long FUNC_IS_INITIALIZED    = FIRST_FX_FUNC_FLAG << 0;  // This is the special isInitialized() function
-
+    public static final long FUNC_IS_BUILTINS_SYNTH    = FIRST_FX_FUNC_FLAG << 1;  // This is a synthetic builtin function (isInitialized or isBound)
+    public static final long FUNC_POINTER_MAKE      = FIRST_FX_FUNC_FLAG << 2;  // This is the special Pointer.make() function
+    public static final long FUNC_SYNTH_LOCAL_DOIT  = FIRST_FX_FUNC_FLAG << 3;  // Synthetic function holding a local context
+    
     // Class flags -- reuse same bits as VARUSE* flags
     private static final long FIRST_FX_CLASS_FLAG    = LAST_FX_MOD_FLAG << 1;
     public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // JavaFX class
     public static final long CLASS_HAS_INIT_BLOCK    = FIRST_FX_CLASS_FLAG << 2;  // there is an init block on the class
+    public static final long FX_BOUND_FUNCTION_CLASS = FIRST_FX_CLASS_FLAG << 3;  // This is a local class that implements bound functions
 
     public static final long JavafxAccessFlags = PUBLIC | PROTECTED | PRIVATE | SCRIPT_PRIVATE;
     public static final long JavafxExplicitAccessFlags = PUBLIC | PROTECTED | PRIVATE | PACKAGE_ACCESS;
@@ -86,6 +94,7 @@ public class JavafxFlags {
     public static final long JavafxUserFlags            = JavafxExplicitAccessFlags | MIXIN | STATIC | ABSTRACT | BOUND | OVERRIDE | PUBLIC_READ | PUBLIC_INIT;
     public static final long JavafxLocalVarFlags        = PARAMETER;
     public static final long JavafxInstanceVarFlags     = JavafxExplicitAccessFlags | PUBLIC_READ | PUBLIC_INIT;
+    public static final long JavafxAllInstanceVarFlags  = JavafxExplicitAccessFlags | PUBLIC_READ | PUBLIC_INIT | SCRIPT_PRIVATE;
     public static final long JavafxScriptVarFlags       = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ;
     public static final long JavafxMemberDefFlags       = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ;
     public static final long JavafxFunctionFlags        = JavafxExplicitAccessFlags | ABSTRACT | BOUND | OVERRIDE;

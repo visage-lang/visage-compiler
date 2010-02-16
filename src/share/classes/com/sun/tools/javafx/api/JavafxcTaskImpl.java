@@ -28,14 +28,14 @@ import com.sun.javafx.api.JavafxTaskListener;
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.tree.Tree;
 import com.sun.javafx.api.tree.UnitTree;
-import com.sun.tools.javac.model.JavacElements;
-import com.sun.tools.javac.model.JavacTypes;
-import com.sun.tools.javac.code.Scope;
-import com.sun.tools.javac.util.ClientCodeException;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Options;
+import com.sun.tools.mjavac.model.JavacElements;
+import com.sun.tools.mjavac.model.JavacTypes;
+import com.sun.tools.mjavac.code.Scope;
+import com.sun.tools.mjavac.util.ClientCodeException;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Options;
 import com.sun.tools.javafx.comp.JavafxAttrContext;
 import com.sun.tools.javafx.comp.JavafxEnv;
 import com.sun.tools.javafx.main.CommandLine;
@@ -55,7 +55,7 @@ import javax.tools.JavaFileObject;
  * JavacTaskImpl.  This class extends JavafxTask to isolate the internal
  * javafx and javac compiler API from the public API.
  *
- * @see com.sun.tools.javac.api.JavacTaskImpl
+ * @see com.sun.tools.mjavac.api.JavacTaskImpl
  * @author tball
  */
 public class JavafxcTaskImpl extends JavafxcTask {

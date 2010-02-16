@@ -26,8 +26,8 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * An identifier
@@ -36,7 +36,7 @@ import com.sun.tools.javac.util.Name;
  */
 public class JFXIdent extends JFXExpression implements IdentifierTree {
 
-    public Name name;
+    private Name name;
     public Symbol sym;
 
     protected JFXIdent() {
@@ -58,10 +58,10 @@ public class JFXIdent extends JFXExpression implements IdentifierTree {
     }
 
     public Name getName() {
-        return name;
+        return sym != null ? sym.name : name;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitIdentifier(this, d);
     }

@@ -26,8 +26,8 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.util.Name;
 
  /**
  * Selects through packages and classes
@@ -40,6 +40,8 @@ public class JFXSelect extends JFXExpression implements MemberSelectTree {
     public JFXExpression selected;
     public Name name;
     public Symbol sym;
+
+    public JFXVar boundSize;
 
     protected JFXSelect(JFXExpression selected, Name name, Symbol sym) {
         this.selected = selected;
@@ -61,7 +63,7 @@ public class JFXSelect extends JFXExpression implements MemberSelectTree {
         return selected;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitMemberSelect(this, d);
     }

@@ -23,16 +23,50 @@
 
 package javafx.lang;
 
-import java.lang.Object;
 import java.lang.Comparable;
 import java.lang.Math;
+import javafx.util.Bits;
 
 /**
  * Used to specify a duration of indefinite length.
  *
  * @profile common
  */
-public def INDEFINITE: Duration = com.sun.javafx.runtime.Duration.indefinite as Duration;
+public def ZERO: Duration = Duration { millis: 0}; 
+
+public def ONE: Duration = Duration { millis: 1};
+
+public def INDEFINITE: Duration = Duration { millis: Double.POSITIVE_INFINITY};
+
+
+// script-level "static" functions below
+
+    /**
+     * Factory method that returns a Duration instance for a specified
+     * number of milliseconds.
+     *
+     * @param ms the number of milliseconds
+     * @return a Duration instance of the specified number of milliseconds
+     * @profile common
+     */
+    public function valueOf(ms: Double): Duration {
+        if (ms == 0)
+            ZERO
+        else if (ms == 1)
+            ONE
+        else if (ms == Double.POSITIVE_INFINITY) //TODO: handling of negative infinity
+            INDEFINITE
+        else
+             Duration {
+                 millis: ms
+             }
+
+    }
+    public function valueOf(ms: Float): Duration {
+        valueOf(ms as Double)
+    }
+
+    public def TYPE_INFO = com.sun.javafx.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
 
 /**
  * A class that defines a duration of time.  Duration instances are defined in
@@ -48,7 +82,9 @@ public def INDEFINITE: Duration = com.sun.javafx.runtime.Duration.indefinite as 
  *
  * @profile common
  */
-public class Duration extends com.sun.javafx.runtime.Duration {
+public class Duration extends Comparable {
+
+    var millis : Double;
 
     /** Returns the number of milliseconds in this period or Double.POSITIVE_INFINITY if the period is INDEFINITE.
      *
@@ -63,7 +99,7 @@ public class Duration extends com.sun.javafx.runtime.Duration {
      * @profile common
      */
     public function toSeconds():Number {
-        return Math.floor(millis / 1000);
+        return Math.floor(millis / 1000) as Number;
     }
     
     /** Returns the number of whole minutes in this period or Number.POSITIVE_INFINITY if the period is INDEFINITE. 
@@ -71,7 +107,7 @@ public class Duration extends com.sun.javafx.runtime.Duration {
      * @profile common
      */
     public function toMinutes(): Number {
-        return Math.floor(millis / 60 / 1000);
+        return Math.floor(millis / 60 / 1000) as Number;
     }
     
     /** Returns the number of whole hours in this period or Number.POSITIVE_INFINITY if the period is INDEFINITE. 
@@ -79,7 +115,7 @@ public class Duration extends com.sun.javafx.runtime.Duration {
      * @profile common
      */
     public function toHours(): Number {
-        return Math.floor(millis / 60 / 60 / 1000);
+        return Math.floor(millis / 60 / 60 / 1000) as Number;
     }
 
     /** Add this instance and another Duration instance to return a new Duration instance.
@@ -154,7 +190,7 @@ public class Duration extends com.sun.javafx.runtime.Duration {
             throw new java.lang.ArithmeticException("/ by zero");
         }
         
-        return millis / other.millis;
+        return (millis / other.millis) as Number;
     }
 
     /** 
@@ -168,6 +204,10 @@ public class Duration extends com.sun.javafx.runtime.Duration {
      */
     public function negate():Duration {
         return if (isIndefinite()) INDEFINITE else valueOf(-millis);
+    }
+
+    function isIndefinite() : Boolean{
+        return millis == java.lang.Float.POSITIVE_INFINITY;
     }
 
     /**
@@ -216,24 +256,49 @@ public class Duration extends com.sun.javafx.runtime.Duration {
     public function ge(other: Duration):Boolean {
         return compareTo(other) >= 0;
     }
+
+    override function compareTo(obj : Object) : Integer {
+        def d = obj as Duration;
+        if (this.millis == d.millis) {
+            return 0
+        }
+        if (d.isIndefinite()) {
+            return -1
+        }
+        if (isIndefinite()) {
+            return 1
+        }
+        def cmp = millis - d.millis;
+        return if (cmp < 0)
+             -1
+        else if(cmp > 0)
+             1
+        else
+             0
+    }
+
+    override function equals(obj : Object) : Boolean {
+        if (obj instanceof Duration) {
+            def d = obj as Duration;
+            if (isSameObject(d, this)) {
+                return true;
+            }
+
+            if (d.isIndefinite() or isIndefinite()) {
+                return false;
+            }
+            return d.millis == millis;
+        }
+        return false;
+    }
+
+    override function hashCode() : Integer {
+        if (isIndefinite()) {
+            // some unlikely value
+            return Integer.MIN_VALUE + 89;
+        }
+        def value = millis as Long;
+        return Bits.bitXor(value, Bits.unsignedShiftRight(value, 32)) as Integer;
+    }
 }
-
-// script-level "static" functions below
-
-    /**
-     * Factory method that returns a Duration instance for a specified
-     * number of milliseconds.
-     *
-     * @param ms the number of milliseconds
-     * @return a Duration instance of the specified number of milliseconds
-     * @profile common
-     */
-    public function valueOf(ms: Double): Duration {
-        return com.sun.javafx.runtime.Duration.make(ms) as Duration;
-    }
-    public function valueOf(ms: Float): Duration {
-        return com.sun.javafx.runtime.Duration.make(ms as Double) as Duration;
-    }
-
-    def TYPE_INFO = com.sun.javafx.runtime.TypeInfo.makeAndRegisterTypeInfo(Duration.valueOf(0.0));
 

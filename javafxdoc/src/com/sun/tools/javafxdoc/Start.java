@@ -25,11 +25,11 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.main.CommandLine;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Options;
+import com.sun.tools.mjavac.main.CommandLine;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Options;
 
 import java.io.IOException;
 import java.io.File;
@@ -40,7 +40,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /**
@@ -221,6 +221,7 @@ class Start {
         ListBuffer<String> excludedPackages = new ListBuffer<String>();
         Options compOpts = Options.instance(context);
         boolean docClasses = false;
+        boolean versionOption = false;
 
         // Parse arguments
         for (int i = 0 ; i < argv.length ; i++) {
@@ -322,11 +323,11 @@ class Start {
                 String value = (eq < 0) ? s : s.substring(eq+1);
                 compOpts.put(key, value);
             } else if (arg.startsWith("-version")) {
+                versionOption = true;
                 version(false);
-                exit();
             } else if (arg.startsWith("-fullversion")) {
+                versionOption = true;
                 version(true);
-                exit();
             }
             // call doclet for its options
             // other arg starts with - is invalid
@@ -356,7 +357,11 @@ class Start {
         }
 
         if (javaNames.isEmpty() && subPackages.isEmpty()) {
-            usageError("main.No_packages_or_classes_specified");
+            if (versionOption) {
+                exit();
+            } else {
+                usageError("main.No_packages_or_classes_specified");
+            }
         }
 
         if (!docletInvoker.validOptions(options.toList())) {

@@ -28,25 +28,25 @@ import java.util.Set;
 import java.util.HashSet;
 
 import javax.tools.JavaFileObject;
-import com.sun.tools.javac.jvm.ClassReader;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.List;
+import com.sun.tools.mjavac.jvm.ClassReader;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.code.Type.*;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.List;
 
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.TypeTags.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.javafx.tree.JavafxTreeMaker;
 import com.sun.tools.javafx.util.MsgSym;
-import com.sun.tools.javac.util.Log;
 
 import com.sun.tools.javafx.main.JavafxCompiler;
-import com.sun.tools.javafx.main.Main;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /** Provides operations to read a classfile into an internal
  *  representation. The internal representation is anchored in a
@@ -71,13 +71,14 @@ public class JavafxClassReader extends ClassReader {
          new Context.Key<ClassReader>();
 
     private final JavafxDefs defs;
+    protected final JavafxTypes fxTypes;
+    protected final JavafxTreeMaker fxmake;
 
     /** The raw class-reader, shared by the back-end. */
     public ClassReader jreader;
 
     private final Name functionClassPrefixName;
     private Context ctx;
-    private Log log;
     private Messages messages;
     
     public static void preRegister(final Context context, final ClassReader jreader) {
@@ -111,9 +112,10 @@ public class JavafxClassReader extends ClassReader {
     protected JavafxClassReader(Context context, boolean definitive) {
         super(context, definitive);
         defs = JavafxDefs.instance(context);
+        fxTypes = JavafxTypes.instance(context);
+        fxmake = JavafxTreeMaker.instance(context);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
         ctx = context;
-        log = Log.instance(context);
         messages = Messages.instance(context);
     }
 
@@ -136,9 +138,9 @@ public class JavafxClassReader extends ClassReader {
 
     public JavafxClassSymbol enterClass(ClassSymbol jsymbol) {
         Name className = jsymbol.flatname;
-        boolean mixin = className.endsWith(defs.mixinSuffixName);
+        boolean mixin = className.endsWith(defs.mixinClassSuffixName);
         if (mixin)
-            className = className.subName(0, className.len - defs.mixinSuffixName.len);
+            className = className.subName(0, className.len - defs.mixinClassSuffixName.len);
         JavafxClassSymbol cSym = (JavafxClassSymbol) enterClass(className);
         //cSym.flags_field |= jsymbol.flags_field;
         if (mixin)
@@ -281,7 +283,7 @@ public class JavafxClassReader extends ClassReader {
             case CLASS:
                 TypeSymbol tsym = type.tsym;
                 if (tsym instanceof ClassSymbol) {
-                    if (tsym.name.endsWith(defs.mixinSuffixName)) {
+                    if (tsym.name.endsWith(defs.mixinClassSuffixName)) {
                         t = enterClass((ClassSymbol) tsym).type;
                         break;
                     }
@@ -291,29 +293,6 @@ public class JavafxClassReader extends ClassReader {
                         break;
                     }
                     Name flatname = ((ClassSymbol) tsym).flatname;
-                    Type deloc = defs.delocationize(flatname);
-                    if (deloc != null) {
-                        if (deloc.isPrimitive()) {
-                            return deloc;
-                        }
-                        if (ctype.typarams_field == null || ctype.typarams_field.size() == 0) {
-                            // FIXME - move to defs.
-                            Name sequenceVariableName = names.fromString("SequenceVariable");
-                            if (flatname.endsWith(sequenceVariableName))
-                                return deloc;
-                        }
-                        else if (ctype.typarams_field.size() == 1) {
-                            if (deloc == syms.objectType) {
-                                return translateType(ctype.typarams_field.head);
-                            }
-                            if (deloc == ((JavafxSymtab) syms).javafx_SequenceType) {
-                                Type tparam = translateType(ctype.typarams_field.head);
-                                WildcardType tpType = new WildcardType(tparam, BoundKind.EXTENDS, tparam.tsym);
-                                t = new ClassType(Type.noType, List.<Type>of(tpType), ((JavafxSymtab) syms).javafx_SequenceType.tsym);
-                                break;
-                            }
-                        }
-                    }
                     if (flatname.startsWith(functionClassPrefixName)
                         && flatname != functionClassPrefixName) {
                             t = ((JavafxSymtab) syms).makeFunctionType(translateTypes(ctype.typarams_field));
@@ -410,7 +389,7 @@ public class JavafxClassReader extends ClassReader {
     
     MethodSymbol translateMethodSymbol(long flags, Symbol sym, Symbol owner) {
         Name name = sym.name;
-        Type type = translateType(sym.type);
+        Type mtype = sym.type;
         String nameString = name.toString();
         
         int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
@@ -420,12 +399,25 @@ public class JavafxClassReader extends ClassReader {
             nameString = nameString.substring(0, boundStringIndex);
             flags |= JavafxFlags.BOUND;
         }
-        
+        JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
+        for (Attribute.Compound ann : sym.getAnnotationMirrors()) {
+            if (ann.type.tsym.flatName() == javafxSyms.javafx_signatureAnnotationType.tsym.flatName()) {
+                String sig = (String)ann.values.head.snd.getValue();
+                signatureBuffer = new byte[sig.length()];
+                try {
+                    mtype = sigToType(names.fromString(sig));
+                }
+                catch (Exception e) {
+                    throw new AssertionError("Bad Javafx signature");
+                }
+            }
+        }
+        Type type = translateType(mtype);
         if (type instanceof MethodType) {
             boolean convertToStatic = false;
             
-            if (nameString.endsWith(defs.implFunctionSuffix)) {
-                nameString = nameString.substring(0, nameString.length() - defs.implFunctionSuffix.length());
+            if (nameString.endsWith(JavafxDefs.implFunctionSuffix)) {
+                nameString = nameString.substring(0, nameString.length() - JavafxDefs.implFunctionSuffix.length());
                 convertToStatic = true;
             }
             
@@ -470,7 +462,7 @@ public class JavafxClassReader extends ClassReader {
                  e != null;  e = e.sibling) {
                  if (e.sym instanceof ClassSymbol) {
                      ClassSymbol jsym = (ClassSymbol) e.sym;
-                     if (jsym.name.endsWith(defs.mixinSuffixName))
+                     if (jsym.name.endsWith(defs.mixinClassSuffixName))
                          continue;
                      JavafxClassSymbol csym = enterClass(jsym);
                      psym.members_field.enter(csym);
@@ -513,7 +505,7 @@ public class JavafxClassReader extends ClassReader {
             if (ct.supertype_field != null && 
                 ct.supertype_field.tsym != null &&
                 ct.supertype_field.tsym.kind == TYP) {
-                csym.addSuperType(ct.supertype_field);
+                
             }
             
             ListBuffer<Type> interfaces = new ListBuffer<Type>();
@@ -524,21 +516,20 @@ public class JavafxClassReader extends ClassReader {
                      it = it.tail) {
                     Type itype = it.head;
                     checkForIntfSymbol(itype.tsym);
-                    if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName) {
+                    if (((ClassSymbol) itype.tsym).flatname == defs.cFXObjectName) {
                         csym.flags_field |= JavafxFlags.FX_CLASS;
-                    } else if (((ClassSymbol) itype.tsym).flatname == defs.fxMixinName) {
+                    } else if (((ClassSymbol) itype.tsym).flatname == defs.cFXMixinName) {
                         csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
-                    } else if ((csym.fullname.len + defs.mixinSuffixName.len ==
+                    } else if ((csym.fullname.len + defs.mixinClassSuffixName.len ==
                              ((ClassSymbol) itype.tsym).fullname.len) &&
                             ((ClassSymbol) itype.tsym).fullname.startsWith(csym.fullname) &&
-                            itype.tsym.name.endsWith(defs.mixinSuffixName)) {
+                            itype.tsym.name.endsWith(defs.mixinClassSuffixName)) {
                         iface = itype;
                         iface.tsym.complete();
                         csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
                     } else {
                         itype = translateType(itype);
                         interfaces.append(itype);
-                        csym.addSuperType(itype);
                     }
                 }
             }
@@ -549,14 +540,13 @@ public class JavafxClassReader extends ClassReader {
                  it = it.tail) {
                     Type itype = it.head;
                     checkForIntfSymbol(itype.tsym);
-                    if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName) {
+                    if (((ClassSymbol) itype.tsym).flatname == defs.cFXObjectName) {
                         csym.flags_field |= JavafxFlags.FX_CLASS;
-                    } else if (((ClassSymbol) itype.tsym).flatname == defs.fxMixinName) {
+                    } else if (((ClassSymbol) itype.tsym).flatname == defs.cFXMixinName) {
                         csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
                     } else {
                         itype = translateType(itype);
                         interfaces.append(itype);
-                        csym.addSuperType(itype);
                     }
                 }
             }
@@ -573,6 +563,9 @@ public class JavafxClassReader extends ClassReader {
             }
             boolean isFXClass = (csym.flags_field & JavafxFlags.FX_CLASS) != 0;
             boolean isMixinClass = (csym.flags_field & JavafxFlags.MIXIN) != 0;
+            
+            JavafxVarSymbol scriptAccessSymbol = isFXClass ? fxmake.ScriptAccessSymbol(csym) : null;
+
             Set<Name> priorNames = new HashSet<Name>();
             handleSyms:
             for (List<Symbol> l = symlist; l.nonEmpty(); l=l.tail) {
@@ -604,33 +597,6 @@ public class JavafxClassReader extends ClassReader {
                     }
                 }
                 if (memsym instanceof MethodSymbol) {
-                    if (! sawSourceNameAnnotation &&
-                            (name == defs.internalRunFunctionName || 
-                            name == defs.initializeName ||
-                            name == defs.completeName ||
-                            name == defs.postInitName || name == defs.userInitName ||
-                            name == defs.addTriggersName ||
-                            name == names.clinit ||
-                            name.startsWith(defs.varOffsetName) ||
-                            name.startsWith(defs.varCountName) ||
-                            name.startsWith(defs.attributeGetPrefixName) ||
-                            name.startsWith(defs.attributeSetPrefixName) ||
-                            name.startsWith(defs.applyDefaultsPrefixName)))
-                        continue;
-                    // if this is a main method in an FX class then it is synthetic, ignore it
-                    if (name == defs.mainName && isFXClass) {
-                        if (memsym.type instanceof MethodType) {
-                            MethodType mt = (MethodType) (memsym.type);
-                            List<Type> paramTypes = mt.getParameterTypes();
-                            if (paramTypes.size() == 1 && paramTypes.head instanceof ArrayType) {
-                                Type elemType = ((ArrayType) paramTypes.head).getComponentType();
-                                if (elemType.tsym.name == syms.stringType.tsym.name) {
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-
                     MethodSymbol m = translateMethodSymbol(flags, memsym, csym);     
                     csym.members_field.enter(m);
                 }
@@ -638,14 +604,15 @@ public class JavafxClassReader extends ClassReader {
                     // Eliminate any duplicate value/location.
                     if (priorNames.contains(name))
                         continue;
-                    // Filter out synthetic vars.
-                    String nameString = name.toString();
-                    if (nameString.startsWith(defs.varBitsString)) continue;
-                    if (nameString.startsWith(defs.varMapString)) continue;
-
                     Type otype = memsym.type;
                     Type type = translateType(otype);
-                    VarSymbol v = new VarSymbol(flags, name, type, csym);
+                    JavafxVarSymbol v;
+                    if (scriptAccessSymbol != null && name == scriptAccessSymbol.name) {
+                        v = scriptAccessSymbol;
+                    } else {
+                        v = new JavafxVarSymbol(fxTypes, names, flags, name, type, csym);
+                        csym.addVar(v, (flags & STATIC) != 0);
+                    }
                     csym.members_field.enter(v);
                     priorNames.add(name);
                 }
@@ -663,9 +630,7 @@ public class JavafxClassReader extends ClassReader {
         long accessFlags = initialFlags & JavafxFlags.JavafxAccessFlags;
         JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
         for (Attribute.Compound a : sym.getAnnotationMirrors()) {
-            if (a.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
-                accessFlags = Flags.PRIVATE;
-            } else if (a.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
+            if (a.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
                 accessFlags = Flags.PROTECTED;
             } else if (a.type.tsym.flatName() == javafxSyms.javafx_packageAnnotationType.tsym.flatName()) {
                 accessFlags = 0L;

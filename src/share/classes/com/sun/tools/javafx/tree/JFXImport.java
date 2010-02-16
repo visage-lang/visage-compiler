@@ -51,7 +51,7 @@ public class JFXImport extends JFXTree implements ImportTree {
         return JavaFXKind.IMPORT;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitImport(this, d);
     }

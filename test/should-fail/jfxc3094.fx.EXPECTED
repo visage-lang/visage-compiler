@@ -1,0 +1,4 @@
+test/should-fail/jfxc3094.fx:11: jfxc3094.Mixee is not abstract and does not override abstract method foo(java.lang.String) in jfxc3094.AbstractMixin
+class Mixee extends AbstractMixin {
+^
+1 error
