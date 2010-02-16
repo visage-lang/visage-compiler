@@ -38,4 +38,6 @@ package com.sun.javafx.api.tree;
 public interface SequenceInsertTree extends ExpressionTree {
     ExpressionTree getSequence();
     ExpressionTree getElement();
+    ExpressionTree getPosition();
+    boolean shouldInsertAfter();
 }
