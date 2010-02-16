@@ -42,6 +42,7 @@ public class MsgSym {
     public static final String MESSAGEPREFIX_ERROR = "error";
     public static final String MESSAGEPREFIX_WARN = "warn";
     public static final String MESSAGEPREFIX_DEPRECATED = "deprecated";
+    public static final String MESSAGEPREFIX_WARNONUSE = "warnonuse";
     public static final String MESSAGEPREFIX_UNCHECKED = "unchecked";
 
     public static final String MESSAGESUFFIX_PLURAL = ".plural"; 
@@ -440,4 +441,5 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_KEYVALUE_REQUIRED = "javafx.keyvalue.required";
     public static final String MESSAGE_JAVAFX_MANDATORY_COMMA = "javafx.mandatory.comma";
     public static final String MESSAGE_JAVAFX_TYPES_INCOMPATIBLE_VARS = "javafx.types.incompatible.vars";
+    public static final String MESSAGE_JAVAFX_WARN_ON_USE_PACKAGE = "javafx.warn.on.use.package";
 }
