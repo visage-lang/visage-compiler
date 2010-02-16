@@ -140,6 +140,11 @@ public class JavafxAttr implements JavafxVisitor {
         relax = (options.get("-retrofit") != null ||
                  options.get("-relax") != null);
 
+        String pkgs = options.get("warnOnUse");
+        if (pkgs != null) {
+            warnOnUsePackages = pkgs.split(",");
+        }
+
     }
     /** Switch: relax some constraints for retrofit mode.
      */
@@ -165,6 +170,11 @@ public class JavafxAttr implements JavafxVisitor {
      * objects during constructor call?
      */
     private boolean allowAnonOuterThis;
+
+    /**
+     * Packages for which we have to issue warnings.
+     */
+    private String[] warnOnUsePackages;
 
     enum Sequenceness {
         DISALLOWED,
@@ -3499,6 +3509,14 @@ public class JavafxAttr implements JavafxVisitor {
                 (env.info.scope.owner.flags() & DEPRECATED) == 0 &&
                 sym.outermostClass() != env.info.scope.owner.outermostClass())
                 chk.warnDeprecated(tree.pos(), sym);
+
+            if (warnOnUsePackages != null && ElementKind.PACKAGE.equals(sym.getKind())) {
+                for (String pkg : warnOnUsePackages) {
+                    if (sym.toString().startsWith(pkg)) {
+                        chk.warnWarnOnUsePackage(tree.pos(), sym);
+                    }
+                }
+            }
 
             if ((sym.flags() & PROPRIETARY) != 0)
                 log.strictWarning(tree.pos(), MsgSym.MESSAGE_SUN_PROPRIETARY, sym);

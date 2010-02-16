@@ -642,7 +642,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                  }
                  
                  for (String bindee : bindeesSet) {
-                    if (!annoBindeesString.isEmpty()) annoBindeesString += ",";
+                     if (annoBindeesString.length() != 0) annoBindeesString += ",";
                     annoBindeesString += bindee;
                  }
            }
