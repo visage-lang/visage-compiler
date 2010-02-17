@@ -1305,11 +1305,7 @@ public abstract class JavafxAbstractTranslation
         JCExpression fullExpression(JCExpression tToCheck) {
             if (isFunctionReference) {
                 MethodType mtype = (MethodType) refSym.type;
-                JCExpression tc = staticReference?
-                    tToCheck :
-                    addTempVar(tree.selected.type, tToCheck);
-                JCExpression translated = Select(tc, name);
-                return new FunctionValueTranslator(translated, null, diagPos, mtype, fullType).doitExpr();
+                return new FunctionValueTranslator(tToCheck, name, tree.selected.type, diagPos, mtype, fullType).doitExpr();
             } else {
                 JCExpression translated = Select(tToCheck, name);
                 return convertVariableReference(translated, refSym);
@@ -1852,7 +1848,7 @@ public abstract class JavafxAbstractTranslation
 
             if (tree.type instanceof FunctionType && sym.type instanceof MethodType) {
                 MethodType mtype = (MethodType) sym.type;
-                return new FunctionValueTranslator(convert, null, tree.pos(), mtype, tree.type).doitExpr();
+                return new FunctionValueTranslator(convert, tree.pos(), mtype, tree.type).doitExpr();
             }
 
             return convertVariableReference(convert, sym);
@@ -2537,10 +2533,24 @@ public abstract class JavafxAbstractTranslation
 
     class FunctionValueTranslator extends ExpressionTranslator {
 
-        private final JCExpression meth;
+        private JCExpression meth;
         private final JFXFunctionDefinition def;
         private final MethodType mtype;
         private final Type resultType;
+        private final JCExpression selector;
+        private final Name name;
+        private final Type selectorType;
+        
+        FunctionValueTranslator(JCExpression meth, DiagnosticPosition diagPos, MethodType mtype, Type resultType) {
+            super(diagPos);
+            this.meth = meth;
+            this.def = null;
+            this.mtype = mtype;
+            this.resultType = resultType;
+            this.selector = null;
+            this.name = null;
+            this.selectorType = null;
+        }
 
         FunctionValueTranslator(JCExpression meth, JFXFunctionDefinition def, DiagnosticPosition diagPos, MethodType mtype, Type resultType) {
             super(diagPos);
@@ -2548,6 +2558,20 @@ public abstract class JavafxAbstractTranslation
             this.def = def;
             this.mtype = mtype;
             this.resultType = resultType;
+            this.selector = null;
+            this.name = null;
+            this.selectorType = null;
+        }
+
+        FunctionValueTranslator(JCExpression selector, Name name, Type selectorType, DiagnosticPosition diagPos, MethodType mtype, Type resultType) {
+            super(diagPos);
+            this.meth = meth;
+            this.def = null;
+            this.mtype = mtype;
+            this.resultType = resultType;
+            this.selector = selector;
+            this.name = name;
+            this.selectorType = selectorType;
         }
 
         protected ExpressionResult doit() {
@@ -2556,11 +2580,19 @@ public abstract class JavafxAbstractTranslation
         
         protected JCTree translateInvokeCase() {
             setDiagPos(diagPos);
-            JCBlock body;
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            JCBlock body;
             int argNum = 0;
             
             if (def == null) {
+                if (selector != null) {
+                    stmts.append(Var(Flags.FINAL, selectorType, defs.selector_LocalVarName, selector));
+                    stmts.append(If(EQnull(id(defs.selector_LocalVarName)),
+                                      m().Return(Null()),
+                                      null));
+                    meth = Select(id(defs.selector_LocalVarName), name) ;
+                }
+             
                 ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
                 
                 for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
@@ -2599,7 +2631,7 @@ public abstract class JavafxAbstractTranslation
             }
             
             JCStatement arityCheck = If(NE(Select(id(defs.args_ArgName), defs.length_ArrayFieldName), Int(argNum)),
-                                          Throw(syms.javafx_java_lang_RuntimeExceptionType, "Wrong number of arguments"),
+                                          CallStmt(defs.arityException_FXObjectMethodName),
                                           null);
             stmts.prepend(arityCheck);
             
@@ -2610,7 +2642,8 @@ public abstract class JavafxAbstractTranslation
             boolean isScriptContext = receiverContext() == ReceiverContext.ScriptAsStatic;
             int selector = currentClass().addInvokeCase(translateInvokeCase(), isScriptContext);
             JCExpression funcClassType = QualifiedTree(syms.javafx_FunctionType.tsym.getQualifiedName().toString());
-            List<JCExpression> funcValueArgs = List.<JCExpression>of(getReceiverOrThis(), FuncNum(selector));
+            JCExpression receiverExpr = getReceiverOrThis(isScriptContext);
+            List<JCExpression> funcValueArgs = List.<JCExpression>of(receiverExpr, FuncNum(selector));
             return m().NewClass(null, List.<JCExpression>nil(), funcClassType, funcValueArgs, null);
         }
     }
@@ -2622,9 +2655,13 @@ public abstract class JavafxAbstractTranslation
 
         // Symbols corresponding to caseStats.
         protected ListBuffer<JavafxVarSymbol> varSyms = ListBuffer.lb();
+        
+        // Name to use as a temp.
+        protected Name tmpVarName;
 
-        NewInstanceTranslator(DiagnosticPosition diagPos) {
+        NewInstanceTranslator(DiagnosticPosition diagPos, Name tmpVarName) {
             super(diagPos);
+            this.tmpVarName = tmpVarName;
         }
 
         /**
@@ -2783,7 +2820,10 @@ public abstract class JavafxAbstractTranslation
 
             List<JCExpression> newClassArgs = completeTranslatedConstructorArgs();
 
-            Name tmpVarName = getSyntheticName("objlit");
+            if (tmpVarName == null) {
+                tmpVarName = getSyntheticName("objlit");
+            }
+            
             boolean hasVars = hasInstanceVariableInits();
             JCExpression instExpression;
             if (hasVars || (isFX && newClassArgs.nonEmpty()) || cdef != null) {
@@ -2868,7 +2908,7 @@ public abstract class JavafxAbstractTranslation
         private final ClassSymbol idSym;
 
         InstanciateTranslator(final JFXInstanciate tree) {
-            super(tree.pos());
+            super(tree.pos(), tree.varDefinedByThis != null ? tree.varDefinedByThis.name : null);
             this.tree = tree;
             this.idSym = (ClassSymbol)JavafxTreeInfo.symbol(tree.getIdentifier());
         }
@@ -2880,18 +2920,12 @@ public abstract class JavafxAbstractTranslation
 
         @Override
         protected void initInstanceVariables(Name instName) {
-            if (tree.varDefinedByThis != null) {
-                getSubstitutionMap().put(tree.varDefinedByThis, instName);
-            }
             for (JFXObjectLiteralPart olpart : tree.getParts()) {
                 diagPos = olpart.pos(); // overwrite diagPos (must restore)
                 JavafxBindStatus bindStatus = olpart.getBindStatus();
                 JFXExpression init = olpart.getExpression();
                 JavafxVarSymbol vsym = (JavafxVarSymbol) olpart.sym;
                 setInstanceVariable(instName, bindStatus, vsym, init);
-            }
-            if (tree.varDefinedByThis != null) {
-                getSubstitutionMap().remove(tree.varDefinedByThis);
             }
             diagPos = tree.pos();
         }
@@ -3719,7 +3753,7 @@ public abstract class JavafxAbstractTranslation
         protected final Type builtIn;
 
         NewBuiltInInstanceTranslator(DiagnosticPosition diagPos, Type builtIn) {
-            super(diagPos);
+            super(diagPos, null);
             this.builtIn = builtIn;
         }
 

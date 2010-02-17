@@ -119,6 +119,7 @@ public interface FXObject {
     public boolean varTestBits$(final int varNum, int maskBits, int testBits);
     public boolean varChangeBits$(final int varNum, int clearBits, int setBits);
     public void restrictSet$(final int varNum);
+    public void arityException$();
 
     // dependents management
     public WeakBinderRef getThisRef$internal$();

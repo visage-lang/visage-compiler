@@ -155,17 +155,6 @@ public class FXLocal {
                         targs.length == 1) {
                         return new FXSequenceType(makeTypeRef(targs[0]));
                     }
-                    if (rawName.startsWith(FXClassType.FUNCTION_CLASSNAME_PREFIX)) {
-                        FXType[] prtypes = new FXType[targs.length-1];
-                        for (int i = prtypes.length;  --i >= 0; )
-                            prtypes[i] = makeTypeRef(targs[i+1]);
-                        FXType rettype;
-                        if (targs[0] == java.lang.Void.class)
-                            rettype = FXPrimitiveType.voidType;
-                        else
-                            rettype = makeTypeRef(targs[0]);
-                        return new FXFunctionType(prtypes, rettype);
-                    }
                 }
                            
                 typ = raw;
@@ -198,7 +187,10 @@ public class FXLocal {
                 FXType elType = makeTypeRef(clas.getComponentType());
                 return new FXJavaArrayType(elType);
             }
-            String rawName = ((Class) typ).getName();
+            String rawName = clas.getName();
+            if (FXClassType.FUNCTION_CLASSNAME.equals(rawName)) {
+                return new FXFunctionType(new FXType[0], makeClassRef(java.lang.Object.class));
+            }
             int rawLength = rawName.length();
             if (rawLength > LOCATION_PREFIX_LENGTH + VARIABLE_STRING_LENGTH &&
                     rawName.startsWith(LOCATION_PREFIX) &&
@@ -422,6 +414,7 @@ public class FXLocal {
         static final String[] SYSTEM_METHOD_EXCLUDES = {
             // keep in alphabetical order 
             "addDependent$",
+            "arityException$",
             "complete$",
             "count$",
             "getAsBoolean$",
@@ -461,6 +454,7 @@ public class FXLocal {
             "elem$",
             "initVars$",
             "invalidate$",
+            "invoke$",
             "onReplace$",
             "seq$",
             "set$",
@@ -468,6 +462,7 @@ public class FXLocal {
             "update$",
             "DCNT$",
             "DEP$",
+            "FCNT$",
             "GETMAP$",
             "VOFF$"
         };
@@ -582,6 +577,7 @@ public class FXLocal {
         static final String[] SYSTEM_VAR_PREFIXES = {
             "DCNT$",
             "DEP$",
+            "FCNT$",
             "VFLG$",
             "VCNT$",
             "VOFF$",

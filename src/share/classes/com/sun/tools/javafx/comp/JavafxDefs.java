@@ -288,6 +288,8 @@ public class JavafxDefs {
     final Name userInit_FXObjectMethodName;
     final Name postInit_FXObjectMethodName;
     final Name initVars_FXObjectMethodName;
+    final Name restrictSet_FXObjectMethodName;
+    final Name arityException_FXObjectMethodName;
     Name getAs_FXObjectMethodName[];
 
     /**
@@ -433,7 +435,6 @@ public class JavafxDefs {
      */
     final Name varFlagActionTest;
     final Name varFlagActionChange;
-    final Name varFlagRestrictSet;
 
     final Name varFlagRESTING_STATE_BIT;
     final Name varFlagBE_STATE_BIT;
@@ -512,6 +513,7 @@ public class JavafxDefs {
     final Name varOldValue_LocalVarName;
     final Name varFlags_LocalVarName;
     final Name wasInvalid_LocalVarName;
+    final Name selector_LocalVarName;
     final Name internalSuffixName;
     final Name internalNameMarker;
 
@@ -647,10 +649,13 @@ public class JavafxDefs {
         getElement_FXObjectMethodName = names.fromString(getElement_AttributeMethodPrefix);
         size_FXObjectMethodName = names.fromString(size_AttributeMethodPrefix);
         count_FXObjectMethodName = names.fromString("count$");
+        restrictSet_FXObjectMethodName = names.fromString("restrictSet$");
+        arityException_FXObjectMethodName = names.fromString("arityException$");
         varState_LocalVarName = names.fromString("varState$");
         varOldValue_LocalVarName = names.fromString("varOldValue$");
         varFlags_LocalVarName = names.fromString("varFlags$");
         wasInvalid_LocalVarName = names.fromString("wasInvalid$");
+        selector_LocalVarName = names.fromString("selector$");
         varNewValue_ArgName = names.fromString("varNewValue$");
         value_NonLocalReturnExceptionFieldName = names.fromString("value");
         outerAccessor_FXObjectFieldName = names.fromString("accessOuterField$");
@@ -678,8 +683,7 @@ public class JavafxDefs {
 
         varFlagActionTest = names.fromString("varTestBits$");
         varFlagActionChange = names.fromString("varChangeBits$");
-        varFlagRestrictSet = names.fromString("restrictSet$");
-
+        
         // Initialize VFLG Names
         varFlagRESTING_STATE_BIT                 = names.fromString("VFLGS$RESTING_STATE_BIT");
         varFlagBE_STATE_BIT                      = names.fromString("VFLGS$BE_STATE_BIT");

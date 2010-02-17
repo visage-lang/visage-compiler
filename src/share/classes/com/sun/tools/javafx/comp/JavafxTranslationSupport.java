@@ -1167,6 +1167,14 @@ public abstract class JavafxTranslationSupport {
             return resolveThis(enclosingClassDecl.sym, false);
         }
 
+        protected JCExpression getReceiverOrThis(boolean isStatic) {
+            Symbol cSym = enclosingClassDecl.sym;
+            if (isStatic) {
+                return Select(makeType(cSym.type, false), fxmake.ScriptAccessSymbol(cSym).name);
+            }
+            return resolveThisInternal(cSym, false);
+        }
+
         protected JCExpression getReceiver(Symbol sym) {
             if (sym.isStatic()) {
                 return Select(makeType(sym.owner.type, false), fxmake.ScriptAccessSymbol(sym.owner).name);

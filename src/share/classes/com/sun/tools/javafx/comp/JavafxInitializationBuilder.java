@@ -200,7 +200,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<FuncInfo> classFuncInfos = analysis.classFuncInfos();
         List<FuncInfo> scriptFuncInfos = analysis.scriptFuncInfos();
         
-        boolean hasStatics = !scriptVarInfos.isEmpty();
+        boolean hasStatics = !scriptVarInfos.isEmpty() || !cDecl.invokeCases(true).isEmpty();
         
         int classVarCount = analysis.getClassVarCount();
         int scriptVarCount = analysis.getScriptVarCount();
@@ -371,11 +371,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private static String jcMethodDeclStr(JCMethodDecl meth) {
         String str = meth.name.toString() + "(";
         boolean needsComma = false;
+        boolean varArgs = (meth.mods.flags & Flags.VARARGS) != 0;
+            
         for (JCVariableDecl varDecl : meth.getParameters()) {
             if (needsComma) str += ",";
             str += varDecl.vartype.toString();
             needsComma = true;
         }
+        if (varArgs && str.endsWith("[]")) {
+            str = str.substring(0, str.length() - 2) + "...";
+        }
+        
         str += ")";
         return str;
     }
@@ -2091,12 +2097,12 @@ however this is what we need */
 
                     if (isLeaf) {
                         if (varInfo.isReadOnly()) {
-                            addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
+                            addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_FXObjectMethodName, Offset(varSym)));
                         }
                     } else {
                         // Restrict setting.
                         beginBlock();
-                        addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
+                        addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_FXObjectMethodName, Offset(varSym)));
                         JCExpression ifReadonlyTest = FlagTest(varSym, defs.varFlagIS_READONLY, null);
                         // if (isReadonly$(VOFF$var)) { restrictSet$(VOFF$var); }
                         addStmt(OptIf(NOT(ifReadonlyTest),

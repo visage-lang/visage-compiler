@@ -154,6 +154,13 @@ import com.sun.javafx.runtime.sequence.Sequences;
         }
     }
 
+    public void arityException$() {
+        arityException$(this);
+    }
+    public static void arityException$(FXObject obj) {
+        throw new RuntimeException("Wrong number of arguments");
+    }
+
     // dependents management
     public WeakBinderRef ThisRef$internal$;
     public DepChain DepChain$internal$;
