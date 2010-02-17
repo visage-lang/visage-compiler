@@ -433,7 +433,7 @@ public class FXLocal {
             }
             skip: for (int i = 0;  i < methods.length;  i++) {
                 Method m = methods[i];
-                if (m.isSynthetic())
+                if (PlatformUtils.isSynthetic(m))
                     continue;
                 if (PlatformUtils.checkInherited(m) > 0)
                     continue;

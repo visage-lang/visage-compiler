@@ -46,6 +46,10 @@ public class PlatformUtils {
         return fld.isSynthetic();
     }
 
+    static boolean isSynthetic(Method m) {
+        return m.isSynthetic();
+    }
+
     static int checkInherited(Method m) {
         return m.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null ? 1 : 0;
     }
