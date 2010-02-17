@@ -1034,14 +1034,16 @@ public class SequencesBase {
             endPos = oldSize;
         else if (endPos < startPos)
             endPos = startPos;
-        // FIXME calling sliceEqual is probably not worth it,
+        /*
+        // Calling sliceEqual is probably not worth it,
         // at least if oldValue is non-shared, and we can just copy.
-        // FIXME sliceEqual is especially bad if it needs to do boxing.
+        // sliceEqual is especially bad if it needs to do boxing.
         if (newValues == null ? startPos == endPos
             : sliceEqual(oldValue, startPos, endPos, newValues)) {
             // FIXME set valid??
             return oldValue;
         }
+        */
         int inserted = newValues==null? 0 : newValues.size();
         // If we are replacing it all, and, since we don't want copies of SequenceRef, if it isn't a SequenceRef
         if (startPos == 0 && endPos == oldSize && !(newValues instanceof SequenceRef) && !(newValues instanceof SequenceProxy)) {

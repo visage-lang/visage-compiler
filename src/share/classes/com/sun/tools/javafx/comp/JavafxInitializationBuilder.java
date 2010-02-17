@@ -1882,32 +1882,34 @@ however this is what we need */
                         if (savedVarSym != null) {
                             // FIXME  Some performance tweaking makes sense:
                             // - If the oldValue is only used for indexing or sizeof, then we
-                            // can extra the value of the "gap" of the saved-dalue ArraySequence,
+                            // can extract the value of the "gap" of the saved-dalue ArraySequence,
                             // as in the 1.2 compiler.
                             // - The getNewElements call should be combined with the replaceSlice.
                             addStmt(Var(type, onReplace.getOldValue().getName(),
-                                    Call(defs.Sequences_copy,
-                                        Get(savedVarSym))));
-                            addStmt(SetStmt(savedVarSym,
+                                    Call(defs.Sequences_incrementSharing, Get(savedVarSym))));                            
+                        }
+                        if (newElements != null
+                                && (newElements.sym.flags() & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
+                                   JCExpression seq = Getter(varSym);
+                                   JCExpression init = Call(defs.Sequences_getNewElements, seq, id(firstIndexName), id(newLengthName));
+                            addStmt(Var(newElements.type, newElements.name, init));
+                        }
+
+                        // Insert the trigger.
+                        JCStatement triggerBody = varInfo.onReplaceAsInline();
+                        if (savedVarSym != null) {
+                            JCStatement decr = CallStmt(Get(savedVarSym), names.fromString("decrementSharing"));
+                            JCStatement update =
+                              SetStmt(savedVarSym,
                                     Call(defs.Sequences_replaceSlice,
                                         Get(savedVarSym),
                                         Call(defs.Sequences_getNewElements, Getter(varSym), id(firstIndexName), id(newLengthName)),
                                         id(firstIndexName),
                                         endPosArg()
-                                    )));
+                                    ));
+                            triggerBody = m().Try(Block(triggerBody), List.<JCCatch>nil(), Block(decr, update));
                         }
-                        if (newElements != null
-                                && (newElements.sym.flags() & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
-                                   JCExpression seq = savedVarSym != null ? Get(savedVarSym) : Getter(varSym);
-                                   JCExpression init = Call(defs.Sequences_getNewElements, seq, id(firstIndexName), id(newLengthName));
-                            addStmt(Var(newElements.type, newElements.name, init));
-                        }
-                    }
-                    
-                    // Need to capture init state if has trigger.
-                    if (onReplace != null) {
-                        // Insert the trigger.
-                        addStmt(varInfo.onReplaceAsInline());
+                        addStmt(triggerBody);
                     }
                 }
             };
