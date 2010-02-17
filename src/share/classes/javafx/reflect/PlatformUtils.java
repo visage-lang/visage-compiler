@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.annotation.Package;
  */
 
 
-public class PlatformUtils {
+class PlatformUtils {
     static Type[] getGenericParameterTypes(Method m) {
         return m.getGenericParameterTypes();
     }
