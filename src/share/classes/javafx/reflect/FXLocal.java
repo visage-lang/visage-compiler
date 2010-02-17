@@ -25,7 +25,6 @@ package javafx.reflect;
 
 import java.lang.reflect.*;
 import java.lang.annotation.Annotation;
-import com.sun.javafx.runtime.annotation.Package;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,6 @@ import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.DependentsManager;
-import com.sun.javafx.runtime.annotation.*;
 
 /**
  * Implement JavaFX rfeflection on top of {@java.lang.reflect}.
@@ -137,68 +135,16 @@ public class FXLocal {
         static final int VARIABLE_STRING_LENGTH = VARIABLE_STRING.length();
 
         public FXType makeTypeRef(Type typ) {
-            if (typ instanceof ParameterizedType) {
-                ParameterizedType ptyp = (ParameterizedType) typ;
-                Type raw = ptyp.getRawType();
-                Type[] targs = ptyp.getActualTypeArguments();
-                if (raw instanceof Class) {
-                    String rawName = ((Class) raw).getName();
-                    if (FXClassType.SEQUENCE_CLASSNAME.equals(rawName) &&
-                        targs.length == 1) {
-                        return new FXSequenceType(makeTypeRef(targs[0]));
-                    }
-                    if (FXClassType.OBJECT_VARIABLE_CLASSNAME.equals(rawName) &&
-                            targs.length == 1) {
-                        return makeTypeRef(targs[0]);
-                    }
-                    if (FXClassType.SEQUENCE_VARIABLE_CLASSNAME.equals(rawName) &&
-                        targs.length == 1) {
-                        return new FXSequenceType(makeTypeRef(targs[0]));
-                    }
-                    if (rawName.startsWith(FXClassType.FUNCTION_CLASSNAME_PREFIX)) {
-                        FXType[] prtypes = new FXType[targs.length-1];
-                        for (int i = prtypes.length;  --i >= 0; )
-                            prtypes[i] = makeTypeRef(targs[i+1]);
-                        FXType rettype;
-                        if (targs[0] == java.lang.Void.class)
-                            rettype = FXPrimitiveType.voidType;
-                        else
-                            rettype = makeTypeRef(targs[0]);
-                        return new FXFunctionType(prtypes, rettype);
-                    }
-                }
-                           
-                typ = raw;
-            }
-            if (typ instanceof WildcardType) {
-                WildcardType wtyp = (WildcardType) typ;
-                Type[] upper = wtyp.getUpperBounds();
-                Type[] lower = wtyp.getLowerBounds();
-                typ = lower.length > 0 ? lower[0] : wtyp.getUpperBounds()[0];
-                if (typ instanceof Class) {
-                    String rawName = ((Class) typ).getName();
-                    // Kludge, because generics don't handle primitive types.
-                    FXType ptype = getPrimitiveType(rawName);
-                    if (ptype != null)
-                        return ptype;
-                }
-                return makeTypeRef(typ);
-            }
-            if (typ instanceof GenericArrayType) {
-                FXType elType = makeTypeRef(((GenericArrayType) typ).getGenericComponentType());
-                return new FXJavaArrayType(elType);
-            }
-            if (typ instanceof TypeVariable) {
-                // KLUDGE
-                typ = Object.class;
-            }
+            Object t = PlatformUtils.resolveGeneric(this, typ);
+            if (t instanceof FXType)
+                return (FXType) t;
         
-            Class clas = (Class) typ;
+            Class clas = (Class) t;
             if (clas.isArray()) {
                 FXType elType = makeTypeRef(clas.getComponentType());
                 return new FXJavaArrayType(elType);
             }
-            String rawName = ((Class) typ).getName();
+            String rawName = clas.getName();
             int rawLength = rawName.length();
             if (rawLength > LOCATION_PREFIX_LENGTH + VARIABLE_STRING_LENGTH &&
                     rawName.startsWith(LOCATION_PREFIX) &&
@@ -237,7 +183,7 @@ public class FXLocal {
             if (typ == Void.TYPE)
                 return FXPrimitiveType.voidType;
 
-            return makeClassRef((Class) typ);
+            return makeClassRef(clas);
         }
 
         /** Create a reference to a given Class. */
@@ -323,7 +269,7 @@ public class FXLocal {
             super(context, modifiers);
             this.refClass = refClass;
             this.refInterface = refInterface;
-            this.name = refClass.getCanonicalName();
+            this.name = PlatformUtils.getCanonicalName(refClass);
         }
 
         public Class getJavaImplementationClass() { return refClass; }
@@ -448,6 +394,7 @@ public class FXLocal {
             "restrictSet$",
             "setDepChain$internal$",
             "switchDependence$",
+            "hindInit$",
             "userInit$",
             "getFlags$",
             "setFlags$",
@@ -488,7 +435,7 @@ public class FXLocal {
                 Method m = methods[i];
                 if (m.isSynthetic())
                     continue;
-                if (m.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null)
+                if (PlatformUtils.checkInherited(m) > 0)
                     continue;
                 String mname = m.getName();
                     
@@ -520,14 +467,16 @@ public class FXLocal {
         }
     
         FXFunctionMember asFunctionMember(Method m, Context context) {
-            java.lang.reflect.Type[] ptypes = m.getGenericParameterTypes();
+            java.lang.reflect.Type[] ptypes = PlatformUtils.getGenericParameterTypes(m);
+            /*
             if (m.isVarArgs()) {
                 // ????
             }
+            */
             FXType[] prtypes = new FXType[ptypes.length];
             for (int j = 0; j < ptypes.length;  j++)
                 prtypes[j] = context.makeTypeRef(ptypes[j]);
-            java.lang.reflect.Type gret = m.getGenericReturnType();
+            java.lang.reflect.Type gret = PlatformUtils.getGenericReturnType(m);
             FXFunctionType type = new FXFunctionType(prtypes, context.makeTypeRef(gret));
             return new FXLocal.FunctionMember(m, this, type);
         }
@@ -551,28 +500,12 @@ public class FXLocal {
             return method;
         }
 
-        static protected java.lang.reflect.Field getFieldOrNull(Class cls, String name) {
-            java.lang.reflect.Field field = null;
-            try {
-                field = cls.getField(name);
-            } catch (Throwable ex) {
-            }
-            return field;
-        }
-
-        static protected int getFieldIntOrDefault(Class cls, String name, int deflt) {
-            try {
-                java.lang.reflect.Field field = cls.getField(name);
-                deflt = field.getInt(null);
-            } catch (Throwable ex) {
-            }
-            return deflt;
-        }
+        static Object[] NO_ARGS = { };
         
         static protected int callMethodIntOrDefault(java.lang.reflect.Method method, int deflt) {
             if (method != null) {
                 try {
-                    deflt = ((Integer)method.invoke(null)).intValue();
+                    deflt = ((Integer)method.invoke(null, NO_ARGS)).intValue();
                 } catch (Throwable ex) {
                 }
             }
@@ -594,7 +527,7 @@ public class FXLocal {
 	    // force initialization.
 	    if ((this.modifiers & VOFF_INITIALIZED) == 0) {
 		try {
-		    refClass.getMethod("VCNT$").invoke(null);
+		    refClass.getMethod("VCNT$").invoke(null, NO_ARGS);
 		} catch (Throwable e) {
 		} 
 		this.modifiers |= VOFF_INITIALIZED;
@@ -603,27 +536,39 @@ public class FXLocal {
 
 
         protected void getVariables(FXMemberFilter filter, SortedMemberArray<? super FXVarMember> result) {
+            VarMember[] varTable = this.variables;
+            if (varTable != null) {
+                String requiredName = filter.getRequiredName();
+                if (requiredName != null) {
+                    VarMember v = varTable[searchVariable(varTable, requiredName)];
+                    if (v != null)
+                        result.insert(v);
+                } else {
+                    for (int i = varTable.length; --i >= 0; ) {
+                        VarMember v = varTable[i];
+                        if (v != null && filter.accept(v))
+                            result.insert(v);
+                    }
+                }
+                return;
+            }
             Context ctxt = getReflectionContext();
             Class cls = refClass;
-            String requiredName = filter.getRequiredName();
-            // FIXME possible optimization if requiredName != null
-            // In that case we could use Class.getDeclaredField(String).
-            // However, it's tricky because we need to try all possible renamings.
             java.lang.reflect.Field[] fields;
+            ArrayList<VarMember> varList = new ArrayList<VarMember>();
             try {
                 fields = cls.getDeclaredFields();
             } catch (SecurityException e) {
                 fields = filter(cls.getFields(), cls);
             }
             fieldLoop: for (java.lang.reflect.Field fld : fields) {
-                if (fld.isSynthetic()) {
+                if (PlatformUtils.isSynthetic(fld)) {
                     continue;
                 }
                 String fname = fld.getName();
                 
-                SourceName sourceName = fld.getAnnotation(SourceName.class);
-                String sname;
-                if (sourceName == null) {
+                String sname = PlatformUtils.getSourceNameFromAnnotation(fld);
+                if (sname == null) {
                     int dollar = fname.lastIndexOf('$');
                     if (dollar == -1) {
                         sname = fname;
@@ -637,32 +582,62 @@ public class FXLocal {
                             continue fieldLoop;
                         sname = fname.substring(dollar + 1);
                     }
-                } else {
-                    sname = sourceName.value();
                 }
                
-                if (requiredName != null && !requiredName.equals(sname)) {
-                    continue;
-                }
-                    
-                java.lang.reflect.Type gtype = fld.getGenericType();
-                FXType tr = ctxt.makeTypeRef(gtype);
+                FXType tr = ctxt.makeTypeRef(fld.getGenericType());
 		
 		ensureVOffInitialized();
-                int offset  = getFieldIntOrDefault(cls, "VOFF" + fname, -1);
+                int offset;
+                try {
+                    java.lang.reflect.Field field = cls.getField("VOFF" + fname);
+                    offset = field.getInt(null);
+                } catch (Throwable ex) {
+                    offset = -1;
+                }
+
                 VarMember ref = new VarMember(sname, this, tr, offset);
                 ref.fld = fld;
-                if (refInterface != null)
-                    cls = refInterface;
-                ref.getter = getMethodOrNull(cls, "get" + fname);
-
-                if (ref.getter != null) {
-                    Class type = ref.getter.getReturnType();
-                    ref.setter = getMethodOrNull(cls, "set" + fname, type);
-                }
+                varList.add(ref);
 
                 if (filter != null && filter.accept(ref))
                     result.insert(ref);
+            }
+
+            // Enter varList into the varTable hash-table.
+            int nvars = varList.size();
+            // We want the varTable hash-table to be at most 75% full.
+            int varTableSize = 8;
+            while (4 * nvars > 3 * varTableSize)
+                varTableSize += varTableSize;
+            varTable = new VarMember[varTableSize];
+            while (--nvars >= 0) {
+                VarMember v = varList.get(nvars);
+                varTable[searchVariable(varTable, v.name)] = v;
+            }
+            this.variables = varTable;
+        }
+
+        // A simple hash-table keyed vt variable name.
+        VarMember[] variables;
+
+        /** A simple hash-table search algorithm.
+         * @param variables The hash-table.  Its length must be a power of two,
+         *    and there must be at least one unused slot.
+         * @param name The name of the VarMember to search for.
+         * @return The index of a slot in {@code variables} that matches the name,
+         *     or null if there is no such slot.
+         */
+        static int searchVariable(VarMember[] variables, String name) {
+            int hash = name.hashCode();
+            int size = variables.length;
+            int h = 12347 * hash + hash;
+            int mask = size - 1;
+            int i = h & mask;
+            for (;;) {
+                VarMember v = variables[i];
+                if (v == null || v.name.equals(name))
+                    return i;
+                i = (i + 53) & mask;
             }
         }
 
@@ -672,8 +647,11 @@ public class FXLocal {
             try {
                 Object instance;
                 if (isJfxType()) {
-                    Constructor cons = cls.getDeclaredConstructor(Boolean.TYPE);
-                    instance = cons.newInstance(Boolean.TRUE);
+                    // Note that Java5-style varargs are not supported on CDC.
+                    Class[] types = { Boolean.TYPE };
+                    Constructor cons = cls.getDeclaredConstructor(types);
+                    Object[] args = { Boolean.TRUE };
+                    instance = cons.newInstance(args);
                 }
                 else {
                     instance = cls.newInstance();
@@ -702,25 +680,23 @@ public class FXLocal {
         }
 
         public boolean isPublic() {
-            if (isJfxType())
-                return getAnnotation(Public.class) != null;
-            else {
-                Class cls = refClass;
-                return (cls.getModifiers() & Modifier.PUBLIC) != 0;
-            }
+            int p = PlatformUtils.checkPublic(this);
+            if (p >= 0)
+                return p > 0;
+            Class cls = refClass;
+            return (cls.getModifiers() & Modifier.PUBLIC) != 0;
         }
 
         public boolean isProtected() {
-            return getAnnotation(Protected.class) != null;
+            return PlatformUtils.isProtected(this);
         }
 
         public boolean isPackage() {
-            if (isJfxType())
-                return getAnnotation(Package.class) != null;
-            else {
-                Class cls = refClass;
-                return (cls.getModifiers() & Modifier.PUBLIC) == 0;
-            }
+            int p = PlatformUtils.checkPackage(this);
+            if (p >= 0)
+                return p > 0;
+            Class cls = refClass;
+            return (cls.getModifiers() & Modifier.PUBLIC) == 0;
         }
     }
     
@@ -767,14 +743,21 @@ public class FXLocal {
     }
 
     static class VarMember extends FXVarMember {
-        Method accessMethod;
         Field fld;
         Method getter;
         Method setter;
         FXType type;
         String name;
-        FXClassType owner;
+        ClassType owner;
         int offset;
+        static final int GETTER_SETTER_SET = 1;
+        static final int ACCESS_FLAGS_SET = 2;
+        static final int IS_PUBLIC = 4;
+        static final int IS_PROTECTED = IS_PUBLIC << 1;
+        static final int IS_PACKAGE = IS_PUBLIC << 2;
+        static final int IS_PUBLIC_INIT = IS_PUBLIC << 3;
+        static final int IS_PUBLIC_READ = IS_PUBLIC << 4;
+        int flags;
     
         public VarMember(String name, ClassType owner, FXType type, int offset) {
             this.name = name;
@@ -793,10 +776,26 @@ public class FXLocal {
             return offset;
         }
 
+        private void checkGetterSetter() {
+            if ((flags & GETTER_SETTER_SET) != 0)
+                return;
+            Class cls = owner.refInterface;
+            if (cls == null)
+                cls = owner.refClass;
+            Method g = ClassType.getMethodOrNull(cls, "get" + name);
+            getter = g;
+            flags |= GETTER_SETTER_SET;
+            if (g != null) {
+                Class rtype = g.getReturnType();
+                setter = ClassType.getMethodOrNull(cls, "set" + name, rtype);
+            }
+        }
+
         @Override
         public FXValue getValue(FXObjectValue obj) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
+                checkGetterSetter();
                 if (fld != null || getter != null) {
                     Context context =
                         (Context) owner.getReflectionContext();
@@ -846,10 +845,12 @@ public class FXLocal {
                     Sequences.set((FXObject)robj, offset,(Sequence)((Value) value).asObject());
                     return;
                 }
+                checkGetterSetter();
                 if (fld != null || setter != null) {
                    
                     if (setter != null) {
-                        setter.invoke(robj, ((Value) value).asObject());
+                        Object[] args = { ((Value) value).asObject() };
+                        setter.invoke(robj, args);
                         return;
                     } else {
                         // FIXME: yet to be implemented for compiled binds
@@ -876,63 +877,62 @@ public class FXLocal {
             return owner;
         }
 
+        private void checkAccessFlags() {
+            if ((flags & ACCESS_FLAGS_SET) != 0)
+                return;
+            flags |= ACCESS_FLAGS_SET;
+            checkGetterSetter();
+            if (! getDeclaringClass().isJfxType()
+                    || ! PlatformUtils.checkAccessAnnotations(this)) {
+                int mods = getter != null ? getter.getModifiers()
+                        : fld.getModifiers();
+                if ((mods & Modifier.PUBLIC) != 0)
+                    flags |= IS_PUBLIC;
+                if ((mods & Modifier.PROTECTED) != 0)
+                    flags |= IS_PROTECTED;
+                int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
+                if ((mods & mask) == 0)
+                    flags |= IS_PACKAGE;
+             }
+        }
+
         public boolean isStatic() {
+            checkGetterSetter();
             int mods = getter != null ? getter.getModifiers()
                     : fld.getModifiers();
             return (mods & Modifier.STATIC) != 0;
         }
 
-        public <T extends Annotation> T getAnnotation (Class<T> clas) {
-            if (fld != null)
-                return fld.getAnnotation(clas);
-            if (getter != null)
-                return getter.getAnnotation(clas);
-            return null;
-        }
-
         public boolean isPublic() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Public.class) != null;
-            else {
-                int mods = getter != null ? getter.getModifiers()
-                        : fld.getModifiers();
-                return (mods & Modifier.PUBLIC) != 0;
-            }
+            checkAccessFlags();
+            return (flags & IS_PUBLIC) != 0;
         }
 
         public boolean isProtected() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Protected.class) != null;
-            else {
-                int mods = getter != null ? getter.getModifiers()
-                        : fld.getModifiers();
-                return (mods & Modifier.PROTECTED) != 0;
-            }
+             checkAccessFlags();
+            return (flags & IS_PROTECTED) != 0;
         }
 
         public boolean isPackage() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Package.class) != null;
-            else {
-                int mods = getter != null ? getter.getModifiers()
-                        : fld.getModifiers();
-                int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
-                return (mods & mask) == 0;
-            }
+            checkAccessFlags();
+            return (flags & IS_PACKAGE) != 0;
         }
 
         public boolean isPublicInit() {
-            return getAnnotation(PublicInitable.class) != null;
+            checkAccessFlags();
+            return (flags & IS_PUBLIC_INIT) != 0;
         }
 
         public boolean isPublicRead() {
-            return getAnnotation(PublicReadable.class) != null;
+            checkAccessFlags();
+            return (flags & IS_PUBLIC_READ) != 0;
         }
 
         public boolean isDef() {
-            if (fld != null && ! getDeclaringClass().isJfxType())
-                return (fld.getModifiers() & Modifier.FINAL) != 0;
-            return getAnnotation(Def.class) != null;
+            int d = PlatformUtils.checkDef(this);
+            if (d >= 0)
+                return d > 0;
+            return fld != null && (fld.getModifiers() & Modifier.FINAL) != 0;
         }
 
         static class ListenerAdapter extends com.sun.javafx.runtime.FXBase implements FXChangeListenerID {
@@ -1026,32 +1026,29 @@ public class FXLocal {
             }
         }
 
-        public <T extends Annotation> T getAnnotation (Class<T> clas) {
-            return method.getAnnotation(clas);
-        }
-
         public boolean isPublic() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Public.class) != null;
+            int p = PlatformUtils.checkPublic(this);
+            if (p >= 0)
+                return p > 0;
             else
                 return (method.getModifiers() & Modifier.PUBLIC) != 0;
         }
 
         public boolean isProtected() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Protected.class) != null;
+            int p = PlatformUtils.checkProtected(this);
+            if (p >= 0)
+                return p > 0;
             else
                 return (method.getModifiers() & Modifier.PROTECTED) != 0;
         }
 
         public boolean isPackage() {
-            if (getDeclaringClass().isJfxType())
-                return getAnnotation(Package.class) != null;
-            else {
-                int mods = method.getModifiers();
-                int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
-                return (mods & mask) == 0;
-            }
+            int p = PlatformUtils.checkPackage(this);
+            if (p >= 0)
+                return p > 0;
+            int mods = method.getModifiers();
+            int mask = Modifier.PUBLIC|Modifier.PROTECTED|Modifier.PRIVATE;
+            return (mods & mask) == 0;
         }
     }
 
@@ -1141,14 +1138,18 @@ public class FXLocal {
                 FXObject instance = (FXObject)obj;
             
                 if (initMembers == null) {
-                    instance.initialize$();
+                    instance.initialize$(true);
                 } else {
                     int count = count();
                     
+                    instance.initVars$();
+                    
                     for (int offset = 0; offset < count; offset++ ) {
+                        instance.varChangeBits$(offset, 0, FXObject.VFLGS$INIT$READY);
+                        
                         if (initMembers[offset] != null) {
                             initMembers[offset].setValue(this, initValues[offset]);
-                        } else if (instance.varTestBits$(offset, FXObject.VFLGS$DEFAULT_APPLIED, 0)) {
+                        } else {
                             instance.applyDefaults$(offset);
                         }
                     }
@@ -1180,6 +1181,8 @@ public class FXLocal {
                 
                 initMembers[offset] = attr;
                 initValues[offset] = value;
+
+                ((FXObject)obj).setFlags$(offset, FXObject.VFLGS$INIT_OBJ_LIT);
             }
         }
     }

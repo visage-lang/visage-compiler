@@ -38,7 +38,7 @@ class rough {
 }
 
 class rv extends rough {
-  override var vvv on replace { check("rv") }
+  override var vvv; init { check("rv") }
 }
 
 class rl extends rough {

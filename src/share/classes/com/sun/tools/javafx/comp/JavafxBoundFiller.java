@@ -118,7 +118,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
 
         // Create the index var
         // var $indexof$x = $index$
-        JFXVar indexVar = preTrans.LocalVar(syms.intType, indexName, fxmake.Ident(indexParamSym), owner);
+        JFXVar indexVar = preTrans.LocalVar(clause.pos(), syms.intType, indexName, fxmake.Ident(indexParamSym), owner);
         // Stash the created variable so it can be used when we visit a
         // JFXIndexof, where we convert that to a JFXIdent referencing the indexDecl.
         clause.indexVarSym = indexVar.sym;
@@ -131,7 +131,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
      */
     private JFXVar createInductionVar(JFXForExpressionInClause clause, JavafxVarSymbol boundIndexVarSym, Symbol owner) {
         JFXVar param = clause.getVar();
-        JFXVar inductionVar =  preTrans.LocalVar(param.type, param.name, null, owner);
+        JFXVar inductionVar =  preTrans.LocalVar(param.pos(), param.type, param.name, null, owner);
         clause.inductionVarSym = inductionVar.sym = param.sym;
         return inductionVar;
     }
@@ -164,7 +164,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
         body.type = valtype;
         JFXVar param = clause.getVar();
         Name resName = resultVarName(param.name);
-        JFXVar resultVar =  preTrans.BoundLocalVar(valtype, resName, value, owner);
+        JFXVar resultVar =  preTrans.BoundLocalVar(clause.pos(), valtype, resName, value, owner);
         resultVar.sym.flags_field |= JavafxFlags.VARUSE_BIND_ACCESS;
         clause.boundResultVarSym = resultVar.sym;
         return resultVar;

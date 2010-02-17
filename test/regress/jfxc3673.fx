@@ -221,6 +221,9 @@ var c3Seq = C3Seq{};
 
 c3Seq.w = [10, 20, 30];
 
+var c3Dummy = c3Seq.x; // now we care, now fire invalidates
+c3Seq.w = [30, 20, 10];
+
 //----------------------------------------
 println("Replacing bound no initial sequence value");
 
@@ -240,6 +243,9 @@ class C4Seq extends B4Seq {
 var c4Seq = C4Seq{};
 
 c4Seq.w = [10, 20, 30];
+
+var c4Dummy = c4Seq.x; // now we care, now fire invalidates
+c4Seq.w = [30, 20, 10];
 
 //----------------------------------------
 println("Replacing initial sequence value - mixins");
@@ -299,6 +305,9 @@ var c3MSeq = C3MSeq{};
 
 c3MSeq.w = [10, 20, 30];
 
+var c3MDummy = c3MSeq.x; // now we care, now fire invalidates
+c3MSeq.w = [30, 20, 10];
+
 //----------------------------------------
 println("Replacing bound no initial sequence value - mixins");
 
@@ -318,6 +327,9 @@ class C4MSeq extends B4MSeq {
 var c4MSeq = C4MSeq{};
 
 c4MSeq.w = [10, 20, 30];
+
+var c4MDummy = c4MSeq.x; // now we care, now fire invalidates
+c4MSeq.w = [30, 20, 10];
 
 //----------------------------------------
 println("Replacing initial sequence value, detailed expression");
@@ -377,6 +389,9 @@ var c3DetailSeq = C3DetailSeq{};
 
 c3DetailSeq.w = [10, 20, 30];
 
+var c3DetailDummy = c3DetailSeq.x; // now we care, now fire invalidates
+c3DetailSeq.w = [30, 20, 10];
+
 //----------------------------------------
 println("Replacing bound no initial sequence value, detailed expression");
 
@@ -396,6 +411,9 @@ class C4DetailSeq extends B4DetailSeq {
 var c4DetailSeq = C4DetailSeq{};
 
 c4DetailSeq.w = [10, 20, 30];
+
+var c4DetailDummy = c4DetailSeq.x; // now we care, now fire invalidates
+c4DetailSeq.w = [30, 20, 10];
 
 //----------------------------------------
 println("Replacing initial value, detailed expression - mixins");
@@ -455,6 +473,9 @@ var c3MDetailSeq = C3MDetailSeq{};
 
 c3MDetailSeq.w = [10, 20, 30];
 
+var c3MDetailDummy = c3MDetailSeq.x; // now we care, now fire invalidates
+c3MDetailSeq.w = [30, 20, 10];
+
 //----------------------------------------
 println("Replacing bound no initial value, detailed expression - mixins");
 
@@ -474,6 +495,9 @@ class C4MDetailSeq extends B4MDetailSeq {
 var c4MDetailSeq = C4MDetailSeq{};
 
 c4MDetailSeq.w = [10, 20, 30];
+
+var c4MDetailDummy = c4MDetailSeq.x; // now we care, now fire invalidates
+c4MDetailSeq.w = [30, 20, 10];
 
 
 

@@ -140,10 +140,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     hasSequenceInitializer = true;
                 }
             }
+            
             if (!hasSequenceInitializer) {
-                // Always create a new instance if the default has not been applied yet
-                condition = FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null);
+                condition = bindNeedsDefault(targetSymbol);
             }
+            
             super.initInstanceVariables(instName);
         }
 
@@ -269,8 +270,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         JFXIdent ident = (JFXIdent)arg;
                         targs.append(getReceiverOrThis(ident.sym));
                         targs.append(Offset(ident.sym));
+                    } else if (preTrans.isImmutable(arg)) {
+                        // pass FXConstant wrapper for argument expression
+                        targs.append(Call(defs.FXConstant_make, translateExpr(arg, arg.type)));
+                        // pass FXConstant.VOFF$value as offset value
+                        targs.append(Select(makeType(syms.javafx_FXConstantType), defs.varOFF$valueName));
                     } else {
-                        TODO("non-Ident in bound call");
+                        TODO("non-Ident and non-immutable in bound call");
                     }
                 }
                 return targs.toList();
@@ -281,7 +287,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         @Override
         JCExpression translateArg(JFXExpression arg, Type formal) {
-            if (conditionallyReevaluate && arg instanceof JFXIdent) {
+            if (conditionallyReevaluate && arg instanceof JFXIdent && !preTrans.isImmutable(arg)) {
                 // if no args have changed, don't call function, just return previous value
                 Symbol sym = ((JFXIdent) arg).sym;
                 addBindee((JavafxVarSymbol) sym);   //TODO: isn't this redundant?
@@ -313,7 +319,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 if (condition != null) {
                     // Always call function if the default has not been applied yet
                     full = TypeCast(targetType, Type.noType,
-                              If (OR(condition, FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null)),
+                              If (OR(condition, bindNeedsDefault(targetSymbol)),
                                   full,
                                   Get(targetSymbol)));
                 }
@@ -521,7 +527,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         void setupInvalidators() {
             mergeResults(exprResult);
-            addInvalidator(targetSymbol, makeInvalidateSelf());
+ //           addInvalidator(targetSymbol, makeInvalidateSelf());
         }
     }
 
@@ -567,6 +573,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         Block(
                             Stmt(m().Assign(id(sizeVar), makeSizeValue())),
                             SetStmt(sizeSym, id(sizeVar)),
+                            setSequenceActive(),
                             CallSeqInvalidateUndefined(targetSymbol),
                             CallSeqTriggerInitial(targetSymbol, id(sizeVar))
                         )
@@ -716,8 +723,21 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
-            return Return(CallSize(exprSym));
-        }
+            JCVariableDecl vSize = TmpVar(syms.intType, CallSize(exprSym));
+
+            return
+                Block(
+                    vSize,
+                    If (isSequenceDormant(),
+                        Block(
+                            setSequenceActive(),
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, id(vSize))
+                        )
+                    ),
+                    Return(id(vSize))
+                );
+       }
 
         JCStatement makeGetElementBody() {
             //we could have a sequence of Object converted into sequence of Integers
@@ -827,7 +847,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     If (isSequenceDormant(),
                         Block(
                             setSequenceActive(),
-                            FlagChangeStmt(selectorSym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID_DEFAULT_APPLIED),
+                            FlagChangeStmt(selectorSym, defs.varFlagINIT_STATE_MASK, defs.varFlagVALID_DEFAULT_APPLIED),
                             CallStmt(attributeInvalidateName(selectorSym), id(defs.phaseTransitionBE_INVALIDATE)),
                             CallStmt(attributeInvalidateName(selectorSym), id(defs.phaseTransitionBE_TRIGGER))
                         )
@@ -899,7 +919,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl newSize = TmpVar(syms.intType, getSize());
 
             return
-                    PhaseCheckedBlock(selectorSym,
+                PhaseCheckedBlock(selectorSym,
                         If (IsInvalidatePhase(),
                             Block(
                                 If (NEnull(selector()),
@@ -947,7 +967,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         private JCStatement makeInvalidateSelf() {
             return
                 Block(
-                    setSequenceActive(),
+//                    setSequenceActive(),
                     If (IsTriggerPhase(),
                         SetStmt(sizeSym,
                             PLUS(
@@ -989,8 +1009,20 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * Size accessor -- pass through
          */
         JCStatement makeSizeBody() {
+            JCVariableDecl vSize = TmpVar("size", syms.intType, CallSize(argSym));
+
             return
-                Return (CallSize(argSym));
+                Block(
+                    vSize,
+                    If (isSequenceDormant(),
+                        Block(
+                            setSequenceActive(),
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, id(vSize))
+                        )
+                    ),
+                    Return(id(vSize))
+                );
         }
 
         /**
@@ -999,7 +1031,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         JCStatement makeGetElementBody() {
             return
-                Return ( CallGetElement(argSym, MINUS( MINUS(CallSize(argSym), Int(1)), posArg()) ) );
+                Block(
+                    If (isSequenceDormant(),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    Return ( CallGetElement(argSym, MINUS( MINUS(CallSize(argSym), Int(1)), posArg()) ) )
+                );
         }
 
         /**
@@ -1084,6 +1121,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return types.isSequence(type(index));
         }
 
+        boolean isFixedLength(int index) {
+            return itemLengthSym(index) == null;
+        }
+
         JavafxVarSymbol itemLengthSym(int index) {
             return itemLengthSyms.get(index);
         }
@@ -1096,16 +1137,32 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return itemSym(index).type;
         }
 
-        JCStatement Update(int index) {
-            if (itemLengthSym(index) == null) {
-                return Stmt(Getter(itemSym(index)));
+        JCExpression IsInvalid(JavafxVarSymbol sym) {
+            return FlagTest(sym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT);
+        }
+
+        JCExpression IsInvalid(int index) {
+            return IsInvalid(itemSym(index));
+        }
+
+        JCStatement UpdateValue(int index) {
+            if (isFixedLength(index)) {
+                return SetStmt(itemSym(index), Getter(itemSym(index)));
             } else {
                 return SetStmt(itemLengthSym(index),
                            isSequence(index)?
                                 CallSize(itemSym(index)) :
-                                If (EQnull(Getter(itemSym(index))), Int(0), Int(1))
+                                If (EQnull(Set(itemSym(index), Getter(itemSym(index)))), Int(0), Int(1))
                       );
             }
+        }
+
+        JCStatement Update(int index) {
+            return
+                Block(
+                    UpdateValue(index),
+                    FlagChangeStmt(itemSym(index), defs.varFlagSTATE_MASK, defs.varFlagVALID_DEFAULT_APPLIED)
+                );
         }
 
         JCStatement UpdateAll() {
@@ -1119,14 +1176,25 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         Block(upds);
         }
 
-        JCExpression PassiveLength(int index) {
-            if (itemLengthSym(index) == null) {
+        JCExpression TransientLength(int index) {
+            if (isFixedLength(index)) {
                 return Int(1);
             } else {
                 return isSequence(index)?
                                 CallSize(itemSym(index)) :
-                                If (EQnull(Getter(itemSym(index))), Int(0), Int(1));
+                                If (IsInvalid(index),
+                                    If (EQnull(Getter(itemSym(index))), Int(0), Int(1)),
+                                    Get(itemLengthSym(index))
+                                );
             }
+        }
+
+        JCExpression CummulativeTransientLength(int index) {
+            JCExpression sum = index==0? Int(0) : TransientLength(0);
+            for (int i = 1; i < index; ++i) {
+                sum = PLUS(sum, TransientLength(i));
+            }
+            return sum;
         }
 
         JCExpression CachedLength(int index) {
@@ -1135,18 +1203,30 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression CummulativeCachedSize(int index) {
-            JCExpression sum = Int(0);
-            for (int i = 0; i < index; ++i) {
+            JCExpression sum = index==0? Int(0) : CachedLength(0);
+            for (int i = 1; i < index; ++i) {
                 sum = PLUS(sum, CachedLength(i));
             }
             return sum;
         }
 
-        JCExpression GetElement(int index, JCExpression pos) {
+        JCExpression CachedGetElement(int index, JCExpression pos) {
             if (isSequence(index)) {
                 return Call(attributeGetElementName(itemSym(index)), pos);
             } else {
                 return Get(itemSym(index));
+            }
+        }
+
+        JCExpression TransientGetElement(int index, JCExpression pos) {
+            if (isSequence(index)) {
+                return Call(attributeGetElementName(itemSym(index)), pos);
+            } else {
+                return 
+                    If (IsInvalid(index),
+                        Getter(itemSym(index)),
+                        Get(itemSym(index))
+                    );
             }
         }
 
@@ -1215,8 +1295,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             this.changeEndSym = tree.boundChangeEndPosSym;
         }
 
-        private JCExpression GetSize() {
-            if (sizeSym == null) {
+        private boolean isFixedLength() {
+            return sizeSym == null;
+        }
+
+        private JCExpression CachedSize() {
+            if (isFixedLength()) {
                 return Int(length);
             } else {
                 return Get(sizeSym);
@@ -1224,7 +1308,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCStatement SetSizeStmt(JCExpression value) {
-            if (sizeSym == null) {
+            if (isFixedLength()) {
                 return null;
             } else {
                 return SetStmt(sizeSym, value);
@@ -1232,7 +1316,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCExpression GetChangeStart() {
-            if (changeStartSym == null) {
+            if (isFixedLength()) {
                 return Get(lowestSym);
             } else {
                 return Get(changeStartSym);
@@ -1240,7 +1324,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCStatement SetChangeStartStmt(JCExpression value) {
-            if (changeStartSym == null) {
+            if (isFixedLength()) {
                 return null;
             } else {
                 return SetStmt(changeStartSym, value);
@@ -1248,15 +1332,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCStatement SetChangeEndStmt(JCExpression value) {
-            if (changeEndSym == null) {
+            if (isFixedLength()) {
                 return null;
             } else {
                 return SetStmt(changeEndSym, value);
             }
-        }
-
-        private boolean isNullable() {
-            return newLengthSym != null;
         }
 
         JCStatement makeSizeBody() {
@@ -1276,8 +1356,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         )
                     ),
                     DEBUG? Debug("size pending=", Get(pendingSym)) : null,
-                    DEBUG? Debug("   size=", GetSize()) : null,
-                    Return(GetSize())
+                    DEBUG? Debug("   size=", CachedSize()) : null,
+                    Return(
+                        isFixedLength()?
+                            Int(length) :
+                            If (EQ(Get(pendingSym), Int(0)),
+                                CachedSize(),
+                                CummulativeTransientLength(length)
+                            )
+                    )
                 );
         }
 
@@ -1307,10 +1394,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vStart = MutableTmpVar("start", syms.intType, Int(0));
             JCVariableDecl vNext = MutableTmpVar("next", syms.intType, Int(0));
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            ListBuffer<JCStatement> pendStmts = ListBuffer.lb();
+            ListBuffer<JCStatement> normalStmts = ListBuffer.lb();
 
             stmts.appendList(Stmts(
                     DEBUG? Debug("GetElement pending=", Get(pendingSym)) : null,
-                    DEBUG? Debug("   size=", GetSize()) : null,
+                    DEBUG? Debug("   size=", CachedSize()) : null,
                     If(LT(posArg(), Int(0)),
                         Return(DefaultValue(elemType))
                     ),
@@ -1320,17 +1409,32 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     vStart,
                     vNext
                 ));
+            //TODO: switch-statement if isFixedLength
             for (int index = 0; index < length; ++index) {
-                stmts.appendList(Stmts(
-                        Assign(vNext, PLUS(id(vNext), PassiveLength(index))),
+                pendStmts.appendList(Stmts(
+                        Assign(vNext, PLUS(id(vNext), TransientLength(index))),
                         If(LT(posArg(), id(vNext)),
-                            Return(GetElement(index, MINUS(posArg(), id(vStart))))
+                            Return(TransientGetElement(index, MINUS(posArg(), id(vStart))))
                         ),
                         Assign(vStart, id(vNext))
                     ));
             }
-            stmts.append(
-                    Return(DefaultValue(elemType)));
+            for (int index = 0; index < length; ++index) {
+                normalStmts.appendList(Stmts(
+                        Assign(vNext, PLUS(id(vNext), CachedLength(index))),
+                        If(LT(posArg(), id(vNext)),
+                            Return(CachedGetElement(index, MINUS(posArg(), id(vStart))))
+                        ),
+                        Assign(vStart, id(vNext))
+                    ));
+            }
+            stmts.appendList(Stmts(
+                    If (EQ(Get(pendingSym), Int(0)),
+                        Block(normalStmts),
+                        Block(pendStmts)
+                    ),
+                    Return(DefaultValue(elemType)
+            )));
             return Block(stmts);
         }
 
@@ -1374,16 +1478,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vEnd = TmpVar("hi", syms.intType, PLUS(Get(highestSym), Int(1)));
 
             JCStatement triggerChanged =
-                    isNullable()?
-                        Block(
-                            SetStmt(highestSym, Undefined()),
-                            DEBUG? Debug("bulk #"+index+" changeStart=", GetChangeStart()) : null,
-                            CallSeqTrigger(targetSymbol,
-                                GetChangeStart(),
-                                Get(changeEndSym),
-                                MINUS(Get(newLengthSym), GetChangeStart())
-                            )
-                        ) :
+                    isFixedLength()?
                         Block(
                             vEnd,
                             SetStmt(highestSym, Undefined()),
@@ -1392,6 +1487,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 Get(lowestSym),
                                 id(vEnd),
                                 MINUS(id(vEnd), Get(lowestSym))
+                            )
+                        ) :
+                        Block(
+                            SetStmt(highestSym, Undefined()),
+                            DEBUG? Debug("bulk #"+index+" changeStart=", GetChangeStart()) : null,
+                            CallSeqTrigger(targetSymbol,
+                                GetChangeStart(),
+                                Get(changeEndSym),
+                                MINUS(Get(newLengthSym), GetChangeStart())
                             )
                         );
             JCStatement fire;
@@ -1440,17 +1544,19 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     Assert(AND(GE(Int(index), Get(lowestSym)), LE(Int(index), Get(highestSym)))),
                     Assert(GT(Get(pendingSym), Int(0))),
                     SetStmt(pendingSym, MINUS(Get(pendingSym), Int(1))),
-                    vOldLength,
+                    isFixedLength(index)? null :
+                        vOldLength,
                     SetStmt(ignoreInvalidationsSym, True()),
                     Update(index),
                     SetStmt(ignoreInvalidationsSym, False()),
-                    vNewLength,
-                    SetSizeStmt(PLUS(GetSize(), MINUS(id(vNewLength), id(vOldLength)))),
-                    isNullable()?
+                    isFixedLength(index)? null :
+                        vNewLength,
+                    isFixedLength(index)? null : 
+                        SetSizeStmt(PLUS(CachedSize(), MINUS(id(vNewLength), id(vOldLength)))),
+                    isFixedLength()? null :
                         If (EQ(Get(highestSym), Int(index)),
                             SetStmt(newLengthSym, CummulativeCachedSize(index+1))
-                        ) :
-                        null,
+                        ),
                     DEBUG? Debug("trig #"+index+"  pending = ", Get(pendingSym)) : null,
                     If (EQ(Get(pendingSym), Int(0)),
                         fire
@@ -1471,7 +1577,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
-            JCVariableDecl vSize = TmpVar("size", syms.intType, PassiveLength(0));
+            JCVariableDecl vSize = TmpVar("size", syms.intType, TransientLength(0));
 
             return
                 Block(
@@ -1485,7 +1591,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             Return(id(vSize))
                         )
                     ),
-                    Return(PassiveLength(0))
+                    Return(TransientLength(0))
                 );
         }
 
@@ -1498,7 +1604,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     If (isSequenceDormant(),
                         Stmt(CallSize(targetSymbol))
                     ),
-                    Return(Getter(itemSym(0)))
+                    Return(TransientGetElement(0, null))
                 );
         }
 
@@ -1635,7 +1741,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             if (var == null) {
                 return null;
             } else {
-                return FlagChangeStmt(var.getSymbol(), defs.varFlagSTATE_MASK, defs.varFlagStateVALID);
+                return FlagChangeStmt(var.getSymbol(), defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID);
             }
         }
 
@@ -2435,7 +2541,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 Block(
                     If(EQnull(Get(helperSym)),
-                        Stmt(Set(clause.boundHelper.sym, createHelper))
+                        Block(
+                            setSequenceActive(),
+                            Stmt(Set(clause.boundHelper.sym, createHelper))
+                        )
                     ),
                     Return(Call(Get(clause.boundHelper.sym), defs.size_SequenceMethodName))
                 );
@@ -2572,7 +2681,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCStatement MarkValid(JavafxVarSymbol sym) {
-            return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagStateVALID);
+            return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID);
         }
 
         private JCStatement MarkInvalid(JavafxVarSymbol sym) {
