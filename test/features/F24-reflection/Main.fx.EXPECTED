@@ -100,7 +100,7 @@ MyRect variables:
   var MyRect.crners:java.awt.geom.Point2D[]
 MyRect variables (inherited also): 
   crners : java.awt.geom.Point2D[] = ;
-  shapeFun1 : function(Integer,java.lang.String):java.lang.String = function(Integer,java.lang.String):java.lang.String{...};
+  shapeFun1 : function():java.lang.Object = function():java.lang.Object{...};
   shapeInt : Integer = 12;
   static shapeIntDefault : Integer = 10;
   shapeNum : Float = 1.5;
@@ -112,13 +112,13 @@ Square attributes (only):
   public def cc : Integer
 Simple attributes (only):
   public-init var at1 : class java.lang.Object
-  public-read package var func : function(java.lang.String):function():Void
+  public-read package var func : function():java.lang.Object
 MyRect methods:
   function MyRect.corners():java.awt.geom.Point2D[]
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
 MyRect.times1(Number): function MyRect.times1(Float):Float
 call times1(2.5): FloatValue(45.0)
-MyRect.shapeFun1 variable: var MyShape.shapeFun1:function(Integer,java.lang.String):java.lang.String
+MyRect.shapeFun1 variable: var MyShape.shapeFun1:function():java.lang.Object
  - apply(3,"abcdefg") => defg
 var MyShape.shapeIntDefault:Integer (static): IntegerValue(10)
 Created myRectRef2 = MyRect{shapeNum: 2.5}.

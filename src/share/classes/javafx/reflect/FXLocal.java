@@ -145,6 +145,9 @@ public class FXLocal {
                 return new FXJavaArrayType(elType);
             }
             String rawName = clas.getName();
+            if (FXClassType.FUNCTION_CLASSNAME.equals(rawName)) {
+                return new FXFunctionType(new FXType[0], makeClassRef(java.lang.Object.class));
+            }
             int rawLength = rawName.length();
             if (rawLength > LOCATION_PREFIX_LENGTH + VARIABLE_STRING_LENGTH &&
                     rawName.startsWith(LOCATION_PREFIX) &&
@@ -368,6 +371,7 @@ public class FXLocal {
         static final String[] SYSTEM_METHOD_EXCLUDES = {
             // keep in alphabetical order 
             "addDependent$",
+            "arityException$",
             "complete$",
             "count$",
             "getAsBoolean$",
@@ -408,6 +412,7 @@ public class FXLocal {
             "elem$",
             "initVars$",
             "invalidate$",
+            "invoke$",
             "onReplace$",
             "seq$",
             "set$",
@@ -415,6 +420,7 @@ public class FXLocal {
             "update$",
             "DCNT$",
             "DEP$",
+            "FCNT$",
             "GETMAP$",
             "VOFF$"
         };
@@ -515,6 +521,7 @@ public class FXLocal {
         static final String[] SYSTEM_VAR_PREFIXES = {
             "DCNT$",
             "DEP$",
+            "FCNT$",
             "VFLG$",
             "VCNT$",
             "VOFF$",
@@ -1247,44 +1254,7 @@ public class FXLocal {
             Object[] rargs = new Object[nargs];
             for (int i = 0;  i < nargs;  i++)
                 rargs[i] = ((FXLocal.Value) arg[i]).asObject();
-            switch (nargs) {
-                case 0:
-                    result = ((Function0) val).invoke();
-                    break;
-                case 1:
-                    result = ((Function1) val).invoke(rargs[0]);
-                    break;
-                case 2:
-                    result = ((Function2) val).invoke(rargs[0], rargs[1]);
-                    break;
-                case 3:
-                    result = ((Function3) val).invoke(rargs[0],
-                            rargs[1], rargs[2]);
-                    break;
-                case 4:
-                    result = ((Function4) val).invoke(rargs[0],
-                            rargs[1], rargs[2], rargs[3]);
-                    break;
-                case 5:
-                    result = ((Function5) val).invoke(rargs[0],
-                            rargs[1], rargs[2], rargs[3], rargs[4]);
-                    break;
-                case 6:
-                    result = ((Function6) val).invoke(rargs[0],
-                            rargs[1], rargs[2], rargs[3], rargs[4], rargs[5]);
-                    break;
-                case 7:
-                    result = ((Function7) val).invoke(rargs[0], rargs[1],
-                            rargs[2], rargs[3], rargs[4], rargs[5], rargs[6]);
-                    break;
-                case 8:
-                    result = ((Function8) val).invoke(rargs[0], rargs[1],
-                            rargs[2], rargs[3], rargs[4],
-                            rargs[5], rargs[6], rargs[7]);
-                    break;
-                default:
-                    throw new IllegalArgumentException();
-            }
+            result = ((Function) val).invoke(rargs);
             return context.mirrorOf(result, ftype.getReturnType());
         }
         public FXFunctionType getType() {

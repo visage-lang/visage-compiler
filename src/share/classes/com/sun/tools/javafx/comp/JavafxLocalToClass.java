@@ -268,6 +268,7 @@ public class JavafxLocalToClass {
                 needed |= tree.getOnReplace() != null;
                 needed |= tree.getOnInvalidate() != null;
                 needed |= hasSelfReference(tree);
+                needed |= tree.sym.isCapturedByFunctionValue();
                 super.visitVar(tree);
             }
 
@@ -291,8 +292,10 @@ public class JavafxLocalToClass {
 
             @Override
             public void visitFunctionValue(JFXFunctionValue tree) {
+		        scan(tree.getParams());
                 // Funtion value may reference (non-final) locals
                 needed |= referencesMutatedLocal(tree);
+                super.visitFunctionValue(tree);
             }
 
             @Override

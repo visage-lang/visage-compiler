@@ -1087,9 +1087,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
         JFXClassDeclaration prevClass = currentClass();
         try {
-            if (tree.sym.kind == Kinds.MTH) {
-                setCurrentClass(functionValueClass());
-            }
             result = new IdentTranslator(tree).doit();
         }
         finally {
@@ -1141,9 +1138,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
         JFXClassDeclaration prevClass = currentClass();
         try {
-            if (tree.sym.kind == Kinds.MTH) {
-                setCurrentClass(functionValueClass());
-            }
             result = new SelectTranslator(tree).doit();
         }
         finally {

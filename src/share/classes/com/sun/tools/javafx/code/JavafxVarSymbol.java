@@ -46,6 +46,7 @@ public class JavafxVarSymbol extends VarSymbol {
     private static int IS_EXTERNALLY_SEEN = 2;
     private static int USED_IN_SIZEOF = 4;
     private static int USED_OUTSIDE_SIZEOF = 8;
+	private static int IS_CAPTURED_BY_FUNCTION_VALUE = 16;
     private int extraFlags;
     private int varIndex = -1;
 
@@ -178,6 +179,14 @@ public class JavafxVarSymbol extends VarSymbol {
 
     public void setUsedOutsideSizeof() {
         extraFlags |= USED_OUTSIDE_SIZEOF;
+    }
+
+    public boolean isCapturedByFunctionValue() {
+        return (extraFlags & IS_CAPTURED_BY_FUNCTION_VALUE) != 0;
+    }
+
+    public void setIsCapturedByFunctionValue() {
+        extraFlags |= IS_CAPTURED_BY_FUNCTION_VALUE;
     }
 
     // Predicate for self-reference in init.

@@ -109,6 +109,9 @@ import com.sun.javafx.runtime.sequence.Sequences;
     private static final int DCNT$ = 0;
     public static int DCNT$() { return DCNT$; }
 
+    private static final int FCNT$ = 0;
+    public static int FCNT$() { return FCNT$; }
+
     public int getFlags$(final int varNum) {
         return 0;
     }
@@ -149,6 +152,13 @@ import com.sun.javafx.runtime.sequence.Sequences;
                 throw new AssignToDefException("Cannot assign to a variable defined with 'def'");
             }
         }
+    }
+
+    public void arityException$() {
+        arityException$(this);
+    }
+    public static void arityException$(FXObject obj) {
+        throw new RuntimeException("Wrong number of arguments");
     }
 
     // dependents management
@@ -411,5 +421,13 @@ import com.sun.javafx.runtime.sequence.Sequences;
         return Sequences.withinBounds(obj, varNum, position) ?
             Util.objectToDouble(obj.elem$(varNum, position)) :
             0.0;
+    }
+        
+    public Object invoke$(final int number, Object... args) {
+        throw new IllegalArgumentException("no such function: " + number);
+    }
+
+    public static Object invoke$(FXObject obj, final int number, Object... args) {
+        throw new IllegalArgumentException("no such function: " + number);
     }
 }

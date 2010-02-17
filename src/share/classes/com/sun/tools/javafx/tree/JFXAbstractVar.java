@@ -35,7 +35,7 @@ import com.sun.tools.mjavac.util.Name;
  * @author Robert Field
  */
 public abstract class JFXAbstractVar extends JFXExpression implements VariableTree {
-    public final Name name;
+    public Name name;
     private JFXType jfxtype;
     public final JFXModifiers mods;
     private final JFXExpression init;

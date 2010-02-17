@@ -1533,7 +1533,8 @@ class JavafxAnalyzeClass {
                name == defs.hindInit_FXObjectMethodName ||
                name == defs.userInit_FXObjectMethodName ||
                name == defs.postInit_FXObjectMethodName ||
-               name == defs.initVars_FXObjectMethodName;
+               name == defs.initVars_FXObjectMethodName ||
+               name == defs.invoke_FXObjectMethodName;
     }
 
     //

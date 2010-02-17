@@ -77,7 +77,7 @@ public class JavafxClassReader extends ClassReader {
     /** The raw class-reader, shared by the back-end. */
     public ClassReader jreader;
 
-    private final Name functionClassPrefixName;
+    private final Name functionClassName;
     private Context ctx;
     private Messages messages;
     
@@ -114,7 +114,7 @@ public class JavafxClassReader extends ClassReader {
         defs = JavafxDefs.instance(context);
         fxTypes = JavafxTypes.instance(context);
         fxmake = JavafxTreeMaker.instance(context);
-        functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
+        functionClassName = names.fromString(JavafxSymtab.functionClassString);
         ctx = context;
         messages = Messages.instance(context);
     }
@@ -293,8 +293,8 @@ public class JavafxClassReader extends ClassReader {
                         break;
                     }
                     Name flatname = ((ClassSymbol) tsym).flatname;
-                    if (flatname.startsWith(functionClassPrefixName)
-                        && flatname != functionClassPrefixName) {
+                    if (flatname.startsWith(functionClassName)
+                        && flatname != functionClassName) {
                             t = ((JavafxSymtab) syms).makeFunctionType(translateTypes(ctype.typarams_field));
                             break;
                     }

@@ -153,17 +153,6 @@ public class PlatformUtils {
                     targs.length == 1) {
                     return new FXSequenceType(context.makeTypeRef(targs[0]));
                 }
-                if (rawName.startsWith(FXClassType.FUNCTION_CLASSNAME_PREFIX)) {
-                    FXType[] prtypes = new FXType[targs.length-1];
-                    for (int i = prtypes.length;  --i >= 0; )
-                        prtypes[i] = context.makeTypeRef(targs[i+1]);
-                    FXType rettype;
-                    if (targs[0] == java.lang.Void.class)
-                        rettype = FXPrimitiveType.voidType;
-                    else
-                        rettype = context.makeTypeRef(targs[0]);
-                    return new FXFunctionType(prtypes, rettype);
-                }
             }
 
             typ = raw;

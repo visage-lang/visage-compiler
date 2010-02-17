@@ -200,7 +200,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<FuncInfo> classFuncInfos = analysis.classFuncInfos();
         List<FuncInfo> scriptFuncInfos = analysis.scriptFuncInfos();
         
-        boolean hasStatics = !scriptVarInfos.isEmpty();
+        boolean hasStatics = !scriptVarInfos.isEmpty() || !cDecl.invokeCases(true).isEmpty();
         
         int classVarCount = analysis.getClassVarCount();
         int scriptVarCount = analysis.getScriptVarCount();
@@ -346,6 +346,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.setContext(false, iDefinitions);
             javaCodeMaker.makeMemberVariableAccessorInterfaceMethods(classVarInfos);
             javaCodeMaker.makeMixinDCNT$(analysis.getCurrentClassSymbol(), false);
+            javaCodeMaker.makeMixinFCNT$(analysis.getCurrentClassSymbol(), false);
             javaCodeMaker.makeFunctionInterfaceMethods();
             javaCodeMaker.makeOuterAccessorInterfaceMembers();
             javaCodeMaker.setContext(false, cDefinitions);
@@ -372,11 +373,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private static String jcMethodDeclStr(JCMethodDecl meth) {
         String str = meth.name.toString() + "(";
         boolean needsComma = false;
+        boolean varArgs = (meth.mods.flags & Flags.VARARGS) != 0;
+            
         for (JCVariableDecl varDecl : meth.getParameters()) {
             if (needsComma) str += ",";
             str += varDecl.vartype.toString();
             needsComma = true;
         }
+        if (varArgs && str.endsWith("[]")) {
+            str = str.substring(0, str.length() - 2) + "...";
+        }
+        
         str += ")";
         return str;
     }
@@ -538,6 +545,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         JCIdent objArg() {
             return makeMethodArg(defs.obj_ArgName, syms.objectType);
+        }
+
+        JCIdent numberArg() {
+            return makeMethodArg(defs.number_ArgName, syms.intType);
+        }
+
+        JCIdent argsArg() {
+            return makeMethodArg(defs.args_ArgName, syms.javafx_ObjectArray);
         }
 
         //
@@ -2128,12 +2143,12 @@ however this is what we need */
 
                     if (isLeaf) {
                         if (varInfo.isReadOnly()) {
-                            addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
+                            addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_FXObjectMethodName, Offset(varSym)));
                         }
                     } else {
                         // Restrict setting.
                         beginBlock();
-                        addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
+                        addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_FXObjectMethodName, Offset(varSym)));
                         JCExpression ifReadonlyTest = FlagTest(varSym, defs.varFlagIS_READONLY, null);
                         // if (isReadonly$(VOFF$var)) { restrictSet$(VOFF$var); }
                         addStmt(OptIf(NOT(ifReadonlyTest),
@@ -2715,6 +2730,8 @@ however this is what we need */
                     if (!analysis.isFirstTierNoMixins()) {
                         // Construct and add: DCNT$();
                         addStmt(CallStmt(defs.depCount_FXObjectFieldName));
+                        // Construct and add: FCNT$();
+                        addStmt(CallStmt(defs.funcCount_FXObjectFieldName));
                     }
                     
                     if (analysis.isFirstTier()) {
@@ -2865,17 +2882,22 @@ however this is what we need */
                 isScript() ? analysis.getScriptUpdateMap() : analysis.getClassUpdateMap();
             final List<VarInfo> varInfos = isScript() ? analysis.scriptVarInfos() : analysis.classVarInfos();
             final int varCount = isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount();
+            final List<JCTree> invokeCases = getCurrentClassDecl().invokeCases(isScript());
             HashMap<Name, Integer> depMap = getDepMap(varInfos, updateMap);
             final boolean useMixins = !isScript() && !isMixinClass();
             List<ClassSymbol> mixinClasses = useMixins ? analysis.getImmediateMixins() : null;
             boolean useConstants = analysis.isFirstTierNoMixins() || isMixinClass();
             
             makeApplyDefaultsMethod(varInfos, varCount);
+            makeInvokeMethod(useConstants, invokeCases, mixinClasses);
+            
             makeInitVarsMethod(varInfos, updateMap);
             makeDependencyNumbers(useConstants, depMap, mixinClasses);
+            makeFunctionNumbers(useConstants, invokeCases, mixinClasses);
             
             if (useMixins) {
                 makeNeededMixinDCNT$(mixinClasses);
+                makeNeededMixinFCNT$(mixinClasses);
             }
 
             makeUpdateMethod(useConstants, varInfos, updateMap, depMap, mixinClasses);
@@ -3002,6 +3024,214 @@ however this is what we need */
             
             vcmb.build();
             
+        }
+        
+        //
+        // This method generates an count for the class's function values.
+        //
+        public void makeFunctionNumbers(final boolean useConstants, List<JCTree> invokeCases, List<ClassSymbol> mixinClasses) {
+            // Reset diagnostic position to current class.
+            resetDiagPos();
+
+            // Construct a static count variable (FCNT$), -1 indicates function count has not been initialized.
+            int initCount = useConstants ? 0 : -1;
+            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.funcCount_FXObjectFieldName, initCount));
+            
+            // Mixin class base numbering.
+            if (mixinClasses != null) {
+                for (ClassSymbol classSym : mixinClasses) {
+                    // Construct and add: public static int DEP$name;
+                    addDefinition(makeField(Flags.STATIC | Flags.PUBLIC, syms.intType, classFCNT$Name(classSym), null));
+                }
+            }
+
+            // Construct a static count accessor method (FCNT$)
+            makeFCNT$(useConstants, invokeCases, mixinClasses);
+        }
+
+        //
+        // The method constructs the FCNT$ method for the current class.
+        //
+        public void makeFCNT$(final boolean useConstants, final List<JCTree> invokeCases, final List<ClassSymbol> mixinClasses) {
+            StaticMethodBuilder smb = new StaticMethodBuilder(defs.funcCount_FXObjectFieldName, syms.intType) {
+                @Override
+                public void initialize() {
+                    needsReceiver = false;
+                }
+
+                @Override
+                public void statements() {
+                    // Number of function values in this class.
+                    int funcCount = invokeCases.size();
+                    
+                    if (useConstants) {
+                        addStmt(Return(Int(funcCount)));
+                    } else {
+                        // Start if block.
+                        beginBlock();
+                        
+                        // Check if super is required.
+                        boolean isFirstTier = analysis.isFirstTier() || superClassSym == null;
+
+                        // Base for first function number.
+                        JCExpression countExpr = isFirstTier ? Int(0) : Call(makeType(superClassSym.type), defs.funcCount_FXObjectFieldName);
+                            
+                        // Create base numbers for mixins
+                        if (mixinClasses != null && !mixinClasses.isEmpty()) {
+                            for (ClassSymbol classSym : mixinClasses) {
+                                Name mixinName = classFCNT$Name(classSym);
+                                addStmt(Stmt(m().Assign(id(mixinName), countExpr)));
+                                countExpr = PLUS(id(mixinName),
+                                                 Call(makeType(classSym.type, false), defs.funcCount_FXObjectFieldName));
+                            }
+                            // last mixin count
+                        } else {
+                            // super class count
+                            countExpr = isFirstTier ? Int(0) : Call(makeType(superClassSym.type), defs.funcCount_FXObjectFieldName);
+                        }
+                        
+                        // Set this classes count.
+                        Name countName = names.fromString("$count");
+                        addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.funcCount_FXObjectFieldName), countExpr)));
+        
+                        // FCNT$ == -1
+                        JCExpression condition = EQ(id(defs.funcCount_FXObjectFieldName), Int(-1));
+                        // if (FCNT$ == -1) { ...
+                        addStmt(OptIf(condition,
+                                endBlock()));
+                        // return FCNT$ + funcCount;
+                        addStmt(Return(PLUS(id(defs.funcCount_FXObjectFieldName), Int(funcCount))));
+                    }
+                }
+            };
+            
+            smb.build();
+        }
+        
+        //
+        // This method constructs an interface for a mixin's FCNT$.
+        //
+        public void makeMixinFCNT$(final ClassSymbol classSym, final boolean needsBody) {
+            MethodBuilder mb = new MethodBuilder(classFCNT$Name(classSym), syms.intType) {
+                @Override
+                public void initialize() {
+                    bodyType = needsBody ? BODY_NORMAL : BODY_NONE;
+                    needsReceiver = false;
+                }
+                
+                @Override
+                public long rawFlags() {
+                    return needsBody ? Flags.PUBLIC : (Flags.PUBLIC | Flags.ABSTRACT);
+                }
+                
+                @Override
+                public void statements() {
+                    addStmt(Return(id(classFCNT$Name(classSym))));
+                }
+            };
+            
+            mb.build();
+        }
+        
+        //
+        // This method generates all the mixin FCNT$ for the current class.
+        //
+        public void makeNeededMixinFCNT$(List<ClassSymbol> mixinClasses) {
+            for (ClassSymbol classSym : mixinClasses) {
+                makeMixinFCNT$(classSym, true);
+            }
+        }
+        
+        //
+        // This method constructs the invoke method.
+        //
+        public void makeInvokeMethod(final boolean useConstants, final List<JCTree> invokeCases, final List<ClassSymbol> mixinClasses) {
+            MethodBuilder vcmb = new MethodBuilder(defs.invoke_FXObjectMethodName, syms.objectType) {
+                @Override
+                public void initialize() {
+                    addParam(numberArg());
+                    addParam(argsArg());
+                }
+                
+                @Override 
+                protected long rawFlags() {
+                    return super.rawFlags() | Flags.VARARGS;
+                }
+                
+                @Override
+                public void statements() {
+                    // Function number count.
+                    int funcCount = invokeCases.size();
+                    
+                    // Prepare to accumulate cases.
+                    ListBuffer<JCCase> cases = ListBuffer.lb();
+                    
+                    // Case number.
+                    int tag = 0;
+                    
+                    // Iterate thru each invoke case.
+                    for (JCTree invoke : invokeCases) {
+                        cases.append(m().Case(Int(tag), Stmts((JCBlock)invoke,
+                                                         m().Break(null))));
+                        tag++;
+                    }
+                    
+                    // Start default block.
+                    beginBlock();
+                                        
+                    // Add mixins to the default chain.
+                    if (mixinClasses != null) {
+                        for (ClassSymbol classSym : mixinClasses) {
+                            // Begin if block.
+                            beginBlock();
+                            
+                            // Call mixin update.
+                            callMixin(classSym);
+                            
+                            // if (depNum$ >= FCNT$mixn) 
+                            prependStmt(If(GE(numberArg(), id(classFCNT$Name(classSym))),
+                                           endBlock(),
+                                           null));
+                        }
+                    }
+                    
+                    // Call the super version.
+                    if (cases.nonEmpty()) {
+                        // Add in super call.
+                        callSuper();
+                    }
+                        
+                    // Default statements.
+                    List<JCStatement> defaults = endBlockAsList();
+                    
+                    if (cases.nonEmpty()) {
+                        if (!defaults.isEmpty()) {
+                            cases.append(m().Case(null, defaults));
+                        }
+                    
+                        JCExpression tagExpr = isMixinClass() && !isScript() ? MINUS(numberArg(), Call(classFCNT$Name(getCurrentOwner()))) :
+                                               useConstants                  ? numberArg() :
+                                                                               MINUS(numberArg(), id(defs.funcCount_FXObjectFieldName));
+                        // Construct and add: switch(FCNT$ + number) { ... }
+                        addStmt(m().Switch(tagExpr, cases.toList()));
+                        
+                        // Default returns null (for void);
+                        addStmt(Return(Null()));
+                    } else if (!defaults.isEmpty()) {
+                        addStmts(defaults);
+                        
+                        if (isMixinClass() || superClassSym == null) {
+                            addStmt(Return(Null()));
+                        } else {
+                            callSuper();
+                        }
+                    } else {
+                        buildIf(false);
+                    }
+                }
+            };
+            
+            vcmb.build();
         }
         
         //
@@ -3577,7 +3807,7 @@ however this is what we need */
                         JCExpression tagExpr = isMixinClass() && !isScript() ? MINUS(depNumArg(), Call(classDCNT$Name(getCurrentOwner()))) :
                                                useConstants                  ? depNumArg() :
                                                                                MINUS(depNumArg(), id(defs.depCount_FXObjectFieldName));
-                        // Construct and add: switch(varNum - VCNT$) { ... }
+                        // Construct and add: switch(depNum - DCNT$) { ... }
                         addStmt(m().Switch(tagExpr, cases.toList()));
                         
                         addStmt(Return(False()));
