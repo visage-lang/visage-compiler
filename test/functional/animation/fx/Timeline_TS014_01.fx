@@ -61,6 +61,7 @@ runLater(1000, check);
 function check() {
 	//System.out.println("checking");
 	if(target != 5) {	// 5 should be the result of 1.5 repeatCount between 2 and 8.
+		keepAlive.stop();
 		throw new AssertionError("test failed");
 	}
 	keepAlive.stop();
