@@ -140,6 +140,7 @@ public class JavafxCheck {
         boolean verboseUnchecked = lint.isEnabled(LintCategory.UNCHECKED);
 
         deprecationHandler = new MandatoryWarningHandler(log,verboseDeprecated, MsgSym.MESSAGEPREFIX_DEPRECATED);
+        warnOnUsePackageHandler = new MandatoryWarningHandler(log, true, MsgSym.MESSAGEPREFIX_WARNONUSE);
         uncheckedHandler = new MandatoryWarningHandler(log, verboseUnchecked, MsgSym.MESSAGEPREFIX_UNCHECKED);
         rs = JavafxResolve.instance(context);
     }
@@ -166,6 +167,12 @@ public class JavafxCheck {
      */
     private MandatoryWarningHandler deprecationHandler;
 
+
+    /** A handler for messages about -XDwarnOnUse package usage.
+     */
+    private MandatoryWarningHandler warnOnUsePackageHandler;
+
+
     /** A handler for messages about unchecked or unsafe usage.
      */
     private MandatoryWarningHandler uncheckedHandler;
@@ -189,6 +196,14 @@ public class JavafxCheck {
 	    deprecationHandler.report(pos, MsgSym.MESSAGE_HAS_BEEN_DEPRECATED, sym, sym.location());
     }
 
+    /** Warn about a -XDwarnOnUse package symbol.
+     *  @param pos        Position to be used for error reporting.
+     *  @param sym        The deprecated symbol.
+     */
+     void warnWarnOnUsePackage(DiagnosticPosition pos, Symbol sym) {
+         warnOnUsePackageHandler.report(pos, MsgSym.MESSAGE_JAVAFX_WARN_ON_USE_PACKAGE, sym);
+     }
+
     /** Warn about unchecked operation.
      *  @param pos        Position to be used for error reporting.
      *  @param msg        A string describing the problem.
@@ -203,6 +218,7 @@ public class JavafxCheck {
      */
     public void reportDeferredDiagnostics() {
 	deprecationHandler.reportDeferredDiagnostic();
+    warnOnUsePackageHandler.reportDeferredDiagnostic();
 	uncheckedHandler.reportDeferredDiagnostic();
     }
 
@@ -2289,8 +2305,8 @@ public class JavafxCheck {
         class ForwardReferenceChecker extends JavafxTreeScanner {
 
 	    ForwardReferenceChecker() {
-		warnOnly = options.get("fwdRefError") == null ||
-			!options.get("fwdRefError").contains("true");
+		warnOnly = options.get("fwdRefError") != null &&
+			options.get("fwdRefError").contains("false");
 	    }
             
             class VarScope {

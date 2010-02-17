@@ -300,6 +300,9 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
 
     public R visitOnReplace(OnReplaceTree node, P p) {
         R r = scan(node.getOldValue(), p);
+        r = scanAndReduce(node.getFirstIndex(), p, r);
+        r = scanAndReduce(node.getLastIndex(), p, r);
+        r = scanAndReduce(node.getNewElements(), p, r);
         return scanAndReduce(node.getBody(), p, r);
     }
 

@@ -1,6 +1,7 @@
 /**
  * Regression test JFXC-3676 : Compiled bind: applyDefaults and VarInit
  *
+ * @compilearg -XDfwdRefError=false
  * @test
  * @run
  */

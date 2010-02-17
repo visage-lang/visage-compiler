@@ -1,6 +1,6 @@
 /*
  * Regression test: Extra forward-refrerence warning
- *
+ * @compilearg -XDfwdRefError=false
  * @test/warning
  */
 

@@ -2,6 +2,7 @@
  * regression test: JFXC-940 : Make the generated scope of a local variable declaration 
  * be the entire block in which it is defined. 
  *
+ * @compilearg -XDfwdRefError=false
  * @test
  * @run
  */

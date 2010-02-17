@@ -1,6 +1,6 @@
 /*
  * Regression test: Problem with vars being accessed before declared
- *
+ * @compilearg -XDfwdRefError=false
  * @test/warning
  */
 
