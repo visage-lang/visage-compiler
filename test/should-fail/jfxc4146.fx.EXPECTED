@@ -1,0 +1,7 @@
+test/should-fail/jfxc4146.fx:16: warning: Forward reference: variable b might not have been initialized.
+override var a = 3 on replace { b };
+                                ^
+test/should-fail/jfxc4146.fx:19: warning: Forward reference: variable y might not have been initialized.
+var x on replace { y };
+                   ^
+2 warnings

@@ -2307,6 +2307,8 @@ public class JavafxCheck {
 	    ForwardReferenceChecker() {
 		warnOnly = options.get("fwdRefError") != null &&
 			options.get("fwdRefError").contains("false");
+		warnOnTriggers = options.get("fwdRefOpt") != null &&
+			options.get("fwdRefOpt").contains("trigger");
 	    }
             
             class VarScope {
@@ -2322,6 +2324,9 @@ public class JavafxCheck {
             List<VarScope> scopes = List.nil();
             ClassSymbol enclClass = null;
 	    boolean warnOnly;
+	    boolean optionalKind = false;
+	    boolean warnOnTriggers;
+	    boolean warnOnBind;
 
             @Override
             public void visitClassDeclaration(JFXClassDeclaration tree) {
@@ -2347,9 +2352,15 @@ public class JavafxCheck {
 
             @Override
             public void visitOnReplace(JFXOnReplace tree) {
-                beginScope();
-                super.visitOnReplace(tree);
-                endScope();
+		beginScope();
+		super.visitOnReplace(tree);
+		endScope();
+		if (warnOnTriggers) {
+		    boolean prevOptionalKind = optionalKind;
+		    optionalKind = true;
+		    super.visitOnReplace(tree);
+		    optionalKind = prevOptionalKind;
+		}
             }
 
             @Override
@@ -2426,13 +2437,13 @@ public class JavafxCheck {
                     try {
                         currentScope().isStatic = tree.getSymbol().isStatic();
                         super.scan(tree.getInitializer());
+			currentScope().uninited_vars.remove(tree.getSymbol());
+			super.scan(tree.getOnReplace());
+			super.scan(tree.getOnInvalidate());
                     }
                     finally {
                         currentScope().isStatic = prevIsStatic;
-			currentScope().uninited_vars.remove(tree.getSymbol());
                     }
-		    super.scan(tree.getOnReplace());
-		    super.scan(tree.getOnInvalidate());
                 }
             }
 
@@ -2457,12 +2468,15 @@ public class JavafxCheck {
                     try {
                         currentScope().overrideVarIdx = tree.getSymbol().getAbsoluteIndex(enclClass.type);
                         scan(tree.getInitializer());
+			currentScope().overrideVarIdx = warnOnTriggers ?
+			    currentScope().overrideVarIdx++ :
+			    prevOverrideVarIdx;
+			super.scan(tree.getOnReplace());
+			super.scan(tree.getOnInvalidate());
                     }
                     finally {
                         currentScope().overrideVarIdx = prevOverrideVarIdx;
                     }
-		    super.scan(tree.getOnReplace());
-		    super.scan(tree.getOnInvalidate());
                 }
             }
 
@@ -2518,7 +2532,13 @@ public class JavafxCheck {
             }
 
 	    private void reportForwardReference(DiagnosticPosition pos, Symbol s) {
-		if (warnOnly) {
+		if (optionalKind) {
+		    log.warning(pos,
+			    MsgSym.MESSAGE_MAYBE_FORWARD_REF,
+			    rs.kindName(VAR),
+			    s);
+		}
+		else if (warnOnly) {
 		    log.warning(pos,
 			    MsgSym.MESSAGE_ILLEGAL_FORWARD_REF,
 			    rs.kindName(VAR),
