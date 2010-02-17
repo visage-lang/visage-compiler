@@ -1406,8 +1406,28 @@ however this is what we need */
             if ((init == null) && varInfo.isSequence() && !isBound && varInfo.useAccessors()) {
                 init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
             }
+
+            if (needJFXC_4137hack(varInfo)) {
+                 init =
+                        Block(
+                            CallInvalidate(varSym),
+                            CallTrigger(varSym)
+                        );
+            }
  
             return init;
+        }
+
+        //TODO: hack for JFXC-4137, getDefaultInitStatement method needs rewrite, and initial TRIGGERED state needs to go away
+        private boolean needJFXC_4137hack(VarInfo varInfo) {
+            boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
+            boolean isOverride = varInfo.isOverride();
+            boolean genSequences = varInfo.generateSequenceAccessors();
+            boolean isBound = varInfo.hasBoundDefinition();
+
+            JCStatement init = varInfo.getDefaultInitStatement();
+
+            return (init == null) && isBound && !genSequences && !isOverride && !hasOnReplace && !varInfo.isSynthetic() && varInfo.useAccessors() && needInvalidateAccessorMethod(varInfo);
         }
        
         //
@@ -3011,7 +3031,11 @@ however this is what we need */
             if (useSimpleInit(ai)) {
                 setBits =  bitOrFlags(setBits, defs.varFlagINIT_INITIALIZED_DEFAULT);
             } else if (isBound) {
-                setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagSTATE_TRIGGERED);
+                if (needJFXC_4137hack(ai)) {
+                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND);
+                } else {
+                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagSTATE_TRIGGERED);
+                }
             }
             
             if (ai.isSynthetic()) {

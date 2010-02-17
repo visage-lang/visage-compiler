@@ -1966,6 +1966,18 @@ public abstract class JavafxTranslationSupport {
         }
 
         /**
+         * Invalidation support
+         */
+
+        JCStatement CallInvalidate(Symbol sym) {
+            return CallStmt(attributeInvalidateName(sym), id(defs.phaseTransitionCASCADE_INVALIDATE));
+        }
+
+        JCStatement CallTrigger(Symbol sym) {
+            return CallStmt(attributeInvalidateName(sym), id(defs.phaseTransitionCASCADE_TRIGGER));
+        }
+
+        /**
          * Sequence invalidation support
          */
 

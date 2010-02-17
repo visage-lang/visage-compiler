@@ -1,3 +1,4 @@
+Inside on-invalidate trigger: x is 1
 forcing validation of local var
 explicitly invalidating local var
 Inside on-invalidate trigger: x is 1

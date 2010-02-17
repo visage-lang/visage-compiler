@@ -21,19 +21,22 @@ class vvs {
 }
 
 class rough {
+  var initialized = false;
   var vvv : vvs;
   var bl = bind vvv.vlow;
   var bh = bind vvv.vhigh;
   var bs = bind vvv.vstep;
   var bx = bind [bl .. bh step bs];
+  var done on replace { initialized = true; }
 
   function check(q : String) {
+    if (not initialized) return;
     if (verbose) println("check: {q}: {vvv}");
     def cmp = [vvv.vlow .. vvv.vhigh step vvv.vstep];
-    if (sizeof bx != sizeof cmp) println("ERROR: Size mismatch ({sizeof bx} != {sizeof cmp})");
-    if (bx != cmp) println("ERROR: Content mismatch ({bx.toString()} != {cmp.toString()})");
-    if (bx[-1] != 0) println("ERROR: Small offset not zero (bx[-1] = {bx[-1]}){q}");
-    if (bx[sizeof bx] != 0) println("ERROR: Big offset not zero (bx[{sizeof bx}] = {bx[sizeof bx]}){q}");
+    if (sizeof bx != sizeof cmp) println("ERROR {q}: Size mismatch ({sizeof bx} != {sizeof cmp})");
+    if (bx != cmp) println("ERROR {q}: Content mismatch ({bx.toString()} != {cmp.toString()})");
+    if (bx[-1] != 0) println("ERROR {q}: Small offset not zero (bx[-1] = {bx[-1]}){q}");
+    if (bx[sizeof bx] != 0) println("ERROR {q}: Big offset not zero (bx[{sizeof bx}] = {bx[sizeof bx]}){q}");
   }
 }
 
