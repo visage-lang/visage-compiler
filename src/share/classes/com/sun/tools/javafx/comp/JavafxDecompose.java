@@ -150,6 +150,7 @@ public class JavafxDecompose implements JavafxVisitor {
         }
         switch (tree.getFXTag()) {
             case APPLY:
+            case OBJECT_LITERAL:
             case SEQUENCE_EXPLICIT:
             case SEQUENCE_RANGE:
             case FOR_EXPRESSION:
