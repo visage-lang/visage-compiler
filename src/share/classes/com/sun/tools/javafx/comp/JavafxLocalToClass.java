@@ -737,6 +737,14 @@ public class JavafxLocalToClass {
                         hasLocal = true;
                     }
                 }
+                
+                super.visitIdent(tree);
+            }
+            
+            @Override
+            public void visitIndexof(JFXIndexof tree) {
+                hasLocal = true;
+                super.visitIndexof(tree);
             }
         }
         ReferenceChecker rc = new ReferenceChecker();
