@@ -597,7 +597,7 @@ importId
 					{
 						// Check for errors
 						//
-						if	($n2.inError)
+						if	($n2.inError || $n2.value == null)
 						{
 							// We should not be able to get this, as the follow set
 							// will not allow error recovery to insert a token as
@@ -1159,7 +1159,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
 			(
 				  { isOverride }?=> n2=nameAll
 					{
-						if ($n2.inError) {
+						if ($n2.inError || $n2.value == null) {
 						
 							// First, lets report the error as the user needs to know about it
 							// Issue an error - can't have anonymous functions
@@ -1179,7 +1179,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
 				  
 				| n1=name
 					{		
-						if ($n1.inError) {
+						if ($n1.inError || $n1.value ) {
 						
 							// First, lets report the error as the user needs to know about it
 							// Issue an error - can't have anonymous functions
@@ -4199,7 +4199,7 @@ postfixExpression
 							JFXExpression part = F.at($n2.pos).Ident($n2.value);
 							errNodes.append(part);
 							endPos(part);
-                                                        pPos = part.getEndPosition(endPositions);
+                            pPos = part.getEndPosition(endPositions);
 						}
 					  
 					  PIPE 
@@ -4218,7 +4218,7 @@ postfixExpression
                   		// Build a var reference
                   		//
                   		JFXVar var = F.at($n2.pos).Param($n2.value, F.TypeUnknown());
-                                endPos(var, pPos);
+                        endPos(var, pPos);
                   		
                   		// Set up the in clause
                   		//
@@ -4774,7 +4774,7 @@ objectLiteralInit
 }
 	: n1=name
 		{
-			if	($n1.inError) {
+			if	($n1.inError || $n1.value == null) {
 				
 				// The rule caused an identifier to be made up
 				//
@@ -6222,7 +6222,7 @@ qualname
 	: (
 			n1=name
 			{
-				if	($n1.inError) {
+				if	($n1.inError || $n1.value == null) {
 				
 					// The rule caused an identifier to be made up
 					//
@@ -6244,7 +6244,7 @@ qualname
 						(nameAll)=>n2=nameAll
 						{
 							
-							if	($n2.inError) {
+							if	($n2.inError || $n2.value == null) {
 				
 								// The rule caused an identifier to be made up
 								//
