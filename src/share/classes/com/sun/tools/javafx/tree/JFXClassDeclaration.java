@@ -53,6 +53,9 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     public Scope runBodyScope;
     public boolean isScriptClass;
     public boolean hasBeenTranslated; // prevent multiple translations
+    
+    private ListBuffer<JCTree> classInvokeCases;
+    private ListBuffer<JCTree> scriptInvokeCases;
 
     protected JFXClassDeclaration() {
         this.mods = null;
@@ -69,6 +72,9 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         this.runBodyScope = null;
         this.isScriptClass = false;
         this.hasBeenTranslated = false;
+        
+        this.classInvokeCases = ListBuffer.lb();
+        this.scriptInvokeCases = ListBuffer.lb();
     }
     protected JFXClassDeclaration(JFXModifiers mods,
             Name name,
@@ -89,6 +95,9 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         this.runBodyScope = null;
         this.isScriptClass = false;
         this.hasBeenTranslated = false;
+        
+        this.classInvokeCases = ListBuffer.lb();
+        this.scriptInvokeCases = ListBuffer.lb();
     }
 
     public boolean isScriptClass() {
@@ -201,5 +210,23 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     
     public List<JavafxVarSymbol> getObjInitSyms() {
         return objInitSyms;
+    }
+    
+    public int addInvokeCase(JCTree invokeCase, boolean isScript) {
+        if (isScript) {
+            scriptInvokeCases.append(invokeCase);
+            return scriptInvokeCases.size() - 1;
+        } else {
+            classInvokeCases.append(invokeCase);
+            return classInvokeCases.size() - 1;
+        }
+    }
+    
+    public List<JCTree> invokeCases(boolean isScript) {
+        if (isScript) {
+            return scriptInvokeCases.toList();
+        } else {
+            return classInvokeCases.toList();
+        }
     }
 }

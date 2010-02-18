@@ -23,6 +23,10 @@
 
 package com.sun.javafx.functions;
 
-public interface Function0<R> extends Function<R> {
-   R invoke();
+import com.sun.javafx.runtime.FXObject;
+
+public class Function0<R> extends Function<R> {
+    public Function0(final FXObject implementor, final int number, final Object selector) {
+        super(implementor, number, selector);
+    }
 }

@@ -641,6 +641,10 @@ public abstract class JavafxTranslationSupport {
         return names.fromString(depCount_FXObjectFieldString + classSym.toString().replace('.', '$'));
     }
 
+    Name classFCNT$Name(Symbol classSym) {
+        return names.fromString(funcCount_FXObjectFieldString + classSym.toString().replace('.', '$'));
+    }
+
     boolean isBoundFunctionResult(Symbol sym) {
         // Is this symbol result var storing bound function's result value?
         // Check if the variable is synthetic, type is Pointer and naming convention
@@ -1161,6 +1165,16 @@ public abstract class JavafxTranslationSupport {
 
         protected JCExpression getReceiverOrThis() {
             return resolveThis(enclosingClassDecl.sym, false);
+        }
+
+        protected JCExpression getReceiverOrThis(boolean isStatic) {
+            Symbol cSym = enclosingClassDecl.sym;
+            if (isStatic) {
+                return Select(makeType(cSym.type, false), fxmake.ScriptAccessSymbol(cSym).name);
+            } else if(isMixinClass()) {
+                return id(defs.receiverName);
+            }
+            return resolveThisInternal(cSym, false);
         }
 
         protected JCExpression getReceiver(Symbol sym) {
@@ -1760,6 +1774,14 @@ public abstract class JavafxTranslationSupport {
             }
             
             return Select(selector, depName);
+        }
+
+        public JCExpression FuncNum(int number) {
+            if (isMixinClass()) {
+                return PLUS(Call(classFCNT$Name(enclosingClassDecl.sym)), Int(number));
+            } else {
+                return PLUS(id(defs.funcCount_FXObjectFieldName), Int(number));
+            }
         }
 
         public JCExpression VarFlags(Symbol sym) {
