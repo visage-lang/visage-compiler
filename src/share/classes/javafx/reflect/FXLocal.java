@@ -782,12 +782,26 @@ public class FXLocal {
             Class cls = owner.refInterface;
             if (cls == null)
                 cls = owner.refClass;
-            Method g = ClassType.getMethodOrNull(cls, "get" + name);
+            String get, set;
+            boolean isJfx = owner.isJfxType();
+            if (isJfx) {
+                get = "get$";
+                set = "set$";
+            } else {
+                get = "get";
+                set = "set";
+            }
+            Method g = ClassType.getMethodOrNull(cls, get + name);
+            String xname = name;
+            if (g == null && isJfx) {
+                xname = cls.getSimpleName() + "$" + name;
+                g = ClassType.getMethodOrNull(cls, get + xname);
+            }
             getter = g;
             flags |= GETTER_SETTER_SET;
             if (g != null) {
                 Class rtype = g.getReturnType();
-                setter = ClassType.getMethodOrNull(cls, "set" + name, rtype);
+                setter = ClassType.getMethodOrNull(cls, set + xname, rtype);
             }
         }
 
