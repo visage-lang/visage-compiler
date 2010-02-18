@@ -393,7 +393,16 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
 
     public R visitVariable(VariableTree node, P p) {
         R r = scan(node.getModifiers(), p);
-	r = scanAndReduce(node.getInitializer(), p, r);
+        r = scanAndReduce(node.getInitializer(), p, r);
+        r = scanAndReduce(node.getJFXType(), p, r);
+        r = scanAndReduce(node.getOnReplaceTree(), p, r);
+        return scanAndReduce(node.getOnInvalidateTree(), p, r);
+    }
+
+    public R visitOverrideClassVar(OverrideClassVarTree node, P p) {
+        R r = scan(node.getId(), p);
+        r = scanAndReduce(node.getModifiers(), p, r);
+        r = scanAndReduce(node.getInitializer(), p, r);
         r = scanAndReduce(node.getJFXType(), p, r);
         r = scanAndReduce(node.getOnReplaceTree(), p, r);
         return scanAndReduce(node.getOnInvalidateTree(), p, r);

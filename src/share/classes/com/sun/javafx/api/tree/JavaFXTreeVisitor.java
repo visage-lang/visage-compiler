@@ -84,6 +84,7 @@ public interface JavaFXTreeVisitor<R,P> {
     R visitKeyFrameLiteral(KeyFrameLiteralTree node, P p);
     R visitObjectLiteralPart(ObjectLiteralPartTree node, P p);
     R visitOnReplace(OnReplaceTree node, P p);
+    R visitOverrideClassVar(OverrideClassVarTree node, P p);
     R visitFunctionDefinition(FunctionDefinitionTree node, P p);
     R visitFunctionValue(FunctionValueTree node, P p);
     R visitPostInitDefinition(InitDefinitionTree node, P p);
