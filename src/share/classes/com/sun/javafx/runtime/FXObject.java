@@ -166,5 +166,5 @@ public interface FXObject {
     public float getAsFloat$(int varNum, int position);
     public double getAsDouble$(int varNum, int position);
     
-    public Object invoke$(final int number, Object... args);
+    public Object invoke$(final int number, final Object selector, Object... args);
 }

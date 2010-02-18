@@ -423,11 +423,11 @@ import com.sun.javafx.runtime.sequence.Sequences;
             0.0;
     }
         
-    public Object invoke$(final int number, Object... args) {
+    public Object invoke$(final int number, final Object selector, Object... args) {
         throw new IllegalArgumentException("no such function: " + number);
     }
 
-    public static Object invoke$(FXObject obj, final int number, Object... args) {
+    public static Object invoke$(FXObject obj, final int number, final Object selector, Object... args) {
         throw new IllegalArgumentException("no such function: " + number);
     }
 }

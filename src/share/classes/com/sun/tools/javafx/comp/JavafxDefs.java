@@ -408,6 +408,7 @@ public class JavafxDefs {
     final Name obj_ArgName;
     final Name value_ArgName;
     final Name number_ArgName;
+    final Name selector_ArgName;
     final Name args_ArgName;
 
     /**
@@ -510,7 +511,6 @@ public class JavafxDefs {
     final Name varOldValue_LocalVarName;
     final Name varFlags_LocalVarName;
     final Name wasInvalid_LocalVarName;
-    final Name selector_LocalVarName;
     final Name internalSuffixName;
     final Name internalNameMarker;
 
@@ -650,7 +650,6 @@ public class JavafxDefs {
         varOldValue_LocalVarName = names.fromString("varOldValue$");
         varFlags_LocalVarName = names.fromString("varFlags$");
         wasInvalid_LocalVarName = names.fromString("wasInvalid$");
-        selector_LocalVarName = names.fromString("selector$");
         varNewValue_ArgName = names.fromString("varNewValue$");
         value_NonLocalReturnExceptionFieldName = names.fromString("value");
         outerAccessor_FXObjectFieldName = names.fromString("accessOuterField$");
@@ -658,6 +657,7 @@ public class JavafxDefs {
         obj_ArgName = names.fromString("object$");
         value_ArgName = names.fromString("value$");
         number_ArgName = names.fromString("number$");
+        selector_ArgName = names.fromString("selector$");
         args_ArgName = names.fromString("args$");
         varNum_ArgName = names.fromString("varNum$");
         depNum_ArgName = names.fromString("depNum$");

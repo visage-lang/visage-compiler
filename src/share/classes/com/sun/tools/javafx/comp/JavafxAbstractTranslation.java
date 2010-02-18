@@ -2586,11 +2586,7 @@ public abstract class JavafxAbstractTranslation
             
             if (def == null) {
                 if (selector != null) {
-                    stmts.append(Var(Flags.FINAL, selectorType, defs.selector_LocalVarName, selector));
-                    stmts.append(If(EQnull(id(defs.selector_LocalVarName)),
-                                      m().Return(Null()),
-                                      null));
-                    meth = Select(id(defs.selector_LocalVarName), name) ;
+                    meth = Select(typeCast(selectorType, syms.objectType, id(defs.selector_ArgName)), name) ;
                 }
              
                 ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
@@ -2657,8 +2653,9 @@ public abstract class JavafxAbstractTranslation
             JCExpression funcClassType = m().TypeApply(functionTypeExpr, typeArgs.toList());
             
             JCExpression receiverExpr = getReceiverOrThis(isScriptContext);
-            int selector = currentClass().addInvokeCase(translateInvokeCase(), isScriptContext);
-            List<JCExpression> funcValueArgs = List.<JCExpression>of(receiverExpr, FuncNum(selector));
+            int number = currentClass().addInvokeCase(translateInvokeCase(), isScriptContext);
+            JCExpression selectorExpr = selector != null ? selector : Null();
+            List<JCExpression> funcValueArgs = List.<JCExpression>of(receiverExpr, FuncNum(number), selectorExpr);
             
             return m().NewClass(null, List.<JCExpression>nil(), funcClassType, funcValueArgs, null);
         }
