@@ -1179,7 +1179,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
 				  
 				| n1=name
 					{		
-						if ($n1.inError || $n1.value ) {
+						if ($n1.inError || $n1.value == null) {
 						
 							// First, lets report the error as the user needs to know about it
 							// Issue an error - can't have anonymous functions
@@ -6307,7 +6307,7 @@ catch [RecognitionException re] {
 
 // ----------
 // Time value
-// Invoked to pick up a specialized time token and created a special node
+// Invoked to pick up a specialized time token and create a special node
 // that indicates it was missing, if the parser created it etc.
 //
 timeValue
