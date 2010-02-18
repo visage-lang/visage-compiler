@@ -2200,7 +2200,7 @@ paramName
 			// pick up on that and generate a different node for a Missing
 			// identifier.
 			//
-			if ($pn.inError) {
+			if ($pn.inError || $pn.value == null) {
 			
 			    $var = F.at($pn.pos).Param($pn.value, F.TypeUnknown()); 
 			    endPos($var, pos());
@@ -4400,7 +4400,7 @@ primaryExpression
 			$value = preserveTrees ?
                             F.at(pos($LPAREN)).Parens($e.value) :
                             $e.value;
-            endpos($value);
+            endPos($value);
 		}
 		
 	| AT 
@@ -4840,16 +4840,16 @@ catch [RecognitionException re] {
 
 // -------	
 // Strings
-// JavaFX string expresoins are more richly expressive than the more usual
+// JavaFX string expressions are more richly expressive than the more usual
 // quoted strings.
 //
 // 1) A translation key may prefix string literals;
 // 2) The string literal itself may consist of multiple parts, which are
 //    concatenated at compile time, rather than run time.
 //    I.E. ##"MyTransKey" "String part 1" "String part 2\n"
-//    This allows for multi line string literals, built at compile time
-//    over which the script author then has unambiguous control over
-//    leading spaces, can explictly insert new lines, and can comment
+//    This allows for multi line string literals, built at compile time,
+//    which gives the script author unambiguous control over
+//    leading spaces, explict methods to insert new lines, and the ability to comment
 //    individual components.
 //    I.E. 
 //      var myString =
@@ -4857,7 +4857,7 @@ catch [RecognitionException re] {
 //          "some stuff\n"   // Some stuff now, with a trailing newline
 //          "  level 1\n"    // More stuff, with leading spaces and a traliing newline
 //
-// Overall this leades to better error recovery for the parser, while leaving
+// Overall this leads to better error recovery for the parser, while leaving
 // the language syntax obvious to and clearly controlled by, the script author;
 //
 // Notes: 
@@ -4866,7 +4866,7 @@ catch [RecognitionException re] {
 //    parsed here, but are thrown out with a semantic error explaining
 //    that this is a compile time concept, not a runtime concept;
 // 2) A single translation key prefix applys to the entire compound string.
-//    Individual compound parts cannot be translated individually;
+//    Compound parts cannot be translated individually;
 //
 stringExpression 
 
@@ -4911,7 +4911,7 @@ scope {
 		  	TRANSLATION_KEY	{ translationKey = $TRANSLATION_KEY.text; } 
 		  )?
 	
-			// We must find at least one compund element to the string
+			// We must find at least one compound element to the string
 			//
 			strCompoundElement [ strexp ]
 			
@@ -5363,7 +5363,7 @@ stringFormat [ ListBuffer<JFXExpression> strexp]
 	| // no format
 		{
 			value = F.at(rPos).Literal(TypeTags.CLASS, "");
-			endPos(value, rPos);	// Needs to be shown as an empty string to the IDE
+			endPos(value, rPos);	// Needs to be shown as a non-existant string to the IDE
 			strexp.append(value);
 		}
 	;
