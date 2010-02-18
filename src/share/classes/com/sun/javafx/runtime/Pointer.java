@@ -176,13 +176,14 @@ public class Pointer implements KeyValueTarget {
     public BoundPointer bind(Pointer srcPtr) {
         final FXObject thisObj = getFXObject();
         final int thisVarNum = getVarNum();
+        final int srcVarNum = srcPtr.getVarNum();
         FXObject listener = new FXBase() {
             @Override
             public boolean update$(FXObject src, final int depNum,
                     int startPos, int endPos, int newLength, final int phase) {
                 if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
                     // update value from "src"
-                    thisObj.set$(thisVarNum, src.get$(depNum));
+                    thisObj.set$(thisVarNum, src.get$(srcVarNum));
                 }
                 return true;
             }

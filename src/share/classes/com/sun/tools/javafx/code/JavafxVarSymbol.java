@@ -42,8 +42,11 @@ public class JavafxVarSymbol extends VarSymbol {
 
     private JavafxTypeRepresentation typeRepresentation;
     private Type elementType = null;
-    private final boolean isDotClass;
-    private boolean isExternallySeen;
+    private static int IS_DOT_CLASS = 1;
+    private static int IS_EXTERNALLY_SEEN = 2;
+    private static int USED_IN_SIZEOF = 4;
+    private static int USED_OUTSIDE_SIZEOF = 8;
+    private int extraFlags;
     private int varIndex = -1;
 
     private Type lastSeenType;
@@ -61,8 +64,8 @@ public class JavafxVarSymbol extends VarSymbol {
     public JavafxVarSymbol(JavafxTypes types, Name.Table names, long flags, Name name, Type type, Symbol owner) {
         super(flags, name, type, owner);
         this.types = types;
-        this.isDotClass = name == names._class;
-        this.isExternallySeen = false; 
+        if (name == names._class)
+            extraFlags |= IS_DOT_CLASS;
     }
 
     private void syncType() {
@@ -84,7 +87,7 @@ public class JavafxVarSymbol extends VarSymbol {
     }
 
     public boolean isMember() {
-            return owner.kind == Kinds.TYP && !isDotClass;
+            return owner.kind == Kinds.TYP && (extraFlags & IS_DOT_CLASS) == 0;
     }
 
     public boolean isFXMember() {
@@ -150,11 +153,31 @@ public class JavafxVarSymbol extends VarSymbol {
     }
 
     public void setIsExternallySeen() {
-        isExternallySeen = true;
+        extraFlags |= IS_EXTERNALLY_SEEN;
     }
 
     public boolean isExternallySeen() {
-        return isExternallySeen;
+        return (extraFlags & IS_EXTERNALLY_SEEN) != 0;
+    }
+
+    public boolean isUsedInSizeof() {
+        return (extraFlags & USED_IN_SIZEOF) != 0;
+    }
+
+    public boolean isUsedOutsideSizeof() {
+        return (extraFlags & USED_OUTSIDE_SIZEOF) != 0;
+    }
+
+    public void clearUsedOutsideSizeof() {
+        extraFlags &= ~USED_OUTSIDE_SIZEOF;
+    }
+
+    public void setUsedInSizeof() {
+        extraFlags |= USED_IN_SIZEOF;
+    }
+
+    public void setUsedOutsideSizeof() {
+        extraFlags |= USED_OUTSIDE_SIZEOF;
     }
 
     // Predicate for self-reference in init.

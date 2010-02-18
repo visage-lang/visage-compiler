@@ -265,7 +265,7 @@ public class JavafxDecompose implements JavafxVisitor {
             JFXVarInit prevVarInitContext = varInitContext;
             JFXVarInit ourVarInit = null;
             JavafxBindStatus prevBindStatus = bindStatus;
-            if (allowDebinding && preTrans.isImmutable(tree)) {
+            if (false & allowDebinding && preTrans.isImmutable(tree)) {
                 bindStatus = JavafxBindStatus.UNBOUND;
                 if (prevVarInitContext != null) {
                     ourVarInit = fxmake.VarInit(null);
@@ -876,7 +876,16 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXVar firstIndex = tree.getFirstIndex();
         JFXVar lastIndex = tree.getLastIndex();
         JFXVar newElements = tree.getNewElements();
-        JFXVar saveVar = oldValue != null && types.isSequence(oldValue.type) ? makeSaveVar(tree.pos(), oldValue.type) : null;
+        JFXVar saveVar = null;
+        if (oldValue != null && types.isSequence(oldValue.type)) {
+            JavafxVarSymbol sym = oldValue.sym;
+            // FIXME OPTIMIZATION:
+            // if sym.isUsedInSizeof() && ! sym.isUsedOutsideSizeof())
+            // then we can save just the old size in the save-var.
+            // We also have to translate 'sizeof oldVar' to the saved size.
+            if (sym.isUsedInSizeof() || sym.isUsedOutsideSizeof())
+                saveVar = makeSaveVar(tree.pos(), oldValue.type);
+        }
         JFXBlock body = decompose(tree.getBody());
         result = fxmake.at(tree.pos).OnReplace(oldValue, firstIndex, lastIndex, tree.getEndKind(), newElements, saveVar, body);
     }

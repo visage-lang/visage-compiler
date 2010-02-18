@@ -134,6 +134,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
             
             checkExternallySeen(sym);
         }
+        if (sym instanceof JavafxVarSymbol) {
+            ((JavafxVarSymbol)sym).setUsedOutsideSizeof();
+        }
     }
     
     private void checkExternallySeen(Symbol sym) {
@@ -297,8 +300,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     @Override
     public void visitUnary(JFXUnary tree) {
         boolean wasLHS = inLHS;
-        Symbol sym = null;
+        JavafxVarSymbol sym = null;
         boolean restoreOptTrigger = false;
+        boolean restoreUsedOutsideSizeof = false;
         switch (tree.getFXTag()) {
             case PREINC:
             case PREDEC:
@@ -308,14 +312,18 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
                 break;
             case SIZEOF:
                if (tree.arg instanceof JFXIdent) {
-                   sym = ((JFXIdent) tree.arg).sym;
+                   sym = (JavafxVarSymbol) ((JFXIdent) tree.arg).sym;
                    restoreOptTrigger = (sym.flags_field & VARUSE_OPT_TRIGGER) != 0;
+                   restoreUsedOutsideSizeof = ! sym.isUsedOutsideSizeof();
+                   sym.setUsedInSizeof();
                }
         }
         scan(tree.arg);
         if (restoreOptTrigger) {
              sym.flags_field |= VARUSE_OPT_TRIGGER;
         }
+        if (restoreUsedOutsideSizeof)
+            sym.clearUsedOutsideSizeof();
         inLHS = wasLHS;
     }
 

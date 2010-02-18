@@ -2760,8 +2760,10 @@ public abstract class JavafxAbstractTranslation
 
         void makeSetVarFlags(Name receiverName, Type contextType) {
             for (JavafxVarSymbol vsym : varSyms) {
-                boolean seq = (vsym.flags() & JavafxFlags.VARUSE_BOUND_INIT) == 0 && vsym.isSequence();
-                JCExpression flagsToSet = id(seq ? defs.varFlagINIT_OBJ_LIT_SEQUENCE : defs.varFlagINIT_OBJ_LIT);
+                Name objLitFlag = vsym.isSequence() ?
+                    defs.varFlagINIT_OBJ_LIT_SEQUENCE :
+                    defs.varFlagINIT_OBJ_LIT;
+                JCExpression flagsToSet = id(objLitFlag);
 
                 addPreface(CallStmt(
                         id(receiverName),
