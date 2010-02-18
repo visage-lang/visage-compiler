@@ -292,9 +292,8 @@ public class JavafxLocalToClass {
 
             @Override
             public void visitFunctionValue(JFXFunctionValue tree) {
-		        scan(tree.getParams());
                 // Funtion value may reference (non-final) locals
-                needed |= referencesMutatedLocal(tree);
+                needed |= referencesLocal(tree);
                 super.visitFunctionValue(tree);
             }
 
@@ -723,6 +722,27 @@ public class JavafxLocalToClass {
         ReferenceChecker rc = new ReferenceChecker();
         rc.scan(tree);
         return rc.hasMutatedLocal;
+    }
+
+    private boolean referencesLocal(JFXTree tree) {
+
+        class ReferenceChecker extends JavafxTreeScanner {
+
+            boolean hasLocal = false;
+
+            @Override
+            public void visitIdent(JFXIdent tree) {
+                if (tree.sym instanceof VarSymbol) {
+                    JavafxVarSymbol vsym = (JavafxVarSymbol) tree.sym;
+                    if (vsym.isLocal()) {
+                        hasLocal = true;
+                    }
+                }
+            }
+        }
+        ReferenceChecker rc = new ReferenceChecker();
+        rc.scan(tree);
+        return rc.hasLocal;
     }
 
     private boolean hasSelfReference(JFXVar checkedVar) {

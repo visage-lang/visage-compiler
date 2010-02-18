@@ -303,24 +303,30 @@ public class JavafxSymtab extends Symtab {
     public FunctionType makeFunctionType(List<Type> typarams) {
         ListBuffer<Type> argtypes = new ListBuffer<Type>();
         Type restype = null;
-        for (List<Type> l = typarams; l.nonEmpty();  l = l.tail) {
-            Type a = l.head;
-            if (a instanceof WildcardType)
-                a = ((WildcardType) a).type;
-            if (restype == null) {
-                if (a.tsym.name == javafx_java_lang_VoidType.tsym.name) {
-                    a = voidType;
+        if (typarams.size() != 0) {
+            for (List<Type> l = typarams; l.nonEmpty();  l = l.tail) {
+                Type a = l.head;
+                if (a instanceof WildcardType)
+                    a = ((WildcardType) a).type;
+                if (restype == null) {
+                    if (a.tsym.name == javafx_java_lang_VoidType.tsym.name) {
+                        a = voidType;
+                    }
+                    restype = a;
                 }
-                restype = a;
+                else
+                    argtypes.append(a);
             }
-            else
-                argtypes.append(a);
+        } else {
+            restype = objectType;
+            argtypes.append(javafx_ObjectArray);
         }
         MethodType mtype = new MethodType(argtypes.toList(), restype, null, methodClass);
         return makeFunctionType(mtype);
     }
 
     public FunctionType makeFunctionType(MethodType mtype) {
+        System.out.println("makeFunctionType: " + mtype);
         Type funtype = javafx_FunctionType;
         return new FunctionType(funtype.getEnclosingType(), List.<Type>nil(), funtype.tsym, mtype);
     }

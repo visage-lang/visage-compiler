@@ -1171,6 +1171,8 @@ public abstract class JavafxTranslationSupport {
             Symbol cSym = enclosingClassDecl.sym;
             if (isStatic) {
                 return Select(makeType(cSym.type, false), fxmake.ScriptAccessSymbol(cSym).name);
+            } else if(isMixinClass()) {
+                return id(defs.receiverName);
             }
             return resolveThisInternal(cSym, false);
         }

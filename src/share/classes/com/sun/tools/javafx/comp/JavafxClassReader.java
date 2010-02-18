@@ -293,10 +293,9 @@ public class JavafxClassReader extends ClassReader {
                         break;
                     }
                     Name flatname = ((ClassSymbol) tsym).flatname;
-                    if (flatname.startsWith(functionClassName)
-                        && flatname != functionClassName) {
-                            t = ((JavafxSymtab) syms).makeFunctionType(translateTypes(ctype.typarams_field));
-                            break;
+                    if (flatname.equals(functionClassName)) {
+                        t = ((JavafxSymtab) syms).makeFunctionType(translateTypes(ctype.typarams_field));
+                        break;
                     }
                     TypeSymbol sym = translateTypeSymbol(tsym);
                     ClassType ntype;
