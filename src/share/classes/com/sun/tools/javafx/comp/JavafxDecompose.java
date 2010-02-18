@@ -265,7 +265,7 @@ public class JavafxDecompose implements JavafxVisitor {
             JFXVarInit prevVarInitContext = varInitContext;
             JFXVarInit ourVarInit = null;
             JavafxBindStatus prevBindStatus = bindStatus;
-            if (allowDebinding && preTrans.isImmutable(tree)) {
+            if (false & allowDebinding && preTrans.isImmutable(tree)) {
                 bindStatus = JavafxBindStatus.UNBOUND;
                 if (prevVarInitContext != null) {
                     ourVarInit = fxmake.VarInit(null);
