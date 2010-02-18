@@ -999,11 +999,15 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     public JFXTimeLiteral TimeLiteral(String str) {
         int i = 0;
         char[] buf = str.toCharArray();
+
+        // Locate the duration specifier.
+        //
         while (i < buf.length && (Character.isDigit(buf[i]) || buf[i] == '.' || buf[i] == 'e' || buf[i] == 'E'))
             i++;
         
         assert i > 0;               // lexer should only pass valid time strings
         assert buf.length - i > 0;  // lexer should only pass valid time strings
+
 
         String dur = str.substring(i);
         Duration duration =
@@ -1012,18 +1016,40 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                 dur.equals("m") ? Duration.MINUTES :
                 dur.equals("h") ? Duration.HOURS : null;
         assert duration != null;
-        Object value;
+        Object timeVal;
+        Double value;
         try {
+
+            // Extract the literal value up to but excluding the duration
+            // specifier.
+            //
             String s = str.substring(0, i);
-            if (s.indexOf('.') >= 0)
-                value = Double.valueOf(s) * duration.getMultiplier();
+
+            // Even though the number of hours/mounts/etc may be specified
+            // as an integer, we still need to use a double value always because
+            // durecations such as 999999m will overflow an integer.
+            //
+            value = Double.valueOf(s) * duration.getMultiplier();
+
+            // Now use an integer if we will not overflow the maximum vlaue
+            // for an integer and the value is an integer number.
+            //
+            if  (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE && value == value.intValue()) {
+                timeVal = new Integer(value.intValue());
+            }
             else
-                value = Integer.valueOf(s) * duration.getMultiplier();
-        } catch (NumberFormatException ex) {
-            // error already reported in scanner
-            value = Double.NaN;
+            {
+                // Has to stay as a double or it would overflow, or it was
+                // not an integer vlaue, such as 5.5m
+                //
+                timeVal = value;
+            }
         }
-        JFXLiteral literal = Literal(value);
+        catch (NumberFormatException ex) {
+            // error already reported in scanner
+            timeVal = Double.NaN;
+        }
+        JFXLiteral literal = Literal(timeVal);
         JFXTimeLiteral tree = new JFXTimeLiteral(literal, duration);
         tree.pos = pos;
         return tree;
