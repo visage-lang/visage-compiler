@@ -1,5 +1,6 @@
 ^launcher/dist
 ^launcher/build
+^launcher/nbproject/Package.*$
 ^bootstrap/
 ^build/
 ^tools/
