@@ -2640,10 +2640,26 @@ public abstract class JavafxAbstractTranslation
 
         JCExpression doitExpr() {
             boolean isScriptContext = receiverContext() == ReceiverContext.ScriptAsStatic;
-            int selector = currentClass().addInvokeCase(translateInvokeCase(), isScriptContext);
-            JCExpression funcClassType = QualifiedTree(syms.javafx_FunctionType.tsym.getQualifiedName().toString());
+            
+            int nargs = mtype.argtypes.size();
+            Type functionType = syms.javafx_FunctionTypes[nargs];
+            JCExpression functionTypeExpr = QualifiedTree(functionType.tsym.getQualifiedName().toString());
+            
+            ListBuffer<JCExpression> typeArgs = ListBuffer.lb();
+            Type resType = types.boxedTypeOrType(mtype.restype);
+            typeArgs.append(makeType(resType));
+            
+            for (Type argType : mtype.argtypes) {
+                Type paramType = types.boxedTypeOrType(argType);
+                typeArgs.append(makeType(paramType));
+            }
+            
+            JCExpression funcClassType = m().TypeApply(functionTypeExpr, typeArgs.toList());
+            
             JCExpression receiverExpr = getReceiverOrThis(isScriptContext);
+            int selector = currentClass().addInvokeCase(translateInvokeCase(), isScriptContext);
             List<JCExpression> funcValueArgs = List.<JCExpression>of(receiverExpr, FuncNum(selector));
+            
             return m().NewClass(null, List.<JCExpression>nil(), funcClassType, funcValueArgs, null);
         }
     }

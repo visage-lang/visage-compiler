@@ -3318,7 +3318,9 @@ public class JavafxAttr implements JavafxVisitor {
             restype = syms.voidType;
         Type rtype = restype == syms.voidType ? syms.javafx_java_lang_VoidType
                 : new WildcardType(types.boxedTypeOrType(restype), BoundKind.EXTENDS, syms.boundClass);
+        ListBuffer<Type> typarams = new ListBuffer<Type>();
         ListBuffer<Type> argtypes = new ListBuffer<Type>();
+        typarams.append(rtype);
         int nargs = 0;
         for (JFXType param : (List<JFXType>)tree.params) {
             Type argtype = attribType(param, env);
@@ -3326,9 +3328,17 @@ public class JavafxAttr implements JavafxVisitor {
                 argtype = syms.objectType;
             argtypes.append(argtype);
             Type ptype = types.boxedTypeOrType(argtype);
+            ptype = new WildcardType(ptype, BoundKind.SUPER, syms.boundClass);
+            typarams.append(ptype);
+            nargs++;
         }
         MethodType mtype = new MethodType(argtypes.toList(), restype, null, syms.methodClass);
-        FunctionType ftype = syms.makeFunctionType(mtype);
+        if (nargs > JavafxSymtab.MAX_FIXED_PARAM_LENGTH) {
+            log.error(tree, MsgSym.MESSAGE_TOO_MANY_PARAMETERS);
+            tree.type = result = syms.objectType;
+            return;
+        }
+        FunctionType ftype = syms.makeFunctionType(typarams.toList(), mtype);
         Type type = sequenceType(ftype, tree.getCardinality());
         tree.type = type;
         result = type;

@@ -22,9 +22,10 @@
  */
 
 package com.sun.javafx.functions;
+
 import com.sun.javafx.runtime.FXObject;
 
-public class Function {
+public class Function<R> {
     // Class that implements the function.
     final private FXObject implementor;
     

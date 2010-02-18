@@ -73,7 +73,6 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_UnspecifiedType;
     public final Type javafx_AutoImportRuntimeType;
     public final Type javafx_FXRuntimeType;
-    public final Type javafx_java_lang_RuntimeExceptionType;
     public final Type javafx_VoidType;
     public final Type javafx_java_lang_VoidType;
     public final Type javafx_SequenceType;
@@ -84,7 +83,8 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_SequenceTypeErasure;
     public final Type javafx_ShortArray;
     public final Type javafx_ObjectArray;
-    public final Type javafx_FunctionType;
+    static public final int MAX_FIXED_PARAM_LENGTH = 8;
+    public final Type[] javafx_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
     public final Type javafx_FXObjectType;
     public final Type javafx_FXMixinType;
     public final Type javafx_FXBaseType;
@@ -137,7 +137,7 @@ public class JavafxSymtab extends Symtab {
 
     private JavafxTypes types;
 
-    public static final String functionClassString =
+    public static final String functionClassPrefix =
             "com.sun.javafx.functions.Function";
 
     public static void preRegister(final Context context) {
@@ -201,7 +201,6 @@ public class JavafxSymtab extends Symtab {
 
         javafx_AutoImportRuntimeType = enterClass("javafx.lang.Builtins");
         javafx_FXRuntimeType = enterClass("javafx.lang.FX");
-        javafx_java_lang_RuntimeExceptionType = enterClass("java.lang.RuntimeException");
         unreachableType = new Type(TypeTags.VOID, null);
         unreachableType.tsym = new TypeSymbol(0, names.fromString("<unreachable>"), Type.noType, rootPackage);
         javafx_java_lang_VoidType = types.boxedClass(voidType).type;
@@ -237,7 +236,9 @@ public class JavafxSymtab extends Symtab {
         javafx_staticAnnotationType = enterClass(staticAnnotationClassNameString);
         javafx_inheritedAnnotationType = enterClass(inheritedAnnotationClassNameString);
         javafx_sourceNameAnnotationType = enterClass(sourceNameAnnotationClassNameString);
-        javafx_FunctionType = enterClass(functionClassString);
+        for (int i = MAX_FIXED_PARAM_LENGTH; i >= 0;  i--) {
+            javafx_FunctionTypes[i] = enterClass(functionClassPrefix+i);
+        }
 
         booleanTypeName = names.fromString("Boolean");
         charTypeName = names.fromString("Character");
@@ -303,32 +304,40 @@ public class JavafxSymtab extends Symtab {
     public FunctionType makeFunctionType(List<Type> typarams) {
         ListBuffer<Type> argtypes = new ListBuffer<Type>();
         Type restype = null;
-        if (typarams.size() != 0) {
-            for (List<Type> l = typarams; l.nonEmpty();  l = l.tail) {
-                Type a = l.head;
-                if (a instanceof WildcardType)
-                    a = ((WildcardType) a).type;
-                if (restype == null) {
-                    if (a.tsym.name == javafx_java_lang_VoidType.tsym.name) {
-                        a = voidType;
-                    }
-                    restype = a;
+        for (List<Type> l = typarams; l.nonEmpty();  l = l.tail) {
+            Type a = l.head;
+            if (a instanceof WildcardType)
+                a = ((WildcardType) a).type;
+            if (restype == null) {
+                if (a.tsym.name == javafx_java_lang_VoidType.tsym.name) {
+                    a = voidType;
                 }
-                else
-                    argtypes.append(a);
+                restype = a;
             }
-        } else {
-            restype = objectType;
-            argtypes.append(javafx_ObjectArray);
+            else
+                argtypes.append(a);
         }
         MethodType mtype = new MethodType(argtypes.toList(), restype, null, methodClass);
-        return makeFunctionType(mtype);
+        return makeFunctionType(typarams, mtype);
     }
 
+    public FunctionType makeFunctionType(List<Type> typarams, MethodType mtype) {
+        int nargs = typarams.size()-1;
+        assert (nargs <= MAX_FIXED_PARAM_LENGTH);
+        Type funtype = javafx_FunctionTypes[nargs];
+        return new FunctionType(funtype.getEnclosingType(), typarams, funtype.tsym, mtype);
+    }
+
+    /** Given a MethodType, create the corresponding FunctionType.
+     */
     public FunctionType makeFunctionType(MethodType mtype) {
-        System.out.println("makeFunctionType: " + mtype);
-        Type funtype = javafx_FunctionType;
-        return new FunctionType(funtype.getEnclosingType(), List.<Type>nil(), funtype.tsym, mtype);
+        Type rtype = mtype.restype;
+        ListBuffer<Type> typarams = new ListBuffer<Type>();
+        typarams.append(boxedTypeOrType(rtype));
+        for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
+            typarams.append(boxedTypeOrType(l.head));
+        }
+        return makeFunctionType(typarams.toList(), mtype);
     }
 
     /** Make public. */

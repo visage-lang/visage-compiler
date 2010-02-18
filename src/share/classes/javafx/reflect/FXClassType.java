@@ -44,7 +44,7 @@ public abstract class FXClassType extends FXType implements FXMember {
             "com.sun.javafx.runtime.location.ObjectVariable";
     public static final String SEQUENCE_VARIABLE_CLASSNAME =
             "com.sun.javafx.runtime.location.SequenceVariable";
-    public static final String FUNCTION_CLASSNAME =
+    public static final String FUNCTION_CLASSNAME_PREFIX =
             "com.sun.javafx.functions.Function";
     public static final String GETTER_PREFIX = "get$";
     public static final String SETTER_PREFIX = "set$";

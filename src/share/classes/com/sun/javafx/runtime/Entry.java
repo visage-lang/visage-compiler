@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Queue;
 import java.util.Properties;
 
-import com.sun.javafx.functions.Function;
+import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.animation.AnimationProvider;
@@ -99,7 +99,7 @@ public class Entry {
         }
     }
 
-    public static void deferAction(final Function function) {
+    public static void deferAction(final Function0<Void> function) {
         deferAction(new Runnable() {
             public void run() {
                 function.invoke();

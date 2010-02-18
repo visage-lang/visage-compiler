@@ -145,9 +145,6 @@ public class FXLocal {
                 return new FXJavaArrayType(elType);
             }
             String rawName = clas.getName();
-            if (FXClassType.FUNCTION_CLASSNAME.equals(rawName)) {
-                return new FXFunctionType(new FXType[0], makeClassRef(java.lang.Object.class));
-            }
             int rawLength = rawName.length();
             if (rawLength > LOCATION_PREFIX_LENGTH + VARIABLE_STRING_LENGTH &&
                     rawName.startsWith(LOCATION_PREFIX) &&
@@ -1251,6 +1248,7 @@ public class FXLocal {
         public FXValue apply(FXValue... arg) {
             Object result;
             int nargs = arg.length;
+            if (nargs > 8) throw new IllegalArgumentException();
             Object[] rargs = new Object[nargs];
             for (int i = 0;  i < nargs;  i++)
                 rargs[i] = ((FXLocal.Value) arg[i]).asObject();
