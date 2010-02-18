@@ -4400,6 +4400,7 @@ primaryExpression
 			$value = preserveTrees ?
                             F.at(pos($LPAREN)).Parens($e.value) :
                             $e.value;
+            endpos($value);
 		}
 		
 	| AT 
@@ -4416,7 +4417,7 @@ primaryExpression
 		RBRACE
 		
 		{
-                        $value = F.at(rPos).KeyFrameLiteral(sVal, $k.exprs.toList(), null);
+            $value = F.at(rPos).KeyFrameLiteral(sVal, $k.exprs.toList(), null);
 			endPos($value);
 		}
 	
