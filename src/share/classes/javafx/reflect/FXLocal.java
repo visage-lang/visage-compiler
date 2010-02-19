@@ -1266,7 +1266,7 @@ public class FXLocal {
             Object[] rargs = new Object[nargs];
             for (int i = 0;  i < nargs;  i++)
                 rargs[i] = ((FXLocal.Value) arg[i]).asObject();
-            result = ((Function) val).invoke(rargs);
+            result = ((Function) val).invoke$(rargs);
             return context.mirrorOf(result, ftype.getReturnType());
         }
         public FXFunctionType getType() {

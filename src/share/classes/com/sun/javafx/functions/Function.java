@@ -25,15 +25,21 @@ package com.sun.javafx.functions;
 
 import com.sun.javafx.runtime.FXObject;
 
-public class Function<R> {
+public abstract class Function<R> {
     // Class that implements the function.
-    final private FXObject implementor;
+    final protected FXObject implementor;
     
     // Function number.
-    final private int number;
+    final protected int number;
     
     // Function selector.
-    final private Object selector;
+    final protected Object selector;
+    
+    public Function() {
+        implementor = null;
+        number = 0;
+        selector = null;
+    }
     
     public Function(final FXObject implementor, final int number, final Object selector) {
         this.implementor = implementor;
@@ -42,8 +48,18 @@ public class Function<R> {
     }
     
     // Get the implementor to invoke the function.
-    public Object invoke(Object... args) {
-        return implementor.invoke$(number, selector, args);
+    // Don't override this.
+    public Object invoke$(Object... args) {
+        if (implementor != null) {
+            return implementor.invoke$(number, selector, args);
+        } else {
+            return invoke();
+        }
+    }
+    
+    // Override this
+    public R invoke() {
+        throw new RuntimeException("invoke function missing");
     }
     
     // Format for easier debugging.

@@ -26,7 +26,24 @@ package com.sun.javafx.functions;
 import com.sun.javafx.runtime.FXObject;
 
 public class Function6<R, A1, A2, A3, A4, A5, A6> extends Function<R> {
+    public Function6() {}
+    
     public Function6(final FXObject implementor, final int number, final Object selector) {
         super(implementor, number, selector);
+    }
+    
+    // Get the implementor to invoke the function.
+    // Don't override this.
+    public Object invoke$(Object... args) {
+        if (implementor != null) {
+            return implementor.invoke$(number, selector, args);
+        } else {
+            return invoke((A1)args[0], (A2)args[1], (A3)args[2], (A4)args[3], (A5)args[4], (A6)args[5]);
+        }
+    }
+    
+    // Override this
+    public R invoke(A1 x1, A2 x2, A3 x3, A4 x4, A5 x5, A6 x6) {
+        throw new RuntimeException("invoke function missing");
     }
 }

@@ -1497,7 +1497,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         Name methodName() {
-            return useInvoke? defs.invoke_MethodName : functionName(msym, superToStatic, callBound);
+            return useInvoke? defs.invoke_FXObjectMethodName : functionName(msym, superToStatic, callBound);
         }
 
         @Override

@@ -338,7 +338,6 @@ public class JavafxDefs {
     final Name adjustIndex_BoundForPartMethodName;
     final Name setInductionVar_BoundForPartMethodName;
 
-    final Name invoke_MethodName;
     final Name lambda_MethodName;
 
     final Name isInitialized_MethodName;
@@ -586,7 +585,6 @@ public class JavafxDefs {
         getVarNum_PointerMethodName = names.fromString("getVarNum");
         getFXObject_PointerMethodName = names.fromString("getFXObject");
         size_PointerMethodName = size_SequenceMethodName;
-        invoke_MethodName = names.fromString("invoke");
         lambda_MethodName = names.fromString("lambda");
         length_ArrayFieldName = names.fromString("length");
         emptySequence_FieldName = names.fromString("emptySequence");
