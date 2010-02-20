@@ -2631,7 +2631,28 @@ public abstract class JavafxAbstractTranslation
                                           null);
             stmts.prepend(arityCheck);
             
-            return Block(stmts);
+            JCBlock block = Block(stmts);
+            
+            // Replace any void returns to return null.
+            if (mtype.getReturnType() == syms.voidType) {
+                new TreeTranslator() {
+                    @Override
+                    public void visitReturn(JCReturn tree) {
+                        if (tree.expr == null) {
+                            tree.expr = Null();
+                        }
+                        result = tree;
+                    }
+
+                    // do not descend into inner classes
+                    @Override
+                    public void visitClassDef(JCClassDecl tree) {
+                        result = tree;
+                    }
+                }.translate(block);
+            }
+            
+            return block;
         }
 
         JCExpression doitExpr() {
