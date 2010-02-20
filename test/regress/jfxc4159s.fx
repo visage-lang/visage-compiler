@@ -17,7 +17,7 @@ public abstract class Node {
   public-read package var parent:Parent = null;
 
   override function toString():String {
-     "{getClass().getName}#{id}"
+     "{getClass().getName()}#{id}"
   }
 };
 
