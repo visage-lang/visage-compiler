@@ -859,7 +859,7 @@ public class FXLocal {
         public void setValue(FXObjectValue obj, FXValue value) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
-                if(type instanceof FXSequenceType && robj instanceof FXObject) {
+                if (type instanceof FXSequenceType && robj instanceof FXObject) {
                     Sequences.set((FXObject)robj, offset,(Sequence)((Value) value).asObject());
                     return;
                 }
@@ -1036,7 +1036,6 @@ public class FXLocal {
                 return context.mirrorOf(result, getType().getReturnType());
             }
              catch (RuntimeException ex) {
-                 System.err.println("caught "+ex+" method:"+method+" rargs:"+rargs+" alen:"+alen);
                 throw ex;
             }
             catch (Exception ex) {
@@ -1186,7 +1185,7 @@ public class FXLocal {
         
         public void initVar(FXVarMember attr, FXValue value) {
             int offset = attr.getOffset();
-            
+
             if (offset == -1) {
                 attr.setValue(this, value);
             } else {
@@ -1199,8 +1198,9 @@ public class FXLocal {
                 
                 initMembers[offset] = attr;
                 initValues[offset] = value;
-
-                ((FXObject)obj).setFlags$(offset, FXObject.VFLGS$INIT_OBJ_LIT);
+                int flag = attr.getType() instanceof FXSequenceType ? FXObject.VFLGS$INIT_OBJ_LIT_SEQUENCE
+                    : FXObject.VFLGS$INIT_OBJ_LIT;
+                ((FXObject)obj).setFlags$(offset, flag);
             }
         }
     }
