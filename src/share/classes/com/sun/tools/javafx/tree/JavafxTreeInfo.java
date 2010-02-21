@@ -115,32 +115,60 @@ public class JavafxTreeInfo {
     /** Find the declaration for a symbol, where
      *  that symbol is defined somewhere in the given tree. */
     public static JFXTree declarationFor(final Symbol sym, final JFXTree tree) {
-	class DeclScanner extends JavafxTreeScanner {
+        class DeclScanner extends JavafxTreeScanner {
+
             JFXTree result = null;
+
             @Override
             public void scan(JFXTree tree) {
-                if (tree!=null && result==null)
+                if ( tree != null && result == null ) {
                     tree.accept(this);
+                }
             }
+
             @Override
-	    public void visitScript(JFXScript that) {
-		if (that.packge == sym) result = that;
-		else super.visitScript(that);
-	    }
+            public void visitClassDeclaration(JFXClassDeclaration that) {
+                if (that.sym == sym) {
+                    result = that;
+                }
+                else  {
+                    super.visitClassDeclaration(that);
+                }
+            }
+
+            @Override
+            public void visitScript(JFXScript that) {
+                if ( that.packge == sym ) {
+                    result = that;
+                }
+                else {
+                    super.visitScript(that);
+                }
+            }
+
             @Override
             public void visitFunctionDefinition(JFXFunctionDefinition that) {
-                if (that.sym == sym) result = that;
-                else super.visitFunctionDefinition(that);
+                if ( that.sym == sym ) {
+                    result = that;
+                }
+                else {
+                    super.visitFunctionDefinition(that);
+                }
             }
+
             @Override
             public void visitVar(JFXVar that) {
-		if (that.sym == sym) result = that;
-		else super.visitVar(that);
+                if ( that.sym == sym ) {
+                    result = that;
+                }
+                else {
+                    super.visitVar(that);
+                }
             }
-	}
-	DeclScanner s = new DeclScanner();
-	tree.accept(s);
-	return s.result;
+        }
+        DeclScanner s = new DeclScanner();
+        tree.accept(s);
+        return s.result;
     }
 
     public static List<JFXTree> pathFor(final JFXTree node, final JFXScript unit) {
@@ -478,8 +506,9 @@ public class JavafxTreeInfo {
         case TOPLEVEL:
             return ((JFXScript) node).packge;
         case ON_REPLACE:
-                return symbolFor(((JFXOnReplace) node).getOldValue());
-                
+            return symbolFor(((JFXOnReplace) node).getOldValue());
+        case OVERRIDE_ATTRIBUTE_DEF:
+            return symbolFor(((JFXOverrideClassVar) node).getId());
         default:
             return null;
         }
@@ -604,8 +633,6 @@ public class JavafxTreeInfo {
             return getEndPos(((JFXTypeClass) tree).getClassName(), endPositions);
           case TIME_LITERAL:
             return tree.pos + tree.toString().length();
-          case VAR_DEF:
-            return ((JFXVar) tree).getEndPosition(endPositions);
         }
         return JavafxTreeInfo.getStartPos(tree);
     }

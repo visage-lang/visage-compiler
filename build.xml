@@ -417,10 +417,12 @@
         </java>
     </target>
 
-    <target name="syntax-diagrams" depends="init">
+    <target name="syntax-diagrams" depends="init, generate-parserv4">
         <mkdir dir="${syntax.diagrams.dir}"/>
-        <!-- ANTLRWorks cannot deal with separate lexer and parser files, don't do this for now.
-
+        <mkdir dir="${antlr.src.dir}/output"/>
+        <copy todir="${antlr.src.dir}/output">
+            <fileset dir="${antlr.generated.dir}" includes="**/*.tokens"/>
+        </copy>
         <java classname="org.antlr.works.Console" fork="true">
             <classpath>
                 <path refid="antlrworks.class.path" />
@@ -431,12 +433,11 @@
             <arg value="-sd" />
             <arg value="png" />
             <arg value="-o" />
-            <arg value="${syntax.diagrams.dir}" />
+            <arg value="${syntax.diagrams.dir}" />            
             <arg value="-verbose"/>
             <jvmarg value="-Xmx${jfx.antlr.max.memory}"/>
         </java>
-
-		-->
+        <delete dir="${antlr.src.dir}/output"></delete>
 
     </target>
 

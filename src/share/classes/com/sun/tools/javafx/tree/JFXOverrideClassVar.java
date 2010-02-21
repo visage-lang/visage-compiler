@@ -24,9 +24,10 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.OverrideClassVarTree;
 
 import com.sun.tools.javafx.code.JavafxVarSymbol;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.util.Name;
 
 /**
@@ -34,7 +35,7 @@ import com.sun.tools.mjavac.util.Name;
  *
  * @author Robert Field
  */
-public class JFXOverrideClassVar extends JFXAbstractVar {
+public class JFXOverrideClassVar extends JFXAbstractVar implements OverrideClassVarTree {
 
     private final JFXIdent expr;
     
@@ -68,5 +69,10 @@ public class JFXOverrideClassVar extends JFXAbstractVar {
     @Override
     public boolean isOverride() {
         return true;
+    }
+    
+    @Override
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitOverrideClassVar(this, data);
     }
 }
