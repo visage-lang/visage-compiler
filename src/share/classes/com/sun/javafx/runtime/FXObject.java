@@ -116,8 +116,8 @@ public interface FXObject {
 
     public int getFlags$(final int varNum);
     public void setFlags$(final int varNum, final int value);
-    public boolean varTestBits$(final int varNum, int maskBits, int testBits);
-    public boolean varChangeBits$(final int varNum, int clearBits, int setBits);
+    public boolean varTestBits$(final int varNum, final int maskBits, final int testBits);
+    public int varChangeBits$(final int varNum, final int clearBits, final int setBits);
     public void restrictSet$(final int varNum);
     public void arityException$();
 

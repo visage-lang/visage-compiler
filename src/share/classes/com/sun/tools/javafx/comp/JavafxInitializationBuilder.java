@@ -559,6 +559,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return makeMethodArg(defs.args_ArgName, syms.javafx_ObjectArray);
         }
 
+        JCIdent clearBitsArg() {
+            return makeMethodArg(defs.clearBits_ArgName, syms.intType);
+        }
+
+        JCIdent setBitsArg() {
+            return makeMethodArg(defs.setBits_ArgName, syms.intType);
+        }
+
         //
         // Returns true if the sym is the current class symbol.
         //
@@ -2164,12 +2172,12 @@ however this is what we need */
 
                     if (isLeaf) {
                         if (varInfo.isReadOnly()) {
-                            addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_FXObjectMethodName, Offset(varSym)));
+                            addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_FXObjectMethodName, GetFlags(varSym)));
                         }
                     } else {
                         // Restrict setting.
                         beginBlock();
-                        addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_FXObjectMethodName, Offset(varSym)));
+                        addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_FXObjectMethodName, GetFlags(varSym)));
                         JCExpression ifReadonlyTest = FlagTest(varSym, defs.varFlagIS_READONLY, null);
                         // if (isReadonly$(VOFF$var)) { restrictSet$(VOFF$var); }
                         addStmt(OptIf(NOT(ifReadonlyTest),
@@ -2931,8 +2939,7 @@ however this is what we need */
                 makeSetMethod(varInfos, varCount);
                 makeSeqMethod(varInfos, varCount);
                 makeInvalidateMethod(varInfos, varCount);
-                makeGetFlagsMethod(varInfos, varCount);
-                makeSetFlagsMethod(varInfos, varCount);
+                makeVarChangeBitsMethod(varInfos, varCount);
             }
         }
 
@@ -4082,38 +4089,24 @@ however this is what we need */
         }
         
         //
-        // This method constructs the current class's getFlags$(varnum, ...) method.
+        // This method constructs the current class's varChangeBits$(varnum, ...) method.
         //
-        public void makeGetFlagsMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.getFlags_FXObjectMethodName, syms.intType,
-                                                                 attrInfos, varCount) {
-                @Override
-                public void statements() {
-                    if (varInfo.needsCloning()) {
-                        addStmt(Return(VarFlags(varSym)));
-                    }
-                }
-            };
-            
-            vcmb.build();
-        }
-        
-        //
-        // This method constructs the current class's setFlags$(varnum, ...) method.
-        //
-        public void makeSetFlagsMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.setFlags_FXObjectMethodName, syms.voidType,
+        public void makeVarChangeBitsMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.varFlagActionChange, syms.intType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void initialize() {
-                    addParam(syms.intType, defs.varNewValue_ArgName);
+                    addParam(clearBitsArg());
+                    addParam(setBitsArg());
                 }
                 
                 @Override
                 public void statements() {
                     if (varInfo.needsCloning()) {
-                        addStmt(Stmt(m().Assign(VarFlags(varSym), flagCast(id(defs.varNewValue_ArgName)))));
-                        addStmt(Return(null));
+                        JCExpression clearBits = BITAND(VarFlags(varSym), BITNOT(clearBitsArg()));
+                        JCExpression setBits = BITOR(clearBits, setBitsArg());
+                        JCExpression assignBits = m().Assign(VarFlags(varSym), flagCast(setBits));
+                        addStmt(Return(assignBits));
                     }
                 }
             };
