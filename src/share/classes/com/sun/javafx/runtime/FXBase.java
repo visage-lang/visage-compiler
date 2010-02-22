@@ -113,40 +113,45 @@ import com.sun.javafx.runtime.sequence.Sequences;
     public static int FCNT$() { return FCNT$; }
 
     public int getFlags$(final int varNum) {
-        return 0;
+        return varChangeBits$(varNum, 0, 0);
     }
     public static int getFlags$(FXObject obj, final int varNum) {
+        return obj.varChangeBits$(varNum, 0, 0);
+    }
+    
+    public void setFlags$(final int varNum, final int value) {
+        varChangeBits$(varNum, VFLGS$ALL_FLAGS, value);
+    }
+    public static void setFlags$(FXObject obj, final int varNum, final int value) {
+        obj.varChangeBits$(varNum, VFLGS$ALL_FLAGS, value);
+    }
+    
+    public boolean varTestBits$(final int varNum, final int maskBits, final int testBits) {
+        return (varChangeBits$(varNum, 0, 0) & maskBits) == testBits;
+    }
+    public static boolean varTestBits$(FXObject obj, final int varNum, final int maskBits, final int testBits) {
+        return (obj.varChangeBits$(varNum, 0, 0) & maskBits) == testBits;
+    }
+
+    public int varChangeBits$(final int varNum, final int clearBits, final int setBits) {
         return 0;
     }
-    
-    public void setFlags$(final int varNum, final int value) {}
-    public static void setFlags$(FXObject obj, final int varNum, final int value) {}
-    
-    public boolean varTestBits$(final int varNum, int maskBits, int testBits) {
-        return varTestBits$(this, varNum, maskBits, testBits);
-    }
-    public static boolean varTestBits$(FXObject obj, final int varNum, int maskBits, int testBits) {
-        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-        return (obj.getFlags$(varNum) & maskBits) == testBits;
+    public static int varChangeBits$(FXObject obj, final int varNum, final int clearBits, final int setBits) {
+        return 0;
     }
 
-    public boolean varChangeBits$(final int varNum, int clearBits, int setBits) {
-        return varChangeBits$(this, varNum, clearBits, setBits);
+    public void restrictSet$(final int flags) {
+        if ((flags & VFLGS$IS_READONLY) == VFLGS$IS_READONLY) {
+            if ((flags & VFLGS$IS_BOUND) == VFLGS$IS_BOUND) {
+                throw new AssignToBoundException("Cannot assign to bound variable");
+            } else {
+                throw new AssignToDefException("Cannot assign to a variable defined with 'def'");
+            }
+        }
     }
-    public static boolean varChangeBits$(FXObject obj, final int varNum, int clearBits, int setBits) {
-        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-        int flags = obj.getFlags$(varNum);
-        obj.setFlags$(varNum, ((flags & ~clearBits) | setBits));
-        int bits = clearBits | setBits;
-        return (flags & bits) == bits;
-    }
-
-    public void restrictSet$(final int varNum) {
-        restrictSet$(this, varNum);
-    }
-    public static void restrictSet$(FXObject obj, final int varNum) {
-        if (varTestBits$(obj, varNum, VFLGS$IS_READONLY, VFLGS$IS_READONLY)) {
-            if (varTestBits$(obj, varNum, VFLGS$IS_BOUND, VFLGS$IS_BOUND)) {
+    public static void restrictSet$(FXObject obj, final int flags) {
+        if ((flags & VFLGS$IS_READONLY) == VFLGS$IS_READONLY) {
+            if ((flags & VFLGS$IS_BOUND) == VFLGS$IS_BOUND) {
                 throw new AssignToBoundException("Cannot assign to bound variable");
             } else {
                 throw new AssignToDefException("Cannot assign to a variable defined with 'def'");

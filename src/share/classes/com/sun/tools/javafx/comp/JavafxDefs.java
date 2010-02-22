@@ -403,6 +403,8 @@ public class JavafxDefs {
     final Name pos_ArgName;
     final Name varNum_ArgName;
     final Name depNum_ArgName;
+    final Name clearBits_ArgName;
+    final Name setBits_ArgName;
     final Name updateInstance_ArgName;
     final Name obj_ArgName;
     final Name value_ArgName;
@@ -659,6 +661,8 @@ public class JavafxDefs {
         args_ArgName = names.fromString("args$");
         varNum_ArgName = names.fromString("varNum$");
         depNum_ArgName = names.fromString("depNum$");
+        clearBits_ArgName = names.fromString("clearBits$");
+        setBits_ArgName = names.fromString("setBits$");
         scriptClassSuffixName = names.fromString(scriptClassSuffix);
         scriptLevelAccess_FXObjectFieldName = names.fromString(scriptLevelAccess_FXObjectFieldString);
 
