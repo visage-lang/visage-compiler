@@ -40,6 +40,7 @@ Configuration::Configuration(const std::string& prefix)
         profile_vmargs(""),
         profile_toolkit(""),
         device_profile("desktop"),
+        profile_compile_opts(""),
         profile_filename("desktop.properties") {
 }
 
@@ -198,6 +199,9 @@ int Configuration::readConfigFile() {
             } else
             if (key == "emulator") {
                 profile_emulator = value;
+            } else
+            if (key == "opts") {
+                profile_compile_opts = value;
             };
         }
     }

@@ -286,4 +286,21 @@ public class ArgumentsTest  extends TestCase {
         cmdsList.add("-X");
         assertTrue(Utils.checkExec(cmdsList, "-X"));
     }
+
+    static final String XDWARNONUSE_STR = "Foo.fx:1: warning: [warnonuse] Package ersatz.dummy has been used.";
+    public void testJavaFxcXDArgs() throws IOException {
+        ArrayList<String> cmdsList = new ArrayList<String>();
+        List<String> output = null;
+        cmdsList.add(Utils.javafxcExe.toString());
+        cmdsList.add("Foo.fx");
+        
+        Utils.createFile("Foo.fx", "import ersatz.dummy.*;");
+        output = Utils.doExec(cmdsList, null, true);
+        assertTrue(output.contains(XDWARNONUSE_STR));
+        
+        Utils.createFile("Foo.fx", "import ersatz.dummy.FooBar;");
+        output = Utils.doExec(cmdsList, null, true);
+        assertTrue(output.contains(XDWARNONUSE_STR));
+
+    }
 }

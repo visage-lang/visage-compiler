@@ -46,6 +46,7 @@ public:
     std::string profile_vmargs;
     std::string profile_security_policy;
     std::string profile_emulator;
+    std::string profile_compile_opts;
     bool        is_desktop() { return device_profile == "desktop"; };
     bool        is_mobile()  { return device_profile == "mobile" ; };
     

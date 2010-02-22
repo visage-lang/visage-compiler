@@ -313,7 +313,7 @@ public class Utils {
     }
 
     static List<String> doExec(List<String> cmds) {
-        return doExec(cmds, null);
+        return doExec(cmds, null, false);
     }
 
     /*
@@ -321,7 +321,8 @@ public class Utils {
      * if a testoutput file is provide that file is read for the programs
      * output instead of stdout and stderr.
      */
-    static List<String> doExec(List<String> cmds, File testOutput) {
+    static List<String> doExec(List<String> cmds, File testOutput,
+            boolean ignoreExitValue) {
         if (debug) {
             System.out.println("CWD: " + workingDir);
             System.out.println("----Execution args----");
@@ -353,7 +354,7 @@ public class Utils {
             }
             p.waitFor();
             p.destroy();
-            if (p.exitValue() != 0) {
+            if (ignoreExitValue == false && p.exitValue() != 0) {
                 System.out.println("Error: Unexpected exit value " +
                         p.exitValue());
                 return null;
@@ -528,7 +529,7 @@ public class Utils {
     
 
         execList.addAll(cmdsList);
-        return doExec(execList, testOutput);
+        return doExec(execList, testOutput, false);
     }
 
     private static List<String> getArgumentsFromFx(List<String> cmdsList)
@@ -656,5 +657,15 @@ public class Utils {
         }
         // delete left over class files
         deleteClassFiles();
+    }
+
+    /*
+     * creates a file in the test working directory
+     */
+    static void createFile(String outfileName, String contents) throws IOException {
+         PrintStream ps = new PrintStream(new FileOutputStream(
+                    new File(workingDir, outfileName)));
+            ps.print(contents);
+            ps.close();
     }
 }

@@ -65,6 +65,10 @@ int main(int argc, char** argv) {
         }
     }
     cmd += "com.sun.tools.javafx.Main ";
+    // this could have multiple space separated options, so no quoting.
+    if (!config.profile_compile_opts.empty()) {
+        cmd += config.profile_compile_opts + " ";
+    }
     if (! config.profile_bootclasspath.empty()) {
         cmd += "-bootclasspath \"" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath) + "\" ";
     }

@@ -136,7 +136,13 @@ extra_cp=""
 if [ "$profile" = "mobile" ]; then
     extra_cp="-classpath '"$user_classpath"'"
 fi
-jargs="$jargs $extra_cp com.sun.tools.javafx.Main -classpath '"$classpath"'"
+jargs="$jargs $extra_cp com.sun.tools.javafx.Main"
+
+get_jarg "compile_opts"
+if [ -n "$jarg" ]; then
+    jargs="$jargs $jarg"
+fi
+jargs="$jargs -classpath '"$classpath"'"
 
 get_jarg "compile_bootclasspath" "yes"
 if [ -n "$jarg" ]; then
