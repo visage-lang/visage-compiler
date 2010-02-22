@@ -2673,11 +2673,6 @@ public abstract class JavafxAbstractTranslation
                 stmts.appendList(translateToStatementsResult(bexpr, mtype.getReturnType()).statements());
             }
             
-            JCStatement arityCheck = If(NE(Select(id(defs.args_ArgName), defs.length_ArrayFieldName), Int(argNum)),
-                                          CallStmt(defs.arityException_FXObjectMethodName),
-                                          null);
-            stmts.prepend(arityCheck);
-            
             JCBlock block = Block(stmts);
             
             // Replace any void returns to return null.

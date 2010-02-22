@@ -286,7 +286,6 @@ public class JavafxDefs {
     final Name postInit_FXObjectMethodName;
     final Name initVars_FXObjectMethodName;
     final Name restrictSet_FXObjectMethodName;
-    final Name arityException_FXObjectMethodName;
     Name getAs_FXObjectMethodName[];
 
     /**
@@ -645,7 +644,6 @@ public class JavafxDefs {
         size_FXObjectMethodName = names.fromString(size_AttributeMethodPrefix);
         count_FXObjectMethodName = names.fromString("count$");
         restrictSet_FXObjectMethodName = names.fromString("restrictSet$");
-        arityException_FXObjectMethodName = names.fromString("arityException$");
         varState_LocalVarName = names.fromString("varState$");
         varOldValue_LocalVarName = names.fromString("varOldValue$");
         varFlags_LocalVarName = names.fromString("varFlags$");

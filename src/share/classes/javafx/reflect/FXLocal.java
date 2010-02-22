@@ -368,7 +368,6 @@ public class FXLocal {
         static final String[] SYSTEM_METHOD_EXCLUDES = {
             // keep in alphabetical order 
             "addDependent$",
-            "arityException$",
             "complete$",
             "count$",
             "getAsBoolean$",
