@@ -1382,6 +1382,11 @@ public abstract class JavafxAbstractTranslation
         // Null Checking control
         protected final boolean knownNonNull;
 
+        // are we in the middle of translating argument expressions?
+        private boolean inTranslateArgs;
+        // preface statements generated when translating argument expressions
+        private ListBuffer<JCStatement> argumentPreface;
+
         FunctionCallTranslator(final JFXFunctionInvocation tree) {
             // If this is an invoke (later "useInvoke") then the named meth is not the refSym
             // since it will be wrapped with a ".invoke()"
@@ -1432,6 +1437,20 @@ public abstract class JavafxAbstractTranslation
        }
 
         @Override
+        void addPreface(JCStatement stat) {
+            if (inTranslateArgs) {
+                // translating args
+                if (argumentPreface == null) {
+                    argumentPreface = new ListBuffer<JCStatement>();
+                }
+                // put it in argument preface statements
+                argumentPreface.append(stat);
+            } else {
+                super.addPreface(stat);
+            }
+        }
+
+        @Override
         JCExpression translateToCheck(JFXExpression expr) {
             JCExpression newExpr = null;
             if (renameToSuper || superCall) {
@@ -1470,7 +1489,6 @@ public abstract class JavafxAbstractTranslation
             }
         }
 
-        @Override
         JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
             JCExpression tMeth = Select(mungedToCheckTranslated, methodName());
             JCMethodInvocation app = m().Apply(translateExprs(typeargs), tMeth, determineArgs());
@@ -1496,6 +1514,25 @@ public abstract class JavafxAbstractTranslation
             return full;
         }
 
+        @Override
+        protected JCStatement wrapInNullCheckStatement(JCExpression full, JCExpression tToCheck, Type theResultType, Type theFullType) {
+            JCStatement resStmt = super.wrapInNullCheckStatement(full, tToCheck, resultType, fullType);
+            if (argumentPreface != null) {
+                argumentPreface.append(resStmt);
+                resStmt = m().Block(0L, argumentPreface.toList());
+            }
+            return resStmt;
+        }
+
+        @Override
+        protected JCExpression wrapInNullCheckExpression(JCExpression full, JCExpression tToCheck, Type theResultType, Type theFullType) {
+            full = super.wrapInNullCheckExpression(full, tToCheck, resultType, fullType);
+            if (argumentPreface != null) {
+                full = new BlockExprJCBlockExpression(0L, argumentPreface.toList(), full);
+            }
+            return full;
+        }
+
         Name methodName() {
             return useInvoke? defs.invoke_FXObjectMethodName : functionName(msym, superToStatic, callBound);
         }
@@ -1510,10 +1547,20 @@ public abstract class JavafxAbstractTranslation
             return !knownNonNull && super.needNullCheck();
         }
 
+        // make it final and set "inTranslateArgs" flag
+        final List<JCExpression> determineArgs() {
+            try {
+                inTranslateArgs = true;
+                return determineArgsImpl();
+            } finally {
+                inTranslateArgs = false;
+            }
+        }
+
         /**
          * Compute the translated arguments.
          */
-        List<JCExpression> determineArgs() {
+        List<JCExpression> determineArgsImpl() {
             final List<Type> formals = meth.type.getParameterTypes();
             final boolean usesVarArgs = args != null && msym != null &&
                     (msym.flags() & Flags.VARARGS) != 0 &&

@@ -256,7 +256,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         @Override
-        List<JCExpression> determineArgs() {
+        List<JCExpression> determineArgsImpl() {
             ListBuffer<JCExpression> targs = ListBuffer.lb();
             // if this is a super.foo(x) call, "super" will be translated to referenced class,
             // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
@@ -281,7 +281,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 }
                 return targs.toList();
             } else {
-                return super.determineArgs();
+                return super.determineArgsImpl();
             }
         }
 
