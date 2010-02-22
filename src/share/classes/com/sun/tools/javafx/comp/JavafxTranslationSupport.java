@@ -1777,7 +1777,7 @@ public abstract class JavafxTranslationSupport {
         }
 
         public JCExpression FuncNum(int number) {
-            if (isMixinClass()) {
+            if (isMixinClass() && !isScript) {
                 return PLUS(Call(classFCNT$Name(enclosingClassDecl.sym)), Int(number));
             } else {
                 return PLUS(id(defs.funcCount_FXObjectFieldName), Int(number));
