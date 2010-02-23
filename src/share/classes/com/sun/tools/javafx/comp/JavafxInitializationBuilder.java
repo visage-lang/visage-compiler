@@ -552,10 +552,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return makeMethodArg(defs.number_ArgName, syms.intType);
         }
 
-        JCIdent selectorArg() {
-            return makeMethodArg(defs.selector_ArgName, syms.objectType);
-        }
-
         JCIdent argsArg() {
             return makeMethodArg(defs.args_ArgName, syms.javafx_ObjectArray);
         }
@@ -3179,7 +3175,6 @@ however this is what we need */
                 @Override
                 public void initialize() {
                     addParam(numberArg());
-                    addParam(selectorArg());
                     addParam(argsArg());
                 }
                 

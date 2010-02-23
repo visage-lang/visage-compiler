@@ -32,11 +32,13 @@ import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.JFXExpression;
 
+import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Scope;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 
 import com.sun.tools.mjavac.code.TypeTags;
@@ -435,7 +437,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitFunctionInvocation(JFXFunctionInvocation tree) {
-        JFXExpression meth = lowerExpr(tree.meth);
+        JFXExpression meth = lowerFunctionName(tree.meth);
         List<Type> paramTypes = tree.meth.type.getParameterTypes();
         Symbol sym = JavafxTreeInfo.symbolFor(tree.meth);
         
@@ -482,6 +484,17 @@ public class JavafxLower implements JavafxVisitor {
          
         result = m.Apply(tree.typeargs, meth, args);
         result.type = tree.type;
+    }
+    //where
+    private JFXExpression lowerFunctionName(JFXExpression meth) {
+        Symbol msym = JavafxTreeInfo.symbolFor(meth);
+        if (meth.getFXTag() == JavafxTag.IDENT) {
+            return m.at(meth.pos()).Ident(msym).setType(meth.type);
+        } else if (meth.getFXTag() == JavafxTag.SELECT) {
+            return lowerSelect((JFXSelect)meth);
+        } else {
+            return lowerExpr(meth);
+        }
     }
 
     public void visitFunctionValue(JFXFunctionValue tree) {
@@ -1067,7 +1080,81 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitIdent(JFXIdent tree) {
-        result = tree;
+        if (tree.sym.kind == Kinds.MTH) {
+            result = toFunctionValue(tree, false);
+        }
+        else {
+            result = tree;
+        }
+    }
+
+    JFXExpression toFunctionValue(JFXExpression tree, boolean isSelect) {
+        boolean needsReceiverVar = isSelect;
+        if (isSelect) {
+             JFXSelect qualId = (JFXSelect)tree;
+             Symbol selectedSym = JavafxTreeInfo.symbolFor(qualId.selected);
+             if (selectedSym != null && selectedSym.kind == Kinds.TYP) {
+                 needsReceiverVar = false;
+             }
+        }
+        MethodSymbol msym = (MethodSymbol)JavafxTreeInfo.symbolFor(tree);
+        Type mtype = msym.type;
+        ListBuffer<JFXVar> params = ListBuffer.lb();
+        ListBuffer<JFXExpression> args = ListBuffer.lb();
+        MethodSymbol lambdaSym = new MethodSymbol(Flags.SYNTHETIC, defs.lambda_MethodName, mtype, currentClass);
+        int count = 0;
+        for (Type t : mtype.getParameterTypes()) {
+            Name paramName = tempName("x"+count);
+            JavafxVarSymbol paramSym = new JavafxVarSymbol(types, names, Flags.PARAMETER, paramName, t, lambdaSym);
+            JFXVar param = m.at(tree.pos).Param(paramName, preTrans.makeTypeTree(t));
+            param.sym = paramSym;
+            param.type = t;
+            params.append(param);
+            JFXIdent arg = m.at(tree.pos).Ident(param);
+            arg.type = param.type;
+            arg.sym = param.sym;
+            args.append(arg);
+            count++;
+        }
+        Type returnType = mtype.getReturnType();
+        JFXVar receiverVar = null;
+        JFXExpression meth = tree.setType(mtype);
+        if (needsReceiverVar) {
+            JFXSelect qualId= (JFXSelect)tree;
+            receiverVar = makeVar(tree.pos(), "rec", qualId.selected, qualId.selected.type);
+            JFXIdent receiverVarRef = (JFXIdent)m.at(tree.pos).Ident(receiverVar.sym).setType(receiverVar.type);
+            meth = m.at(tree.pos).Select(receiverVarRef, msym).setType(mtype);
+        }
+        JFXExpression call = m.at(tree.pos).Apply(List.<JFXExpression>nil(), meth, args.toList()).setType(returnType);
+        JFXBlock body = (JFXBlock)m.at(tree.pos).Block(0, List.<JFXExpression>nil(), call).setType(returnType);
+        JFXFunctionValue funcValue = m.at(tree.pos).FunctionValue(preTrans.makeTypeTree(returnType),
+                params.toList(), body);
+        funcValue.type = syms.makeFunctionType((Type.MethodType)mtype);
+        funcValue.definition = new JFXFunctionDefinition(
+                m.at(tree.pos).Modifiers(lambdaSym.flags_field),
+                lambdaSym.name,
+                funcValue);
+        funcValue.definition.pos = tree.pos;
+        funcValue.definition.sym = lambdaSym;
+        funcValue.definition.type = lambdaSym.type;
+        if (needsReceiverVar) {
+            JFXBinary eqNull = (JFXBinary)m.at(tree.pos).Binary(
+                    JavafxTag.EQ,
+                    m.at(tree.pos).Ident(receiverVar.sym).setType(receiverVar.type),
+                    m.at(tree.pos).Literal(TypeTags.BOT, null).setType(syms.botType));
+            eqNull.operator = rs.resolveBinaryOperator(tree.pos(), JavafxTag.EQ, env, syms.objectType, syms.objectType);
+            eqNull.setType(syms.booleanType);
+            JFXExpression blockValue = m.at(tree.pos()).Conditional(
+                    eqNull,
+                    m.at(tree.pos).Literal(TypeTags.BOT, null).setType(syms.botType),
+                    funcValue).setType(funcValue.type);
+            return m.at(tree.pos).Block(0,
+                    List.<JFXExpression>of(receiverVar),
+                    blockValue).setType(funcValue.type);
+        }
+        else {
+            return funcValue;
+        }
     }
 
     public void visitImport(JFXImport tree) {
@@ -1277,18 +1364,23 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitSelect(JFXSelect tree) {
-        if (tree.sym.isStatic() &&                
+        result = (tree.sym.kind == Kinds.MTH) ?
+            toFunctionValue(tree, true) :
+            lowerSelect(tree);
+    }
+
+    private JFXExpression lowerSelect(JFXSelect tree) {
+        JFXExpression res = null;
+        if (tree.sym.isStatic() &&
                 JavafxTreeInfo.symbolFor(tree.selected) != null &&
                 JavafxTreeInfo.symbolFor(tree.selected).kind == Kinds.TYP) {
-            result = m.at(tree.pos()).Ident(tree.sym);
+            res = m.at(tree.pos()).Ident(tree.sym);
         }
         else {
             JFXExpression selected = lowerExpr(tree.selected);
-            JFXSelect res = (JFXSelect)m.Select(selected, tree.sym);
-            res.name = tree.name;
-            result = res;
+            res = (JFXSelect)m.Select(selected, tree.sym);
         }
-        result.setType(tree.type);
+        return res.setType(tree.type);
     }
 
     public void visitSkip(JFXSkip tree) {

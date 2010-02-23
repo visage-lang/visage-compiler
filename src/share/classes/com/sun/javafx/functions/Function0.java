@@ -28,15 +28,15 @@ import com.sun.javafx.runtime.FXObject;
 public class Function0<R> extends Function<R> {
     public Function0() {}
     
-    public Function0(final FXObject implementor, final int number, final Object selector) {
-        super(implementor, number, selector);
+    public Function0(final FXObject implementor, final int number) {
+        super(implementor, number);
     }
     
     // Get the implementor to invoke the function.
     // Don't override this.
     public Object invoke$(Object... args) {
         if (implementor != null) {
-            return implementor.invoke$(number, selector, args);
+            return implementor.invoke$(number, args);
         } else {
             return invoke();
         }

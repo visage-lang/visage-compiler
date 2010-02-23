@@ -32,26 +32,21 @@ public abstract class Function<R> {
     // Function number.
     final protected int number;
     
-    // Function selector.
-    final protected Object selector;
-    
     public Function() {
         implementor = null;
         number = 0;
-        selector = null;
     }
     
-    public Function(final FXObject implementor, final int number, final Object selector) {
+    public Function(final FXObject implementor, final int number) {
         this.implementor = implementor;
         this.number = number;
-        this.selector = selector;
     }
     
     // Get the implementor to invoke the function.
     // Don't override this.
     public Object invoke$(Object... args) {
         if (implementor != null) {
-            return implementor.invoke$(number, selector, args);
+            return implementor.invoke$(number, args);
         } else {
             return invoke();
         }

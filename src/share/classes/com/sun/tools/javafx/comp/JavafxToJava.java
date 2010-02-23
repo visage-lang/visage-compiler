@@ -37,7 +37,6 @@ import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
@@ -1082,16 +1081,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     public void visitIdent(JFXIdent tree) {
-        if (substitute(tree.pos(),tree.sym)) {
-            return;
-        }
-        JFXClassDeclaration prevClass = currentClass();
-        try {
-            result = new IdentTranslator(tree).doit();
-        }
-        finally {
-            setCurrentClass(prevClass);
-        }
+        result = new IdentTranslator(tree).doit();
     }
 
     @Override
@@ -1133,16 +1123,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     public void visitSelect(JFXSelect tree) {
-        if (substitute(tree.pos(),tree.sym)) {
-            return;
-        }
-        JFXClassDeclaration prevClass = currentClass();
-        try {
-            result = new SelectTranslator(tree).doit();
-        }
-        finally {
-            setCurrentClass(prevClass);
-        }
+	result = new SelectTranslator(tree).doit();
     }
 
     @Override
