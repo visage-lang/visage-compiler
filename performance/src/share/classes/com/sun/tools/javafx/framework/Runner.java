@@ -38,6 +38,8 @@ public class Runner {
     static String mainClass = null;
     static List<String> appArgs = new ArrayList<String>();
     static final int ITERATIONS = Integer.getInteger(RUNNER_NAME + ".iterations", 10);
+    static final boolean GCNEEDED = Boolean.getBoolean(RUNNER_NAME + ".gcneeded");
+    static final int LOOPCOUNT  = Integer.getInteger(RUNNER_NAME + ".loopcount", 0);
     static int interval = 5*1000;
     static int duration = 30*1000;
     
@@ -107,6 +109,12 @@ public class Runner {
         cmdsList.add("-time");
         cmdsList.add("-iter");
         cmdsList.add(Integer.toString(ITERATIONS));
+        if (GCNEEDED) {
+            cmdsList.add("-gc");
+        }
+        if (LOOPCOUNT >0) {
+            cmdsList.add("-c " + LOOPCOUNT);
+        }
         float timeToSleep = 0.0f;
         String pvalue = "0.0f", mvalue = "0.0f";
         if (runExecution) {
@@ -184,16 +192,8 @@ public class Runner {
             TestProcess.logger.severe(ex.getMessage());
             return null;
         } finally {
-            try {
-                if (jps != null) {
-                    jps.close();
-                }
-                if (jmpos != null) {
-                    jmpos.close();
-                }
-            } catch (IOException ex) {
-                TestProcess.logger.severe(ex.getMessage());
-            }
+            Utils.close(jps);
+            Utils.close(jmpos);
             TestProcess.killTestApplication();
             if (testProc != null) {
                 testProc.destroy();

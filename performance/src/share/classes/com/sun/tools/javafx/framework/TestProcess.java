@@ -38,7 +38,7 @@ import java.util.logging.Logger;
 public class TestProcess {
 
     static final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
-    static final boolean debug = Boolean.getBoolean("debug");
+    static final boolean debug = Boolean.getBoolean(Runner.RUNNER_NAME + ".debug");
     static final Logger logger = Logger.getLogger(TestProcess.class.getName());
     static final String APP_NAME = System.getProperty("app.name");
     static final String JAVAFX_HOME = System.getProperty("javafx.home",

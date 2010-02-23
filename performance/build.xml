@@ -77,8 +77,11 @@
     </target>
 
     <macrodef name="run-benchmark">
-        <attribute name="benchmark" default="NOT_SET"/>
-        <attribute name="heapsize" default="${default.heap}"/>
+        <attribute name="benchmark"     default="NOT_SET"/>
+        <attribute name="heapsize"      default="${default.heap}"/>
+        <attribute name="gcneeded"      default=""/>
+        <attribute name="loopcount"     default="0"/>
+        <attribute name="debug"         default="true"/>
         <sequential>
             <echo message="Runnning : @{benchmark}"/>
             <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
@@ -90,6 +93,8 @@
                 <sysproperty key="base.dir"         value="${basedir}"/>
                 <sysproperty key="debug"            value="${debug}"/>
                 <sysproperty key="Runner.vmoptions" value="@{heapsize}"/>
+                <sysproperty key="Runner.gcneeded"  value="@{gcneeded}"/>
+                <sysproperty key="Runner.loopcount" value="@{loopcount}"/>
             </java>
         </sequential>
     </macrodef>
@@ -154,6 +159,7 @@
         <run-benchmark benchmark="bindslice_lt"/>
         <run-benchmark benchmark="bindslice_ltEVE"/>
         <run-benchmark benchmark="bindslice_noEVE"/>
+        <run-benchmark benchmark="qsort" gcneeded="true" loopcount="128000"/>
         <!-- ignored tests
         <run-benchmark benchmark="boundSequenceRange"/>
         <run-benchmark benchmark="visibleNode"/> // JFXC-3693
@@ -161,6 +167,7 @@
     </target>
     
     <target name="krun-benchmarks" depends="compile">
+        <run-benchmark benchmark="qsort" gcneeded="true" loopcount="128000"/>
     </target>
 
     <target name="run" depends="run-benchmarks, reporter"/>

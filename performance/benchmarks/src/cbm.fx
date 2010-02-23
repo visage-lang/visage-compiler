@@ -9,13 +9,20 @@ public class cbm {
    public var DEBUG=false;
    public var USETIMER=false;
    public var PAUSE=false;
+   public var GC=false;
+   public var VERBOSE=false;
+   public var LOOPCOUNT=0;
 
    /**
     * print and println controlled by DEBUG variable, -debug option
     */
-   public function debugOutln(msg:String) { if(DEBUG) println(msg);}
    public function debugOut(msg:String) { if(DEBUG) print(msg);}
-
+   public function debugOutln(msg:String) { if(DEBUG) println(msg);}
+    /** verbose output text - use these for output that might be more verbose*/
+	public function verboseOut(msg:String) {		 if(VERBOSE) print(msg); }
+	public function verboseOutln(msg:String) {		 if(VERBOSE) println(msg); }
+   /** For printing larger arrays that could be considered verbose. */
+	public function verboseOutln(msg:Object[]) {		 if(VERBOSE) println(msg); }
 
    /**
     * timer function used via -time option to print average time to stdout
@@ -26,9 +33,10 @@ public class cbm {
        for ( I in [1..iters]) {
        	var startTime = System.nanoTime();
        	var t = f();
-           timesum += (System.nanoTime()-startTime)*0.000001
-       }
-   	println("average time: {timesum/iters} ms  iterations: {iters}");
+        timesum += (System.nanoTime()-startTime)*0.000001;
+        if(GC) {debugOutln("gc call"); java.lang.System.gc(); }
+        }
+        println("average time: {timesum/iters} ms  iterations: {iters}");
    }
 
    /** simple usage message */
@@ -37,7 +45,9 @@ public class cbm {
        println("-debug  - print extra debug info, if any is used.");
        println("-time   - print time info after test completes");
        println("-pause  - hang the app, to aid in collecting whatever and kill");
-       println(" -iter N - Run test N times.");
+       println("-iter N - Run test N times.");
+       println("-gc     - run gc after each iteration.");
+       println("-c N    - run with N internal loops per iteration");
        System.exit(0);
    }
 
@@ -45,7 +55,13 @@ public class cbm {
     * Calls test() N times (set by "-iter N" option)
     * No timer output. Use -time to call runTest() to print timer output.
     */
-   function testi(iters:Integer){ for (i in [1..iters]) test();}
+   function testi(iters:Integer){
+    for (i in [1..iters]) {
+       test();
+        if(GC) {debugOutln("gc call"); java.lang.System.gc(); }
+       }
+
+    }
 
    /**
     * override this test() method with actual test method
@@ -64,13 +80,15 @@ public function runtest( args:String[], bm:cbm)
     if(arg.compareTo("-help")==0) bm.usage();
     if(arg.compareTo("-debug")==0) {bm.DEBUG=true; println("expect slower times with extra debug activity.");}
     if(arg.compareTo("-time")==0) bm.USETIMER=true;
-    if(arg.compareTo("-iter")==0) iterations = java.lang.Integer.parseInt( args[indexof arg + 1] );
+    if(arg.compareTo("-iter")==0) iterations = java.lang.Integer.parseInt( args[ indexof arg + 1] );
     if(arg.compareTo("-pause")==0) bm.PAUSE=true;
+    if(arg.compareTo("-gc")==0) bm.GC=true;
+    if(arg.compareTo("-v")==0) bm.VERBOSE=true;
+    if(arg.compareTo("-c")==0) bm.LOOPCOUNT = java.lang.Integer.parseInt( args[ indexof arg + 1] );
+
   }
 
   if(bm.USETIMER) {bm.runTest(iterations, bm.test);}
   else {  bm.testi(iterations); }
   if(bm.PAUSE) java.lang.System.in.read(); // the grim reaper will take care of this.
 }
-
-

@@ -165,11 +165,7 @@ public class Utils {
         } catch (IOException ioe) {
             logger.severe("Processing: " + jarfilename + ":" + ioe.getMessage());
         } finally {
-            if (jf != null) {
-                try {
-                    jf.close();
-                } catch (IOException ignore) { /* swallow the exception */ }
-            }
+            close((Closeable)jf);
         }
         return mainclassname;
     }
@@ -181,10 +177,8 @@ public class Utils {
 
     protected static void close(Closeable c) {
         if (c != null) {
-         try {
-                if (c != null) {
-                    c.close();
-                }
+            try {
+                c.close();
             } catch (IOException ignore) {
             }
         }
