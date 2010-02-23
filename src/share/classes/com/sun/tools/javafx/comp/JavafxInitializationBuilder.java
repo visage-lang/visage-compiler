@@ -43,6 +43,7 @@ import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
+import java.util.LinkedHashMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -72,7 +73,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
     public static class LiteralInitVarMap {
         private int count = 1;
-        public Map<JavafxVarSymbol, Integer> varMap = new HashMap<JavafxVarSymbol, Integer>();
+        public Map<JavafxVarSymbol, Integer> varMap = new LinkedHashMap<JavafxVarSymbol, Integer>();
         public ListBuffer<JavafxVarSymbol> varList = ListBuffer.lb();
 
         public int addVar(JavafxVarSymbol sym) {
@@ -93,7 +94,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
 
     public static class LiteralInitClassMap {
-        public Map<ClassSymbol, LiteralInitVarMap> classMap = new HashMap<ClassSymbol, LiteralInitVarMap>();
+        public Map<ClassSymbol, LiteralInitVarMap> classMap = new LinkedHashMap<ClassSymbol, LiteralInitVarMap>();
 
         public LiteralInitVarMap getVarMap(ClassSymbol sym) {
             LiteralInitVarMap map = classMap.get(sym);
