@@ -34,11 +34,11 @@ public class Function8<R, A1, A2, A3, A4, A5, A6, A7, A8> extends Function<R> {
     
     // Get the implementor to invoke the function.
     // Don't override this.
-    public Object invoke$(Object... args) {
+    public Object invoke$(Object arg1, Object arg2, Object[] rargs) {
         if (implementor != null) {
-            return implementor.invoke$(number, args);
+            return implementor.invoke$(number, arg1, arg2, rargs);
         } else {
-            return invoke((A1)args[0], (A2)args[1], (A3)args[2], (A4)args[3], (A5)args[4], (A6)args[5], (A7)args[6], (A8)args[7]);
+            return invoke((A1)arg1, (A2)arg2, (A3)rargs[0], (A4)rargs[1], (A5)rargs[2], (A6)rargs[3], (A7)rargs[4], (A8)rargs[5]);
         }
     }
     

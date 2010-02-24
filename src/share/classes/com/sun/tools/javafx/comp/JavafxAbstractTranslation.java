@@ -1591,6 +1591,8 @@ public abstract class JavafxAbstractTranslation
                 boolean handlingVarargs = false;
                 Type formal = null;
                 List<Type> t = formals;
+                ListBuffer<JCExpression> rargs = null;
+                int argNum = 0;
                 for (List<JFXExpression> l = args; l.nonEmpty(); l = l.tail) {
                     JFXExpression arg = l.head;
                     if (!handlingVarargs) {
@@ -1607,8 +1609,22 @@ public abstract class JavafxAbstractTranslation
                     if (useInvoke) {
                         argExpr = typeCast(types.boxedTypeOrType(formal), formal, argExpr);
                     }
-                    
-                    targs.append(argExpr);
+                    if (! useInvoke || argNum < 2)
+                        targs.append(argExpr);
+                    else {
+                        if (rargs == null)
+                            rargs = ListBuffer.lb();
+                        rargs.append(argExpr);
+                    }
+                    argNum++;
+                }
+                if (useInvoke) {
+                    for (; argNum < 2; argNum++)
+                        targs.append(Null()); // arg1, arg2
+                    if (argNum <= 2)
+                        targs.append(Null());
+                    else
+                        targs.append(m().NewArray(makeType(syms.objectType), List.of(Int(argNum-2)), rargs.toList()));
                 }
                 if (magicPointerMakeFunction) {
                     // Pointer.make has just two arguments (inst, varNum) -- we need to
@@ -2608,8 +2624,13 @@ public abstract class JavafxAbstractTranslation
 		setDiagPos(fxVar);
 		Name paramName = fxVar.getName();
 		Type paramType = fxVar.sym.type;
-		JCExpression initialValue = typeCast(paramType, syms.objectType, m().Indexed(id(defs.args_ArgName), Int(argNum)));
-		stmts.append(Var(Flags.FINAL, paramType, paramName, initialValue));
+                JCExpression arg;
+                if (argNum < 2)
+                    arg = id(argNum == 0 ? defs.arg1_ArgName : defs.arg2_ArgName);
+                else
+                    arg = m().Indexed(id(defs.args_ArgName), Int(argNum-2));
+                JCExpression initialValue = typeCast(paramType, syms.objectType, arg);
+                stmts.append(Var(Flags.FINAL, paramType, paramName, initialValue));
 
 		if (types.isSequence(paramType)) {
 		    stmts.append(CallStmt(id(fxVar.getName()), defs.incrementSharing_SequenceMethodName));

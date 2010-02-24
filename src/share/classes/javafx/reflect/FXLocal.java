@@ -1262,10 +1262,18 @@ public class FXLocal {
             Object result;
             int nargs = arg.length;
             if (nargs > 8) throw new IllegalArgumentException();
-            Object[] rargs = new Object[nargs];
-            for (int i = 0;  i < nargs;  i++)
-                rargs[i] = ((FXLocal.Value) arg[i]).asObject();
-            result = ((Function) val).invoke$(rargs);
+            Object[] rargs = nargs > 2 ? new Object[nargs] : null;
+            Object arg1 = null, arg2 = null;
+            for (int i = 0;  i < nargs;  i++) {
+                Object targ = ((FXLocal.Value) arg[i]).asObject();
+                if (i == 0)
+                    arg1 = targ;
+                else if (i == 1)
+                    arg2 = targ;
+                else
+                    rargs[i-2] = targ;
+            }
+            result = ((Function) val).invoke$(arg1, arg2, rargs);
             return context.mirrorOf(result, ftype.getReturnType());
         }
         public FXFunctionType getType() {

@@ -102,7 +102,7 @@ public class Entry {
     public static void deferAction(final Function0<Void> function) {
         deferAction(new Runnable() {
             public void run() {
-                function.invoke$();
+                function.invoke$(null, null, null);
             }
         });
     }

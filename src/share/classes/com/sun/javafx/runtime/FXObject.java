@@ -164,6 +164,14 @@ public interface FXObject {
     public long getAsLong$(int varNum, int position);
     public float getAsFloat$(int varNum, int position);
     public double getAsDouble$(int varNum, int position);
-    
-    public Object invoke$(final int number, Object... args);
+
+    /* Used to invoke function value handled by this object.
+     * @param number The index of function that is being invoked.
+     * If we have 0 arguments, then arg1, arg2 and rargs are null.
+     * If we have 1 arguments, then it is passed in arg1, while arg2 and rargs are null.
+     * If we have 2 arguments, they are passed in arg1 and arg2, while rargs is null.
+     * If we have more than 2 arguments, the first 2 arg passed in arg1 and arg2
+     * while the rest are passed in rargs.
+     */
+    public Object invoke$(int number, Object arg1, Object arg2, Object[] rargs);
 }

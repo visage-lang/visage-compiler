@@ -396,7 +396,7 @@ public class FX {
                         /*
                          * TODO: add timer to kill long running Action
                          */
-                        action.invoke$();
+                        action.invoke$(null, null, null);
                     } catch (Throwable ignore) {
                         // Ignore all Throwables
                     }

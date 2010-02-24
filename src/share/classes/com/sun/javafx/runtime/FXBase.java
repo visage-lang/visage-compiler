@@ -420,12 +420,13 @@ import com.sun.javafx.runtime.sequence.Sequences;
             Util.objectToDouble(obj.elem$(varNum, position)) :
             0.0;
     }
-        
-    public Object invoke$(final int number, Object... args) {
+
+    public Object invoke$(int number, Object arg1, Object arg2, Object[] rargs) {
         throw new IllegalArgumentException("no such function: " + number);
     }
 
-    public static Object invoke$(FXObject obj, final int number, Object... args) {
+
+    public static Object invoke$(FXObject obj, int number, Object arg1, Object arg2, Object[] rargs) {
         throw new IllegalArgumentException("no such function: " + number);
     }
 }

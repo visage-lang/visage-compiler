@@ -408,6 +408,8 @@ public class JavafxDefs {
     final Name obj_ArgName;
     final Name value_ArgName;
     final Name number_ArgName;
+    final Name arg1_ArgName;
+    final Name arg2_ArgName;
     final Name args_ArgName;
 
     /**
@@ -654,6 +656,8 @@ public class JavafxDefs {
         obj_ArgName = names.fromString("object$");
         value_ArgName = names.fromString("value$");
         number_ArgName = names.fromString("number$");
+        arg1_ArgName = names.fromString("arg1$");
+        arg2_ArgName = names.fromString("arg2$");
         args_ArgName = names.fromString("args$");
         varNum_ArgName = names.fromString("varNum$");
         depNum_ArgName = names.fromString("depNum$");

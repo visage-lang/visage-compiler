@@ -556,6 +556,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return makeMethodArg(defs.args_ArgName, syms.javafx_ObjectArray);
         }
 
+        JCIdent argsFixedArg(int argNum) {
+            Name argName = argNum == 0 ? defs.arg1_ArgName : defs.arg2_ArgName;
+            return makeMethodArg(argName, syms.objectType);
+        }
+
         JCIdent clearBitsArg() {
             return makeMethodArg(defs.clearBits_ArgName, syms.intType);
         }
@@ -3175,14 +3180,11 @@ however this is what we need */
                 @Override
                 public void initialize() {
                     addParam(numberArg());
+                    addParam(argsFixedArg(0));
+                    addParam(argsFixedArg(1));
                     addParam(argsArg());
                 }
-                
-                @Override 
-                protected long rawFlags() {
-                    return super.rawFlags() | Flags.VARARGS;
-                }
-                
+
                 @Override
                 public void statements() {
                     // Function number count.

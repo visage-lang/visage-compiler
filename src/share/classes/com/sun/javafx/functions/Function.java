@@ -42,17 +42,25 @@ public abstract class Function<R> {
         this.number = number;
     }
     
-    // Get the implementor to invoke the function.
-    // Don't override this.
-    public Object invoke$(Object... args) {
+    /** Normally indirects to the implementor's invoke$ function.
+     * Don't override this.
+     * If we have 0 arguments, then arg1, arg2 and rargs are null.
+     * If we have 1 arguments, then it is passed in arg1, while arg2 and rargs are null.
+     * If we have 2 arguments, they are passed in arg1 and arg2, while rargs is null.
+     * If we have more than 2 arguments, the first 2 arg passed in arg1 and arg2
+     * while the rest are passed in rargs.
+     * */
+    public Object invoke$(Object arg1, Object arg2, Object[] rargs) {
         if (implementor != null) {
-            return implementor.invoke$(number, args);
+            return implementor.invoke$(number, arg1, arg2, rargs);
         } else {
             return invoke();
         }
     }
     
-    // Override this
+    /** Used to support "hand-written" Java Function objects.
+     * Override this as needed.
+     */
     public R invoke() {
         throw new RuntimeException("invoke function missing");
     }
