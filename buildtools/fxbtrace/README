@@ -56,3 +56,7 @@ prints message on every on-replace block entry/return.
 prints message on every invalidate/get/set/be/on-replace! (heavy
 - expect lots of noice!!)
 
+* InstVarCount.java
+
+Prints FX instance variable count (FXBase.count$()) for each FX class.
+
