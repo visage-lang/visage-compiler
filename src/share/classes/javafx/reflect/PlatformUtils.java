@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.annotation.Package;
  */
 
 
-public class PlatformUtils {
+class PlatformUtils {
     static Type[] getGenericParameterTypes(Method m) {
         return m.getGenericParameterTypes();
     }
@@ -44,6 +44,10 @@ public class PlatformUtils {
 
     static boolean isSynthetic(Field fld) {
         return fld.isSynthetic();
+    }
+
+    static boolean isSynthetic(Method m) {
+        return m.isSynthetic();
     }
 
     static int checkInherited(Method m) {
