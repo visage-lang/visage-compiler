@@ -1,19 +1,19 @@
-test/should-fail/jfxc4072d.fx:17: warning: Forward reference: variable a2 is not initialized.
+test/should-fail/jfxc4072d.fx:17: warning: Illegal forward reference: variable a2 is not initialized.
   override var a1 = a2; //forward ref
                     ^
-test/should-fail/jfxc4072d.fx:18: warning: Forward reference: variable b1 is not initialized.
+test/should-fail/jfxc4072d.fx:18: warning: Illegal forward reference: variable b1 is not initialized.
   override var a2 = b1; //forward ref
                     ^
-test/should-fail/jfxc4072d.fx:23: warning: Forward reference: variable a2 is not initialized.
+test/should-fail/jfxc4072d.fx:23: warning: Illegal forward reference: variable a2 is not initialized.
   override var a1 = a2; //forward ref
                     ^
-test/should-fail/jfxc4072d.fx:24: warning: Forward reference: variable b1 is not initialized.
+test/should-fail/jfxc4072d.fx:24: warning: Illegal forward reference: variable b1 is not initialized.
   override var a2 = b1; //forward ref
                     ^
-test/should-fail/jfxc4072d.fx:25: warning: Forward reference: variable c1 is not initialized.
+test/should-fail/jfxc4072d.fx:25: warning: Illegal forward reference: variable c1 is not initialized.
   override var a3 = c1; //forward ref
                     ^
-test/should-fail/jfxc4072d.fx:26: warning: Forward reference: variable c1 is not initialized.
+test/should-fail/jfxc4072d.fx:26: warning: Illegal forward reference: variable c1 is not initialized.
   override var b1 = c1; //forward ref
                     ^
 6 warnings

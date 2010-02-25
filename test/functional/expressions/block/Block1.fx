@@ -22,6 +22,9 @@ var add = function(a:Integer, b:Integer):Integer {
 	a+b
 }
 
+//Same 'data' but inside a function
+var unboundz:Integer[] = [1..10]; //Unbound 'z' is requied to avoid compiler crash-JFXC913
+
 var data ={
 	var a1 = [0,11];
 	var a = {
@@ -63,8 +66,6 @@ var data ={
 delete add(-2,-4) from data;
 if(not data.equals(z)){ throw new Exception("Test failed");}
 
-//Same 'data' but inside a function
-var unboundz:Integer[] = [1..10]; //Unbound 'z' is requied to avoid compiler crash-JFXC913
 function makeData() {
 	// an unbound z should used in a function - JFXC913
 	var data ={

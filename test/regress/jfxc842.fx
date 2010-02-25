@@ -3,6 +3,7 @@
  * throws java.lang.VerifyError when run
  *
  * @test
+ * @compilearg -XDfwdRefError=false
  * @run
  */ 
  

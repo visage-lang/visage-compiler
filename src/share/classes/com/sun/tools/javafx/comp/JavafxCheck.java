@@ -25,8 +25,10 @@ package com.sun.tools.javafx.comp;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
 
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Lint.LintCategory;
@@ -48,17 +50,19 @@ import com.sun.tools.mjavac.jvm.ClassReader;
 import com.sun.tools.mjavac.jvm.Target;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxAttr.Sequenceness;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.tree.JavafxTreeScanner;
 import com.sun.tools.javafx.util.MsgSym;
-import com.sun.javafx.api.JavafxBindStatus;
 
-import com.sun.tools.javafx.code.JavafxVarSymbol;
-import java.util.LinkedHashSet;
+import com.sun.tools.mjavac.main.OptionName;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /** Type checking helper class for the attribution phase.
@@ -2302,256 +2306,360 @@ public class JavafxCheck {
     }
 
     public void checkForwardReferences(JFXTree tree) {
-        class ForwardReferenceChecker extends JavafxTreeScanner {
-
-	    ForwardReferenceChecker() {
-		warnOnly = options.get("fwdRefError") != null &&
+        final boolean onlyWarnings = options.get("fwdRefError") != null &&
 			options.get("fwdRefError").contains("false");
-		warnOnTriggers = options.get("fwdRefOpt") != null &&
-			options.get("fwdRefOpt").contains("trigger");
-	    }
-            
-            class VarScope {
-                VarScope(boolean isStatic) {
-                    this.isStatic = isStatic;
-                }
-                Set<JavafxVarSymbol> uninited_vars = new LinkedHashSet<JavafxVarSymbol>();;
-                Set<JavafxVarSymbol> forward_set_vars = new LinkedHashSet<JavafxVarSymbol>();;
-                int overrideVarIdx = Integer.MAX_VALUE;
-                boolean isStatic = false;
-            }
 
-            List<VarScope> scopes = List.nil();
-            ClassSymbol enclClass = null;
-	    boolean warnOnly;
-	    boolean optionalKind = false;
-	    boolean warnOnTriggers;
-	    boolean warnOnBind;
-
+        new ForwardReferenceChecker(names, types, defs, getForwardRefKinds()) {
             @Override
-            public void visitClassDeclaration(JFXClassDeclaration tree) {
-                ClassSymbol prevClass = enclClass;
-                try {
-                    enclClass = tree.sym;
-                    beginScope();
-                    addVars(tree.getMembers());
-                    super.visitClassDeclaration(tree);
-                    endScope();
+            protected void reportForwardReference(DiagnosticPosition pos, boolean selfReference, Symbol s, boolean potential) {
+                JCDiagnostic description =
+                        diags.fragment(selfReference ?
+                            MsgSym.MESSAGE_JAVAFX_SELF_REFERENCE :
+                            MsgSym.MESSAGE_JAVAFX_FORWARD_REFERENCE);
+                if (potential) {
+                    log.warning(pos,
+                            MsgSym.MESSAGE_MAYBE_FORWARD_REF,
+                            description,
+                            rs.kindName(VAR),
+                            s);
                 }
-                finally {
-                    enclClass = prevClass;
+                else if (onlyWarnings) {
+                    log.warning(pos,
+                            MsgSym.MESSAGE_ILLEGAL_FORWARD_REF,
+                            description,
+                            rs.kindName(VAR),
+                            s);
+                }
+                else {
+                    log.error(pos,
+                            MsgSym.MESSAGE_ILLEGAL_FORWARD_REF,
+                            description,
+                            rs.kindName(VAR),
+                            s);
                 }
             }
+        }.scan(tree);
+    }
 
-            @Override
-            public void visitFunctionValue(JFXFunctionValue tree) {
-                beginScope(tree.definition.sym.isStatic());
-                super.visitFunctionValue(tree);
-                endScope();
+    public abstract static class ForwardReferenceChecker extends JavafxTreeScanner {
+
+	protected ForwardReferenceChecker(Name.Table names, JavafxTypes types, JavafxDefs defs, Collection<ScopeKind> kinds) {
+	    this.names = names;
+	    this.types = types;
+	    this.defs = defs;
+	    this.optFwdRefKinds = kinds;
+	}
+
+	Name.Table names;
+	Types types;
+	JavafxDefs defs;
+	List<VarScope> scopes = List.nil();
+	ClassSymbol enclClass = null;
+	Collection<ScopeKind> optFwdRefKinds;
+
+	public enum ScopeKind {
+	    CLASS,
+	    FUNCTION_DEF,
+	    VAR_DEF,
+	    BLOCK_EXPR,
+	    ON_REPLACE,
+	    ON_INVALIDATE,
+	    FUNCTION_VALUE,
+	    INTERPOLATE_VALUE,
+	    KEYFRAME_LIT,
+	    BOUND_CTX,
+	    ASSIGN_CTX,
+	    OBJ_LIT;
+	}
+
+	protected class VarScope {
+            VarScope(ScopeKind kind) {
+                this.kind = kind;
             }
+            VarScope(ScopeKind kind, VarScope prevScope) {
+                this(kind);
+                this.prevScope = prevScope;
+            }
+            ScopeKind kind;
+            VarScope prevScope = null;
+            Set<JavafxVarSymbol> uninited_vars = new LinkedHashSet<JavafxVarSymbol>();
+            JavafxVarSymbol currentVar = null;
+            int overrideVarIdx = Integer.MAX_VALUE;
+	}
 
-            @Override
-            public void visitOnReplace(JFXOnReplace tree) {
-		beginScope();
-		super.visitOnReplace(tree);
+	@Override
+	public void visitClassDeclaration(JFXClassDeclaration tree) {
+	    ClassSymbol prevClass = enclClass;
+	    try {
+                boolean isObjLiteral =
+                        tree.sym.name.toString().contains(defs.objectLiteralClassInfix);
+		enclClass = tree.sym;
+		beginScope(isObjLiteral ?
+                    ScopeKind.OBJ_LIT :
+                    ScopeKind.CLASS
+                );
+		addVars(tree.getMembers());
+		super.visitClassDeclaration(tree);
 		endScope();
-		if (warnOnTriggers) {
-		    boolean prevOptionalKind = optionalKind;
-		    optionalKind = true;
-		    super.visitOnReplace(tree);
-		    optionalKind = prevOptionalKind;
-		}
-            }
+	    }
+	    finally {
+		enclClass = prevClass;
+	    }
+	}
 
-            @Override
-            public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-                beginScope();
-                super.visitKeyFrameLiteral(tree);
+	@Override
+	public void visitFunctionValue(JFXFunctionValue tree) {
+	    beginScope(tree.definition.sym.name.equals(defs.lambda_MethodName) ?
+                ScopeKind.FUNCTION_VALUE :
+                ScopeKind.FUNCTION_DEF);
+	    super.visitFunctionValue(tree);
+	    endScope();
+	}
+
+	@Override
+	public void visitOnReplace(JFXOnReplace tree) {
+	    beginScope(tree.getTriggerKind() == JFXOnReplace.Kind.ONREPLACE ?
+                ScopeKind.ON_REPLACE :
+                ScopeKind.ON_INVALIDATE);
+	    super.visitOnReplace(tree);
+	    endScope();
+	}
+
+	@Override
+	public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+	    beginScope(ScopeKind.KEYFRAME_LIT);
+	    super.visitKeyFrameLiteral(tree);
+	    endScope();
+	}
+
+	@Override
+	public void visitInterpolateValue(JFXInterpolateValue tree) {
+	    beginScope(ScopeKind.INTERPOLATE_VALUE);
+	    super.visitInterpolateValue(tree);
+	    endScope();
+	}
+
+	@Override
+	public void visitInitDefinition(JFXInitDefinition tree) {
+	    beginScope(ScopeKind.FUNCTION_DEF);
+	    super.visitInitDefinition(tree);
+	    endScope();
+	}
+
+	@Override
+	public void visitPostInitDefinition(JFXPostInitDefinition tree) {
+	    beginScope(ScopeKind.FUNCTION_DEF);
+	    super.visitPostInitDefinition(tree);
+	    endScope();
+	}
+
+	@Override
+	public void visitBlockExpression(JFXBlock tree) {
+            beginScope(ScopeKind.BLOCK_EXPR);
+	    addVars(tree.stats);
+	    addVar(tree.value);
+	    super.visitBlockExpression(tree);
+            endScope();
+	}
+
+        @Override
+	public void visitVar(JFXVar tree) {
+	    if (tree.getSymbol() != null) {
+                beginScope(ScopeKind.VAR_DEF);
+                currentScope().currentVar = tree.getSymbol();
+                super.scan(tree.getInitializer());
+                removeVar(tree.getSymbol());
+                super.scan(tree.getOnReplace());
+                super.scan(tree.getOnInvalidate());
                 endScope();
-            }
+	    }
+	}
 
-            @Override
-            public void visitInterpolateValue(JFXInterpolateValue tree) {
-                beginScope();
-                super.visitInterpolateValue(tree);
+	@Override
+	public void visitAssign(JFXAssign tree) {
+	    Symbol s = JavafxTreeInfo.symbolFor(tree.lhs);
+	    JavafxVarSymbol vsym = (s != null && s.kind == VAR) ?
+		(JavafxVarSymbol)s : null;
+	    if (vsym != null) {
+                beginScope(ScopeKind.ASSIGN_CTX);
+                scan(tree.lhs);
                 endScope();
-            }
-
-            @Override
-            public void visitInitDefinition(JFXInitDefinition tree) {
-                beginScope();
-                super.visitInitDefinition(tree);
-                endScope();
-            }
-
-            @Override
-            public void visitPostInitDefinition(JFXPostInitDefinition tree) {
-                beginScope();
-                super.visitPostInitDefinition(tree);
-                endScope();
-            }
-
-            @Override
-            public void visitBlockExpression(JFXBlock tree) {
-                addVars(tree.stats);
-                addVar(tree.value);
-                super.visitBlockExpression(tree);
-            }
-
-            @Override
-            public void visitIdent(JFXIdent tree) {                
-                checkForwardReference(tree, tree.sym);
-            }
-
-            @Override
-            public void visitSelect(JFXSelect tree) {
-                Symbol selectedSym = JavafxTreeInfo.symbolFor(tree.selected);
-                boolean shouldWarn = false;
-                if (selectedSym != null) {
-                    if (selectedSym.kind == TYP) {
-                        shouldWarn = true;
-                    }
-                    if (selectedSym.kind == VAR) {
-                        if (selectedSym.name == names._this ||
-                                selectedSym.name == names._super) {
-                            shouldWarn = true;
-                        }
-                    }
-                    if (shouldWarn) {
-                        checkForwardReference(tree, tree.sym);
-                    }
-                }
-
-                super.visitSelect(tree);
-            }
-
-            @Override
-            public void visitVarInit(JFXVarInit tree) {
-                currentScope().uninited_vars.remove(tree.getSymbol());
-            }
-
-            @Override
-            public void visitVar(JFXVar tree) {
-                if (tree.getSymbol() != null) {
-                    boolean prevIsStatic = currentScope().isStatic;
-                    try {
-                        currentScope().isStatic = tree.getSymbol().isStatic();
-                        super.scan(tree.getInitializer());
-			currentScope().uninited_vars.remove(tree.getSymbol());
-			super.scan(tree.getOnReplace());
-			super.scan(tree.getOnInvalidate());
-                    }
-                    finally {
-                        currentScope().isStatic = prevIsStatic;
-                    }
-                }
-            }
-
-            @Override
-            public void visitAssign(JFXAssign tree) {
-                Symbol s = JavafxTreeInfo.symbolFor(tree.lhs);
-                JavafxVarSymbol vsym = (s != null && s.kind == VAR) ?
-                    (JavafxVarSymbol)s : null;
-                if (vsym != null) {
-                    currentScope().forward_set_vars.add(vsym);
-                }
+                scan(tree.rhs);
+	    }
+            else {
                 super.visitAssign(tree);
-                if (vsym != null) {
-                    currentScope().forward_set_vars.remove(vsym);
-                }
             }
+	}
 
-            @Override
-            public void visitOverrideClassVar(JFXOverrideClassVar tree) {
-                if (tree.getSymbol() != null) {
-                    int prevOverrideVarIdx = currentScope().overrideVarIdx;
-                    try {
-                        currentScope().overrideVarIdx = tree.getSymbol().getAbsoluteIndex(enclClass.type);
-                        scan(tree.getInitializer());
-			currentScope().overrideVarIdx = warnOnTriggers ?
-			    currentScope().overrideVarIdx++ :
-			    prevOverrideVarIdx;
-			super.scan(tree.getOnReplace());
-			super.scan(tree.getOnInvalidate());
-                    }
-                    finally {
-                        currentScope().overrideVarIdx = prevOverrideVarIdx;
-                    }
-                }
-            }
+	@Override
+	public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+	    if (tree.getSymbol() != null) {
+                beginScope(ScopeKind.VAR_DEF);
+		currentScope().overrideVarIdx =
+                        tree.getSymbol().getAbsoluteIndex(enclClass.type);
+                currentScope().currentVar = tree.getSymbol();
+                scan(tree.getInitializer());
+                currentScope().overrideVarIdx++;
+                super.scan(tree.getOnReplace());
+                super.scan(tree.getOnInvalidate());
+		endScope();
+	    }
+	}
 
-            private void checkForwardReference(JFXExpression tree, Symbol s) {
-                if (s != null && s instanceof JavafxVarSymbol) {
-                    JavafxVarSymbol vsym = (JavafxVarSymbol)s;
-                    if (!tree.isBound() &&
-                            vsym.name != names._this &&
-                            vsym.name != names._super &&
-                            !currentScope().forward_set_vars.contains(vsym) &&
-                            currentScope().isStatic == vsym.isStatic() &&
-                            (currentScope().uninited_vars.contains(s) ||
-                            (currentScope().overrideVarIdx <= vsym.getAbsoluteIndex(enclClass.type) &&
-                            enclClass.isSubClass(s.owner, types)))) {
-                        reportForwardReference(tree, s);
-                    }
-                }
-            }
+	@Override
+	public void visitIdent(JFXIdent tree) {
+	    checkForwardReference(tree, tree.sym);
+	}
 
-            private void beginScope() {
-                beginScope(false);
-            }
-
-            private void beginScope(boolean staticScope) {
-                scopes = scopes.prepend(new VarScope(staticScope));
-            }
-
-            private void endScope() {
-                scopes = scopes.tail;
-            }
-
-            private VarScope currentScope() {
-                return scopes.head;
-            }
-
-            private void addVars(List<? extends JFXTree> trees) {
-                for (JFXTree t : trees) {
-                    addVar(t);
-                }
-            }
-
-            private void addVar(JFXTree tree) {
-                if (tree != null) {
-                    JavafxVarSymbol sym = null;
-                    switch (tree.getFXTag()) {
-                        case VAR_DEF: sym = ((JFXVar)tree).getSymbol(); break;
-                        case VAR_SCRIPT_INIT: sym = ((JFXVarInit)tree).getSymbol(); break;
-                    }
-                    if (sym != null) {
-                        currentScope().uninited_vars.add(sym);
-                    }
-                }
-            }
-
-	    private void reportForwardReference(DiagnosticPosition pos, Symbol s) {
-		if (optionalKind) {
-		    log.warning(pos,
-			    MsgSym.MESSAGE_MAYBE_FORWARD_REF,
-			    rs.kindName(VAR),
-			    s);
+	@Override
+	public void visitSelect(JFXSelect tree) {
+	    Symbol selectedSym = JavafxTreeInfo.symbolFor(tree.selected);
+	    boolean shouldCheck = false;
+	    if (selectedSym != null) {
+		if (selectedSym.kind == TYP) {
+		    shouldCheck = true;
 		}
-		else if (warnOnly) {
-		    log.warning(pos,
-			    MsgSym.MESSAGE_ILLEGAL_FORWARD_REF,
-			    rs.kindName(VAR),
-			    s);
+		if (selectedSym.kind == VAR) {
+		    if (selectedSym.name == names._this ||
+			    selectedSym.name == names._super) {
+			shouldCheck = true;
+		    }
 		}
-		else {
-		    log.error(pos,
-			    MsgSym.MESSAGE_ILLEGAL_FORWARD_REF,
-			    rs.kindName(VAR),
-			    s);
+		if (shouldCheck) {
+		    checkForwardReference(tree, tree.sym);
 		}
 	    }
+
+	    super.visitSelect(tree);
+	}
+
+	@Override
+	public void visitVarInit(JFXVarInit tree) {
+	    removeVar(tree.getSymbol());
+	}
+
+	private void checkForwardReference(JFXExpression tree, Symbol s) {
+            checkForwardReference(currentScope(), tree, s, false);
         }
-        new ForwardReferenceChecker().scan(tree);
+
+	private void checkForwardReference(VarScope scope, JFXExpression tree, Symbol s, boolean potential) {
+	    if ((!tree.isBound() || optFwdRefKinds.contains(ScopeKind.BOUND_CTX)) &&
+                    s != null && s instanceof JavafxVarSymbol) {
+		JavafxVarSymbol vsym = (JavafxVarSymbol)s;
+		if (scope.currentVar == s) {
+                    reportForwardReference(tree, true, vsym, tree.isBound() || potential);
+                }
+                else if (vsym.name != names._this &&
+			vsym.name != names._super &&
+			(isForwardReferenceInSameClass(scope, vsym) ||
+                        isForwardReferenceInSubclass(scope, vsym))) {
+		    reportForwardReference(tree, false, vsym, tree.isBound() || potential);
+		}
+                else if (isTransparent(scope.kind) || isPotential(scope.kind)) {
+                    checkForwardReference(scope.prevScope, tree, s, potential || isPotential(scope.kind));
+                }
+	    }
+	}
+        //where
+        private boolean isForwardReferenceInSameClass(VarScope scope, JavafxVarSymbol vsym) {
+            return scope.uninited_vars.contains(vsym);
+        }
+        //where
+        private boolean isForwardReferenceInSubclass(VarScope scope, JavafxVarSymbol vsym) {
+            int refIdx = vsym.getAbsoluteIndex(enclClass.type);
+            return scope.overrideVarIdx <= refIdx &&
+                    enclClass.isSubClass(vsym.owner, types);
+        }
+
+	private void beginScope(ScopeKind kind) {
+	    VarScope prevScope = currentScope();
+	    VarScope newScope = isTransparent(kind) || isPotential(kind) ?
+		new VarScope(kind, prevScope) :
+		new VarScope(kind);
+            scopes = scopes.prepend(newScope);
+	}
+
+	private void endScope() {
+	    scopes = scopes.tail;
+	}
+
+	protected VarScope currentScope() {
+	    return scopes.head;
+	}
+
+        private void removeVar(JavafxVarSymbol vsym) {
+            VarScope scope = currentScope();
+            while (scope != null) {
+                scope.uninited_vars.remove(vsym);
+                scope = scope.prevScope;
+            }
+        }
+
+	private void addVars(List<? extends JFXTree> trees) {
+	    for (JFXTree t : trees) {
+		addVar(t);
+	    }
+	}
+
+	private void addVar(JFXTree tree) {
+	    if (tree != null) {
+		JavafxVarSymbol sym = null;
+		switch (tree.getFXTag()) {
+		    case VAR_DEF: sym = ((JFXVar)tree).getSymbol(); break;
+		    case VAR_SCRIPT_INIT: sym = ((JFXVarInit)tree).getSymbol(); break;
+		}
+		if (sym != null) {
+		    currentScope().uninited_vars.add(sym);
+		}
+	    }
+	}
+
+        private boolean isPotential(ScopeKind kind) {
+            return optFwdRefKinds.contains(kind) &&
+                    kind != ScopeKind.CLASS &&
+                    kind != ScopeKind.FUNCTION_DEF &&
+                    kind != ScopeKind.VAR_DEF &&
+                    kind != ScopeKind.BLOCK_EXPR;
+        }
+
+        private boolean isTransparent(ScopeKind kind) {
+            return kind == ScopeKind.VAR_DEF ||
+                    kind == ScopeKind.BLOCK_EXPR;
+        }
+
+	protected abstract void reportForwardReference(DiagnosticPosition pos, boolean selfReference, Symbol s, boolean potential);
+    }
+
+    private List<ForwardReferenceChecker.ScopeKind> getForwardRefKinds() {
+	String s = options.get("fwdRefOpt");
+	List<ForwardReferenceChecker.ScopeKind> kinds = List.nil();
+	if (s == null) {
+	    return kinds;
+	}
+	if (s.contains("objlit")) {
+	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.OBJ_LIT);
+	}
+	if (s.contains("bind")) {
+	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.BOUND_CTX);
+	}
+	if (s.contains("interpolate")) {
+	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.INTERPOLATE_VALUE);
+	}
+	if (s.contains("keyframe")) {
+	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.KEYFRAME_LIT);
+	}
+	if (s.contains("lambda")) {
+	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.FUNCTION_VALUE);
+	}
+        if (s.contains("assign")) {
+	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.ASSIGN_CTX);
+	}
+	if (s.contains("onreplace") || s.contains("trigger")) {
+	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.ON_REPLACE);
+	}
+	if (s.contains("oninvalidate") || s.contains("trigger")) {
+	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.ON_INVALIDATE);
+	}
+	return kinds;
     }
 }

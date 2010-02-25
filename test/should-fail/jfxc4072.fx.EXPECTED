@@ -1,97 +1,97 @@
-test/should-fail/jfxc4072.fx:8: warning: Forward reference: variable b is not initialized.
+test/should-fail/jfxc4072.fx:8: warning: Illegal forward reference: variable b is not initialized.
    var a:Integer = b; //warn
                    ^
-test/should-fail/jfxc4072.fx:9: warning: Forward reference: variable c is not initialized.
+test/should-fail/jfxc4072.fx:9: warning: Illegal forward reference: variable c is not initialized.
    var b:Integer = this.c; //warn
                        ^
-test/should-fail/jfxc4072.fx:10: warning: Forward reference: variable d is not initialized.
+test/should-fail/jfxc4072.fx:10: warning: Illegal forward reference: variable d is not initialized.
    var c:Integer = A.d; //warn
                     ^
-test/should-fail/jfxc4072.fx:11: warning: Forward reference: variable e is not initialized.
+test/should-fail/jfxc4072.fx:11: warning: Illegal forward reference: variable e is not initialized.
    var d:Integer = jfxc4072.A.e; //warn
                              ^
-test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable i is not initialized.
+test/should-fail/jfxc4072.fx:15: warning: Illegal forward reference: variable i is not initialized.
    var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
                      ^
-test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable i is not initialized.
+test/should-fail/jfxc4072.fx:15: warning: Illegal forward reference: variable i is not initialized.
    var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
                             ^
-test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable i is not initialized.
+test/should-fail/jfxc4072.fx:15: warning: Illegal forward reference: variable i is not initialized.
    var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
                                  ^
-test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable i is not initialized.
+test/should-fail/jfxc4072.fx:15: warning: Illegal forward reference: variable i is not initialized.
    var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
                                                ^
-test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable h is not initialized.
+test/should-fail/jfxc4072.fx:15: warning: Illegal self reference: variable h is not initialized.
    var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
                                                    ^
-test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable h is not initialized.
+test/should-fail/jfxc4072.fx:15: warning: Illegal self reference: variable h is not initialized.
    var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
                                                           ^
-test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable h is not initialized.
+test/should-fail/jfxc4072.fx:15: warning: Illegal self reference: variable h is not initialized.
    var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
                                                                ^
-test/should-fail/jfxc4072.fx:15: warning: Forward reference: variable h is not initialized.
+test/should-fail/jfxc4072.fx:15: warning: Illegal self reference: variable h is not initialized.
    var h:Integer = { i; this.i; A.i; jfxc4072.A.i; h; this.h; A.h; jfxc4072.A.h; } //warn
                                                                              ^
-test/should-fail/jfxc4072.fx:18: warning: Forward reference: variable m is not initialized.
+test/should-fail/jfxc4072.fx:18: warning: Illegal self reference: variable m is not initialized.
    var m:Integer = m; //warn
                    ^
-test/should-fail/jfxc4072.fx:19: warning: Forward reference: variable n is not initialized.
+test/should-fail/jfxc4072.fx:19: warning: Illegal self reference: variable n is not initialized.
    var n:Integer = this.n; //warn
                        ^
-test/should-fail/jfxc4072.fx:20: warning: Forward reference: variable o is not initialized.
+test/should-fail/jfxc4072.fx:20: warning: Illegal self reference: variable o is not initialized.
    var o:Integer = A.o; //warn
                     ^
-test/should-fail/jfxc4072.fx:21: warning: Forward reference: variable p is not initialized.
+test/should-fail/jfxc4072.fx:21: warning: Illegal self reference: variable p is not initialized.
    var p:Integer = jfxc4072.A.p; //warn
                              ^
-test/should-fail/jfxc4072.fx:24: warning: Forward reference: variable b1 is not initialized.
+test/should-fail/jfxc4072.fx:24: warning: Illegal forward reference: variable b1 is not initialized.
       var a1:Integer = b1; //warn
                        ^
-test/should-fail/jfxc4072.fx:28: warning: Forward reference: variable f1 is not initialized.
+test/should-fail/jfxc4072.fx:28: warning: Illegal forward reference: variable f1 is not initialized.
       var e1:Integer = { f1; e1; 1 } //warn
                          ^
-test/should-fail/jfxc4072.fx:28: warning: Forward reference: variable e1 is not initialized.
+test/should-fail/jfxc4072.fx:28: warning: Illegal self reference: variable e1 is not initialized.
       var e1:Integer = { f1; e1; 1 } //warn
                              ^
-test/should-fail/jfxc4072.fx:31: warning: Forward reference: variable h1 is not initialized.
+test/should-fail/jfxc4072.fx:31: warning: Illegal self reference: variable h1 is not initialized.
       var h1:Integer = h1; //warn
                        ^
-test/should-fail/jfxc4072.fx:35: warning: Forward reference: variable b is not initialized.
+test/should-fail/jfxc4072.fx:35: warning: Illegal forward reference: variable b is not initialized.
 var a:Integer = b; //warn
                 ^
-test/should-fail/jfxc4072.fx:36: warning: Forward reference: variable c is not initialized.
+test/should-fail/jfxc4072.fx:36: warning: Illegal forward reference: variable c is not initialized.
 var b:Integer = jfxc4072.c; //warn
                         ^
-test/should-fail/jfxc4072.fx:40: warning: Forward reference: variable g is not initialized.
+test/should-fail/jfxc4072.fx:40: warning: Illegal forward reference: variable g is not initialized.
 var f:Integer = { g; jfxc4072.g; f; jfxc4072.f; 1}; //warn
                   ^
-test/should-fail/jfxc4072.fx:40: warning: Forward reference: variable g is not initialized.
+test/should-fail/jfxc4072.fx:40: warning: Illegal forward reference: variable g is not initialized.
 var f:Integer = { g; jfxc4072.g; f; jfxc4072.f; 1}; //warn
                              ^
-test/should-fail/jfxc4072.fx:40: warning: Forward reference: variable f is not initialized.
+test/should-fail/jfxc4072.fx:40: warning: Illegal self reference: variable f is not initialized.
 var f:Integer = { g; jfxc4072.g; f; jfxc4072.f; 1}; //warn
                                  ^
-test/should-fail/jfxc4072.fx:40: warning: Forward reference: variable f is not initialized.
+test/should-fail/jfxc4072.fx:40: warning: Illegal self reference: variable f is not initialized.
 var f:Integer = { g; jfxc4072.g; f; jfxc4072.f; 1}; //warn
                                             ^
-test/should-fail/jfxc4072.fx:43: warning: Forward reference: variable i is not initialized.
+test/should-fail/jfxc4072.fx:43: warning: Illegal self reference: variable i is not initialized.
 var i:Integer = i; //warn
                 ^
-test/should-fail/jfxc4072.fx:44: warning: Forward reference: variable j is not initialized.
+test/should-fail/jfxc4072.fx:44: warning: Illegal self reference: variable j is not initialized.
 var j:Integer = jfxc4072.j; //warn
                         ^
-test/should-fail/jfxc4072.fx:47: warning: Forward reference: variable b1 is not initialized.
+test/should-fail/jfxc4072.fx:47: warning: Illegal forward reference: variable b1 is not initialized.
    var a1:Integer = b1; //warn
                     ^
-test/should-fail/jfxc4072.fx:51: warning: Forward reference: variable f1 is not initialized.
+test/should-fail/jfxc4072.fx:51: warning: Illegal forward reference: variable f1 is not initialized.
    var e1:Integer = { f1; e1 } //warn
                       ^
-test/should-fail/jfxc4072.fx:51: warning: Forward reference: variable e1 is not initialized.
+test/should-fail/jfxc4072.fx:51: warning: Illegal self reference: variable e1 is not initialized.
    var e1:Integer = { f1; e1 } //warn
                           ^
-test/should-fail/jfxc4072.fx:54: warning: Forward reference: variable h1 is not initialized.
+test/should-fail/jfxc4072.fx:54: warning: Illegal self reference: variable h1 is not initialized.
    var h1:Integer = h1; //warn
                     ^
 32 warnings
