@@ -102,15 +102,17 @@ import com.sun.javafx.runtime.sequence.Sequences;
  */
  public class FXBase implements FXObject {
     // First class count.
+    public int count$() { return 0; }
+    public static int count$(FXObject obj) { return 0; }
+    
     private static final int VCNT$ = 0;
-    public int count$() { return VCNT$(); }
-    public static int VCNT$() { return VCNT$; }
+    public static int VCNT$() { return 0; }
 
     private static final int DCNT$ = 0;
-    public static int DCNT$() { return DCNT$; }
+    public static int DCNT$() { return 0; }
 
     private static final int FCNT$ = 0;
-    public static int FCNT$() { return FCNT$; }
+    public static int FCNT$() { return 0; }
 
     public int getFlags$(final int varNum) {
         return varChangeBits$(varNum, 0, 0);

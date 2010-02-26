@@ -155,6 +155,10 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitVarInit(JFXVarInit tree) {
+        Symbol sym = tree.getVar().sym;
+        if (sym instanceof JavafxVarSymbol) {
+            ((JavafxVarSymbol)sym).setHasVarInit();
+        }
     }
 
     private void scanVar(JFXAbstractVar tree) {

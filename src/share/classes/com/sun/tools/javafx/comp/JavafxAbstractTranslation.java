@@ -2831,17 +2831,19 @@ public abstract class JavafxAbstractTranslation
 
         void makeSetVarFlags(Name receiverName, Type contextType) {
             for (JavafxVarSymbol vsym : varSyms) {
-                Name objLitFlag = vsym.isSequence() ?
-                    defs.varFlagINIT_OBJ_LIT_SEQUENCE :
-                    defs.varFlagINIT_OBJ_LIT;
-                JCExpression flagsToSet = id(objLitFlag);
-
-                addPreface(CallStmt(
-                        id(receiverName),
-                        defs.varFlagActionChange,
-                        Offset(id(receiverName), vsym),
-                        id(defs.varFlagALL_FLAGS),
-                        flagsToSet));
+                if (vsym.useAccessors()) {
+                    Name objLitFlag = vsym.isSequence() ?
+                        defs.varFlagINIT_OBJ_LIT_SEQUENCE :
+                        defs.varFlagINIT_OBJ_LIT;
+                    JCExpression flagsToSet = id(objLitFlag);
+    
+                    addPreface(CallStmt(
+                            id(receiverName),
+                            defs.varFlagActionChange,
+                            Offset(id(receiverName), vsym),
+                            id(defs.varFlagALL_FLAGS),
+                            flagsToSet));
+                }
             }
         }
 

@@ -320,6 +320,12 @@ class JavafxAnalyzeClass {
         // Class local enumeration accessors.
         public int  getEnumeration()                { return enumeration; }
         public void setEnumeration(int enumeration) { this.enumeration = enumeration; }
+        public boolean hasEnumeration()             { return enumeration != -1; }
+        public boolean needsEnumeration() {
+            return !isOverride() &&
+                   needsCloning() &&
+                   sym.needsEnumeration();
+        }
 
         // null or javafx tree for the var's 'on replace'.
         public JFXOnReplace onReplace() { return null; }
@@ -981,14 +987,14 @@ class JavafxAnalyzeClass {
 
         // Assign var enumeration and binders.
         for (VarInfo ai : classVarInfos) {
-            if (ai.needsCloning() && !ai.isOverride()) {
+            if (ai.needsEnumeration()) {
                 ai.setEnumeration(classVarCount++);
             }
            
             addBinders(ai);
         }
         for (VarInfo ai : scriptVarInfos) {
-           if (ai.needsCloning() && !ai.isOverride()) {
+           if (ai.needsEnumeration()) {
                ai.setEnumeration(scriptVarCount++);
            }
            

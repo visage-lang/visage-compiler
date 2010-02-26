@@ -1287,6 +1287,8 @@ however this is what we need */
             protected List<VarInfo> attrInfos;
             // Total count of attributes.
             protected int varCount;
+            // True if overrides should be included.
+            protected boolean allowOverides;
             // Current attribute.
             protected VarInfo varInfo;
             // Symbol used on the method.
@@ -1304,6 +1306,7 @@ however this is what we need */
                 super(methodName, returnType);
                 this.attrInfos = attrInfos;
                 this.varCount = varCount;
+                allowOverides = false;
                 addParam(varNumArg());
             }
             
@@ -1322,32 +1325,34 @@ however this is what we need */
                     
                     // Constrain the var.
                     if (ai.needsCloning() && !ai.isBareSynth()) {
-                        // Construct the case.
-                        beginBlock();
-                        
-                        // Generate statements.
+                        // Prepare for the var.
                         this.varInfo = ai;
                         this.varSym = ai.getSymbol();
                         this.proxyVarSym = ai.proxyVarSym();
                         this.isSequence = ai.isSequence();
                         this.type = ai.getRealType();
                         this.elementType = isSequence ? ai.getElementType() : null;
-                        statements();
                         
-                        if (!stmts.isEmpty()) {
-                            if (!isMixinClass() && ai.getEnumeration() != -1) {
+                        // Construct the case.
+                        beginBlock();
+                        statements();
+                        List<JCStatement> caseStmts = endBlockAsList();
+                        
+                        if (!caseStmts.isEmpty()) {
+                            if (isMixinClass()) {
+                                // Test to see if it's the correct var.
+                                ifStmt = OptIf(EQ(Offset(ai.getSymbol()), varNumArg()), Block(caseStmts), ifStmt);
+                            } else if (ai.hasEnumeration()) {
                                 // case tag number
                                 JCExpression tag = Int(analysis.isFirstTier() ? ai.getEnumeration() :
                                                                                (ai.getEnumeration() - varCount));
                                 // Add the case, something like:
                                 // case i: statement;
-                                cases.append(m().Case(tag, endBlockAsList()));
-                            } else {
+                                cases.append(m().Case(tag, caseStmts));
+                            } else if (allowOverides && varInfo.isOverride()) {
                                 // Test to see if it's the correct var.
-                                ifStmt = OptIf(EQ(Offset(ai.getSymbol()), varNumArg()), endBlock(), ifStmt);
+                                ifStmt = OptIf(EQ(Offset(ai.getSymbol()), varNumArg()), Block(caseStmts), ifStmt);
                             }
-                        } else {
-                            endBlock();
                         }
                     }
                 }
@@ -1355,9 +1360,6 @@ however this is what we need */
                 // Reset diagnostic position to current class.
                 resetDiagPos();
         
-                // Add ifs if present.
-                addStmt(ifStmt);
-                    
                 // Add statement if there were some cases.
                 if (cases.nonEmpty()) { 
                     // Add if as default case.
@@ -2620,11 +2622,47 @@ however this is what we need */
                 }
             }
         }
+        
+        // Returns true if VCNT$ is needed.
+        public boolean needsVCNT$() {
+            boolean hasVars = (isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount()) != 0;
+            boolean hasJavaSuperClass = analysis.getFXSuperClassSym() == null;
+            boolean hasMixins = !isScript() && !isMixinClass() && !analysis.getImmediateMixins().isEmpty();
+            
+            return hasVars || hasJavaSuperClass || hasMixins || isMixinClass();
+        }
+
+        // Returns true if DCNT$ is needed.
+        public boolean needsDCNT$() {
+            HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap =
+                isScript() ? analysis.getScriptUpdateMap() : analysis.getClassUpdateMap();
+            List<VarInfo> varInfos = isScript() ? analysis.scriptVarInfos() : analysis.classVarInfos();
+            HashMap<Name, Integer> depMap = getDepMap(varInfos, updateMap);
+
+            boolean hasDeps = !getDepMap(varInfos, updateMap).isEmpty();
+            boolean hasJavaSuperClass = analysis.getFXSuperClassSym() == null;
+            boolean hasMixins = !isScript() && !isMixinClass() && !analysis.getImmediateMixins().isEmpty();
+            
+            return hasDeps || hasJavaSuperClass || hasMixins || isMixinClass();
+        }
+        
+        // Returns true if FCNT$ is needed.
+        public boolean needsFCNT$() {
+            List<JCTree> invokeCases = getCurrentClassDecl().invokeCases(isScript());
+            
+            boolean hasFuncs = !invokeCases.isEmpty();
+            boolean hasJavaSuperClass = analysis.getFXSuperClassSym() == null;
+            boolean hasMixins = !isScript() && !isMixinClass() && !analysis.getImmediateMixins().isEmpty();
+            
+            return hasFuncs || hasJavaSuperClass || hasMixins || isMixinClass();
+        }
 
         //
         // This method generates an enumeration for each of the class's instance attributes.
         //
         public void makeAttributeNumbers(List<VarInfo> attrInfos, int varCount) {
+            if (!needsVCNT$()) return;
+        
             // Reset diagnostic position to current class.
             resetDiagPos();
 
@@ -2641,7 +2679,7 @@ however this is what we need */
             // Accumulate variable numbering.
             for (VarInfo ai : attrInfos) {
                 // Only variables actually declared.
-                if (ai.needsCloning() && !ai.isOverride()) {
+                if (ai.hasEnumeration()) {
                     // Set diagnostic position for attribute.
                     setDiagPos(ai.pos());
 
@@ -2663,7 +2701,7 @@ however this is what we need */
             // Define attribute flags.
             for (VarInfo ai : attrInfos) {
                 // Only variables actually declared.
-                if (ai.needsCloning()) {
+                if (ai.hasEnumeration()) {
                     // Set diagnostic position for attribute.
                     setDiagPos(ai.pos());
                     
@@ -2725,7 +2763,7 @@ however this is what we need */
             
                         for (VarInfo ai : attrInfos) {
                             // Only variables actually declared.
-                            if (ai.needsCloning() && !ai.isOverride()) {
+                            if (ai.hasEnumeration()) {
                                 // Set diagnostic position for attribute.
                                 setDiagPos(ai.pos());
                                 // Offset var name.
@@ -2758,13 +2796,6 @@ however this is what we need */
             MethodBuilder smb = new MethodBuilder(defs.count_FXObjectMethodName, syms.intType) {
                 @Override
                 public void statements() {
-                    if (!analysis.isFirstTierNoMixins()) {
-                        // Construct and add: DCNT$();
-                        addStmt(CallStmt(defs.depCount_FXObjectFieldName));
-                        // Construct and add: FCNT$();
-                        addStmt(CallStmt(defs.funcCount_FXObjectFieldName));
-                    }
-                    
                     if (analysis.isFirstTier()) {
                         // Construct and add: return n;
                         addStmt(Return(Int(varCount)));
@@ -2925,7 +2956,7 @@ however this is what we need */
             makeInitVarsMethod(varInfos, updateMap);
             makeDependencyNumbers(useConstants, depMap, mixinClasses);
             makeFunctionNumbers(useConstants, invokeCases, mixinClasses);
-            
+             
             if (useMixins) {
                 makeNeededMixinDCNT$(mixinClasses);
                 makeNeededMixinFCNT$(mixinClasses);
@@ -2949,102 +2980,48 @@ however this is what we need */
         // This method constructs the current class's applyDefaults$ method.
         //
         public void makeApplyDefaultsMethod(final List<VarInfo> attrInfos, final int count) {
-            MethodBuilder vcmb = new MethodBuilder(defs.applyDefaults_FXObjectMethodName, syms.voidType) {
+            MethodBuilder vcmb = new VarCaseMethodBuilder(defs.applyDefaults_FXObjectMethodName, syms.voidType,
+                                                          attrInfos, count) {
                 @Override
                 public void initialize() {
-                    addParam(varNumArg());
+                    allowOverides = true;
                 }
-                
+
                 @Override
                 public void statements() {
-                    // Start outer if block.
-                    beginBlock();
-                    
-                    // Prepare to accumulate cases.
-                    ListBuffer<JCCase> cases = ListBuffer.lb();
-                    // Prepare to accumulate ifs.
-                    JCStatement ifStmt = null;
-                    
-                    // Iterate thru each var.
-                    for (VarInfo varInfo : attrInfos) {
-                        // Set to the var position.
-                        setDiagPos(varInfo.pos());
+                    // Constrain the var.
+                    if (varInfo.needsCloning() &&
+                        !varInfo.isBareSynth() &&
+                        !useSimpleInit(varInfo) &&
+                         (!varInfo.isOverride() || varInfo.hasInitializer() || varInfo instanceof MixinClassVarInfo)) {
+                        if (varInfo instanceof MixinClassVarInfo && !varInfo.hasInitializer()) {
+                            // Call the appropriate mixin owner.
+                            callMixin((ClassSymbol)varInfo.getSymbol().owner);
+                        } else {
+                            // Set initialized flag if need be.
+                            if (!varInfo.useAccessors() && !varInfo.hasInitializer()) {
+                                addStmt(FlagChangeStmt(varInfo.proxyVarSym(), defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                            }
                         
-                        // Constrain the var.
-                        if (varInfo.needsCloning() &&
-                            !varInfo.isBareSynth() &&
-                            !useSimpleInit(varInfo) &&
-                             (!varInfo.isOverride() || varInfo.hasInitializer() || varInfo instanceof MixinClassVarInfo)) {
-                            // Construct the case.
-                            beginBlock();
-
-                            if (varInfo instanceof MixinClassVarInfo && !varInfo.hasInitializer()) {
-                                // Call the appropriate mixin owner.
-                                callMixin((ClassSymbol)varInfo.getSymbol().owner);
-                            } else {
-                                // Set initialized flag if need be.
-                                if (!varInfo.useAccessors() && !varInfo.hasInitializer()) {
-                                    addStmt(FlagChangeStmt(varInfo.proxyVarSym(), defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
-                                }
-                            
-                                // Get body of applyDefaults$.
-                                addStmt(getDefaultInitStatement(varInfo));
-                            }
-                            
-                            if (!stmts.isEmpty()) {
-                                // return
-                                addStmt(Return(null));
-                                
-                                if (!isMixinClass() && varInfo.getEnumeration() != -1) {
-                                    // case tag number
-                                    JCExpression tag = Int(analysis.isFirstTier() ? varInfo.getEnumeration() :
-                                                                                    (varInfo.getEnumeration() - count));
-            
-                                    // Add the case, something like:
-                                    // case i: statement;
-                                    cases.append(m().Case(tag, endBlockAsList()));
-                                } else {
-                                    // Test to see if it's the correct var.
-                                    ifStmt = OptIf(EQ(Offset(varInfo.getSymbol()), varNumArg()), endBlock(), ifStmt);
-                                }
-                            } else {
-                                endBlock();
-                            }
-                            
+                            // Get body of applyDefaults$.
+                            addStmt(getDefaultInitStatement(varInfo));
+                        }
+                        
+                        if (!stmts.isEmpty()) {
+                            addStmt(Return(null));
                         }
                     }
-                    
-                    // Reset diagnostic position to current class.
-                    resetDiagPos();
-            
-                    // Set up for supers block.
+                }
+     
+                // Specialized body that wraps the case body.
+                @Override
+                public void body() {
+                    // Start inner block.
                     beginBlock();
-                
-                    // Add ifs if present.
-                    addStmt(ifStmt);
-                        
-                    // Add statement if there were some cases.
-                    if (cases.nonEmpty()) {
-                        // Add the block as 
-                        cases.append(m().Case(null, endBlockAsList()));
                     
-                        // varNum - VCNT$
-                        JCExpression tagExpr = analysis.isFirstTier() ? varNumArg() : MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
-                        // Construct and add: switch(varNum - VCNT$) { ... }
-                        addStmt(m().Switch(tagExpr, cases.toList()));
-                    } else {
-                        // No switch just rest.
-                        addStmts(endBlockAsList());
-                    }
+                    // Fill in body.
+                    super.body();
                     
-                    if (stmts.nonEmpty()) {
-                        // Call the super version.
-                        callSuper();
-                    }
-                    
-                    // Control build.
-                    buildIf(stmts.nonEmpty());
-
                     // if (init ready)
                     JCExpression ifExpr = FlagTest(varNumArg(), defs.varFlagINIT_MASK, defs.varFlagINIT_READY);
                     // if (init ready) { body }
@@ -3053,13 +3030,14 @@ however this is what we need */
             };
             
             vcmb.build();
-            
         }
         
         //
         // This method generates an count for the class's function values.
         //
         public void makeFunctionNumbers(final boolean useConstants, List<JCTree> invokeCases, List<ClassSymbol> mixinClasses) {
+            if (!needsFCNT$()) return;
+            
             // Reset diagnostic position to current class.
             resetDiagPos();
 
@@ -3479,6 +3457,8 @@ however this is what we need */
         // This method generates an enumeration for each of the class's dependencies.
         //
         public void makeDependencyNumbers(final boolean useConstants, final HashMap<Name, Integer> depMap, List<ClassSymbol> mixinClasses) {
+            if (!needsDCNT$()) return;
+            
             // Reset diagnostic position to current class.
             resetDiagPos();
 
@@ -3911,8 +3891,7 @@ however this is what we need */
             // Iterate thru each var.
             for (VarInfo varInfo : attrInfos) {
                 // Constrain the var.
-                if (varInfo.needsCloning() &&
-                    !varInfo.isOverride() &&
+                if (varInfo.needsEnumeration() &&
                     !varInfo.isBareSynth() &&
                     varInfo.useAccessors() &&
                     varInfo.generateSequenceAccessors()) {
@@ -4386,10 +4365,22 @@ however this is what we need */
                 else {
                     stmts.append(CallStmt(names._super, resolveThis(outerSuper, false), id(dummyParamName)));
                 }
-            } else {
-                stmts.append(CallStmt(defs.count_FXObjectMethodName));
             }
             
+            if (!analysis.isFirstTierNoMixins()) {
+                if (needsVCNT$()) {
+                    stmts.append(CallStmt(defs.count_FXObjectFieldName));
+                }
+                
+                if (needsDCNT$()) {
+                    stmts.append(CallStmt(defs.depCount_FXObjectFieldName));
+                }
+                
+                if (needsFCNT$()) {
+                    stmts.append(CallStmt(defs.funcCount_FXObjectFieldName));
+                }
+            }
+
             // Update any local flag changes.
             for (VarInfo ai : varInfos) {
                 if (ai.needsCloning() && ai.isOverride()) {
