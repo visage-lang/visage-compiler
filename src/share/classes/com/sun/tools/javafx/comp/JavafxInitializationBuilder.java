@@ -1985,10 +1985,21 @@ however this is what we need */
                         addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
                         
                         // for a bare-synthethic, just return bound-expression
+                        JCExpression returnVal = varInfo.boundInit();
+                        if (varInfo.isInitWithBoundFuncResult()) {
+                            JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, returnVal);
+                            addStmt(newPtrVar);
+
+                            returnVal = If(NEnull(id(newPtrVar)),
+                                    castFromObject(Call(
+                                        id(newPtrVar),
+                                        defs.get_PointerMethodName), varSym.type),
+                                    defaultValue(varInfo));
+                        }
                         addStmt(
                             TryWithErrorHandler(varInfo.hasSafeInitializer(),
                                 varInfo.boundPreface(),
-                                Return(varInfo.boundInit()),
+                                Return(returnVal),
                                 Return(defaultValue(varInfo))));
                     } else {
                         if (isBoundFuncClass && varInfo.isParameter()) {
