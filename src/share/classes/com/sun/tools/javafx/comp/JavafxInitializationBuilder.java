@@ -1406,36 +1406,21 @@ however this is what we need */
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
             JCStatement init = varInfo.getDefaultInitStatement();
+            if (init != null) stmts.append(init);
 
-            // If we need to prime the on replace trigger.
             if ((hasOnReplace || isOverride) && isBound) {
-                JCStatement poke = Stmt(Getter(varSym));
-                if (init != null) {
-                    init = Block(init, poke);
-                } else {
-                    init = poke;
-                }
-            }
-            if (hasOnReplace && (init == null) && !isOverride) {
-                    init =
-                        Block(
-                            FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
-                            CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym))
-                        );
-            }
-            if ((init == null) && varInfo.isSequence() && !isBound && varInfo.useAccessors()) {
-                init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
-            }
-
-            if (needJFXC_4137hack(varInfo)) {
-                 init =
-                        Block(
-                            CallInvalidate(varSym),
-                            CallTrigger(varSym)
-                        );
+                stmts.append(Stmt(Getter(varSym)));
+            } else if (hasOnReplace && (init == null) && !isOverride) {
+                stmts.append(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                stmts.append(CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym)));
+            } else if ((init == null) && varInfo.isSequence() && !isBound && varInfo.useAccessors()) {
+                stmts.append(CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0)));
+            } else if (needJFXC_4137hack(varInfo)) {
+                stmts.append(CallInvalidate(varSym));
+                stmts.append(CallTrigger(varSym));
             }
  
-            return init==null? List.<JCStatement>nil() : List.of(init);
+            return stmts.toList();
         }
 
         //
@@ -1449,29 +1434,19 @@ however this is what we need */
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
             JCStatement init = varInfo.getDefaultInitStatement();
+            if (init != null) stmts.append(init);
 
-            // If we need to prime the on replace trigger.
             if ((hasOnReplace || isOverride) && isBound) {
-                JCStatement poke = CallStmt(attributeSizeName(varSym));
-                if (init != null) {
-                    init = Block(init, poke);
-                } else {
-                    init = poke;
-                }
-            }
-            if (hasOnReplace && (init == null) && !isOverride) {
-                    init =
-                        Block(
-                            FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
-                            CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)),
-                            CallSeqTriggerInitial(varSym, Int(0))
-                        );
-            }
-            if ((init == null) && !isBound && varInfo.useAccessors()) {
-                init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
+                stmts.append(CallStmt(attributeSizeName(varSym)));
+            } else if (hasOnReplace && (init == null) && !isOverride) {
+                stmts.append(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                stmts.append(CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)));
+                stmts.append(CallSeqTriggerInitial(varSym, Int(0)));
+            } else if ((init == null) && !isBound && varInfo.useAccessors()) {
+                stmts.append(CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0)));
             }
 
-            return init==null? List.<JCStatement>nil() : List.of(init);
+            return stmts.toList();
         }
 
         //TODO: hack for JFXC-4137, getDefaultInitStatement method needs rewrite, and initial TRIGGERED state needs to go away
