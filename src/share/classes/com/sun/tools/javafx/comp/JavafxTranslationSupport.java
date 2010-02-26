@@ -1777,11 +1777,17 @@ public abstract class JavafxTranslationSupport {
         }
 
         public JCExpression FuncNum(int number) {
-            if (isMixinClass() && !isScript) {
-                return PLUS(Call(classFCNT$Name(enclosingClassDecl.sym)), Int(number));
+            JCExpression baseExpr;
+            
+            if (isMixinClass() && !isScript()) {
+                baseExpr = Call(classFCNT$Name(enclosingClassDecl.sym));
+            } else if (isScript()) {
+                baseExpr = Select(id(fxmake.ScriptAccessSymbol(enclosingClassDecl.sym).name), defs.funcCount_FXObjectFieldName);
             } else {
-                return PLUS(id(defs.funcCount_FXObjectFieldName), Int(number));
+                baseExpr = id(defs.funcCount_FXObjectFieldName);
             }
+            
+            return PLUS(baseExpr, Int(number));
         }
 
         public JCExpression VarFlags(Symbol sym) {
