@@ -1398,20 +1398,18 @@ however this is what we need */
         //
         // This method returns the default statement for a given var.
         //
-        public JCStatement getDefaultInitStatement(VarInfo varInfo) {
+        public List<JCStatement> getDefaultInitStatement(VarInfo varInfo) {
             JavafxVarSymbol varSym = varInfo.getSymbol();
             boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
             boolean isOverride = varInfo.isOverride();
-            boolean genSequences = varInfo.generateSequenceAccessors();
             boolean isBound = varInfo.hasBoundDefinition();
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
             JCStatement init = varInfo.getDefaultInitStatement();
 
             // If we need to prime the on replace trigger.
             if ((hasOnReplace || isOverride) && isBound) {
-                JCStatement poke = genSequences?
-                    CallStmt(attributeSizeName(varSym)) :
-                    Stmt(Getter(varSym));
+                JCStatement poke = Stmt(Getter(varSym));
                 if (init != null) {
                     init = Block(init, poke);
                 } else {
@@ -1419,20 +1417,11 @@ however this is what we need */
                 }
             }
             if (hasOnReplace && (init == null) && !isOverride) {
-                if (genSequences) {
-                    init =
-                        Block(
-                            FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
-                            CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)),
-                            CallSeqTriggerInitial(varSym, Int(0))
-                        );
-                } else {
                     init =
                         Block(
                             FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
                             CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym))
                         );
-                }
             }
             if ((init == null) && varInfo.isSequence() && !isBound && varInfo.useAccessors()) {
                 init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
@@ -1446,7 +1435,43 @@ however this is what we need */
                         );
             }
  
-            return init;
+            return init==null? List.<JCStatement>nil() : List.of(init);
+        }
+
+        //
+        // This method returns the default statements for a given sequence var.
+        //
+        private List<JCStatement> getSeqDefaultInitStatement(VarInfo varInfo) {
+            JavafxVarSymbol varSym = varInfo.getSymbol();
+            boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
+            boolean isOverride = varInfo.isOverride();
+            boolean isBound = varInfo.hasBoundDefinition();
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+
+            JCStatement init = varInfo.getDefaultInitStatement();
+
+            // If we need to prime the on replace trigger.
+            if ((hasOnReplace || isOverride) && isBound) {
+                JCStatement poke = CallStmt(attributeSizeName(varSym));
+                if (init != null) {
+                    init = Block(init, poke);
+                } else {
+                    init = poke;
+                }
+            }
+            if (hasOnReplace && (init == null) && !isOverride) {
+                    init =
+                        Block(
+                            FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
+                            CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)),
+                            CallSeqTriggerInitial(varSym, Int(0))
+                        );
+            }
+            if ((init == null) && !isBound && varInfo.useAccessors()) {
+                init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
+            }
+
+            return init==null? List.<JCStatement>nil() : List.of(init);
         }
 
         //TODO: hack for JFXC-4137, getDefaultInitStatement method needs rewrite, and initial TRIGGERED state needs to go away
@@ -3004,7 +3029,11 @@ however this is what we need */
                             }
                         
                             // Get body of applyDefaults$.
-                            addStmt(getDefaultInitStatement(varInfo));
+                            if (varInfo.generateSequenceAccessors()) {
+                                addStmts(getSeqDefaultInitStatement(varInfo));
+                            } else {
+                                addStmts(getDefaultInitStatement(varInfo));
+                            }
                         }
                         
                         if (!stmts.isEmpty()) {
