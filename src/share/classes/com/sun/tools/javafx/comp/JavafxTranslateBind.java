@@ -2681,15 +2681,29 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCStatement MarkValid(JavafxVarSymbol sym) {
-            return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID);
+            if (sym.hasFlags()) {
+                return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID);
+            } else {
+                // Block() skips null statements.
+                return null;
+            }
         }
 
         private JCStatement MarkInvalid(JavafxVarSymbol sym) {
-            return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagINVALID_STATE_BIT);
+            if (sym.hasFlags()) {
+                return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagINVALID_STATE_BIT);
+            } else {
+                // Block() skips null statements.
+                return null;
+            }
         }
 
         private JCExpression IsInvalid(JavafxVarSymbol sym) {
-            return FlagTest(sym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT);
+            if (sym.hasFlags()) {
+                return FlagTest(sym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT);
+            } else {
+                return False();
+            }
         }
 
         private JCExpression IsValid(JavafxVarSymbol sym) {
