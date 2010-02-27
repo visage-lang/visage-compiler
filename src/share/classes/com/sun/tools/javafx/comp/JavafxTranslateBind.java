@@ -668,10 +668,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         JCStatement makeSizeBody() {
             ListBuffer<JCStatement> tVarInits = ListBuffer.lb();
-            tVarInits.append(setSequenceActive());
             for (JFXExpression init : varInits) {
                 tVarInits.append(translateToStatement(init, syms.voidType));
             }
+            tVarInits.append(setSequenceActive());
 
             return
                 Block(
