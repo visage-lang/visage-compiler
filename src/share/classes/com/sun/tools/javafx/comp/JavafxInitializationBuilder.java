@@ -1400,21 +1400,27 @@ however this is what we need */
         //
         public List<JCStatement> getDefaultInitStatement(VarInfo varInfo) {
             JavafxVarSymbol varSym = varInfo.getSymbol();
+            JavafxVarSymbol proxyVarSym = varInfo.proxyVarSym();
             boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
             boolean isOverride = varInfo.isOverride();
             boolean isBound = varInfo.hasBoundDefinition();
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
+            // Set initialized flag if need be.
+            if (!varInfo.useAccessors() && !varInfo.hasInitializer()) {
+                stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+            }
+
             JCStatement init = varInfo.getDefaultInitStatement();
-            if (init != null) stmts.append(init);
+            if (init != null) {
+                stmts.append(init);
+            }
 
             if ((hasOnReplace || isOverride) && isBound) {
                 stmts.append(Stmt(Getter(varSym)));
             } else if (hasOnReplace && (init == null) && !isOverride) {
-                stmts.append(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
                 stmts.append(CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym)));
-            } else if ((init == null) && varInfo.isSequence() && !isBound && varInfo.useAccessors()) {
-                stmts.append(CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0)));
             } else if (needJFXC_4137hack(varInfo)) {
                 stmts.append(CallInvalidate(varSym));
                 stmts.append(CallTrigger(varSym));
@@ -1428,18 +1434,36 @@ however this is what we need */
         //
         private List<JCStatement> getSeqDefaultInitStatement(VarInfo varInfo) {
             JavafxVarSymbol varSym = varInfo.getSymbol();
+            JavafxVarSymbol proxyVarSym = varInfo.proxyVarSym();
             boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
             boolean isOverride = varInfo.isOverride();
             boolean isBound = varInfo.hasBoundDefinition();
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            JCStatement init = varInfo.getDefaultInitStatement();
-            if (init != null) stmts.append(init);
+            // Set initialized flag if need be.
+            if (!varInfo.useAccessors() && !varInfo.hasInitializer()) {
+                stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+            }
 
-            if ((hasOnReplace || isOverride) && isBound) {
+            JCStatement init = varInfo.getDefaultInitStatement();
+            if (init != null) {
+                stmts.append(init);
+            }
+
+            if (hasOnReplace && isBound) {
                 stmts.append(CallStmt(attributeSizeName(varSym)));
+            } else if (isOverride && isBound) {
+                stmts.append(
+                        CallStmt(attributeSizeName(varSym))
+/**
+                    If (FlagTest(proxyVarSym, defs.varFlagIS_EAGER, defs.varFlagIS_EAGER),
+                        Block(
+                            CallStmt(attributeSizeName(varSym))
+                        )
+                    )
+ */                );
             } else if (hasOnReplace && (init == null) && !isOverride) {
-                stmts.append(FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
                 stmts.append(CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)));
                 stmts.append(CallSeqTriggerInitial(varSym, Int(0)));
             } else if ((init == null) && !isBound && varInfo.useAccessors()) {
@@ -2998,11 +3022,6 @@ however this is what we need */
                             // Call the appropriate mixin owner.
                             callMixin((ClassSymbol)varInfo.getSymbol().owner);
                         } else {
-                            // Set initialized flag if need be.
-                            if (!varInfo.useAccessors() && !varInfo.hasInitializer()) {
-                                addStmt(FlagChangeStmt(varInfo.proxyVarSym(), defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
-                            }
-                        
                             // Get body of applyDefaults$.
                             if (varInfo.generateSequenceAccessors()) {
                                 addStmts(getSeqDefaultInitStatement(varInfo));

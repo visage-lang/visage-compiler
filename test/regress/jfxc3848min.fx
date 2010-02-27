@@ -54,15 +54,20 @@ function checkSeen() {
      seen = [false, false, false];
 }
 
+var dummy : Integer;
+dummy = sizeof mypp.side.elements;
 checkSeen();
 
 pieRadiusX = 500; 
+dummy = sizeof mypp.side.elements;
 checkSeen();
 
 pieRadiusX = 8888;
+dummy = sizeof mypp.side.elements;
 checkSeen();
 
 pieRadiusX = 1000; 
+dummy = sizeof mypp.side.elements;
 checkSeen();
 
 for (i in [0..2]) {

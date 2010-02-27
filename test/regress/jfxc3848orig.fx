@@ -52,6 +52,9 @@ var mypp = PP{
         yy: bind pieRadiusY
 };
 
+var dummy : Integer;
+dummy = sizeof mypp.side.elements;
 println(Sequences.sort(seen));
 pieRadiusX = 60;
+dummy = sizeof mypp.side.elements;
 println(Sequences.sort(seen));
