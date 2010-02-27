@@ -696,25 +696,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     JCModifiers mods = m().Modifiers(flags);
 
                     // Apply annotations, if current class then add source annotations.
-                    if (isCurrentClassSymbol(varSym.owner)) {
-                        List<JCAnnotation> annotations;
-                        JCAnnotation annoSource = m().Annotation(
-                                    makeIdentifier(diagPos, JavafxSymtab.sourceNameAnnotationClassNameString),
-                                    List.<JCExpression>of(String(varSym.name.toString())));
-                        String annoBindeesString = makeAnnoBindeesString(ai);
-                        
-                        if (annoBindeesString.length() != 0) {
-                            JCAnnotation annoBindees = m().Annotation(
-                                        makeIdentifier(diagPos, JavafxSymtab.bindeesAnnotationClassNameString),
-                                        List.<JCExpression>of(String(annoBindeesString)));
-                            annotations = List.<JCAnnotation>of(annoSource, annoBindees);
-                        } else {
-                            annotations = List.<JCAnnotation>of(annoSource);
-                        }
-                        mods = addAccessAnnotationModifiers(diagPos, varSym.flags(), mods, annotations);
+                    List<JCAnnotation> annotations;
+                    JCAnnotation annoSource = m().Annotation(
+                                makeIdentifier(diagPos, JavafxSymtab.sourceNameAnnotationClassNameString),
+                                List.<JCExpression>of(String(varSym.name.toString())));
+                    String annoBindeesString = makeAnnoBindeesString(ai);
+
+                    if (annoBindeesString.length() != 0) {
+                        JCAnnotation annoBindees = m().Annotation(
+                                    makeIdentifier(diagPos, JavafxSymtab.bindeesAnnotationClassNameString),
+                                    List.<JCExpression>of(String(annoBindeesString)));
+                        annotations = List.<JCAnnotation>of(annoSource, annoBindees);
                     } else {
-                        mods = addInheritedAnnotationModifiers(diagPos, varSym.flags(), mods);
+                        annotations = List.<JCAnnotation>of(annoSource);
                     }
+                    if (! isCurrentClassSymbol(varSym.owner))
+                        annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.inheritedAnnotationClassNameString), List.<JCExpression>nil()));
+                    mods = addAccessAnnotationModifiers(diagPos, varSym.flags(), mods, annotations);
 
                     // Construct the value field
                     JCExpression init = useSimpleInit(ai)              ? getSimpleInit(ai) :
