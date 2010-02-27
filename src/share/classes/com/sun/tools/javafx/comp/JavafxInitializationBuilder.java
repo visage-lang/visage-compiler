@@ -3299,7 +3299,7 @@ however this is what we need */
                 }
             }
             
-            if (ai.isSynthetic()) {
+            if (ai.isSynthetic() && !ai.hasVarInit()) {
                 setBits = bitOrFlags(setBits, defs.varFlagINIT_READY);
             }
 
