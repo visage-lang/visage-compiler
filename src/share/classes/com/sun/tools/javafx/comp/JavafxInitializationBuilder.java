@@ -1247,28 +1247,7 @@ however this is what we need */
                 
                 return flags;
             }
-            
-            // Return the method flags.
-            @Override
-            public JCModifiers flags() {
-                // Copy old flags from VarInfo.
-                long flags = rawFlags();
 
-                // Set up basic flags.
-                JCModifiers mods = m().Modifiers(flags);
-    
-                // If var is in current class.
-                if (isCurrentClassSymbol(varInfo.getSymbol().owner)) {
-                    // Use local access modifiers.
-                    mods = addAccessAnnotationModifiers(varInfo.pos(), flags, mods);
-                } else {
-                    // Use inherited modifiers.
-                    mods = addInheritedAnnotationModifiers(varInfo.pos(), flags, mods);
-                }
-    
-                return mods;
-            }
-            
             // This method generates the statements for a mixin proxy.
             @Override
             public void generateMixin() {
