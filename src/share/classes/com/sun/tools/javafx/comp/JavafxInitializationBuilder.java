@@ -1430,34 +1430,37 @@ however this is what we need */
             boolean isBound = varInfo.hasBoundDefinition();
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            // Set initialized flag if need be.
-            if (!varInfo.useAccessors() && !varInfo.hasInitializer()) {
-                stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
-            }
-
             JCStatement init = varInfo.getDefaultInitStatement();
             if (init != null) {
                 stmts.append(init);
             }
 
-            if (hasOnReplace && isBound) {
-                stmts.append(CallStmt(attributeSizeName(varSym)));
-            } else if (isOverride && isBound) {
-                stmts.append(
-                        CallStmt(attributeSizeName(varSym))
-/**
-                    If (FlagTest(proxyVarSym, defs.varFlagIS_EAGER, defs.varFlagIS_EAGER),
-                        Block(
+            if (isBound) {
+                if (hasOnReplace) {
+                    stmts.append(CallStmt(attributeSizeName(varSym)));
+                } else if (isOverride) {
+                    stmts.append(
+                            CallStmt(attributeSizeName(varSym)) /**
+                            If (FlagTest(proxyVarSym, defs.varFlagIS_EAGER, defs.varFlagIS_EAGER),
+                            Block(
                             CallStmt(attributeSizeName(varSym))
-                        )
-                    )
- */                );
-            } else if (hasOnReplace && (init == null) && !isOverride) {
-                stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
-                stmts.append(CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)));
-                stmts.append(CallSeqTriggerInitial(varSym, Int(0)));
-            } else if ((init == null) && !isBound && varInfo.useAccessors()) {
-                stmts.append(CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0)));
+                            )
+                            )
+                             */
+                            );
+                } else {
+                    stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                }
+            } else if (init == null) {
+                if (hasOnReplace && !isOverride) {
+                    stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                    stmts.append(CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)));
+                    stmts.append(CallSeqTriggerInitial(varSym, Int(0)));
+                } else if (varInfo.useAccessors()) {
+                    stmts.append(CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0)));
+                } else {
+                    stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                }
             }
 
             return stmts.toList();
