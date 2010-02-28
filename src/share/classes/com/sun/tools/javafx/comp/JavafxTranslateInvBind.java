@@ -120,7 +120,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         }
 
         JCStatement setSequenceActive() {
-            return FlagChangeStmt(flagSymbol, null, activeFlagBit);
+            return FlagChangeStmt(flagSymbol, null, BITOR(id(defs.varFlagSEQUENCE_LIVE), id(defs.varFlagINIT_INITIALIZED_DEFAULT)));
         }
 
         protected JCExpression getReceiverForCallHack(Symbol sym) {
@@ -239,7 +239,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         }
 
         JCStatement setSequenceActive() {
-            return FlagChangeStmt(flagSymbol, null, activeFlagBit);
+            return FlagChangeStmt(flagSymbol, null, BITOR(id(defs.varFlagSEQUENCE_LIVE), id(defs.varFlagINIT_INITIALIZED_DEFAULT)));
         }
 
         protected JCExpression getReceiverForCallHack(Symbol sym) {

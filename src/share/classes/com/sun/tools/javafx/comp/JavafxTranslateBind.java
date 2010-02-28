@@ -449,7 +449,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement setSequenceActive() {
-            return FlagChangeStmt(flagSymbol, null, activeFlagBit);
+            return FlagChangeStmt(flagSymbol, null, BITOR(id(defs.varFlagSEQUENCE_LIVE), id(defs.varFlagINIT_INITIALIZED_DEFAULT)));
         }
 
         JCStatement Assign(JCExpression vid, JCExpression value) {
