@@ -455,7 +455,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
 
         private JCStatement translateVarInit(JFXAbstractVar var, ExpressionResult bindResult) {
-            if (var.isBidiBind() && types.isSequence(var.type)) {
+            if (false && var.isBidiBind() && types.isSequence(var.type)) {
                 // Install the proxy sequence
                 return asStatement(bindResult, syms.voidType);
             }

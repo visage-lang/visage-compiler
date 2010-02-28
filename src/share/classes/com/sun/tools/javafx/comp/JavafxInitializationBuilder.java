@@ -1597,19 +1597,27 @@ however this is what we need */
                         // Begin if block.
                         beginBlock();
 
-                        // Be sure the sequence is initialized before returning the SequenceRef -- call the size accessor to initialize
-                        addStmt(CallStmt(attributeSizeName(varSym)));
-                        
                         // seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq);
-                        JCExpression receiver = getReceiverOrThis(proxyVarSym);
-
-                        List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, elementType), receiver, Offset(varSym));
+                        List<JCExpression> args = List.<JCExpression>of(
+                                TypeInfo(diagPos, elementType),
+                                getReceiverOrThis(proxyVarSym),
+                                Offset(varSym));
                         JCExpression newExpr = m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceRefType)), args, null);
-                        addStmt(SetStmt(proxyVarSym, newExpr));
                         
                         // If (seq$ == null && isBound) { seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq); }
-                        addStmt(OptIf(AND(EQ(Get(proxyVarSym), defaultValue(varInfo)), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND)),
-                                endBlock(), null));
+                        addStmt(
+                            OptIf (AND(
+                                    EQ(Get(proxyVarSym), defaultValue(varInfo)),
+                                    FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND)),
+                                Block(
+                                    // Be sure the sequence is initialized before returning the SequenceRef -- call the size accessor to initialize
+                                    CallStmt(attributeSizeName(varSym)),
+                                    // If the size method didn't set the sequence value, make it a SequenceRef
+                                    OptIf( EQ(Get(proxyVarSym), defaultValue(varInfo)),
+                                        SetStmt(proxyVarSym, newExpr)
+                                    )
+                                )
+                            ));
                     }
                     
                     // Construct and add: return $var;

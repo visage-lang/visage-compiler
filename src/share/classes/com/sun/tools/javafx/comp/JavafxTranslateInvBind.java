@@ -85,7 +85,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         protected BoundSequenceResult doit() {
             addInterClassBindee((JavafxVarSymbol) selectorSym, refSym);
             return new BoundSequenceResult(
-                    List.of(init()),
+                    List.<JCStatement>nil(),
                     null,
                     bindees(),
                     invalidators(),
@@ -93,14 +93,6 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     makeGetElementBody(),
                     makeSizeBody(),
                     targetSymbol.type);
-        }
-
-        private JCStatement init() {
-            List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, refSym.type), selector(), Offset(getReceiver(selectorSym), refSym));
-            return
-                SetStmt(targetSymbol,
-                    m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceProxyType)), args, null)
-                );
         }
 
         private JCExpression selector() {
@@ -171,6 +163,15 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     vSize,
                     If (isSequenceDormant(),
                         Block(
+                            SetStmt(targetSymbol,
+                                m().NewClass(null, null,
+                                    makeType(types.erasure(syms.javafx_SequenceProxyType)),
+                                    List.<JCExpression>of(
+                                        TypeInfo(diagPos, refSym.type),
+                                        selector(),
+                                        Offset(getReceiver(selectorSym), refSym)),
+                                    null)
+                            ),
                             setSequenceActive(),
                             CallStmt(defs.FXBase_addDependent,
                                         selector(),
@@ -213,7 +214,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         protected BoundSequenceResult doit() {
             super.doit();
             return new BoundSequenceResult(
-                    List.of(init()),
+                    List.<JCStatement>nil(),
                     null,
                     bindees(),
                     invalidators(),
@@ -221,14 +222,6 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     makeGetElementBody(),
                     makeSizeBody(),
                     targetSymbol.type);
-        }
-
-        JCStatement init() {
-            List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, refSym.type), getReceiverOrThis(refSym), Offset(refSym));
-            return
-                SetStmt(targetSymbol, 
-                    m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceProxyType)), args, null)
-                );
         }
 
         // ---- Stolen from BoundSequenceTranslator ----
@@ -289,6 +282,15 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     vSize,
                     If (isSequenceDormant(),
                         Block(
+                            SetStmt(targetSymbol,
+                                m().NewClass(null, null,
+                                    makeType(types.erasure(syms.javafx_SequenceProxyType)),
+                                    List.<JCExpression>of(
+                                        TypeInfo(diagPos, refSym.type),
+                                        getReceiverOrThis(refSym),
+                                        Offset(refSym)),
+                                    null)
+                            ),
                             setSequenceActive(),
                             CallSeqInvalidateUndefined(targetSymbol),
                             CallSeqTriggerInitial(targetSymbol, id(vSize))
