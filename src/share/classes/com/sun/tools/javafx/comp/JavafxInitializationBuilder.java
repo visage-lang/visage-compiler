@@ -1441,13 +1441,13 @@ however this is what we need */
                 } else if (isOverride) {
                     stmts.append(
                             CallStmt(attributeSizeName(varSym)) /**
-                            If (FlagTest(proxyVarSym, defs.varFlagIS_EAGER, defs.varFlagIS_EAGER),
+                        If (FlagTest(proxyVarSym, defs.varFlagIS_EAGER, defs.varFlagIS_EAGER),
                             Block(
-                            CallStmt(attributeSizeName(varSym))
+                                CallStmt(attributeSizeName(varSym))
                             )
-                            )
+                        )
                              */
-                            );
+                    );
                 } else {
                     stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
                 }
@@ -1456,6 +1456,13 @@ however this is what we need */
                     stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
                     stmts.append(CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)));
                     stmts.append(CallSeqTriggerInitial(varSym, Int(0)));
+                    if (needOnReplaceAccessorMethod(varInfo)) {
+                        stmts.append(
+                            // If it didn't get initialized to default along the way, send the on-replace (because it would be blocked)
+                            If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
+                                CallStmt(attributeOnReplaceName(proxyVarSym), Int(0), Int(0), Int(0))
+                            ));
+                    }
                 } else if (varInfo.useAccessors()) {
                     stmts.append(CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0)));
                 } else {
@@ -1860,9 +1867,10 @@ however this is what we need */
                         // if (trigger-phase and real-trigger) { call-on-invalidate; call-on-replace; }
                         addStmt(
                             OptIf(
-                                AND(
+                                AND(AND(
                                     IsTriggerPhase(),
-                                    GE(startPosArg(), Int(0))
+                                    GE(startPosArg(), Int(0))),
+                                    FlagTest(proxyVarSym, defs.varFlagINIT_INITIALIZED_DEFAULT, defs.varFlagINIT_INITIALIZED_DEFAULT)
                                 ),
                                 Block(
                                     (varInfo.onInvalidate() == null)? null :
@@ -1879,7 +1887,7 @@ however this is what we need */
 
                     //TODO: no test needed if non-bound and not overriddable
                     addStmt(
-                        OptIf (FlagTest(proxyVarSym, defs.varFlagSEQUENCE_LIVE, defs.varFlagSEQUENCE_LIVE),
+                        OptIf (FlagTest(proxyVarSym, defs.varFlagINIT_INITIALIZED, defs.varFlagINIT_INITIALIZED),
                             endBlock()
                         )
                     );
