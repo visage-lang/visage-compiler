@@ -33,8 +33,6 @@ import javafx.lang.Duration;
 import javafx.util.Sequences;
 import java.lang.Object;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
 import java.lang.Math;
 import java.lang.UnsupportedOperationException;
 import java.lang.RuntimeException;
@@ -310,6 +308,10 @@ public class Timeline {
         }
         invalidate();
     	sortAndComputeTL(false);
+        // Right now, we rely on the validation cycle to re-evaluate (all)
+        // KeyValues.
+        // If we ever evaluate some/all KeyValues here, make sure not to do
+        // extra work before the first play of the Timeline.
     };
 
     /**
@@ -427,9 +429,7 @@ public class Timeline {
     }
 
     function getTotalDur():Number {
-        if (not valid) {
-            rebuildTargets();
-        }
+        validate();
         if (timelineDur < 0 or repeatCount < 0) {
             return -1;
         }
@@ -492,8 +492,6 @@ public class Timeline {
             if (time == 0.0ms) {
                 initKeyValues();
             }
-            // Flush saved data from previous run
-            invalidatePairLists();
 
             buildClip();
             clip.start();
@@ -549,22 +547,36 @@ public class Timeline {
         }
     }
 
-    var initialKeyValues: KeyValue[];
-
-    function reset():Void {
-        validate();
-        initKeyValues();
+    /**
+     * Instructs the {@code Timeline} to evaluate all {@code KeyValue.value()}s
+     * in the Timeline.
+     *
+     * @see KeyFrame.values
+     * @profile common
+     * @since JavaFX 1.3
+     */
+    public function evaluateKeyValues():Void {
+        // Must have a valid Timeline in order to properly set KeyValues
+        if (valid) {
+            impl_evaluateKeyValues();
+        } else {
+            validate();
+        }
     }
 
+    /**
+     * If Timeline is not valid, rebuild targets and evaluate the KeyValues
+     */
     function validate():Void {
         if(not valid) {
             rebuildTargets();
+            impl_evaluateKeyValues();
         }
     }
 
     function initKeyValues():Void {
-        for (kv in initialKeyValues) {
-            kv.target.set(kv.value());
+        for (pairlist in targets) {
+            pairlist.target.set(pairlist.get(0).value.evaluation);
         }
     }
 
@@ -646,56 +658,21 @@ public class Timeline {
 
     var clip: Clip;
     var sortedFrames: KeyFrame[];
-    var targets: Map = new HashMap(); // KeyValueTarget -> KFPairList
+    var targets:KFPairList[];
 
-    /*
-     * Called just after visiting a KeyFrame to save the new values for the
-     * KeyFrame into the KFPairLists.
+    /**
+     * For a given KeyValueTarget, find the corresponding KFPairList in targets,
+     * or null if there is no such KFPairList.
      */
-    function setAllValuesForKeyFrame(kf:KeyFrame) {
-        for (kv in kf.values) {
-            if (kv.target != null and kv.value != null) {
-                var val = kv.target.getValue();
-                setValueOnTargetList(kv.target, kf, val, kv.interpolate);
+    function findPairList(kvt:KeyValueTarget):KFPairList {
+        for (pairlist in targets) {
+            if (pairlist.target == kvt) {
+                return pairlist;
             }
         }
+        return null;
     }
-
-    /*
-     * For the KeyValueTarget and KeyFrame, save the value to the KFPairList.
-     * Whether the value is saved as the start or end value is determined based
-     * on current direction, autoReverse, and where the KeyFrame is in the
-     * Timeline.
-     */
-    function setValueOnTargetList(target:KeyValueTarget, kf:KeyFrame, value:Object, interp:Interpolator):Void {
-        var pairlist:KFPairList = targets.get(target) as KFPairList;
-
-        var useFwd:Boolean = forward;
-
-        if (autoReverse) {
-            // If we're running autoReverse and we're at the first or final KF
-            // for this target, we're going to hit it coming the other direction
-            // and will want start/end in their current configuration.
-            // Basically, do the opposite of what we would do for non-autoRev.
-            if (useFwd and kf.time == pairlist.get(pairlist.size()-1).frame.time) {
-                useFwd =  false;
-            }
-            if ((not useFwd) and kf.time == pairlist.get(0).frame.time) {
-                useFwd = true;
-            }
-        }
-
-        if (useFwd) {
-            pairlist.setStart(kf, value);
-            // Don't know about the end value - clear it
-            pairlist.clearEnd();
-        } else {
-            pairlist.setEnd(kf, value, interp);
-            // Don't know about the start value - clear it
-            pairlist.clearStart();
-        }
-    }
-
+    
     var adapter: TimingTarget = createAdapter();
 
     var cycleIndex: Integer = 0;
@@ -719,13 +696,14 @@ public class Timeline {
     //   - KeyValue.interpolate
     //
     function rebuildTargets():Void {
-        initialKeyValues = [];
-        targets.clear();
+        //OPT: add option to also set KeyValue.evaluation, so we only have to
+        //iterate through once on first run.
+        targets = [];
         if (sizeof keyFrames == 0) {
             return;
         }
 
-	    timelineDur = sortedFrames[sortedFrames.size()-1].time.toMillis() as Number;
+	timelineDur = sortedFrames[sortedFrames.size()-1].time.toMillis() as Number;
 
         var zeroFrame:KeyFrame;
         if (sortedFrames[0].time == 0s) {
@@ -736,8 +714,7 @@ public class Timeline {
 
         for (keyFrame in sortedFrames) {
             for (keyValue in keyFrame.values) {
-                // TODO: targets should really be Map<KeyValueTarget,List<KFPair>>
-                var pairlist: KFPairList = targets.get(keyValue.target) as KFPairList;
+                var pairlist: KFPairList = findPairList(keyValue.target);
                 if (pairlist == null) {
                     // New KeyValue: setup its KFPairList & 0-frame if needed
                     pairlist = KFPairList {
@@ -753,16 +730,13 @@ public class Timeline {
                             var value = keyValue.target.get();
                             value: function() { value }
                         }
-                        insert kv into initialKeyValues;
                         var kfp = KFPair {
                             value: kv
                             frame: zeroFrame
                         }
                         pairlist.add(kfp);
-                    } else {
-                        insert keyValue into initialKeyValues;
                     }
-                    targets.put(keyValue.target, pairlist);
+                    insert pairlist into targets;
                 }
                 var kfpair = KFPair {
                     frame: keyFrame
@@ -802,10 +776,6 @@ public class Timeline {
             var curCycle = Math.min(repeatCount - 1, lastElapsed / dur) as Integer;
             baseElapsed = curCycle * dur + adjustedMillis;
         }
-
-        // Optimize: if we jump within the same KeyFrame interval, we won't need
-        // to (and technically, probably shouldn't) re-evaluate KeyValues.
-        invalidatePairLists();
 
         if (skipKeyFrames) {
             // skip keyframes, just move
@@ -906,10 +876,7 @@ public class Timeline {
 
     function doInterpolate(curT: Number) {
         if (interpolate and not targets.isEmpty()) {
-            // now handle the active interval for each target
-            var iter = targets.values().iterator();
-            while (iter.hasNext()) {
-                var pairlist = iter.next() as KFPairList;
+            for (pairlist in targets) {
                 var kfpair1 = pairlist.get(0);
                 var kfpair2:KFPair;
 
@@ -942,12 +909,11 @@ public class Timeline {
                         rightT = kfpair2.frame.time.toMillis() as Number;
                         if (curT <= rightT) {
                             leftT = kfpair1.frame.time.toMillis();
-                            // Optimize: there may be cases where we can grab
-                            // the value from the KeyValueTarget itself.
+                            // Set the new start/end data onto the pairlist
                             pairlist.setStart(kfpair1.frame,
-                                              kfpair1.value.value());
+                                              kfpair1.value.evaluation);
                             pairlist.setEnd(kfpair2.frame,
-                                            kfpair2.value.value(),
+                                            kfpair2.value.evaluation,
                                             kfpair2.value.interpolate);
                             segT = (curT - leftT) / (rightT - leftT);
                             break;
@@ -989,10 +955,6 @@ public class Timeline {
         } else {
             frameIndex = if (forward) 0 else sortedFrames.size() - 1;
             lastKF = -1;
-
-            // Optimize: may be possible to save some stuff, but for now just
-            // clear everything.
-            invalidatePairLists();
 
             movePlayhead(if (forward) 0 else timelineDur);
         }
@@ -1080,9 +1042,6 @@ public class Timeline {
                 var savedCurRate = currentRate;
                 kf.visit();
 
-                // Put newly evaluated KeyValues into the right KFPairList
-                setAllValuesForKeyFrame(kf);
-                
                 var timeChanged = curPos != (time.toMillis() as Number);
                 if (timeChanged or savedCurRate != currentRate or stopping) {
                     // if time, speed or direction has been changed at the kf's action,
@@ -1118,28 +1077,19 @@ public class Timeline {
         currentRate = if (forward) Math.abs(rate) else -Math.abs(rate);
     }
 
-    /**
-     * Instructs the {@code Timeline} to evaluate {@code KeyValue.value}s on
-     * the next animation pulse.
-     *
-     * @see KeyFrame.values
-     * @profile common
-     * @since JavaFX 1.3
-     */
-    public function updateKeyValues():Void {
-        //TODO: should this wait until the next pulse?
-        invalidatePairLists();
-    }
-
-    /*
-     * Flush cached start/end data from all KFPairLists
-     */
-    function invalidatePairLists():Void {
-        // go through all KFPairList and blow away all stored stuff
-        var iter = targets.values().iterator();
-        while (iter.hasNext()) {
-            var pairlist:KFPairList = iter.next() as KFPairList;
-            pairlist.invalidate();
+    function impl_evaluateKeyValues():Void {
+        for (pairlist in targets) {
+            for (i in [0..<pairlist.size()]) {
+                var kfpair = pairlist.get(i);
+                kfpair.value.evaluation = kfpair.value.value();
+                // Also set current values
+                if (kfpair.frame == pairlist.startKF) {
+                    pairlist.startVal = kfpair.value.evaluation;
+                }
+                if (kfpair.frame == pairlist.endKF) {
+                    pairlist.endVal = kfpair.value.evaluation;
+                }
+            }
         }
     }
 
@@ -1244,14 +1194,6 @@ class KFPairList {
     var endVal:Object;
     var endInterp:Interpolator;
 
-    function invalidate():Void {
-        startVal = null;
-        endVal = null;
-        startKF = null;
-        endKF = null;
-        endInterp = null;
-    }
-
     function setStart(kf:KeyFrame, value:Object):Void {
         startKF = kf;
         startVal = value;
@@ -1261,16 +1203,6 @@ class KFPairList {
         endKF = kf;
         endVal = value;
         endInterp = interp;
-    }
-
-    function clearStart():Void {
-        startKF = null;
-        startVal = null;
-    }
-
-    function clearEnd():Void {
-        endKF = null;
-        endVal = null;
     }
 
     function size(): Integer {

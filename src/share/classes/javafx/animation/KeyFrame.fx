@@ -61,7 +61,21 @@ public class KeyFrame extends Comparable {
     /**
      * The list of target variables and the desired values they should
      * interpolate at the specified time of this {@code KeyFrame}.
-     * 
+     *
+     * Commonly, KeyValues use a constant value, for example:
+     *   {@code values: x => 10}
+     *
+     * but can also use a non-constant value, such as:
+     *   {@code values: x => someVal + 5}
+     *
+     * KeyValue.value expressions are evaluated once before a Timeline is
+     * played.  The results are saved and used for each play of the Timeline.
+     *
+     * For some Timelines, it is desirable for KeyValues to be re-evaluated and
+     * take on a different value for each run (or even during a run).  The
+     * {@code Timeline.evaluateKeyValues()} function allows this.
+     *
+     * @see Timeline.evaluateKeyValues
      * @profile common
      * @defaultvalue null
      */
@@ -120,7 +134,7 @@ public class KeyFrame extends Comparable {
     package function visit() {
         for (kv in values) {
             if (kv.target != null and kv.value != null) {
-                kv.target.set(kv.value());
+                kv.target.set(kv.evaluation);
             }
         }
         if (action != null) {

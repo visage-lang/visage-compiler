@@ -66,4 +66,11 @@ public class KeyValue {
      * @defaultvalue Interpolator.LINEAR
      */      
     public-init var interpolate: Interpolator = Interpolator.LINEAR;
+
+    /**
+     * Evaluated value for this KeyValue
+     *
+     * @treatasprivate Implementation detail
+     */
+    package var evaluation:Object = null;
 }
