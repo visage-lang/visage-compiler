@@ -285,12 +285,10 @@ import com.sun.javafx.runtime.sequence.Sequences;
     }
 
     public void complete$() {
-        hindInit$();
         userInit$();
         postInit$();
     }
     public static void complete$(FXObject obj) {
-        obj.hindInit$();
         obj.userInit$();
         obj.postInit$();
     }

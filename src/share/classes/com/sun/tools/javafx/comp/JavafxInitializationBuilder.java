@@ -247,7 +247,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             javaCodeMaker.makeFunctionProxyMethods(needDispatch);
             javaCodeMaker.makeFXEntryConstructor(classVarInfos, outerTypeSym);
-            javaCodeMaker.makeInitMethod(defs.hindInit_FXObjectMethodName, javaCodeMaker.makeHindInits(classVarInfos), immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.userInit_FXObjectMethodName, translatedInitBlocks, immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
@@ -339,7 +338,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, false, false, null, null);
             }
 
-            javaCodeMaker.makeInitMethod(defs.hindInit_FXObjectMethodName, javaCodeMaker.makeHindInits(classVarInfos), immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.userInit_FXObjectMethodName, translatedInitBlocks, immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
@@ -1375,55 +1373,50 @@ however this is what we need */
         //
         // This method returns the default statement for a given var.
         //
-        public JCStatement getDefaultInitStatement(VarInfo varInfo) {
+        public List<JCStatement> getDefaultInitStatement(VarInfo varInfo) {
             JavafxVarSymbol varSym = varInfo.getSymbol();
+            JavafxVarSymbol proxyVarSym = varInfo.proxyVarSym();
             boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
             boolean isOverride = varInfo.isOverride();
-            boolean genSequences = varInfo.generateSequenceAccessors();
             boolean isBound = varInfo.hasBoundDefinition();
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            JCStatement init = varInfo.getDefaultInitStatement();
-
-            // If we need to prime the on replace trigger.
-            if ((hasOnReplace || isOverride) && isBound) {
-                JCStatement poke = genSequences?
-                    CallStmt(attributeSizeName(varSym)) :
-                    Stmt(Getter(varSym));
+            if (isBound) {
+                if (hasOnReplace) {
+                    stmts.append(Stmt(Getter(varSym)));
+                } else if (isOverride) {
+                    stmts.append(
+                        If (NOT(FlagTest(proxyVarSym, BITOR(id(defs.varFlagIS_EAGER), id(defs.varFlagFORWARD_ACCESS)), null)),
+                            Block(
+                                Stmt(Getter(varSym))
+                            ),
+                        /*else*/
+                            Block(
+                                FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
+                                CallInvalidate(varSym),
+                                CallTrigger(varSym)
+                            )
+                        ));
+                } else if (needJFXC_4137hack(varInfo)) {
+                    stmts.append(CallInvalidate(varSym));
+                    stmts.append(CallTrigger(varSym));
+                }
+            } else {
+                JCStatement init = varInfo.getDefaultInitStatement();
                 if (init != null) {
-                    init = Block(init, poke);
+                    stmts.append(init);
                 } else {
-                    init = poke;
+                    if (hasOnReplace && !isOverride) {
+                        stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                        stmts.append(CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym)));
+                    } else if (!varInfo.useAccessors()) {
+                        stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                    }
+
                 }
-            }
-            if (hasOnReplace && (init == null) && !isOverride) {
-                if (genSequences) {
-                    init =
-                        Block(
-                            FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
-                            CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)),
-                            CallSeqTriggerInitial(varSym, Int(0))
-                        );
-                } else {
-                    init =
-                        Block(
-                            FlagChangeStmt(varSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
-                            CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym))
-                        );
-                }
-            }
-            if ((init == null) && varInfo.isSequence() && !isBound && varInfo.useAccessors()) {
-                init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
             }
 
-            if (needJFXC_4137hack(varInfo)) {
-                 init =
-                        Block(
-                            CallInvalidate(varSym),
-                            CallTrigger(varSym)
-                        );
-            }
- 
-            return init;
+            return stmts.toList();
         }
 
         //TODO: hack for JFXC-4137, getDefaultInitStatement method needs rewrite, and initial TRIGGERED state needs to go away
@@ -1437,7 +1430,61 @@ however this is what we need */
 
             return (init == null) && isBound && !genSequences && !isOverride && !hasOnReplace && !varInfo.isSynthetic() && varInfo.useAccessors() && needInvalidateAccessorMethod(varInfo);
         }
-       
+
+        //
+        // This method returns the default statements for a given sequence var.
+        //
+        private List<JCStatement> getSeqDefaultInitStatement(VarInfo varInfo) {
+            JavafxVarSymbol varSym = varInfo.getSymbol();
+            JavafxVarSymbol proxyVarSym = varInfo.proxyVarSym();
+            boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
+            boolean isOverride = varInfo.isOverride();
+            boolean isBound = varInfo.hasBoundDefinition();
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+
+            JCStatement init = varInfo.getDefaultInitStatement();
+            if (init != null) {
+                stmts.append(init);
+            }
+
+            if (isBound) {
+                if (hasOnReplace) {
+                    stmts.append(CallStmt(attributeSizeName(varSym)));
+                } else {
+                    stmts.append(
+                        If (NOT(FlagTest(proxyVarSym, BITOR(id(defs.varFlagIS_EAGER), id(defs.varFlagFORWARD_ACCESS)), null)),
+                            Block(
+                                CallStmt(attributeSizeName(varSym))
+                            ),
+                        /*else*/
+                            Block(
+                                FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED)
+                            )
+                        )
+                    );
+                }
+            } else if (init == null) {
+                if (hasOnReplace && !isOverride) {
+                    stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                    stmts.append(CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)));
+                    stmts.append(CallSeqTriggerInitial(varSym, Int(0)));
+                    if (needOnReplaceAccessorMethod(varInfo)) {
+                        stmts.append(
+                            // If it didn't get initialized to default along the way, send the on-replace (because it would be blocked)
+                            If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
+                                CallStmt(attributeOnReplaceName(proxyVarSym), Int(0), Int(0), Int(0))
+                            ));
+                    }
+                } else if (varInfo.useAccessors()) {
+                    stmts.append(CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0)));
+                } else {
+                    stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                }
+            }
+
+            return stmts.toList();
+        }
+
         //
         // Determine if this override needs an invalidate method
         // Must be in sync with makeInvalidateAccessorMethod
@@ -1557,19 +1604,27 @@ however this is what we need */
                         // Begin if block.
                         beginBlock();
 
-                        // Be sure the sequence is initialized before returning the SequenceRef -- call the size accessor to initialize
-                        addStmt(CallStmt(attributeSizeName(varSym)));
-                        
                         // seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq);
-                        JCExpression receiver = getReceiverOrThis(proxyVarSym);
-
-                        List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, elementType), receiver, Offset(varSym));
+                        List<JCExpression> args = List.<JCExpression>of(
+                                TypeInfo(diagPos, elementType),
+                                getReceiverOrThis(proxyVarSym),
+                                Offset(varSym));
                         JCExpression newExpr = m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceRefType)), args, null);
-                        addStmt(SetStmt(proxyVarSym, newExpr));
                         
                         // If (seq$ == null && isBound) { seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq); }
-                        addStmt(OptIf(AND(EQ(Get(proxyVarSym), defaultValue(varInfo)), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND)),
-                                endBlock(), null));
+                        addStmt(
+                            OptIf (AND(
+                                    EQ(Get(proxyVarSym), defaultValue(varInfo)),
+                                    FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND)),
+                                Block(
+                                    // Be sure the sequence is initialized before returning the SequenceRef -- call the size accessor to initialize
+                                    CallStmt(attributeSizeName(varSym)),
+                                    // If the size method didn't set the sequence value, make it a SequenceRef
+                                    OptIf( EQ(Get(proxyVarSym), defaultValue(varInfo)),
+                                        SetStmt(proxyVarSym, newExpr)
+                                    )
+                                )
+                            ));
                     }
                     
                     // Construct and add: return $var;
@@ -1634,13 +1689,17 @@ however this is what we need */
                             addStmt(varInfo.boundElementGetter());
                         } else {
                             addStmt(
-                                If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING),
-                                    Return (DefaultValue(this.elementType)),
-                                    If (FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND),
-                                        varInfo.boundElementGetter(),
-                                    /*else (not bound)*/
-                                        accessorGet()
-                                    )
+                                If (FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND),
+                                    If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING),
+                                        Block(
+                                            FlagChangeStmt(proxyVarSym, null, defs.varFlagFORWARD_ACCESS),
+                                            Return (DefaultValue(this.elementType))
+                                        ),
+                                    /*else (active)*/
+                                        varInfo.boundElementGetter()
+                                    ),
+                                /*else (not bound)*/
+                                    accessorGet()
                                 )
                             );
                         }
@@ -1722,13 +1781,17 @@ however this is what we need */
                             addStmt(varInfo.boundSizeGetter());
                         } else {
                             addStmt(
-                                If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING),
-                                    Return (Int(0)),
-                                    If (FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND),
-                                        varInfo.boundSizeGetter(),
-                                    /*else (not bound)*/
-                                        accessorSize()
-                                    )
+                                If (FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND),
+                                    If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING),
+                                        Block(
+                                            FlagChangeStmt(proxyVarSym, null, defs.varFlagFORWARD_ACCESS),
+                                            Return (Int(0))
+                                        ),
+                                    /*else (active)*/
+                                        varInfo.boundSizeGetter()
+                                    ),
+                                /*else (not bound)*/
+                                    accessorSize()
                                 )
                             );
                         }
@@ -1812,9 +1875,10 @@ however this is what we need */
                         // if (trigger-phase and real-trigger) { call-on-invalidate; call-on-replace; }
                         addStmt(
                             OptIf(
-                                AND(
+                                AND(AND(
                                     IsTriggerPhase(),
-                                    GE(startPosArg(), Int(0))
+                                    GE(startPosArg(), Int(0))),
+                                    FlagTest(proxyVarSym, defs.varFlagINIT_INITIALIZED_DEFAULT, defs.varFlagINIT_INITIALIZED_DEFAULT)
                                 ),
                                 Block(
                                     (varInfo.onInvalidate() == null)? null :
@@ -1831,7 +1895,7 @@ however this is what we need */
 
                     //TODO: no test needed if non-bound and not overriddable
                     addStmt(
-                        OptIf (FlagTest(proxyVarSym, defs.varFlagSEQUENCE_LIVE, defs.varFlagSEQUENCE_LIVE),
+                        OptIf (FlagTest(proxyVarSym, defs.varFlagINIT_INITIALIZED, defs.varFlagINIT_INITIALIZED),
                             endBlock()
                         )
                     );
@@ -2986,13 +3050,12 @@ however this is what we need */
                             // Call the appropriate mixin owner.
                             callMixin((ClassSymbol)varInfo.getSymbol().owner);
                         } else {
-                            // Set initialized flag if need be.
-                            if (!varInfo.useAccessors() && !varInfo.hasInitializer()) {
-                                addStmt(FlagChangeStmt(varInfo.proxyVarSym(), defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
-                            }
-                        
                             // Get body of applyDefaults$.
-                            addStmt(getDefaultInitStatement(varInfo));
+                            if (varInfo.generateSequenceAccessors()) {
+                                addStmts(getSeqDefaultInitStatement(varInfo));
+                            } else {
+                                addStmts(getDefaultInitStatement(varInfo));
+                            }
                         }
                         
                         if (!stmts.isEmpty()) {
@@ -3263,7 +3326,7 @@ however this is what we need */
                 }
             }
             
-            if (ai.isSynthetic()) {
+            if (ai.isSynthetic() && !ai.hasVarInit()) {
                 setBits = bitOrFlags(setBits, defs.varFlagINIT_READY);
             }
 
@@ -4252,18 +4315,6 @@ however this is what we need */
             }
              
             addDefinition(m().Block(Flags.STATIC, stmts.toList()));
-        }
-
-        ListBuffer<JCStatement> makeHindInits(List<VarInfo> attrInfos) {
-            ListBuffer<JCStatement> hinds = ListBuffer.lb();
-            for (VarInfo ai : attrInfos) {
-                // Only overridden forward-referencing variables need to be re-sync'ed
-                if (ai.hasInitializer() && ai.hasBoundDefinition() && ai.isOverride() && !ai.generateSequenceAccessors()) {
-                    hinds.append(CallStmt(attributeInvalidateName(ai.getSymbol()), id(defs.phaseTransitionBE_INVALIDATE)));
-                    hinds.append(CallStmt(attributeInvalidateName(ai.getSymbol()), id(defs.phaseTransitionBE_TRIGGER)));
-                }
-            }
-            return hinds;
         }
 
         //

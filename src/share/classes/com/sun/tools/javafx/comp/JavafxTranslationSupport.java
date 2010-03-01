@@ -2170,6 +2170,18 @@ public abstract class JavafxTranslationSupport {
         
         /* Debugging support */
 
+        JCStatement Println(String msg) {
+            return
+                CallStmt(
+                    QualifiedTree("java.lang.System.out"),
+                    names.fromString("println"),
+                    String(msg));
+        }
+
+        JCStatement Debug(String msg) {
+            return Debug(msg, null);
+        }
+
         JCStatement Debug(String msg, JCExpression obj) {
             return CallStmt(QualifiedTree("java.lang.System.err"), names.fromString("println"),
                     obj==null?

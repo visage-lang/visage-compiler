@@ -47,6 +47,7 @@ public interface FXObject {
     public static final int VFLGS$SEQUENCE_LIVE         = 0x0040;
     public static final int VFLGS$IS_BOUND              = 0x0080;
     public static final int VFLGS$IS_READONLY           = 0x0100;
+    public static final int VFLGS$FORWARD_ACCESS        = 0x0200;
 
     /**
      * Var validation states
@@ -148,7 +149,6 @@ public interface FXObject {
     public void     initVars$     ();
     public void     applyDefaults$();
     public void     applyDefaults$(final int varNum);
-    public void     hindInit$     ();
     public void     userInit$     ();
     public void     postInit$     ();
     public void     complete$     ();

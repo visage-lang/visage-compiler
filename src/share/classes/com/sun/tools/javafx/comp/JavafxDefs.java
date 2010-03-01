@@ -281,7 +281,6 @@ public class JavafxDefs {
     final Name update_FXObjectMethodName;
     final Name complete_FXObjectMethodName;
     final Name initialize_FXObjectMethodName;
-    final Name hindInit_FXObjectMethodName;
     final Name userInit_FXObjectMethodName;
     final Name postInit_FXObjectMethodName;
     final Name initVars_FXObjectMethodName;
@@ -444,6 +443,7 @@ public class JavafxDefs {
     final Name varFlagSEQUENCE_LIVE;
     final Name varFlagIS_BOUND;
     final Name varFlagIS_READONLY;
+    final Name varFlagFORWARD_ACCESS;
 
     final Name varFlagSTATE_MASK;
 
@@ -608,7 +608,6 @@ public class JavafxDefs {
         target_InterpolateMethodName = names.fromString("target");
         value_InterpolateMethodName = names.fromString("value");
         interpolate_InterpolateMethodName = names.fromString("interpolate");
-        hindInit_FXObjectMethodName = names.fromString("hindInit$");
         userInit_FXObjectMethodName = names.fromString("userInit$");
         postInit_FXObjectMethodName = names.fromString("postInit$");
         incrementSharing_SequenceMethodName = names.fromString("incrementSharing");
@@ -691,6 +690,7 @@ public class JavafxDefs {
         varFlagSEQUENCE_LIVE                     = names.fromString("VFLGS$SEQUENCE_LIVE");
         varFlagIS_BOUND                          = names.fromString("VFLGS$IS_BOUND");
         varFlagIS_READONLY                       = names.fromString("VFLGS$IS_READONLY");
+        varFlagFORWARD_ACCESS                    = names.fromString("VFLGS$FORWARD_ACCESS");
         
         varFlagSTATE_MASK                        = names.fromString("VFLGS$STATE_MASK");
         

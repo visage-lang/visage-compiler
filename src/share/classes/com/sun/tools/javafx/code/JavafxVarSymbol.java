@@ -136,11 +136,14 @@ public class JavafxVarSymbol extends VarSymbol {
     }
     
     public boolean useAccessors() {
-        return isFXMember() && !isSpecial() &&
-                (!hasScriptOnlyAccess() ||
-                (flags_field & VARUSE_NEED_ACCESSOR) != 0 ||
-                (isBindAccess() && isAssignedTo()) ||
-                (owner.flags_field & MIXIN) != 0);
+        return 
+                isFXMember() &&
+                !isSpecial() &&
+                (   !hasScriptOnlyAccess() ||
+                    (flags_field & VARUSE_NEED_ACCESSOR) != 0 ||
+                    (isBindAccess() && isAssignedTo()) ||
+                    (owner.flags_field & MIXIN) != 0
+                );
     }
     
     public boolean needsEnumeration() {
