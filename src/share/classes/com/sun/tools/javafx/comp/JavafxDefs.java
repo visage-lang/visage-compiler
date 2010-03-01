@@ -444,6 +444,7 @@ public class JavafxDefs {
     final Name varFlagSEQUENCE_LIVE;
     final Name varFlagIS_BOUND;
     final Name varFlagIS_READONLY;
+    final Name varFlagFORWARD_ACCESS;
 
     final Name varFlagSTATE_MASK;
 
@@ -691,6 +692,7 @@ public class JavafxDefs {
         varFlagSEQUENCE_LIVE                     = names.fromString("VFLGS$SEQUENCE_LIVE");
         varFlagIS_BOUND                          = names.fromString("VFLGS$IS_BOUND");
         varFlagIS_READONLY                       = names.fromString("VFLGS$IS_READONLY");
+        varFlagFORWARD_ACCESS                    = names.fromString("VFLGS$FORWARD_ACCESS");
         
         varFlagSTATE_MASK                        = names.fromString("VFLGS$STATE_MASK");
         

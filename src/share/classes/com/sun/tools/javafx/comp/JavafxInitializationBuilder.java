@@ -1438,18 +1438,18 @@ however this is what we need */
             if (isBound) {
                 if (hasOnReplace) {
                     stmts.append(CallStmt(attributeSizeName(varSym)));
-                } else if (isOverride) {
+                } else {
                     stmts.append(
-                            CallStmt(attributeSizeName(varSym)) /**
-                        If (FlagTest(proxyVarSym, defs.varFlagIS_EAGER, defs.varFlagIS_EAGER),
+                        If (NOT(FlagTest(proxyVarSym, BITOR(id(defs.varFlagIS_EAGER), id(defs.varFlagFORWARD_ACCESS)), null)),
                             Block(
                                 CallStmt(attributeSizeName(varSym))
+                            ),
+                        /*else*/
+                            Block(
+                                FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED)
                             )
                         )
-                             */
                     );
-                } else {
-                    stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
                 }
             } else if (init == null) {
                 if (hasOnReplace && !isOverride) {
@@ -1777,13 +1777,17 @@ however this is what we need */
                             addStmt(varInfo.boundSizeGetter());
                         } else {
                             addStmt(
-                                If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING),
-                                    Return (Int(0)),
-                                    If (FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND),
-                                        varInfo.boundSizeGetter(),
-                                    /*else (not bound)*/
-                                        accessorSize()
-                                    )
+                                If (FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND),
+                                    If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING),
+                                        Block(
+                                            FlagChangeStmt(proxyVarSym, null, defs.varFlagFORWARD_ACCESS),
+                                            Return (Int(0))
+                                        ),
+                                    /*else (active)*/
+                                        varInfo.boundSizeGetter()
+                                    ),
+                                /*else (not bound)*/
+                                    accessorSize()
                                 )
                             );
                         }
