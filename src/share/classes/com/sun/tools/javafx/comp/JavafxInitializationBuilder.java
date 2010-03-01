@@ -1381,40 +1381,54 @@ however this is what we need */
             boolean isBound = varInfo.hasBoundDefinition();
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            // Set initialized flag if need be.
-            if (!varInfo.useAccessors() && !varInfo.hasInitializer()) {
-                stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+            if (isBound) {
+                if (hasOnReplace) {
+                    stmts.append(Stmt(Getter(varSym)));
+                } else if (isOverride) {
+                    stmts.append(
+                        If (NOT(FlagTest(proxyVarSym, BITOR(id(defs.varFlagIS_EAGER), id(defs.varFlagFORWARD_ACCESS)), null)),
+                            Block(
+                                Stmt(Getter(varSym))
+                            ),
+                        /*else*/
+                            Block(
+                                FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED),
+                                CallInvalidate(varSym),
+                                CallTrigger(varSym)
+                            )
+                        ));
+                } else if (needJFXC_4137hack(varInfo)) {
+                    stmts.append(CallInvalidate(varSym));
+                    stmts.append(CallTrigger(varSym));
+                }
+            } else {
+                JCStatement init = varInfo.getDefaultInitStatement();
+                if (init != null) {
+                    stmts.append(init);
+                } else {
+                    if (hasOnReplace && !isOverride) {
+                        stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                        stmts.append(CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym)));
+                    } else if (!varInfo.useAccessors()) {
+                        stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
+                    }
+
+                }
             }
+
+            return stmts.toList();
+        }
+
+        //TODO: hack for JFXC-4137, getDefaultInitStatement method needs rewrite, and initial TRIGGERED state needs to go away
+        private boolean needJFXC_4137hack(VarInfo varInfo) {
+            boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
+            boolean isOverride = varInfo.isOverride();
+            boolean genSequences = varInfo.generateSequenceAccessors();
+            boolean isBound = varInfo.hasBoundDefinition();
 
             JCStatement init = varInfo.getDefaultInitStatement();
-            if (init != null) {
-                stmts.append(init);
-            }
 
-            if (hasOnReplace && isBound) {
-                stmts.append(Stmt(Getter(varSym)));
-            } else if (isOverride && isBound) {
-                stmts.append(
-                    If (FlagTest(proxyVarSym, defs.varFlagIS_EAGER, defs.varFlagIS_EAGER),
-                        Block(
-                            Stmt(Getter(varSym))
-                        ),
-                    /*else*/
-                        Block(
-                            CallInvalidate(varSym),
-                            CallTrigger(varSym)
-                        )
-                    )
-                );
-            } else if (hasOnReplace && (init == null) && !isOverride) {
-                stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
-                stmts.append(CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym)));
-            } else if (needJFXC_4137hack(varInfo)) {
-                stmts.append(CallInvalidate(varSym));
-                stmts.append(CallTrigger(varSym));
-            }
- 
-            return stmts.toList();
+            return (init == null) && isBound && !genSequences && !isOverride && !hasOnReplace && !varInfo.isSynthetic() && varInfo.useAccessors() && needInvalidateAccessorMethod(varInfo);
         }
 
         //
@@ -1471,18 +1485,6 @@ however this is what we need */
             return stmts.toList();
         }
 
-        //TODO: hack for JFXC-4137, getDefaultInitStatement method needs rewrite, and initial TRIGGERED state needs to go away
-        private boolean needJFXC_4137hack(VarInfo varInfo) {
-            boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
-            boolean isOverride = varInfo.isOverride();
-            boolean genSequences = varInfo.generateSequenceAccessors();
-            boolean isBound = varInfo.hasBoundDefinition();
-
-            JCStatement init = varInfo.getDefaultInitStatement();
-
-            return (init == null) && isBound && !genSequences && !isOverride && !hasOnReplace && !varInfo.isSynthetic() && varInfo.useAccessors() && needInvalidateAccessorMethod(varInfo);
-        }
-       
         //
         // Determine if this override needs an invalidate method
         // Must be in sync with makeInvalidateAccessorMethod
@@ -1687,13 +1689,17 @@ however this is what we need */
                             addStmt(varInfo.boundElementGetter());
                         } else {
                             addStmt(
-                                If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING),
-                                    Return (DefaultValue(this.elementType)),
-                                    If (FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND),
-                                        varInfo.boundElementGetter(),
-                                    /*else (not bound)*/
-                                        accessorGet()
-                                    )
+                                If (FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND),
+                                    If (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING),
+                                        Block(
+                                            FlagChangeStmt(proxyVarSym, null, defs.varFlagFORWARD_ACCESS),
+                                            Return (DefaultValue(this.elementType))
+                                        ),
+                                    /*else (active)*/
+                                        varInfo.boundElementGetter()
+                                    ),
+                                /*else (not bound)*/
+                                    accessorGet()
                                 )
                             );
                         }
