@@ -696,25 +696,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     JCModifiers mods = m().Modifiers(flags);
 
                     // Apply annotations, if current class then add source annotations.
-                    if (isCurrentClassSymbol(varSym.owner)) {
-                        List<JCAnnotation> annotations;
-                        JCAnnotation annoSource = m().Annotation(
-                                    makeIdentifier(diagPos, JavafxSymtab.sourceNameAnnotationClassNameString),
-                                    List.<JCExpression>of(String(varSym.name.toString())));
-                        String annoBindeesString = makeAnnoBindeesString(ai);
-                        
-                        if (annoBindeesString.length() != 0) {
-                            JCAnnotation annoBindees = m().Annotation(
-                                        makeIdentifier(diagPos, JavafxSymtab.bindeesAnnotationClassNameString),
-                                        List.<JCExpression>of(String(annoBindeesString)));
-                            annotations = List.<JCAnnotation>of(annoSource, annoBindees);
-                        } else {
-                            annotations = List.<JCAnnotation>of(annoSource);
-                        }
-                        mods = addAccessAnnotationModifiers(diagPos, varSym.flags(), mods, annotations);
+                    List<JCAnnotation> annotations;
+                    JCAnnotation annoSource = m().Annotation(
+                                makeIdentifier(diagPos, JavafxSymtab.sourceNameAnnotationClassNameString),
+                                List.<JCExpression>of(String(varSym.name.toString())));
+                    String annoBindeesString = makeAnnoBindeesString(ai);
+
+                    if (annoBindeesString.length() != 0) {
+                        JCAnnotation annoBindees = m().Annotation(
+                                    makeIdentifier(diagPos, JavafxSymtab.bindeesAnnotationClassNameString),
+                                    List.<JCExpression>of(String(annoBindeesString)));
+                        annotations = List.<JCAnnotation>of(annoSource, annoBindees);
                     } else {
-                        mods = addInheritedAnnotationModifiers(diagPos, varSym.flags(), mods);
+                        annotations = List.<JCAnnotation>of(annoSource);
                     }
+                    if (! isCurrentClassSymbol(varSym.owner))
+                        annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.inheritedAnnotationClassNameString), List.<JCExpression>nil()));
+                    mods = addAccessAnnotationModifiers(diagPos, varSym.flags(), mods, annotations);
 
                     // Construct the value field
                     JCExpression init = useSimpleInit(ai)              ? getSimpleInit(ai) :
@@ -1249,28 +1247,7 @@ however this is what we need */
                 
                 return flags;
             }
-            
-            // Return the method flags.
-            @Override
-            public JCModifiers flags() {
-                // Copy old flags from VarInfo.
-                long flags = rawFlags();
 
-                // Set up basic flags.
-                JCModifiers mods = m().Modifiers(flags);
-    
-                // If var is in current class.
-                if (isCurrentClassSymbol(varInfo.getSymbol().owner)) {
-                    // Use local access modifiers.
-                    mods = addAccessAnnotationModifiers(varInfo.pos(), flags, mods);
-                } else {
-                    // Use inherited modifiers.
-                    mods = addInheritedAnnotationModifiers(varInfo.pos(), flags, mods);
-                }
-    
-                return mods;
-            }
-            
             // This method generates the statements for a mixin proxy.
             @Override
             public void generateMixin() {
@@ -1985,10 +1962,21 @@ however this is what we need */
                         addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
                         
                         // for a bare-synthethic, just return bound-expression
+                        JCExpression returnVal = varInfo.boundInit();
+                        if (varInfo.isInitWithBoundFuncResult()) {
+                            JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, returnVal);
+                            addStmt(newPtrVar);
+
+                            returnVal = If(NEnull(id(newPtrVar)),
+                                    castFromObject(Call(
+                                        id(newPtrVar),
+                                        defs.get_PointerMethodName), varSym.type),
+                                    defaultValue(varInfo));
+                        }
                         addStmt(
                             TryWithErrorHandler(varInfo.hasSafeInitializer(),
                                 varInfo.boundPreface(),
-                                Return(varInfo.boundInit()),
+                                Return(returnVal),
                                 Return(defaultValue(varInfo))));
                     } else {
                         if (isBoundFuncClass && varInfo.isParameter()) {
