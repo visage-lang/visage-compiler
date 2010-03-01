@@ -6,7 +6,7 @@
  */
 
 class A {
-  var x = 1;
+  var x : Integer[];
 }
 
 class B extends A {

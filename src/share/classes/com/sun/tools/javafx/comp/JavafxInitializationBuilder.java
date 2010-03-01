@@ -247,7 +247,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             javaCodeMaker.makeFunctionProxyMethods(needDispatch);
             javaCodeMaker.makeFXEntryConstructor(classVarInfos, outerTypeSym);
-            javaCodeMaker.makeInitMethod(defs.hindInit_FXObjectMethodName, javaCodeMaker.makeHindInits(classVarInfos), immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.userInit_FXObjectMethodName, translatedInitBlocks, immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
@@ -339,7 +338,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, false, false, null, null);
             }
 
-            javaCodeMaker.makeInitMethod(defs.hindInit_FXObjectMethodName, javaCodeMaker.makeHindInits(classVarInfos), immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.userInit_FXObjectMethodName, translatedInitBlocks, immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
@@ -4311,18 +4309,6 @@ however this is what we need */
             }
              
             addDefinition(m().Block(Flags.STATIC, stmts.toList()));
-        }
-
-        ListBuffer<JCStatement> makeHindInits(List<VarInfo> attrInfos) {
-            ListBuffer<JCStatement> hinds = ListBuffer.lb();
-            for (VarInfo ai : attrInfos) {
-                // Only overridden forward-referencing variables need to be re-sync'ed
-                if (ai.hasInitializer() && ai.hasBoundDefinition() && ai.isOverride() && !ai.generateSequenceAccessors()) {
-                    hinds.append(CallStmt(attributeInvalidateName(ai.getSymbol()), id(defs.phaseTransitionBE_INVALIDATE)));
-                    hinds.append(CallStmt(attributeInvalidateName(ai.getSymbol()), id(defs.phaseTransitionBE_TRIGGER)));
-                }
-            }
-            return hinds;
         }
 
         //
