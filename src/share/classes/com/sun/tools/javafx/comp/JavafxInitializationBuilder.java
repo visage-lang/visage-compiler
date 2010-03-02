@@ -1401,10 +1401,17 @@ however this is what we need */
                                 CallInvalidate(varSym),
                                 CallTrigger(varSym)
                             )
-                        ));
+                    ));
                 } else if (needJFXC_4137hack(varInfo)) {
-                    stmts.append(CallInvalidate(varSym));
-                    stmts.append(CallTrigger(varSym));
+                    stmts.appendList(Stmts(
+                        CallInvalidate(varSym),
+                        CallTrigger(varSym),
+                        If (NOT(FlagTest(proxyVarSym, defs.varFlagFORWARD_ACCESS, null)),
+                            Block(
+                                Stmt(Getter(varSym))
+                            )
+                        )
+                    ));
                 }
             } else {
                 JCStatement init = varInfo.getDefaultInitStatement();
@@ -2090,11 +2097,9 @@ however this is what we need */
                                           endBlock(),
                                           null));
                         } else if (varInfo.hasBoundDefinition()) {
-                            // Wrapping if (!init pending)
-                            beginBlock();
-                    
                             // Prepare to accumulate body of if.
                             beginBlock();
+
                             // Set to new value. Bogus assert, it seems an local var can be bound have no init.
                             // assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
 
@@ -2163,19 +2168,18 @@ however this is what we need */
                                 makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, true);
                             }
 
-                            // Is it bound and invalid?
-                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
-
-                            // if (bound and invalid) { set$var(init/bound expression); }
-                            addStmt(OptIf(condition,
-                                    endBlock(),
-                                    null));
-                    
-                            // if (!init pending)
-                            JCExpression initPendingExpr = NOT(FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING));
-                            addStmt(OptIf(initPendingExpr,
-                                          endBlock(),
-                                          null));
+                            // if (pending) { mark forward access } else if (bound and invalid) { set$var(init/bound expression); }
+                            addStmt(
+                                OptIf (FlagTest(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_PENDING),
+                                    Block(
+                                        FlagChangeStmt(proxyVarSym, null, defs.varFlagFORWARD_ACCESS)
+                                    ),
+                                /*else (active)*/
+                                    OptIf (FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID),
+                                        endBlock()
+                                    )
+                                )
+                            );
                         }
 
                         // Construct and add: return $var;
@@ -3322,7 +3326,7 @@ however this is what we need */
             JCExpression setBits = null;
   
             if (useSimpleInit(ai)) {
-                setBits = bitOrFlags(setBits, defs.varFlagINIT_INITIALIZED_DEFAULT);
+                setBits = bitOrFlags(setBits, defs.varFlagINIT_INITIALIZED_DEFAULT, defs.varFlagSTATE_VALID);
             } else {
                 if (ai.isSynthetic()) {
                     setBits = bitOrFlags(setBits, defs.varFlagINIT_READY);
@@ -3332,10 +3336,12 @@ however this is what we need */
 
                 if (isBound) {
                     if (needJFXC_4137hack(ai)) {
-                        setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND);
+                        setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagSTATE_VALID);
                     } else {
                         setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagSTATE_TRIGGERED);
                     }
+                } else {
+                    setBits = bitOrFlags(setBits, defs.varFlagSTATE_VALID);
                 }
             }
             
