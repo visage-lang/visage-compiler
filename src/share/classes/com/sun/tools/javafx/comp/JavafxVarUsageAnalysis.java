@@ -29,7 +29,12 @@ import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.util.Context;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.javafx.comp.JavafxCheck.ForwardReferenceChecker;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.util.Name;
+import java.util.EnumSet;
 
 /**
  *
@@ -42,6 +47,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     private boolean inLHS;
     private JavafxBindStatus bindStatus;
     private JFXClassDeclaration currentClass;
+    private JavafxTypes types;
+    private Name.Table names;
+    private JavafxDefs defs;
     
     public static JavafxVarUsageAnalysis instance(Context context) {
         JavafxVarUsageAnalysis instance = context.get(varUsageKey);
@@ -52,7 +60,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     
     JavafxVarUsageAnalysis(Context context) {
         context.put(varUsageKey, this);
-        
+        names = Name.Table.instance(context);
+        defs = JavafxDefs.instance(context);
+        types = JavafxTypes.instance(context);
         inLHS = false;
         bindStatus = JavafxBindStatus.UNBOUND;
     }
@@ -66,7 +76,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
         private long ALL_MARKED_VARUSE =
                 VARUSE_TMP_IN_INIT_EXPR |
-                VARUSE_DEFINITION_SEEN |
                 VARUSE_FORWARD_REFERENCE |
                 VARUSE_SELF_REFERENCE |
                 VARUSE_OBJ_LIT_INIT;
@@ -120,15 +129,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
                     mark(sym, VARUSE_ASSIGNED_TO);
                 }
             }
-            if ((sym.flags_field & VARUSE_DEFINITION_SEEN) == 0L) {
-                // this is a reference to this variable for which we have not yet seen a definition
-                mark(sym, VARUSE_FORWARD_REFERENCE);
-                mark(sym, VARUSE_NEED_ACCESSOR);
-            }
-            if ((sym.flags_field & VARUSE_TMP_IN_INIT_EXPR) != 0L) {
-                // this is a reference to this variable from within its own initializer
-                mark(sym, VARUSE_SELF_REFERENCE);
-            }
             
             sym.flags_field &= ~VARUSE_OPT_TRIGGER;
             
@@ -149,7 +149,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     public void visitScript(JFXScript tree) {
        inLHS = false;
        bindStatus = JavafxBindStatus.UNBOUND;
-
        super.visitScript(tree);
     }
 
@@ -175,7 +174,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
                 mark(tree.sym, VARUSE_NON_LITERAL);
             }
         }
-        mark(tree.sym, VARUSE_DEFINITION_SEEN);
         bindStatus = wasBindStatus;
         if (tree.getOnReplace() != null) {
             mark(tree.sym, VARUSE_HAS_TRIGGER);
@@ -227,6 +225,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
        bindStatus = JavafxBindStatus.UNBOUND;
 
        super.visitClassDeclaration(tree);
+       if (tree.isScriptClass) {
+           markForwardReferences(tree);
+       }
 
        bindStatus = wasBindStatus;
        inLHS = wasLHS;
@@ -447,4 +448,18 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         return null;
     }
 
+    void markForwardReferences(JFXTree tree) {
+        new ForwardReferenceChecker(names, types, defs, EnumSet.allOf(ForwardReferenceChecker.ScopeKind.class)) {
+            @Override
+            protected void reportForwardReference(DiagnosticPosition pos, boolean selfReference, Symbol s, boolean potential) {
+                if (selfReference) {
+                    mark(s, VARUSE_SELF_REFERENCE);
+                }
+                else {
+                    mark(s, VARUSE_FORWARD_REFERENCE);
+                    mark(s, VARUSE_NEED_ACCESSOR);
+                }
+            }
+        }.scan(tree);
+    }
 }

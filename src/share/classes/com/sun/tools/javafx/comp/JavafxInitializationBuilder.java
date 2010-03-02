@@ -645,7 +645,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         public JCExpression getSimpleInit(VarInfo varInfo) {
             if (useSimpleInit(varInfo)) {
                 JFXVar var = ((TranslatedVarInfo)varInfo).jfxVar();
-                return toJava.translateToExpression(var.getInitializer(), varInfo.getRealType());
+                if (var.getInitializer().type.tag == TypeTags.BOT) {
+                    return DefaultValue(var.type);
+                }
+                else {
+                    return toJava.translateToExpression(var.getInitializer(), varInfo.getRealType());
+                }
             }
             
             return null;

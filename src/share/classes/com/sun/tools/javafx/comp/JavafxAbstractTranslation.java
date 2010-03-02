@@ -2167,11 +2167,16 @@ public abstract class JavafxAbstractTranslation
                 if (useAccessors) {
                     return postProcessExpression(buildSetter(tToCheck, buildRHS(rhsTranslatedPreserved)));
                 } else if (refSym instanceof VarSymbol && ((JavafxVarSymbol)refSym).isFXMember()) {
+                    if (((JavafxVarSymbol)refSym).useGetters()) {
+                        return Setter(tToCheck, refSym, rhsTranslatedPreserved);
+                    }
+                    else {
                     JCExpression lhsTranslated = selector != null ?
                         Select(tToCheck, attributeValueName(refSym)) :
-                        id(attributeValueName(refSym));
+                        Getter(refSym);
                     JCExpression res =  defaultFullExpression(lhsTranslated, rhsTranslatedPreserved);
                     return res;
+                    }
                 } else {
                     //TODO: possibly should use, or be unified with convertVariableReference
                     JCExpression lhsTranslated = selector != null ?

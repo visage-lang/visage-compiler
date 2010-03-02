@@ -671,7 +671,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             if (! useAccessor) {
                 // Non-accessor-using variable sequence -- roughly:
                 // lhs = sequenceAction(lhs, rhs);
-                args.append(Getter(tToCheck, vsym));
+                args.append(Getter(copyOfTranslatedToCheck(tToCheck), vsym));
             } else {
                 // Instance variable sequence -- roughly:
                 // sequenceAction(instance, varNum, rhs);

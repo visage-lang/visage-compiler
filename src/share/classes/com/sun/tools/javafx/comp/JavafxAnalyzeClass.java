@@ -427,7 +427,6 @@ class JavafxAnalyzeClass {
                                    (((flags & JavafxFlags.VARUSE_OBJ_LIT_INIT) != 0)      ? ", VARUSE_OBJ_LIT_INIT" : "") +
                                    (((flags & JavafxFlags.VARUSE_FORWARD_REFERENCE) != 0) ? ", VARUSE_FORWARD_REFERENCE" : "") +
                                    (((flags & JavafxFlags.VARUSE_SELF_REFERENCE) != 0)    ? ", VARUSE_SELF_REFERENCE" : "") +
-                                   (((flags & JavafxFlags.VARUSE_DEFINITION_SEEN) != 0)   ? ", VARUSE_DEFINITION_SEEN" : "") +
                                    (((flags & JavafxFlags.VARUSE_OPT_TRIGGER) != 0)       ? ", VARUSE_OPT_TRIGGER" : "") +
                                    (((flags & JavafxFlags.VARUSE_TMP_IN_INIT_EXPR) != 0)  ? ", VARUSE_TMP_IN_INIT_EXPR" : "") +
                                    (((flags & JavafxFlags.VARUSE_NEED_ACCESSOR) != 0)     ? ", VARUSE_NEED_ACCESSOR" : "") +
