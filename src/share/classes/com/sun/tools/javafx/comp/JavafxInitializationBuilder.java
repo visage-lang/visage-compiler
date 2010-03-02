@@ -3074,7 +3074,7 @@ however this is what we need */
                     super.body();
                     
                     // if (init ready)
-                    JCExpression ifExpr = FlagTest(varNumArg(), defs.varFlagINIT_MASK, defs.varFlagINIT_READY);
+                    JCExpression ifExpr = FlagTest(varNumArg(), defs.varFlagINIT_WITH_AWAIT_MASK, defs.varFlagINIT_READY);
                     // if (init ready) { body }
                     addStmt(OptIf(ifExpr, endBlock()));
                 }
@@ -3317,19 +3317,23 @@ however this is what we need */
             JCExpression setBits = null;
   
             if (useSimpleInit(ai)) {
-                setBits =  bitOrFlags(setBits, defs.varFlagINIT_INITIALIZED_DEFAULT);
-            } else if (isBound) {
-                if (needJFXC_4137hack(ai)) {
-                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND);
-                } else {
-                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagSTATE_TRIGGERED);
+                setBits = bitOrFlags(setBits, defs.varFlagINIT_INITIALIZED_DEFAULT);
+            } else {
+                if (ai.isSynthetic()) {
+                    setBits = bitOrFlags(setBits, defs.varFlagINIT_READY);
+                } else if (ai.hasVarInit()) {
+                    setBits = bitOrFlags(setBits, defs.varFlagINIT_AWAIT_VARINIT);
+                } 
+
+                if (isBound) {
+                    if (needJFXC_4137hack(ai)) {
+                        setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND);
+                    } else {
+                        setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagSTATE_TRIGGERED);
+                    }
                 }
             }
             
-            if (ai.isSynthetic() && !ai.hasVarInit()) {
-                setBits = bitOrFlags(setBits, defs.varFlagINIT_READY);
-            }
-
             if (ai.generateSequenceAccessors() && !isBound && (ai.hasInitializer() || (ai.isDirectOwner() && !ai.isOverride()))) {
                 // Non-bound sequences are immediately live
                 setBits = bitOrFlags(setBits, defs.varFlagSEQUENCE_LIVE);

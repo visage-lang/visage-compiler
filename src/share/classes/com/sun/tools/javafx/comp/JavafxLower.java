@@ -1264,7 +1264,7 @@ public class JavafxLower implements JavafxVisitor {
 
                     JFXVar shred = makeVar(
                             part.pos(),
-                            JavafxFlags.SCRIPT_PRIVATE,
+                            Flags.SYNTHETIC | JavafxFlags.SCRIPT_PRIVATE,
                             part.name + "$ol",
                             part.getBindStatus(),
                             lowerExpr(partExpr, part.sym.type),

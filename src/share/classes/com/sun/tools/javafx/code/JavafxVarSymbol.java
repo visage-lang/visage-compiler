@@ -130,7 +130,11 @@ public class JavafxVarSymbol extends VarSymbol {
     public boolean isSpecial() {
         return (flags_field & JavafxFlags.VARUSE_SPECIAL) != 0;
     }
-    
+
+    public boolean isSynthetic() {
+        return (flags_field & SYNTHETIC) != 0;
+    }
+
     public boolean isBindAccess() {
         return (flags_field & JavafxFlags.VARUSE_BIND_ACCESS) != 0;
     }

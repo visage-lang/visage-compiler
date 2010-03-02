@@ -453,8 +453,10 @@ public class JavafxDefs {
     final Name varFlagSTATE_TRIGGERED;
     
     final Name varFlagINIT_MASK;
+    final Name varFlagINIT_WITH_AWAIT_MASK;
     
     final Name varFlagINIT_PENDING;
+    final Name varFlagINIT_AWAIT_VARINIT;
     final Name varFlagINIT_READY;
     final Name varFlagINIT_INITIALIZED;
     final Name varFlagINIT_INITIALIZED_DEFAULT;
@@ -700,8 +702,10 @@ public class JavafxDefs {
         varFlagSTATE_TRIGGERED                   = names.fromString("VFLGS$STATE$TRIGGERED");
         
         varFlagINIT_MASK                         = names.fromString("VFLGS$INIT$MASK");
+        varFlagINIT_WITH_AWAIT_MASK              = names.fromString("VFLGS$INIT_WITH_AWAIT$MASK");
         
         varFlagINIT_PENDING                      = names.fromString("VFLGS$INIT$PENDING");
+        varFlagINIT_AWAIT_VARINIT                = names.fromString("VFLGS$INIT$AWAIT_VARINIT");
         varFlagINIT_READY                        = names.fromString("VFLGS$INIT$READY");
         varFlagINIT_INITIALIZED                  = names.fromString("VFLGS$INIT$INITIALIZED");
         varFlagINIT_INITIALIZED_DEFAULT          = names.fromString("VFLGS$INIT$INITIALIZED_DEFAULT");

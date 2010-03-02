@@ -3844,19 +3844,24 @@ public abstract class JavafxAbstractTranslation
          * value is var value.
          */
         ExpressionResult doit() {
-            if (vsym.useAccessors() || !var.isLiteralInit()) {
-                return toResult(
-                        BlockExpression(
-                            FlagChangeStmt(vsym, null, defs.varFlagINIT_READY),
+            JCExpression tor;
+            if (!vsym.useAccessors() && var.isLiteralInit()) {
+                tor =   Get(vsym);
+            } else if (vsym.isSynthetic()) {
+                tor =   BlockExpression(
+                            If (FlagTest(vsym, defs.varFlagINIT_MASK, defs.varFlagINIT_READY),
+                                CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym))
+                            ),
+                            Get(vsym)
+                        );
+            } else {
+                tor =   BlockExpression(
+                            FlagChangeStmt(vsym, defs.varFlagINIT_WITH_AWAIT_MASK, defs.varFlagINIT_READY),
                             CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym)),
                             Get(vsym)
-                        ),
-                        vsym.type);
-            } else {
-                return toResult(
-                        Get(vsym),
-                        vsym.type);
-            }
+                        );
+            } 
+            return toResult(tor, vsym.type);
         }
     }
 
