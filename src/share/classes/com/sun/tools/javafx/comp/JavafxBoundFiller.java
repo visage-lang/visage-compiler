@@ -217,6 +217,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
                             JavafxBindStatus.UNIDIBIND, null, null);
                     localVar.type = fxVar.type;
                     localVar.sym = fxVar.sym;
+                    localVar.sym.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
                     stmts.append(localVar);
                 }
 
