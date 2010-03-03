@@ -1141,22 +1141,6 @@ however this is what we need */
                         // Set the state valid and mark defaults as applied
                         addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
                     }
-
-                    // Default-Not_applied
-                    JCVariableDecl isInitialized = TmpVar(syms.booleanType, FlagTest(defs.varFlags_LocalVarName, defs.varFlagINITIALIZED_STATE_BIT, null));
-                    addStmt(isInitialized);
-
-                    if (inGet) {
-                        // Set the state valid and mark defaults as applied
-                        addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
-                    }
-
-                    if (needsInvalidate) {
-                        // Set the state valid and mark defaults as applied, but don't cancel an invalidation in progress
-                        addStmt(
-                            If(FlagTest(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_TRIGGERED),
-                                Block(FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID))));
-                    }
                     
                     beginBlock();
                     
@@ -1179,22 +1163,29 @@ however this is what we need */
                     JCExpression valueChangedTest = isValueType(type) ?
                         NOT(Call(defs.Checks_equals, id(defs.varOldValue_LocalVarName), id(newValueName)))
                       : NE(id(defs.varOldValue_LocalVarName), id(newValueName));
-                    
+                    // Default-Not_applied
+                    JCExpression defaultAppliedTest = FlagTest(defs.varFlags_LocalVarName, defs.varFlagINITIALIZED_STATE_BIT, null);
 
                     addStmt(
-                        OptIf (OR(valueChangedTest, id(isInitialized)), endBlock(), null));
+                        OptIf (OR(valueChangedTest, defaultAppliedTest), endBlock(), null));
+                
+                    if (inGet) {
+                        // Set the state valid and mark defaults as applied
+                        addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
+                    }
                 } else {
                     // Set the state valid and mark defaults as applied
                     addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
-
-                    if (needsInvalidate) {
-                        // Set the state valid and mark defaults as applied, but don't cancel an invalidation in progress
-                        addStmt(
-                            If(FlagTest(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_TRIGGERED),
-                                Block(FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID))));
-                    }
+                
                     // var = varNewValue$
                     addStmt(SetStmt(proxyVarSym, id(newValueName)));
+                }
+                
+                if (needsInvalidate) {
+                    // Set the state valid and mark defaults as applied, but don't cancel an invalidation in progress
+                    addStmt(
+                        If(FlagTest(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_TRIGGERED),
+                            Block(FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID))));
                 }
             }
         }
