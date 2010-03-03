@@ -76,6 +76,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private final JavafxAnnotate annotate;
     private final JavafxTypes types;
     private final Target target;
+    private final JavafxBoundContextAnalysis boundAnalysis;
 
     public static JavafxMemberEnter instance(Context context) {
         JavafxMemberEnter instance = context.get(javafxMemberEnterKey);
@@ -85,7 +86,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
 
     protected JavafxMemberEnter(Context context) {
-        
         context.put(javafxMemberEnterKey, this);
         names = Name.Table.instance(context);
         enter = JavafxEnter.instance(context);
@@ -95,6 +95,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         fxmake = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         reader = JavafxClassReader.instance(context);
+        boundAnalysis = JavafxBoundContextAnalysis.instance(context);
         todo = JavafxTodo.instance(context);
         annotate = JavafxAnnotate.instance(context);
         types = JavafxTypes.instance(context);
@@ -758,6 +759,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
             if (c.owner.kind == TYP)
                 c.owner.complete();
+
+            boundAnalysis.analyzeBindContexts(localEnv);
 
             // create an environment for evaluating the base clauses
             JavafxEnv<JavafxAttrContext> baseEnv = baseEnv(tree, localEnv);

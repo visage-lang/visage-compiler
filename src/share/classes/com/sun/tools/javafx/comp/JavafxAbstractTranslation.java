@@ -2167,11 +2167,16 @@ public abstract class JavafxAbstractTranslation
                 if (useAccessors) {
                     return postProcessExpression(buildSetter(tToCheck, buildRHS(rhsTranslatedPreserved)));
                 } else if (refSym instanceof VarSymbol && ((JavafxVarSymbol)refSym).isFXMember()) {
+                    if (((JavafxVarSymbol)refSym).useGetters()) {
+                        return Setter(tToCheck, refSym, rhsTranslatedPreserved);
+                    }
+                    else {
                     JCExpression lhsTranslated = selector != null ?
                         Select(tToCheck, attributeValueName(refSym)) :
-                        id(attributeValueName(refSym));
+                        Getter(refSym);
                     JCExpression res =  defaultFullExpression(lhsTranslated, rhsTranslatedPreserved);
                     return res;
+                    }
                 } else {
                     //TODO: possibly should use, or be unified with convertVariableReference
                     JCExpression lhsTranslated = selector != null ?
@@ -2831,17 +2836,19 @@ public abstract class JavafxAbstractTranslation
 
         void makeSetVarFlags(Name receiverName, Type contextType) {
             for (JavafxVarSymbol vsym : varSyms) {
-                Name objLitFlag = vsym.isSequence() ?
-                    defs.varFlagINIT_OBJ_LIT_SEQUENCE :
-                    defs.varFlagINIT_OBJ_LIT;
-                JCExpression flagsToSet = id(objLitFlag);
-
-                addPreface(CallStmt(
-                        id(receiverName),
-                        defs.varFlagActionChange,
-                        Offset(id(receiverName), vsym),
-                        id(defs.varFlagALL_FLAGS),
-                        flagsToSet));
+                if (vsym.useAccessors()) {
+                    Name objLitFlag = vsym.isSequence() ?
+                        defs.varFlagINIT_OBJ_LIT_SEQUENCE :
+                        defs.varFlagINIT_OBJ_LIT;
+                    JCExpression flagsToSet = id(objLitFlag);
+    
+                    addPreface(CallStmt(
+                            id(receiverName),
+                            defs.varFlagActionChange,
+                            Offset(id(receiverName), vsym),
+                            id(defs.varFlagALL_FLAGS),
+                            flagsToSet));
+                }
             }
         }
 
@@ -3842,19 +3849,24 @@ public abstract class JavafxAbstractTranslation
          * value is var value.
          */
         ExpressionResult doit() {
-            if (vsym.useAccessors() || !var.isLiteralInit()) {
-                return toResult(
-                        BlockExpression(
-                            FlagChangeStmt(vsym, null, defs.varFlagINIT_READY),
+            JCExpression tor;
+            if (!vsym.useAccessors() && var.isLiteralInit()) {
+                tor =   Get(vsym);
+            } else if (vsym.isSynthetic()) {
+                tor =   BlockExpression(
+                            If (FlagTest(vsym, defs.varFlagINIT_MASK, defs.varFlagINIT_READY),
+                                CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym))
+                            ),
+                            Get(vsym)
+                        );
+            } else {
+                tor =   BlockExpression(
+                            FlagChangeStmt(vsym, defs.varFlagINIT_WITH_AWAIT_MASK, defs.varFlagINIT_READY),
                             CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym)),
                             Get(vsym)
-                        ),
-                        vsym.type);
-            } else {
-                return toResult(
-                        Get(vsym),
-                        vsym.type);
-            }
+                        );
+            } 
+            return toResult(tor, vsym.type);
         }
     }
 

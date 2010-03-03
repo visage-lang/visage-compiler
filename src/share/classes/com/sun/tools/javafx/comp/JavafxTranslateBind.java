@@ -449,7 +449,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement setSequenceActive() {
-            return FlagChangeStmt(flagSymbol, null, activeFlagBit);
+            return FlagChangeStmt(flagSymbol, null, BITOR(id(defs.varFlagSEQUENCE_LIVE), id(defs.varFlagINIT_INITIALIZED_DEFAULT)));
         }
 
         JCStatement Assign(JCExpression vid, JCExpression value) {
@@ -514,21 +514,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         /**
-         * Invalidator for the bound sequence itself
-         * If called, we have been made active
-         */
-        private JCStatement makeInvalidateSelf() {
-            return
-                setSequenceActive();
-        }
-
-        /**
          * Simple bindee info from normal translation will do it
          */
         void setupInvalidators() {
             mergeResults(exprResult);
- //           addInvalidator(targetSymbol, makeInvalidateSelf());
-        }
+         }
     }
 
     /**
@@ -667,11 +657,16 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
+            JCVariableDecl vSize = TmpVar("size", syms.intType, CallSize(vsym));
             ListBuffer<JCStatement> tVarInits = ListBuffer.lb();
-            tVarInits.append(setSequenceActive());
             for (JFXExpression init : varInits) {
                 tVarInits.append(translateToStatement(init, syms.voidType));
             }
+            tVarInits.append(vSize);
+            tVarInits.append(setSequenceActive());
+            tVarInits.append(CallSeqInvalidateUndefined(targetSymbol));
+            tVarInits.append(CallSeqTriggerInitial(targetSymbol, id(vSize)));
+            tVarInits.append(Return(id(vSize)));
 
             return
                 Block(
@@ -2681,15 +2676,29 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCStatement MarkValid(JavafxVarSymbol sym) {
-            return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID);
+            if (sym.hasFlags()) {
+                return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID);
+            } else {
+                // Block() skips null statements.
+                return null;
+            }
         }
 
         private JCStatement MarkInvalid(JavafxVarSymbol sym) {
-            return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagINVALID_STATE_BIT);
+            if (sym.hasFlags()) {
+                return FlagChangeStmt(sym, defs.varFlagSTATE_MASK, defs.varFlagINVALID_STATE_BIT);
+            } else {
+                // Block() skips null statements.
+                return null;
+            }
         }
 
         private JCExpression IsInvalid(JavafxVarSymbol sym) {
-            return FlagTest(sym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT);
+            if (sym.hasFlags()) {
+                return FlagTest(sym, defs.varFlagINVALID_STATE_BIT, defs.varFlagINVALID_STATE_BIT);
+            } else {
+                return False();
+            }
         }
 
         private JCExpression IsValid(JavafxVarSymbol sym) {

@@ -52,6 +52,22 @@ public class Pointer implements KeyValueTarget {
         this.varnum = varnum;
     }
 
+    public Object getDefaultValue() {
+        switch (type) {
+            case BYTE: return (byte)0;
+            case SHORT: return (short)0;
+            case INTEGER: return 0;
+            case LONG: return 0L;
+            case FLOAT: return 0.0F;
+            case DOUBLE: return 0.0D;
+            case BOOLEAN: return false;
+            case SEQUENCE: return TypeInfo.Object.emptySequence;
+            case OBJECT: return null;
+        }
+        // unknown type, so return null
+        return null;
+    }
+
     public FXObject getFXObject() {
         return obj;
     }
@@ -69,26 +85,30 @@ public class Pointer implements KeyValueTarget {
     }
     
     public Object get() {
-        return obj.get$(varnum);
+        return obj != null? obj.get$(varnum) : getDefaultValue();
     }
 
     public Object get(int pos) {
         assert type == Type.SEQUENCE : "expecting a sequence type";
-        return obj.elem$(varnum, pos);
+        return obj != null? obj.elem$(varnum, pos) : null;
     }
 
     public void set(Object value) {
-        obj.set$(varnum, value);
+        if (obj != null) {
+            obj.set$(varnum, value);
+        }
     }
 
     public void set(int pos, Object value) {
         assert type == Type.SEQUENCE : "expecting a sequence type";
-        obj.set$(varnum, value);
+        if (obj != null) {
+            obj.set$(varnum, value);
+        }
     }
 
     public int size() {
         assert type == Type.SEQUENCE : "expecting a sequence type";
-        return obj.size$(varnum);
+        return obj != null? obj.size$(varnum)  : 0;
     }
 
     public Object getValue() {
@@ -115,15 +135,19 @@ public class Pointer implements KeyValueTarget {
     }
 
     public void addDependency(FXObject dep) {
-        obj.addDependent$(varnum, dep, 0);
+        if (obj != null) {
+            obj.addDependent$(varnum, dep, 0);
+        }
     }
 
     public void removeDependency(FXObject dep) {
-        obj.removeDependent$(varnum, dep);
+        if (obj != null) {
+            obj.removeDependent$(varnum, dep);
+        }
     }
 
     public static void switchDependence(Pointer oldPtr, Pointer newPtr, FXObject dep, int depNum) {
-        if (oldPtr != newPtr) {
+        if (oldPtr != newPtr && dep != null) {
             FXObject oldSrc = (oldPtr != null)? oldPtr.getFXObject() : null;
             FXObject newSrc = (newPtr != null)? newPtr.getFXObject() : null;
             int oldVarNum = (oldPtr != null)? oldPtr.getVarNum() : 0;
@@ -157,9 +181,7 @@ public class Pointer implements KeyValueTarget {
          * object is not alive and so remove it from it's dependencies.
          */
         public void unbind() {
-            if (srcPtr != null) {
-                srcPtr.removeDependency(listener);
-            }
+            srcPtr.removeDependency(listener);
             // clear everything related to Pointer bind.
             srcPtr = null;
             listener = null;
@@ -183,13 +205,16 @@ public class Pointer implements KeyValueTarget {
                     int startPos, int endPos, int newLength, final int phase) {
                 if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
                     // update value from "src"
-                    thisObj.set$(thisVarNum, src.get$(srcVarNum));
+                    if (thisObj != null) {
+                        thisObj.set$(thisVarNum, src.get$(srcVarNum));
+                    }
                 }
                 return true;
             }
         };
         // initial update from "srcPtr"
-        thisObj.set$(thisVarNum, srcPtr.getFXObject().get$(srcPtr.getVarNum()));
+        this.set(thisVarNum, srcPtr.get());
+
         // add dependency so that we will get notified with update$ calls
         srcPtr.addDependency(listener);
         // return a BoundPointer so that use can call call "unbind()" later, if needed

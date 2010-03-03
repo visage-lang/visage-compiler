@@ -42,10 +42,11 @@ public class JavafxVarSymbol extends VarSymbol {
 
     private JavafxTypeRepresentation typeRepresentation;
     private Type elementType = null;
-    private static int IS_DOT_CLASS = 1;
-    private static int IS_EXTERNALLY_SEEN = 2;
-    private static int USED_IN_SIZEOF = 4;
-    private static int USED_OUTSIDE_SIZEOF = 8;
+    private static int IS_DOT_CLASS        = 0x0001;
+    private static int IS_EXTERNALLY_SEEN  = 0x0002;
+    private static int USED_IN_SIZEOF      = 0x0004;
+    private static int USED_OUTSIDE_SIZEOF = 0x0008;
+    private static int HAS_VAR_INIT        = 0x0010;
     private int extraFlags;
     private int varIndex = -1;
 
@@ -66,6 +67,14 @@ public class JavafxVarSymbol extends VarSymbol {
         this.types = types;
         if (name == names._class)
             extraFlags |= IS_DOT_CLASS;
+    }
+    
+    public boolean hasVarInit() {
+        return (extraFlags & HAS_VAR_INIT) != 0;
+    }
+    
+    public void setHasVarInit() {
+        extraFlags |= HAS_VAR_INIT;
     }
 
     private void syncType() {
@@ -121,17 +130,36 @@ public class JavafxVarSymbol extends VarSymbol {
     public boolean isSpecial() {
         return (flags_field & JavafxFlags.VARUSE_SPECIAL) != 0;
     }
-    
+
+    public boolean isSynthetic() {
+        return (flags_field & SYNTHETIC) != 0;
+    }
+
     public boolean isBindAccess() {
         return (flags_field & JavafxFlags.VARUSE_BIND_ACCESS) != 0;
     }
     
     public boolean useAccessors() {
-        return isFXMember() && !isSpecial() &&
-                (!hasScriptOnlyAccess() ||
-                (flags_field & VARUSE_NEED_ACCESSOR) != 0 ||
-                (isBindAccess() && isAssignedTo()) ||
-                (owner.flags_field & MIXIN) != 0);
+        return 
+                isFXMember() &&
+                !isSpecial() &&
+                (   !hasScriptOnlyAccess() ||
+                    (flags_field & VARUSE_NEED_ACCESSOR) != 0 ||
+                    (isBindAccess() && isAssignedTo()) ||
+                    (owner.flags_field & MIXIN) != 0
+                );
+    }
+    
+    public boolean needsEnumeration() {
+        return useAccessors() ||
+               useGetters() ||
+               hasVarInit() ||
+               isExternallySeen() ||
+               (flags_field & VARUSE_OBJ_LIT_INIT) != 0;
+    }
+
+    public boolean hasFlags() {
+        return needsEnumeration();
     }
 
     public boolean useGetters() {

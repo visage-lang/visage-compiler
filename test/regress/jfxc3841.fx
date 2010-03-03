@@ -6,16 +6,16 @@
  */
 
 class A {
-var x on invalidate { println("inv A.x"); }
+  var x on invalidate { println("inv A.x"); }
 }
 
 class B extends A {
-var y = bind lazy x;
+  var y = bind x;
 }
 
 
 var k = 1;
-var b = B{x: bind lazy k};
+var b = B {x: bind k};
 b.x;
 println("start");
 k = 2; //fires twice
