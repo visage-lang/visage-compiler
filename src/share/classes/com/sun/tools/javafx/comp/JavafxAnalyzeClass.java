@@ -320,6 +320,12 @@ class JavafxAnalyzeClass {
         // Class local enumeration accessors.
         public int  getEnumeration()                { return enumeration; }
         public void setEnumeration(int enumeration) { this.enumeration = enumeration; }
+        public boolean hasEnumeration()             { return enumeration != -1; }
+        public boolean needsEnumeration() {
+            return !isOverride() &&
+                   needsCloning() &&
+                   sym.needsEnumeration();
+        }
 
         // null or javafx tree for the var's 'on replace'.
         public JFXOnReplace onReplace() { return null; }
@@ -421,7 +427,6 @@ class JavafxAnalyzeClass {
                                    (((flags & JavafxFlags.VARUSE_OBJ_LIT_INIT) != 0)      ? ", VARUSE_OBJ_LIT_INIT" : "") +
                                    (((flags & JavafxFlags.VARUSE_FORWARD_REFERENCE) != 0) ? ", VARUSE_FORWARD_REFERENCE" : "") +
                                    (((flags & JavafxFlags.VARUSE_SELF_REFERENCE) != 0)    ? ", VARUSE_SELF_REFERENCE" : "") +
-                                   (((flags & JavafxFlags.VARUSE_DEFINITION_SEEN) != 0)   ? ", VARUSE_DEFINITION_SEEN" : "") +
                                    (((flags & JavafxFlags.VARUSE_OPT_TRIGGER) != 0)       ? ", VARUSE_OPT_TRIGGER" : "") +
                                    (((flags & JavafxFlags.VARUSE_TMP_IN_INIT_EXPR) != 0)  ? ", VARUSE_TMP_IN_INIT_EXPR" : "") +
                                    (((flags & JavafxFlags.VARUSE_NEED_ACCESSOR) != 0)     ? ", VARUSE_NEED_ACCESSOR" : "") +
@@ -981,14 +986,14 @@ class JavafxAnalyzeClass {
 
         // Assign var enumeration and binders.
         for (VarInfo ai : classVarInfos) {
-            if (ai.needsCloning() && !ai.isOverride()) {
+            if (ai.needsEnumeration()) {
                 ai.setEnumeration(classVarCount++);
             }
            
             addBinders(ai);
         }
         for (VarInfo ai : scriptVarInfos) {
-           if (ai.needsCloning() && !ai.isOverride()) {
+           if (ai.needsEnumeration()) {
                ai.setEnumeration(scriptVarCount++);
            }
            
@@ -1530,7 +1535,6 @@ class JavafxAnalyzeClass {
                name == defs.update_FXObjectMethodName ||
                name == defs.complete_FXObjectMethodName ||
                name == defs.initialize_FXObjectMethodName ||
-               name == defs.hindInit_FXObjectMethodName ||
                name == defs.userInit_FXObjectMethodName ||
                name == defs.postInit_FXObjectMethodName ||
                name == defs.initVars_FXObjectMethodName ||

@@ -305,7 +305,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             ExpressionResult bindResult = translateBind(attrDef);
                             TranslatedVarInfo ai = new TranslatedVarInfo(
                                     attrDef,
-                                    translateVarInit(attrDef, bindResult),
+                                    translateVarInit(attrDef),
                                     initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
                                     bindResult,
                                     attrDef.getOnReplace(),
@@ -325,7 +325,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             ExpressionResult bindResult = translateBind(override);
                             TranslatedOverrideClassVarInfo ai = new TranslatedOverrideClassVarInfo(
                                     override,
-                                    translateVarInit(override, bindResult),
+                                    translateVarInit(override),
                                     initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
                                     bindResult,
                                     override.getOnReplace(),
@@ -454,11 +454,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         null;
         }
 
-        private JCStatement translateVarInit(JFXAbstractVar var, ExpressionResult bindResult) {
-            if (var.isBidiBind() && types.isSequence(var.type)) {
-                // Install the proxy sequence
-                return asStatement(bindResult, syms.voidType);
-            }
+        private JCStatement translateVarInit(JFXAbstractVar var) {
             if (var.getInitializer()==null || var.isBound()) {
                 // no init, or init handled by bind or JavafxVarInit
                 return null;
@@ -675,7 +671,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             if (! useAccessor) {
                 // Non-accessor-using variable sequence -- roughly:
                 // lhs = sequenceAction(lhs, rhs);
-                args.append(Getter(tToCheck, vsym));
+                args.append(Getter(copyOfTranslatedToCheck(tToCheck), vsym));
             } else {
                 // Instance variable sequence -- roughly:
                 // sequenceAction(instance, varNum, rhs);

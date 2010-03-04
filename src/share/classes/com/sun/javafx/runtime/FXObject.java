@@ -43,10 +43,12 @@ public interface FXObject {
     public static final int VFLGS$INVALID_STATE_BIT     = 0x0004;
     public static final int VFLGS$DEFAULT_STATE_BIT     = 0x0008;
     public static final int VFLGS$INITIALIZED_STATE_BIT = 0x0010;
-    public static final int VFLGS$IS_EAGER              = 0x0020;
-    public static final int VFLGS$SEQUENCE_LIVE         = 0x0040;
-    public static final int VFLGS$IS_BOUND              = 0x0080;
-    public static final int VFLGS$IS_READONLY           = 0x0100;
+    public static final int VFLGS$AWAIT_VARINIT_BIT     = 0x0020;
+    public static final int VFLGS$IS_EAGER              = 0x0040;
+    public static final int VFLGS$SEQUENCE_LIVE         = 0x0080;
+    public static final int VFLGS$IS_BOUND              = 0x0100;
+    public static final int VFLGS$IS_READONLY           = 0x0200;
+    public static final int VFLGS$FORWARD_ACCESS        = 0x0400;
 
     /**
      * Var validation states
@@ -62,8 +64,10 @@ public interface FXObject {
      * Var initialization states
      */
     public static final int VFLGS$INIT$MASK = VFLGS$INITIALIZED_STATE_BIT | VFLGS$DEFAULT_STATE_BIT;
+    public static final int VFLGS$INIT_WITH_AWAIT$MASK = VFLGS$INIT$MASK | VFLGS$AWAIT_VARINIT_BIT;
 
     public static final int VFLGS$INIT$PENDING             = 0;
+    public static final int VFLGS$INIT$AWAIT_VARINIT       = VFLGS$AWAIT_VARINIT_BIT;
     public static final int VFLGS$INIT$READY               = VFLGS$DEFAULT_STATE_BIT;
     public static final int VFLGS$INIT$INITIALIZED         = VFLGS$INITIALIZED_STATE_BIT;
     public static final int VFLGS$INIT$INITIALIZED_DEFAULT = VFLGS$INITIALIZED_STATE_BIT | VFLGS$DEFAULT_STATE_BIT;
@@ -148,7 +152,6 @@ public interface FXObject {
     public void     initVars$     ();
     public void     applyDefaults$();
     public void     applyDefaults$(final int varNum);
-    public void     hindInit$     ();
     public void     userInit$     ();
     public void     postInit$     ();
     public void     complete$     ();

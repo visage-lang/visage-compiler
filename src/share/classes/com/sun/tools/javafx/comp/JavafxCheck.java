@@ -2347,7 +2347,7 @@ public class JavafxCheck {
 	    this.names = names;
 	    this.types = types;
 	    this.defs = defs;
-	    this.optFwdRefKinds = kinds;
+	    this.optionalKinds = kinds;
 	}
 
 	Name.Table names;
@@ -2355,21 +2355,38 @@ public class JavafxCheck {
 	JavafxDefs defs;
 	List<VarScope> scopes = List.nil();
 	ClassSymbol enclClass = null;
-	Collection<ScopeKind> optFwdRefKinds;
+	Collection<ScopeKind> optionalKinds;
 
 	public enum ScopeKind {
-	    CLASS,
-	    FUNCTION_DEF,
-	    VAR_DEF,
-	    BLOCK_EXPR,
-	    ON_REPLACE,
-	    ON_INVALIDATE,
-	    FUNCTION_VALUE,
-	    INTERPOLATE_VALUE,
-	    KEYFRAME_LIT,
-	    BOUND_CTX,
-	    ASSIGN_CTX,
-	    OBJ_LIT;
+	    CLASS(false, false),
+	    FUNCTION_DEF(false, false),
+	    VAR_DEF(false, true),
+	    BLOCK_EXPR(false, true),
+	    ON_REPLACE(true, false),
+	    ON_INVALIDATE(true, false),
+	    FUNCTION_VALUE(true, false),
+	    INTERPOLATE_VALUE(true, false),
+	    KEYFRAME_LIT(true, false),
+	    BOUND_CTX(true, false),
+	    ASSIGN_CTX(true, false),
+	    OBJ_LIT(true, false),
+            OBJ_LIT_FUNC(true, false);
+
+            boolean optional;
+            boolean defaultTransparent;
+
+            ScopeKind(boolean optional, boolean defaultTransparent) {
+                this.optional = optional;
+                this.defaultTransparent = defaultTransparent;
+            }
+
+            public boolean isOptional() {
+                return optional;
+            }
+
+            public boolean isDefaultTransparent() {
+                return defaultTransparent;
+            }
 	}
 
 	protected class VarScope {
@@ -2391,10 +2408,8 @@ public class JavafxCheck {
 	public void visitClassDeclaration(JFXClassDeclaration tree) {
 	    ClassSymbol prevClass = enclClass;
 	    try {
-                boolean isObjLiteral =
-                        tree.sym.name.toString().contains(defs.objectLiteralClassInfix);
 		enclClass = tree.sym;
-		beginScope(isObjLiteral ?
+		beginScope(isObjLiteral(tree.sym) ?
                     ScopeKind.OBJ_LIT :
                     ScopeKind.CLASS
                 );
@@ -2411,7 +2426,9 @@ public class JavafxCheck {
 	public void visitFunctionValue(JFXFunctionValue tree) {
 	    beginScope(tree.definition.sym.name.equals(defs.lambda_MethodName) ?
                 ScopeKind.FUNCTION_VALUE :
-                ScopeKind.FUNCTION_DEF);
+                isObjLiteral(tree.definition.sym.owner) ?
+                    ScopeKind.OBJ_LIT_FUNC :
+                    ScopeKind.FUNCTION_DEF);
 	    super.visitFunctionValue(tree);
 	    endScope();
 	}
@@ -2542,21 +2559,21 @@ public class JavafxCheck {
             checkForwardReference(currentScope(), tree, s, false);
         }
 
-	private void checkForwardReference(VarScope scope, JFXExpression tree, Symbol s, boolean potential) {
-	    if ((!tree.isBound() || optFwdRefKinds.contains(ScopeKind.BOUND_CTX)) &&
+	private void checkForwardReference(VarScope scope, JFXExpression tree, Symbol s, boolean optional) {
+	    if ((!tree.isBound() || optionalKinds.contains(ScopeKind.BOUND_CTX)) &&
                     s != null && s instanceof JavafxVarSymbol) {
 		JavafxVarSymbol vsym = (JavafxVarSymbol)s;
 		if (scope.currentVar == s) {
-                    reportForwardReference(tree, true, vsym, tree.isBound() || potential);
+                    reportForwardReference(tree, true, vsym, tree.isBound() || optional);
                 }
                 else if (vsym.name != names._this &&
 			vsym.name != names._super &&
 			(isForwardReferenceInSameClass(scope, vsym) ||
                         isForwardReferenceInSubclass(scope, vsym))) {
-		    reportForwardReference(tree, false, vsym, tree.isBound() || potential);
+		    reportForwardReference(tree, false, vsym, tree.isBound() || optional);
 		}
-                else if (isTransparent(scope.kind) || isPotential(scope.kind)) {
-                    checkForwardReference(scope.prevScope, tree, s, potential || isPotential(scope.kind));
+                else if (isTransparent(scope.kind) && scope.prevScope != null) {
+                    checkForwardReference(scope.prevScope, tree, s, optional || scope.kind.isOptional());
                 }
 	    }
 	}
@@ -2573,7 +2590,7 @@ public class JavafxCheck {
 
 	private void beginScope(ScopeKind kind) {
 	    VarScope prevScope = currentScope();
-	    VarScope newScope = isTransparent(kind) || isPotential(kind) ?
+	    VarScope newScope = isTransparent(kind) ?
 		new VarScope(kind, prevScope) :
 		new VarScope(kind);
             scopes = scopes.prepend(newScope);
@@ -2614,17 +2631,13 @@ public class JavafxCheck {
 	    }
 	}
 
-        private boolean isPotential(ScopeKind kind) {
-            return optFwdRefKinds.contains(kind) &&
-                    kind != ScopeKind.CLASS &&
-                    kind != ScopeKind.FUNCTION_DEF &&
-                    kind != ScopeKind.VAR_DEF &&
-                    kind != ScopeKind.BLOCK_EXPR;
+        private boolean isObjLiteral(Symbol sym) {
+            return sym.name.toString().contains(defs.objectLiteralClassInfix);
         }
 
         private boolean isTransparent(ScopeKind kind) {
-            return kind == ScopeKind.VAR_DEF ||
-                    kind == ScopeKind.BLOCK_EXPR;
+            return kind.isDefaultTransparent() ||
+                   (kind.isOptional() && optionalKinds.contains(kind));
         }
 
 	protected abstract void reportForwardReference(DiagnosticPosition pos, boolean selfReference, Symbol s, boolean potential);
@@ -2638,6 +2651,7 @@ public class JavafxCheck {
 	}
 	if (s.contains("objlit")) {
 	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.OBJ_LIT);
+            kinds = kinds.append(ForwardReferenceChecker.ScopeKind.OBJ_LIT_FUNC);
 	}
 	if (s.contains("bind")) {
 	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.BOUND_CTX);
@@ -2650,7 +2664,7 @@ public class JavafxCheck {
 	}
 	if (s.contains("lambda")) {
 	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.FUNCTION_VALUE);
-	}
+	}        
         if (s.contains("assign")) {
 	    kinds = kinds.append(ForwardReferenceChecker.ScopeKind.ASSIGN_CTX);
 	}
