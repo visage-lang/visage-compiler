@@ -1116,19 +1116,21 @@ public class Timeline {
                     /**
                      * If timeline already reaches the end before it even starts,
                      * and intends to move forward, treat it as a completed
-                     * forward cycle.
+                     * forward cycle (unless the Timeline has 0 duration).
                      */
-                    if((time.toMillis() as Number) >= timelineDur) {
+                    if((time.toMillis() as Number) >= timelineDur and
+                        timelineDur > 0) {
                         cycleIndex ++;
                         prepareForNextCycle(false);
-                        }
+                    }
                 } else {
                     lastElapsed = timelineDur - curPos;
                     /**
                      * If timeline is at initial position and intends to move backward,
-                     * treat it as a completed backward cycle.
+                     * treat it as a completed backward cycle (unless the
+                     * Timeline has 0 duration).
                      */
-                    if(time <= 0ms) {
+                    if(time <= 0ms and timelineDur > 0) {
                         cycleIndex ++;
                         prepareForNextCycle(false);
                     }
