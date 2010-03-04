@@ -226,6 +226,8 @@ public class JavafxcTrees {
         JFXScript unit = (JFXScript) path.getCompilationUnit();
         Copier copier = new Copier(fxmake.forToplevel(unit));
 
+        copier.endPositions = unit.endPositions;
+
         JavafxEnv<JavafxAttrContext> env = null;
         JFXFunctionDefinition function = null;
         JFXVar field = null;
