@@ -44,6 +44,9 @@ import static com.sun.tools.javafx.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class JavafxScriptClassBuilder {
     protected static final Context.Key<JavafxScriptClassBuilder> javafxModuleBuilderKey =
@@ -425,9 +428,23 @@ public class JavafxScriptClassBuilder {
         moduleClass.isScriptClass   = true;
         moduleClass.runMethod       = userRunFunction;
         topLevelDefs.append(moduleClass);
-        
+
         module.defs = topLevelDefs.toList();
 
+        // Sort the list into startPosition order for IDEs
+        //
+        ArrayList<JFXTree> sortL = new ArrayList<JFXTree>(moduleClass.getMembers());
+        Collections.sort(sortL);
+
+        // This a hokey way to do this, but we are using mjavac.util.List and it doesn't
+        // support much. Fortunately, there won't be thousands of entries in the member lists
+        //
+        scriptClassDefs.clear();
+        for (JFXTree e : sortL) {
+            scriptClassDefs.append(e);
+        }
+        moduleClass.setMembers(scriptClassDefs.toList());
+        
         convertAccessFlags(module);
 
         reservedTopLevelNamesSet = null;
@@ -534,13 +551,13 @@ public class JavafxScriptClassBuilder {
     }
 
     /**
-     * Constructs the internal static run function when the user ahs explicitly supplied a
+     * Constructs the internal static run function when the user has explicitly supplied a
      * declaration and body for that function.
      *
      * TODO: Review whether the caller even needs to copy the statements from the existing
      *       body into stats, or can just use it. This change to code positions was done as
      *       an emergency patch (JFXC-2291) for release 1.0 and I thought
-     *       it best to perform minimal surgery on the exsting mechanism - Jim Idle.
+     *       it best to perform minimal surgery on the existing mechanism - Jim Idle.
      *
      * @param module           The Script level node
      * @param argName          The symbol table name of the args array
