@@ -91,7 +91,7 @@ public class JFXC4087 {
         JavacFileManager manager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
 
         ArrayList<JavaFileObject> filesToCompile = new ArrayList<JavaFileObject>();
-        filesToCompile.add(manager.getFileForInput(inputDir + DIR + "InClausePosition.fx"));
+        filesToCompile.add(manager.getFileForInput(inputDir + DIR + "JFXC4087.fx"));
 
         JavafxcTask task = tool.getTask(null, null, null, Arrays.asList("-XDdisableStringFolding", "-XDpreserveTrees", "-Xjcov", "-cp",
                 javafxLibs + DIR + "javafxc.jar" + SEP + javafxLibs + DIR + "javafxrt.jar" + SEP + javafxDeskLibs + DIR + "javafx-ui-common.jar" + SEP + inputDir), filesToCompile);
