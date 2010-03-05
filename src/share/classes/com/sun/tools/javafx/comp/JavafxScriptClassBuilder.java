@@ -44,6 +44,9 @@ import static com.sun.tools.javafx.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class JavafxScriptClassBuilder {
     protected static final Context.Key<JavafxScriptClassBuilder> javafxModuleBuilderKey =
@@ -205,10 +208,11 @@ public class JavafxScriptClassBuilder {
         //debugPositions(module);
 
         ListBuffer<JFXTree> scriptTops = ListBuffer.<JFXTree>lb();
-        scriptTops.appendList( pseudoVariables(pseudoScanner.diagPos, moduleClassName, module,
-                pseudoScanner.usesSourceFile, pseudoScanner.usesFile, pseudoScanner.usesDir, pseudoScanner.usesProfile) );
+        final List<JFXTree> pseudoVars = pseudoVariables(module.pos(), moduleClassName, module,
+                pseudoScanner.usesSourceFile, pseudoScanner.usesFile, pseudoScanner.usesDir, pseudoScanner.usesProfile);
+        scriptTops.appendList(pseudoVars);
         scriptTops.appendList(module.defs);
-
+        
         // Determine if this is a library script
         boolean externalAccessFound = false;
         JFXFunctionDefinition userRunFunction = null;
@@ -418,15 +422,43 @@ public class JavafxScriptClassBuilder {
         } else {
             moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }
+        
         // Check endpos for IDE
         //
         setEndPos(module, moduleClass, module);
         
         moduleClass.isScriptClass   = true;
+        if (scriptingMode)
+            moduleClass.setScriptingModeScript();
         moduleClass.runMethod       = userRunFunction;
         topLevelDefs.append(moduleClass);
-        
+
         module.defs = topLevelDefs.toList();
+
+        // Sort the list into startPosition order for IDEs
+        //
+        
+        ArrayList<JFXTree> sortL = new ArrayList<JFXTree>(moduleClass.getMembers());
+        Collections.sort(sortL, new Comparator<JFXTree>() {
+            public int compare(JFXTree t1, JFXTree t2) {
+                if (pseudoVars.contains(t1)) {
+                    return -1;
+                } else if (pseudoVars.contains(t2)) {
+                    return +1;
+                } else {
+                    return t1.getStartPosition() - t2.getStartPosition();
+                }
+            }
+        });
+
+        // This a hokey way to do this, but we are using mjavac.util.List and it doesn't
+        // support much. Fortunately, there won't be thousands of entries in the member lists
+        //
+        scriptClassDefs.clear();
+        for (JFXTree e : sortL) {
+            scriptClassDefs.append(e);
+        }
+        moduleClass.setMembers(scriptClassDefs.toList());
 
         convertAccessFlags(module);
 
@@ -534,13 +566,13 @@ public class JavafxScriptClassBuilder {
     }
 
     /**
-     * Constructs the internal static run function when the user ahs explicitly supplied a
+     * Constructs the internal static run function when the user has explicitly supplied a
      * declaration and body for that function.
      *
      * TODO: Review whether the caller even needs to copy the statements from the existing
      *       body into stats, or can just use it. This change to code positions was done as
      *       an emergency patch (JFXC-2291) for release 1.0 and I thought
-     *       it best to perform minimal surgery on the exsting mechanism - Jim Idle.
+     *       it best to perform minimal surgery on the existing mechanism - Jim Idle.
      *
      * @param module           The Script level node
      * @param argName          The symbol table name of the args array

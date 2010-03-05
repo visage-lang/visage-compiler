@@ -2398,6 +2398,7 @@ public class JavafxCheck {
                 this.prevScope = prevScope;
             }
             ScopeKind kind;
+            boolean isStatic = false;
             VarScope prevScope = null;
             Set<JavafxVarSymbol> uninited_vars = new LinkedHashSet<JavafxVarSymbol>();
             JavafxVarSymbol currentVar = null;
@@ -2414,6 +2415,7 @@ public class JavafxCheck {
                     ScopeKind.CLASS
                 );
 		addVars(tree.getMembers());
+                currentScope().isStatic = tree.sym.isStatic();
 		super.visitClassDeclaration(tree);
 		endScope();
 	    }
@@ -2424,11 +2426,15 @@ public class JavafxCheck {
 
 	@Override
 	public void visitFunctionValue(JFXFunctionValue tree) {
-	    beginScope(tree.definition.sym.name.equals(defs.lambda_MethodName) ?
+            boolean isLambda = tree.definition.sym.name.equals(defs.lambda_MethodName);
+            beginScope(isLambda ?
                 ScopeKind.FUNCTION_VALUE :
                 isObjLiteral(tree.definition.sym.owner) ?
                     ScopeKind.OBJ_LIT_FUNC :
                     ScopeKind.FUNCTION_DEF);
+            if (!isLambda) {
+                currentScope().isStatic = tree.definition.sym.isStatic();
+            }
 	    super.visitFunctionValue(tree);
 	    endScope();
 	}
@@ -2483,6 +2489,7 @@ public class JavafxCheck {
 	public void visitVar(JFXVar tree) {
 	    if (tree.getSymbol() != null) {
                 beginScope(ScopeKind.VAR_DEF);
+                currentScope().isStatic = tree.getSymbol().isStatic();
                 currentScope().currentVar = tree.getSymbol();
                 super.scan(tree.getInitializer());
                 removeVar(tree.getSymbol());
@@ -2515,6 +2522,7 @@ public class JavafxCheck {
 		currentScope().overrideVarIdx =
                         tree.getSymbol().getAbsoluteIndex(enclClass.type);
                 currentScope().currentVar = tree.getSymbol();
+                currentScope().isStatic = tree.getSymbol().isStatic();
                 scan(tree.getInitializer());
                 currentScope().overrideVarIdx++;
                 super.scan(tree.getOnReplace());
@@ -2579,12 +2587,14 @@ public class JavafxCheck {
 	}
         //where
         private boolean isForwardReferenceInSameClass(VarScope scope, JavafxVarSymbol vsym) {
-            return scope.uninited_vars.contains(vsym);
+            return scope.uninited_vars.contains(vsym) &&
+                    vsym.isStatic() == currentScope().isStatic;
         }
         //where
         private boolean isForwardReferenceInSubclass(VarScope scope, JavafxVarSymbol vsym) {
             int refIdx = vsym.getAbsoluteIndex(enclClass.type);
             return scope.overrideVarIdx <= refIdx &&
+                    vsym.isMember() &&
                     enclClass.isSubClass(vsym.owner, types);
         }
 
@@ -2593,6 +2603,9 @@ public class JavafxCheck {
 	    VarScope newScope = isTransparent(kind) ?
 		new VarScope(kind, prevScope) :
 		new VarScope(kind);
+            newScope.isStatic = prevScope != null ?
+                prevScope.isStatic :
+                false;
             scopes = scopes.prepend(newScope);
 	}
 

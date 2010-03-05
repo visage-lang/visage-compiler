@@ -23,9 +23,11 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
+import java.util.Map;
 
 /**
  * Creates a copy of a tree, using a given TreeMaker.
@@ -37,6 +39,8 @@ public class JavafxTreeCopier implements JavafxVisitor {
     private JavafxTreeMaker maker;
     private JFXTree result;
 
+    public Map<JCTree, Integer> endPositions;
+
     /** Creates a new instance of TreeCopier */
     public JavafxTreeCopier(JavafxTreeMaker maker) {
         this.maker = maker;
@@ -47,6 +51,13 @@ public class JavafxTreeCopier implements JavafxVisitor {
         if (tree == null)
             return null;
         tree.accept(this);
+
+        // Update the end positions map, we keep the prior object
+        // in there in case others have references to them.
+        //
+        Integer endpos = endPositions.get(tree);
+        endPositions.put(result, endpos);
+
         return (T)result;
     }
 
@@ -296,6 +307,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
         List<JFXExpression> stats = copy(tree.stats);
         JFXExpression value = copy(tree.value);
         result = maker.at(tree.pos).Block(tree.flags, stats, value);
+
     }
 
     public void visitFunctionValue(JFXFunctionValue tree) {

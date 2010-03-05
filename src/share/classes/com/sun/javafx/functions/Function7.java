@@ -44,6 +44,10 @@ public class Function7<R, A1, A2, A3, A4, A5, A6, A7> extends Function<R> {
     
     // Override this
     public R invoke(A1 x1, A2 x2, A3 x3, A4 x4, A5 x5, A6 x6, A7 x7) {
-        throw new RuntimeException("invoke function missing");
+        if (implementor != null) {
+            return (R) implementor.invoke$(number, x1, x2, new Object[] { x3, x4, x5, x6, x7 });
+        } else {
+            throw new RuntimeException("invoke function missing");
+        }
     }
 }

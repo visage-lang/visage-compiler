@@ -163,7 +163,7 @@ class JavafxAnalyzeClass {
         private final Name name;
 
         // Null or code for initializing the var.
-        protected final JCStatement initStmt;
+        protected final JCExpression initExpr;
 
         // The class local enumeration value for this var.
         private int enumeration = -1;
@@ -177,11 +177,11 @@ class JavafxAnalyzeClass {
         // True if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
         private boolean needsMixinInterface = false;
 
-        private VarInfo(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JCStatement initStmt) {
+        private VarInfo(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JCExpression initExpr) {
             this.diagPos = diagPos;
             this.name = name;
             this.sym = attrSym;
-            this.initStmt = initStmt;
+            this.initExpr = initExpr;
         }
 
         // Return the var symbol.
@@ -195,6 +195,7 @@ class JavafxAnalyzeClass {
         public Type getElementType()  { return sym.getElementType(); }
         public boolean useAccessors() { return sym.useAccessors(); }
         public boolean useGetters()   { return sym.useGetters(); }
+        public boolean useSetters()   { return sym.useSetters() || needsMixinInterface(); }
 
         // Return var name.
         public Name getName() { return name; }
@@ -315,7 +316,7 @@ class JavafxAnalyzeClass {
             return sym.isSequence();
         }
         // Returns null or the code for var initialization.
-        public JCStatement getDefaultInitStatement() { return initStmt; }
+        public JCExpression getDefaultInitExpression() { return initExpr; }
 
         // Class local enumeration accessors.
         public int  getEnumeration()                { return enumeration; }
@@ -414,7 +415,7 @@ class JavafxAnalyzeClass {
                                (!boundBoundSelects().isEmpty() ? ", inter binds" : "") + 
                                (binders != null ?  ", binders" : "") + 
                                (!boundInvalidatees.isEmpty() ?  ", invalidators" : "") + 
-                               (getDefaultInitStatement() != null ? ", init" : "") +
+                               (getDefaultInitExpression() != null ? ", init" : "") +
                                (isBareSynth() ? ", bare" : "") +
                                (needsMixinInterface() ? ", needsMixinInterface" : "") +
                                ", class=" + getClass().getSimpleName());
@@ -502,10 +503,10 @@ class JavafxAnalyzeClass {
         private final ExpressionResult bindOrNull;
 
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, 
-                JCStatement initStmt, ExpressionResult bindOrNull,
+                JCExpression initExpr, ExpressionResult bindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
-            super(diagPos, name, attrSym, initStmt);
+            super(diagPos, name, attrSym, initExpr);
             this.hasInitializer = hasInitializer;
             this.bindStatus = bindStatus;
             this.bindOrNull = bindOrNull;
@@ -601,12 +602,12 @@ class JavafxAnalyzeClass {
         private final Symbol boundFuncResultInitSym;
 
         TranslatedVarInfo(JFXVar var, 
-                JCStatement initStmt, Symbol boundFuncResultInitSym,
+                JCExpression initExpr, Symbol boundFuncResultInitSym,
                 ExpressionResult bindOrNull, 
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null,
-                  initStmt, bindOrNull,
+                  initExpr, bindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.var = var;
             this.boundFuncResultInitSym = boundFuncResultInitSym;
@@ -696,12 +697,12 @@ class JavafxAnalyzeClass {
 
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
-                JCStatement initStmt, Symbol boundFuncResultInitSym,
+                JCExpression initExpr, Symbol boundFuncResultInitSym,
                 ExpressionResult bindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer() != null, 
-                    initStmt, bindOrNull,
+                    initExpr, bindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.boundFuncResultInitSym = boundFuncResultInitSym;
         }
@@ -806,12 +807,12 @@ class JavafxAnalyzeClass {
 
         // Returns null or the code for var initialization.
         @Override
-        public JCStatement getDefaultInitStatement() {
-            if (hasOverrideVar() && overrideVar().initStmt != null) {
-                return overrideVar().initStmt;
+        public JCExpression getDefaultInitExpression() {
+            if (hasOverrideVar() && overrideVar().initExpr != null) {
+                return overrideVar().initExpr;
             }
             
-            return initStmt;
+            return initExpr;
         }
 
         // Return true if the var has a bound definition.

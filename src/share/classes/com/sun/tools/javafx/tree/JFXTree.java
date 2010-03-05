@@ -188,12 +188,13 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
     }
     
     /**
-     * Allow all nodes to become equivalent to Erronous by being abel to
+     * Allow all nodes to become equivalent to Erronous by being able to
      * return any Erroneous error nodes they are holding (default they don't have any).
      */
     public List<? extends JFXTree> getErrorTrees() {
         return List.<JFXTree>nil();
     }
+
     /****
      * Make JCTree happy
      */

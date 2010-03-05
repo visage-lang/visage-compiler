@@ -51,18 +51,18 @@ public abstract class Function<R> {
      * while the rest are passed in rargs.
      * */
     public Object invoke$(Object arg1, Object arg2, Object[] rargs) {
-        if (implementor != null) {
-            return implementor.invoke$(number, arg1, arg2, rargs);
-        } else {
-            return invoke();
-        }
+        return invoke();
     }
     
     /** Used to support "hand-written" Java Function objects.
      * Override this as needed.
      */
     public R invoke() {
-        throw new RuntimeException("invoke function missing");
+        if (implementor != null) {
+            return (R) implementor.invoke$(number, null, null, null);
+        } else {
+            throw new RuntimeException("invoke function missing");
+        }
     }
     
     // Format for easier debugging.

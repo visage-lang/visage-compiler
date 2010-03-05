@@ -28,16 +28,12 @@ import java.lang.annotation.Annotation;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
 import com.sun.javafx.functions.*;
 import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.javafx.runtime.DependentsManager;
 
 /**
  * Implement JavaFX rfeflection on top of {@java.lang.reflect}.
@@ -241,6 +237,7 @@ public class FXLocal {
             }
         }
 
+        @Override
         public Value makeSequenceValue(FXValue[] values, int nvalues, FXType elementType) {
             return new SequenceValue(values, nvalues, elementType, this);
         }
@@ -283,10 +280,12 @@ public class FXLocal {
         /** Returns a hash-code.
          * @return the hash-code of the name.
          */
+        @Override
         public int hashCode() {
             return (name != null ? name : refClass.getName()).hashCode();
         }
     
+        @Override
         public boolean equals (Object obj) {
             return obj instanceof ClassType
                 && refClass == ((ClassType) obj).refClass;
@@ -394,7 +393,6 @@ public class FXLocal {
             "restrictSet$",
             "setDepChain$internal$",
             "switchDependence$",
-            "hindInit$",
             "userInit$",
             "getFlags$",
             "setFlags$",
