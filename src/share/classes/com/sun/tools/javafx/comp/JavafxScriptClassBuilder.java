@@ -208,10 +208,11 @@ public class JavafxScriptClassBuilder {
         //debugPositions(module);
 
         ListBuffer<JFXTree> scriptTops = ListBuffer.<JFXTree>lb();
-        scriptTops.appendList( pseudoVariables(pseudoScanner.diagPos, moduleClassName, module,
-                pseudoScanner.usesSourceFile, pseudoScanner.usesFile, pseudoScanner.usesDir, pseudoScanner.usesProfile) );
+        final List<JFXTree> pseudoVars = pseudoVariables(module.pos(), moduleClassName, module,
+                pseudoScanner.usesSourceFile, pseudoScanner.usesFile, pseudoScanner.usesDir, pseudoScanner.usesProfile);
+        scriptTops.appendList(pseudoVars);
         scriptTops.appendList(module.defs);
-
+        
         // Determine if this is a library script
         boolean externalAccessFound = false;
         JFXFunctionDefinition userRunFunction = null;
@@ -421,6 +422,7 @@ public class JavafxScriptClassBuilder {
         } else {
             moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }
+        
         // Check endpos for IDE
         //
         setEndPos(module, moduleClass, module);
@@ -435,8 +437,19 @@ public class JavafxScriptClassBuilder {
 
         // Sort the list into startPosition order for IDEs
         //
+        
         ArrayList<JFXTree> sortL = new ArrayList<JFXTree>(moduleClass.getMembers());
-        Collections.sort(sortL);
+        Collections.sort(sortL, new Comparator<JFXTree>() {
+            public int compare(JFXTree t1, JFXTree t2) {
+                if (pseudoVars.contains(t1)) {
+                    return -1;
+                } else if (pseudoVars.contains(t2)) {
+                    return +1;
+                } else {
+                    return t1.getStartPosition() - t2.getStartPosition();
+                }
+            }
+        });
 
         // This a hokey way to do this, but we are using mjavac.util.List and it doesn't
         // support much. Fortunately, there won't be thousands of entries in the member lists
@@ -446,7 +459,7 @@ public class JavafxScriptClassBuilder {
             scriptClassDefs.append(e);
         }
         moduleClass.setMembers(scriptClassDefs.toList());
-        
+
         convertAccessFlags(module);
 
         reservedTopLevelNamesSet = null;

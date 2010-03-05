@@ -46,7 +46,7 @@ import com.sun.source.tree.TreeVisitor;
  * well... except for things like statement which (at least for now) have to be subclassed
  * off other parts of the JCTree.
  */
-public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Cloneable, Comparable<JFXTree>, DiagnosticPosition {
+public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Cloneable, DiagnosticPosition {
 
     /**
      * The Generated type of this node - for instance, was it synthesised by the compiler?
@@ -193,17 +193,6 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
      */
     public List<? extends JFXTree> getErrorTrees() {
         return List.<JFXTree>nil();
-    }
-
-    /**
-     * Comparator for the Comparible interface allows collections of
-     * JFXTree to be sorted by their position in the source code.
-     *
-     * @param o2 The sort supplied object to which we must compare ourselves
-     * @return -ve if this is less than the supplied, 0 if equal, +ve if greater
-     */
-    public int compareTo(JFXTree o2) {
-        return this.getStartPosition() - o2.getStartPosition();
     }
 
     /****
