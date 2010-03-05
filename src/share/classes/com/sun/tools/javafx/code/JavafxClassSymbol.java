@@ -44,6 +44,7 @@ public class JavafxClassSymbol extends ClassSymbol {
     public JavafxVarSymbol thisSymbol;
     public JavafxVarSymbol superSymbol;
     public JavafxVarSymbol scriptAccessSymbol;
+    private boolean isScriptingModeScript;
     private int memberVarCount = 0;
     private int scriptVarCount = 0;
     
@@ -82,5 +83,13 @@ public class JavafxClassSymbol extends ClassSymbol {
 
     public int getScriptVarCount() {
         return scriptVarCount;
+    }
+    
+    public boolean isScriptingModeScript() {
+        return isScriptingModeScript;
+    }
+
+    public void setScriptingModeScript() {
+        isScriptingModeScript = true;
     }
 }

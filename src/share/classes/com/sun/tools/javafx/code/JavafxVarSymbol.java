@@ -144,6 +144,8 @@ public class JavafxVarSymbol extends VarSymbol {
                 isFXMember() &&
                 !isSpecial() &&
                 (   !hasScriptOnlyAccess() ||
+                    (owner instanceof JavafxClassSymbol &&
+                     ((JavafxClassSymbol) owner).isScriptingModeScript()) ||
                     (flags_field & VARUSE_NEED_ACCESSOR) != 0 ||
                     (isBindAccess() && isAssignedTo()) ||
                     (owner.flags_field & MIXIN) != 0

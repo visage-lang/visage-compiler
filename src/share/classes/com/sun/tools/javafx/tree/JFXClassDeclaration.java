@@ -52,6 +52,7 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     public JFXFunctionDefinition runMethod;
     public Scope runBodyScope;
     public boolean isScriptClass;
+    private boolean isScriptingModeScript;
     public boolean hasBeenTranslated; // prevent multiple translations
     
     private ListBuffer<JCTree> classInvokeCases;
@@ -228,5 +229,13 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         } else {
             return classInvokeCases.toList();
         }
+    }
+
+    public boolean isScriptingModeScript() {
+        return isScriptingModeScript;
+    }
+
+    public void setScriptingModeScript() {
+        isScriptingModeScript = true;
     }
 }

@@ -426,6 +426,8 @@ public class JavafxScriptClassBuilder {
         setEndPos(module, moduleClass, module);
         
         moduleClass.isScriptClass   = true;
+        if (scriptingMode)
+            moduleClass.setScriptingModeScript();
         moduleClass.runMethod       = userRunFunction;
         topLevelDefs.append(moduleClass);
 

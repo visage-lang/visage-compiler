@@ -298,6 +298,8 @@ public class JavafxEnter extends JavafxTreeScanner {
         log.useSource(prev);
         tree.scriptScope = moduleClass.sym.members_field;
         scriptScopes.append(moduleClass.sym.members_field);
+        if (moduleClass.isScriptingModeScript())
+            ((JavafxClassSymbol) moduleClass.sym).setScriptingModeScript();
         result = null;
     }
 
