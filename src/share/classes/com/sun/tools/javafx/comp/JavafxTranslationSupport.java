@@ -172,61 +172,6 @@ public abstract class JavafxTranslationSupport {
         return false;
     }
 
-    boolean hasDependencies(JFXExpression expr, final Set<Symbol> exclusions) {
-        class DependencyScanner extends JavafxTreeScanner {
-
-            boolean hasDependencies = false;
-
-            private void markHasDependencies() {
-                hasDependencies = true;
-            }
-
-            @Override
-            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
-                Symbol sym = JavafxTreeInfo.symbol(tree.getMethodSelect());
-                if (sym == null || (sym.flags() & JavafxFlags.BOUND) != 0L) {
-                    markHasDependencies();
-                } else {
-                    super.visitFunctionInvocation(tree);
-                }
-            }
-
-            @Override
-            public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
-                if (!tree.isExplicitlyBound()) {
-                    super.visitObjectLiteralPart(tree);
-                }
-            }
-
-            @Override
-            public void visitIdent(JFXIdent tree) {
-                if (!exclusions.contains(tree.sym) && !preTrans.isImmutable(tree)) {
-                    markHasDependencies();
-                }
-            }
-
-            @Override
-            public void visitSelect(JFXSelect tree) {
-                if (!preTrans.isImmutable(tree)) {
-                    markHasDependencies();
-                }
-            }
-
-            @Override
-            public void visitInterpolateValue(JFXInterpolateValue that) {
-                markHasDependencies(); // errr, umm, better safe than sorry
-            }
-
-            @Override
-            public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
-                markHasDependencies(); // errr, umm, better safe than sorry
-            }
-        }
-        DependencyScanner scanner = new DependencyScanner();
-        scanner.scan(expr);
-        return scanner.hasDependencies;
-    }
-
     boolean hasSideEffects(JFXExpression expr) {
         class SideEffectScanner extends JavafxTreeScanner {
 
@@ -1863,7 +1808,7 @@ public abstract class JavafxTranslationSupport {
             if (vsym.isSpecial()) {
                 return Set(selector, sym, value);
             } else if (vsym.isMember()) {
-                if (vsym.useAccessors()) {
+                if (vsym.useSetters()) {
                     return Call(selector, attributeSetterName(sym), value);
                 } else {
                     return Set(selector, sym, value);

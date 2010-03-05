@@ -2753,7 +2753,7 @@ public abstract class JavafxAbstractTranslation
                     def = CallStmt(defs.Sequences_set, tc,
                             Offset(id(instanceName), vsym), transInit);
                 } else {
-                    def = CallStmt(tc, attributeSetterName(vsym), transInit);
+                    def = SetterStmt(tc, vsym, transInit);
                 }
             } else {
                 def = SetStmt(tc, vsym, transInit);
@@ -3794,42 +3794,6 @@ public abstract class JavafxAbstractTranslation
             }
 
             return body;
-        }
-    }
-
-    /**
-     * Translate to a built-in construct
-     */
-    abstract class NewBuiltInInstanceTranslator extends NewInstanceTranslator {
-
-        protected final Type builtIn;
-
-        NewBuiltInInstanceTranslator(DiagnosticPosition diagPos, Type builtIn) {
-            super(diagPos, null);
-            this.builtIn = builtIn;
-        }
-
-        /**
-         * Arguments for the constructor.
-         * There are no user arguments to built-in class constructors.
-         * Just generate the default init 'true' flag for JavaFX generated constructors.
-         */
-        protected List<JCExpression> completeTranslatedConstructorArgs() {
-            return List.<JCExpression>nil();
-        }
-
-        JavafxVarSymbol varSym(Name varName) {
-            return (JavafxVarSymbol) builtIn.tsym.members().lookup(varName).sym;
-        }
-
-        void setInstanceVariable(Name instName, Name varName, JFXExpression init) {
-            JavafxVarSymbol vsym = varSym(varName);
-            setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
-        }
-
-        @Override
-        protected ExpressionResult doit() {
-            return buildInstance(builtIn, null, true);
         }
     }
 

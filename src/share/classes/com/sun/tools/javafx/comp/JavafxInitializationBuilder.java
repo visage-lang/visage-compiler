@@ -832,6 +832,82 @@ however this is what we need */
             return flags;
         }
 
+        // This method generates code for setting a non-sequence var.
+        public List<JCStatement> makeSetAttributeCode(VarInfo varInfo, Name newValueName, boolean inGet) {
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            JavafxVarSymbol varSym = varInfo.getSymbol();
+            JavafxVarSymbol proxyVarSym = varInfo.proxyVarSym();
+            Type type = varInfo.getRealType();
+            
+            boolean needsInvalidate = needInvalidateAccessorMethod(varInfo);
+            boolean needsOnReplace = needOnReplaceAccessorMethod(varInfo);
+            
+            // Set read only bit (trapdoor.)
+            if (varInfo.isReadOnly()) {
+                 stmts.append(FlagChangeStmt(proxyVarSym, null, defs.varFlagIS_READONLY));
+            }
+                
+            if ((!inGet && needsInvalidate) || needsOnReplace) {
+                // T varOldValue$ = $var;
+                stmts.append(Var(Flags.FINAL, type, defs.varOldValue_LocalVarName, Get(proxyVarSym)));
+                
+                if (!inGet) {
+                    // short varFlags$ = VFLG$var;
+                    stmts.append(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
+                    
+                    // Set the state valid and mark defaults as applied
+                    stmts.append(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
+                }
+                
+                ListBuffer<JCStatement> changedStmts = ListBuffer.lb();
+                
+                if (!inGet && needsInvalidate) {
+                    changedStmts.append(CallStmt(attributeInvalidateName(varSym), id(defs.phaseTransitionBE_INVALIDATE)));
+                }
+                
+                changedStmts.append(SetStmt(proxyVarSym, id(newValueName)));
+                
+                if (!inGet && needsInvalidate) {
+                    changedStmts.append(CallStmt(attributeInvalidateName(varSym), id(defs.phaseTransitionBE_TRIGGER)));
+                }
+                 
+                if (needsOnReplace) {
+                    changedStmts.append(CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(newValueName)));
+                }
+                
+                // varOldValue$ != varNewValue$
+                // or !varOldValue$.equals(varNewValue$) test for Object value types
+                JCExpression valueChangedTest = isValueType(type) ?
+                    NOT(Call(defs.Checks_equals, id(defs.varOldValue_LocalVarName), id(newValueName)))
+                  : NE(id(defs.varOldValue_LocalVarName), id(newValueName));
+                // Default-Not_applied
+                JCExpression defaultAppliedTest = FlagTest(defs.varFlags_LocalVarName, defs.varFlagINITIALIZED_STATE_BIT, null);
+
+                stmts.append(
+                    OptIf (OR(valueChangedTest, defaultAppliedTest), Block(changedStmts), null));
+            
+                if (inGet) {
+                    // Set the state valid and mark defaults as applied
+                    stmts.append(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
+                }
+            } else {
+                // Set the state valid and mark defaults as applied
+                stmts.append(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
+            
+                // var = varNewValue$
+                stmts.append(SetStmt(proxyVarSym, id(newValueName)));
+            }
+            
+            if (needsInvalidate) {
+                // Set the state valid and mark defaults as applied, but don't cancel an invalidation in progress
+                stmts.append(
+                    If(FlagTest(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_TRIGGERED),
+                        Block(FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID))));
+            }
+            
+            return stmts.toList();
+        }
+
         //
         // This class is designed to reduce the repetitiveness of constructing methods.
         //
@@ -1115,79 +1191,6 @@ however this is what we need */
             // This method generates specialized code for the body.
             public void statements() {
             }
-            
-            // This method generates code for setting a non-sequence var.
-            public void makeSetAttributeCode(VarInfo varInfo, Name newValueName, boolean inGet) {
-                JavafxVarSymbol varSym = varInfo.getSymbol();
-                JavafxVarSymbol proxyVarSym = varInfo.proxyVarSym();
-                Type type = varInfo.getRealType();
-                
-                boolean needsInvalidate = needInvalidateAccessorMethod(varInfo);
-                boolean needsOnReplace = needOnReplaceAccessorMethod(varInfo);
-                
-                // Set read only bit (trapdoor.)
-                if (varInfo.isReadOnly()) {
-                     addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagIS_READONLY));
-                }
-                    
-                if ((!inGet && needsInvalidate) || needsOnReplace) {
-                    // T varOldValue$ = $var;
-                    addStmt(Var(Flags.FINAL, type, defs.varOldValue_LocalVarName, Get(proxyVarSym)));
-                    
-                    if (!inGet) {
-                        // short varFlags$ = VFLG$var;
-                        addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
-                        
-                        // Set the state valid and mark defaults as applied
-                        addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
-                    }
-                    
-                    beginBlock();
-                    
-                    if (!inGet && needsInvalidate) {
-                        addStmt(CallStmt(attributeInvalidateName(varSym), id(defs.phaseTransitionBE_INVALIDATE)));
-                    }
-                    
-                    addStmt(SetStmt(proxyVarSym, id(newValueName)));
-                    
-                    if (!inGet && needsInvalidate) {
-                        addStmt(CallStmt(attributeInvalidateName(varSym), id(defs.phaseTransitionBE_TRIGGER)));
-                    }
-                     
-                    if (needsOnReplace) {
-                        addStmt(CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(newValueName)));
-                    }
-                    
-                    // varOldValue$ != varNewValue$
-                    // or !varOldValue$.equals(varNewValue$) test for Object value types
-                    JCExpression valueChangedTest = isValueType(type) ?
-                        NOT(Call(defs.Checks_equals, id(defs.varOldValue_LocalVarName), id(newValueName)))
-                      : NE(id(defs.varOldValue_LocalVarName), id(newValueName));
-                    // Default-Not_applied
-                    JCExpression defaultAppliedTest = FlagTest(defs.varFlags_LocalVarName, defs.varFlagINITIALIZED_STATE_BIT, null);
-
-                    addStmt(
-                        OptIf (OR(valueChangedTest, defaultAppliedTest), endBlock(), null));
-                
-                    if (inGet) {
-                        // Set the state valid and mark defaults as applied
-                        addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
-                    }
-                } else {
-                    // Set the state valid and mark defaults as applied
-                    addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagINIT_INITIALIZED_DEFAULT));
-                
-                    // var = varNewValue$
-                    addStmt(SetStmt(proxyVarSym, id(newValueName)));
-                }
-                
-                if (needsInvalidate) {
-                    // Set the state valid and mark defaults as applied, but don't cancel an invalidation in progress
-                    addStmt(
-                        If(FlagTest(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_TRIGGERED),
-                            Block(FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagSTATE_VALID))));
-                }
-            }
         }
         
         //
@@ -1365,20 +1368,11 @@ however this is what we need */
                 }
             }
         }
-        
-        //
-        // This method returns true if there is a default statement for a given var.
-        //
-        public boolean hasDefaultInitStatement(VarInfo varInfo) {
-            return varInfo.getDefaultInitStatement() != null ||
-                   (varInfo.onReplaceAsInline() != null && (varInfo.hasBoundDefinition() || !varInfo.isOverride()));
-        }
-        
 
         //
         // This method returns the default statement for a given var.
         //
-        public List<JCStatement> getDefaultInitStatement(VarInfo varInfo) {
+        public List<JCStatement> getDefaultInitStatements(VarInfo varInfo) {
             JavafxVarSymbol varSym = varInfo.getSymbol();
             JavafxVarSymbol proxyVarSym = varInfo.proxyVarSym();
             boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
@@ -1414,13 +1408,32 @@ however this is what we need */
                     ));
                 }
             } else {
-                JCStatement init = varInfo.getDefaultInitStatement();
+                JCExpression init = varInfo.getDefaultInitExpression();
+                
                 if (init != null) {
-                    stmts.append(init);
+                    if (proxyVarSym.useAccessors()) {
+                        if (proxyVarSym.isSequence()) {
+                            stmts.append(CallStmt(defs.Sequences_set, getReceiverOrThis(), Offset(proxyVarSym), init));
+                        } else if (varInfo.useSetters()) {
+                            stmts.append(SetterStmt(proxyVarSym, init));
+                        } else {
+                            // Nest to allow duplicate varNewValue.
+                            ListBuffer<JCStatement> inlineSetterStmts = ListBuffer.lb();
+                            inlineSetterStmts.append(Var(varInfo.getRealType(), defs.varNewValue_ArgName, init));
+                            inlineSetterStmts.appendList(makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, false));
+                            stmts.append(Block(inlineSetterStmts));
+                        }
+                    } else {
+                        if (proxyVarSym.isSequence()) {
+                            init = Call(defs.Sequences_incrementSharing, init);
+                        }
+                        
+                        stmts.append(SetStmt(proxyVarSym, init));
+                    }
                 } else {
                     if (hasOnReplace && !isOverride) {
                         stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
-                        stmts.append(CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym)));
+                        stmts.append(CallStmt(attributeOnReplaceName(proxyVarSym), Get(proxyVarSym), Get(proxyVarSym)));
                     } else if (!varInfo.useAccessors()) {
                         stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
                     }
@@ -1431,16 +1444,21 @@ however this is what we need */
             return stmts.toList();
         }
 
-        //TODO: hack for JFXC-4137, getDefaultInitStatement method needs rewrite, and initial TRIGGERED state needs to go away
+        //TODO: hack for JFXC-4137, getDefaultInitExpression method needs rewrite, and initial TRIGGERED state needs to go away
         private boolean needJFXC_4137hack(VarInfo varInfo) {
             boolean hasOnReplace = varInfo.onReplaceAsInline() != null;
             boolean isOverride = varInfo.isOverride();
             boolean genSequences = varInfo.generateSequenceAccessors();
             boolean isBound = varInfo.hasBoundDefinition();
 
-            JCStatement init = varInfo.getDefaultInitStatement();
-
-            return (init == null) && isBound && !genSequences && !isOverride && !hasOnReplace && !varInfo.isSynthetic() && varInfo.useAccessors() && needInvalidateAccessorMethod(varInfo);
+            return varInfo.getDefaultInitExpression() == null &&
+                   isBound &&
+                   !genSequences &&
+                   !isOverride &&
+                   !hasOnReplace &&
+                   !varInfo.isSynthetic() &&
+                   varInfo.useAccessors() &&
+                   needInvalidateAccessorMethod(varInfo);
         }
 
         //
@@ -1454,9 +1472,8 @@ however this is what we need */
             boolean isBound = varInfo.hasBoundDefinition();
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            JCStatement init = varInfo.getDefaultInitStatement();
-            if (init != null) {
-                stmts.append(init);
+            if (varInfo.getDefaultInitExpression() != null) {
+                stmts.appendList(getDefaultInitStatements(varInfo));
             }
 
             if (isBound) {
@@ -1475,7 +1492,7 @@ however this is what we need */
                         )
                     );
                 }
-            } else if (init == null) {
+            } else if (varInfo.getDefaultInitExpression() == null) {
                 if (hasOnReplace && !isOverride) {
                     stmts.append(FlagChangeStmt(proxyVarSym, defs.varFlagINIT_MASK, defs.varFlagINIT_INITIALIZED));
                     stmts.append(CallSeqInvalidate(varSym, Int(0), Int(0), Int(0)));
@@ -2081,7 +2098,7 @@ however this is what we need */
                             // T varNewValue$ = cast value
                             addStmt(Var(Flags.FINAL, type, defs.varNewValue_ArgName, castGet));
                             // Set the var.
-                            makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, true);
+                            addStmts(makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, true));
                             
                             // Is it invalid?
                             JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
@@ -2152,7 +2169,7 @@ however this is what we need */
                                 // T varNewValue$ = default value
                                 addStmt(Var(Flags.FINAL, type, defs.varNewValue_ArgName, initValue));
                                 // Set the var.
-                                makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, true);
+                                addStmts(makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, true));
                             } else {
                                 // T varNewValue$
                                 addStmt(Var(0, type, defs.varNewValue_ArgName, null));
@@ -2165,7 +2182,7 @@ however this is what we need */
                                         Stmt(m().Assign(id(defs.varNewValue_ArgName), defaultValue(varInfo)))));
                                         
                                 // Set the var.
-                                makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, true);
+                                addStmts(makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, true));
                             }
 
                             // if (pending) { mark forward access } else if (bound and invalid) { set$var(init/bound expression); }
@@ -2262,7 +2279,7 @@ however this is what we need */
                     }
 
                     // Set the var.
-                    makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, false);
+                    addStmts(makeSetAttributeCode(varInfo, defs.varNewValue_ArgName, false));
                     
                     // return $var;
                     addStmt(Return(Get(proxyVarSym)));
@@ -2591,7 +2608,9 @@ however this is what we need */
                    } else {
                         if (!ai.isOverride()) {
                             makeGetterAccessorMethod(ai, bodyType);
-                            makeSetterAccessorMethod(ai, bodyType);
+                            if (ai.useSetters()) {
+                                makeSetterAccessorMethod(ai, bodyType);
+                            }
                             if (needInvalidateAccessorMethod(ai)) {
                                 makeInvalidateAccessorMethod(ai, bodyType);
                             }
@@ -3063,7 +3082,7 @@ however this is what we need */
                             if (varInfo.generateSequenceAccessors()) {
                                 addStmts(getSeqDefaultInitStatement(varInfo));
                             } else {
-                                addStmts(getDefaultInitStatement(varInfo));
+                                addStmts(getDefaultInitStatements(varInfo));
                             }
                         }
                         

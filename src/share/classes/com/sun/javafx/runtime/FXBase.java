@@ -314,8 +314,6 @@ import com.sun.javafx.runtime.sequence.Sequences;
         }
     }
 
-    public        void hindInit$()             {}
-    public static void hindInit$(FXObject obj) {}
     public        void userInit$()             {}
     public static void userInit$(FXObject obj) {}
     public        void postInit$()             {}

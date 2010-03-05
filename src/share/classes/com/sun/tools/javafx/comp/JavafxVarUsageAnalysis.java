@@ -68,13 +68,15 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
     
     public void analyzeVarUse(JavafxEnv<JavafxAttrContext> attrEnv) {
-        new ClearOldMarks().scan(attrEnv.tree);
+        //TODO: if cleared, must be at script-level: new ClearOldMarks().scan(attrEnv.tree);
         scan(attrEnv.tree);
     }
 
+    // Clear flags for vars defined in this script
     private class ClearOldMarks extends JavafxTreeScanner {
 
         private long ALL_MARKED_VARUSE =
+                VARUSE_BOUND_INIT |
                 VARUSE_TMP_IN_INIT_EXPR |
                 VARUSE_FORWARD_REFERENCE |
                 VARUSE_SELF_REFERENCE |
@@ -86,27 +88,13 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
         @Override
         public void visitVar(JFXVar tree) {
+            super.visitVar(tree);
             clearMark(tree.sym);
-        }
-
-        @Override
-        public void visitIdent(JFXIdent tree) {
-            if (tree.sym instanceof VarSymbol)
-                clearMark(tree.sym);
         }
 
         @Override
         public void visitOverrideClassVar(JFXOverrideClassVar tree) {
-            clearMark(tree.sym);
-        }
-
-        @Override
-        public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
-            clearMark(tree.sym);
-        }
-
-        @Override
-        public void visitInterpolateValue(final JFXInterpolateValue tree) {
+            super.visitOverrideClassVar(tree);
             clearMark(tree.sym);
         }
     }
@@ -164,6 +152,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         JavafxBindStatus wasBindStatus = bindStatus;
         bindStatus = tree.getBindStatus();
         if (bindStatus.isBound()) {
+            mark(tree.sym, VARUSE_BOUND_INIT);
             mark(tree.sym, VARUSE_NEED_ACCESSOR);
         }
         if (tree.getInitializer() != null) {
@@ -422,6 +411,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     @Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         scan(that.getVar());
+        if (bindStatus.isBound()) {
+            mark(that.getVar().sym, VARUSE_ASSIGNED_TO);
+        }
         Symbol sym = null;
         boolean restoreOptTrigger = false;
         JFXExpression seq = that.getSequenceExpression();

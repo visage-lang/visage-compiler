@@ -454,18 +454,18 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         null;
         }
 
-        private JCStatement translateVarInit(JFXAbstractVar var) {
+        private JCExpression translateVarInit(JFXAbstractVar var) {
             if (var.getInitializer()==null || var.isBound()) {
                 // no init, or init handled by bind or JavafxVarInit
                 return null;
             }
             Name instanceName = (var.isStatic() || !isMixinClass) ? null : defs.receiverName;
-            return Stmt(translateDefinitionalAssignmentToSetExpression(
+            return translateInitExpression(
                     var.pos(),
                     var.getInitializer(),
                     var.sym,
                     instanceName
-                 ).expr());
+                 ).expr();
         }
 
         private void translateAndAppendStaticBlock(JFXBlock block, ListBuffer<JCStatement> translatedBlocks) {
@@ -498,6 +498,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         class DefinitionalAssignmentTranslator extends ExpressionTranslator {
             DefinitionalAssignmentTranslator(DiagnosticPosition diagPos) { super(diagPos); }
+            
             protected ExpressionResult doit() {
                 assert !vsym.isParameter() : "Parameters are not initialized";
                 setSubstitution(init, vsym);
@@ -512,7 +513,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         res = Call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);
                     } else {
                         JCExpression tc = instanceName == null ? null : id(instanceName);
-                        res = Call(tc, attributeSetterName(vsym), nonNullInit);
+                        res = Setter(tc, vsym, nonNullInit);
                     }
                 } else {
                     res = nonNullInit;
@@ -520,10 +521,31 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         res = Call(defs.Sequences_incrementSharing, res);
                     res = Set(vsym, res);
                 }
-                return toResult(res, vsym.type);
+                return toResult(nonNullInit, vsym.type);
             }
         }
         return new DefinitionalAssignmentTranslator(diagPos).doit();
+    }
+
+    private ExpressionResult translateInitExpression(final DiagnosticPosition diagPos,
+            final JFXExpression init,
+            final JavafxVarSymbol vsym,
+            final Name instanceName) {
+
+        class InitTranslator extends ExpressionTranslator {
+            InitTranslator(DiagnosticPosition diagPos) { super(diagPos); }
+            
+            protected ExpressionResult doit() {
+                assert !vsym.isParameter() : "Parameters are not initialized";
+                setSubstitution(init, vsym);
+                final JCExpression nonNullInit = translateNonBoundInit(diagPos, init, vsym);
+                final boolean isLocal = !vsym.isMember();
+                assert !isLocal || instanceName == null;
+                return toResult(nonNullInit, vsym.type);
+            }
+        }
+        
+        return new InitTranslator(diagPos).doit();
     }
 
     /**
