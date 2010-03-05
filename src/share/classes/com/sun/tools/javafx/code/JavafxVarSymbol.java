@@ -24,6 +24,7 @@
 package com.sun.tools.javafx.code;
 
 import com.sun.tools.mjavac.code.Kinds;
+import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
@@ -139,16 +140,39 @@ public class JavafxVarSymbol extends VarSymbol {
         return (flags_field & JavafxFlags.VARUSE_BIND_ACCESS) != 0;
     }
     
+    public boolean isInitializedInObjectLiteral() {
+        return (flags_field & JavafxFlags.VARUSE_OBJ_LIT_INIT) != 0;
+    }
+
+    public boolean isInMixin() {
+        return (owner.flags_field & MIXIN) != 0;
+    }
+
+    public boolean isReferenced() {
+        return (flags_field & JavafxFlags.VARUSE_VARREF) != 0;
+    }
+    
+    public boolean isInScriptingModeScript() {
+        return owner instanceof JavafxClassSymbol &&
+               ((JavafxClassSymbol) owner).isScriptingModeScript();
+    }
+
+
+    private boolean accessorsRequired() {
+        return (flags_field & (VARUSE_BIND_ACCESS | VARUSE_BOUND_INIT | VARUSE_HAS_TRIGGER | VARUSE_VARREF | VARUSE_FORWARD_REFERENCE)) != 0;
+    }
+    
     public boolean useAccessors() {
         return 
                 isFXMember() &&
                 !isSpecial() &&
                 (   !hasScriptOnlyAccess() ||
-                    (owner instanceof JavafxClassSymbol &&
-                     ((JavafxClassSymbol) owner).isScriptingModeScript()) ||
-                    (flags_field & VARUSE_NEED_ACCESSOR) != 0 ||
-                    (isBindAccess() && isAssignedTo()) ||
-                    (owner.flags_field & MIXIN) != 0
+                    isInMixin() ||
+                    accessorsRequired() ||
+                    isInScriptingModeScript() ||
+                    (   isBindAccess() &&
+                        isAssignedTo()
+                    )
                 );
     }
     
@@ -157,7 +181,7 @@ public class JavafxVarSymbol extends VarSymbol {
                useGetters() ||
                hasVarInit() ||
                isExternallySeen() ||
-               (flags_field & VARUSE_OBJ_LIT_INIT) != 0;
+               isInitializedInObjectLiteral();
     }
 
     public boolean hasFlags() {
@@ -166,6 +190,19 @@ public class JavafxVarSymbol extends VarSymbol {
 
     public boolean useGetters() {
         return !isSpecial() && (useAccessors() || (flags_field & VARUSE_NON_LITERAL) != 0);
+    }
+
+    public boolean useSetters() {
+        return
+                isFXMember() &&
+                !isSpecial() &&
+                (   !hasScriptOnlyAccess() ||
+                    isInMixin() ||
+                    isReferenced() ||
+                    (   (isAssignedTo() || isInitializedInObjectLiteral()) &&
+                        accessorsRequired()
+                    )
+                );
     }
 
     /** Either has a trigger or a sub-class may have a trigger. */
