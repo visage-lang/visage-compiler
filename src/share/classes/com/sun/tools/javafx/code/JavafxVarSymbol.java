@@ -237,7 +237,7 @@ public class JavafxVarSymbol extends VarSymbol {
     }
 
     public boolean isWritableOutsideScript() {
-        return !isDef() && (flags_field & PUBLIC | PROTECTED | PACKAGE_ACCESS) != 0;
+        return !isDef() && (flags_field & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) != 0;
     }
 
     public boolean isMutatedWithinScript() {

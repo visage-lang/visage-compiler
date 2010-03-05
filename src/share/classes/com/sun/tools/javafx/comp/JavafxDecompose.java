@@ -309,7 +309,7 @@ public class JavafxDecompose implements JavafxVisitor {
         ListBuffer<JFXExpression> lb = new ListBuffer<JFXExpression>();
         Type paramType = paramTypes != null? paramTypes.head : null;
         for (JFXExpression tree: trees) {
-            if (tree != null && preTrans.isImmutable(tree)) {
+            if (false/*disable-JFXC-4079*/ && tree != null && preTrans.isImmutable(tree)) {
                 lb.append(tree);
             } else {
                 lb.append(shred(tree, paramType));
