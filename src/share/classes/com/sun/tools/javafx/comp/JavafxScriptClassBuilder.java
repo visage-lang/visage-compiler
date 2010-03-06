@@ -451,6 +451,11 @@ public class JavafxScriptClassBuilder {
             }
         });
 
+/***** This is part of the fix for JFXC-3416.  But, it causes incorrect compile time 
+       errors in the ShoppingService sample so we disable this.
+       The error msgs in functional/should-fail/AccessModifiersTest.fx.EXPECTED
+       are sensitive to this so if you fix the problem, you will have to fix that
+       file too.
         // This a hokey way to do this, but we are using mjavac.util.List and it doesn't
         // support much. Fortunately, there won't be thousands of entries in the member lists
         //
@@ -459,7 +464,7 @@ public class JavafxScriptClassBuilder {
             scriptClassDefs.append(e);
         }
         moduleClass.setMembers(scriptClassDefs.toList());
-
+*****/
         convertAccessFlags(module);
 
         reservedTopLevelNamesSet = null;
