@@ -843,8 +843,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         Block(
                             setSequenceActive(),
                             FlagChangeStmt(selectorSym, defs.varFlagINIT_STATE_MASK, defs.varFlagVALID_DEFAULT_APPLIED),
-                            CallStmt(attributeInvalidateName(selectorSym), id(defs.phaseTransitionBE_INVALIDATE)),
-                            CallStmt(attributeInvalidateName(selectorSym), id(defs.phaseTransitionBE_TRIGGER))
+                            CallBeInvalidate(selectorSym),
+                            CallBeTrigger(selectorSym)
                         )
                     ),
                     callSize

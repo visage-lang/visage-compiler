@@ -20,7 +20,7 @@ class Fred {
      }
      seen[id] = true;
      if (width != pieRadiusX or height != pieRadiusX) {
-        println("ERROR: bad values -- Fred {id}: {width} x {height}");
+        println("ERROR: bad values -- Fred {id}: {width} x {height} -- expected {pieRadiusX} x {pieRadiusX}");
      }
    }
 }
