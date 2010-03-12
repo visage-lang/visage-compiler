@@ -48,11 +48,7 @@ done
 
 # detect Darwin and Cygwin environments
 case "`uname`" in
-  Darwin*) platform="macosx";
-           if [ -z "$JAVA_HOME" ] ; then
-              JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
-           fi
-           ;;
+  Darwin*) platform="macosx";;
   CYGWIN*) platform="windows" ; PATHSEP=";";;
   Linux*)  platform="linux";;
   SunOS*)  platform="solaris";;
