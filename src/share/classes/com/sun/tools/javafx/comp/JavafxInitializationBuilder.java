@@ -2277,7 +2277,9 @@ however this is what we need */
         private JCExpression validBindeesTest(VarInfo varInfo) {
             Set<JavafxVarSymbol> unique = new HashSet<JavafxVarSymbol>();
             for (JavafxVarSymbol vsym : varInfo.boundBindees()) {
-                unique.add(vsym);
+                if (!vsym.isSpecial()) {
+                    unique.add(vsym);
+                }
             }
 
             if (unique.size() <= 1) {
