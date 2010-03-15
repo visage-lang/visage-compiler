@@ -2347,6 +2347,23 @@ however this is what we need */
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeInvalidateName(varInfo.getSymbol()),
                                                                          syms.voidType,
                                                                          varInfo, bodyType) {
+
+                private void abortIfInvalidComponents() {
+                    JCExpression vbt = validBindeesTest(varInfo);
+                    if (vbt != null) {
+                        addStmt(
+                            If (AND(IsTriggerPhase(), vbt),
+                                // Abort
+                                Block(
+                                    // Some component is invalid -- wait for it to come around triggered
+                                    //Debug("Inv-Abort "+proxyVarSym),
+                                    Return (null)
+                                )
+                            )
+                        );
+                    }
+                }
+
                 @Override
                 public void initialize() {
                     addParam(phaseArg());
@@ -2366,8 +2383,10 @@ however this is what we need */
                             EQ(BITAND(id(varState), phaseArg()), id(varState)));
                     addStmt(varState);
                     addStmt(wasValidVar);
-                     
+
                     if (hasInvalidators) {
+                        //Abort if invalid
+                        abortIfInvalidComponents();
                         // Insert invalidators.
                         for (BindeeInvalidator invalidator : invalidatees) {
                             addStmt(invalidator.invalidator);
@@ -2377,24 +2396,11 @@ however this is what we need */
                         //  note the assymetry with sequence invalidators, which are not all shredded
                         return;
                     }
-                    
+
                     // Prepare to accumulate if statements.
                     beginBlock();
-    
-                    JCExpression vbt = validBindeesTest(varInfo);
-                    if (vbt != null) {
-                        addStmt( 
-                            If (AND(IsTriggerPhase(), vbt),
-                                // Abort
-                                Block(
-                                    // Some component is invalid -- wait for it to come around triggered
-                                    //Debug("Inv-Abort "+proxyVarSym),
-                                    Return (null)
-                                )
-                            )
-                        );
-                    }
-
+                    //Abort if invalid
+                    abortIfInvalidComponents();
                     //addStmt(Debug("InvalidateGO "+proxyVarSym, phaseArg()));
 
                     boolean mixin = !isMixinClass() && varInfo instanceof MixinClassVarInfo;
@@ -2411,7 +2417,7 @@ however this is what we need */
 
                         notifyDependents = !isLeaf(varInfo) || varInfo.hasDependents();
                     }
-
+                     
                     // Strip phase down to the non-BE form before propagating
                     addStmt(ClearBeFromPhaseTransition());
 
