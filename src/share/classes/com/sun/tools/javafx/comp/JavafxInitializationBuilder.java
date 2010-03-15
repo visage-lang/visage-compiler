@@ -2214,23 +2214,12 @@ however this is what we need */
                             );
                     }
                     if (needsInvalidate) {
-                        JCExpression vbt = validBindeesTest(varInfo);
-                        if (vbt == null) {
-                            vbt = FlagTest(proxyVarSym, defs.varFlagSTATE_TRIGGERED, defs.varFlagINVALID_STATE_BIT);
-                        }
                         finish =
-                                If (vbt,
+                                If (FlagTest(proxyVarSym, defs.varFlagSTATE_TRIGGERED, defs.varFlagINVALID_STATE_BIT),
                                     Block(
-                                        // Some component is invalid (not triggered either)
+                                        // Initialized (not yet triggered state), restore flags, wait for the trigger before actually changing
                                         //Debug("BGet-Revert "+proxyVarSym, id(newValueName)),
-                                        FlagChangeStmt(proxyVarSym, id(defs.varFlagALL_FLAGS),
-                                            BITOR(
-                                                BITAND(
-                                                    id(defs.varFlags_LocalVarName),
-                                                    BITNOT(id(defs.varFlagSTATE_MASK))
-                                                ),
-                                                id(defs.varFlagSTATE_CASCADE_INVALID))
-                                        ),
+                                        FlagChangeStmt(proxyVarSym, id(defs.varFlagALL_FLAGS), id(defs.varFlags_LocalVarName)),
                                         Return (id(newValueName))
                                     ),
                                 /*else (all valid)*/
@@ -2277,10 +2266,12 @@ however this is what we need */
         private JCExpression validBindeesTest(VarInfo varInfo) {
             Set<JavafxVarSymbol> unique = new HashSet<JavafxVarSymbol>();
             for (JavafxVarSymbol vsym : varInfo.boundBindees()) {
-                unique.add(vsym);
+                if (!vsym.isSpecial() && !vsym.isSequence()) {
+                    unique.add(vsym);
+                }
             }
 
-            if (unique.size() <= 1) {
+            if (unique.size() == 0) {
                 return null;
             } else {
                 JCExpression test = null;
@@ -2356,6 +2347,23 @@ however this is what we need */
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeInvalidateName(varInfo.getSymbol()),
                                                                          syms.voidType,
                                                                          varInfo, bodyType) {
+
+                private void abortIfInvalidComponents() {
+                    JCExpression vbt = validBindeesTest(varInfo);
+                    if (vbt != null) {
+                        addStmt(
+                            If (AND(IsTriggerPhase(), vbt),
+                                // Abort
+                                Block(
+                                    // Some component is invalid -- wait for it to come around triggered
+                                    //Debug("Inv-Abort "+proxyVarSym),
+                                    Return (null)
+                                )
+                            )
+                        );
+                    }
+                }
+
                 @Override
                 public void initialize() {
                     addParam(phaseArg());
@@ -2375,8 +2383,10 @@ however this is what we need */
                             EQ(BITAND(id(varState), phaseArg()), id(varState)));
                     addStmt(varState);
                     addStmt(wasValidVar);
-                     
+
                     if (hasInvalidators) {
+                        //Abort if invalid
+                        abortIfInvalidComponents();
                         // Insert invalidators.
                         for (BindeeInvalidator invalidator : invalidatees) {
                             addStmt(invalidator.invalidator);
@@ -2386,10 +2396,11 @@ however this is what we need */
                         //  note the assymetry with sequence invalidators, which are not all shredded
                         return;
                     }
-                    
+
                     // Prepare to accumulate if statements.
                     beginBlock();
-    
+                    //Abort if invalid
+                    abortIfInvalidComponents();
                     //addStmt(Debug("InvalidateGO "+proxyVarSym, phaseArg()));
 
                     boolean mixin = !isMixinClass() && varInfo instanceof MixinClassVarInfo;
@@ -2406,7 +2417,7 @@ however this is what we need */
 
                         notifyDependents = !isLeaf(varInfo) || varInfo.hasDependents();
                     }
-
+                     
                     // Strip phase down to the non-BE form before propagating
                     addStmt(ClearBeFromPhaseTransition());
 
@@ -2448,23 +2459,11 @@ however this is what we need */
 
                         // Call the get$var to force evaluation.
                         if (varInfo.onReplace() != null) {
-                            JCStatement refresh = Block(Stmt(Getter(proxyVarSym)));
-                            JCExpression vbt = validBindeesTest(varInfo);
-                            if (vbt != null) {
-                                refresh =
-                                    If (vbt,
-                                        Block(
-                                            // Some component is invalid (not triggered either)
-                                            //Debug("Inv-Revert "+proxyVarSym),
-                                            FlagChangeStmt(proxyVarSym, id(defs.varFlagSTATE_MASK), id(defs.varState_LocalVarName))
-                                        ),
-                                    /*else (all valid) */
-                                        refresh
-                                    );
-                            }
                             addStmt(
                                 If (FlagTest(proxyVarSym, defs.varFlagIS_EAGER, defs.varFlagIS_EAGER),
-                                    refresh
+                                    Block(
+                                        Stmt(Getter(proxyVarSym))
+                                    )
                                 ));
                         }
 
@@ -2483,7 +2482,7 @@ however this is what we need */
                         callMixin((ClassSymbol)varSym.owner);
                         mixinBlock = endBlock();
                     } else {
-                        //mixinBlock = Debug("InvalidateFail "+proxyVarSym, phaseArg());
+                        //mixinBlock = Block(Debug("InvalidateFail "+proxyVarSym, phaseArg()), Debug("..InvalidateFail "+proxyVarSym, id(varState)));
                     }
 
                     // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
