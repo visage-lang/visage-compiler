@@ -295,11 +295,14 @@ public class Timeline {
 
     /**
      * Defines the sequence of {@code KeyFrame}s in this animation.
+     * {@code KeyFrame}s are expected to have {@code time >= 0s}, otherwise
+     * they will be ignored.
      * If a {@code KeyFrame} is not provided for the {@code time==0s}
      * instant, one will be synthesized using the target values
      * that are current at the time {@link #play()} or {@link #playFromStart()}
      * is called.
      *
+     * @see KeyFrame#time
      * @profile common
      */
     public var keyFrames: KeyFrame[] on replace oldValues = newValues {

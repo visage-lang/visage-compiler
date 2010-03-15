@@ -45,9 +45,12 @@ import javafx.lang.Duration;
 public class KeyFrame extends Comparable {
     /**
      * Defines the reference elapsed time offset within a single cycle
-     * of a Timeline at which the associated values will be set and at
+     * of a {@link Timeline} at which the associated values will be set and at
      * which the {@link #action()} function will be called.
-     * 
+     * {@code KeyFrame}s having {@code time < 0s} will be ignored by the
+     * {@code Timeline}.
+     *
+     * @see Timeline#keyValues
      * @profile common
      * @defaultvalue 0s
      */
@@ -75,7 +78,7 @@ public class KeyFrame extends Comparable {
      * take on a different value for each run (or even during a run).  The
      * {@code Timeline.evaluateKeyValues()} function allows this.
      *
-     * @see Timeline.evaluateKeyValues
+     * @see Timeline#evaluateKeyValues
      * @profile common
      * @defaultvalue null
      */
