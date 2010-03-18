@@ -1275,7 +1275,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         private final JavafxVarSymbol lowestSym;
         private final JavafxVarSymbol highestSym;
         private final JavafxVarSymbol pendingSym;
-        private final JavafxVarSymbol newLengthSym;
+        private final JavafxVarSymbol deltaSym;
         private final JavafxVarSymbol changeStartSym;
         private final JavafxVarSymbol changeEndSym;
 
@@ -1285,7 +1285,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             this.lowestSym = tree.boundLowestInvalidPartSym;
             this.highestSym = tree.boundHighestInvalidPartSym;
             this.pendingSym = tree.boundPendingTriggersSym;
-            this.newLengthSym = tree.boundNewLengthSym;
+            this.deltaSym = tree.boundDeltaSym;
             this.changeStartSym = tree.boundChangeStartPosSym;
             this.changeEndSym = tree.boundChangeEndPosSym;
         }
@@ -1444,6 +1444,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             SetStmt(highestSym, Int(index)),
                             SetStmt(lowestSym, Int(index)),
                             SetStmt(pendingSym, Int(1)),
+                            isFixedLength()? null :
+                                SetStmt(deltaSym, Int(0)),
                             SetChangeStartStmt(CummulativeCachedSize(index)),
                             SetChangeEndStmt(PLUS(GetChangeStart(), CachedLength(index))),
                             CallSeqInvalidateUndefined(targetSymbol)
@@ -1490,7 +1492,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             CallSeqTrigger(targetSymbol,
                                 GetChangeStart(),
                                 Get(changeEndSym),
-                                MINUS(Get(newLengthSym), GetChangeStart())
+                                PLUS(Get(deltaSym), MINUS(Get(changeEndSym), GetChangeStart()))
                             )
                         );
             JCStatement fire;
@@ -1548,10 +1550,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         vNewLength,
                     isFixedLength(index)? null : 
                         SetSizeStmt(PLUS(CachedSize(), MINUS(id(vNewLength), id(vOldLength)))),
-                    isFixedLength()? null :
-                        If (EQ(Get(highestSym), Int(index)),
-                            SetStmt(newLengthSym, CummulativeCachedSize(index+1))
-                        ),
+                    isFixedLength(index)? null :
+                        SetStmt(deltaSym, PLUS(Get(deltaSym), MINUS(id(vNewLength), id(vOldLength)))),
                     DEBUG? Debug("trig #"+index+"  pending = ", Get(pendingSym)) : null,
                     If (EQ(Get(pendingSym), Int(0)),
                         fire

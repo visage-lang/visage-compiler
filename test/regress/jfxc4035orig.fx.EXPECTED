@@ -4,6 +4,6 @@
 ---- on-replace [0..2] = [ ]
 [ A, A, A ]
 [ ]
----- on-replace [0..-1] = [ A ]
+---- on-replace [0..-1] = [ A, A, A ]
 [ ]
 [ A, A, A ]

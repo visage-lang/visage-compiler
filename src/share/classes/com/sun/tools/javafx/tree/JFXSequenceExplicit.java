@@ -41,7 +41,7 @@ public class JFXSequenceExplicit extends JFXAbstractSequenceCreator implements S
     public JavafxVarSymbol boundLowestInvalidPartSym;
     public JavafxVarSymbol boundHighestInvalidPartSym;
     public JavafxVarSymbol boundPendingTriggersSym;
-    public JavafxVarSymbol boundNewLengthSym;
+    public JavafxVarSymbol boundDeltaSym;
     public JavafxVarSymbol boundChangeStartPosSym;
     public JavafxVarSymbol boundChangeEndPosSym;
     public JavafxVarSymbol boundIgnoreInvalidationsSym;
