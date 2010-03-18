@@ -5,7 +5,7 @@
  * @run
  */
 
-def bb0 = bind String.format("%5d", 1 + 2);
+def bb0 = bind String.format("%d", 1 + 2);
 
 function zup(x : Object) {x}
 def bb1 = bind zup(1 + 2);
