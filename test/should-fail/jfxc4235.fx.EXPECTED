@@ -1,0 +1,4 @@
+test/should-fail/jfxc4235.fx:12: variable f declared 'override' but does not override another variable.
+   override var f = function() {[]};
+                ^
+1 error
