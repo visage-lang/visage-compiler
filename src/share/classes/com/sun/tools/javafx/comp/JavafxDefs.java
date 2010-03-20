@@ -892,8 +892,8 @@ public class JavafxDefs {
         return "pending";
     }
 
-    public String newLenNamePrefix() {
-        return "newLen";
+    public String deltaNamePrefix() {
+        return "delta";
     }
 
     public String cngStartNamePrefix() {

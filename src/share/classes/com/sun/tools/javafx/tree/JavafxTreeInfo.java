@@ -509,6 +509,10 @@ public class JavafxTreeInfo {
             return symbolFor(((JFXOnReplace) node).getOldValue());
         case OVERRIDE_ATTRIBUTE_DEF:
             return symbolFor(((JFXOverrideClassVar) node).getId());
+        case INIT_DEF:
+            return ((JFXInitDefinition) node).sym;
+        case POSTINIT_DEF:
+            return ((JFXPostInitDefinition) node).sym;
         default:
             return null;
         }

@@ -1171,7 +1171,7 @@ public class JavafxAttr implements JavafxVisitor {
             id.sym = idSym;
             id.type = type = tree.type = idSym.type;
 
-            if (idSym.kind < ERRONEOUS) {
+            if (idSym.kind < ERRONEOUS && idSym.kind == VAR) {
                 tree.sym = (JavafxVarSymbol)idSym;
             }
             else {

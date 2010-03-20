@@ -1038,7 +1038,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 res.boundPendingTriggersSym = makeIntVar(diagPos, defs.pendingNamePrefix(), 0).sym;
                 if (hasNullable) {
                     res.boundSizeSym = makeSizeVar(diagPos, JavafxDefs.UNDEFINED_MARKER_INT).sym;
-                    res.boundNewLengthSym = makeIntVar(diagPos, defs.newLenNamePrefix(), 0).sym;
+                    res.boundDeltaSym = makeIntVar(diagPos, defs.deltaNamePrefix(), 0).sym;
                     res.boundChangeStartPosSym = makeIntVar(diagPos, defs.cngStartNamePrefix(), 0).sym;
                     res.boundChangeEndPosSym = makeIntVar(diagPos, defs.cngEndNamePrefix(), 0).sym;
                 }
