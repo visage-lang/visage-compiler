@@ -166,13 +166,14 @@ import com.sun.javafx.runtime.sequence.Sequences;
     public DepChain DepChain$internal$;
 
     public WeakBinderRef getThisRef$internal$() {
-       if (ThisRef$internal$ == null) {
-           ThisRef$internal$ = new WeakBinderRef(this);
-       }
        return ThisRef$internal$;
     }
 
-    public DepChain getDepChain$internal$() {
+    public void setThisRef$internal$(WeakBinderRef bref) {
+       ThisRef$internal$ = bref;
+    }
+
+   public DepChain getDepChain$internal$() {
         return DepChain$internal$;
     }
 

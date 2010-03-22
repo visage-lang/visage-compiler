@@ -126,6 +126,7 @@ public interface FXObject {
 
     // dependents management
     public WeakBinderRef getThisRef$internal$();
+    public void setThisRef$internal$(WeakBinderRef bref);
     public DepChain getDepChain$internal$();
     public void setDepChain$internal$(DepChain depChain);
     

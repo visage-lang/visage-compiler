@@ -35,6 +35,15 @@ public class WeakBinderRef extends WeakRef<FXObject> {
      * (I don't know if/when that is needed ...) */
     static volatile int unsafeToCleanup;
 
+    public static WeakBinderRef instance(FXObject bindee) {
+        WeakBinderRef bref = bindee.getThisRef$internal$();
+        if (bref == null) {
+            bref = new WeakBinderRef(bindee);
+            bindee.setThisRef$internal$(bref);
+        }
+        return bref;
+    }
+
     static void checkForCleanups() {
         if (unsafeToCleanup > 0) {
             return;

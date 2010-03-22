@@ -392,6 +392,7 @@ public class FXLocal {
             "removeDependent$",
             "restrictSet$",
             "setDepChain$internal$",
+            "setThisRef$internal$",
             "switchDependence$",
             "userInit$",
             "getFlags$",

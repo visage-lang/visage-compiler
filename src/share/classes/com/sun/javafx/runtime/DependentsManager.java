@@ -55,7 +55,7 @@ public final class DependentsManager {
         if (chain == null)
             return;
         Dep prev = null;
-        WeakBinderRef binderRef = binder.getThisRef$internal$();
+        WeakBinderRef binderRef = WeakBinderRef.instance(binder);
         for (Dep dep = binderRef.bindees; dep != null; ) {
             Dep next = dep.nextInBindees;
             if (dep.chain == chain) {
@@ -202,7 +202,7 @@ class Dep implements BinderLinkable {
     static Dep newDependency(FXObject binder, int depNum) {
         Dep dep = new Dep();
         dep.depNum = depNum;
-        WeakBinderRef binderRef = binder.getThisRef$internal$();
+        WeakBinderRef binderRef = WeakBinderRef.instance(binder);
         dep.binderRef = binderRef;
         // Link into bindee chain of binderRef
         Dep firstBindee = binderRef.bindees;
@@ -212,7 +212,8 @@ class Dep implements BinderLinkable {
     }
 
     void linkToBindee(FXObject bindee, int bindeeVarNum) {
-        DepChain chain = DepChain.findForce(bindeeVarNum, bindee.getDepChain$internal$(), bindee.getThisRef$internal$());
+        WeakBinderRef bref = WeakBinderRef.instance(bindee);
+        DepChain chain = DepChain.findForce(bindeeVarNum, bindee.getDepChain$internal$(), bref);
         // Link into binder chain of bindee
         Dep firstBinder = chain.dependencies;
         nextInBinders = firstBinder;
