@@ -1875,7 +1875,7 @@ public abstract class JavafxAbstractTranslation
                     return id(tree.type.tsym.name);
                 } else {
                     // Just use super.
-                    return id(tree.getName());
+                    return resolveSuper(tree.sym.owner);
                 }
             }
 
