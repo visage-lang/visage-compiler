@@ -102,7 +102,20 @@ public final class DependentsManager {
                         ErrorHandler.bindException(re);
                     }
                     if (!handled) {
-                        binderRef.cleanup();
+                        Dep prev = null;
+                        for (Dep d = binderRef.bindees; d != null; ) {
+                            Dep nextInBindees = d.nextInBindees;
+                            if (d == dep) {
+                                if (prev == null)
+                                    binderRef.bindees = nextInBindees;
+                                else
+                                    prev.nextInBindees = nextInBindees;
+                                dep.unlinkFromBindee();
+                                break;
+                            }
+                            prev = d;
+                            d = nextInBindees;
+                        }
                     }
                 }
             }
