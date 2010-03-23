@@ -963,14 +963,7 @@ public class JavafxAttr implements JavafxVisitor {
                 result = tree.type = v.type = types.normalize(initType);
             }
             //chk.validateAnnotations(tree.mods.annotations, v);
-            if (types.isArray(v.type) &&
-                    (tree.isBound() ||
-                     tree.getOnReplaceTree() != null)) {
-                String key = tree.isBound() ? "bind" : "trigger";
-                JCDiagnostic err = diags.fragment("javafx.unsupported.type.in." + key);
-                chk.typeError(tree, err, v.type, messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC +
-                        MsgSym.MESSAGE_JAVAFX_OBJ_OR_SEQ));
-            }
+            chk.checkBoundArrayVar(tree);
         }
         finally {
             chk.setLint(prevLint);
@@ -1098,6 +1091,8 @@ public class JavafxAttr implements JavafxVisitor {
                         Cardinality.ANY :
                         Cardinality.SINGLETON));
         }
+
+        chk.checkBoundArrayVar(tree);
 
         if (types.isSameType(env.enclClass.type, v.owner.type)) {
             log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_OWN,tree.getId().getName());
@@ -1701,13 +1696,17 @@ public class JavafxAttr implements JavafxVisitor {
             //
             if  (part.getExpression() != null) {
                 attribExpr(part.getExpression(), initEnv, memberType);
+                if (types.isArray(part.getExpression().type) &&
+                    part.isBound()) {
+                    log.warning(part.pos(), MsgSym.MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_BIND);
+                }
             }
             if (memberSym instanceof JavafxVarSymbol) {
                 JavafxVarSymbol v = (JavafxVarSymbol) memberSym;
                 if (v.isStatic()) {
                     log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INIT_STATIC_OBJECT_LITERAL, memberSym);
                 }
-                WriteKind kind = part.isExplicitlyBound() ? WriteKind.INIT_BIND : WriteKind.INIT_NON_BIND;
+                WriteKind kind = part.isExplicitlyBound() ? WriteKind.INIT_BIND : WriteKind.INIT_NON_BIND;                
                 chk.checkAssignable(part.pos(), v, part, clazz.type, localEnv, kind);
                 chk.checkBidiBind(part.getExpression(), part.getBindStatus(), localEnv, v.type);
             }

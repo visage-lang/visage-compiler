@@ -343,9 +343,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_CLASS_ALLOWED = "javafx.only.one.base.class.allowed";
     public static final String MESSAGE_NEW_FX_CLASS_NO_ARGS = "new.fxclass.no.args";
     public static final String MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT = "javafx.not.allowed.in.bind.context";
-    public static final String MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND = "javafx.expr.unsupported.for.bidi.bind";
+    public static final String MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND = "javafx.expr.unsupported.for.bidi.bind";    
     public static final String MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_BIND = "javafx.unsupported.type.in.bind";
-    public static final String MESSAGE_JAVAFX_UNSUPPORTED_TARGET_IN_BIND = "javafx.unsupported.target.in.bind";
     public static final String MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_TRIGGER = "javafx.unsupported.type.in.trigger";
     public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";
     public static final String MESSAGE_JAVAFX_BOUND_VAR_IN_BIDI_BIND = "javafx.bound.var.in.bidi.bind";

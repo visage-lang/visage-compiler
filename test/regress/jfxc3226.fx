@@ -1,7 +1,8 @@
 /**
  * Regress test for JFXC-3226: Error when attaching a trigger to a nativearray type
  *
- * @test/warning
+ * @test
+ * @run
  */
 
 var text = "Zero";

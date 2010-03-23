@@ -1,21 +1,13 @@
-test/should-fail/jfxc3226.fx:8: Arrays do not support on replace triggers
-found   : nativearray of Character
-required: Object or Sequence
-var chars:nativearray of Character = text.toCharArray() on replace {
+test/should-fail/jfxc3226.fx:8: warning: bind does not detect changes in nativearray value
+var chars:nativearray of Character = bind text.toCharArray() on replace {
 ^
-test/should-fail/jfxc3226.fx:11: The target type of a bind cannot be an array
-found   : nativearray of Character
-required: Object or Sequence
-var chars_2:nativearray of Character = bind chars;
-                                            ^
-test/should-fail/jfxc3226.fx:11: Arrays do not support bind
-found   : nativearray of Character
-required: Object or Sequence
+test/should-fail/jfxc3226.fx:8: warning: trigger does not detect changes in nativearray value
+var chars:nativearray of Character = bind text.toCharArray() on replace {
+                                                             ^
+test/should-fail/jfxc3226.fx:11: warning: bind does not detect changes in nativearray value
 var chars_2:nativearray of Character = bind chars;
 ^
-test/should-fail/jfxc3226.fx:12: The target type of a bind cannot be an array
-found   : nativearray of Character
-required: Object or Sequence
+test/should-fail/jfxc3226.fx:12: warning: bind does not detect changes in nativearray value
 var chars_3:Character[] = bind chars;
-                               ^
-4 errors
+^
+4 warnings

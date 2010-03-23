@@ -420,7 +420,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression CallSize(JCExpression rcvr, Symbol sym) {
-            if (((JavafxVarSymbol) sym).useAccessors())
+            if (types.isArray(sym.type)) {
+                return Select(Getter(rcvr,sym),
+                        names.length);
+            }
+            else if (((JavafxVarSymbol) sym).useAccessors())
                 return Call(rcvr, attributeSizeName(sym));
             else
                 return Call(defs.Sequences_size, Getter(rcvr, sym));
@@ -431,7 +435,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
-            if (((JavafxVarSymbol) sym).useAccessors())
+            if (types.isArray(sym.type)) {
+                return m().Indexed(Getter(rcvr,sym),pos);
+            }
+            else if (((JavafxVarSymbol) sym).useAccessors())
                 return Call(rcvr, attributeGetElementName(sym), pos);
             else
                 return Call(Getter(rcvr, sym), defs.get_SequenceMethodName, pos);
@@ -713,7 +720,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             assert types.isSequence(tree.type);
             assert tree.getExpression() instanceof JFXIdent; // Decompose should shred
             this.exprSym = (JavafxVarSymbol)((JFXIdent)tree.getExpression()).sym;
-            assert types.isSequence(tree.getExpression().type);
+            assert types.isSequence(tree.getExpression().type) || types.isArray(tree.getExpression().type);
             this.elemType = types.elementType(tree.type);
         }
 

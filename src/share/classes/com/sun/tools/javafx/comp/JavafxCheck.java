@@ -747,13 +747,26 @@ public class JavafxCheck {
         return true;
     }
 
-    void checkBidiBind(JFXExpression init, JavafxBindStatus bindStatus, JavafxEnv<JavafxAttrContext> env, Type pt) {
-        if (init.type != null && types.isArray(init.type) && bindStatus.isBound()) {
-                JCDiagnostic err = diags.fragment(MsgSym.MESSAGE_JAVAFX_UNSUPPORTED_TARGET_IN_BIND);
-                typeError(init, err, init.type, messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC +
-                        MsgSym.MESSAGE_JAVAFX_OBJ_OR_SEQ));
+    void checkBoundArrayVar(JFXAbstractVar tree) {
+        if (tree.getInitializer() == null ||
+                tree.getInitializer().type == null) {
+            return;
         }
-        else if (bindStatus.isBidiBind()) {
+        else if (types.isArray(tree.getInitializer().type)) {
+            if (tree.isBound()) {
+                log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_BIND);
+            }
+            if (tree.getOnInvalidate() != null || tree.getOnReplace() != null) {
+                DiagnosticPosition pos = tree.getOnReplace() != null ?
+                    tree.getOnReplace().pos() :
+                    tree.getOnInvalidate().pos();
+                log.warning(pos, MsgSym.MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_TRIGGER);
+            }
+        }
+    }
+
+    void checkBidiBind(JFXExpression init, JavafxBindStatus bindStatus, JavafxEnv<JavafxAttrContext> env, Type pt) {        
+        if (bindStatus.isBidiBind()) {
             Symbol initSym = null;
             JFXTree base = null;
             Type site = null;
