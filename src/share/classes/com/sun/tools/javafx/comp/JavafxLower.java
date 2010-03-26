@@ -408,6 +408,11 @@ public class JavafxLower implements JavafxVisitor {
                 types.isSameType(that.seqExpr.type, syms.javafx_EmptySequenceType)) {
             typeToCheck = types.sequenceType(that.var.type);
         }
+        else if (that.isBound() &&
+                types.isArray(that.seqExpr.type)) {
+            // Bound-for is implemented only over sequences, convert the nativearray to a sequence
+            typeToCheck = types.sequenceType(types.elemtype(that.seqExpr.type));
+        }
         else if (!types.isSequence(that.seqExpr.type) &&
                 !types.isArray(that.seqExpr.type) &&
                 types.asSuper(that.seqExpr.type, syms.iterableType.tsym) == null) {

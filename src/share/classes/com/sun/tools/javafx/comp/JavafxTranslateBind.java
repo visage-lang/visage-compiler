@@ -421,8 +421,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         JCExpression CallSize(JCExpression rcvr, Symbol sym) {
             if (types.isArray(sym.type)) {
-                return Select(Getter(rcvr,sym),
-                        names.length);
+                JCVariableDecl vArr = TmpVar("arr", sym.type, Getter(rcvr,sym));
+                return 
+                    BlockExpression(
+                        vArr,
+                        If (NEnull(id(vArr)),
+                            Select(id(vArr), names.length),
+                            Int(0)
+                        )
+                    );
             }
             else if (((JavafxVarSymbol) sym).useAccessors())
                 return Call(rcvr, attributeSizeName(sym));
@@ -436,7 +443,20 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
             if (types.isArray(sym.type)) {
-                return m().Indexed(Getter(rcvr,sym),pos);
+                JCVariableDecl vArr = TmpVar("arr", sym.type, Getter(rcvr,sym));
+                JCVariableDecl vPos = TmpVar("pos", syms.intType, pos);
+                return
+                    BlockExpression(
+                        vArr,
+                        vPos,
+                        If (OR(OR(
+                                EQnull(id(vArr)),
+                                LT(id(vPos), Int(0))),
+                                LE(Select(id(vArr), names.length), id(vPos))),
+                            DefaultValue(types.elemtype(sym.type)),
+                            m().Indexed(id(vArr), id(vPos))
+                        )
+                    );
             }
             else if (((JavafxVarSymbol) sym).useAccessors())
                 return Call(rcvr, attributeGetElementName(sym), pos);
@@ -712,8 +732,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      */
     class BoundTypeCastSequenceTranslator extends BoundSequenceTranslator {
 
-        private final JavafxVarSymbol exprSym;
-        private final Type elemType;
+        final JavafxVarSymbol exprSym;
+        final Type elemType;
 
         BoundTypeCastSequenceTranslator(JFXTypeCast tree) {
             super(tree.pos());
@@ -757,6 +777,74 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         void setupInvalidators() {
             addBindee(exprSym);
+        }
+    }
+
+    /**
+     * Bound type-cast Translator for type-cast from nativearray to sequence
+     */
+    class BoundTypeCastArrayToSequenceTranslator extends BoundTypeCastSequenceTranslator {
+
+        private final JavafxVarSymbol sizeSym;
+
+        BoundTypeCastArrayToSequenceTranslator(JFXTypeCast tree) {
+            super(tree);
+            this.sizeSym = tree.boundArraySizeSym;
+        }
+
+        @Override
+        JCStatement makeSizeBody() {
+            JCVariableDecl vSize = TmpVar(syms.intType, CallSize(exprSym));
+
+            return
+                Block(
+                    vSize,
+                    If (isSequenceDormant(),
+                        Block(
+                            setSequenceActive(),
+                            SetStmt(sizeSym, id(vSize)),
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqTriggerInitial(targetSymbol, id(vSize))
+                        )
+                    ),
+                    Return(id(vSize))
+                );
+       }
+
+        /**
+         * Body of a invalidate$ method for the nativearray
+         */
+        private JCStatement makeInvalidateArray() {
+            JCVariableDecl oldSizeVar = TmpVar("oldSize", syms.intType, Get(sizeSym));
+            JCVariableDecl newSizeVar = TmpVar("newSize", syms.intType, CallSize(exprSym));
+
+            return
+                PhaseCheckedBlock(exprSym,
+                    If (isSequenceActive(),
+                        Block(
+                            If(IsInvalidatePhase(),
+                                Block(
+                                    CallSeqInvalidateUndefined(targetSymbol)
+                                ),
+                            /*Else (Trigger phase)*/
+                                Block(
+                                    oldSizeVar,
+                                    newSizeVar,
+                                    SetStmt(sizeSym, id(newSizeVar)),
+                                    CallSeqTrigger(targetSymbol, Int(0), id(oldSizeVar), id(newSizeVar))
+                                )
+                            )
+                        )
+                    )
+                );
+        }
+
+        /**
+         * Set-up array's invalidator.
+         */
+        @Override
+        void setupInvalidators() {
+            addInvalidator(exprSym, makeInvalidateArray());
         }
     }
 
@@ -3034,7 +3122,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     public void visitTypeCast(final JFXTypeCast tree) {
         if (tree == boundExpression && isTargettedToSequence()) {
             // We want to translate to a bound sequence
-            result = new BoundTypeCastSequenceTranslator(tree).doit();
+            if (tree.boundArraySizeSym != null) {
+                result = new BoundTypeCastArrayToSequenceTranslator(tree).doit();
+            } else {
+                result = new BoundTypeCastSequenceTranslator(tree).doit();
+            }
         } else {
             super.visitTypeCast(tree);
         }

@@ -25,6 +25,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 
 /**
  * A type cast.
@@ -33,6 +34,8 @@ public class JFXTypeCast extends JFXExpression implements TypeCastTree {
 
     public JFXTree clazz;
     public JFXExpression expr;
+
+    public JavafxVarSymbol boundArraySizeSym;
 
     protected JFXTypeCast(JFXTree clazz, JFXExpression expr) {
         this.clazz = clazz;

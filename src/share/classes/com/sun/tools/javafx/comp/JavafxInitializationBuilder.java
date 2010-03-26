@@ -2434,13 +2434,6 @@ however this is what we need */
                             }
                             addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
                         }
-                        else if (types.isArray(varInfo.getRealType())) {
-                            addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()),
-                                    Int(0),
-                                    Undefined(),
-                                    Undefined(),
-                                    phaseArg()));
-                        }
                     }
                     
                     // Invalidate back to inverse.

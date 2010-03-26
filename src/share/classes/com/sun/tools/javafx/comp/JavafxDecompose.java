@@ -564,11 +564,21 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitTypeCast(JFXTypeCast tree) {
+        boolean isBoundSequence = bindStatus.isBound() && types.isSequence(tree.type);
+        boolean isCastingArray = types.isArray(tree.expr.type);
         JFXTree clazz = decompose(tree.clazz);
-        JFXExpression expr = (bindStatus.isBound() && types.isSequence(tree.type))?
-            shredUnlessIdent(tree.expr) :
+        JFXExpression expr = isBoundSequence?
+            isCastingArray?
+                shred(tree.expr) : // can't smash invalidation logic of user var
+                shredUnlessIdent(tree.expr) :
             decomposeComponent(tree.expr);
-        result = fxmake.at(tree.pos).TypeCast(clazz, expr);
+        JFXTypeCast res = fxmake.at(tree.pos).TypeCast(clazz, expr);
+        if (isBoundSequence && isCastingArray) {
+            // Add a size field to hold the previous size of nativearray
+            JFXVar v = makeSizeVar(tree.pos(), 0);
+            res.boundArraySizeSym = v.sym;
+        }
+        result = res;
     }
 
     public void visitInstanceOf(JFXInstanceOf tree) {
