@@ -36,8 +36,8 @@ import java.util.Map;
  * @author tball
  */
 public class JavafxTreeCopier implements JavafxVisitor {
-    private JavafxTreeMaker maker;
-    private JFXTree result;
+    protected JavafxTreeMaker maker;
+    protected JFXTree result;
 
     public Map<JCTree, Integer> endPositions;
 

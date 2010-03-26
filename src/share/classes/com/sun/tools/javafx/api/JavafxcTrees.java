@@ -341,5 +341,10 @@ public class JavafxcTrees {
                 leafCopy = t2;
             return t2;
         }
+
+        @Override
+        public void visitForExpressionInClause(JFXForExpressionInClause tree) {
+            result = maker.InClause(copy(tree.var), copy(tree.getSequenceExpression()), copy(tree.getWhereExpression()));
+        }
     }
 }
