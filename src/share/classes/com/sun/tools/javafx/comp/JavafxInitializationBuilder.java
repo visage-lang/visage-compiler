@@ -1657,8 +1657,8 @@ however this is what we need */
                              * If this var "foo" is initialized with bound function result var, then
                              * we want to get element from the Pointer. We translate as:
                              *
-                             *    public static int get$foo(final int pos$) {
-                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();
+                             *    public static int elem$foo(final int pos$) {
+                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();                             *
                              *        return ifx$0tmp != null ? (Integer)ifx$0tmp.get(pos$) : 0;
                              *    }
                              */
@@ -1670,7 +1670,7 @@ however this is what we need */
                                     id(tmpPtrVar),
                                     defs.get_PointerMethodName,
                                     posArg());
-                            addStmt(Return(If(ptrNonNullCond, 
+                            addStmt(Return(If(ptrNonNullCond,
                                         castFromObject(apply, varInfo.getElementType()),
                                         makeDefaultValue(varInfo.pos(), varInfo.getElementType()))));
                         } else if (varInfo.isSynthetic()) {
@@ -1732,11 +1732,11 @@ however this is what we need */
                              *        Pointer newPtr = get$$$bound$result$$foo();
                              *        Pointer.switchDependence(oldPtr, newPtr, receiver);
                              *
+                             *        <make-it-valid>
                              *        if (newPtr != null) {
-                             *            <make-it-valid>
                              *            return (Integer)ifx$0tmp.size();
                              *        } else {
-                             *            return -1000;
+                             *            return 0;
                              *        }
                              *    }
                              */
@@ -1757,12 +1757,14 @@ however this is what we need */
                                              DepNum(getReceiver(varSym), null, varInfo.boundFuncResultInitSym())));
 
                             JCStatement setValid = FlagChangeStmt(proxyVarSym, defs.varFlagINIT_STATE_MASK, defs.varFlagVALID_DEFAULT_APPLIED);
+                            addStmt(setValid);
+
                             JCExpression apply = Call(
                                     Getter(varInfo.boundFuncResultInitSym()),
                                     defs.size_PointerMethodName);
                             addStmt(OptIf(NEnull(id(newPtrVar)),
                                         Block(setValid, Return(apply)),
-                                        Return(Int(JavafxDefs.UNDEFINED_MARKER_INT))
+                                        Return(Int(0))
                                       )
                                    );
                         } else if (varInfo.isSynthetic()) {
@@ -2128,7 +2130,7 @@ however this is what we need */
                                 // We have a Pointer - we need to call Pointer.get() and cast the result.
                                 initValue = castFromObject(Call(id(newPtrVar), defs.get_PointerMethodName), varSym.type);
                                 initValue = If(NEnull(id(newPtrVar)), initValue, defaultValue(varInfo));
-                                        
+
                                 // T varNewValue$ = default value
                                 addStmt(Var(Flags.FINAL, type, defs.varNewValue_ArgName, initValue));
                                 // Set the var.
@@ -2433,6 +2435,43 @@ however this is what we need */
                                 depGraphWriter.writeDependency(otherVar.sym, varSym);
                             }
                             addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
+                        } else if (isBoundFunctionResult(varSym)) {
+                            // This is bound function result variable. And the dependent is a sequence
+                            // So, make sure we call the right sequence invalidate method with correct
+                            // computed old and new sizes.
+                            if (depGraphWriter != null) {
+                                depGraphWriter.writeDependency(otherVar.sym, varSym);
+                            }
+
+                            JCVariableDecl oldPtrVar = TmpVar("old", syms.javafx_PointerType, Get(varSym));
+                            JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, Getter(varSym));
+                            JCVariableDecl oldSizeVar = TmpVar("oldSize", syms.intType,
+                                         If (NEnull(id(oldPtrVar)),
+                                             Call(id(oldPtrVar), defs.size_PointerMethodName),
+                                             Int(0)
+                                         ));
+                            JCVariableDecl newSizeVar = TmpVar("newSize", syms.intType, 
+                                         If (NEnull(id(newPtrVar)),
+                                             Call(id(newPtrVar), defs.size_PointerMethodName),
+                                             Int(0)
+                                         ));
+
+                            Symbol otherSym = otherVar.getSymbol();
+                            addStmt(
+                                    If(IsInvalidatePhase(),
+                                        Block(
+                                            CallSeqInvalidateUndefined(otherSym)
+                                        ),
+                                    /*Else (Trigger phase)*/
+                                        Block(
+                                            oldPtrVar,
+                                            newPtrVar,
+                                            oldSizeVar,
+                                            newSizeVar,
+                                            CallSeqTrigger(otherSym, Int(0), id(oldSizeVar), id(newSizeVar))
+                                        )
+                                    )
+                            );
                         }
                     }
                     
