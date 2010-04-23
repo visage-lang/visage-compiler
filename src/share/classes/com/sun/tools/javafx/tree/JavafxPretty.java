@@ -534,7 +534,7 @@ public class JavafxPretty implements JavafxVisitor {
             case REVERSE:    return "reverse";
             case INDEXOF:    return "indexof";
             case SIZEOF:     return "sizeof";
-            default: throw new Error();
+            default: return "[unexpected operator tag "+tag+"]";
         }
     }
 
