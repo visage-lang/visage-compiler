@@ -1107,7 +1107,8 @@ public class FXLocal {
         
 
         public ObjectValue(Object obj, Context context) {
-            type = context.makeClassRef(obj.getClass());
+            type = obj == null ? (ClassType) context.anyType
+                    : context.makeClassRef(obj.getClass());
             this.obj = obj;
             if (obj instanceof FXObject) 
                 count = ((FXObject) obj).count$();
