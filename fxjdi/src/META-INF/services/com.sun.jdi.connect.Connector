@@ -1,0 +1,4 @@
+com.sun.javafx.jdi.connect.FXAttachingConnector
+com.sun.javafx.jdi.connect.FXListeningConnector
+com.sun.javafx.jdi.connect.FXLaunchingConnector
+com.sun.javafx.jdi.connect.FXProcessAttachingConnector
