@@ -44,6 +44,7 @@ import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2266,7 +2267,7 @@ however this is what we need */
         }
 
         private JCExpression validBindeesTest(VarInfo varInfo) {
-            Set<JavafxVarSymbol> unique = new HashSet<JavafxVarSymbol>();
+            Set<JavafxVarSymbol> unique = new LinkedHashSet<JavafxVarSymbol>();
             for (JavafxVarSymbol vsym : varInfo.boundBindees()) {
                 if (!vsym.isSpecial() && !vsym.isSequence()) {
                     unique.add(vsym);
