@@ -41,8 +41,11 @@ import java.util.List;
  * @author sundar
  */
 public class FXClassType extends FXReferenceType implements ClassType {
+    private boolean _isFXType;
+
     public FXClassType(FXVirtualMachine fxvm, ClassType underlying) {
         super(fxvm, underlying);
+        init();
     }
 
     public List<InterfaceType> allInterfaces() {
@@ -95,5 +98,29 @@ public class FXClassType extends FXReferenceType implements ClassType {
     @Override
     protected ClassType underlying() {
         return (ClassType) super.underlying();
+    }
+
+    @Override
+    protected boolean isJavaFXType() {
+        return _isFXType;
+    }
+
+    private void init() {
+        FXVirtualMachine fxvm = virtualMachine();
+        InterfaceType fxObjType = (InterfaceType) FXWrapper.unwrap(fxvm.fxObjectType());
+        if (fxObjType == null) {
+            _isFXType = false;
+            return;
+        }
+
+        ClassType thisType = underlying();
+        List<InterfaceType> allIfaces = thisType.allInterfaces();
+        for (InterfaceType iface : allIfaces) {
+            if (iface.equals(fxObjType)) {
+                _isFXType = true;
+                return;
+            }
+        }
+        _isFXType = false;
     }
 }

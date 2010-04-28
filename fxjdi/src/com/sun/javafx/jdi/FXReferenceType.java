@@ -234,4 +234,8 @@ public class FXReferenceType extends FXType implements ReferenceType {
     protected ReferenceType underlying() {
         return (ReferenceType) super.underlying();
     }
+
+    protected boolean isJavaFXType() {
+        return false;
+    }
 }

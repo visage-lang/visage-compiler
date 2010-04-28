@@ -306,29 +306,29 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     // JavaFX types
-    private ReferenceType fxObjectType;
-    public synchronized ReferenceType fxObjectType() {
+    private InterfaceType fxObjectType;
+    public synchronized InterfaceType fxObjectType() {
         if (fxObjectType == null) {
             List<ReferenceType> refTypes = classesByName("com.sun.javafx.runtime.FXObject");
-            fxObjectType = refTypes.isEmpty() ? null : refTypes.get(0);
+            fxObjectType = refTypes.isEmpty() ? null : (InterfaceType) refTypes.get(0);
         }
         return fxObjectType;
     }
 
-    private ReferenceType fxMixinType;
+    private InterfaceType fxMixinType;
     public synchronized ReferenceType fxMixinType() {
         if (fxMixinType == null) {
             List<ReferenceType> refTypes = classesByName("com.sun.javafx.runtime.FXMixin");
-            fxMixinType = refTypes.isEmpty()? null : refTypes.get(0);
+            fxMixinType = refTypes.isEmpty()? null : (InterfaceType) refTypes.get(0);
         }
         return fxMixinType;
     }
 
-    private ReferenceType fxSequenceType;
+    private InterfaceType fxSequenceType;
     public synchronized ReferenceType fxSequenceType() {
         if (fxSequenceType == null) {
             List<ReferenceType> refTypes = classesByName("com.sun.javafx.runtime.sequence.Sequence");
-            fxSequenceType = refTypes.isEmpty() ? null : refTypes.get(0);
+            fxSequenceType = refTypes.isEmpty() ? null : (InterfaceType) refTypes.get(0);
         }
         return fxSequenceType;
     }
