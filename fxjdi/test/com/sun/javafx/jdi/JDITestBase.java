@@ -44,7 +44,7 @@ public class JDITestBase {
 
     @Before
     public void setUp() {
-        vm = connectToVM();
+        vm = launchVM();
     }
 
     @After
@@ -57,7 +57,7 @@ public class JDITestBase {
 
     // Override this method in subclass to create a different JDI VM.
     // This implementation uses FXLaunchingConnector to get JDI VM.
-    protected VirtualMachine connectToVM() {
+    protected VirtualMachine launchVM() {
         FXLaunchingConnector conn = new FXLaunchingConnector();
         Map<String, Connector.Argument> args = conn.defaultArguments();
         Connector.StringArgument arg = (Connector.StringArgument) args.get("main");
