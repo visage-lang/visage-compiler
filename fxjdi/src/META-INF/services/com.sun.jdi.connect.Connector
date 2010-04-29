@@ -1,7 +1,7 @@
 com.sun.javafx.jdi.connect.FXLaunchingConnector
 com.sun.javafx.jdi.connect.FXProcessAttachingConnector
 com.sun.javafx.jdi.connect.FXRawLaunchingConnector
-com.sun.javafx.jdi.connect.FXSharedMemoryAttachingConnector
-com.sun.javafx.jdi.connect.FXSharedMemoryListeningConnector
+# com.sun.javafx.jdi.connect.FXSharedMemoryAttachingConnector
+# com.sun.javafx.jdi.connect.FXSharedMemoryListeningConnector
 com.sun.javafx.jdi.connect.FXSocketAttachingConnector
 com.sun.javafx.jdi.connect.FXSocketListeningConnector
