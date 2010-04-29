@@ -27,8 +27,7 @@ import com.sun.javafx.jdi.FXVirtualMachine;
 import com.sun.javafx.jdi.FXWrapper;
 import com.sun.jdi.connect.Connector.Argument;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
-import com.sun.jdi.connect.LaunchingConnector;
-import com.sun.jdi.connect.VMStartException;
+import com.sun.jdi.connect.ListeningConnector;
 import java.io.IOException;
 import java.util.Map;
 
@@ -36,37 +35,61 @@ import java.util.Map;
  *
  * @author sundar
  */
-public class FXLaunchingConnector extends FXConnector implements LaunchingConnector {
-    public FXLaunchingConnector() {
+public class FXSharedMemoryListeningConnector extends FXConnector implements ListeningConnector {
+    public FXSharedMemoryListeningConnector() {
         this(makePlatformConnector());
     }
-    
-    public FXLaunchingConnector(LaunchingConnector underlying) {
+
+    public FXSharedMemoryListeningConnector(ListeningConnector underlying) {
         super(underlying);
     }
 
-    public FXVirtualMachine launch(Map<String, ? extends Argument> args)
-            throws IOException, IllegalConnectorArgumentsException, VMStartException {
-        return FXWrapper.wrap(underlying().launch(args));
+    public FXVirtualMachine accept(Map<String, ? extends Argument> args)
+            throws IOException, IllegalConnectorArgumentsException {
+        return FXWrapper.wrap(underlying().accept(args));
+    }
+
+    public String startListening(Map<String, ? extends Argument> args)
+            throws IOException, IllegalConnectorArgumentsException {
+        return underlying().startListening(args);
+    }
+
+    public void stopListening(Map<String, ? extends Argument> args)
+            throws IOException, IllegalConnectorArgumentsException {
+        underlying().stopListening(args);
+    }
+
+    public boolean supportsMultipleConnections() {
+        return underlying().supportsMultipleConnections();
     }
 
     @Override
-    protected LaunchingConnector underlying() {
-        return (LaunchingConnector) super.underlying();
+    protected ListeningConnector underlying() {
+        return (ListeningConnector) super.underlying();
     }
 
-    private static final String SUN_COMMANDLINE_LAUNCHER = "com.sun.tools.jdi.SunCommandLineLauncher";
-    private static LaunchingConnector makePlatformConnector() {
+    private static final String SHAREDMEM_LISTENING_CONN = "com.sun.tools.jdi.SharedMemoryListeningConnector";
+    // used for testing only
+    public static boolean isAvailable() {
+        try {
+            Class.forName(SHAREDMEM_LISTENING_CONN);
+            return true;
+        } catch (ClassNotFoundException cnfe) {
+            return false;
+        }
+    }
+
+    private static ListeningConnector makePlatformConnector() {
         Class connectorClass = null;
         try {
-            connectorClass = Class.forName(SUN_COMMANDLINE_LAUNCHER);
+            connectorClass = Class.forName(SHAREDMEM_LISTENING_CONN);
         } catch (ClassNotFoundException cnfe) {
         }
         if (connectorClass == null) {
-            throw new RuntimeException("can not load class: " + SUN_COMMANDLINE_LAUNCHER);
+            throw new RuntimeException("can not load class: " + SHAREDMEM_LISTENING_CONN);
         }
         try {
-            return (LaunchingConnector) connectorClass.newInstance();
+            return (ListeningConnector) connectorClass.newInstance();
         } catch (Exception exp) {
             throw new RuntimeException(exp);
         }

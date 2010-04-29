@@ -25,10 +25,9 @@ package com.sun.javafx.jdi.connect;
 
 import com.sun.javafx.jdi.FXVirtualMachine;
 import com.sun.javafx.jdi.FXWrapper;
+import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector.Argument;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
-import com.sun.jdi.connect.LaunchingConnector;
-import com.sun.jdi.connect.VMStartException;
 import java.io.IOException;
 import java.util.Map;
 
@@ -36,37 +35,47 @@ import java.util.Map;
  *
  * @author sundar
  */
-public class FXLaunchingConnector extends FXConnector implements LaunchingConnector {
-    public FXLaunchingConnector() {
+public class FXSharedMemoryAttachingConnector extends FXConnector implements AttachingConnector {
+    public FXSharedMemoryAttachingConnector() {
         this(makePlatformConnector());
     }
-    
-    public FXLaunchingConnector(LaunchingConnector underlying) {
+
+    public FXSharedMemoryAttachingConnector(AttachingConnector underlying) {
         super(underlying);
     }
 
-    public FXVirtualMachine launch(Map<String, ? extends Argument> args)
-            throws IOException, IllegalConnectorArgumentsException, VMStartException {
-        return FXWrapper.wrap(underlying().launch(args));
+    public FXVirtualMachine attach(Map<String, ? extends Argument> args)
+            throws IOException, IllegalConnectorArgumentsException {
+        return FXWrapper.wrap(underlying().attach(args));
     }
 
     @Override
-    protected LaunchingConnector underlying() {
-        return (LaunchingConnector) super.underlying();
+    protected AttachingConnector underlying() {
+        return (AttachingConnector) super.underlying();
     }
 
-    private static final String SUN_COMMANDLINE_LAUNCHER = "com.sun.tools.jdi.SunCommandLineLauncher";
-    private static LaunchingConnector makePlatformConnector() {
+    private static final String SHAREDMEM_ATTACHING_CONN = "com.sun.tools.jdi.SharedMemoryAttachingConnector";
+    // used for testing only
+    public static boolean isAvailable() {
+        try {
+            Class.forName(SHAREDMEM_ATTACHING_CONN);
+            return true;
+        } catch (ClassNotFoundException cnfe) {
+            return false;
+        }
+    }
+
+    private static AttachingConnector makePlatformConnector() {
         Class connectorClass = null;
         try {
-            connectorClass = Class.forName(SUN_COMMANDLINE_LAUNCHER);
+            connectorClass = Class.forName(SHAREDMEM_ATTACHING_CONN);
         } catch (ClassNotFoundException cnfe) {
         }
         if (connectorClass == null) {
-            throw new RuntimeException("can not load class: " + SUN_COMMANDLINE_LAUNCHER);
+            throw new RuntimeException("can not load class: " + SHAREDMEM_ATTACHING_CONN);
         }
         try {
-            return (LaunchingConnector) connectorClass.newInstance();
+            return (AttachingConnector) connectorClass.newInstance();
         } catch (Exception exp) {
             throw new RuntimeException(exp);
         }

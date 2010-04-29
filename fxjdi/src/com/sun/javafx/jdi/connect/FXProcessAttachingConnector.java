@@ -54,14 +54,15 @@ public class FXProcessAttachingConnector extends FXConnector implements Attachin
         return (AttachingConnector) super.underlying();
     }
 
+    private static final String PROCESS_ATTACHING_CONN = "com.sun.tools.jdi.ProcessAttachingConnector";
     private static AttachingConnector makePlatformConnector() {
         Class connectorClass = null;
         try {
-            connectorClass = Class.forName("com.sun.tools.jdi.ProcessAttachingConnector");
+            connectorClass = Class.forName(PROCESS_ATTACHING_CONN);
         } catch (ClassNotFoundException cnfe) {
         }
         if (connectorClass == null) {
-            throw new RuntimeException("can not load platform connector class");
+            throw new RuntimeException("can not load class: " + PROCESS_ATTACHING_CONN);
         }
         try {
             return (AttachingConnector) connectorClass.newInstance();

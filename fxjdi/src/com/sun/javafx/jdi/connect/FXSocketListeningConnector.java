@@ -35,12 +35,12 @@ import java.util.Map;
  *
  * @author sundar
  */
-public class FXListeningConnector extends FXConnector implements ListeningConnector {
-    public FXListeningConnector() {
+public class FXSocketListeningConnector extends FXConnector implements ListeningConnector {
+    public FXSocketListeningConnector() {
         this(makePlatformConnector());
     }
     
-    public FXListeningConnector(ListeningConnector underlying) {
+    public FXSocketListeningConnector(ListeningConnector underlying) {
         super(underlying);
     }
 
@@ -68,19 +68,14 @@ public class FXListeningConnector extends FXConnector implements ListeningConnec
         return (ListeningConnector) super.underlying();
     }
 
+    private static final String SOCKET_LISTENING_CONN = "com.sun.tools.jdi.SocketListeningConnector";
     private static ListeningConnector makePlatformConnector() {
         Class connectorClass = null;
         try {
-            connectorClass = Class.forName("com.sun.tools.jdi.SharedMemoryListeningConnector");
-        } catch (ClassNotFoundException cnfe) {
-        }
+            connectorClass = Class.forName(SOCKET_LISTENING_CONN);
+        } catch (ClassNotFoundException cnfe) {}
         if (connectorClass == null) {
-            try {
-                connectorClass = Class.forName("com.sun.tools.jdi.SocketListeningConnector");
-            } catch (ClassNotFoundException cnfe) {}
-        }
-        if (connectorClass == null) {
-            throw new RuntimeException("can not load platform connector class");
+            throw new RuntimeException("can not load class: " + SOCKET_LISTENING_CONN);
         }
         try {
             return (ListeningConnector) connectorClass.newInstance();

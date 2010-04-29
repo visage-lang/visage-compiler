@@ -55,14 +55,15 @@ public class FXRawLaunchingConnector extends FXConnector implements LaunchingCon
         return (LaunchingConnector) super.underlying();
     }
 
+    private static final String RAW_COMMANDLINE_LAUNCHER = "com.sun.tools.jdi.RawCommandLineLauncher";
     private static LaunchingConnector makePlatformConnector() {
         Class connectorClass = null;
         try {
-            connectorClass = Class.forName("com.sun.tools.jdi.RawCommandLineLauncher");
+            connectorClass = Class.forName(RAW_COMMANDLINE_LAUNCHER);
         } catch (ClassNotFoundException cnfe) {
         }
         if (connectorClass == null) {
-            throw new RuntimeException("can not load platform connector class");
+            throw new RuntimeException("can not load class: " + RAW_COMMANDLINE_LAUNCHER);
         }
         try {
             return (LaunchingConnector) connectorClass.newInstance();

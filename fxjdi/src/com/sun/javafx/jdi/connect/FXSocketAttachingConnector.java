@@ -35,12 +35,12 @@ import java.util.Map;
  *
  * @author sundar
  */
-public class FXAttachingConnector extends FXConnector implements AttachingConnector {
-    public FXAttachingConnector() {
+public class FXSocketAttachingConnector extends FXConnector implements AttachingConnector {
+    public FXSocketAttachingConnector() {
         this(makePlatformConnector());
     }
 
-    public FXAttachingConnector(AttachingConnector underlying) {
+    public FXSocketAttachingConnector(AttachingConnector underlying) {
         super(underlying);
     }
 
@@ -54,19 +54,14 @@ public class FXAttachingConnector extends FXConnector implements AttachingConnec
         return (AttachingConnector) super.underlying();
     }
 
+    private static final String SOCKET_ATTACHING_CONN = "com.sun.tools.jdi.SocketAttachingConnector";
     private static AttachingConnector makePlatformConnector() {
         Class connectorClass = null;
         try {
-            connectorClass = Class.forName("com.sun.tools.jdi.SharedMemoryAttachingConnector");
-        } catch (ClassNotFoundException cnfe) {
-        }
+            connectorClass = Class.forName(SOCKET_ATTACHING_CONN);
+        } catch (ClassNotFoundException cnfe) {}
         if (connectorClass == null) {
-            try {
-                connectorClass = Class.forName("com.sun.tools.jdi.SocketAttachingConnector");
-            } catch (ClassNotFoundException cnfe) {}
-        }
-        if (connectorClass == null) {
-            throw new RuntimeException("can not load platform connector class");
+            throw new RuntimeException("can not load class: " + SOCKET_ATTACHING_CONN);
         }
         try {
             return (AttachingConnector) connectorClass.newInstance();
