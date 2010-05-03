@@ -7,6 +7,9 @@
 ^dist/
 ^nbproject/private/
 ^javafxdoc/build/
+^fxjdi/build/
+^fxjdi/dist/
+^fxjdi/nbproject/private/
 ^doc/langspec/langref.xsl
 ^doc/reference/langref.xsl
 ^webrev/
