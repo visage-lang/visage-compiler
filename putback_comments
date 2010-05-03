@@ -1,4 +1,0 @@
-Fixed JFXC-4311 : FX-JDI: test framework
-
-* Added facility and config. to test JavaFX target apps with FX-JDI.
-* Added HelloTarget.fx and HelloTest.java - this uses JavafxTestBase.java.
