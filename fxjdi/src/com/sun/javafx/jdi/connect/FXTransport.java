@@ -23,38 +23,37 @@
 
 package com.sun.javafx.jdi.connect;
 
-import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.Transport;
-import java.util.Map;
 
 /**
  *
  * @author sundar
  */
-public class FXConnector implements Connector {
-    private final Connector _underlying;
+public class FXTransport implements Transport {
+    private Transport _underlying;
 
-    public FXConnector(Connector underlying) {
+    public FXTransport(Transport underlying) {
         this._underlying = underlying;
     }
 
-    public Map<String, Argument> defaultArguments() {
-        return underlying().defaultArguments();
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof FXTransport) {
+            obj = ((FXTransport)obj).underlying();
+        }
+        return underlying().equals(obj);
     }
 
-    public String description() {
-        return underlying().description();
+    @Override
+    public int hashCode() {
+        return underlying().hashCode();
     }
 
     public String name() {
-        return getClass().getName();
+        return "fx_" + underlying().name();
     }
 
-    public Transport transport() {
-        return new FXTransport(underlying().transport());
-    }
-
-    protected Connector underlying() {
+    protected Transport underlying() {
         return _underlying;
     }
 }

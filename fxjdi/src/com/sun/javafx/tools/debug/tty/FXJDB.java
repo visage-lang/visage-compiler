@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.tools.example.debug.tty;
+package com.sun.javafx.tools.debug.tty;
 
 import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.StackFrame;
@@ -42,8 +42,7 @@ import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.event.VMStartEvent;
 import com.sun.jdi.event.WatchpointEvent;
-import com.sun.jdi.request.EventRequest;
-import com.sun.tools.example.debug.expr.ExpressionParser;
+import com.sun.javafx.tools.debug.expr.ExpressionParser;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
@@ -56,15 +55,15 @@ import java.util.StringTokenizer;
  * @author sundar
  */
 public class FXJDB implements EventNotifier {
-    private FXJDBListener listener;
+    private EventNotifier listener;
     private Commands evaluator;
     private EventHandler handler;
 
-    public FXJDB(FXJDBListener listener, String connectorSpec, boolean openNow, int flags) {
+    public FXJDB(EventNotifier listener, String connectorSpec, boolean openNow, int flags) {
         this.listener = listener;
         this.evaluator = new Commands();
         MessageOutput.textResources = ResourceBundle.getBundle(
-                "com.sun.tools.example.debug.tty.TTYResources", Locale.getDefault());
+                "com.sun.javafx.tools.debug.tty.TTYResources", Locale.getDefault());
         if (connectorSpec.charAt(connectorSpec.length() - 1) != ',') {
             connectorSpec = connectorSpec.concat(",");
         }
@@ -74,11 +73,11 @@ public class FXJDB implements EventNotifier {
         }
     }
 
-    public FXJDB(FXJDBListener listener, String connectorSpec, boolean openNow) {
+    public FXJDB(EventNotifier listener, String connectorSpec, boolean openNow) {
         this(listener, connectorSpec, openNow, VirtualMachine.TRACE_NONE);
     }
 
-    public FXJDB(FXJDBListener listener, String connectorSpec) {
+    public FXJDB(EventNotifier listener, String connectorSpec) {
         this(listener, connectorSpec, false);
     }
 

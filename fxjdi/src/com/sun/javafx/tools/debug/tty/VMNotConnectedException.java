@@ -1,10 +1,12 @@
 /*
- * Copyright 2010 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 1999 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -21,40 +23,15 @@
  * have any questions.
  */
 
-package com.sun.javafx.jdi.connect;
+package com.sun.javafx.tools.debug.tty;
 
-import com.sun.jdi.connect.Connector;
-import com.sun.jdi.connect.Transport;
-import java.util.Map;
+public class VMNotConnectedException extends RuntimeException {
 
-/**
- *
- * @author sundar
- */
-public class FXConnector implements Connector {
-    private final Connector _underlying;
-
-    public FXConnector(Connector underlying) {
-        this._underlying = underlying;
+    public VMNotConnectedException() {
+        super();
     }
 
-    public Map<String, Argument> defaultArguments() {
-        return underlying().defaultArguments();
-    }
-
-    public String description() {
-        return underlying().description();
-    }
-
-    public String name() {
-        return getClass().getName();
-    }
-
-    public Transport transport() {
-        return new FXTransport(underlying().transport());
-    }
-
-    protected Connector underlying() {
-        return _underlying;
+    public VMNotConnectedException(String s) {
+        super(s);
     }
 }

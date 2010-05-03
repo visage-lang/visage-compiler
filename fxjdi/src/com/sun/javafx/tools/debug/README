@@ -1,0 +1,16 @@
+This directory contains code derived from JPDA example "tty" debugger.
+
+Changes here:
+
+* Using com.sun.javafx.jdi.FXBootstrap instead of com.sun.jdi.Bootstrap
+- so that FX-JDI connectors are found and used. (Note: on Mac classes.jar
+is on bootstrap path and so FX-JDI connectors will not be found unless we
+put fxjdi.jar on bootclasspath!. Using FXBootstrap solves this issue).
+
+* package renaming:
+   com.sun.tools.example.debug.expr -> com.sun.javafx.tools.debug.expr
+   com.sun.tools.example.debug.tty -> com.sun.javafx.tools.debug.tty
+
+* TTY.java uses FX-JDI connectors instead of platform (java) connectors.
+
+* "FXJDB" - programmatic alternative to TTY.java

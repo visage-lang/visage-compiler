@@ -43,6 +43,9 @@ import org.junit.Test;
 public class ConnectorsTest {
     @Test
     public void testFXConnectors() {
+        LaunchingConnector conn = FXBootstrap.virtualMachineManager().defaultConnector();
+        Assert.assertEquals("com.sun.javafx.jdi.connect.FXLaunchingConnector", conn.name());
+        
         FXLaunchingConnector conn1 = new FXLaunchingConnector();
         Assert.assertEquals("com.sun.javafx.jdi.connect.FXLaunchingConnector", conn1.name());
         Assert.assertEquals(true, conn1 instanceof LaunchingConnector);
