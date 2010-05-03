@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.jdi;
+package com.sun.javafx.jdi.test;
 
 import com.sun.javafx.jdi.connect.FXLaunchingConnector;
 import com.sun.jdi.VirtualMachine;
@@ -61,6 +61,7 @@ public class JDITestBase {
         FXLaunchingConnector conn = new FXLaunchingConnector();
         Map<String, Connector.Argument> args = conn.defaultArguments();
         Connector.StringArgument arg = (Connector.StringArgument) args.get("main");
+        // dummy main class
         arg.setValue("Main");
         try {
             return conn.launch(args);

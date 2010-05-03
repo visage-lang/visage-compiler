@@ -21,15 +21,20 @@
  * have any questions.
  */
 
-package com.sun.javafx.jdi;
+package com.sun.javafx.jdi.test.target;
 
-/**
- * A simple target Main class for debugger tests.
- *
- * @author sundar
- */
-public class Main {
-    public static void main(String[] args) {
-        throw new RuntimeException("why did you run me?");
+public class FramesTarget {
+    static void foo3() {
+        System.out.println("executing foo3");
+    }
+    static void foo2() {
+        foo3();
+    }
+    static void foo1() {
+        foo2();
+    }
+    public static void main(String[] args){
+        System.out.println("Howdy!");
+        foo1();
     }
 }

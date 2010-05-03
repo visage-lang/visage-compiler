@@ -21,8 +21,9 @@
  * have any questions.
  */
 
-package com.sun.javafx.jdi;
+package com.sun.javafx.jdi.test;
 
+import com.sun.javafx.jdi.*;
 import com.sun.javafx.jdi.connect.FXLaunchingConnector;
 import com.sun.javafx.jdi.connect.FXProcessAttachingConnector;
 import com.sun.javafx.jdi.connect.FXRawLaunchingConnector;

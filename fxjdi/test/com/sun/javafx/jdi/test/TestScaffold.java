@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.jdi;
+package com.sun.javafx.jdi.test;
 
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
@@ -72,6 +72,13 @@ abstract public class TestScaffold extends TargetAdapter {
         String targetAppCommandLine = "";
         String connectorSpec = "com.sun.javafx.jdi.connect.FXLaunchingConnector:";
         int traceFlags = 0;
+    }
+
+    public static String testBuildDirectory() {
+        // directory where compiled com.sun.javafx.jdi.test.* classes are stored.
+        // This is passed as application classpath to the target debuggee VM.
+        // FIXME: is there a better way to get this directory?
+        return TestScaffold.class.getResource(".").toString() + "../../../../../";
     }
 
     /**

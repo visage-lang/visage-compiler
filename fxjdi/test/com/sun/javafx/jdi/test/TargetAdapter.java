@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.jdi;
+package com.sun.javafx.jdi.test;
 
 import com.sun.jdi.event.*;
 

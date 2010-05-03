@@ -21,8 +21,9 @@
  * have any questions.
  */
 
-package com.sun.javafx.jdi;
+package com.sun.javafx.jdi.test;
 
+import com.sun.javafx.jdi.FXBootstrap;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.*;
 
@@ -126,7 +127,7 @@ class VMConnection {
 
 
     private Connector findConnector(String name) {
-        List connectors = Bootstrap.virtualMachineManager().allConnectors();
+        List connectors = FXBootstrap.virtualMachineManager().allConnectors();
         Iterator iter = connectors.iterator();
         while (iter.hasNext()) {
             Connector connector = (Connector)iter.next();
