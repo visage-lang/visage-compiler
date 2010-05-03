@@ -1,9 +1,4 @@
-Progress JFXC-4311 : FX-JDI: test framework
+Fixed JFXC-4311 : FX-JDI: test framework
 
-* changed test package name prefix to be com.sun.javafx.jdi.test
-
-* Added FramesTarget and FramesTest.java - this uses TestScaffold.
-
-(convention: directory com.sun.javafx.jdi.test.target contains sources
-for the debuggee classes. The test name matches target name -> FooTarget
-is tested by FooTest. For example, FramesTraget is tested by FramesTest.)
+* Added facility and config. to test JavaFX target apps with FX-JDI.
+* Added HelloTarget.fx and HelloTest.java - this uses JavafxTestBase.java.
