@@ -1659,7 +1659,7 @@ however this is what we need */
                              * we want to get element from the Pointer. We translate as:
                              *
                              *    public static int elem$foo(final int pos$) {
-                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();                             *
+                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();
                              *        return ifx$0tmp != null ? (Integer)ifx$0tmp.get(pos$) : 0;
                              *    }
                              */

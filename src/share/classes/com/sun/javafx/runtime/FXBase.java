@@ -42,7 +42,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
 //     vars.
 //   - All non-static fields must have accessor methods defined in FXBase.
 //     The names of the accessors must be in the form 'get' + fieldName and
-//     'set' + varName.
+//     'set' + fieldName.
 //   - The accessor method declarations should be added to FXObject, so that
 //     java inheriting classes can define their own interface implementations.
 //
