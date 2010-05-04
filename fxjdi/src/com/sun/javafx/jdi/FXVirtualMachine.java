@@ -61,6 +61,7 @@ import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.VoidType;
 import com.sun.jdi.VoidValue;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -188,7 +189,14 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     public List<ReferenceType> classesByName(String name) {
-        return FXWrapper.wrapReferenceTypes(this, underlying().classesByName(name));
+        List<ReferenceType> refTypes = underlying().classesByName(name);
+        if (name.equals(FX_SEQUENCE_TYPE_NAME) && refTypes.size() == 1) {
+            List<ReferenceType> result = new ArrayList<ReferenceType>();
+            result.add(new FXSequenceType(this, (InterfaceType) refTypes.get(0)));
+            return result;
+        } else {
+            return FXWrapper.wrapReferenceTypes(this, underlying().classesByName(name));
+        }
     }
 
     public String description() {
@@ -306,29 +314,32 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     // JavaFX types
+    public static final String FX_OBJECT_TYPE_NAME = "com.sun.javafx.runtime.FXObject";
     private InterfaceType fxObjectType;
     public synchronized InterfaceType fxObjectType() {
         if (fxObjectType == null) {
-            List<ReferenceType> refTypes = classesByName("com.sun.javafx.runtime.FXObject");
+            List<ReferenceType> refTypes = classesByName(FX_OBJECT_TYPE_NAME);
             fxObjectType = refTypes.isEmpty() ? null : (InterfaceType) refTypes.get(0);
         }
         return fxObjectType;
     }
 
+    public static final String FX_MIXIN_TYPE_NAME = "com.sun.javafx.runtime.FXMixin";
     private InterfaceType fxMixinType;
     public synchronized ReferenceType fxMixinType() {
         if (fxMixinType == null) {
-            List<ReferenceType> refTypes = classesByName("com.sun.javafx.runtime.FXMixin");
+            List<ReferenceType> refTypes = classesByName(FX_MIXIN_TYPE_NAME);
             fxMixinType = refTypes.isEmpty()? null : (InterfaceType) refTypes.get(0);
         }
         return fxMixinType;
     }
 
-    private InterfaceType fxSequenceType;
-    public synchronized ReferenceType fxSequenceType() {
+    public static final String FX_SEQUENCE_TYPE_NAME = "com.sun.javafx.runtime.sequence.Sequence";
+    private FXSequenceType fxSequenceType;
+    public synchronized FXSequenceType fxSequenceType() {
         if (fxSequenceType == null) {
-            List<ReferenceType> refTypes = classesByName("com.sun.javafx.runtime.sequence.Sequence");
-            fxSequenceType = refTypes.isEmpty() ? null : (InterfaceType) refTypes.get(0);
+            List<ReferenceType> refTypes = classesByName(FX_SEQUENCE_TYPE_NAME);
+            fxSequenceType = refTypes.isEmpty() ? null : (FXSequenceType) refTypes.get(0);
         }
         return fxSequenceType;
     }
@@ -481,6 +492,14 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     protected FXObjectReference objectReference(ObjectReference ref) {
+        ReferenceType rt = ref.referenceType();
+        if (rt instanceof ClassType) {
+            ClassType ct = (ClassType) rt;
+            boolean isSeq =  ct.allInterfaces().contains(FXWrapper.unwrap(fxSequenceType()));
+            if (isSeq) {
+                return new FXSequenceReference(this, ref);
+            }
+        }
         return new FXObjectReference(this, ref);
     }
 

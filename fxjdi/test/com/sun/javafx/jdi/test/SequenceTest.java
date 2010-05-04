@@ -20,29 +20,36 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
+
 package com.sun.javafx.jdi.test;
 
+import com.sun.javafx.jdi.FXSequenceReference;
+import com.sun.jdi.IntegerValue;
+import com.sun.jdi.StackFrame;
+import com.sun.jdi.Value;
 import com.sun.jdi.event.BreakpointEvent;
 import org.junit.Test;
 import junit.framework.Assert;
 
+
 /**
- * A simple JavaFX target test - just tests breakpoint inside "run" method.
+ * Basic checks for FXSequenceReference methods.
  *
  * @author sundar
  */
-public class HelloTest extends JavafxTestBase {
-    private static String targetClassName = "com.sun.javafx.jdi.test.target.HelloTarget";
+public class SequenceTest extends JavafxTestBase {
+    private static String targetClassName = "com.sun.javafx.jdi.test.target.SequenceTarget";
 
-    public HelloTest() {
+    public SequenceTest() {
         super(targetClassName);
     }
 
     @Test
-    public void testHello() {
+    public void testSequence() {
         try {
             startTests();
         } catch (Exception exp) {
+            exp.printStackTrace();
             Assert.fail(exp.getMessage());
         }
     }
@@ -50,27 +57,28 @@ public class HelloTest extends JavafxTestBase {
     protected void runTests() throws Exception {
         startToMain();
 
-        // go to "run" method of JavaFX class
-        BreakpointEvent bpe = resumeTo(targetClassName, fxRunMethodName(),
-                fxRunMethodSignature());
+        // break into function printSeq(arg: Integer[])
+        BreakpointEvent bpe = resumeTo(targetClassName, "printSeq",
+                "(Lcom/sun/javafx/runtime/sequence/Sequence;)V");
 
         mainThread = bpe.thread();
-        if (!mainThread.frame(0).location().method().name().equals(fxRunMethodName())) {
-            failure("frame failed");
-        }
+
+        // get the top frame
+        StackFrame frame = mainThread.frame(0);
+        // get first argument which is Integer[]
+        Value value = frame.getArgumentValues().get(0);
+        Assert.assertEquals(true, value instanceof FXSequenceReference);
+        FXSequenceReference seq = (FXSequenceReference) value;
+        Assert.assertEquals(2, seq.size(mainThread));
+        IntegerValue zerothElement = seq.getAsInt(mainThread, 0);
+        Assert.assertEquals(1729, zerothElement.intValue());
+        IntegerValue firstElement = seq.getAsInt(mainThread, 1);
+        Assert.assertEquals(9999, firstElement.intValue());
+
 
         /*
          * resume until end
          */
         listenUntilVMDisconnect();
-
-        /*
-         * deal with results of test
-         */
-        if (!testFailed) {
-            println("HelloTest: passed");
-        } else {
-            throw new Exception("HelloTest: failed");
-        }
     }
 }

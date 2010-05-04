@@ -1,0 +1,100 @@
+/*
+ * Copyright 2010 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */
+
+package com.sun.javafx.jdi;
+
+import com.sun.jdi.InterfaceType;
+import com.sun.jdi.Method;
+
+/**
+ * This class represents com.sun.javafx.runtime.sequence.Sequence interface type.
+ *
+ * @author sundar
+ */
+public class FXSequenceType extends FXInterfaceType {
+    // Sequence interface methods
+    private Method sizeMethod;
+    private Method getMethod;
+    private Method getAsBooleanMethod;
+    private Method getAsCharMethod;
+    private Method getAsByteMethod;
+    private Method getAsShortMethod;
+    private Method getAsIntMethod;
+    private Method getAsLongMethod;
+    private Method getAsFloatMethod;
+    private Method getAsDoubleMethod;
+
+    public FXSequenceType(FXVirtualMachine fxvm, InterfaceType underlying) {
+        super(fxvm, underlying);
+        sizeMethod = methodsByName("size").get(0);
+        getMethod = methodsByName("get").get(0);
+        getAsBooleanMethod = methodsByName("getAsBoolean").get(0);
+        getAsCharMethod = methodsByName("getAsChar").get(0);
+        getAsByteMethod = methodsByName("getAsByte").get(0);
+        getAsShortMethod = methodsByName("getAsShort").get(0);
+        getAsIntMethod = methodsByName("getAsInt").get(0);
+        getAsLongMethod = methodsByName("getAsLong").get(0);
+        getAsFloatMethod = methodsByName("getAsFloat").get(0);
+        getAsDoubleMethod = methodsByName("getAsDouble").get(0);
+    }
+
+    public Method sizeMethod() {
+        return sizeMethod;
+    }
+
+    public Method getMethod() {
+        return getMethod;
+    }
+
+    public Method getAsBooleanMethod() {
+        return getAsBooleanMethod;
+    }
+
+    public Method getAsCharMethod() {
+        return getAsCharMethod;
+    }
+
+    public Method getAsByteMethod() {
+        return getAsByteMethod;
+    }
+
+    public Method getAsShortMethod() {
+        return getAsShortMethod;
+    }
+
+    public Method getAsIntMethod() {
+        return getAsIntMethod;
+    }
+
+    public Method getAsLongMethod() {
+        return getAsLongMethod;
+    }
+
+    public Method getAsFloatMethod() {
+        return getAsFloatMethod;
+    }
+
+    public Method getAsDoubleMethod() {
+        return getAsDoubleMethod;
+    }
+}
