@@ -78,7 +78,7 @@ abstract public class TestScaffold extends TargetAdapter {
         // directory where compiled com.sun.javafx.jdi.test.* classes are stored.
         // This is passed as application classpath to the target debuggee VM.
         // FIXME: is there a better way to get this directory?
-        return TestScaffold.class.getResource(".").toString() + "../../../../../";
+        return System.getProperty("build.test.classes.dir");
     }
 
     /**
