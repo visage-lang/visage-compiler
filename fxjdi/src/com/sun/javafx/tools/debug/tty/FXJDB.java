@@ -20,6 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
+
 package com.sun.javafx.tools.debug.tty;
 
 import com.sun.jdi.IncompatibleThreadStateException;
@@ -43,33 +44,53 @@ import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.event.VMStartEvent;
 import com.sun.jdi.event.WatchpointEvent;
 import com.sun.javafx.tools.debug.expr.ExpressionParser;
+import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.Location;
+import com.sun.jdi.Method;
+import com.sun.jdi.ReferenceType;
+import com.sun.jdi.event.EventQueue;
+import com.sun.jdi.request.BreakpointRequest;
+import com.sun.jdi.request.ClassPrepareRequest;
+import com.sun.jdi.request.EventRequest;
+import com.sun.jdi.request.EventRequestManager;
+import com.sun.jdi.request.ExceptionRequest;
+import com.sun.jdi.request.StepRequest;
+import com.sun.jdi.request.WatchpointRequest;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
 /**
  * This class is programmable equivalent of TTY.java (which is the main class of
- * the command line tool "jdb"). Note: I've to put this class in this specific
- * package so that we can access package-private implementation classes.
+ * the command line tool "jfxdb").
  *
  * @author sundar
  */
-public class FXJDB implements EventNotifier {
-    private EventNotifier listener;
+public class FXJDB {
+    private final List<EventNotifier> listeners = Collections.synchronizedList(new LinkedList());
     private Commands evaluator;
     private EventHandler handler;
 
     public FXJDB(EventNotifier listener, String connectorSpec, boolean openNow, int flags) {
-        this.listener = listener;
+        if (listener != null) {
+            this.listeners.add(listener);
+        }
         this.evaluator = new Commands();
         MessageOutput.textResources = ResourceBundle.getBundle(
                 "com.sun.javafx.tools.debug.tty.TTYResources", Locale.getDefault());
         if (connectorSpec.charAt(connectorSpec.length() - 1) != ',') {
             connectorSpec = connectorSpec.concat(",");
         }
+        // don't exit this VM on Env.shutdown()
+        Env.setExitDebuggerVM(false);
         Env.init(connectorSpec, openNow, flags);
         if (Env.connection().isOpen() && Env.vm().canBeModified()) {
-            this.handler = new EventHandler(this, true);
+            this.handler = new EventHandler(new EventNotifierImpl(), true);
         }
     }
 
@@ -81,27 +102,28 @@ public class FXJDB implements EventNotifier {
         this(listener, connectorSpec, false);
     }
 
-    /***
-    public static void main(String[] args) throws Exception {
-        final FXJDB fxdb = new FXJDB(null, args[0]) {
-            @Override
-            public void breakpointEvent(BreakpointEvent evt) {
-                setCurrentThread(evt.thread());
-                System.out.println("stop at " + evt);
-                where();
-                resume();
-            }
-        };
-
-        fxdb.stop("in Main.main");
-        fxdb.run("");
-    }
-     ***/
-
     public VirtualMachine vm() {
         return Env.vm();
     }
 
+    // event requests, queues and listeners.
+    public EventRequestManager eventRequestManager() {
+        return vm().eventRequestManager();
+    }
+
+    public EventQueue eventQueue() {
+        return vm().eventQueue();
+    }
+
+    public void addListener(EventNotifier notifier) {
+        listeners.add(notifier);
+    }
+
+    public void removeListener(EventNotifier notifier) {
+        listeners.remove(notifier);
+    }
+
+    // shutdown the target VM
     public void shutdown() {
         if (handler != null) {
             handler.shutdown();
@@ -116,13 +138,207 @@ public class FXJDB implements EventNotifier {
         Env.shutdown(message);
     }
 
-    // get/set source path
-    public void setSourcePath(String path) {
-        Env.setSourcePath(path);
+    // queries to target VM
+    public ReferenceType findReferenceType(String name) {
+        List rts = vm().classesByName(name);
+        Iterator iter = rts.iterator();
+        while (iter.hasNext()) {
+            ReferenceType rt = (ReferenceType)iter.next();
+            if (rt.name().equals(name)) {
+                return rt;
+            }
+        }
+        return null;
     }
 
-    public String getSourcePath() {
-        return Env.getSourcePath();
+    public Method findMethod(ReferenceType rt, String name, String signature) {
+        List methods = rt.methods();
+        Iterator iter = methods.iterator();
+        while (iter.hasNext()) {
+            Method method = (Method)iter.next();
+            if (method.name().equals(name) &&
+                method.signature().equals(signature)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    public Location findLocation(ReferenceType rt, int lineNumber)
+                         throws AbsentInformationException {
+        List locs = rt.locationsOfLine(lineNumber);
+        if (locs.size() == 0) {
+            throw new IllegalArgumentException("Bad line number");
+        } else if (locs.size() > 1) {
+            throw new IllegalArgumentException("Line number has multiple locations");
+        }
+
+        return (Location)locs.get(0);
+    }
+
+    // synchronous event-request-and-wait commands - various step, resumeTo 
+    // and various waitForXX methods
+
+    private StepEvent doStep(ThreadReference thread, int gran, int depth) {
+        final StepRequest sr =
+                  eventRequestManager().createStepRequest(thread, gran, depth);
+        sr.addClassExclusionFilter("java.*");
+        sr.addClassExclusionFilter("sun.*");
+        sr.addClassExclusionFilter("com.sun.*");
+        sr.addCountFilter(1);
+        sr.enable();
+        StepEvent retEvent = (StepEvent)waitForRequestedEvent(sr);
+        eventRequestManager().deleteEventRequest(sr);
+        return retEvent;
+    }
+
+    public StepEvent stepIntoInstruction(ThreadReference thread) {
+        return doStep(thread, StepRequest.STEP_MIN, StepRequest.STEP_INTO);
+    }
+
+    public StepEvent stepIntoLine(ThreadReference thread) {
+        return doStep(thread, StepRequest.STEP_LINE, StepRequest.STEP_INTO);
+    }
+
+    public StepEvent stepOverInstruction(ThreadReference thread) {
+        return doStep(thread, StepRequest.STEP_MIN, StepRequest.STEP_OVER);
+    }
+
+    public StepEvent stepOverLine(ThreadReference thread) {
+        return doStep(thread, StepRequest.STEP_LINE, StepRequest.STEP_OVER);
+    }
+
+    public StepEvent stepOut(ThreadReference thread) {
+        return doStep(thread, StepRequest.STEP_LINE, StepRequest.STEP_OUT);
+    }
+
+    public BreakpointEvent resumeTo(Location loc) {
+        final BreakpointRequest request = eventRequestManager().createBreakpointRequest(loc);
+        request.addCountFilter(1);
+        request.enable();
+        return (BreakpointEvent)waitForRequestedEvent(request);
+    }
+
+    public BreakpointEvent resumeTo(String clsName, String methodName,
+                                         String methodSignature) {
+        ReferenceType rt = findReferenceType(clsName);
+        if (rt == null) {
+            rt = resumeToPrepareOf(clsName).referenceType();
+        }
+
+        Method method = findMethod(rt, methodName, methodSignature);
+        if (method == null) {
+            throw new IllegalArgumentException("Bad method name/signature");
+        }
+
+        return resumeTo(method.location());
+    }
+
+    public BreakpointEvent resumeTo(String clsName, int lineNumber) throws AbsentInformationException {
+        ReferenceType rt = findReferenceType(clsName);
+        if (rt == null) {
+            rt = resumeToPrepareOf(clsName).referenceType();
+        }
+
+        return resumeTo(findLocation(rt, lineNumber));
+    }
+
+    public ClassPrepareEvent resumeToPrepareOf(String className) {
+        final ClassPrepareRequest request =
+            eventRequestManager().createClassPrepareRequest();
+        request.addClassFilter(className);
+        request.addCountFilter(1);
+        request.enable();
+        return (ClassPrepareEvent)waitForRequestedEvent(request);
+    }
+
+    public interface EventFilter {
+        public boolean match(Event evt);
+    }
+
+    public Event waitForEvent(final EventFilter filter) {
+        class EventNotification {
+            Event event;
+            boolean disconnected = false;
+        }
+
+        final EventNotification en = new EventNotification();
+        EventNotifierAdapter adapter = new EventNotifierAdapter() {
+            @Override
+            public void receivedEvent(Event event) {
+                if (filter.match(event)) {
+                    synchronized (en) {
+                        en.event = event;
+                        en.notifyAll();
+                    }
+                    removeThisListener();
+                } else if (event instanceof VMDisconnectEvent) {
+                    synchronized (en) {
+                        en.disconnected = true;
+                        en.notifyAll();
+                    }
+                    removeThisListener();
+                }
+            }
+        };
+
+        addListener(adapter);
+
+        try {
+            synchronized (en) {
+                vm().resume();
+                while (!en.disconnected && (en.event == null)) {
+                    en.wait();
+                }
+            }
+        } catch (InterruptedException e) {
+            return null;
+        }
+
+        if (en.disconnected) {
+            throw new RuntimeException("VM Disconnected before requested event occurred");
+        }
+        return en.event;
+    }
+
+    public Event waitForRequestedEvent(final EventRequest request) {
+        return waitForEvent(new EventFilter() {
+            public boolean match(Event evt) {
+                return request.equals(evt.request());
+            }
+        });
+    }
+
+    public BreakpointEvent waitForBreakpointEvent() {
+        return (BreakpointEvent) waitForEvent(new EventFilter() {
+            public boolean match(Event evt) {
+                return (evt instanceof BreakpointEvent);
+            }
+        });
+    }
+
+    public StepEvent waitForStepEvent() {
+        return (StepEvent) waitForEvent(new EventFilter() {
+           public boolean match(Event evt) {
+               return (evt instanceof StepEvent);
+           }
+        });
+    }
+
+    public WatchpointEvent waitForWatchpointEvent() {
+        return (WatchpointEvent) waitForEvent(new EventFilter() {
+           public boolean match(Event evt) {
+               return (evt instanceof WatchpointEvent);
+           }
+        });
+    }
+
+    public ExceptionEvent waitForExceptionEvent() {
+        return (ExceptionEvent) waitForEvent(new EventFilter() {
+            public boolean match(Event evt) {
+                return (evt instanceof ExceptionEvent);
+            }
+        });
     }
 
     // evaluate expression
@@ -145,6 +361,15 @@ public class FXJDB implements EventNotifier {
             throw new RuntimeException(exp);
         }
         return result;
+    }
+
+    // get/set source path - used to list source code.
+    public void setSourcePath(String path) {
+        Env.setSourcePath(path);
+    }
+
+    public String getSourcePath() {
+        return Env.getSourcePath();
     }
 
     // set/get current thread and threadgroup.
@@ -174,29 +399,31 @@ public class FXJDB implements EventNotifier {
         return tgref.name();
     }
 
-    // commands
-    public void catchException(String command) {
-        evaluator.commandCatchException(new StringTokenizer(command));
+    // commands (mostly asynchronous) - event request returning commands
+    // will return null for all deferred (unresolved) events.
+
+    public ExceptionRequest catchException(String command) {
+        return evaluator.commandCatchException(new StringTokenizer(command));
     }
 
     public void classes() {
         evaluator.commandClasses();
     }
 
-    public void classPath() {
-        evaluator.commandClasspath(new StringTokenizer(""));
-    }
-    
-    public void clear() {
-        clear("");
+    public boolean classPath() {
+        return evaluator.commandClasspath(new StringTokenizer(""));
     }
 
-    public void clear(String command) {
-        evaluator.commandClear(new StringTokenizer(command));
+    public boolean clear() {
+        return clear("");
     }
 
-    public void cont() {
-        evaluator.commandCont();
+    public boolean clear(String command) {
+        return evaluator.commandClear(new StringTokenizer(command));
+    }
+
+    public boolean cont() {
+        return evaluator.commandCont();
     }
 
     public void dump(String command) {
@@ -207,32 +434,32 @@ public class FXJDB implements EventNotifier {
         evaluator.commandDisableGC(new StringTokenizer(command));
     }
 
-    public void down() {
-        down("");
+    public boolean down() {
+        return down("");
     }
 
-    public void down(String command) {
-        evaluator.commandDown(new StringTokenizer(command));
+    public boolean down(String command) {
+        return evaluator.commandDown(new StringTokenizer(command));
     }
 
     public void enableGC(String command) {
         evaluator.commandEnableGC(new StringTokenizer(command));
     }
 
-    public void ignoreException() {
-        ignoreException("");
+    public boolean ignoreException() {
+        return ignoreException("");
     }
 
-    public void ignoreException(String command) {
-        evaluator.commandIgnoreException(new StringTokenizer(command));
+    public boolean ignoreException(String command) {
+        return evaluator.commandIgnoreException(new StringTokenizer(command));
     }
 
-    public void interrupt() {
-        interrupt("");
+    public boolean interrupt() {
+        return interrupt("");
     }
 
-    public void interrupt(String command) {
-        evaluator.commandInterrupt(new StringTokenizer(command));
+    public boolean interrupt(String command) {
+        return evaluator.commandInterrupt(new StringTokenizer(command));
     }
 
     public void kill() {
@@ -243,71 +470,72 @@ public class FXJDB implements EventNotifier {
         evaluator.commandKill(new StringTokenizer(command));
     }
 
-    public void lines(String command) {
-        evaluator.commandLines(new StringTokenizer(command));
+    public boolean lines(String command) {
+        return evaluator.commandLines(new StringTokenizer(command));
     }
 
     public void list() {
         list("");
     }
-    
+
     public void list(String command) {
         evaluator.commandList(new StringTokenizer(command));
     }
 
-    public void locals() {
-        evaluator.commandLocals();
+    public boolean locals() {
+        return evaluator.commandLocals();
     }
 
     public void lock(String command) {
         evaluator.commandLock(new StringTokenizer(command));
     }
 
-    public void next() {
-        evaluator.commandNext();
+    public StepRequest next() {
+        return evaluator.commandNext();
     }
 
-    public void pop() {
-        pop("");
+    public boolean pop() {
+        return pop("");
     }
-    
-    public void pop(String command) {
-        evaluator.commandPopFrames(new StringTokenizer(command), false);
+
+    public boolean pop(String command) {
+        return evaluator.commandPopFrames(new StringTokenizer(command), false);
     }
 
     public void print(String command) {
         evaluator.commandPrint(new StringTokenizer(command), false);
     }
 
-    public void redefine(String command) {
-        evaluator.commandRedefine(new StringTokenizer(command));
+    public boolean redefine(String command) {
+        return evaluator.commandRedefine(new StringTokenizer(command));
     }
 
-    public void reenter() {
-        reenter("");
+    public boolean reenter() {
+        return reenter("");
     }
 
-    public void reenter(String command) {
-        evaluator.commandPopFrames(new StringTokenizer(command), true);
+    public boolean reenter(String command) {
+        return evaluator.commandPopFrames(new StringTokenizer(command), true);
     }
 
     public void run() {
         run("");
     }
-    
-    public void run(String command) {
-        evaluator.commandRun(new StringTokenizer(command));
+
+    public boolean run(String command) {
+        boolean result = evaluator.commandRun(new StringTokenizer(command));
         if ((handler == null) && Env.connection().isOpen()) {
-            handler = new EventHandler(this, false);
+            handler = new EventHandler(new EventNotifierImpl(), false);
         }
+        return result;
     }
 
-    public void resume() {
-        resume("");
+    public boolean resume() {
+        return resume("");
     }
 
-    public void resume(String command) {
-        evaluator.commandResume(new StringTokenizer(command));
+    public boolean resume(String command) {
+        return evaluator.commandResume(new StringTokenizer(command));
     }
 
     public void set(String command) {
@@ -322,54 +550,54 @@ public class FXJDB implements EventNotifier {
         evaluator.commandUse(new StringTokenizer(command));
     }
 
-    public void step() {
-        step("");
+    public StepRequest step() {
+        return step("");
     }
 
-    public void step(String command) {
-        evaluator.commandStep(new StringTokenizer(command));
+    public StepRequest step(String command) {
+        return evaluator.commandStep(new StringTokenizer(command));
     }
 
-    public void stepi() {
-        evaluator.commandStepi();
+    public StepRequest stepi() {
+        return evaluator.commandStepi();
     }
 
-    public void stop() {
-        stop("");
+    public BreakpointRequest stop() {
+        return stop("");
     }
 
-    public void stop(String command) {
-        evaluator.commandStop(new StringTokenizer(command));
+    public BreakpointRequest stop(String command) {
+        return evaluator.commandStop(new StringTokenizer(command));
     }
 
-    public void suspend() {
-        suspend("");
-    }
-    
-    public void suspend(String command) {
-        evaluator.commandSuspend(new StringTokenizer(command));
+    public boolean suspend() {
+        return suspend("");
     }
 
-    public void thread(String command) {
-        evaluator.commandThread(new StringTokenizer(command));
+    public boolean suspend(String command) {
+        return evaluator.commandSuspend(new StringTokenizer(command));
     }
 
-    public void threadGroup(String command) {
-        evaluator.commandThreadGroup(new StringTokenizer(command));
+    public boolean thread(String command) {
+        return evaluator.commandThread(new StringTokenizer(command));
     }
 
-    public void threads() {
-        threads("");
+    public boolean threadGroup(String command) {
+        return evaluator.commandThreadGroup(new StringTokenizer(command));
     }
 
-    public void threads(String command) {
-        evaluator.commandThreads(new StringTokenizer(command));
+    public boolean threads() {
+        return threads("");
+    }
+
+    public boolean threads(String command) {
+        return evaluator.commandThreads(new StringTokenizer(command));
     }
 
     public void threadGroups() {
         evaluator.commandThreadGroups();
     }
-    
+
     public void trace() {
         trace("");
     }
@@ -381,7 +609,7 @@ public class FXJDB implements EventNotifier {
     public void untrace() {
         untrace("");
     }
-    
+
     public void untrace(String command) {
         evaluator.commandUntrace(new StringTokenizer(command));
     }
@@ -390,141 +618,171 @@ public class FXJDB implements EventNotifier {
         evaluator.commandUnwatch(new StringTokenizer(command));
     }
 
-    public void up() {
-        up("");
+    public boolean up() {
+        return up("");
     }
 
-    public void up(String command) {
-        evaluator.commandUp(new StringTokenizer(command));
+    public boolean up(String command) {
+        return evaluator.commandUp(new StringTokenizer(command));
     }
 
-    public void watch(String command) {
-        evaluator.commandWatch(new StringTokenizer(command));
+    public WatchpointRequest watch(String command) {
+        return evaluator.commandWatch(new StringTokenizer(command));
     }
 
-    public void where() {
-        where("");
+    public boolean where() {
+        return where("");
     }
 
-    public void where(String command) {
-        evaluator.commandWhere(new StringTokenizer(command), false);
+    public boolean where(String command) {
+        return evaluator.commandWhere(new StringTokenizer(command), false);
     }
 
-    public void wherei() {
-        wherei("");
+    public boolean wherei() {
+        return wherei("");
     }
 
-    public void wherei(String command) {
-        evaluator.commandWhere(new StringTokenizer(command), true);
+    public boolean wherei(String command) {
+        return evaluator.commandWhere(new StringTokenizer(command), true);
     }
 
     public void quit() {
         shutdown();
     }
 
-    // Internals only below this point - methods implementing EventListener interface
-    public void breakpointEvent(BreakpointEvent evt) {
-        if (listener != null) {
-            Thread.yield();
-            listener.breakpointEvent(evt);
-        }
-    }
+    // Internals only below this point - class implementing EventNotifier interface
 
-    public void classPrepareEvent(ClassPrepareEvent evt) {
-        if (listener != null) {
-            Thread.yield();
-            listener.classPrepareEvent(evt);
+    private class EventNotifierImpl implements EventNotifier {
+        public boolean shouldRemoveListener() {
+            return false;
         }
-    }
 
-    public void classUnloadEvent(ClassUnloadEvent evt) {
-        if (listener != null) {
-            Thread.yield();
-            listener.classUnloadEvent(evt);
+        public void breakpointEvent(BreakpointEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.breakpointEvent(evt);
+                }
+            }
         }
-    }
 
-    public void exceptionEvent(ExceptionEvent evt) {
-        if (listener != null) {
-            Thread.yield();
-            listener.exceptionEvent(evt);
+        public void classPrepareEvent(ClassPrepareEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.classPrepareEvent(evt);
+                }
+            }
         }
-    }
 
-    public void fieldWatchEvent(WatchpointEvent evt) {
-        if (listener != null) {
-            Thread.yield();
-            listener.fieldWatchEvent(evt);
+        public void classUnloadEvent(ClassUnloadEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.classUnloadEvent(evt);
+                }
+            }
         }
-    }
 
-    public void methodEntryEvent(MethodEntryEvent evt) {
-        if (listener != null) {
-            Thread.yield();
-            listener.methodEntryEvent(evt);
+        public void exceptionEvent(ExceptionEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.exceptionEvent(evt);
+                }
+            }
         }
-    }
 
-    public boolean methodExitEvent(MethodExitEvent evt) {
-        if (listener != null) {
-            Thread.yield();
-            return listener.methodExitEvent(evt);
-        } else {
-            return true;
+        public void fieldWatchEvent(WatchpointEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.fieldWatchEvent(evt);
+                }
+            }
         }
-    }
 
-    public void receivedEvent(Event evt) {
-        if (listener != null) {
-            Thread.yield();
-            listener.receivedEvent(evt);
+        public void methodEntryEvent(MethodEntryEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.methodEntryEvent(evt);
+                }
+            }
         }
-    }
 
-    public void stepEvent(StepEvent evt) {
-        if (listener != null) {
-            Thread.yield();
-            listener.stepEvent(evt);
+        public boolean methodExitEvent(MethodExitEvent evt) {
+            boolean result = false;
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    result |= en.methodExitEvent(evt);
+                }
+            }
+            return result;
         }
-    }
 
-    public void threadDeathEvent(ThreadDeathEvent evt) {
-        if (listener != null) {
-            Thread.yield();
-            listener.threadDeathEvent(evt);
+        public void receivedEvent(Event evt) {
+            synchronized (listeners) {
+                ListIterator<EventNotifier> itr = listeners.listIterator();
+                if (itr.hasNext()) {
+                    EventNotifier en = itr.next();
+                    if (en.shouldRemoveListener()) {
+                        itr.remove();
+                    } else {
+                        en.receivedEvent(evt);
+                    }
+                }
+            }
         }
-    }
 
-    public void threadStartEvent(ThreadStartEvent evt) {
-        if (listener != null) {
-            Thread.yield();
-            listener.threadStartEvent(evt);
+        public void stepEvent(StepEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.stepEvent(evt);
+                }
+            }
         }
-    }
 
-    public void vmDeathEvent(VMDeathEvent evt) {
-        if (listener != null) {
-            listener.vmDeathEvent(evt);
+        public void threadDeathEvent(ThreadDeathEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.threadDeathEvent(evt);
+                }
+            }
         }
-    }
 
-    public void vmDisconnectEvent(VMDisconnectEvent evt) {
-        if (listener != null) {
-            listener.vmDisconnectEvent(evt);
+        public void threadStartEvent(ThreadStartEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.threadStartEvent(evt);
+                }
+            }
         }
-    }
 
-    public void vmInterrupted() {
-        if (listener != null) {
-            Thread.yield();
-            listener.vmInterrupted();
+        public void vmDeathEvent(VMDeathEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.vmDeathEvent(evt);
+                }
+            }
         }
-    }
 
-    public void vmStartEvent(VMStartEvent evt) {
-        if (listener != null) {
-            Thread.yield();
-            listener.vmStartEvent(evt);
+        public void vmDisconnectEvent(VMDisconnectEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.vmDisconnectEvent(evt);
+                }
+            }
+        }
+
+        public void vmInterrupted() {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.vmInterrupted();
+                }
+            }
+        }
+
+        public void vmStartEvent(VMStartEvent evt) {
+            synchronized (listeners) {
+                for (EventNotifier en : listeners) {
+                    en.vmStartEvent(evt);
+                }
+            }
         }
     }
 }

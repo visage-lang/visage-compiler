@@ -28,6 +28,8 @@ package com.sun.javafx.tools.debug.tty;
 import com.sun.jdi.event.*;
 
 public interface EventNotifier {
+    boolean shouldRemoveListener();
+
     void vmStartEvent(VMStartEvent e);
     void vmDeathEvent(VMDeathEvent e);
     void vmDisconnectEvent(VMDisconnectEvent e);

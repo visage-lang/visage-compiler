@@ -48,6 +48,10 @@ public class TTY implements EventNotifier {
      */
     private static final String progname = "jfxdb";
 
+    public boolean shouldRemoveListener() {
+        return false;
+    }
+
     public void vmStartEvent(VMStartEvent se)  {
         Thread.yield();  // fetch output
         MessageOutput.lnprint("VM Started:");

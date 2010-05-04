@@ -37,6 +37,8 @@ class Env {
 
     static EventRequestSpecList specList = new EventRequestSpecList();
 
+    private static boolean exitDebuggerVM = true;
+
     private static VMConnection connection;
 
     private static SourceMapper sourceMapper = new SourceMapper("");
@@ -53,6 +55,14 @@ class Env {
         if (!connection.isLaunch() || openNow) {
             connection.open();
         }
+    }
+
+    static void setExitDebuggerVM(boolean flag) {
+        exitDebuggerVM = flag;
+    }
+
+    static boolean getExitDebuggerVM() {
+        return exitDebuggerVM;
     }
 
     static VMConnection connection() {
@@ -80,7 +90,9 @@ class Env {
             MessageOutput.lnprint(message);
             MessageOutput.println();
         }
-        System.exit(0);
+        if (exitDebuggerVM) {
+            System.exit(0);
+        }
     }
 
     static void setSourcePath(String srcPath) {

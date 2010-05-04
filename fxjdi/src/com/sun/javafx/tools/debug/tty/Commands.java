@@ -447,17 +447,19 @@ class Commands {
         }
     }
 
-    void commandThreads(StringTokenizer t) {
+    boolean commandThreads(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
             printThreadGroup(ThreadInfo.group());
-            return;
+            return true;
         }
         String name = t.nextToken();
         ThreadGroupReference tg = ThreadGroupIterator.find(name);
         if (tg == null) {
             MessageOutput.println("is not a valid threadgroup name", name);
+            return false;
         } else {
             printThreadGroup(tg);
+            return true;
         }
     }
 
@@ -474,32 +476,37 @@ class Commands {
         }
     }
 
-    void commandThread(StringTokenizer t) {
+    boolean commandThread(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
             MessageOutput.println("Thread number not specified.");
-            return;
+            return false;
         }
         ThreadInfo threadInfo = doGetThread(t.nextToken());
         if (threadInfo != null) {
             ThreadInfo.setCurrentThreadInfo(threadInfo);
+            return true;
+        } else {
+            return false;
         }
     }
 
-    void commandThreadGroup(StringTokenizer t) {
+    boolean commandThreadGroup(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
             MessageOutput.println("Threadgroup name not specified.");
-            return;
+            return false;
         }
         String name = t.nextToken();
         ThreadGroupReference tg = ThreadGroupIterator.find(name);
         if (tg == null) {
             MessageOutput.println("is not a valid threadgroup name", name);
+            return false;
         } else {
             ThreadInfo.setThreadGroup(tg);
+            return true;
         }
     }
 
-    void commandRun(StringTokenizer t) {
+    boolean commandRun(StringTokenizer t) {
         /*
          * The 'run' command makes little sense in a
          * that doesn't support restarts or multiple VMs. However,
@@ -512,14 +519,15 @@ class Commands {
         if (!connection.isLaunch()) {
             if (!t.hasMoreTokens()) {
                 commandCont();
+                return true;
             } else {
                 MessageOutput.println("run <args> command is valid only with launched VMs");
+                return false;
             }
-            return;
         }
         if (connection.isOpen()) {
             MessageOutput.println("VM already running. use cont to continue after events.");
-            return;
+            return false;
         }
 
         /*
@@ -532,13 +540,13 @@ class Commands {
             boolean argsSet = connection.setConnectorArg("main", args);
             if (!argsSet) {
                 MessageOutput.println("Unable to set main class and arguments");
-                return;
+                return false;
             }
         } else {
             args = connection.connectorArg("main");
             if (args.length() == 0) {
                 MessageOutput.println("Main class and arguments must be specified");
-                return;
+                return false;
             }
         }
         MessageOutput.println("run", args);
@@ -547,7 +555,7 @@ class Commands {
          * Launch the VM.
          */
         connection.open();
-
+        return connection.isOpen();
     }
 
     void commandLoad(StringTokenizer t) {
@@ -563,43 +571,52 @@ class Commands {
         return list;
     }
 
-    void commandSuspend(StringTokenizer t) {
+    boolean commandSuspend(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
             Env.vm().suspend();
             MessageOutput.println("All threads suspended.");
+            return true;
         } else {
+            boolean suspended = false;
             while (t.hasMoreTokens()) {
                 ThreadInfo threadInfo = doGetThread(t.nextToken());
                 if (threadInfo != null) {
                     threadInfo.getThread().suspend();
+                    suspended |= true;
                 }
             }
+            return suspended;
         }
     }
 
-    void commandResume(StringTokenizer t) {
+    boolean commandResume(StringTokenizer t) {
          if (!t.hasMoreTokens()) {
              ThreadInfo.invalidateAll();
              Env.vm().resume();
              MessageOutput.println("All threads resumed.");
+             return true;
          } else {
+             boolean resumed = false;
              while (t.hasMoreTokens()) {
                 ThreadInfo threadInfo = doGetThread(t.nextToken());
                 if (threadInfo != null) {
                     threadInfo.invalidate();
                     threadInfo.getThread().resume();
+                    resumed |= true;
                 }
             }
+            return resumed;
         }
     }
 
-    void commandCont() {
+    boolean commandCont() {
         if (ThreadInfo.getCurrentThreadInfo() == null) {
             MessageOutput.println("Nothing suspended.");
-            return;
+            return false;
         }
         ThreadInfo.invalidateAll();
         Env.vm().resume();
+        return true;
     }
 
     void clearPreviousStep(ThreadReference thread) {
@@ -618,11 +635,11 @@ class Commands {
     /* step
      *
      */
-    void commandStep(StringTokenizer t) {
+    StepRequest commandStep(StringTokenizer t) {
         ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
         if (threadInfo == null) {
             MessageOutput.println("Nothing suspended.");
-            return;
+            return null;
         }
         int depth;
         if (t.hasMoreTokens() &&
@@ -644,16 +661,17 @@ class Commands {
         request.enable();
         ThreadInfo.invalidateAll();
         Env.vm().resume();
+        return request;
     }
 
     /* stepi
      * step instruction.
      */
-    void commandStepi() {
+    StepRequest commandStepi() {
         ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
         if (threadInfo == null) {
             MessageOutput.println("Nothing suspended.");
-            return;
+            return null;
         }
         clearPreviousStep(threadInfo.getThread());
         EventRequestManager reqMgr = Env.vm().eventRequestManager();
@@ -666,13 +684,14 @@ class Commands {
         request.enable();
         ThreadInfo.invalidateAll();
         Env.vm().resume();
+        return request;
     }
 
-    void commandNext() {
+    StepRequest commandNext() {
         ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
         if (threadInfo == null) {
             MessageOutput.println("Nothing suspended.");
-            return;
+            return null;
         }
         clearPreviousStep(threadInfo.getThread());
         EventRequestManager reqMgr = Env.vm().eventRequestManager();
@@ -685,6 +704,7 @@ class Commands {
         request.enable();
         ThreadInfo.invalidateAll();
         Env.vm().resume();
+        return request;
     }
 
     void doKill(ThreadReference thread, StringTokenizer t) {
@@ -790,40 +810,45 @@ class Commands {
         return spec;
     }
 
-    void commandCatchException(StringTokenizer t) {
+    ExceptionRequest commandCatchException(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
             listCaughtExceptions();
+            return null;
         } else {
             EventRequestSpec spec = parseExceptionSpec(t);
             if (spec != null) {
-                resolveNow(spec);
+                return (ExceptionRequest) resolveNow(spec);
             } else {
                 MessageOutput.println("Usage: catch exception");
+                return null;
             }
         }
     }
 
-    void commandIgnoreException(StringTokenizer t) {
+    boolean commandIgnoreException(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
             listCaughtExceptions();
+            return true;
         } else {
             EventRequestSpec spec = parseExceptionSpec(t);
             if (Env.specList.delete(spec)) {
                 MessageOutput.println("Removed:", spec.toString());
+                return true;
             } else {
                 if (spec != null) {
                     MessageOutput.println("Not found:", spec.toString());
                 }
                 MessageOutput.println("Usage: ignore exception");
+                return false;
             }
         }
     }
 
-    void commandUp(StringTokenizer t) {
+    boolean commandUp(StringTokenizer t) {
         ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
         if (threadInfo == null) {
             MessageOutput.println("Current thread not set.");
-            return;
+            return false;
         }
 
         int nLevels = 1;
@@ -840,25 +865,27 @@ class Commands {
             }
             if (i <= 0) {
                 MessageOutput.println("Usage: up [n frames]");
-                return;
+                return false;
             }
             nLevels = i;
         }
 
         try {
             threadInfo.up(nLevels);
+            return true;
         } catch (IncompatibleThreadStateException e) {
             MessageOutput.println("Current thread isnt suspended.");
         } catch (ArrayIndexOutOfBoundsException e) {
             MessageOutput.println("End of stack.");
         }
+        return false;
     }
 
-    void commandDown(StringTokenizer t) {
+    boolean commandDown(StringTokenizer t) {
         ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
         if (threadInfo == null) {
             MessageOutput.println("Current thread not set.");
-            return;
+            return false;
         }
 
         int nLevels = 1;
@@ -875,18 +902,20 @@ class Commands {
             }
             if (i <= 0) {
                 MessageOutput.println("Usage: down [n frames]");
-                return;
+                return false;
             }
             nLevels = i;
         }
 
         try {
             threadInfo.down(nLevels);
+            return true;
         } catch (IncompatibleThreadStateException e) {
             MessageOutput.println("Current thread isnt suspended.");
         } catch (ArrayIndexOutOfBoundsException e) {
             MessageOutput.println("End of stack.");
         }
+        return false;
     }
 
     private void dumpStack(ThreadInfo threadInfo, boolean showPC) {
@@ -945,14 +974,15 @@ class Commands {
         }
     }
 
-    void commandWhere(StringTokenizer t, boolean showPC) {
+    boolean commandWhere(StringTokenizer t, boolean showPC) {
         if (!t.hasMoreTokens()) {
             ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
             if (threadInfo == null) {
                 MessageOutput.println("No thread specified.");
-                return;
+                return false;
             }
             dumpStack(threadInfo, showPC);
+            return true;
         } else {
             String token = t.nextToken();
             if (token.toLowerCase().equals("all")) {
@@ -961,28 +991,36 @@ class Commands {
                                           threadInfo.getThread().name());
                     dumpStack(threadInfo, showPC);
                 }
+                return true;
             } else {
                 ThreadInfo threadInfo = doGetThread(token);
                 if (threadInfo != null) {
                     ThreadInfo.setCurrentThreadInfo(threadInfo);
                     dumpStack(threadInfo, showPC);
+                    return true;
+                } else {
+                    return false;
                 }
             }
         }
     }
 
-    void commandInterrupt(StringTokenizer t) {
+    boolean commandInterrupt(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
             ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
             if (threadInfo == null) {
                 MessageOutput.println("No thread specified.");
-                return;
+                return false;
             }
             threadInfo.getThread().interrupt();
+            return true;
         } else {
             ThreadInfo threadInfo = doGetThread(t.nextToken());
             if (threadInfo != null) {
                 threadInfo.getThread().interrupt();
+                return true;
+            } else {
+                return false;
             }
         }
     }
@@ -1110,14 +1148,16 @@ class Commands {
         return breakpoint;
     }
 
-    private void resolveNow(EventRequestSpec spec) {
+    private EventRequest resolveNow(EventRequestSpec spec) {
         boolean success = Env.specList.addEagerlyResolve(spec);
         if (success && !spec.isResolved()) {
             MessageOutput.println("Deferring.", spec.toString());
         }
+
+        return (success && spec.isResolved())? spec.resolved() : null;
     }
 
-    void commandStop(StringTokenizer t) {
+    BreakpointRequest commandStop(StringTokenizer t) {
         Location bploc;
         String atIn;
         byte suspendPolicy = EventRequest.SUSPEND_ALL;
@@ -1133,7 +1173,7 @@ class Commands {
             }
         } else {
             listBreakpoints();
-            return;
+            return null;
         }
 
         BreakpointSpec spec = parseBreakpointSpec(t, "stop at", "stop in");
@@ -1144,26 +1184,32 @@ class Commands {
             if (atIn.equals("at") && spec.isMethodBreakpoint()) {
                 MessageOutput.println("Use stop at to set a breakpoint at a line number");
                 printBreakpointCommandUsage("stop at", "stop in");
-                return;
+                return null;
             }
             spec.suspendPolicy = suspendPolicy;
-            resolveNow(spec);
+            return (BreakpointRequest) resolveNow(spec);
+        } else {
+            return null;
         }
     }
 
-    void commandClear(StringTokenizer t) {
+    boolean commandClear(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
             listBreakpoints();
-            return;
+            return true;
         }
 
         BreakpointSpec spec = parseBreakpointSpec(t, "clear", "clear");
         if (spec != null) {
             if (Env.specList.delete(spec)) {
                 MessageOutput.println("Removed:", spec.toString());
+                return true;
             } else {
                 MessageOutput.println("Not found:", spec.toString());
+                return false;
             }
+        } else {
+            return false;
         }
     }
 
@@ -1221,15 +1267,17 @@ class Commands {
         return list;
     }
 
-    void commandWatch(StringTokenizer t) {
+    WatchpointRequest commandWatch(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
             MessageOutput.println("Field to watch not specified");
-            return;
+            return null;
         }
 
+        WatchpointRequest req = null;
         for (WatchpointSpec spec : parseWatchpointSpec(t)) {
-            resolveNow(spec);
+            req = (WatchpointRequest) resolveNow(spec);
         }
+        return req;
     }
 
     void commandUnwatch(StringTokenizer t) {
@@ -1485,9 +1533,10 @@ class Commands {
         }
     }
 
-    void commandLines(StringTokenizer t) { // Undocumented command: useful for testing
+    boolean commandLines(StringTokenizer t) { // Undocumented command: useful for testing
         if (!t.hasMoreTokens()) {
             MessageOutput.println("Specify class and method");
+            return false;
         } else {
             String idClass = t.nextToken();
             String idMethod = t.hasMoreTokens() ? t.nextToken() : null;
@@ -1505,28 +1554,34 @@ class Commands {
                         }
                         if (lines == null) {
                             MessageOutput.println("is not a valid method name", idMethod);
+                            return false;
                         }
                     }
                     for (Location line : lines) {
                         MessageOutput.printDirectln(line.toString());// Special case: use printDirectln()
                     }
+                    return true;
                 } else {
                     MessageOutput.println("is not a valid id or class name", idClass);
+                    return false;
                 }
             } catch (AbsentInformationException e) {
                 MessageOutput.println("Line number information not available for", idClass);
+                return false;
             }
         }
     }
 
-    void commandClasspath(StringTokenizer t) {
+    boolean commandClasspath(StringTokenizer t) {
         if (Env.vm() instanceof PathSearchingVirtualMachine) {
             PathSearchingVirtualMachine vm = (PathSearchingVirtualMachine)Env.vm();
             MessageOutput.println("base directory:", vm.baseDirectory());
             MessageOutput.println("classpath:", vm.classPath().toString());
             MessageOutput.println("bootclasspath:", vm.bootClassPath().toString());
+            return true;
         } else {
             MessageOutput.println("The VM does not use paths");
+            return false;
         }
     }
 
@@ -1552,12 +1607,12 @@ class Commands {
     }
 
     /* Print all local variables in current stack frame. */
-    void commandLocals() {
+    boolean commandLocals() {
         StackFrame frame;
         ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
         if (threadInfo == null) {
             MessageOutput.println("No default thread specified:");
-            return;
+            return false;
         }
         try {
             frame = threadInfo.getCurrentFrame();
@@ -1568,7 +1623,7 @@ class Commands {
 
             if (vars.size() == 0) {
                 MessageOutput.println("No local variables");
-                return;
+                return true;
             }
             Map<LocalVariable, Value> values = frame.getValues(vars);
 
@@ -1586,11 +1641,13 @@ class Commands {
                     printVar(var, val);
                 }
             }
+            return true;
         } catch (AbsentInformationException aie) {
             MessageOutput.println("Local variable information not available.");
         } catch (IncompatibleThreadStateException exc) {
             MessageOutput.println("Current thread isnt suspended.");
         }
+        return false;
     }
 
     private void dump(ObjectReference obj, ReferenceType refType,
@@ -1977,25 +2034,26 @@ class Commands {
         }
     }
 
-    void commandRedefine(StringTokenizer t) {
+    boolean commandRedefine(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
             MessageOutput.println("Specify classes to redefine");
+            return false;
         } else {
             String className = t.nextToken();
             List<ReferenceType> classes = Env.vm().classesByName(className);
             if (classes.size() == 0) {
                 MessageOutput.println("No class named", className);
-                return;
+                return false;
             }
             if (classes.size() > 1) {
                 MessageOutput.println("More than one class named", className);
-                return;
+                return false;
             }
             Env.setSourcePath(Env.getSourcePath());
             ReferenceType refType = classes.get(0);
             if (!t.hasMoreTokens()) {
                 MessageOutput.println("Specify file name for class", className);
-                return;
+                return false;
             }
             String fileName = t.nextToken();
             File phyl = new File(fileName);
@@ -2007,36 +2065,38 @@ class Commands {
             } catch (Exception exc) {
                 MessageOutput.println("Error reading file",
                              new Object [] {fileName, exc.toString()});
-                return;
+                return false;
             }
             Map<ReferenceType, byte[]> map
                 = new HashMap<ReferenceType, byte[]>();
             map.put(refType, bytes);
             try {
                 Env.vm().redefineClasses(map);
+                return true;
             } catch (Throwable exc) {
                 MessageOutput.println("Error redefining class to file",
                              new Object [] {className,
                                             fileName,
                                             exc});
+                return false;
             }
         }
     }
 
-    void commandPopFrames(StringTokenizer t, boolean reenter) {
+    boolean commandPopFrames(StringTokenizer t, boolean reenter) {
         ThreadInfo threadInfo;
 
         if (t.hasMoreTokens()) {
             String token = t.nextToken();
             threadInfo = doGetThread(token);
             if (threadInfo == null) {
-                return;
+                return false;
             }
         } else {
             threadInfo = ThreadInfo.getCurrentThreadInfo();
             if (threadInfo == null) {
                 MessageOutput.println("No thread specified.");
-                return;
+                return false;
             }
         }
 
@@ -2048,8 +2108,10 @@ class Commands {
             if (reenter) {
                 commandStepi();
             }
+            return true;
         } catch (Throwable exc) {
             MessageOutput.println("Error popping frame", exc.toString());
+            return false;
         }
     }
 
