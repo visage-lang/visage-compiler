@@ -13,4 +13,4 @@ put fxjdi.jar on bootclasspath!. Using FXBootstrap solves this issue).
 
 * TTY.java uses FX-JDI connectors instead of platform (java) connectors.
 
-* "FXJDB" - programmatic alternative to TTY.java
+* Debugger.java - programmatic alternative to TTY.java

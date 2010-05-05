@@ -34,6 +34,14 @@ import com.sun.jdi.connect.*;
 import java.util.*;
 import java.io.*;
 
+/**
+ * This is a command line debugger for JavaFX programs. This class is same as
+ * the main class of "jdb" tool except that this one uses FX-JDI launching
+ * connector by default.
+ *
+ * @author sundar
+ */
+
 public class TTY implements EventNotifier {
     EventHandler handler = null;
 

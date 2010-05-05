@@ -71,12 +71,12 @@ import java.util.StringTokenizer;
  *
  * @author sundar
  */
-public class FXJDB {
+public class Debugger {
     private final List<EventNotifier> listeners = Collections.synchronizedList(new LinkedList());
     private Commands evaluator;
     private EventHandler handler;
 
-    public FXJDB(EventNotifier listener, String connectorSpec, boolean openNow, int flags) {
+    public Debugger(EventNotifier listener, String connectorSpec, boolean openNow, int flags) {
         if (listener != null) {
             this.listeners.add(listener);
         }
@@ -94,11 +94,11 @@ public class FXJDB {
         }
     }
 
-    public FXJDB(EventNotifier listener, String connectorSpec, boolean openNow) {
+    public Debugger(EventNotifier listener, String connectorSpec, boolean openNow) {
         this(listener, connectorSpec, openNow, VirtualMachine.TRACE_NONE);
     }
 
-    public FXJDB(EventNotifier listener, String connectorSpec) {
+    public Debugger(EventNotifier listener, String connectorSpec) {
         this(listener, connectorSpec, false);
     }
 
