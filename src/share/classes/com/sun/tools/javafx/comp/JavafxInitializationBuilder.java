@@ -2476,14 +2476,11 @@ however this is what we need */
                         }
                     }
                     
-                    // Invalidate back to inverse.
-                    if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
+                    // Graph back to inverse.
+                    if (depGraphWriter != null && varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
                         for (JavafxVarSymbol bindeeSym : varInfo.boundBindees()) {
-                            if (depGraphWriter != null) {
-                                depGraphWriter.writeDependency(bindeeSym, varSym);
-                            }
-                            addStmt(CallStmt(attributeInvalidateName(bindeeSym), phaseArg()));
-                            break;
+                            depGraphWriter.writeDependency(bindeeSym, varSym);
+                            break; // Only need the first entry (rest are duplicates)
                         }
                     }
 
