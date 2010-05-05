@@ -1,1 +1,73 @@
 This directory contains JDI implementation for JavaFX.
+
+How to build/test fxjdi.jar?
+
+* make sure that you set JAVA_HOME pointing to JDK6. FX-JDI uses JDK 6
+JDI interface and so requires JDK 6 to build and run.
+
+* make sure that you build compiler repo (by running "ant" in parent dir.
+
+* run "ant jar" or "ant" (builds and tests fxjdi.jar) in this directory.
+
+How to run command line FX-JDI debugger?
+
+In addition to a JDI implementation, there is also a command line debugger
+like "jdb". This implementation is derived from jdb implementation except 
+that this one uses FX-JDI connectors by default.
+
+To run command line debugger on Mac OS, you can use
+
+    java -jar fxjdi.jar <java-main-class>
+
+or to use JavaFX target programs:
+
+    java -jar fxjdi.jar -classpath <path-of-javafxrt.jar>  \
+        com.sun.javafx.runtime.Main <javafx-module-class>
+
+On Windows and Linux, you can use the following commands:
+
+    java -cp <path-of-tools.jar>:fxjdi.jar com.sun.javafx.tools.debug.tty.TTY \
+        <java-main-class>
+
+or to use JavaFX target programs:
+
+    java -cp <path-of-tools.jar>:fxjdi.jar com.sun.javafx.tools.debug.tty.TTY \
+        -classpath <path-of-javafxrt.jar> com.sun.javafx.runtime.Main \
+        <javafx-module-class>
+
+Notes on FX-JDI implementation:
+    
+* FX-JDI connectors are in com.sun.javafx.jdi.connect package.
+
+* com.sun.javafx.jdi, .event, .request packages have classes implementing
+interfaces of com.sun.jdi, com.sun.jdi.event, com.sun.jdi.request respectively.
+
+* FX-JDI implementing classes delegate to underlying platform JDI objects.
+The wrapping/unwrapping is primarily done in com.sun.javafx.jdi.FXWrapper
+and com.sun.javafx.jdi.FXVirtualMachine.
+
+* FXObjectType, FXSequenceType represent com.sun.javafx.runtime.FXObject
+and com.sun.javafx.runtime.sequence.Sequence types respectively.
+
+* Command line debugger implementation is com.sun.javafx.tools.debug.tty.TTY.
+See also: src/com/sun/javafx/tools/debug/README.
+
+* com.sun.javafx.tools.debug.tty.Debugger is programmatic interface to command
+line debugger. This is currently used for testing - but it can be in futue.
+
+* Testing:
+
+The TestScaffold framework for platform JDI testing has been customized to test
+FX-JDI. For a Java example, please refer to com.sun.javafx.jdi.test.FramesTest.
+Each FX-JDI test uses launching connector with a target/debugger program.
+The target/debuggee sources are in com.sun.javafx.jdi.test.target package.
+For example, FramesTarget.java is the debuggee used by FramesTest.java. There
+are also JavaFX examples. HelloTarget.fx, SequenceTarget.fx are target JavaFX
+programs. Corresponding debugger tests are HelloTest.java and SequenceTest.java.
+JavaFX debugger tests are derived from JavafxTestBase (which is derived from
+TestScaffold). This takes care using javafxrt.jar in classpath of debuggee
+and also using com.sun.javafx.runtime.Main as the main class of the debuggee.
+
+To run the tests, run:
+
+    ant test
