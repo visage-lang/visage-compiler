@@ -46,6 +46,9 @@ public class FXSequenceType extends FXInterfaceType {
 
     public FXSequenceType(FXVirtualMachine fxvm, InterfaceType underlying) {
         super(fxvm, underlying);
+        if (! underlying.name().equals(FXVirtualMachine.FX_SEQUENCE_TYPE_NAME)) {
+            throw new IllegalArgumentException("Illegal underlying type: " + underlying);
+        }
         sizeMethod = methodsByName("size").get(0);
         getMethod = methodsByName("get").get(0);
         getAsBooleanMethod = methodsByName("getAsBoolean").get(0);

@@ -32,6 +32,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
+ * Basic sanity checks with core Java types such as Object, String and Class.
  *
  * @author sundar
  */

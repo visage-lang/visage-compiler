@@ -32,10 +32,10 @@ import java.util.Map;
  * @author sundar
  */
 public class FXConnector implements Connector {
-    private final Connector _underlying;
+    private final Connector underlying;
 
     public FXConnector(Connector underlying) {
-        this._underlying = underlying;
+        this.underlying = underlying;
     }
 
     public Map<String, Argument> defaultArguments() {
@@ -55,6 +55,6 @@ public class FXConnector implements Connector {
     }
 
     protected Connector underlying() {
-        return _underlying;
+        return underlying;
     }
 }

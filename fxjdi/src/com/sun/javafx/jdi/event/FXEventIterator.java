@@ -31,12 +31,12 @@ import com.sun.jdi.event.EventIterator;
  * @author sundar
  */
 public class FXEventIterator implements EventIterator {
-    private final FXVirtualMachine _fxvm;
-    private final EventIterator _underlying;
+    private final FXVirtualMachine fxvm;
+    private final EventIterator underlying;
 
     public FXEventIterator(FXVirtualMachine fxvm, EventIterator underlying) {
-        this._fxvm = fxvm;
-        this._underlying = underlying;
+        this.fxvm = fxvm;
+        this.underlying = underlying;
     }
 
     @Override
@@ -74,11 +74,11 @@ public class FXEventIterator implements EventIterator {
     }
 
     protected FXVirtualMachine virtualMachine() {
-        return _fxvm;
+        return fxvm;
     }
 
     protected EventIterator underlying() {
-        return _underlying;
+        return underlying;
     }
 
     public static FXEventIterator wrap(FXVirtualMachine fxvm, EventIterator evtItr) {

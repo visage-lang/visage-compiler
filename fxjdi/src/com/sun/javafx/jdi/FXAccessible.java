@@ -30,28 +30,28 @@ import com.sun.jdi.Accessible;
  * @author sundar
  */
 public class FXAccessible implements Accessible {
-    private Accessible _underlying;
+    private Accessible underlying;
     public FXAccessible(Accessible underlying) {
-        this._underlying = underlying;
+        this.underlying = underlying;
     }
 
     public boolean isPackagePrivate() {
-        return _underlying.isPackagePrivate();
+        return underlying.isPackagePrivate();
     }
 
     public boolean isPrivate() {
-        return _underlying.isPrivate();
+        return underlying.isPrivate();
     }
 
     public boolean isProtected() {
-        return _underlying.isProtected();
+        return underlying.isProtected();
     }
 
     public boolean isPublic() {
-        return _underlying.isPublic();
+        return underlying.isPublic();
     }
 
     public int modifiers() {
-        return _underlying.modifiers();
+        return underlying.modifiers();
     }
 }

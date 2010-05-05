@@ -47,8 +47,8 @@ import com.sun.jdi.Mirror;
  * @author sundar
  */
 public class FXMirror implements Mirror {
-    private final FXVirtualMachine _fxvm;
-    private final Mirror _underlying;
+    private final FXVirtualMachine fxvm;
+    private final Mirror underlying;
 
     public FXMirror(FXVirtualMachine fxvm, Mirror underlying) {
         if (underlying == null) {
@@ -57,12 +57,12 @@ public class FXMirror implements Mirror {
         if (underlying instanceof FXMirror) {
             throw new IllegalArgumentException("repeated wrapping!!");
         }
-        this._fxvm = fxvm;
-        this._underlying = underlying;
+        this.fxvm = fxvm;
+        this.underlying = underlying;
     }
 
     public FXVirtualMachine virtualMachine() {
-        return _fxvm;
+        return fxvm;
     }
 
     @Override
@@ -84,6 +84,6 @@ public class FXMirror implements Mirror {
     }
 
     protected Mirror underlying() {
-        return _underlying;
+        return underlying;
     }
 }

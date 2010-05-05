@@ -27,7 +27,9 @@ import com.sun.jdi.event.BreakpointEvent;
 import java.io.File;
 
 /**
- * Base class for tests in which the target is a JavaFX application.
+ * Base class for tests in which the target is a JavaFX application. This takes
+ * care of setting javafxrt.jar in classpath in addition to application class path.
+ * Also has utility methods for javafx methods.
  *
  * @author sundar
  */

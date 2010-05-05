@@ -62,6 +62,7 @@ import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.VoidType;
 import com.sun.jdi.VoidValue;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,13 +191,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
 
     public List<ReferenceType> classesByName(String name) {
         List<ReferenceType> refTypes = underlying().classesByName(name);
-        if (name.equals(FX_SEQUENCE_TYPE_NAME) && refTypes.size() == 1) {
-            List<ReferenceType> result = new ArrayList<ReferenceType>();
-            result.add(new FXSequenceType(this, (InterfaceType) refTypes.get(0)));
-            return result;
-        } else {
-            return FXWrapper.wrapReferenceTypes(this, underlying().classesByName(name));
-        }
+        return FXWrapper.wrapReferenceTypes(this, refTypes);
     }
 
     public String description() {
@@ -315,21 +310,21 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
 
     // JavaFX types
     public static final String FX_OBJECT_TYPE_NAME = "com.sun.javafx.runtime.FXObject";
-    private InterfaceType fxObjectType;
-    public synchronized InterfaceType fxObjectType() {
+    private FXObjectType fxObjectType;
+    public synchronized FXObjectType fxObjectType() {
         if (fxObjectType == null) {
             List<ReferenceType> refTypes = classesByName(FX_OBJECT_TYPE_NAME);
-            fxObjectType = refTypes.isEmpty() ? null : (InterfaceType) refTypes.get(0);
+            fxObjectType = refTypes.isEmpty() ? null : (FXObjectType) refTypes.get(0);
         }
         return fxObjectType;
     }
 
     public static final String FX_MIXIN_TYPE_NAME = "com.sun.javafx.runtime.FXMixin";
-    private InterfaceType fxMixinType;
-    public synchronized ReferenceType fxMixinType() {
+    private FXInterfaceType fxMixinType;
+    public synchronized FXReferenceType fxMixinType() {
         if (fxMixinType == null) {
             List<ReferenceType> refTypes = classesByName(FX_MIXIN_TYPE_NAME);
-            fxMixinType = refTypes.isEmpty()? null : (InterfaceType) refTypes.get(0);
+            fxMixinType = refTypes.isEmpty()? null : (FXInterfaceType) refTypes.get(0);
         }
         return fxMixinType;
     }
@@ -431,20 +426,50 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return new FXLocation(this, loc);
     }
 
+    private final Map<ReferenceType, FXReferenceType> refTypesCache =
+            new HashMap<ReferenceType, FXReferenceType>();
+
     protected FXReferenceType referenceType(ReferenceType rt) {
-        return new FXReferenceType(this, rt);
+        synchronized (refTypesCache) {
+            if (! refTypesCache.containsKey(rt)) {
+                refTypesCache.put(rt, new FXReferenceType(this, rt));
+            }
+            return refTypesCache.get(rt);
+        }
     }
 
     protected FXClassType classType(ClassType ct) {
-        return  new FXClassType(this, ct);
+        synchronized (refTypesCache) {
+            if (! refTypesCache.containsKey(ct)) {
+                refTypesCache.put(ct, new FXClassType(this, ct));
+            }
+            return (FXClassType) refTypesCache.get(ct);
+        }
     }
 
     protected FXInterfaceType interfaceType(InterfaceType it) {
-        return new FXInterfaceType(this, it);
+        synchronized (refTypesCache) {
+            if (! refTypesCache.containsKey(it)) {
+                String name = it.name();
+                if (name.equals(FX_OBJECT_TYPE_NAME)) {
+                   refTypesCache.put(it, new FXObjectType(this, it));
+                } else if (name.equals(FX_SEQUENCE_TYPE_NAME)) {
+                   refTypesCache.put(it, new FXSequenceType(this, it));
+                } else {
+                   refTypesCache.put(it, new FXInterfaceType(this, it));
+                }
+            }
+            return (FXInterfaceType) refTypesCache.get(it);
+        }
     }
 
     protected FXArrayType arrayType(ArrayType at) {
-        return new FXArrayType(this, at);
+        synchronized (at) {
+            if (! refTypesCache.containsKey(at)) {
+                refTypesCache.put(at, new FXArrayType(this, at));
+            }
+            return (FXArrayType) refTypesCache.get(at);
+        }
     }
 
     protected FXField field(Field field) {

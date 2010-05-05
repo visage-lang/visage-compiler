@@ -30,10 +30,10 @@ import com.sun.jdi.connect.Transport;
  * @author sundar
  */
 public class FXTransport implements Transport {
-    private Transport _underlying;
+    private Transport underlying;
 
     public FXTransport(Transport underlying) {
-        this._underlying = underlying;
+        this.underlying = underlying;
     }
 
     @Override
@@ -54,6 +54,6 @@ public class FXTransport implements Transport {
     }
 
     protected Transport underlying() {
-        return _underlying;
+        return underlying;
     }
 }

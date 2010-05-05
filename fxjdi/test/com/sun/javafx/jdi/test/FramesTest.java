@@ -31,6 +31,11 @@ import java.util.List;
 import org.junit.Test;
 import junit.framework.Assert;
 
+/**
+ * Simple debugger test that walks stack of a known Java app.
+ *
+ * @author sundar
+ */
 public class FramesTest extends TestScaffold {
     ReferenceType targetClass;
     ThreadReference mainThread;

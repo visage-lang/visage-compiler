@@ -38,6 +38,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
+ * Checks for FX-JDI connector classes and FXBootstrap.
  *
  * @author sundar
  */

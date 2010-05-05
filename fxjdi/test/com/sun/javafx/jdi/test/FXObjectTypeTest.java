@@ -20,62 +20,57 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-
 package com.sun.javafx.jdi.test;
 
-import com.sun.javafx.jdi.FXSequenceReference;
-import com.sun.jdi.IntegerValue;
-import com.sun.jdi.StackFrame;
-import com.sun.jdi.Value;
-import com.sun.jdi.event.BreakpointEvent;
+import com.sun.javafx.jdi.FXObjectType;
+import com.sun.javafx.jdi.FXVirtualMachine;
+import com.sun.jdi.Method;
+import com.sun.jdi.ReferenceType;
 import org.junit.Test;
 import junit.framework.Assert;
 
-
 /**
- * Basic checks for FXSequenceReference/FXSequenceType methods and sequence access
- * from debugger.
+ * Basic sanity check for FXObjectType (which wraps com.sun.javafx.runtime.FXObject)
  *
  * @author sundar
  */
-public class SequenceTest extends JavafxTestBase {
-    private static String targetClassName = "com.sun.javafx.jdi.test.target.SequenceTarget";
+public class FXObjectTypeTest extends JavafxTestBase {
+    // any FX class will do..
+    private static String targetClassName = "com.sun.javafx.jdi.test.target.HelloTarget";
 
-    public SequenceTest() {
+    public FXObjectTypeTest() {
         super(targetClassName);
     }
 
     @Test
-    public void testSequence() {
+    public void testFXObjectType() {
         try {
             startTests();
         } catch (Exception exp) {
-            exp.printStackTrace();
             Assert.fail(exp.getMessage());
         }
     }
 
     protected void runTests() throws Exception {
         startToMain();
+        // run till javafx$run$ - so that com.sun.javafx.runtime.FXObject is loaded!
+        resumeTo(targetClassName, fxRunMethodName(), fxRunMethodSignature());
 
-        // break into function printSeq(arg: Integer[])
-        BreakpointEvent bpe = resumeTo(targetClassName, "printSeq",
-                "(Lcom/sun/javafx/runtime/sequence/Sequence;)V");
-
-        mainThread = bpe.thread();
-
-        // get the top frame
-        StackFrame frame = mainThread.frame(0);
-        // get first argument which is Integer[]
-        Value value = frame.getArgumentValues().get(0);
-        Assert.assertEquals(true, value instanceof FXSequenceReference);
-        FXSequenceReference seq = (FXSequenceReference) value;
-        Assert.assertEquals(2, seq.size(mainThread));
-        IntegerValue zerothElement = seq.getAsInt(mainThread, 0);
-        Assert.assertEquals(1729, zerothElement.intValue());
-        IntegerValue firstElement = seq.getAsInt(mainThread, 1);
-        Assert.assertEquals(9999, firstElement.intValue());
-
+        // look for FXObject type
+        ReferenceType rt = vm().classesByName(FXVirtualMachine.FX_OBJECT_TYPE_NAME).get(0);
+        // it has to be FXObjectType
+        Assert.assertEquals(true, rt instanceof FXObjectType);
+        // check few methods of FXObjectType
+        FXObjectType fxObjType = (FXObjectType)rt;
+        Method count$Method = fxObjType.count$Method();
+        Assert.assertEquals("count$", count$Method.name());
+        Assert.assertEquals("()I", count$Method.signature());
+        Method get$Method = fxObjType.get$Method();
+        Assert.assertEquals("get$", get$Method.name());
+        Assert.assertEquals("(I)Ljava/lang/Object;", get$Method.signature());
+        Method set$Method = fxObjType.set$Method();
+        Assert.assertEquals("set$", set$Method.name());
+        Assert.assertEquals("(ILjava/lang/Object;)V", set$Method.signature());
 
         /*
          * resume until end
