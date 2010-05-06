@@ -115,10 +115,16 @@ public class FXSequenceReference extends FXObjectReference {
         return (DoubleValue) getElement(thread, getAsDoubleMethod, index);
     }
 
+    public Value getElementType(ThreadReference thread)
+        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Method getElementTypeMethod = virtualMachine().fxSequenceType().getElementTypeMethod();
+        return invokeMethod(thread, getElementTypeMethod, Collections.EMPTY_LIST, 0);
+    }
+
     private Value getElement(ThreadReference thread, Method method, int index)
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         List<Value> args = new ArrayList<Value>(1);
         args.add(virtualMachine().mirrorOf(index));
-        return (IntegerValue) invokeMethod(thread, method, args, 0);
+        return invokeMethod(thread, method, args, 0);
     }
 }

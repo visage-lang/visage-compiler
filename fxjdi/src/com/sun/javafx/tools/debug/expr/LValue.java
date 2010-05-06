@@ -25,6 +25,7 @@
 
 package com.sun.javafx.tools.debug.expr;
 
+import com.sun.javafx.jdi.FXSequenceReference;
 import com.sun.jdi.*;
 import java.util.*;
 
@@ -93,6 +94,10 @@ abstract class LValue {
             "length".equals(fieldName)){
             return new LValueArrayLength((ArrayReference)val);
         }
+        if ((val instanceof FXSequenceReference) &&
+            "length".equals(fieldName)) {
+            return new LValueFXSequenceLength((FXSequenceReference)val, thread);
+        }
         return new LValueInstanceMember(val, fieldName, thread);
     }
 
@@ -142,7 +147,7 @@ abstract class LValue {
         return value;
     }
 
-    LValue arrayElementLValue(LValue lval) throws ParseException {
+    LValue arrayElementLValue(ExpressionParser.GetFrame frameGetter, LValue lval) throws ParseException {
         Value indexValue = lval.interiorGetValue();
         int index;
         if ( (indexValue instanceof IntegerValue) ||
@@ -153,7 +158,14 @@ abstract class LValue {
         } else {
             throw new ParseException("Array index must be a integer type");
         }
-        return new LValueArrayElement(interiorGetValue(), index);
+        Value arrayValue = interiorGetValue();
+        try {
+            return (arrayValue instanceof FXSequenceReference)?
+                new LValueFXSequenceElement(arrayValue, index, frameGetter.get().thread()) :
+                new LValueArrayElement(arrayValue, index);
+        } catch (IncompatibleThreadStateException itse) {
+            throw new ParseException(itse.getMessage());
+        }
     }
 
     public String toString() {
@@ -605,6 +617,35 @@ abstract class LValue {
         }
     }
 
+    private static class LValueFXSequenceLength extends LValue {
+        final FXSequenceReference sequenceRef;
+        final ThreadReference thread;
+
+        LValueFXSequenceLength (FXSequenceReference value, ThreadReference thread) {
+            this.sequenceRef = value;
+            this.thread = thread;
+        }
+
+        Value getValue() {
+            if (jdiValue == null) {
+                try {
+                    jdiValue = sequenceRef.virtualMachine().mirrorOf(sequenceRef.size(thread));
+                } catch (Exception exp) {
+                    throw new RuntimeException(exp);
+                }
+            }
+            return jdiValue;
+        }
+
+        void setValue0(Value value) throws ParseException  {
+            throw new ParseException("Cannot set constant: " + value);
+        }
+
+        void invokeWith(List<Value> arguments) throws ParseException {
+            throw new ParseException("Sequence element is not a method");
+        }
+    }
+
     private static class LValueArrayElement extends LValue {
         final ArrayReference array;
         final int index;
@@ -633,6 +674,44 @@ abstract class LValue {
 
         void invokeWith(List<Value> arguments) throws ParseException {
             throw new ParseException("Array element is not a method");
+        }
+    }
+
+    private static class LValueFXSequenceElement extends LValue {
+        final FXSequenceReference sequence;
+        final int index;
+        final ThreadReference thread;
+
+        LValueFXSequenceElement(Value value, int index, ThreadReference thread) throws ParseException {
+            if (!(value instanceof FXSequenceReference)) {
+                throw new ParseException(
+                       "Must be sequence type: " + value);
+            }
+            this.sequence = (FXSequenceReference)value;
+            this.index = index;
+            this.thread = thread;
+        }
+
+        Value getValue() {
+            if (jdiValue == null) {
+                try {
+                    jdiValue = sequence.get(thread, index);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            return jdiValue;
+        }
+
+        void setValue0(Value val) throws InvalidTypeException,
+                                         ClassNotLoadedException  {
+            // array.setValue(index, val);
+            // jdiValue = val;
+            throw new UnsupportedOperationException("not yet implemented.");
+        }
+
+        void invokeWith(List<Value> arguments) throws ParseException {
+            throw new ParseException("sequence element is not a method");
         }
     }
 

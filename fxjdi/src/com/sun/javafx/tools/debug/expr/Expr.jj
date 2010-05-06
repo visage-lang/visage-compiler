@@ -640,7 +640,7 @@ void PrimarySuffix() :
 {
   "[" Expression() "]"  
                         { LValue index = pop();
-                          push(pop().arrayElementLValue(index)); }
+                          push(pop().arrayElementLValue(frameGetter, index)); }
 |
   "." <IDENTIFIER>
                         { push(pop().memberLValue(frameGetter, token.image)); }

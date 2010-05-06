@@ -43,6 +43,7 @@ public class FXSequenceType extends FXInterfaceType {
     private Method getAsLongMethod;
     private Method getAsFloatMethod;
     private Method getAsDoubleMethod;
+    private Method getElementTypeMethod;
 
     public FXSequenceType(FXVirtualMachine fxvm, InterfaceType underlying) {
         super(fxvm, underlying);
@@ -59,6 +60,7 @@ public class FXSequenceType extends FXInterfaceType {
         getAsLongMethod = methodsByName("getAsLong").get(0);
         getAsFloatMethod = methodsByName("getAsFloat").get(0);
         getAsDoubleMethod = methodsByName("getAsDouble").get(0);
+        getElementTypeMethod = methodsByName("getElementType").get(0);
     }
 
     public Method sizeMethod() {
@@ -99,5 +101,9 @@ public class FXSequenceType extends FXInterfaceType {
 
     public Method getAsDoubleMethod() {
         return getAsDoubleMethod;
+    }
+
+    public Method getElementTypeMethod() {
+        return getElementTypeMethod;
     }
 }

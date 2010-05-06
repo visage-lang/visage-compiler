@@ -921,7 +921,7 @@ public class ExpressionParser implements ExpressionParserConstants {
       Expression();
       jj_consume_token(RBRACKET);
                           LValue index = pop();
-                          push(pop().arrayElementLValue(index));
+                          push(pop().arrayElementLValue(frameGetter, index));
       break;
     case DOT:
       jj_consume_token(DOT);
