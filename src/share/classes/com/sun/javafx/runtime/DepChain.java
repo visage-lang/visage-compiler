@@ -91,7 +91,7 @@ public class DepChain implements BinderLinkable {
                 int nextBit = 1;
                 while ((varNum & nextBit) == (curVarNum & nextBit) &&
                         nextBit <= varNum)
-                    nextBit++;
+                    nextBit <<= 1;
                 p.bindeeVarNum = varNum & (nextBit-1);
                 p.nextBit = nextBit;
                 replace(parent, selector, p);
