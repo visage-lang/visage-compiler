@@ -150,11 +150,26 @@ public class FXWrapper {
     }
 
     public static List<ReferenceType> wrapReferenceTypes(FXVirtualMachine fxvm, List<ReferenceType> refTypes) {
+        // Note that VirtualMachineImpl caches the list, and returns an unmodifiable wrapped list.
+        // Classes that get loaded in the future are added to its list by an EventListener on ClassPrepared 
+        // events.  If we cache our wrapped list, they we would have to do the same thing, or be able
+        // to update our cached list when this method is called again.  So for the time being,
+        // we won't cache and thus don't have to return an unmodifiable list.
         if (refTypes == null) {
             return null;
         }
         List<ReferenceType> result = new ArrayList<ReferenceType>(refTypes.size());
         for (ReferenceType rt : refTypes) {
+            String className = rt.name();
+            // javafx generated clases contain $[1-9]Local$ or $ObjLit$
+            if (className.indexOf('$') != -1) {
+                if (className.indexOf("$ObjLit$") != -1) {
+                    continue;
+                }
+                if (className.matches(".*\\$[0-9]+Local\\$.*")) {
+                    continue;
+                }
+            }
             result.add(FXWrapper.wrap(fxvm, rt));
         }
         return result;
@@ -201,13 +216,48 @@ public class FXWrapper {
         return (field == null)? null : fxvm.field(field);
     }
 
+    /*
+     * The fields are JDI Fields.
+     * Each field can be a user field of an FX class, an internal field of an FX class,
+     * or a field of a Java class.
+     */
     public static List<Field> wrapFields(FXVirtualMachine fxvm, List<Field> fields) {
+        // Create FXField wrappers for each field that is a valid FX field.
         if (fields == null) {
             return null;
         }
-        List<Field> result = new ArrayList<Field>(fields.size());
+        // We will have far fewer fields than fields.size() due to all the VFLGS etc
+        // fields we will discard , so start with some small random amount
+        List<Field> result = new ArrayList<Field>(20);
+
         for (Field fld : fields) {
-            result.add(fxvm.field(fld));
+            String fldName = fld.name();
+            int firstDollar = fldName.indexOf('$');
+            // java names do not start with $.
+            // FX user names start with a $ but so do various internal names
+            // mixin vars are mangled with the mixin classname, et,   $MixinClassName$fieldName
+            if (firstDollar != -1) {
+                if ((fldName.indexOf("_$",1)    != -1) ||
+                    (fldName.indexOf("$$")      != -1) ||
+                    (fldName.indexOf("$helper$") == 0) ||
+                    (fldName.indexOf("$script$") == 0) ||
+                    (fldName.indexOf("$ol$")    != -1)) {
+                    // $ol$ means it is a shredded name from a bound obj lit (see JavafxLower.java)
+                    // _$ means it is a synth var (see JavafxPreTranslationSupport.java)
+                    // $helper$ is in JavafxDefs.java
+                    continue;
+                }
+            }
+            /*
+              - mixin fields are named $MixinClassName$fieldName
+              - a private script field is java private, and is named with its normal name 
+              UNLESS it is referenced in a subclass. In this case it is java public and
+              its name is $ClassName$fieldName.  
+              This mangling in of the classname is not yet handled.
+            */
+            if (firstDollar <= 0) {
+                result.add(fxvm.field(fld));
+            }
         }
         return result;
     }

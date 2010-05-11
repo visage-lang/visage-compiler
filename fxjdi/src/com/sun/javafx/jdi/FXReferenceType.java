@@ -102,8 +102,24 @@ public class FXReferenceType extends FXType implements ReferenceType {
         return underlying().failedToInitialize();
     }
 
+    // return null if there is no field or the name is ambigous. 
     public FXField fieldByName(String name) {
-        return FXWrapper.wrap(virtualMachine(), underlying().fieldByName(name));
+        // There could be both an FX field $xxx and a java field xxx
+        Field javaField = underlying().fieldByName(name);
+        Field fxField = underlying().fieldByName("$" + name);
+        if (javaField == null) {
+            if (fxField == null ) {
+                return null;
+            }
+            // we'll return fxField
+        } else {
+            if (fxField != null) {
+                // we found both name and $name
+                return null;
+            }
+            fxField = javaField;
+        }
+        return FXWrapper.wrap(virtualMachine(), fxField);
     }
 
     public List<Field> fields() {
@@ -199,11 +215,11 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     public List<Field> visibleFields() {
-        return underlying().visibleFields();
+        return FXWrapper.wrapFields(virtualMachine(), underlying().visibleFields());
     }
 
     public List<Method> visibleMethods() {
-        return underlying().visibleMethods();
+        return FXWrapper.wrapMethods(virtualMachine(), underlying().visibleMethods());
     }
 
     public int compareTo(ReferenceType o) {

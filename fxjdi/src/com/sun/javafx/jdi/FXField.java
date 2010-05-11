@@ -58,7 +58,18 @@ public class FXField extends FXTypeComponent implements Field {
     public int compareTo(Field o) {
         return underlying().compareTo(o);
     }
+    
+    public String toString() {
+        // Need the fully qualified name of the class, and the
+        // filtered name of the field.
+        StringBuffer buf = new StringBuffer();
 
+        buf.append(declaringType().name());
+        buf.append('.');
+        buf.append(name());
+        return buf.toString();
+    }
+        
     @Override
     protected Field underlying() {
         return (Field) super.underlying();

@@ -25,6 +25,11 @@ package com.sun.javafx.jdi.test;
 
 import com.sun.jdi.event.BreakpointEvent;
 import java.io.File;
+import java.io.PrintStream;
+import java.io.FileOutputStream;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileNotFoundException;
 
 /**
  * Base class for tests in which the target is a JavaFX application. This takes
@@ -69,8 +74,66 @@ public abstract class JavafxTestBase extends TestScaffold {
         return args;
     }
 
+    String testClassName;
+    File actualFile;
+    PrintStream actualOut;
+    BufferedReader expectedReader;  // != null means there is a .EXPECTED file
+
+    void writeActual(String p1) {
+        actualOut.printf(p1 + "\n");
+    }
+
+    boolean didTestPass() {
+        try {
+            BufferedReader actualReader =  new BufferedReader(new FileReader(actualFile));
+            int lineNum = 0;
+            while(true) {
+                lineNum++;
+                String actualLine = actualReader.readLine();
+                String expectedLine = expectedReader.readLine();
+                if (actualLine == null) {
+                    if (expectedLine == null) {
+                        return true;
+                    }
+                    println("Error: extra line in EXPECTED, line = " + lineNum);
+                    println( expectedLine);
+                    return false;
+                }
+                if (expectedLine == null) {
+                    println("Error: extra line in ACTUAL: line = " + lineNum);
+                    println( actualLine);
+                    return false;
+                }
+                if (!actualLine.equals(expectedLine)) {
+                    println("Error:  Output is wrong at line = " + lineNum);
+                    println("  ACTUAL   = " + actualLine);
+                    println("  EXPECTED = " + expectedLine);
+                    return false;
+                }
+            }
+        } catch(Exception ee) {
+            println("IO Exception checking output: " + ee);
+        }
+        return false;
+    }
+
     protected JavafxTestBase(String targetClassName) {
         super(arguments(targetClassName));
+        testClassName = this.getClass().getSimpleName();
+
+        String expectedFileName = System.getProperty("user.dir") + 
+            (".test." + 
+             this.getClass().getName()).replace(".", File.separator) + ".EXPECTED";
+        try {
+            expectedReader = new BufferedReader(new FileReader(expectedFileName));
+            String actualName = System.getProperty("build.test.classes.dir") + 
+                File.separator +
+                "FilterVarsTest.ACTUAL";
+            actualFile = new File(actualName);
+            actualOut = new PrintStream(new FileOutputStream(actualFile));
+        } catch (FileNotFoundException ee) {
+            expectedReader = null;
+        }
     }
 
     protected JavafxTestBase(String[] args) {

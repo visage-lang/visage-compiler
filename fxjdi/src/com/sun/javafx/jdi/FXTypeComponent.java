@@ -56,7 +56,11 @@ public class FXTypeComponent extends FXMirror implements TypeComponent {
     }
 
     public String name() {
-        return underlying().name();
+        String realName = underlying().name();
+        if (realName.charAt(0) == '$') {
+            return realName.substring(1);
+        }
+        return realName;
     }
 
     public String signature() {
