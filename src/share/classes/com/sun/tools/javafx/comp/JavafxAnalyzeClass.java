@@ -50,11 +50,7 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import static com.sun.tools.mjavac.code.Flags.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class is used by JavafxInitializationBuilder to determine which inherited
@@ -109,13 +105,13 @@ class JavafxAnalyzeClass {
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
     
     // Map of all bind selects used to construct the class update$ method.
-    private final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>>();
+    private final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> classUpdateMap = new LinkedHashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>>();
 
     // Map of all bind selects used to construct the script update$ method.
-    private final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>>();
+    private final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new LinkedHashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>>();
 
     // Resulting list of relevant methods.  A map is used to so that only the last occurrence is kept.
-    private final Map<String, FuncInfo> needDispatchMethods = new HashMap<String, FuncInfo>();
+    private final Map<String, FuncInfo> needDispatchMethods = new LinkedHashMap<String, FuncInfo>();
 
     // List of all methods.  Used to track whether a mixin method should be included.
     private final Map<String, FuncInfo> visitedMethods = new HashMap<String, FuncInfo>();
@@ -1016,7 +1012,7 @@ class JavafxAnalyzeClass {
         
         // Add new entry if not found.
         if (instanceMap == null) {
-            instanceMap = new HashMap<JavafxVarSymbol, HashSet<VarInfo>>();
+            instanceMap = new LinkedHashMap<JavafxVarSymbol, HashSet<VarInfo>>();
             updateMap.put(instanceSymbol, instanceMap);
         }
         
@@ -1025,7 +1021,7 @@ class JavafxAnalyzeClass {
         
         // Add new entry if not found.
         if (referenceSet == null) {
-            referenceSet = new HashSet<VarInfo>();
+            referenceSet = new LinkedHashSet<VarInfo>();
             instanceMap.put(referenceSymbol, referenceSet);
         }
         
@@ -1453,7 +1449,7 @@ class JavafxAnalyzeClass {
                 }
                 
                 // Track mixin var accessors.
-                HashMap<Name, MixinClassVarInfo> mixinVarMap = new HashMap<Name, MixinClassVarInfo>();
+                HashMap<Name, MixinClassVarInfo> mixinVarMap = new LinkedHashMap<Name, MixinClassVarInfo>();
 
                 // Scan attribute members.
                 for (Symbol varMem : reversed) {

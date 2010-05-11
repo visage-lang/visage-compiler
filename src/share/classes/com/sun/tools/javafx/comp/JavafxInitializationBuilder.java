@@ -44,6 +44,7 @@ import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1658,7 +1659,7 @@ however this is what we need */
                              * we want to get element from the Pointer. We translate as:
                              *
                              *    public static int elem$foo(final int pos$) {
-                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();                             *
+                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();
                              *        return ifx$0tmp != null ? (Integer)ifx$0tmp.get(pos$) : 0;
                              *    }
                              */
@@ -2266,7 +2267,7 @@ however this is what we need */
         }
 
         private JCExpression validBindeesTest(VarInfo varInfo) {
-            Set<JavafxVarSymbol> unique = new HashSet<JavafxVarSymbol>();
+            Set<JavafxVarSymbol> unique = new LinkedHashSet<JavafxVarSymbol>();
             for (JavafxVarSymbol vsym : varInfo.boundBindees()) {
                 if (!vsym.isSpecial() && !vsym.isSequence()) {
                     unique.add(vsym);
@@ -2475,14 +2476,11 @@ however this is what we need */
                         }
                     }
                     
-                    // Invalidate back to inverse.
-                    if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
+                    // Graph back to inverse.
+                    if (depGraphWriter != null && varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
                         for (JavafxVarSymbol bindeeSym : varInfo.boundBindees()) {
-                            if (depGraphWriter != null) {
-                                depGraphWriter.writeDependency(bindeeSym, varSym);
-                            }
-                            addStmt(CallStmt(attributeInvalidateName(bindeeSym), phaseArg()));
-                            break;
+                            depGraphWriter.writeDependency(bindeeSym, varSym);
+                            break; // Only need the first entry (rest are duplicates)
                         }
                     }
 

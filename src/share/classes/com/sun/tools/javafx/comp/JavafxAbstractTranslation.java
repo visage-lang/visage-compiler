@@ -3074,6 +3074,7 @@ public abstract class JavafxAbstractTranslation
             if (types.isSequence(expr.type) && !types.isSequence(classType)) {
                 tExpr = Call(defs.Sequences_getSingleValue, tExpr);
             }
+            tExpr = typeCast(syms.objectType, expr.type, tExpr);
             JCTree clazz = makeType(classType);
             return toResult(
                     m().TypeTest(tExpr, clazz),

@@ -511,6 +511,9 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         } else if (value instanceof Short) {
             result = Literal(SHORT, value).
                 setType(syms.shortType.constType(value));
+        } else if (value instanceof Boolean) {
+            result = Literal(BOOLEAN, ((Boolean) value).booleanValue() ? 1 : 0).
+                setType(syms.booleanType.constType(value));
         } else {
             throw new AssertionError(value);
         }
