@@ -33,7 +33,6 @@ import com.sun.jdi.event.BreakpointEvent;
 public class FXBreakpointEvent extends FXLocatableEvent implements BreakpointEvent {
     public FXBreakpointEvent(FXVirtualMachine fxvm, BreakpointEvent underlying) {
         super(fxvm, underlying);
-        System.out.println("breakpoint event");
     }
 
     @Override
