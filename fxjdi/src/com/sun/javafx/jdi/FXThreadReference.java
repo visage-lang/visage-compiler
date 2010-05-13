@@ -43,7 +43,7 @@ public class FXThreadReference extends FXObjectReference implements ThreadRefere
     }
 
     public void forceEarlyReturn(Value value) throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException {
-        underlying().forceEarlyReturn(value);
+        underlying().forceEarlyReturn(FXWrapper.unwrap(value));
     }
 
     public List<MonitorInfo> ownedMonitorsAndFrames() throws IncompatibleThreadStateException {
