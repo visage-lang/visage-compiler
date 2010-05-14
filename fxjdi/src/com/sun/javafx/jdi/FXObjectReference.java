@@ -63,9 +63,6 @@ public class FXObjectReference extends FXValue implements ObjectReference {
     }
 
     public FXValue getValue(Field field) {
-        if (!FXUtils.isValid(this, field)) {
-            throw new FXInvalidValueException(this, field);
-        }
         return FXWrapper.wrap(virtualMachine(), underlying().getValue(FXWrapper.unwrap(field)));
     }
 
