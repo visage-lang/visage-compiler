@@ -80,7 +80,11 @@ public abstract class JavafxTestBase extends TestScaffold {
     BufferedReader expectedReader;  // != null means there is a .EXPECTED file
 
     void writeActual(String p1) {
-        actualOut.printf(p1 + "\n");
+        if (expectedReader == null) {
+            failure("Call to writeActual but no .EXPECTED file.  Use println instead of writeActual");
+        } else {
+            actualOut.printf(p1 + "\n");
+        }
     }
 
     boolean didTestPass() {
