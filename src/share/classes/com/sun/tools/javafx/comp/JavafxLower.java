@@ -845,7 +845,7 @@ public class JavafxLower implements JavafxVisitor {
             case POSTDEC: return true;
             case PREINC:
             case PREDEC: return false;
-            default: throw new AssertionError("Unexpecetd unary operator tag: " + tag);
+            default: throw new AssertionError("Unexpected unary operator tag: " + tag);
         }
     }
 
@@ -906,7 +906,7 @@ public class JavafxLower implements JavafxVisitor {
             }
             loweredValue = mergedLoweredValue.head;
         }
-        
+
         result = m.Block(tree.flags, loweredStats, loweredValue);
         result.type = value != null ?
             loweredValue != null ? loweredValue.type : syms.voidType :
@@ -922,17 +922,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     private ListBuffer<JFXExpression> mergeLoweredBlockStatements(ListBuffer<JFXExpression> loweredStats, JFXExpression loweredStat, JFXExpression stat) {
-        if (loweredStat.getFXTag() == JavafxTag.BLOCK_EXPRESSION &&
-                stat.getFXTag() != loweredStat.getFXTag()) {
-            JFXBlock loweredBlock = (JFXBlock)loweredStat;
-            loweredStats.appendList(loweredBlock.getStmts());
-            if (loweredBlock.value != null) {
-                loweredStats.append(loweredBlock.value);
-            }
-        }
-        else {
-            loweredStats.append(loweredStat);
-        }
+        loweredStats.append(loweredStat);
         return loweredStats;
     }
     //where
