@@ -340,7 +340,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     private FXVoidValue voidValue;
-    private synchronized FXVoidValue voidValue() {
+    protected synchronized FXVoidValue voidValue() {
         if (voidValue == null) {
             voidValue = new FXVoidValue(this, underlying().mirrorOfVoid());
         }

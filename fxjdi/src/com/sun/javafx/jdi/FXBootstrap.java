@@ -58,7 +58,7 @@ public class FXBootstrap {
         private List<Connector> connectors = new ArrayList<Connector>();
         private LaunchingConnector defaultConnector = null;
         private static final int majorVersion = 1;
-        private static final int minorVersion = 3;
+        private static final int minorVersion = 6;
         private static final Object lock = new Object();
         private static FXVirtualMachineManager vmm;
 

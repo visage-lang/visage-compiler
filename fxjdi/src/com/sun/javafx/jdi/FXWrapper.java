@@ -64,6 +64,7 @@ import com.sun.jdi.Type;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.VoidType;
+import com.sun.jdi.VoidValue;
 import com.sun.jdi.event.EventQueue;
 import com.sun.jdi.request.EventRequestManager;
 import java.util.ArrayList;
@@ -347,6 +348,8 @@ public class FXWrapper {
             } else {
                 throw new IllegalArgumentException("illegal primitive value : " + value);
             }
+        } else if (value instanceof VoidValue) {
+            return fxvm.voidValue();
         } else if (value instanceof ObjectReference) {
             return  wrap(fxvm, (ObjectReference)value);
         } else {
