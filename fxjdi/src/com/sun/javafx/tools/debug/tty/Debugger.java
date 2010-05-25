@@ -23,6 +23,7 @@
 
 package com.sun.javafx.tools.debug.tty;
 
+import com.sun.javafx.jdi.FXBootstrap;
 import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadGroupReference;
@@ -48,6 +49,7 @@ import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.connect.Connector;
 import com.sun.jdi.event.EventQueue;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
@@ -76,38 +78,25 @@ public class Debugger {
     private Commands evaluator;
     private EventHandler handler;
 
-    public Debugger(EventNotifier listener, String connectorSpec, boolean openNow, int flags) {
+    // "args" is same as command line options supported by TTY.java except that
+    // -listconnectors, -version and -help options are not supported.
+    public Debugger(EventNotifier listener, String args) {
         if (listener != null) {
             this.listeners.add(listener);
         }
         this.evaluator = new Commands();
-        MessageOutput.textResources = ResourceBundle.getBundle(
-                "com.sun.javafx.tools.debug.tty.TTYResources", Locale.getDefault());
-        if (connectorSpec.charAt(connectorSpec.length() - 1) != ',') {
-            connectorSpec = connectorSpec.concat(",");
-        }
-        // don't exit this VM on Env.shutdown()
-        Env.setExitDebuggerVM(false);
-        Env.init(connectorSpec, openNow, flags);
+        init((args == null)? null : args.split(" "));
         if (Env.connection().isOpen() && Env.vm().canBeModified()) {
             this.handler = new EventHandler(new EventNotifierImpl(), true);
         }
     }
 
-    public Debugger(EventNotifier listener, String connectorSpec, boolean openNow) {
-        this(listener, connectorSpec, openNow, VirtualMachine.TRACE_NONE);
-    }
-
-    public Debugger(EventNotifier listener, String connectorSpec) {
-        this(listener, connectorSpec, false);
-    }
-
-    public Debugger(String connectorSpec) {
-        this(null, connectorSpec, false);
+    public Debugger(String args) {
+        this(null, args);
     }
 
     public Debugger() {
-        this("com.sun.javafx.jdi.connect.FXLaunchingConnector:");
+        this(null);
     }
 
     public VirtualMachine vm() {
@@ -165,7 +154,7 @@ public class Debugger {
         while (iter.hasNext()) {
             Method method = (Method)iter.next();
             if (method.name().equals(name) &&
-                method.signature().equals(signature)) {
+                    method.signature().equals(signature)) {
                 return method;
             }
         }
@@ -173,7 +162,7 @@ public class Debugger {
     }
 
     public Location findLocation(ReferenceType rt, int lineNumber)
-                         throws AbsentInformationException {
+            throws AbsentInformationException {
         List locs = rt.locationsOfLine(lineNumber);
         if (locs.size() == 0) {
             throw new IllegalArgumentException("Bad line number");
@@ -189,7 +178,7 @@ public class Debugger {
 
     private StepEvent doStep(ThreadReference thread, int gran, int depth) {
         final StepRequest sr =
-                  eventRequestManager().createStepRequest(thread, gran, depth);
+                eventRequestManager().createStepRequest(thread, gran, depth);
         sr.addClassExclusionFilter("java.*");
         sr.addClassExclusionFilter("sun.*");
         sr.addClassExclusionFilter("com.sun.*");
@@ -228,7 +217,7 @@ public class Debugger {
     }
 
     public BreakpointEvent resumeTo(String clsName, String methodName,
-                                         String methodSignature) {
+            String methodSignature) {
         ReferenceType rt = findReferenceType(clsName);
         if (rt == null) {
             rt = resumeToPrepareOf(clsName).referenceType();
@@ -253,7 +242,7 @@ public class Debugger {
 
     public ClassPrepareEvent resumeToPrepareOf(String className) {
         final ClassPrepareRequest request =
-            eventRequestManager().createClassPrepareRequest();
+                eventRequestManager().createClassPrepareRequest();
         request.addClassFilter(className);
         request.addCountFilter(1);
         request.enable();
@@ -332,17 +321,17 @@ public class Debugger {
 
     public StepEvent waitForStepEvent() {
         return (StepEvent) waitForEvent(new EventFilter() {
-           public boolean match(Event evt) {
-               return (evt instanceof StepEvent);
-           }
+            public boolean match(Event evt) {
+                return (evt instanceof StepEvent);
+            }
         });
     }
 
     public WatchpointEvent waitForWatchpointEvent() {
         return (WatchpointEvent) waitForEvent(new EventFilter() {
-           public boolean match(Event evt) {
-               return (evt instanceof WatchpointEvent);
-           }
+            public boolean match(Event evt) {
+                return (evt instanceof WatchpointEvent);
+            }
         });
     }
 
@@ -661,8 +650,275 @@ public class Debugger {
         shutdown();
     }
 
-    // Internals only below this point - class implementing EventNotifier interface
+    // Internals only below this point
+    private static void usageError(String messageKey) {
+        throw new IllegalArgumentException(MessageOutput.format(messageKey));
+    }
 
+    private static void usageError(String messageKey, String argument) {
+        throw new IllegalArgumentException(MessageOutput.format(messageKey, argument));
+    }
+
+    private static boolean supportsSharedMemory() {
+        for (Connector connector : FXBootstrap.virtualMachineManager().allConnectors()) {
+            if (connector.transport() == null) {
+                continue;
+            }
+            if ("dt_shmem".equals(connector.transport().name())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String addressToSocketArgs(String address) {
+        int index = address.indexOf(':');
+        if (index != -1) {
+            String hostString = address.substring(0, index);
+            String portString = address.substring(index + 1);
+            return "hostname=" + hostString + ",port=" + portString;
+        } else {
+            return "port=" + address;
+        }
+    }
+
+    private static boolean hasWhitespace(String string) {
+        int length = string.length();
+        for (int i = 0; i < length; i++) {
+            if (Character.isWhitespace(string.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String addArgument(String string, String argument) {
+        if (hasWhitespace(argument) || argument.indexOf(',') != -1) {
+            // Quotes were stripped out for this argument, add 'em back.
+            StringBuffer buffer = new StringBuffer(string);
+            buffer.append('"');
+            for (int i = 0; i < argument.length(); i++) {
+                char c = argument.charAt(i);
+                if (c == '"') {
+                    buffer.append('\\');
+                }
+                buffer.append(c);
+            }
+            buffer.append("\" ");
+            return buffer.toString();
+        } else {
+            return string + argument + ' ';
+        }
+    }
+
+    private static void init(String[] argv) {
+        String cmdLine = "";
+        String javaArgs = "";
+        int traceFlags = VirtualMachine.TRACE_NONE;
+        boolean launchImmediately = false;
+        String connectSpec = null;
+
+        MessageOutput.textResources = ResourceBundle.getBundle("com.sun.javafx.tools.debug.tty.TTYResources",
+                Locale.getDefault());
+
+        // don't exit this VM on Env.shutdown()
+        Env.setExitDebuggerVM(false);
+
+        if (argv != null) {
+            for (int i = 0; i < argv.length; i++) {
+                String token = argv[i];
+                if (token.equals("-dbgtrace")) {
+                    if ((i == argv.length - 1) ||
+                            !Character.isDigit(argv[i + 1].charAt(0))) {
+                        traceFlags = VirtualMachine.TRACE_ALL;
+                    } else {
+                        String flagStr = "";
+                        try {
+                            flagStr = argv[++i];
+                            traceFlags = Integer.decode(flagStr).intValue();
+                        } catch (NumberFormatException nfe) {
+                            usageError("dbgtrace flag value must be an integer:",
+                                    flagStr);
+                            return;
+                        }
+                    }
+                } else if (token.equals("-X")) {
+                    usageError("Use java minus X to see");
+                    return;
+                } else if ( // Standard VM options passed on
+                        token.equals("-v") || token.startsWith("-v:") || // -v[:...]
+                        token.startsWith("-verbose") || // -verbose[:...]
+                        token.startsWith("-D") ||
+                        // -classpath handled below
+                        // NonStandard options passed on
+                        token.startsWith("-X") ||
+                        // Old-style options (These should remain in place as long as
+                        //  the standard VM accepts them)
+                        token.equals("-noasyncgc") || token.equals("-prof") ||
+                        token.equals("-verify") || token.equals("-noverify") ||
+                        token.equals("-verifyremote") ||
+                        token.equals("-verbosegc") ||
+                        token.startsWith("-ms") || token.startsWith("-mx") ||
+                        token.startsWith("-ss") || token.startsWith("-oss")) {
+
+                    javaArgs = addArgument(javaArgs, token);
+                } else if (token.equals("-tclassic")) {
+                    usageError("Classic VM no longer supported.");
+                    return;
+                } else if (token.equals("-tclient")) {
+                    // -client must be the first one
+                    javaArgs = "-client " + javaArgs;
+                } else if (token.equals("-tserver")) {
+                    // -server must be the first one
+                    javaArgs = "-server " + javaArgs;
+                } else if (token.equals("-sourcepath")) {
+                    if (i == (argv.length - 1)) {
+                        usageError("No sourcepath specified.");
+                        return;
+                    }
+                    Env.setSourcePath(argv[++i]);
+                } else if (token.equals("-classpath")) {
+                    if (i == (argv.length - 1)) {
+                        usageError("No classpath specified.");
+                        return;
+                    }
+                    javaArgs = addArgument(javaArgs, token);
+                    javaArgs = addArgument(javaArgs, argv[++i]);
+                } else if (token.equals("-attach")) {
+                    if (connectSpec != null) {
+                        usageError("cannot redefine existing connection", token);
+                        return;
+                    }
+                    if (i == (argv.length - 1)) {
+                        usageError("No attach address specified.");
+                        return;
+                    }
+                    String address = argv[++i];
+
+                    /*
+                     * -attach is shorthand for FX-JDI implementation's attaching
+                     * connectors. Use the shared memory attach if it's available;
+                     * otherwise, use sockets. Build a connect specification string
+                     * based on this decision.
+                     */
+                    if (supportsSharedMemory()) {
+                        connectSpec = "com.sun.javafx.jdi.connect.FXSharedMemoryAttachingConnector:name=" +
+                                address;
+                    } else {
+                        String suboptions = addressToSocketArgs(address);
+                        connectSpec = "com.sun.javafx.jdi.connect.FXSocketAttachingConnector:" + suboptions;
+                    }
+                } else if (token.equals("-listen") || token.equals("-listenany")) {
+                    if (connectSpec != null) {
+                        usageError("cannot redefine existing connection", token);
+                        return;
+                    }
+                    String address = null;
+                    if (token.equals("-listen")) {
+                        if (i == (argv.length - 1)) {
+                            usageError("No attach address specified.");
+                            return;
+                        }
+                        address = argv[++i];
+                    }
+
+                    /*
+                     * -listen[any] is shorthand for one of the FX-JDI implementation's
+                     * listening connectors. Use the shared memory listen if it's
+                     * available; otherwise, use sockets. Build a connect
+                     * specification string based on this decision.
+                     */
+                    if (supportsSharedMemory()) {
+                        connectSpec = "com.sun.javafx.jdi.connect.FXSharedMemoryListeningConnector:";
+                        if (address != null) {
+                            connectSpec += ("name=" + address);
+                        }
+                    } else {
+                        connectSpec = "com.sun.javafx.jdi.connect.FXSocketListeningConnector:";
+                        if (address != null) {
+                            connectSpec += addressToSocketArgs(address);
+                        }
+                    }
+                } else if (token.equals("-launch")) {
+                    launchImmediately = true;
+                } else if (token.equals("-connect")) {
+                    /*
+                     * -connect allows the user to pick the connector
+                     * used in bringing up the target VM. This allows
+                     * use of connectors other than those in the reference
+                     * implementation.
+                     */
+                    if (connectSpec != null) {
+                        usageError("cannot redefine existing connection", token);
+                        return;
+                    }
+                    if (i == (argv.length - 1)) {
+                        usageError("No connect specification.");
+                        return;
+                    }
+                    connectSpec = argv[++i];
+                } else if (token.startsWith("-")) {
+                    usageError("invalid option", token);
+                    return;
+                } else {
+                    // Everything from here is part of the command line
+                    cmdLine = addArgument("", token);
+                    for (i++; i < argv.length; i++) {
+                        cmdLine = addArgument(cmdLine, argv[i]);
+                    }
+                    break;
+                }
+            }
+        }
+
+        /*
+         * Unless otherwise specified, set the default connect spec.
+         */
+        if (connectSpec == null) {
+            connectSpec = "com.sun.javafx.jdi.connect.FXLaunchingConnector:";
+        } else if (!connectSpec.endsWith(",") && !connectSpec.endsWith(":")) {
+            connectSpec += ","; // (Bug ID 4285874)
+        }
+
+        cmdLine = cmdLine.trim();
+        javaArgs = javaArgs.trim();
+
+        if (cmdLine.length() > 0) {
+            if (!connectSpec.startsWith("com.sun.javafx.jdi.connect.FXLaunchingConnector:") &&
+                    !connectSpec.startsWith("com.sun.jdi.CommandLineLaunch:")) {
+                usageError("Cannot specify command line with connector:",
+                        connectSpec);
+                return;
+            }
+            connectSpec += "main=" + cmdLine + ",";
+        }
+
+        if (javaArgs.length() > 0) {
+            if (!connectSpec.startsWith("com.sun.javafx.jdi.connect.FXLaunchingConnector:") &&
+                    !connectSpec.startsWith("com.sun.jdi.CommandLineLaunch:")) {
+                usageError("Cannot specify target vm arguments with connector:",
+                        connectSpec);
+                return;
+            }
+            connectSpec += "options=" + javaArgs + ",";
+        }
+
+        try {
+            if (!connectSpec.endsWith(",")) {
+                connectSpec += ","; // (Bug ID 4285874)
+            }
+            Env.init(connectSpec, launchImmediately, traceFlags);
+        } catch (Exception e) {
+            MessageOutput.printException("Internal exception:", e);
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException)e;
+            } else {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    // class implementing EventNotifier interface
     private class EventNotifierImpl implements EventNotifier {
         public boolean shouldRemoveListener() {
             return false;
