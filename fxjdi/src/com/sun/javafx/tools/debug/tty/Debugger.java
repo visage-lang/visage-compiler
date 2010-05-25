@@ -733,10 +733,11 @@ public class Debugger {
                     EventNotifier en = itr.next();
                     if (en.shouldRemoveListener()) {
                         itr.remove();
-                    }
-                    en.receivedEvent(evt);
-                    if (en.shouldRemoveListener()) {
-                        itr.remove();
+                    } else {
+                        en.receivedEvent(evt);
+                        if (en.shouldRemoveListener()) {
+                            itr.remove();
+                        }
                     }
                 }
             }
