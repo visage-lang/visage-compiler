@@ -192,6 +192,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         Type superType = types.supertype(cDecl.type);
         ClassSymbol outerTypeSym = outerTypeSymbol(cDecl.sym); // null unless inner class with outer reference
         boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
+        boolean isRunnable = toJava.getAttrEnv().toplevel.isRunnable;
 
         JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(this, diagPos,
                 cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo, translatedFuncInfo,
@@ -253,6 +254,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.gatherFunctions(classFuncInfos);
 
             if (isScriptClass) {
+                if (isRunnable) {
+                    javaCodeMaker.makeInitThreadStaticBlock(cDecl.sym);
+                }
+
                 javaCodeMaker.makeInitClassMaps(initClassMap);
                 javaCodeMaker.gatherFunctions(scriptFuncInfos);
 
@@ -4438,6 +4443,27 @@ however this is what we need */
 
             // Construct the call.
             return CallStmt(selector, name, args);
+        }
+
+        //
+        // Construct the static block to save the current thread in Entry.uiThread
+        //
+        public void makeInitThreadStaticBlock(ClassSymbol sym) {
+            // static {
+            //     Entry.uiThread = Thread.currentThread();
+            // }
+
+            // Buffer for init statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            stmts.append(
+                m().Exec(m().Assign(
+                    makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Entry.uiThread"),
+                    m().Apply(List.<JCExpression>nil(),
+                              makeQualifiedTree(diagPos, "java.lang.Thread.currentThread"),
+                              List.<JCExpression>nil()))
+                ));
+
+            addDefinition(m().Block(Flags.STATIC, stmts.toList()));
         }
 
         //

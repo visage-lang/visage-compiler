@@ -44,6 +44,7 @@ import com.sun.javafx.animation.AnimationProvider;
  * @author Tom Ball
  */
 public class Entry {
+    public static volatile Thread uiThread;
     private static RuntimeProvider provider;
     private static AnimationProvider animationProvider;
 

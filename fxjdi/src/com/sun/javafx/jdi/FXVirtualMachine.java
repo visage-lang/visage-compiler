@@ -303,12 +303,27 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return underlying().version();
     }
 
+    public FXThreadReference uiThread() {
+        FXField uiThreadField = fxEntryType().fieldByName("uiThread");
+        return (FXThreadReference) fxEntryType().getValue(uiThreadField);
+    }
+
     @Override
     protected VirtualMachine underlying() {
         return (VirtualMachine) super.underlying();
     }
 
     // JavaFX types
+    public static final String FX_ENTRY_TYPE_NAME = "com.sun.javafx.runtime.Entry";
+    private FXClassType fxEntryType;
+    public synchronized FXClassType fxEntryType() {
+        if (fxEntryType == null) {
+            List<ReferenceType> refTypes = classesByName(FX_ENTRY_TYPE_NAME);
+            fxEntryType = refTypes.isEmpty() ? null : (FXClassType) refTypes.get(0);
+        }
+        return fxEntryType;
+    }
+
     public static final String FX_OBJECT_TYPE_NAME = "com.sun.javafx.runtime.FXObject";
     private FXObjectType fxObjectType;
     public synchronized FXObjectType fxObjectType() {

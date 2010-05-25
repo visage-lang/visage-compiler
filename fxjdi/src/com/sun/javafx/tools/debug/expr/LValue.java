@@ -629,7 +629,7 @@ abstract class LValue {
         Value getValue() {
             if (jdiValue == null) {
                 try {
-                    jdiValue = sequenceRef.virtualMachine().mirrorOf(sequenceRef.size(thread));
+                    jdiValue = sequenceRef.virtualMachine().mirrorOf(sequenceRef.size());
                 } catch (Exception exp) {
                     throw new RuntimeException(exp);
                 }
@@ -695,7 +695,7 @@ abstract class LValue {
         Value getValue() {
             if (jdiValue == null) {
                 try {
-                    jdiValue = sequence.get(thread, index);
+                    jdiValue = sequence.get(index);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
