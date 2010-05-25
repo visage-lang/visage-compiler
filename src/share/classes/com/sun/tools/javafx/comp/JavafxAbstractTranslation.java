@@ -2012,7 +2012,6 @@ public abstract class JavafxAbstractTranslation
         protected final JFXExpression rhs;
         protected final JFXExpression selector;
         protected final JCExpression rhsTranslated;
-        private final JCExpression rhsTranslatedPreserved;
         protected final boolean useAccessors;
 
         /**
@@ -2029,8 +2028,12 @@ public abstract class JavafxAbstractTranslation
             this.indexOrNull = indexOrNull;
             this.rhs = rhs;
             this.selector = (ref instanceof JFXSelect) ? ((JFXSelect) ref).getExpression() : null;
-            this.rhsTranslated = rhs==null? null : convertNullability(diagPos, translateExpr(rhs, rhsType()), rhs, rhsType());
-            this.rhsTranslatedPreserved = rhs==null? null : preserveSideEffects(fullType, rhs, rhsTranslated);
+            if (rhs != null) {
+                JCExpression translated = convertNullability(diagPos, translateExpr(rhs, rhsType()), rhs, rhsType());
+                this.rhsTranslated = preserveSideEffects(fullType, rhs, translated);
+            } else {
+                this.rhsTranslated = null;
+            }
             this.useAccessors = (refSym!=null && refSym.kind==Kinds.VAR)?
                   ((JavafxVarSymbol)refSym).useAccessors()
                 : false;
@@ -2165,16 +2168,16 @@ public abstract class JavafxAbstractTranslation
                 }
             } else {
                 if (useAccessors) {
-                    return postProcessExpression(buildSetter(tToCheck, buildRHS(rhsTranslatedPreserved)));
+                    return postProcessExpression(buildSetter(tToCheck, buildRHS(rhsTranslated)));
                 } else if (refSym instanceof VarSymbol && ((JavafxVarSymbol)refSym).isFXMember()) {
                     if (((JavafxVarSymbol)refSym).useGetters()) {
-                        return Setter(tToCheck, refSym, rhsTranslatedPreserved);
+                        return Setter(tToCheck, refSym, rhsTranslated);
                     }
                     else {
                     JCExpression lhsTranslated = selector != null ?
                         Select(tToCheck, attributeValueName(refSym)) :
                         Getter(refSym);
-                    JCExpression res =  defaultFullExpression(lhsTranslated, rhsTranslatedPreserved);
+                    JCExpression res =  defaultFullExpression(lhsTranslated, rhsTranslated);
                     return res;
                     }
                 } else {
@@ -2182,7 +2185,7 @@ public abstract class JavafxAbstractTranslation
                     JCExpression lhsTranslated = selector != null ?
                         Select(tToCheck, refSym.name) :
                         reference(refSym);
-                    JCExpression res =  defaultFullExpression(lhsTranslated, rhsTranslatedPreserved);
+                    JCExpression res =  defaultFullExpression(lhsTranslated, rhsTranslated);
                     return res;
                 }
             }
