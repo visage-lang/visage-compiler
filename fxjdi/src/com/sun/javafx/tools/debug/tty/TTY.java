@@ -910,7 +910,7 @@ public class TTY implements EventNotifier {
                 String address = argv[++i];
 
                 /*
-                 * -attach is shorthand for one of the reference implementation's
+                 * -attach is shorthand for one of the FX-JDI implementation's
                  * attaching connectors. Use the shared memory attach if it's
                  * available; otherwise, use sockets. Build a connect
                  * specification string based on this decision.
@@ -937,7 +937,7 @@ public class TTY implements EventNotifier {
                 }
 
                 /*
-                 * -listen[any] is shorthand for one of the reference implementation's
+                 * -listen[any] is shorthand for one of the FX-JDI implementation's
                  * listening connectors. Use the shared memory listen if it's
                  * available; otherwise, use sockets. Build a connect
                  * specification string based on this decision.
