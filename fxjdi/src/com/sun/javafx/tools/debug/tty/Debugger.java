@@ -102,6 +102,14 @@ public class Debugger {
         this(listener, connectorSpec, false);
     }
 
+    public Debugger(String connectorSpec) {
+        this(null, connectorSpec, false);
+    }
+
+    public Debugger() {
+        this("com.sun.javafx.jdi.connect.FXLaunchingConnector:");
+    }
+
     public VirtualMachine vm() {
         return Env.vm();
     }
@@ -298,6 +306,11 @@ public class Debugger {
         if (en.disconnected) {
             throw new RuntimeException("VM Disconnected before requested event occurred");
         }
+
+        if (en.event.request().suspendPolicy() == EventRequest.SUSPEND_ALL) {
+            ThreadInfo.invalidateAll();
+            ThreadInfo.setCurrentThread(EventHandler.eventThread(en.event));
+        }
         return en.event;
     }
 
@@ -399,9 +412,7 @@ public class Debugger {
         return tgref.name();
     }
 
-    // commands (mostly asynchronous) - event request returning commands
-    // will return null for all deferred (unresolved) events.
-
+    // Event request returning commands will return null for all deferred events.
     public ExceptionRequest catchException(String command) {
         return evaluator.commandCatchException(new StringTokenizer(command));
     }
@@ -722,8 +733,10 @@ public class Debugger {
                     EventNotifier en = itr.next();
                     if (en.shouldRemoveListener()) {
                         itr.remove();
-                    } else {
-                        en.receivedEvent(evt);
+                    }
+                    en.receivedEvent(evt);
+                    if (en.shouldRemoveListener()) {
+                        itr.remove();
                     }
                 }
             }
