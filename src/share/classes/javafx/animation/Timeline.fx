@@ -89,13 +89,13 @@ public def INDEFINITE = -1;
  * <p>
  * Call {@link #play()} or {@link #playFromStart()} to play a {@code Timeline}.
  * The {@code Timeline} progresses in the direction and speed specified by
- * {@link #rate}, and stops when its duration is elasped. A {@code Timeline}
+ * {@link #rate}, and stops when its duration is elapsed. A {@code Timeline}
  * with indefinite duration (a {@link #repeatCount}
  * of {@link #INDEFINITE}) runs repeatedly until the {@link #stop()} method
  * is explicitly called, which will stop the running
  * {@code Timeline} and reset its play head to the initial position.
  * <p>
- * {@code Timeline} can be paused by calling {@link #pause()}, and next {@link play()}
+ * {@code Timeline} can be paused by calling {@link #pause()}, and next {@link #play()}
  * call will resume the {@code Timeline} from where it was paused.
  * <p>
  * A {@code Timeline}'s play head can be randomly positioned, whether it is running or
