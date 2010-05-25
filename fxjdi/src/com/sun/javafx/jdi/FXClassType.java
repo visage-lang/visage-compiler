@@ -41,11 +41,11 @@ import java.util.List;
  * @author sundar
  */
 public class FXClassType extends FXReferenceType implements ClassType {
-    private boolean isFXType;
+    private boolean isIsFxTypeSet = false;
+    private boolean isFXType = false;
 
     public FXClassType(FXVirtualMachine fxvm, ClassType underlying) {
         super(fxvm, underlying);
-        init();
     }
 
     public List<InterfaceType> allInterfaces() {
@@ -102,25 +102,24 @@ public class FXClassType extends FXReferenceType implements ClassType {
 
     @Override
     protected boolean isJavaFXType() {
-        return isFXType;
-    }
-
-    private void init() {
-        FXVirtualMachine fxvm = virtualMachine();
-        InterfaceType fxObjType = (InterfaceType) FXWrapper.unwrap(fxvm.fxObjectType());
-        if (fxObjType == null) {
-            isFXType = false;
-            return;
-        }
-
-        ClassType thisType = underlying();
-        List<InterfaceType> allIfaces = thisType.allInterfaces();
-        for (InterfaceType iface : allIfaces) {
-            if (iface.equals(fxObjType)) {
-                isFXType = true;
-                return;
+        if (!isIsFxTypeSet) {
+            isIsFxTypeSet = true;
+            FXVirtualMachine fxvm = virtualMachine();
+            InterfaceType fxObjType = (InterfaceType) FXWrapper.unwrap(fxvm.fxObjectType());
+            //System.out.println("jj: fxObjectType = " + fxvm.fxObjectType());
+            System.out.println("jj: this = " + this + ", fxObjType = " + fxObjType);
+            if (fxObjType != null) {
+                ClassType thisType = underlying();
+                List<InterfaceType> allIfaces = thisType.allInterfaces();
+                for (InterfaceType iface : allIfaces) {
+                    System.out.println("   jj:  iface = " + iface);
+                    if (iface.equals(fxObjType)) {
+                        isFXType = true;
+                        break;
+                    }
+                }
             }
         }
-        isFXType = false;
+        return isFXType;
     }
 }
