@@ -70,10 +70,10 @@ public class SequenceTest extends JavafxTestBase {
         Value value = frame.getArgumentValues().get(0);
         Assert.assertEquals(true, value instanceof FXSequenceReference);
         FXSequenceReference seq = (FXSequenceReference) value;
-        Assert.assertEquals(2, seq.size(mainThread));
-        IntegerValue zerothElement = seq.getAsInt(mainThread, 0);
+        Assert.assertEquals(2, seq.size());
+        IntegerValue zerothElement = seq.getAsInt(0);
         Assert.assertEquals(1729, zerothElement.intValue());
-        IntegerValue firstElement = seq.getAsInt(mainThread, 1);
+        IntegerValue firstElement = seq.getAsInt(1);
         Assert.assertEquals(9999, firstElement.intValue());
 
 

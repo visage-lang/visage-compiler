@@ -436,7 +436,7 @@ public class JavafxCheck {
             pSequenceness = Sequenceness.REQUIRED;
         }
         if (types.isSequence(found)) {
-            if (pSequenceness == Sequenceness.DISALLOWED && req != syms.objectType) {
+            if (pSequenceness == Sequenceness.DISALLOWED && ! types.isSameType(req, syms.objectType)) {
                 log.error(pos, MsgSym.MESSAGE_JAVAFX_BAD_SEQUENCE, types.toJavaFXString(req));
                 return syms.errType;
             }
