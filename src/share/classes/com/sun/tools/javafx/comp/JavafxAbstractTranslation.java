@@ -1134,7 +1134,7 @@ public abstract class JavafxAbstractTranslation
                 // If void is passed in then the temp will be ignored.
                 return trans;
             } else {
-                JCVariableDecl tmpVar = TmpVar("pse", varType, trans);
+                JCVariableDecl tmpVar = TmpVar("pse", types.normalize(varType), trans);
                 addPreface(tmpVar);
                 return id(tmpVar);
             }

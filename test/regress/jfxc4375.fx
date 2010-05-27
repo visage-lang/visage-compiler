@@ -4,7 +4,7 @@
  * @compilefirst jfxc4375Getter.java
  * @compilefirst jfxc4375Processor.java
  * @compilefirst jfxc4375DataContainer.fx
- * @subtest
+ * @test
  *
  */
 
