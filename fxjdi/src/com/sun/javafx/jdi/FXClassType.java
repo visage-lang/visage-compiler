@@ -106,13 +106,10 @@ public class FXClassType extends FXReferenceType implements ClassType {
             isIsFxTypeSet = true;
             FXVirtualMachine fxvm = virtualMachine();
             InterfaceType fxObjType = (InterfaceType) FXWrapper.unwrap(fxvm.fxObjectType());
-            //System.out.println("jj: fxObjectType = " + fxvm.fxObjectType());
-            System.out.println("jj: this = " + this + ", fxObjType = " + fxObjType);
             if (fxObjType != null) {
                 ClassType thisType = underlying();
                 List<InterfaceType> allIfaces = thisType.allInterfaces();
                 for (InterfaceType iface : allIfaces) {
-                    System.out.println("   jj:  iface = " + iface);
                     if (iface.equals(fxObjType)) {
                         isFXType = true;
                         break;

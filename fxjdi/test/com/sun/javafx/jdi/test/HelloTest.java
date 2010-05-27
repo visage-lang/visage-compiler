@@ -22,6 +22,7 @@
  */
 package com.sun.javafx.jdi.test;
 
+import com.sun.javafx.jdi.FXStackFrame;
 import com.sun.jdi.event.BreakpointEvent;
 import org.junit.Test;
 import junit.framework.Assert;
@@ -58,6 +59,9 @@ public class HelloTest extends JavafxTestBase {
         if (!mainThread.frame(0).location().method().name().equals(fxRunMethodName())) {
             failure("frame failed");
         }
+
+        Assert.assertEquals(true, mainThread.frame(0) instanceof FXStackFrame);
+        Assert.assertEquals(true, ((FXStackFrame)mainThread.frame(0)).isJavaFXFrame());
 
         /*
          * resume until end
