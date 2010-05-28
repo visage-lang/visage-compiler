@@ -695,7 +695,7 @@ abstract class LValue {
         Value getValue() {
             if (jdiValue == null) {
                 try {
-                    jdiValue = sequence.get(index);
+                    jdiValue = sequence.getValue(index);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }

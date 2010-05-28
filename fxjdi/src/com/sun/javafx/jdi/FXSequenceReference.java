@@ -28,6 +28,7 @@ import com.sun.jdi.ByteValue;
 import com.sun.jdi.CharValue;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.DoubleValue;
+import com.sun.jdi.Field;
 import com.sun.jdi.FloatValue;
 import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.IntegerValue;
@@ -37,7 +38,7 @@ import com.sun.jdi.LongValue;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ShortValue;
-import com.sun.jdi.ThreadReference;
+import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,8 +51,24 @@ import java.util.List;
  * @author sundar
  */
 public class FXSequenceReference extends FXObjectReference {
+    // keep this in sync. with com.sun.javafx.runtime.TypeInfo.Types enum.
+    public enum Types { INT, FLOAT, OBJECT, DOUBLE, BOOLEAN, LONG, SHORT, BYTE, CHAR, OTHER }
+
+    // element type of this sequence
+    private Types elementType;
+
     public FXSequenceReference(FXVirtualMachine fxvm, ObjectReference underlying) {
         super(fxvm, underlying);
+    }
+
+    public Types getElementType()
+        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        if (elementType == null) {
+            Method getElementTypeMethod = virtualMachine().fxSequenceType().getElementTypeMethod();
+            Value typeInfo = invokeMethod(virtualMachine().uiThread(), getElementTypeMethod, Collections.EMPTY_LIST, 0);
+            elementType = typesFromTypeInfo((ObjectReference)typeInfo);
+        }
+        return elementType;
     }
 
     public int size()
@@ -61,70 +78,107 @@ public class FXSequenceReference extends FXObjectReference {
         return ((IntegerValue)value).intValue();
     }
 
-    public Value get(int index)
+    // synonym for size
+    public int length()
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
-        Method getMethod = virtualMachine().fxSequenceType().getMethod();
-        return getElement(getMethod, index);
+        return size();
     }
 
-    public BooleanValue getAsBoolean(int index)
+    public Value getValue(int index)
+        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Types type = getElementType();
+        switch (type) {
+            case INT:
+                return getValueAsInt(index);
+            case FLOAT:
+                return getValueAsFloat(index);
+            case OBJECT:
+                return getValueAsObject(index);
+            case DOUBLE:
+                return getValueAsDouble(index);
+            case BOOLEAN:
+                return getValueAsBoolean(index);
+            case LONG:
+                return getValueAsLong(index);
+            case SHORT:
+                return getValueAsShort(index);
+            case BYTE:
+                return getValueAsByte(index);
+            case CHAR:
+                return getValueAsChar(index);
+            case OTHER:
+            default:
+                return getValueAsObject(index);
+        }
+    }
+
+    public BooleanValue getValueAsBoolean(int index)
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         Method getAsBooleanMethod = virtualMachine().fxSequenceType().getAsBooleanMethod();
         return (BooleanValue) getElement(getAsBooleanMethod, index);
     }
 
-    public CharValue getAsChar(int index)
+    public CharValue getValueAsChar(int index)
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
-        Method getAsCharMethod = virtualMachine().fxSequenceType().getAsBooleanMethod();
+        Method getAsCharMethod = virtualMachine().fxSequenceType().getAsCharMethod();
         return (CharValue) getElement(getAsCharMethod, index);
     }
 
-    public ByteValue getAsByte(int index)
+    public ByteValue getValueAsByte(int index)
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         Method getAsByteMethod = virtualMachine().fxSequenceType().getAsByteMethod();
         return (ByteValue) getElement(getAsByteMethod, index);
     }
 
-    public ShortValue getAsShort(int index)
+    public ShortValue getValueAsShort(int index)
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         Method getAsShortMethod = virtualMachine().fxSequenceType().getAsShortMethod();
         return (ShortValue) getElement(getAsShortMethod, index);
     }
 
-    public IntegerValue getAsInt(int index)
+    public IntegerValue getValueAsInt(int index)
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         Method getAsIntMethod = virtualMachine().fxSequenceType().getAsIntMethod();
         return (IntegerValue) getElement(getAsIntMethod, index);
     }
     
-    public LongValue getAsLong(int index)
+    public LongValue getValueAsLong(int index)
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         Method getAsLongMethod = virtualMachine().fxSequenceType().getAsLongMethod();
         return (LongValue) getElement(getAsLongMethod, index);
     }
     
-    public FloatValue getAsFloat(int index)
+    public FloatValue getValueAsFloat(int index)
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         Method getAsFloatMethod = virtualMachine().fxSequenceType().getAsFloatMethod();
         return (FloatValue) getElement(getAsFloatMethod, index);
     }
     
-    public DoubleValue getAsDouble(int index)
+    public DoubleValue getValueAsDouble(int index)
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         Method getAsDoubleMethod = virtualMachine().fxSequenceType().getAsDoubleMethod();
         return (DoubleValue) getElement(getAsDoubleMethod, index);
     }
-
-    public Value getElementType()
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
-        Method getElementTypeMethod = virtualMachine().fxSequenceType().getElementTypeMethod();
-        return invokeMethod(virtualMachine().uiThread(), getElementTypeMethod, Collections.EMPTY_LIST, 0);
+    
+    public ObjectReference getValueAsObject(int index)
+            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Method getMethod = virtualMachine().fxSequenceType().getMethod();
+        return (ObjectReference) getElement(getMethod, index);
     }
 
+    // Internals only below this point
     private Value getElement(Method method, int index)
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         List<Value> args = new ArrayList<Value>(1);
         args.add(virtualMachine().mirrorOf(index));
         return invokeMethod(virtualMachine().uiThread(), method, args, 0);
+    }
+
+    private Types typesFromTypeInfo(ObjectReference typeInfo) {
+        Field typeField = typeInfo.referenceType().fieldByName("type");
+        ObjectReference typeValue = (ObjectReference) typeInfo.getValue(typeField);
+        Field nameField = typeValue.referenceType().fieldByName("name");
+        String typeName = ((StringReference)typeValue.getValue(nameField)).value();
+        return Types.valueOf(typeName);
     }
 }

@@ -71,10 +71,18 @@ public class SequenceTest extends JavafxTestBase {
         Assert.assertEquals(true, value instanceof FXSequenceReference);
         FXSequenceReference seq = (FXSequenceReference) value;
         Assert.assertEquals(2, seq.size());
-        IntegerValue zerothElement = seq.getAsInt(0);
+        Assert.assertEquals(2, seq.length());
+        Assert.assertEquals(FXSequenceReference.Types.INT, seq.getElementType());
+        IntegerValue zerothElement = seq.getValueAsInt(0);
         Assert.assertEquals(1729, zerothElement.intValue());
-        IntegerValue firstElement = seq.getAsInt(1);
+        Value zerothElementAsVal = seq.getValue(0);
+        Assert.assertEquals(true, zerothElementAsVal instanceof IntegerValue);
+        Assert.assertEquals(1729, ((IntegerValue)zerothElementAsVal).intValue());
+        IntegerValue firstElement = seq.getValueAsInt(1);
         Assert.assertEquals(9999, firstElement.intValue());
+        Value firstElementAsVal = seq.getValue(1);
+        Assert.assertEquals(true, firstElementAsVal instanceof IntegerValue);
+        Assert.assertEquals(9999, ((IntegerValue)firstElementAsVal).intValue());
 
 
         /*
