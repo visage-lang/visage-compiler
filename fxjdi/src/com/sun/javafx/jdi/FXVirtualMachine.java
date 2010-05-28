@@ -354,6 +354,16 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return fxSequenceType;
     }
 
+    public static final String FX_SEQUENCES_TYPE_NAME = "com.sun.javafx.runtime.sequence.Sequences";
+    private FXSequencesType fxSequencesType;
+    public synchronized FXSequencesType fxSequencesType() {
+        if (fxSequencesType == null) {
+            List<ReferenceType> refTypes = classesByName(FX_SEQUENCES_TYPE_NAME);
+            fxSequencesType = refTypes.isEmpty() ? null : (FXSequencesType) refTypes.get(0);
+        }
+        return fxSequencesType;
+    }
+
     private FXVoidValue voidValue;
     protected synchronized FXVoidValue voidValue() {
         if (voidValue == null) {
@@ -456,7 +466,12 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     protected FXClassType classType(ClassType ct) {
         synchronized (refTypesCache) {
             if (! refTypesCache.containsKey(ct)) {
-                refTypesCache.put(ct, new FXClassType(this, ct));
+                String name = ct.name();
+                if (name.equals(FX_SEQUENCES_TYPE_NAME)) {
+                    refTypesCache.put(ct, new FXSequencesType(this, ct));
+                } else {
+                    refTypesCache.put(ct, new FXClassType(this, ct));
+                }
             }
             return (FXClassType) refTypesCache.get(ct);
         }

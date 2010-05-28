@@ -84,6 +84,11 @@ public class SequenceTest extends JavafxTestBase {
         Assert.assertEquals(true, firstElementAsVal instanceof IntegerValue);
         Assert.assertEquals(9999, ((IntegerValue)firstElementAsVal).intValue());
 
+        // sequence element set
+        seq.setValue(0, vm().mirrorOf(1111));
+        seq.setValue(1, vm().mirrorOf(2222));
+        Assert.assertEquals(1111, seq.getValueAsInt(0).intValue());
+        Assert.assertEquals(2222, seq.getValueAsInt(1).intValue());
 
         /*
          * resume until end

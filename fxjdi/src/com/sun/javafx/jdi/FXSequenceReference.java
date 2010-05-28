@@ -107,8 +107,38 @@ public class FXSequenceReference extends FXObjectReference {
             case CHAR:
                 return getValueAsChar(index);
             case OTHER:
-            default:
                 return getValueAsObject(index);
+            default:
+                throw new IllegalArgumentException("Invalid sequence element type");
+        }
+    }
+
+    public FXSequenceReference setValue(int index, Value value)
+        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Types type = getElementType();
+        switch (type) {
+            case INT:
+                return setIntValue(index, (IntegerValue)value);
+            case FLOAT:
+                return setFloatValue(index, (FloatValue)value);
+            case OBJECT:
+                return setObjectValue(index, (ObjectReference)value);
+            case DOUBLE:
+                return setDoubleValue(index, (DoubleValue)value);
+            case BOOLEAN:
+                return setBooleanValue(index, (BooleanValue)value);
+            case LONG:
+                return setLongValue(index, (LongValue)value);
+            case SHORT:
+                return setShortValue(index, (ShortValue)value);
+            case BYTE:
+                return setByteValue(index, (ByteValue)value);
+            case CHAR:
+                return setCharValue(index, (CharValue)value);
+            case OTHER:
+                return setObjectValue(index, (ObjectReference)value);
+            default:
+                throw new IllegalArgumentException("Invalid sequence element type");
         }
     }
 
@@ -166,12 +196,76 @@ public class FXSequenceReference extends FXObjectReference {
         return (ObjectReference) getElement(getMethod, index);
     }
 
+    public FXSequenceReference setIntValue(int index, IntegerValue value)
+            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Method setIntElementMethod = virtualMachine().fxSequencesType().setIntElementMethod();
+        return setElement(setIntElementMethod, index, value);
+    }
+
+    public FXSequenceReference setFloatValue(int index, FloatValue value)
+            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Method setFloatElementMethod = virtualMachine().fxSequencesType().setFloatElementMethod();
+        return setElement(setFloatElementMethod, index, value);
+    }
+
+    public FXSequenceReference setObjectValue(int index, ObjectReference value)
+            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Method setObjectElementMethod = virtualMachine().fxSequencesType().setObjectElementMethod();
+        return setElement(setObjectElementMethod, index, value);
+    }
+
+    public FXSequenceReference setDoubleValue(int index, DoubleValue value)
+            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Method setDoubleElementMethod = virtualMachine().fxSequencesType().setDoubleElementMethod();
+        return setElement(setDoubleElementMethod, index, value);
+    }
+
+    public FXSequenceReference setBooleanValue(int index, BooleanValue value)
+            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Method setBooleanElementMethod = virtualMachine().fxSequencesType().setBooleanElementMethod();
+        return setElement(setBooleanElementMethod, index, value);
+    }
+
+    public FXSequenceReference setLongValue(int index, LongValue value)
+            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Method setLongElementMethod = virtualMachine().fxSequencesType().setLongElementMethod();
+        return setElement(setLongElementMethod, index, value);
+    }
+
+    public FXSequenceReference setShortValue(int index, ShortValue value)
+            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Method setShortElementMethod = virtualMachine().fxSequencesType().setShortElementMethod();
+        return setElement(setShortElementMethod, index, value);
+    }
+
+    public FXSequenceReference setByteValue(int index, ByteValue value)
+            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Method setByteElementMethod = virtualMachine().fxSequencesType().setByteElementMethod();
+        return setElement(setByteElementMethod, index, value);
+    }
+
+    public FXSequenceReference setCharValue(int index, CharValue value)
+            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Method setCharElementMethod = virtualMachine().fxSequencesType().setCharElementMethod();
+        return setElement(setCharElementMethod, index, value);
+    }
+
     // Internals only below this point
     private Value getElement(Method method, int index)
         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         List<Value> args = new ArrayList<Value>(1);
         args.add(virtualMachine().mirrorOf(index));
         return invokeMethod(virtualMachine().uiThread(), method, args, 0);
+    }
+
+    private FXSequenceReference setElement(Method method, int index, Value value)
+         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        List<Value> args = new ArrayList<Value>(3);
+        args.add(this);
+        args.add(value);
+        args.add(virtualMachine().mirrorOf(index));
+        return (FXSequenceReference) virtualMachine().fxSequencesType().
+            invokeMethod(virtualMachine().uiThread(), method, args, 0);
     }
 
     private Types typesFromTypeInfo(ObjectReference typeInfo) {
