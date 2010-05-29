@@ -249,6 +249,10 @@ public class FXWrapper {
                     continue;
                 }
             }
+
+            if (fldName.equals("$assertionsDisabled") && fld.declaringType().name().equals("com.sun.javafx.runtime.FXBase")) {
+                continue;
+            }
             /*
               - mixin fields are named $MixinClassName$fieldName
               - a private script field is java private, and is named with its normal name 
@@ -271,9 +275,11 @@ public class FXWrapper {
         if (methods == null) {
             return null;
         }
-        List<Method> result = new ArrayList<Method>(methods.size());
+        List<Method> result = new ArrayList<Method>(20);
         for (Method mth : methods) {
-            result.add(fxvm.method(mth));
+            if (mth.name().indexOf('$') == -1) {
+                result.add(fxvm.method(mth));
+            }
         }
         return result;
     }

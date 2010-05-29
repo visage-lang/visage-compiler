@@ -59,6 +59,7 @@ import com.sun.jdi.StringReference;
 import com.sun.jdi.ThreadGroupReference;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VirtualMachine;
+import com.sun.jdi.Value;
 import com.sun.jdi.VoidType;
 import com.sun.jdi.VoidValue;
 import java.util.ArrayList;
@@ -303,9 +304,13 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return underlying().version();
     }
 
+    private FXThreadReference cacheUiThread = null;
     public FXThreadReference uiThread() {
-        FXField uiThreadField = fxEntryType().fieldByName("uiThread");
-        return (FXThreadReference) fxEntryType().getValue(uiThreadField);
+        if (cacheUiThread == null) {
+            FXField uiThreadField = fxEntryType().fieldByName("uiThread");
+            cacheUiThread = (FXThreadReference) ((FXReferenceType)fxEntryType()).getValue(uiThreadField);
+        }
+        return cacheUiThread;
     }
 
     @Override
@@ -371,6 +376,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         }
         return voidValue;
     }
+
     // wrapper methods
 
     // primitive type accessors private FXBooleanType booleanType;
@@ -588,5 +594,45 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
 
     protected FXStackFrame stackFrame(StackFrame frame) {
         return new FXStackFrame(this, frame);
+    }
+
+
+    // cache these masks 
+    private int invalidFlagMask = 0;
+    private int readOnlyFlagMask = 0;
+    private int boundFlagMask = 0;
+    private int getFlagMask(String maskName) {
+        int flagMask = 0;
+        // we only work with underlying JDI objects here
+        List<ReferenceType> rtx =  this.underlying().classesByName("com.sun.javafx.runtime.FXObject");
+        if (rtx.size() != 1) {
+            System.out.println("Can't find the ReferenceType for com.sun.javafx.runtime.FXObject");
+            return 0;
+        }
+        ReferenceType fxObjectRefType = rtx.get(0);
+        Field fieldx = fxObjectRefType.fieldByName(maskName);
+        Value flagValue = fxObjectRefType.getValue(fieldx);
+        return ((IntegerValue)flagValue).value();
+    }
+
+    protected int FXReadOnlyFlagMask() {
+        if (readOnlyFlagMask == 0) {
+            readOnlyFlagMask = getFlagMask("VFLGS$IS_READONLY");
+        }
+        return readOnlyFlagMask;
+    }
+
+    protected int FXInvalidFlagMask() {
+        if (invalidFlagMask == 0) {
+            invalidFlagMask = getFlagMask("VFLGS$IS_BOUND_INVALID");
+        }
+        return invalidFlagMask;
+    }
+
+    protected int FXBoundFlagMask() {
+        if (boundFlagMask == 0) {
+            boundFlagMask = getFlagMask("VFLGS$IS_BOUND");
+        }
+        return boundFlagMask;
     }
 }

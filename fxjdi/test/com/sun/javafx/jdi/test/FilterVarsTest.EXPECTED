@@ -11,7 +11,6 @@ field = com.sun.javafx.jdi.test.target.FilterVarsTarget.bb
 field = com.sun.javafx.jdi.test.target.FilterVarsTarget.binder1
 field = com.sun.javafx.jdi.test.target.FilterVarsTarget.binder2
 field = com.sun.javafx.jdi.test.target.FilterVarsTarget.binder3
-field = com.sun.javafx.runtime.FXBase.assertionsDisabled
 
 ----- exclude inherited fields ------
 field = com.sun.javafx.jdi.test.target.FilterVarsTarget$FilterVarsTargetSub.Mixin1$mixivar1
@@ -29,7 +28,6 @@ field = com.sun.javafx.jdi.test.target.FilterVarsTarget.bb
 field = com.sun.javafx.jdi.test.target.FilterVarsTarget.binder1
 field = com.sun.javafx.jdi.test.target.FilterVarsTarget.binder2
 field = com.sun.javafx.jdi.test.target.FilterVarsTarget.binder3
-field = com.sun.javafx.runtime.FXBase.assertionsDisabled
 
 ----- fields by name ------
 field = null

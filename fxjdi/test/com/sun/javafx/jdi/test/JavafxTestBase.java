@@ -78,16 +78,30 @@ public abstract class JavafxTestBase extends TestScaffold {
     File actualFile;
     PrintStream actualOut;
     BufferedReader expectedReader;  // != null means there is a .EXPECTED file
-
+    
     void writeActual(String p1) {
-        if (expectedReader == null) {
-            failure("Call to writeActual but no .EXPECTED file.  Use println instead of writeActual");
-        } else {
-            actualOut.printf(p1 + "\n");
+        if (actualOut == null) {
+            try {
+                String actualName = System.getProperty("build.test.classes.dir") + 
+                    File.separator +
+                    testClassName + ".ACTUAL";
+                actualFile = new File(actualName);
+                actualOut = new PrintStream(new FileOutputStream(actualFile));
+            } catch (FileNotFoundException ee) {
+                println("Error: Cannot create output file : " + actualFile);
+                println(p1);
+                return;
+            }
         }
+        actualOut.printf(p1 + "\n");
+        //println(p1);  // useful for debugging
     }
 
     boolean didTestPass() {
+        if (expectedReader == null) {
+            println("Error: Call to writeActual but no .EXPECTED file.  Use println instead of writeActual");
+            return false;
+        }
         try {
             BufferedReader actualReader =  new BufferedReader(new FileReader(actualFile));
             int lineNum = 0;
@@ -116,7 +130,7 @@ public abstract class JavafxTestBase extends TestScaffold {
                 }
             }
         } catch(Exception ee) {
-            println("IO Exception checking output: " + ee);
+            println("Error: IO Exception checking output: " + ee);
         }
         return false;
     }
@@ -130,11 +144,6 @@ public abstract class JavafxTestBase extends TestScaffold {
              this.getClass().getName()).replace(".", File.separator) + ".EXPECTED";
         try {
             expectedReader = new BufferedReader(new FileReader(expectedFileName));
-            String actualName = System.getProperty("build.test.classes.dir") + 
-                File.separator +
-                "FilterVarsTest.ACTUAL";
-            actualFile = new File(actualName);
-            actualOut = new PrintStream(new FileOutputStream(actualFile));
         } catch (FileNotFoundException ee) {
             expectedReader = null;
         }

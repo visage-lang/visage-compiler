@@ -195,10 +195,11 @@ class VMConnection {
             throw new InternalError("Invalid connect type");
         }
         vm.setDebugTraceMode(traceFlags);
-        System.out.println("JVM version:" + vm.version());
-        System.out.println("JDI version: " + Bootstrap.virtualMachineManager().majorInterfaceVersion() +
-                           "." + Bootstrap.virtualMachineManager().minorInterfaceVersion());
-        System.out.println("JVM description: " + vm.description());
+
+//         System.out.println("JVM version:" + vm.version());
+//         System.out.println("JDI version: " + Bootstrap.virtualMachineManager().majorInterfaceVersion() +
+//                            "." + Bootstrap.virtualMachineManager().minorInterfaceVersion());
+//         System.out.println("JVM description: " + vm.description());
 
         return vm;
     }
