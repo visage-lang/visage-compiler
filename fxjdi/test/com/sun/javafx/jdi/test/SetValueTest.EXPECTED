@@ -7,8 +7,8 @@ field com.sun.javafx.jdi.test.target.SetValueTarget$sub.pubNumber: value = 2.0
 field com.sun.javafx.jdi.test.target.SetValueTarget$sub.sub$privNumber: value = 2.0
 field com.sun.javafx.jdi.test.target.SetValueTarget$sub.pubBoolean: value = true
 field com.sun.javafx.jdi.test.target.SetValueTarget$sub.sub$privBoolean: value = true
-field com.sun.javafx.jdi.test.target.SetValueTarget$sub.pubDuration: value = instance of javafx.lang.Duration(id=153)
-field com.sun.javafx.jdi.test.target.SetValueTarget$sub.sub$privDuration: value = instance of javafx.lang.Duration(id=156)
+field com.sun.javafx.jdi.test.target.SetValueTarget$sub.pubDuration: value = instance of javafx.lang.Duration
+field com.sun.javafx.jdi.test.target.SetValueTarget$sub.sub$privDuration: value = instance of javafx.lang.Duration
 statString = "statString2"
 defStatString = "defStatString2"
 staticBinder = <void value>

@@ -80,6 +80,8 @@ public abstract class JavafxTestBase extends TestScaffold {
     BufferedReader expectedReader;  // != null means there is a .EXPECTED file
     
     void writeActual(String p1) {
+        // Many of the toString methods add object IDs in the form (id=ddd), where ddd can vary.
+        String fixit = p1.replaceAll("\\(id=[0-9]+\\)", "");
         if (actualOut == null) {
             try {
                 String actualName = System.getProperty("build.test.classes.dir") + 
@@ -89,11 +91,11 @@ public abstract class JavafxTestBase extends TestScaffold {
                 actualOut = new PrintStream(new FileOutputStream(actualFile));
             } catch (FileNotFoundException ee) {
                 println("Error: Cannot create output file : " + actualFile);
-                println(p1);
+                println(fixit);
                 return;
             }
         }
-        actualOut.printf(p1 + "\n");
+        actualOut.printf(fixit + "\n");
         //println(p1);  // useful for debugging
     }
 

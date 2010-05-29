@@ -1,5 +1,5 @@
 stop in = com.sun.javafx.jdi.test.target.FetchInvalidTarget$sam
-Field values for class = class com.sun.javafx.jdi.test.target.FetchInvalidTarget (loaded by instance of sun.misc.Launcher$AppClassLoader(id=144))
+Field values for class = class com.sun.javafx.jdi.test.target.FetchInvalidTarget (loaded by instance of sun.misc.Launcher$AppClassLoader)
   value of staticVar = 89.0
   value of staticBinder = <void value>
   ReadOnly, Bound, Invalid flags for all fields
@@ -16,11 +16,11 @@ Field values for class = class com.sun.javafx.jdi.test.target.FetchInvalidTarget
    field = com.sun.javafx.jdi.test.target.FetchInvalidTarget.defStaticVar, value = 22.3
    field = com.sun.javafx.jdi.test.target.FetchInvalidTarget.staticVar, value = 89.0
    field = com.sun.javafx.jdi.test.target.FetchInvalidTarget.staticBinder, value = 89.0
-   field = com.sun.javafx.jdi.test.target.FetchInvalidTarget.samObj, value = instance of com.sun.javafx.jdi.test.target.FetchInvalidTarget$sam(id=147)
+   field = com.sun.javafx.jdi.test.target.FetchInvalidTarget.samObj, value = instance of com.sun.javafx.jdi.test.target.FetchInvalidTarget$sam
   ReadOnly, Bound, Invalid flags for staticBinder when it is valid
     field = com.sun.javafx.jdi.test.target.FetchInvalidTarget.staticBinder, true, true, false
 
-Field values for object = instance of com.sun.javafx.jdi.test.target.FetchInvalidTarget$sam(id=147)
+Field values for object = instance of com.sun.javafx.jdi.test.target.FetchInvalidTarget$sam
   value of ivar0 = 89.4
   value of sam$ivar1 = 22.6
   value of ivarBinder = <void value>
