@@ -926,6 +926,10 @@ public abstract class JavafxTranslationSupport {
             this.diagPos = diagPos;
         }
 
+        protected void clearDiagPos() {
+            this.diagPos = null;
+        }
+
         protected TreeMaker m() {
             return make.at(diagPos);
         }

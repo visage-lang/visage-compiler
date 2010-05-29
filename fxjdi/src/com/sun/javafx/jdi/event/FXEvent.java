@@ -76,7 +76,6 @@ public class FXEvent extends FXMirror implements Event {
         if (evt == null) {
             return null;
         }
-
         if (evt instanceof AccessWatchpointEvent) {
             return new FXAccessWatchpointEvent(fxvm, (AccessWatchpointEvent)evt);
         } else if (evt instanceof BreakpointEvent) {
@@ -126,7 +125,7 @@ public class FXEvent extends FXMirror implements Event {
         if (events == null) {
             return null;
         }
-        ArrayList result = new ArrayList();
+        ArrayList<Object> result = new ArrayList<Object>();
         for (Object obj : events) {
             result.add((obj instanceof Event)? unwrap((Event)obj) : obj);
         }

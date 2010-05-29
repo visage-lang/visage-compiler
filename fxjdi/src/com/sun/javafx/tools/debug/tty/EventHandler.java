@@ -27,13 +27,7 @@ package com.sun.javafx.tools.debug.tty;
 
 import com.sun.jdi.*;
 import com.sun.jdi.event.*;
-import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.EventRequest;
-
-import java.io.PrintStream;
-import java.util.StringTokenizer;
-import java.util.Collection;
-import java.util.Iterator;
 
 public class EventHandler implements Runnable {
 
@@ -160,7 +154,7 @@ public class EventHandler implements Runnable {
         }
     }
 
-    private ThreadReference eventThread(Event event) {
+    static ThreadReference eventThread(Event event) {
         if (event instanceof ClassPrepareEvent) {
             return ((ClassPrepareEvent)event).thread();
         } else if (event instanceof LocatableEvent) {

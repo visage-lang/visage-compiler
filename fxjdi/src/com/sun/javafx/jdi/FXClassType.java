@@ -35,17 +35,18 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
  * @author sundar
  */
 public class FXClassType extends FXReferenceType implements ClassType {
-    private boolean isFXType;
+    private boolean isIsFxTypeSet = false;
+    private boolean isFXType = false;
 
     public FXClassType(FXVirtualMachine fxvm, ClassType underlying) {
         super(fxvm, underlying);
-        init();
     }
 
     public List<InterfaceType> allInterfaces() {
@@ -82,9 +83,58 @@ public class FXClassType extends FXReferenceType implements ClassType {
          return FXWrapper.wrap(virtualMachine(), result);
     }
 
-    public void setValue(Field field, Value value)
-            throws InvalidTypeException, ClassNotLoadedException {
-        underlying().setValue(FXWrapper.unwrap(field), FXWrapper.unwrap(value));
+
+    private void setValueCommon(Field field, Value value, boolean invokeAllowed)
+        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        Field jdiField = FXWrapper.unwrap(field);
+        Value jdiValue = FXWrapper.unwrap(value);
+        if (!isJavaFXType()) {
+            underlying().setValue(jdiField, jdiValue);
+            return;
+        }
+        if (isReadOnly(field)) {
+            throw new IllegalArgumentException("Error: Cannot set value of a read-only field: " + field);
+        } 
+        if (isBound(field)) {
+            throw new IllegalArgumentException("Error: Cannot set value of a bound field: " + field);
+        }
+
+        //get$xxxx methods exist for fields except private fields which have no binders
+        List<Method> mth = underlying().methodsByName("set" + jdiField.name());
+        if (mth.size() == 0) {
+            // there is no setter
+            underlying().setValue(jdiField, jdiValue);
+            return;
+        }
+        // there is a setter
+        if (!invokeAllowed) {
+            throw new IllegalArgumentException("Error: FX field " + field + " has a setter; call FXSetValue instead of setValue");
+        }
+        ArrayList<Value> args = new ArrayList<Value>(1);
+        args.add(jdiValue);
+        invokeMethod(virtualMachine().uiThread(), mth.get(0), args, 0);
+    }
+
+    /**
+     * JDI extension:  This will call a setter if one exists.  It uses invokeMethod to do this
+     * so it can throw the same exceptions as does invokeMethod.
+     */
+    public void FXSetValue(Field field, Value value) throws 
+        InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+        setValueCommon(field, value, true);
+    }
+
+    /**
+     * JDI extension:  This throws IllegalArgumentException if field has a setter method
+     */
+    public void setValue(Field field, Value value) throws InvalidTypeException, ClassNotLoadedException {
+        try {
+            setValueCommon(field, value, false);
+        } catch (IncompatibleThreadStateException ee) {
+            // can't happen
+        } catch (InvocationException ee) {
+            // can't happen
+        }
     }
 
     public List<ClassType> subclasses() {
@@ -102,25 +152,21 @@ public class FXClassType extends FXReferenceType implements ClassType {
 
     @Override
     protected boolean isJavaFXType() {
-        return isFXType;
-    }
-
-    private void init() {
-        FXVirtualMachine fxvm = virtualMachine();
-        InterfaceType fxObjType = (InterfaceType) FXWrapper.unwrap(fxvm.fxObjectType());
-        if (fxObjType == null) {
-            isFXType = false;
-            return;
-        }
-
-        ClassType thisType = underlying();
-        List<InterfaceType> allIfaces = thisType.allInterfaces();
-        for (InterfaceType iface : allIfaces) {
-            if (iface.equals(fxObjType)) {
-                isFXType = true;
-                return;
+        if (!isIsFxTypeSet) {
+            isIsFxTypeSet = true;
+            FXVirtualMachine fxvm = virtualMachine();
+            InterfaceType fxObjType = (InterfaceType) FXWrapper.unwrap(fxvm.fxObjectType());
+            if (fxObjType != null) {
+                ClassType thisType = underlying();
+                List<InterfaceType> allIfaces = thisType.allInterfaces();
+                for (InterfaceType iface : allIfaces) {
+                    if (iface.equals(fxObjType)) {
+                        isFXType = true;
+                        break;
+                    }
+                }
             }
         }
-        isFXType = false;
+        return isFXType;
     }
 }

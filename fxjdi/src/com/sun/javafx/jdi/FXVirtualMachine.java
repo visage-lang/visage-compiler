@@ -59,6 +59,7 @@ import com.sun.jdi.StringReference;
 import com.sun.jdi.ThreadGroupReference;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VirtualMachine;
+import com.sun.jdi.Value;
 import com.sun.jdi.VoidType;
 import com.sun.jdi.VoidValue;
 import java.util.ArrayList;
@@ -303,12 +304,31 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return underlying().version();
     }
 
+    private FXThreadReference cacheUiThread = null;
+    public FXThreadReference uiThread() {
+        if (cacheUiThread == null) {
+            FXField uiThreadField = fxEntryType().fieldByName("uiThread");
+            cacheUiThread = (FXThreadReference) ((FXReferenceType)fxEntryType()).getValue(uiThreadField);
+        }
+        return cacheUiThread;
+    }
+
     @Override
     protected VirtualMachine underlying() {
         return (VirtualMachine) super.underlying();
     }
 
     // JavaFX types
+    public static final String FX_ENTRY_TYPE_NAME = "com.sun.javafx.runtime.Entry";
+    private FXClassType fxEntryType;
+    public synchronized FXClassType fxEntryType() {
+        if (fxEntryType == null) {
+            List<ReferenceType> refTypes = classesByName(FX_ENTRY_TYPE_NAME);
+            fxEntryType = refTypes.isEmpty() ? null : (FXClassType) refTypes.get(0);
+        }
+        return fxEntryType;
+    }
+
     public static final String FX_OBJECT_TYPE_NAME = "com.sun.javafx.runtime.FXObject";
     private FXObjectType fxObjectType;
     public synchronized FXObjectType fxObjectType() {
@@ -339,13 +359,24 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return fxSequenceType;
     }
 
+    public static final String FX_SEQUENCES_TYPE_NAME = "com.sun.javafx.runtime.sequence.Sequences";
+    private FXSequencesType fxSequencesType;
+    public synchronized FXSequencesType fxSequencesType() {
+        if (fxSequencesType == null) {
+            List<ReferenceType> refTypes = classesByName(FX_SEQUENCES_TYPE_NAME);
+            fxSequencesType = refTypes.isEmpty() ? null : (FXSequencesType) refTypes.get(0);
+        }
+        return fxSequencesType;
+    }
+
     private FXVoidValue voidValue;
-    private synchronized FXVoidValue voidValue() {
+    protected synchronized FXVoidValue voidValue() {
         if (voidValue == null) {
             voidValue = new FXVoidValue(this, underlying().mirrorOfVoid());
         }
         return voidValue;
     }
+
     // wrapper methods
 
     // primitive type accessors private FXBooleanType booleanType;
@@ -441,7 +472,12 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     protected FXClassType classType(ClassType ct) {
         synchronized (refTypesCache) {
             if (! refTypesCache.containsKey(ct)) {
-                refTypesCache.put(ct, new FXClassType(this, ct));
+                String name = ct.name();
+                if (name.equals(FX_SEQUENCES_TYPE_NAME)) {
+                    refTypesCache.put(ct, new FXSequencesType(this, ct));
+                } else {
+                    refTypesCache.put(ct, new FXClassType(this, ct));
+                }
             }
             return (FXClassType) refTypesCache.get(ct);
         }
@@ -558,5 +594,45 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
 
     protected FXStackFrame stackFrame(StackFrame frame) {
         return new FXStackFrame(this, frame);
+    }
+
+
+    // cache these masks 
+    private int invalidFlagMask = 0;
+    private int readOnlyFlagMask = 0;
+    private int boundFlagMask = 0;
+    private int getFlagMask(String maskName) {
+        int flagMask = 0;
+        // we only work with underlying JDI objects here
+        List<ReferenceType> rtx =  this.underlying().classesByName("com.sun.javafx.runtime.FXObject");
+        if (rtx.size() != 1) {
+            System.out.println("Can't find the ReferenceType for com.sun.javafx.runtime.FXObject");
+            return 0;
+        }
+        ReferenceType fxObjectRefType = rtx.get(0);
+        Field fieldx = fxObjectRefType.fieldByName(maskName);
+        Value flagValue = fxObjectRefType.getValue(fieldx);
+        return ((IntegerValue)flagValue).value();
+    }
+
+    protected int FXReadOnlyFlagMask() {
+        if (readOnlyFlagMask == 0) {
+            readOnlyFlagMask = getFlagMask("VFLGS$IS_READONLY");
+        }
+        return readOnlyFlagMask;
+    }
+
+    protected int FXInvalidFlagMask() {
+        if (invalidFlagMask == 0) {
+            invalidFlagMask = getFlagMask("VFLGS$IS_BOUND_INVALID");
+        }
+        return invalidFlagMask;
+    }
+
+    protected int FXBoundFlagMask() {
+        if (boundFlagMask == 0) {
+            boundFlagMask = getFlagMask("VFLGS$IS_BOUND");
+        }
+        return boundFlagMask;
     }
 }

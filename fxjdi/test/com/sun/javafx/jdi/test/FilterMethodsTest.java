@@ -29,29 +29,28 @@
 package com.sun.javafx.jdi.test;
 
 import com.sun.jdi.ReferenceType;
-import com.sun.jdi.Field;
 import com.sun.jdi.ThreadReference;
+import com.sun.jdi.Method;
 import com.sun.jdi.event.BreakpointEvent;
 import java.util.List;
 import org.junit.Test;
 import junit.framework.Assert;
 
-public class FilterVarsTest extends JavafxTestBase {
+public class FilterMethodsTest extends JavafxTestBase {
     ReferenceType targetClass;
     ThreadReference mainThread;
 
-    private static final String targetClassName = "com.sun.javafx.jdi.test.target.FilterVarsTarget";
+    private static final String targetClassName = "com.sun.javafx.jdi.test.target.FilterMethodsTarget";
 
-    public FilterVarsTest() {
+    public FilterMethodsTest() {
         super(targetClassName);
     }
 
     @Test
-    public void testFilterVars() {
+    public void testFilterMethods() {
         try {
             startTests();
         } catch (Exception exp) {
-            exp.printStackTrace();
             Assert.fail(exp.getMessage());
         }
     }
@@ -59,40 +58,33 @@ public class FilterVarsTest extends JavafxTestBase {
     /********** test core **********/
 
     protected void runTests() throws Exception {
-        BreakpointEvent bpe = startTo(targetClassName + "$FilterVarsTargetSub", "stopHere", "()V");
+        BreakpointEvent bpe = startTo(targetClassName + "$FilterMethodsTargetSub", "stopHere", "()V");
         targetClass = bpe.location().declaringType();
-        writeActual("------ fields for class " + targetClass.name());
-        writeActual("------ all fields ------");
-        List<Field> allFields = targetClass.allFields();
-        for (Field ii: allFields) {
-            writeActual("field = " + ii.toString());
+        writeActual("------ methods for class " + targetClass.name());
+        writeActual("------ all methods ------");
+        List<Method> allMethods = targetClass.allMethods();
+        for (Method ii: allMethods) {
+            writeActual("method = " + ii.toString());
         }
 
-        writeActual("\n----- exclude inherited fields ------");
-        List<Field> someFields = targetClass.fields();
-        for (Field ii: someFields) {
-            writeActual("field = " + ii.toString());
+        writeActual("\n----- exclude inherited methods ------");
+        List<Method> someMethods = targetClass.methods();
+        for (Method ii: someMethods) {
+            writeActual("method = " + ii.toString());
         }
        
-       writeActual("\n----- visible fields ------");
-       List<Field> visibleFields = targetClass.visibleFields();
-       for (Field ii: visibleFields) {
-           writeActual("field = " + ii.toString());
+       writeActual("\n----- visible methods ------");
+       List<Method> visibleMethods = targetClass.visibleMethods();
+       for (Method ii: visibleMethods) {
+           writeActual("method = " + ii.toString());
        }
        
-       /*
-         - mixin fields are named $MixinClassName$fieldName
-         - a private script field is java private, and is named with its normal name 
-           UNLESS it is referenced in a subclass. In this case it is java public and
-           its name is $ClassName$fieldName.  
-        This mangling in of the classname is not yet handled.
-       */
-       writeActual("\n----- fields by name ------");
-       writeActual("field = " + targetClass.fieldByName("baseivar1"));     // fails and returns null
-       writeActual("field = " + targetClass.fieldByName("FilterVarsTarget$baseivar1"));
-       writeActual("field = " + targetClass.fieldByName("ivarOverride"));  // fails and returns null
-       writeActual("field = " + targetClass.fieldByName("subivar1"));
-       writeActual("field = " + targetClass.fieldByName("obj"));
+       writeActual("\n----- methods by name ------");
+       writeActual("method = " + targetClass.methodsByName("mixiFunc").get(0));
+       writeActual("method = " + targetClass.methodsByName("stopHere").get(0));
+       writeActual("method = " + targetClass.methodsByName("getInt").get(0));
+       writeActual("method = " + targetClass.methodsByName("priv1").get(0));
+       writeActual("method = " + targetClass.methodsByName("pub1").get(0));
 
        testFailed = !didTestPass();
         

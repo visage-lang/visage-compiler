@@ -70,12 +70,25 @@ public class SequenceTest extends JavafxTestBase {
         Value value = frame.getArgumentValues().get(0);
         Assert.assertEquals(true, value instanceof FXSequenceReference);
         FXSequenceReference seq = (FXSequenceReference) value;
-        Assert.assertEquals(2, seq.size(mainThread));
-        IntegerValue zerothElement = seq.getAsInt(mainThread, 0);
+        Assert.assertEquals(2, seq.size());
+        Assert.assertEquals(2, seq.length());
+        Assert.assertEquals(FXSequenceReference.Types.INT, seq.getElementType());
+        IntegerValue zerothElement = seq.getValueAsInt(0);
         Assert.assertEquals(1729, zerothElement.intValue());
-        IntegerValue firstElement = seq.getAsInt(mainThread, 1);
+        Value zerothElementAsVal = seq.getValue(0);
+        Assert.assertEquals(true, zerothElementAsVal instanceof IntegerValue);
+        Assert.assertEquals(1729, ((IntegerValue)zerothElementAsVal).intValue());
+        IntegerValue firstElement = seq.getValueAsInt(1);
         Assert.assertEquals(9999, firstElement.intValue());
+        Value firstElementAsVal = seq.getValue(1);
+        Assert.assertEquals(true, firstElementAsVal instanceof IntegerValue);
+        Assert.assertEquals(9999, ((IntegerValue)firstElementAsVal).intValue());
 
+        // sequence element set
+        seq.setValue(0, vm().mirrorOf(1111));
+        seq.setValue(1, vm().mirrorOf(2222));
+        Assert.assertEquals(1111, seq.getValueAsInt(0).intValue());
+        Assert.assertEquals(2222, seq.getValueAsInt(1).intValue());
 
         /*
          * resume until end

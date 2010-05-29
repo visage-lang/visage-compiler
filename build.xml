@@ -807,7 +807,32 @@
         </ant>
         <delete file="lib/doclets.jar"/>
     </target>
-    
+
+    <condition property="preJDK6">
+        <or>
+            <equals arg1="${ant.java.version}" arg2="1.0"/>
+            <equals arg1="${ant.java.version}" arg2="1.1"/>
+            <equals arg1="${ant.java.version}" arg2="1.2"/>
+            <equals arg1="${ant.java.version}" arg2="1.3"/>
+            <equals arg1="${ant.java.version}" arg2="1.4"/>
+            <equals arg1="${ant.java.version}" arg2="1.5"/>
+        </or>
+    </condition>
+
+    <target name="fxjdi" description="Build fxjdi.jar" depends="-fxjdi-build, -fxjdi-skip">
+    </target>
+
+    <target name="-fxjdi-skip" description="Skip building fxjdi.jar on JDK LT 6" if="preJDK6">
+        <echo message="Skipping build of fxjdi because JDK 5 or earlier is in use"/>
+    </target>
+
+    <target name="-fxjdi-build" description="Build fxjdi.jar on JDK >= 6" unless="preJDK6">
+        <echo message="Building fxjdi"/>
+        <ant dir="fxjdi" antfile="build.xml" target="jar" inheritAll="false">
+        </ant>
+        <copy file="fxjdi/dist/fxjdi.jar" tofile="${dist.fxjdi.jar}"/>
+    </target>
+
     <target name="launcher" description="Copy command wrappers to dist/bin directory.">
         <ant dir="${launcher.dir}" antfile="build.xml" target="all" inheritall="true">
             <property name="compiler.dist.dir" location="${basedir}/dist/bin" />
@@ -823,6 +848,12 @@
        <ant dir="${javafxdoc.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
     
+    <target name="fxjdi-clean">
+       <echo message="clean in fxjdi/"/>
+       <ant dir="fxjdi" antfile="build.xml" target="clean" inheritall="false" />
+    </target>
+
+
     <target name="launcher-clean">
        <echo message="clean in launcher/"/>
        <ant dir="${launcher.dir}" antfile="build.xml" target="clean" inheritall="false" />
@@ -835,6 +866,7 @@
 
     <!-- Not part of the "clean" target processing.  Used by ?? -->
     <target name="real-clean">
+        <antcall target="fxjdi-clean" inheritall="false"/>
         <antcall target="clean"/>
         <antcall target="javafxdoc-clean" inheritall="true"/>
         <antcall target="langref-clean" inheritall="true"/>
@@ -1081,7 +1113,7 @@
         <echo>java -cp "${run.classpath.with.dist.jar}" ${main.class}</echo>
     </target>
 
-    <target name="jar" depends="init,compile,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries" description="Build JAR.">
+    <target name="jar" depends="init,compile,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries,fxjdi" description="Build JAR.">
     </target>
     <!--
                 =================
@@ -1471,7 +1503,7 @@
             -->
 
 
-    <target name="-do-clean" depends="javafxdoc-clean,langref-clean,launcher-clean">
+    <target name="-do-clean" depends="javafxdoc-clean,fxjdi-clean,langref-clean,launcher-clean">
         <delete quiet="true" dir="${build.dir}"/>
         <delete quiet="true" dir="${dist.dir}"/>
         <delete quiet="true" file="cobertura.ser" />

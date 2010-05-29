@@ -26,6 +26,7 @@ package com.sun.javafx.jdi.test;
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 import com.sun.jdi.event.*;
+import com.sun.javafx.jdi.FXReferenceType;
 import java.util.*;
 import java.io.*;
 
@@ -368,7 +369,7 @@ abstract public class TestScaffold extends TargetAdapter {
     protected void startUp(String targetName) {
         List argList = new ArrayList(Arrays.asList(args));
         argList.add(targetName);
-        println("run args: " + argList);
+        ////println("run args: " + argList);
         connect((String[]) argList.toArray(args));
         waitForVMStart();
     }
@@ -806,6 +807,12 @@ abstract public class TestScaffold extends TargetAdapter {
     }
 
     public Method findMethod(ReferenceType rt, String name, String signature) {
+        if (name.indexOf('$') != -1) {
+            // this is some sort of internal name, eg, javafx$run
+            // which are filtered out of FXReferenceType, so we have to
+            // look at the underlying ReferenceType
+            rt = ((FXReferenceType)rt)._underlying();
+        }
         List methods = rt.methods();
         Iterator iter = methods.iterator();
         while (iter.hasNext()) {
@@ -839,7 +846,8 @@ abstract public class TestScaffold extends TargetAdapter {
 
         Method method = findMethod(rt, methodName, methodSignature);
         if (method == null) {
-            throw new IllegalArgumentException("Bad method name/signature");
+            throw new IllegalArgumentException("Bad method name/signature: " + 
+                                               rt + ", " + methodName + ", " + methodSignature);
         }
 
         return resumeTo(method.location());

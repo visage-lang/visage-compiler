@@ -44,12 +44,12 @@ public class FXObjectType extends FXInterfaceType {
         if (! underlying.name().equals(FXVirtualMachine.FX_OBJECT_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }
-        count$Method = methodsByName("count$").get(0);
-        get$Method = methodsByName("get$").get(0);
-        set$Method = methodsByName("set$").get(0);
-        getType$Method = methodsByName("getType$").get(0);
-        getFlags$Method = methodsByName("getFlags$").get(0);
-        setFlags$Method = methodsByName("setFlags$").get(0);
+        count$Method = underlying.methodsByName("count$").get(0);
+        get$Method = underlying.methodsByName("get$").get(0);
+        set$Method = underlying.methodsByName("set$").get(0);
+        getType$Method = underlying.methodsByName("getType$").get(0);
+        getFlags$Method = underlying.methodsByName("getFlags$").get(0);
+        setFlags$Method = underlying.methodsByName("setFlags$").get(0);
     }
 
     public Method count$Method() {
