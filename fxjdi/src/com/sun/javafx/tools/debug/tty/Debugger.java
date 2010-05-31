@@ -58,6 +58,7 @@ import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.ExceptionRequest;
 import com.sun.jdi.request.StepRequest;
 import com.sun.jdi.request.WatchpointRequest;
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -372,6 +373,18 @@ public class Debugger {
 
     public String getSourcePath() {
         return Env.getSourcePath();
+    }
+
+    public void setOutput(PrintStream out) {
+        MessageOutput.setOutput(out);
+    }
+
+    public void setError(PrintStream err) {
+        MessageOutput.setOutput(err);
+    }
+
+    public void resetOutputs() {
+        MessageOutput.resetOutputs();
     }
 
     // set/get current thread and threadgroup.

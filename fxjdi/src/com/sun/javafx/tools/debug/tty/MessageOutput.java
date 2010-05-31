@@ -24,6 +24,7 @@
  */
 package com.sun.javafx.tools.debug.tty;
 
+import java.io.PrintStream;
 import java.util.*;
 import java.text.MessageFormat;
 /**
@@ -46,14 +47,34 @@ public class MessageOutput {
     /** Our message formatter.  Allocated once, used many times */
     private static MessageFormat messageFormat;
 
+    private static PrintStream msErr = System.err;
+    private static PrintStream msOut = System.out;
+
+    static void resetOutputs() {
+        msErr = System.err;
+        msOut = System.out;
+    }
+
+    static void setOutput(PrintStream out) {
+        if (out != null) {
+            msOut = out;
+        }
+    }
+
+    static void setError(PrintStream err) {
+        if (err != null) {
+            msErr = err;
+        }
+    }
+
     /**
-     * Fatal shutdown notification.  This is sent to System.err
-     * instead of System.out
+     * Fatal shutdown notification.  This is sent to msErr
+     * instead of msOut
      */
     static void fatalError(String messageKey) {
-        System.err.println();
-        System.err.println(format("Fatal error"));
-        System.err.println(format(messageKey));
+        msErr.println();
+        msErr.println(format("Fatal error"));
+        msErr.println(format(messageKey));
         Env.shutdown();
     }
 
@@ -85,7 +106,7 @@ public class MessageOutput {
     }
 
     /**
-     * Print directly to System.out.
+     * Print directly to msOut.
      * Every rule has a few exceptions.
      * The exceptions to "must use the MessageOutput formatters" are:
      *     VMConnection.dumpStream()
@@ -96,13 +117,14 @@ public class MessageOutput {
      * method.
      */
     static void printDirectln(String line) {
-        System.out.println(line);
+        msOut.println(line);
+        msOut.flush();
     }
     static void printDirect(String line) {
-        System.out.print(line);
+        msOut.print(line);
     }
     static void printDirect(char c) {
-        System.out.print(c);
+        msOut.print(c);
     }
 
     /**
@@ -110,20 +132,22 @@ public class MessageOutput {
      * Use this instead of '\n'
      */
     static void println() {
-        System.out.println();
+        msOut.println();
+        msOut.flush();
     }
 
     /**
      * Format and print a simple string.
      */
     static void print(String key) {
-        System.out.print(format(key));
+        msOut.print(format(key));
     }
     /**
      * Format and print a simple string.
      */
     static void println(String key) {
-        System.out.println(format(key));
+        msOut.println(format(key));
+        msOut.flush();
     }
 
 
@@ -132,10 +156,11 @@ public class MessageOutput {
      * This is the most common usage.
      */
     static void print(String key, String argument) {
-        System.out.print(format(key, argument));
+        msOut.print(format(key, argument));
     }
     static void println(String key, String argument) {
-        System.out.println(format(key, argument));
+        msOut.println(format(key, argument));
+        msOut.flush();
     }
 
     /**
@@ -143,25 +168,28 @@ public class MessageOutput {
      * number of message arguments.
      */
     static void println(String key, Object [] arguments) {
-        System.out.println(format(key, arguments));
+        msOut.println(format(key, arguments));
+        msOut.flush();
     }
 
     /**
      * Print a newline, followed by the string.
      */
     static void lnprint(String key) {
-        System.out.println();
-        System.out.print(textResources.getString(key));
+        msOut.println();
+        msOut.print(textResources.getString(key));
     }
 
     static void lnprint(String key, String argument) {
-        System.out.println();
-        System.out.print(format(key, argument));
+        msOut.println();
+        msOut.print(format(key, argument));
+        msOut.flush();
     }
 
     static void lnprint(String key, Object [] arguments) {
-        System.out.println();
-        System.out.print(format(key, arguments));
+        msOut.println();
+        msOut.print(format(key, arguments));
+        msOut.flush();
     }
 
     /**
@@ -175,22 +203,22 @@ public class MessageOutput {
                 printDirectln(key);
             }
         }
-        System.out.flush();
+        msOut.flush();
         e.printStackTrace();
     }
 
     static void printPrompt() {
         ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
         if (threadInfo == null) {
-            System.out.print
+            msOut.print
                 (MessageOutput.format("jdb prompt with no current thread"));
         } else {
-            System.out.print
+            msOut.print
                 (MessageOutput.format("jdb prompt thread name and current stack frame",
                                       new Object [] {
                                           threadInfo.getThread().name(),
                                           new Integer (threadInfo.getCurrentFrameIndex() + 1)}));
         }
-        System.out.flush();
+        msOut.flush();
     }
 }
