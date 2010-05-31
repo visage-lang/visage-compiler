@@ -25,12 +25,12 @@
 
 package com.sun.javafx.tools.debug.tty;
 
+import com.sun.javafx.jdi.FXReferenceType;
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Iterator;
 
 class BreakpointSpec extends EventRequestSpec {
     String methodId;
@@ -325,6 +325,12 @@ class BreakpointSpec extends EventRequestSpec {
     private Method findMatchingMethod(ReferenceType refType)
                                         throws AmbiguousMethodException,
                                                NoSuchMethodException {
+        if (refType instanceof FXReferenceType && methodName().indexOf('$') != -1) {
+            // this is some sort of internal name, eg, javafx$run$
+            // which are filtered out of FXReferenceType, so we have to
+            // look at the underlying ReferenceType
+            refType = ((FXReferenceType)refType)._underlying();
+        }
 
         // Normalize the argument string once before looping below.
         List<String> argTypeNames = null;
