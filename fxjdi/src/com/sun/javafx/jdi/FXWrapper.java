@@ -79,6 +79,14 @@ public class FXWrapper {
         return (vm == null)? null : new FXVirtualMachine(vm);
     }
 
+    public static List<VirtualMachine> wrapVirtualMachines(List<VirtualMachine> vms) {
+        List<VirtualMachine> res = new ArrayList<VirtualMachine>(vms.size());
+        for (VirtualMachine vm : vms) {
+            res.add(wrap(vm));
+        }
+        return res;
+    }
+
     public static FXType wrap(FXVirtualMachine fxvm, Type type) {
         if (type == null) {
             return null;
