@@ -111,8 +111,8 @@ public class JdbBase extends Debugger {
 
 
     List<String> getOutputAsList() {
-        String carray[] = baout.toString().split("\\n");
         psout.flush();
+        String carray[] = baout.toString().split("\\n");
         List<String> tmp = Arrays.asList(carray);
         return tmp;
     }
