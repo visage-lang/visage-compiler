@@ -46,7 +46,7 @@ public class KeyFrame extends Comparable {
     /**
      * Defines the reference elapsed time offset within a single cycle
      * of a {@link Timeline} at which the associated values will be set and at
-     * which the {@link #action()} function will be called.
+     * which the {@link #action} function variable will be called.
      * {@code KeyFrame}s having {@code time < 0s} will be ignored by the
      * {@code Timeline}.
      *
@@ -87,7 +87,7 @@ public class KeyFrame extends Comparable {
     /**
      * A function that is called when the elapsed time on a cycle passes
      * the specified time of this {@code KeyFrame}.
-     * The {@code action()} function will be called if the elapsed
+     * The {@code action} function variable will be called if the elapsed
      * time passes the indicated value, even if it never equaled the
      * time value exactly.
      * 
@@ -101,9 +101,9 @@ public class KeyFrame extends Comparable {
      * can be skipped if the master timer gets behind and
      * more than one {@link Timeline} cycles are skipped
      * between time pulses.
-     * If {@code true}, only one call to the {@link #action()}
-     * function will occur for each time pulse, regardless of
-     * how many cycles have occured since the last time pulse
+     * If {@code true}, only one call to the {@link #action}
+     * function variable will occur for each time pulse, regardless of
+     * how many cycles have occurred since the last time pulse
      * was processed.
      * 
      * @profile common
