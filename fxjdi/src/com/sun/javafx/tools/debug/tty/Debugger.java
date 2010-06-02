@@ -77,7 +77,7 @@ import java.util.StringTokenizer;
 public class Debugger {
     private final List<EventNotifier> listeners = Collections.synchronizedList(new LinkedList());
     private Commands evaluator;
-    private EventHandler handler;
+    private volatile EventHandler handler;
 
     // "args" is same as command line options supported by TTY.java except that
     // -listconnectors, -version and -help options are not supported.
@@ -124,14 +124,18 @@ public class Debugger {
     // shutdown the target VM
     public void shutdown() {
         if (handler != null) {
+            listeners.clear();
             handler.shutdown();
+            handler = null;
         }
         Env.shutdown();
     }
 
     public void shutdown(String message) {
         if (handler != null) {
+            listeners.clear();
             handler.shutdown();
+            handler = null;
         }
         Env.shutdown(message);
     }
@@ -174,9 +178,8 @@ public class Debugger {
         return (Location)locs.get(0);
     }
 
-    // synchronous event-request-and-wait commands - various step, resumeTo 
-    // and various waitForXX methods
-
+    // Synchronous stepXXX, resumeTo methods and waitForXXX methods. These methods
+    // block the calling thread till the specific event occurs in the target VM.
     private StepEvent doStep(ThreadReference thread, int gran, int depth) {
         final StepRequest sr =
                 eventRequestManager().createStepRequest(thread, gran, depth);
@@ -194,20 +197,40 @@ public class Debugger {
         return doStep(thread, StepRequest.STEP_MIN, StepRequest.STEP_INTO);
     }
 
+    public StepEvent stepIntoInstruction() {
+        return stepIntoInstruction(getCurrentThread());
+    }
+
     public StepEvent stepIntoLine(ThreadReference thread) {
         return doStep(thread, StepRequest.STEP_LINE, StepRequest.STEP_INTO);
+    }
+
+    public StepEvent stepIntoLine() {
+        return stepIntoLine(getCurrentThread());
     }
 
     public StepEvent stepOverInstruction(ThreadReference thread) {
         return doStep(thread, StepRequest.STEP_MIN, StepRequest.STEP_OVER);
     }
 
+    public StepEvent stepOverInstruction() {
+        return stepOverInstruction(getCurrentThread());
+    }
+
     public StepEvent stepOverLine(ThreadReference thread) {
         return doStep(thread, StepRequest.STEP_LINE, StepRequest.STEP_OVER);
     }
 
+    public StepEvent stepOverLine() {
+        return stepOverLine(getCurrentThread());
+    }
+
     public StepEvent stepOut(ThreadReference thread) {
         return doStep(thread, StepRequest.STEP_LINE, StepRequest.STEP_OUT);
+    }
+
+    public StepEvent stepOut() {
+        return stepOut(getCurrentThread());
     }
 
     public BreakpointEvent resumeTo(Location loc) {
@@ -414,7 +437,7 @@ public class Debugger {
         return tgref.name();
     }
 
-    // Event request returning commands will return null for all deferred events.
+    // Returns null for deferred events.
     public ExceptionRequest catchException(String command) {
         return evaluator.commandCatchException(new StringTokenizer(command));
     }
@@ -503,8 +526,15 @@ public class Debugger {
         evaluator.commandLock(new StringTokenizer(command));
     }
 
-    public StepRequest next() {
-        return evaluator.commandNext();
+    // blocks the calling thread till "next" is complete in the target VM
+    public boolean next() {
+        StepRequest req = evaluator.commandNext(false);
+        if (req != null) {
+            waitForRequestedEvent(req);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean pop() {
@@ -563,22 +593,39 @@ public class Debugger {
         evaluator.commandUse(new StringTokenizer(command));
     }
 
-    public StepRequest step() {
+    // blocks the calling thread till "step" is complete in the target VM
+    public boolean step() {
         return step("");
     }
 
-    public StepRequest step(String command) {
-        return evaluator.commandStep(new StringTokenizer(command));
+    // blocks the calling thread till "step" is complete in the target VM
+    public boolean step(String command) {
+        StepRequest req = evaluator.commandStep(new StringTokenizer(command), false);
+        if (req != null) {
+            waitForRequestedEvent(req);
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public StepRequest stepi() {
-        return evaluator.commandStepi();
+    // blocks the calling thread till "stepi" is complete in the target VM
+    public boolean stepi() {
+        StepRequest req = evaluator.commandStepi(false);
+        if (req != null) {
+            waitForRequestedEvent(req);
+            return true;
+        } else {
+            return false;
+        }
     }
 
+    // Returns null for deferred breakpoints.
     public BreakpointRequest stop() {
         return stop("");
     }
 
+    // Returns null for deferred breakpoints.
     public BreakpointRequest stop(String command) {
         return evaluator.commandStop(new StringTokenizer(command));
     }

@@ -636,6 +636,10 @@ class Commands {
      *
      */
     StepRequest commandStep(StringTokenizer t) {
+        return commandStep(t, true);
+    }
+
+    StepRequest commandStep(StringTokenizer t, boolean resume) {
         ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
         if (threadInfo == null) {
             MessageOutput.println("Nothing suspended.");
@@ -660,7 +664,9 @@ class Commands {
         request.addCountFilter(1);
         request.enable();
         ThreadInfo.invalidateAll();
-        Env.vm().resume();
+        if (resume) {
+            Env.vm().resume();
+        }
         return request;
     }
 
@@ -668,6 +674,10 @@ class Commands {
      * step instruction.
      */
     StepRequest commandStepi() {
+        return commandStepi(true);
+    }
+
+    StepRequest commandStepi(boolean resume) {
         ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
         if (threadInfo == null) {
             MessageOutput.println("Nothing suspended.");
@@ -683,11 +693,17 @@ class Commands {
         request.addCountFilter(1);
         request.enable();
         ThreadInfo.invalidateAll();
-        Env.vm().resume();
+        if (resume) {
+            Env.vm().resume();
+        }
         return request;
     }
 
     StepRequest commandNext() {
+        return commandNext(true);
+    }
+
+    StepRequest commandNext(boolean resume) {
         ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
         if (threadInfo == null) {
             MessageOutput.println("Nothing suspended.");
@@ -703,7 +719,9 @@ class Commands {
         request.addCountFilter(1);
         request.enable();
         ThreadInfo.invalidateAll();
-        Env.vm().resume();
+        if (resume) {
+            Env.vm().resume();
+        }
         return request;
     }
 

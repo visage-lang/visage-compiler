@@ -59,10 +59,10 @@ public class BasicTest extends JdbBase {
             where();
             Assert.assertTrue(contains("Foo.javafx$run$ (Foo.fx:1)"));
 
-            waitForRequestedEvent(next());
+            next();
             Assert.assertTrue(lastContains("Foo.fx says Hello"));
 
-            waitForRequestedEvent(next());
+            next();
             Assert.assertTrue(lastContains("Breakpoint 1"));
             cont();
             quit();
@@ -84,17 +84,16 @@ public class BasicTest extends JdbBase {
             Assert.assertTrue(contains("Bar.javafx$run$ (Bar.fx:2)"));
 
             clearOutput();
-            waitForRequestedEvent(next());
+            next();
             Assert.assertTrue(lastContains("Bar.fx says Hello"));
 
-// NOTE: The following test causes intermittent problems, temporarily commented
-//            waitForRequestedEvent(next());
+            next();
 
-//            clearOutput();
-//            waitForRequestedEvent(step());
-//            where();
-//            printOutput();
-//            Assert.assertTrue(contains("Builtins.java"));
+            clearOutput();
+            step();
+            where();
+            printOutput();
+            Assert.assertTrue(contains("Builtins.java"));
 
             cont();
             quit();
