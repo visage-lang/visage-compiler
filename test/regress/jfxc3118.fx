@@ -1,7 +1,9 @@
 /*
+ * Regression: JFXC-3118 - Character sequence compare doesn't work.
+ *
  * @test
  * @run
- * 
+ *
  */
 
 var test1 : Character[] = [60, 61];
