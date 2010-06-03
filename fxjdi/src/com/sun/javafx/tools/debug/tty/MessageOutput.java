@@ -40,42 +40,45 @@ import java.text.MessageFormat;
 public class MessageOutput {
     /**
      * The resource bundle containing localizable message content.
-     * This is loaded by TTY.main() at start-up
      */
-    static ResourceBundle textResources;
+    private static ResourceBundle textResources;
+    static {
+        textResources = ResourceBundle.getBundle
+            ("com.sun.javafx.tools.debug.tty.TTYResources",
+             Locale.getDefault());
+    }
 
     /** Our message formatter.  Allocated once, used many times */
     private static MessageFormat messageFormat;
 
-    private static PrintStream msErr = System.err;
-    private static PrintStream msOut = System.out;
+    private PrintStream msErr = System.err;
+    private PrintStream msOut = System.out;
 
-    static void resetOutputs() {
+    void resetOutputs() {
         msErr = System.err;
         msOut = System.out;
     }
 
-    static void setOutput(PrintStream out) {
+    void setOutput(PrintStream out) {
         if (out != null) {
             msOut = out;
         }
     }
 
-    static void setError(PrintStream err) {
+    void setError(PrintStream err) {
         if (err != null) {
             msErr = err;
         }
     }
 
     /**
-     * Fatal shutdown notification.  This is sent to msErr
+     * Fatal error notification.  This is sent to msErr
      * instead of msOut
      */
-    static void fatalError(String messageKey) {
+    void fatalError(String messageKey) {
         msErr.println();
         msErr.println(format("Fatal error"));
         msErr.println(format(messageKey));
-        Env.shutdown();
     }
 
     /**
@@ -116,14 +119,14 @@ public class MessageOutput {
      * These are the only sites that should be calling this
      * method.
      */
-    static void printDirectln(String line) {
+    void printDirectln(String line) {
         msOut.println(line);
         msOut.flush();
     }
-    static void printDirect(String line) {
+    void printDirect(String line) {
         msOut.print(line);
     }
-    static void printDirect(char c) {
+    void printDirect(char c) {
         msOut.print(c);
     }
 
@@ -131,7 +134,7 @@ public class MessageOutput {
      * Print a newline.
      * Use this instead of '\n'
      */
-    static void println() {
+    void println() {
         msOut.println();
         msOut.flush();
     }
@@ -139,13 +142,13 @@ public class MessageOutput {
     /**
      * Format and print a simple string.
      */
-    static void print(String key) {
+    void print(String key) {
         msOut.print(format(key));
     }
     /**
      * Format and print a simple string.
      */
-    static void println(String key) {
+    void println(String key) {
         msOut.println(format(key));
         msOut.flush();
     }
@@ -155,10 +158,10 @@ public class MessageOutput {
      * Fetch, format and print a message with one string argument.
      * This is the most common usage.
      */
-    static void print(String key, String argument) {
+    void print(String key, String argument) {
         msOut.print(format(key, argument));
     }
-    static void println(String key, String argument) {
+    void println(String key, String argument) {
         msOut.println(format(key, argument));
         msOut.flush();
     }
@@ -167,7 +170,7 @@ public class MessageOutput {
      * Fetch, format and print a message with an arbitrary
      * number of message arguments.
      */
-    static void println(String key, Object [] arguments) {
+    void println(String key, Object [] arguments) {
         msOut.println(format(key, arguments));
         msOut.flush();
     }
@@ -175,18 +178,18 @@ public class MessageOutput {
     /**
      * Print a newline, followed by the string.
      */
-    static void lnprint(String key) {
+    void lnprint(String key) {
         msOut.println();
         msOut.print(textResources.getString(key));
     }
 
-    static void lnprint(String key, String argument) {
+    void lnprint(String key, String argument) {
         msOut.println();
         msOut.print(format(key, argument));
         msOut.flush();
     }
 
-    static void lnprint(String key, Object [] arguments) {
+    void lnprint(String key, Object [] arguments) {
         msOut.println();
         msOut.print(format(key, arguments));
         msOut.flush();
@@ -195,7 +198,7 @@ public class MessageOutput {
     /**
      * Print an exception message with a stack trace.
      */
-    static void printException(String key, Exception e) {
+    void printException(String key, Exception e) {
         if (key != null) {
             try {
                 println(key);
@@ -207,14 +210,13 @@ public class MessageOutput {
         e.printStackTrace();
     }
 
-    static void printPrompt() {
-        ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+    void printPrompt(ThreadInfo threadInfo) {
         if (threadInfo == null) {
             msOut.print
-                (MessageOutput.format("jdb prompt with no current thread"));
+                (format("jdb prompt with no current thread"));
         } else {
             msOut.print
-                (MessageOutput.format("jdb prompt thread name and current stack frame",
+                (format("jdb prompt thread name and current stack frame",
                                       new Object [] {
                                           threadInfo.getThread().name(),
                                           new Integer (threadInfo.getCurrentFrameIndex() + 1)}));

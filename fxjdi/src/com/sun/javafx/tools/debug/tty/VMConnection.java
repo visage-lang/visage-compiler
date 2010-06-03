@@ -38,6 +38,7 @@ import java.io.*;
 
 class VMConnection {
 
+    private final Env env;
     private VirtualMachine vm;
     private Process process = null;
     private int outputCompleteCount = 0;
@@ -128,7 +129,7 @@ class VMConnection {
         return arguments;
     }
 
-    VMConnection(String connectSpec, int traceFlags) {
+    VMConnection(Env env, String connectSpec, int traceFlags) {
         String nameString;
         String argString;
         int index = connectSpec.indexOf(':');
@@ -140,13 +141,14 @@ class VMConnection {
             argString = connectSpec.substring(index + 1);
         }
 
-        connector = findConnector(nameString);
+        this.env = env;
+        this.connector = findConnector(nameString);
         if (connector == null) {
             throw new IllegalArgumentException
                 (MessageOutput.format("No connector named:", nameString));
         }
 
-        connectorArgs = parseConnectorArgs(connector, argString);
+        this.connectorArgs = parseConnectorArgs(connector, argString);
         this.traceFlags = traceFlags;
     }
 
@@ -159,7 +161,7 @@ class VMConnection {
             vm = listenTarget();
         } else {
             throw new InternalError
-                (MessageOutput.format("Invalid connect type"));
+                (env.messageOutput().format("Invalid connect type"));
         }
         vm.setDebugTraceMode(traceFlags);
         if (vm.canBeModified()){
@@ -172,13 +174,13 @@ class VMConnection {
          * (Unless user supplied a sourcepath on the command line)
          * (Bug ID 4186582)
          */
-        if (Env.getSourcePath().length() == 0) {
+        if (env.getSourcePath().length() == 0) {
             if (vm instanceof PathSearchingVirtualMachine) {
                 PathSearchingVirtualMachine psvm =
                     (PathSearchingVirtualMachine) vm;
-                Env.setSourcePath(psvm.classPath());
+                env.setSourcePath(psvm.classPath());
             } else {
-                Env.setSourcePath(".");
+                env.setSourcePath(".");
             }
         }
 
@@ -251,7 +253,7 @@ class VMConnection {
         //        during startup:
         //          Set uncaught java.lang.Throwable
         //          Set deferred uncaught java.lang.Throwable
-        Commands evaluator = new Commands();
+        Commands evaluator = new Commands(env);
         evaluator.commandCatchException
             (new StringTokenizer("uncaught java.lang.Throwable"));
 
@@ -262,7 +264,7 @@ class VMConnection {
     }
 
     private void resolveEventRequests() {
-        Env.specList.resolveAll();
+        env.getSpecList().resolveAll();
     }
 
     private void dumpStream(InputStream stream) throws IOException {
@@ -271,7 +273,7 @@ class VMConnection {
         int i;
         try {
             while ((i = in.read()) != -1) {
-                   MessageOutput.printDirect((char)i);// Special case: use
+                   env.messageOutput().printDirect((char)i);// Special case: use
                                                       //   printDirect()
             }
         } catch (IOException ex) {
@@ -296,7 +298,7 @@ class VMConnection {
                 try {
                     dumpStream(stream);
                 } catch (IOException ex) {
-                    MessageOutput.fatalError("Failed reading output");
+                    env.fatalError("Failed reading output");
                 } finally {
                     notifyOutputComplete();
                 }
@@ -311,7 +313,7 @@ class VMConnection {
             dumpStream(process.getErrorStream());
             dumpStream(process.getInputStream());
         } catch (IOException e) {
-            MessageOutput.println("Unable to display process output:",
+            env.messageOutput().println("Unable to display process output:",
                                   e.getMessage());
         }
     }
@@ -327,15 +329,15 @@ class VMConnection {
             return vm;
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            MessageOutput.fatalError("Unable to launch target VM.");
+            env.fatalError("Unable to launch target VM.");
         } catch (IllegalConnectorArgumentsException icae) {
             icae.printStackTrace();
-            MessageOutput.fatalError("Internal debugger error.");
+            env.fatalError("Internal debugger error.");
         } catch (VMStartException vmse) {
-            MessageOutput.println("vmstartexception", vmse.getMessage());
-            MessageOutput.println();
+            env.messageOutput().println("vmstartexception", vmse.getMessage());
+            env.messageOutput().println();
             dumpFailedLaunchInfo(vmse.process());
-            MessageOutput.fatalError("Target VM failed to initialize.");
+            env.fatalError("Target VM failed to initialize.");
         }
         return null; // Shuts up the compiler
     }
@@ -347,10 +349,10 @@ class VMConnection {
             return attacher.attach(connectorArgs);
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            MessageOutput.fatalError("Unable to attach to target VM.");
+            env.fatalError("Unable to attach to target VM.");
         } catch (IllegalConnectorArgumentsException icae) {
             icae.printStackTrace();
-            MessageOutput.fatalError("Internal debugger error.");
+            env.fatalError("Internal debugger error.");
         }
         return null; // Shuts up the compiler
     }
@@ -360,16 +362,16 @@ class VMConnection {
         ListeningConnector listener = (ListeningConnector)connector;
         try {
             String retAddress = listener.startListening(connectorArgs);
-            MessageOutput.println("Listening at address:", retAddress);
+            env.messageOutput().println("Listening at address:", retAddress);
             vm = listener.accept(connectorArgs);
             listener.stopListening(connectorArgs);
             return vm;
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            MessageOutput.fatalError("Unable to attach to target VM.");
+            env.fatalError("Unable to attach to target VM.");
         } catch (IllegalConnectorArgumentsException icae) {
             icae.printStackTrace();
-            MessageOutput.fatalError("Internal debugger error.");
+            env.fatalError("Internal debugger error.");
         }
         return null; // Shuts up the compiler
     }

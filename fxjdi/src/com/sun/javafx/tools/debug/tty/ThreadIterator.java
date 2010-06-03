@@ -42,10 +42,6 @@ class ThreadIterator implements Iterator<ThreadReference> {
         tgi = new ThreadGroupIterator(tgl);
     }
 
-    ThreadIterator() {
-        tgi = new ThreadGroupIterator();
-    }
-
     public boolean hasNext() {
         while (it == null || !it.hasNext()) {
             if (!tgi.hasNext()) {

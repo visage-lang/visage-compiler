@@ -30,9 +30,9 @@ import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.EventRequest;
 
 class ModificationWatchpointSpec extends WatchpointSpec {
-    ModificationWatchpointSpec(ReferenceTypeSpec refSpec, String fieldId)
+    ModificationWatchpointSpec(Env env, ReferenceTypeSpec refSpec, String fieldId)
                                   throws MalformedMemberNameException {
-        super(refSpec, fieldId);
+        super(env, refSpec, fieldId);
     }
 
     /**

@@ -39,10 +39,12 @@ class EventRequestSpecList {
     private static final int statusError = 3;
 
     // all specs
-    private List<EventRequestSpec> eventRequestSpecs = Collections.synchronizedList(
+    private final List<EventRequestSpec> eventRequestSpecs = Collections.synchronizedList(
                                                   new ArrayList<EventRequestSpec>());
+    private final Env env;
 
-    EventRequestSpecList() {
+    EventRequestSpecList(Env env) {
+        this.env = env;
     }
 
     /**
@@ -57,10 +59,10 @@ class EventRequestSpecList {
                     try {
                         EventRequest eventRequest = spec.resolve(event);
                         if (eventRequest != null) {
-                            MessageOutput.println("Set deferred", spec.toString());
+                            env.messageOutput().println("Set deferred", spec.toString());
                         }
                     } catch (Exception e) {
-                        MessageOutput.println("Unable to set deferred",
+                        env.messageOutput().println("Unable to set deferred",
                                               new Object [] {spec.toString(),
                                                              spec.errorMessageFor(e)});
                         failure = true;
@@ -76,7 +78,7 @@ class EventRequestSpecList {
             try {
                 EventRequest eventRequest = spec.resolveEagerly();
                 if (eventRequest != null) {
-                    MessageOutput.println("Set deferred", spec.toString());
+                    env.messageOutput().println("Set deferred", spec.toString());
                 }
             } catch (Exception e) {
             }
@@ -88,11 +90,11 @@ class EventRequestSpecList {
             eventRequestSpecs.add(spec);
             EventRequest eventRequest = spec.resolveEagerly();
             if (eventRequest != null) {
-                MessageOutput.println("Set", spec.toString());
+                env.messageOutput().println("Set", spec.toString());
             }
             return true;
         } catch (Exception exc) {
-            MessageOutput.println("Unable to set",
+            env.messageOutput().println("Unable to set",
                                   new Object [] {spec.toString(),
                                                  spec.errorMessageFor(exc)});
             return false;
@@ -102,8 +104,8 @@ class EventRequestSpecList {
     BreakpointSpec createBreakpoint(String classPattern, int line)
         throws ClassNotFoundException {
         ReferenceTypeSpec refSpec =
-            new PatternReferenceTypeSpec(classPattern);
-        return new BreakpointSpec(refSpec, line);
+            new PatternReferenceTypeSpec(env, classPattern);
+        return new BreakpointSpec(env, refSpec, line);
     }
 
     BreakpointSpec createBreakpoint(String classPattern,
@@ -112,8 +114,8 @@ class EventRequestSpecList {
                                 throws MalformedMemberNameException,
                                        ClassNotFoundException {
         ReferenceTypeSpec refSpec =
-            new PatternReferenceTypeSpec(classPattern);
-        return new BreakpointSpec(refSpec, methodId, methodArgs);
+            new PatternReferenceTypeSpec(env, classPattern);
+        return new BreakpointSpec(env, refSpec, methodId, methodArgs);
     }
 
     EventRequestSpec createExceptionCatch(String classPattern,
@@ -121,8 +123,8 @@ class EventRequestSpecList {
                                           boolean notifyUncaught)
                                             throws ClassNotFoundException {
         ReferenceTypeSpec refSpec =
-            new PatternReferenceTypeSpec(classPattern);
-        return new ExceptionSpec(refSpec, notifyCaught, notifyUncaught);
+            new PatternReferenceTypeSpec(env, classPattern);
+        return new ExceptionSpec(env, refSpec, notifyCaught, notifyUncaught);
     }
 
     WatchpointSpec createAccessWatchpoint(String classPattern,
@@ -130,8 +132,8 @@ class EventRequestSpecList {
                                       throws MalformedMemberNameException,
                                              ClassNotFoundException {
         ReferenceTypeSpec refSpec =
-            new PatternReferenceTypeSpec(classPattern);
-        return new AccessWatchpointSpec(refSpec, fieldId);
+            new PatternReferenceTypeSpec(env, classPattern);
+        return new AccessWatchpointSpec(env, refSpec, fieldId);
     }
 
     WatchpointSpec createModificationWatchpoint(String classPattern,
@@ -139,8 +141,8 @@ class EventRequestSpecList {
                                       throws MalformedMemberNameException,
                                              ClassNotFoundException {
         ReferenceTypeSpec refSpec =
-            new PatternReferenceTypeSpec(classPattern);
-        return new ModificationWatchpointSpec(refSpec, fieldId);
+            new PatternReferenceTypeSpec(env, classPattern);
+        return new ModificationWatchpointSpec(env, refSpec, fieldId);
     }
 
     boolean delete(EventRequestSpec proto) {

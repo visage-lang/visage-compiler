@@ -28,9 +28,9 @@ package com.sun.javafx.tools.debug.tty;
 abstract class WatchpointSpec extends EventRequestSpec {
     final String fieldId;
 
-    WatchpointSpec(ReferenceTypeSpec refSpec, String fieldId)
+    WatchpointSpec(Env env, ReferenceTypeSpec refSpec, String fieldId)
                                        throws MalformedMemberNameException {
-        super(refSpec);
+        super(env, refSpec);
         this.fieldId = fieldId;
         if (!isJavaIdentifier(fieldId)) {
             throw new MalformedMemberNameException(fieldId);
