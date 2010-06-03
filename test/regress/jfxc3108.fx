@@ -1,0 +1,15 @@
+/*
+ * Regression: JFXC-3108 - Compiler internal error when using sizeof seq within an on replace on the seq, when in declared in a run() block.
+ *
+ * @test
+ * @run
+ *
+ */
+
+function run(args: String[] ) : Void {
+    var lonTV: Integer[] on replace oldValues [lo..hi] = newValues {
+        if(sizeof lonTV == 2) {
+            println("2");
+        }
+    }
+}
