@@ -26,25 +26,19 @@ package fxjdi;
  *
  * @author ksrini
  */
+import java.util.List;
 import org.junit.Test;
 import junit.framework.Assert;
 
 public class BasicTest extends JdbBase {
 
 // @BeginTest Foo.fx
-// FX.println("Foo.fx says Hello");
-// FX.println("Breakpoint 1");
-// FX.println("Breakpoint 2");
-// @EndTest
-
-// @BeginTest Bar.fx
-// public function run(args: String[]):Void {
-// println("Bar.fx says Hello");
-//     for (i in args) {
-//         println("{i}");
-//     }
-//     println("This is the end, my friend, this is the end");
-// }
+// var begin = "Foo.fx says Hello";
+// var msg1  = "Breakpoint 1";
+// var msg2  = "Breakpoint 2";
+// FX.println(begin);
+// FX.println(msg1);
+// FX.println(msg2);
 // @EndTest
 
     @Test(timeout=5000)
@@ -56,9 +50,15 @@ public class BasicTest extends JdbBase {
             fxrun();
 
             waitForBreakpointEvent();
-            where();
-            Assert.assertTrue(contains("Foo.javafx$run$ (Foo.fx:1)"));
+//          commented out, parse errors.
+//            Assert.assertTrue(verifyValue("begin", "Foo.fx says Hello"));
+//            Assert.assertTrue(verifyValue("msg1", "Breakpoint 1"));
+//            Assert.assertTrue(verifyValue("msg2", "Breakpoint 2"));
 
+            where();
+            Assert.assertTrue(contains("Foo.javafx$run$ (Foo.fx:4)"));
+
+     
             next();
             Assert.assertTrue(lastContains("Foo.fx says Hello"));
 
@@ -72,13 +72,23 @@ public class BasicTest extends JdbBase {
         }
     }
 
-    @Test(timeout=5000)
+// @BeginTest Bar.fx
+// public function run(args: String[]):Void {
+//     println("Bar.fx says Hello");
+//     for (i in args) {
+//         println("{i}");
+//     }
+//     println("This is the end, my friend, this is the end");
+// }
+// @EndTest
+
+    @Test(timeout=500000)
     public void testHello2() {
         try {
             compile("Bar.fx");
             stop("in Bar.javafx$run$");
 
-            fxrun();
+            fxrun("ONE", "TWO", "THREE");
             waitForBreakpointEvent();
             where();
             Assert.assertTrue(contains("Bar.javafx$run$ (Bar.fx:2)"));
@@ -88,12 +98,21 @@ public class BasicTest extends JdbBase {
             Assert.assertTrue(lastContains("Bar.fx says Hello"));
 
             next();
+            Assert.assertTrue(verifyValue("i", "ONE"));
+            
+            next(); next();
+            Assert.assertTrue(verifyValue("i", "TWO"));
 
+            next(); next();
+            Assert.assertTrue(verifyValue("i", "THREE"));
+
+            resumeTo("Bar",6);
             clearOutput();
             step();
             where();
-            printOutput();
             Assert.assertTrue(contains("Builtins.java"));
+            List<String> olist = getOutputAsList();
+            Assert.assertTrue(olist.get(1).trim().equals("[2] Bar.javafx$run$ (Bar.fx:6)"));
 
             cont();
             quit();

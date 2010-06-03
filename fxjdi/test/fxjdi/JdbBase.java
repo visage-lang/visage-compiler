@@ -75,6 +75,7 @@ public class JdbBase extends Debugger {
     }
 
     public void printOutput() {
+        psout.flush();
         System.out.println(baout.toString());
     }
 
@@ -94,10 +95,10 @@ public class JdbBase extends Debugger {
     }
     
     public void fxrun() {
-        fxrun(null);
+        fxrun((String[])null);
     }
 
-    public void fxrun(String[] args) {
+    public void fxrun(String... args) {
         StringBuffer sb = new StringBuffer(FX_MAIN);
         sb.append(" " + mainclass);
         if (args != null && args.length > 0) {
@@ -110,11 +111,23 @@ public class JdbBase extends Debugger {
     }
 
 
-    List<String> getOutputAsList() {
+    public List<String> getOutputAsList() {
         psout.flush();
         String carray[] = baout.toString().split("\\n");
         List<String> tmp = Arrays.asList(carray);
         return tmp;
+    }
+
+    public boolean verifyValue(String var, String expectedValue) {
+        clearOutput();
+        print(var);
+        List<String> olist = getOutputAsList();
+        if (olist != null && olist.size() > 0) {
+            String str = olist.get(0).trim();
+            String expected = var + " = \"" +  expectedValue + '\"';
+            return str.equals(expected);
+        }
+        return false;
     }
 
     static final FileFilter CLASS_FILTER = new FileFilter() {
