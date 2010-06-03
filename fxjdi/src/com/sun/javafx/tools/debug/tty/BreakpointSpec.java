@@ -37,16 +37,16 @@ class BreakpointSpec extends EventRequestSpec {
     List<String> methodArgs;
     int lineNumber;
 
-    BreakpointSpec(ReferenceTypeSpec refSpec, int lineNumber) {
-        super(refSpec);
+    BreakpointSpec(Env env, ReferenceTypeSpec refSpec, int lineNumber) {
+        super(env, refSpec);
         this.methodId = null;
         this.methodArgs = null;
         this.lineNumber = lineNumber;
     }
 
-    BreakpointSpec(ReferenceTypeSpec refSpec, String methodId,
+    BreakpointSpec(Env env, ReferenceTypeSpec refSpec, String methodId,
                    List<String> methodArgs) throws MalformedMemberNameException {
-        super(refSpec);
+        super(env, refSpec);
         this.methodId = methodId;
         this.methodArgs = methodArgs;
         this.lineNumber = 0;
@@ -301,7 +301,7 @@ class BreakpointSpec extends EventRequestSpec {
          */
         if ((name.indexOf('.') == -1) || name.startsWith("*.")) {
             try {
-                ReferenceType argClass = Env.getReferenceTypeFromToken(name);
+                ReferenceType argClass = env.getReferenceTypeFromToken(name);
                 if (argClass != null) {
                     name = argClass.name();
                 }

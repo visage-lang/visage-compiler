@@ -26,6 +26,7 @@
 package com.sun.javafx.tools.debug.tty;
 
 import com.sun.jdi.ThreadGroupReference;
+import com.sun.jdi.VirtualMachine;
 import java.util.List;
 import java.util.Stack;
 import java.util.ArrayList;
@@ -48,8 +49,8 @@ class ThreadGroupIterator implements Iterator<ThreadGroupReference> {
         push(tgl);
     }
 
-    ThreadGroupIterator() {
-        this(Env.vm().topLevelThreadGroups());
+    ThreadGroupIterator(VirtualMachine vm) {
+        this(vm.topLevelThreadGroups());
     }
 
     private Iterator<ThreadGroupReference> top() {
@@ -87,8 +88,8 @@ class ThreadGroupIterator implements Iterator<ThreadGroupReference> {
         throw new UnsupportedOperationException();
     }
 
-    static ThreadGroupReference find(String name) {
-        ThreadGroupIterator tgi = new ThreadGroupIterator();
+    static ThreadGroupReference find(VirtualMachine vm, String name) {
+        ThreadGroupIterator tgi = new ThreadGroupIterator(vm.topLevelThreadGroups());
         while (tgi.hasNext()) {
             ThreadGroupReference tg = tgi.nextThreadGroup();
             if (tg.name().equals(name)) {

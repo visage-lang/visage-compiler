@@ -75,8 +75,9 @@ import java.util.StringTokenizer;
  * @author sundar
  */
 public class Debugger {
+    private final Env env = new Env();
     private final List<EventNotifier> listeners = Collections.synchronizedList(new LinkedList());
-    private Commands evaluator;
+    private final Commands evaluator = new Commands(env);
     private volatile EventHandler handler;
 
     // "args" is same as command line options supported by TTY.java except that
@@ -85,10 +86,9 @@ public class Debugger {
         if (listener != null) {
             this.listeners.add(listener);
         }
-        this.evaluator = new Commands();
         init((args == null)? null : args.split(" "));
-        if (Env.connection().isOpen() && Env.vm().canBeModified()) {
-            this.handler = new EventHandler(new EventNotifierImpl(), true);
+        if (env.connection().isOpen() && env.vm().canBeModified()) {
+            this.handler = new EventHandler(env, new EventNotifierImpl(), true);
         }
     }
 
@@ -100,15 +100,23 @@ public class Debugger {
         this(null);
     }
 
+    /**
+     * Returns the target VM.
+     */
     public VirtualMachine vm() {
-        return Env.vm();
+        return env.vm();
     }
 
-    // event requests, queues and listeners.
+    /**
+     * Returns the event requests manager for the target VM.
+     */
     public EventRequestManager eventRequestManager() {
         return vm().eventRequestManager();
     }
 
+    /**
+     * Returns the event queue of the target VM.
+     */
     public EventQueue eventQueue() {
         return vm().eventQueue();
     }
@@ -121,26 +129,35 @@ public class Debugger {
         listeners.remove(notifier);
     }
 
-    // shutdown the target VM
+    /*
+     * Shutdown the target VM
+     */
     public void shutdown() {
         if (handler != null) {
             listeners.clear();
             handler.shutdown();
             handler = null;
         }
-        Env.shutdown();
+        env.shutdown();
     }
 
+    /**
+     * Shutdown the target VM - but print message before that.
+     */
     public void shutdown(String message) {
         if (handler != null) {
             listeners.clear();
             handler.shutdown();
             handler = null;
         }
-        Env.shutdown(message);
+        env.shutdown(message);
     }
 
     // queries to target VM
+
+    /**
+     * Returns the first ReferenceType that matches the given name.
+     */
     public ReferenceType findReferenceType(String name) {
         List rts = vm().classesByName(name);
         Iterator iter = rts.iterator();
@@ -153,6 +170,10 @@ public class Debugger {
         return null;
     }
 
+    /**
+     * Find and return the method of given name and signature from the given
+     * ReferenceType. Returns null when find fails.
+     */
     public Method findMethod(ReferenceType rt, String name, String signature) {
         List methods = rt.methods();
         Iterator iter = methods.iterator();
@@ -166,6 +187,10 @@ public class Debugger {
         return null;
     }
 
+    /**
+     * Returns location object representing the given line number within the
+     * given ReferenceType's source.
+     */
     public Location findLocation(ReferenceType rt, int lineNumber)
             throws AbsentInformationException {
         List locs = rt.locationsOfLine(lineNumber);
@@ -178,8 +203,10 @@ public class Debugger {
         return (Location)locs.get(0);
     }
 
-    // Synchronous stepXXX, resumeTo methods and waitForXXX methods. These methods
-    // block the calling thread till the specific event occurs in the target VM.
+    /*
+     * Synchronous stepXXX, resumeTo methods and waitForXXX methods. These methods
+     * block the calling thread till the specific event occurs in the target VM.
+     */
     private StepEvent doStep(ThreadReference thread, int gran, int depth) {
         final StepRequest sr =
                 eventRequestManager().createStepRequest(thread, gran, depth);
@@ -321,8 +348,8 @@ public class Debugger {
         }
 
         if (en.event.request().suspendPolicy() == EventRequest.SUSPEND_ALL) {
-            ThreadInfo.invalidateAll();
-            ThreadInfo.setCurrentThread(EventHandler.eventThread(en.event));
+            env.invalidateAllThreadInfo();
+            env.setCurrentThread(EventHandler.eventThread(en.event));
         }
         return en.event;
     }
@@ -367,12 +394,23 @@ public class Debugger {
         });
     }
 
-    // evaluate expression
+    /**
+     * Evaluate "jdb"-style expressions. The expression syntax is same as what
+     * you'd use with jdb's "print" or "set" command. The expression is evaluated
+     * in current thread's current frame context. You can access locals from that 
+     * frame and also evaluate object fields/static fields etc. from there. For 
+     * example, if "seq" is a local variable of type JavaFX integer sequence, 
+     * 
+     *     Debugger dbg = ...
+     *     dbg.evaluate("seq[0]");
+     *
+     * and that will return JDI IntegerValue type object in this case.
+     */
     public Value evaluate(String expr) {
         Value result = null;
         ExpressionParser.GetFrame frameGetter = null;
         try {
-            final ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+            final ThreadInfo threadInfo = env.getCurrentThreadInfo();
             if (threadInfo != null && threadInfo.getCurrentFrame() != null) {
                 frameGetter = new ExpressionParser.GetFrame() {
                     public StackFrame get() throws IncompatibleThreadStateException {
@@ -380,7 +418,7 @@ public class Debugger {
                     }
                 };
             }
-            result = ExpressionParser.evaluate(expr, Env.vm(), frameGetter);
+            result = ExpressionParser.evaluate(expr, env.vm(), frameGetter);
         } catch (RuntimeException rexp) {
             throw rexp;
         } catch (Exception exp) {
@@ -391,40 +429,41 @@ public class Debugger {
 
     // get/set source path - used to list source code.
     public void setSourcePath(String path) {
-        Env.setSourcePath(path);
+        env.setSourcePath(path);
     }
 
     public String getSourcePath() {
-        return Env.getSourcePath();
+        return env.getSourcePath();
     }
 
+    // Set standard output, error streams for the debugger.
     public void setOutput(PrintStream out) {
-        MessageOutput.setOutput(out);
+        env.messageOutput().setOutput(out);
     }
 
     public void setError(PrintStream err) {
-        MessageOutput.setOutput(err);
+        env.messageOutput().setOutput(err);
     }
 
     public void resetOutputs() {
-        MessageOutput.resetOutputs();
+        env.messageOutput().resetOutputs();
     }
 
     // set/get current thread and threadgroup.
     public void setCurrentThread(ThreadReference tref) {
-        ThreadInfo.setCurrentThread(tref);
+        env.setCurrentThread(tref);
     }
 
     public ThreadReference getCurrentThread() {
-        return ThreadInfo.getCurrentThreadInfo().getThread();
+        return env.getCurrentThreadInfo().getThread();
     }
 
     public void setCurrentThreadGroup(ThreadGroupReference tgref) {
-        ThreadInfo.setThreadGroup(tgref);
+        env.setThreadGroup(tgref);
     }
 
     public ThreadGroupReference getCurrentThreadGroup() {
-        return ThreadInfo.group();
+        return env.getCurrentThreadGroup();
     }
 
     // return string id for the given ThreadReference object
@@ -437,55 +476,94 @@ public class Debugger {
         return tgref.name();
     }
 
-    // Returns null for deferred events.
+    // The following methods support "jdb"-style "interactive" commands.
+    // Many commands print messages to Debugger's standard output and/or
+    // standard error streams. Commands that return boolean tell whether the
+    // command was successful or not.
+
+    /**
+     * This is similar to "catch" command of "jdb".
+     * Returns null for deferred events.
+     */
     public ExceptionRequest catchException(String command) {
         return evaluator.commandCatchException(new StringTokenizer(command));
     }
 
+    /**
+     * Print all the classes loaded in the target VM.
+     */
     public void classes() {
         evaluator.commandClasses();
     }
 
+    /**
+     * Prints classpath information of the target VM.
+     */
     public boolean classPath() {
         return evaluator.commandClasspath(new StringTokenizer(""));
     }
 
+    /**
+     * Clear all breakpoints.
+     */
     public boolean clear() {
         return clear("");
     }
 
+    /**
+     * Clear all breakpoints specified by command String.
+     */
     public boolean clear(String command) {
         return evaluator.commandClear(new StringTokenizer(command));
     }
 
+    /**
+     * Resumes the target VM after suspension.
+     */
     public boolean cont() {
         return evaluator.commandCont();
     }
 
+    /**
+     * This is jdb-style print command. Accepts jdb-style expressions involving
+     * current thread's current frame, allows instance/static variable access etc.
+     */
     public void dump(String command) {
-        evaluator.commandPrint(new StringTokenizer(command), true);
+        evaluator.doPrint(new StringTokenizer(command), true);
     }
 
     public void disableGC(String command) {
-        evaluator.commandDisableGC(new StringTokenizer(command));
+        evaluator.doDisableGC(new StringTokenizer(command));
     }
 
+    /**
+     * Same as jdb's "down" command - moving across frames of current thread.
+     */
     public boolean down() {
         return down("");
     }
 
+    /**
+     * Same as jdb's "down" command - moving across frames of current thread.
+     */
     public boolean down(String command) {
         return evaluator.commandDown(new StringTokenizer(command));
     }
 
     public void enableGC(String command) {
-        evaluator.commandEnableGC(new StringTokenizer(command));
+        evaluator.doEnableGC(new StringTokenizer(command));
     }
 
+    /**
+     * Same as jdb's "ignore" command - to ignore exceptions.
+     */
     public boolean ignoreException() {
         return ignoreException("");
     }
 
+    /**
+     * Same as jdb's "ignore" command - to ignore exceptions.
+     */
     public boolean ignoreException(String command) {
         return evaluator.commandIgnoreException(new StringTokenizer(command));
     }
@@ -498,12 +576,19 @@ public class Debugger {
         return evaluator.commandInterrupt(new StringTokenizer(command));
     }
 
-    public void kill() {
-        kill("");
-    }
-
-    public void kill(String command) {
-        evaluator.commandKill(new StringTokenizer(command));
+    public boolean kill(String command) {
+        StringTokenizer st = new StringTokenizer(command);
+        if (!st.hasMoreTokens()) {
+            env.messageOutput().println("Usage: kill <thread id> <throwable>");
+            return false;
+        }
+        ThreadInfo threadInfo = evaluator.doGetThread(st.nextToken());
+        if (threadInfo != null) {
+            env.messageOutput().println("killing thread:", threadInfo.getThread().name());
+            evaluator.doKill(threadInfo.getThread(), st);
+            return true;
+        }
+        return false;
     }
 
     public boolean lines(String command) {
@@ -518,12 +603,15 @@ public class Debugger {
         evaluator.commandList(new StringTokenizer(command));
     }
 
+    /**
+     * Prints all local variables of the current frame of the current thread.
+     */
     public boolean locals() {
         return evaluator.commandLocals();
     }
 
     public void lock(String command) {
-        evaluator.commandLock(new StringTokenizer(command));
+        evaluator.doLock(new StringTokenizer(command));
     }
 
     // blocks the calling thread till "next" is complete in the target VM
@@ -545,8 +633,12 @@ public class Debugger {
         return evaluator.commandPopFrames(new StringTokenizer(command), false);
     }
 
+    /**
+     * This is jdb-style print command. Accepts jdb-style expressions involving
+     * current thread's current frame, allows instance/static variable access etc.
+     */
     public void print(String command) {
-        evaluator.commandPrint(new StringTokenizer(command), false);
+        evaluator.doPrint(new StringTokenizer(command), false);
     }
 
     public boolean redefine(String command) {
@@ -567,8 +659,8 @@ public class Debugger {
 
     public boolean run(String command) {
         boolean result = evaluator.commandRun(new StringTokenizer(command));
-        if ((handler == null) && Env.connection().isOpen()) {
-            handler = new EventHandler(new EventNotifierImpl(), false);
+        if ((handler == null) && env.connection().isOpen()) {
+            handler = new EventHandler(env, new EventNotifierImpl(), false);
         }
         return result;
     }
@@ -581,8 +673,25 @@ public class Debugger {
         return evaluator.commandResume(new StringTokenizer(command));
     }
 
-    public void set(String command) {
-        evaluator.commandSet(new StringTokenizer(command));
+    public boolean set(String command) {
+        StringTokenizer st = new StringTokenizer(command);
+        String all = st.nextToken("");
+
+        /*
+         * Bare bones error checking.
+         */
+        if (all.indexOf('=') == -1) {
+            env.messageOutput().println("Invalid assignment syntax");
+            env.printPrompt();
+            return false;
+        }
+
+        /*
+         * The set command is really just syntactic sugar. Pass it on to the
+         * print command.
+         */
+        evaluator.doPrint(st, false);
+        return true;
     }
 
     public void sourcePath() {
@@ -678,10 +787,16 @@ public class Debugger {
         evaluator.commandUnwatch(new StringTokenizer(command));
     }
 
+    /**
+     * Same as jdb's "up" command - moving across frames of current thread.
+     */
     public boolean up() {
         return up("");
     }
 
+    /**
+     * Same as jdb's "up" command - moving across frames of current thread.
+     */
     public boolean up(String command) {
         return evaluator.commandUp(new StringTokenizer(command));
     }
@@ -771,18 +886,14 @@ public class Debugger {
         }
     }
 
-    private static void init(String[] argv) {
+    private void init(String[] argv) {
         String cmdLine = "";
         String javaArgs = "";
         int traceFlags = VirtualMachine.TRACE_NONE;
         boolean launchImmediately = false;
         String connectSpec = null;
-
-        MessageOutput.textResources = ResourceBundle.getBundle("com.sun.javafx.tools.debug.tty.TTYResources",
-                Locale.getDefault());
-
         // don't exit this VM on Env.shutdown()
-        Env.setExitDebuggerVM(false);
+        env.setExitDebuggerVM(false);
 
         if (argv != null) {
             for (int i = 0; i < argv.length; i++) {
@@ -836,7 +947,7 @@ public class Debugger {
                         usageError("No sourcepath specified.");
                         return;
                     }
-                    Env.setSourcePath(argv[++i]);
+                    env.setSourcePath(argv[++i]);
                 } else if (token.equals("-classpath")) {
                     if (i == (argv.length - 1)) {
                         usageError("No classpath specified.");
@@ -967,9 +1078,9 @@ public class Debugger {
             if (!connectSpec.endsWith(",")) {
                 connectSpec += ","; // (Bug ID 4285874)
             }
-            Env.init(connectSpec, launchImmediately, traceFlags);
+            env.init(connectSpec, launchImmediately, traceFlags);
         } catch (Exception e) {
-            MessageOutput.printException("Internal exception:", e);
+            env.messageOutput().printException("Internal exception:", e);
             if (e instanceof RuntimeException) {
                 throw (RuntimeException)e;
             } else {

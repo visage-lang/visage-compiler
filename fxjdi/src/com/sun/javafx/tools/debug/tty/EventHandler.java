@@ -30,7 +30,7 @@ import com.sun.jdi.event.*;
 import com.sun.jdi.request.EventRequest;
 
 public class EventHandler implements Runnable {
-
+    final Env env;
     EventNotifier notifier;
     Thread thread;
     volatile boolean connected = true;
@@ -38,7 +38,8 @@ public class EventHandler implements Runnable {
     String shutdownMessageKey;
     boolean stopOnVMStart;
 
-    EventHandler(EventNotifier notifier, boolean stopOnVMStart) {
+    EventHandler(Env env, EventNotifier notifier, boolean stopOnVMStart) {
+        this.env = env;
         this.notifier = notifier;
         this.stopOnVMStart = stopOnVMStart;
         this.thread = new Thread(this, "event-handler");
@@ -54,7 +55,7 @@ public class EventHandler implements Runnable {
     }
 
     public void run() {
-        EventQueue queue = Env.vm().eventQueue();
+        EventQueue queue = env.vm().eventQueue();
         while (connected) {
             try {
                 EventSet eventSet = queue.remove();
@@ -123,7 +124,7 @@ public class EventHandler implements Runnable {
             if (!vmDied) {
                 vmDisconnectEvent(event);
             }
-            Env.shutdown(shutdownMessageKey);
+            env.shutdown(shutdownMessageKey);
             return false;
         } else {
             throw new InternalError(MessageOutput.format("Unexpected event type",
@@ -138,7 +139,7 @@ public class EventHandler implements Runnable {
          * with exit events (VMDeath, VMDisconnect) so that we terminate
          * correctly.
          */
-        EventQueue queue = Env.vm().eventQueue();
+        EventQueue queue = env.vm().eventQueue();
         while (connected) {
             try {
                 EventSet eventSet = queue.remove();
@@ -186,8 +187,8 @@ public class EventHandler implements Runnable {
     }
 
     private void setCurrentThread(ThreadReference thread) {
-        ThreadInfo.invalidateAll();
-        ThreadInfo.setCurrentThread(thread);
+        env.invalidateAllThreadInfo();
+        env.setCurrentThread(thread);
     }
 
     private boolean vmStartEvent(Event event)  {
@@ -229,8 +230,8 @@ public class EventHandler implements Runnable {
         ClassPrepareEvent cle = (ClassPrepareEvent)event;
         notifier.classPrepareEvent(cle);
 
-        if (!Env.specList.resolve(cle)) {
-            MessageOutput.lnprint("Stopping due to deferred breakpoint errors.");
+        if (!env.getSpecList().resolve(cle)) {
+            env.messageOutput().lnprint("Stopping due to deferred breakpoint errors.");
             return true;
         } else {
             return false;
@@ -251,13 +252,13 @@ public class EventHandler implements Runnable {
 
     private boolean threadDeathEvent(Event event) {
         ThreadDeathEvent tee = (ThreadDeathEvent)event;
-        ThreadInfo.removeThread(tee.thread());
+        env.removeThread(tee.thread());
         return false;
     }
 
     private boolean threadStartEvent(Event event) {
         ThreadStartEvent tse = (ThreadStartEvent)event;
-        ThreadInfo.addThread(tse.thread());
+        env.addThread(tse.thread());
         notifier.threadStartEvent(tse);
         return false;
     }

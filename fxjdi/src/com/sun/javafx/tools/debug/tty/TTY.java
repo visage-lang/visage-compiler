@@ -43,7 +43,8 @@ import java.io.*;
  */
 
 public class TTY implements EventNotifier {
-    EventHandler handler = null;
+    private final Env env;
+    private EventHandler handler = null;
 
     /**
      * List of Strings to execute at each stop.
@@ -62,7 +63,7 @@ public class TTY implements EventNotifier {
 
     public void vmStartEvent(VMStartEvent se)  {
         Thread.yield();  // fetch output
-        MessageOutput.lnprint("VM Started:");
+        env.messageOutput().lnprint("VM Started:");
     }
 
     public void vmDeathEvent(VMDeathEvent e)  {
@@ -85,7 +86,7 @@ public class TTY implements EventNotifier {
 
     public void breakpointEvent(BreakpointEvent be)  {
         Thread.yield();  // fetch output
-        MessageOutput.lnprint("Breakpoint hit:");
+        env.messageOutput().lnprint("Breakpoint hit:");
     }
 
     public void fieldWatchEvent(WatchpointEvent fwe)  {
@@ -94,28 +95,28 @@ public class TTY implements EventNotifier {
         Thread.yield();  // fetch output
 
         if (fwe instanceof ModificationWatchpointEvent) {
-            MessageOutput.lnprint("Field access encountered before after",
+            env.messageOutput().lnprint("Field access encountered before after",
                                   new Object [] {field,
                                                  fwe.valueCurrent(),
                                                  ((ModificationWatchpointEvent)fwe).valueToBe()});
         } else {
-            MessageOutput.lnprint("Field access encountered", field.toString());
+            env.messageOutput().lnprint("Field access encountered", field.toString());
         }
     }
 
     public void stepEvent(StepEvent se)  {
         Thread.yield();  // fetch output
-        MessageOutput.lnprint("Step completed:");
+        env.messageOutput().lnprint("Step completed:");
     }
 
     public void exceptionEvent(ExceptionEvent ee) {
         Thread.yield();  // fetch output
         Location catchLocation = ee.catchLocation();
         if (catchLocation == null) {
-            MessageOutput.lnprint("Exception occurred uncaught",
+            env.messageOutput().lnprint("Exception occurred uncaught",
                                   ee.exception().referenceType().name());
         } else {
-            MessageOutput.lnprint("Exception occurred caught",
+            env.messageOutput().lnprint("Exception occurred caught",
                                   new Object [] {ee.exception().referenceType().name(),
                                                  Commands.locationString(catchLocation)});
         }
@@ -130,10 +131,10 @@ public class TTY implements EventNotifier {
          */
         if (me.request().suspendPolicy() != EventRequest.SUSPEND_NONE) {
             // We are stopping; the name will be shown by the normal mechanism
-            MessageOutput.lnprint("Method entered:");
+            env.messageOutput().lnprint("Method entered:");
         } else {
             // We aren't stopping, show the name
-            MessageOutput.print("Method entered:");
+            env.messageOutput().print("Method entered:");
             printLocationOfEvent(me);
         }
     }
@@ -143,7 +144,7 @@ public class TTY implements EventNotifier {
         /*
          * These can be very numerous, so be as efficient as possible.
          */
-        Method mmm = Env.atExitMethod();
+        Method mmm = env.atExitMethod();
         Method meMethod = me.method();
 
         if (mmm == null || mmm.equals(meMethod)) {
@@ -152,12 +153,12 @@ public class TTY implements EventNotifier {
 
             if (me.request().suspendPolicy() != EventRequest.SUSPEND_NONE) {
                 // We will be stopping here, so do a newline
-                MessageOutput.println();
+                env.messageOutput().println();
             }
-            if (Env.vm().canGetMethodReturnValues()) {
-                MessageOutput.print("Method exitedValue:", me.returnValue() + "");
+            if (env.vm().canGetMethodReturnValues()) {
+                env.messageOutput().print("Method exitedValue:", me.returnValue() + "");
             } else {
-                MessageOutput.print("Method exited:");
+                env.messageOutput().print("Method exited:");
             }
 
             if (me.request().suspendPolicy() == EventRequest.SUSPEND_NONE) {
@@ -171,8 +172,8 @@ public class TTY implements EventNotifier {
             if (false) {
                 // This is a one shot deal; we don't want to stop
                 // here the next time.
-                Env.setAtExitMethod(null);
-                EventRequestManager erm = Env.vm().eventRequestManager();
+                env.setAtExitMethod(null);
+                EventRequestManager erm = env.vm().eventRequestManager();
                 for (EventRequest eReq : erm.methodExitRequests()) {
                     if (eReq.equals(me.request())) {
                         eReq.disable();
@@ -194,29 +195,29 @@ public class TTY implements EventNotifier {
             t.nextToken();  // get rid of monitor number
             executeCommand(t);
         }
-        MessageOutput.printPrompt();
+        env.printPrompt();
     }
 
     public void receivedEvent(Event event) {
     }
 
     private void printBaseLocation(String threadName, Location loc) {
-        MessageOutput.println("location",
+        env.messageOutput().println("location",
                               new Object [] {threadName,
                                              Commands.locationString(loc)});
     }
 
     private void printCurrentLocation() {
-        ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+        ThreadInfo threadInfo = env.getCurrentThreadInfo();
         StackFrame frame;
         try {
             frame = threadInfo.getCurrentFrame();
         } catch (IncompatibleThreadStateException exc) {
-            MessageOutput.println("<location unavailable>");
+            env.messageOutput().println("<location unavailable>");
             return;
         }
         if (frame == null) {
-            MessageOutput.println("No frames on the current call stack");
+            env.messageOutput().println("No frames on the current call stack");
         } else {
             Location loc = frame.location();
             printBaseLocation(threadInfo.getThread().name(), loc);
@@ -224,18 +225,18 @@ public class TTY implements EventNotifier {
             if (loc.lineNumber() != -1) {
                 String line;
                 try {
-                    line = Env.sourceLine(loc, loc.lineNumber());
+                    line = env.sourceLine(loc, loc.lineNumber());
                 } catch (java.io.IOException e) {
                     line = null;
                 }
                 if (line != null) {
-                    MessageOutput.println("source line number and line",
+                    env.messageOutput().println("source line number and line",
                                           new Object [] {new Integer(loc.lineNumber()),
                                                          line});
                 }
             }
         }
-        MessageOutput.println();
+        env.messageOutput().println();
     }
 
     private void printLocationOfEvent(LocatableEvent theEvent) {
@@ -243,7 +244,7 @@ public class TTY implements EventNotifier {
     }
 
     void help() {
-        MessageOutput.println("zz help text");
+        env.messageOutput().println("zz help text");
     }
 
     private static final String[][] commandList = {
@@ -385,7 +386,7 @@ public class TTY implements EventNotifier {
                         showPrompt = false; // Bypass the printPrompt() below.
                     }
                 } catch (NumberFormatException exc) {
-                    MessageOutput.println("Unrecognized command.  Try help...", cmd);
+                    env.messageOutput().println("Unrecognized command.  Try help...", cmd);
                 }
             } else {
                 int commandNumber = isCommand(cmd);
@@ -393,17 +394,17 @@ public class TTY implements EventNotifier {
                  * Check for an unknown command
                  */
                 if (commandNumber < 0) {
-                    MessageOutput.println("Unrecognized command.  Try help...", cmd);
-                } else if (!Env.connection().isOpen() && !isDisconnectCmd(commandNumber)) {
-                    MessageOutput.println("Command not valid until the VM is started with the run command",
+                    env.messageOutput().println("Unrecognized command.  Try help...", cmd);
+                } else if (!env.connection().isOpen() && !isDisconnectCmd(commandNumber)) {
+                    env.messageOutput().println("Command not valid until the VM is started with the run command",
                                           cmd);
-                } else if (Env.connection().isOpen() && !Env.vm().canBeModified() &&
+                } else if (env.connection().isOpen() && !env.vm().canBeModified() &&
                            !isReadOnlyCmd(commandNumber)) {
-                    MessageOutput.println("Command is not supported on a read-only VM connection",
+                    env.messageOutput().println("Command is not supported on a read-only VM connection",
                                           cmd);
                 } else {
 
-                    Commands evaluator = new Commands();
+                    Commands evaluator = new Commands(env);
                     try {
                         if (cmd.equals("print")) {
                             evaluator.commandPrint(t, false);
@@ -479,8 +480,8 @@ public class TTY implements EventNotifier {
                              * we don't stop the VM on its VM start event (so
                              * arg 2 is false).
                              */
-                            if ((handler == null) && Env.connection().isOpen()) {
-                                handler = new EventHandler(this, false);
+                            if ((handler == null) && env.connection().isOpen()) {
+                                handler = new EventHandler(env, this, false);
                             }
                         } else if (cmd.equals("memory")) {
                             evaluator.commandMemory();
@@ -543,25 +544,25 @@ public class TTY implements EventNotifier {
                             if (handler != null) {
                                 handler.shutdown();
                             }
-                            Env.shutdown();
+                            env.shutdown();
                         } else {
-                            MessageOutput.println("Unrecognized command.  Try help...", cmd);
+                            env.messageOutput().println("Unrecognized command.  Try help...", cmd);
                         }
                     } catch (VMCannotBeModifiedException rovm) {
-                        MessageOutput.println("Command is not supported on a read-only VM connection", cmd);
+                        env.messageOutput().println("Command is not supported on a read-only VM connection", cmd);
                     } catch (UnsupportedOperationException uoe) {
-                        MessageOutput.println("Command is not supported on the target VM", cmd);
+                        env.messageOutput().println("Command is not supported on the target VM", cmd);
                     } catch (VMNotConnectedException vmnse) {
-                        MessageOutput.println("Command not valid until the VM is started with the run command",
+                        env.messageOutput().println("Command not valid until the VM is started with the run command",
                                               cmd);
                     } catch (Exception e) {
-                        MessageOutput.printException("Internal exception:", e);
+                        env.messageOutput().printException("Internal exception:", e);
                     }
                 }
             }
         }
         if (showPrompt) {
-            MessageOutput.printPrompt();
+            env.printPrompt();
         }
     }
 
@@ -574,7 +575,7 @@ public class TTY implements EventNotifier {
             monitorCommands.add(monitorCount + ": " + t.nextToken(""));
         } else {
             for (String cmd : monitorCommands) {
-                MessageOutput.printDirectln(cmd);// Special case: use printDirectln()
+                env.messageOutput().printDirectln(cmd);// Special case: use printDirectln()
             }
         }
     }
@@ -586,7 +587,7 @@ public class TTY implements EventNotifier {
             try {
                 monNum = Integer.parseInt(monTok);
             } catch (NumberFormatException exc) {
-                MessageOutput.println("Not a monitor number:", monTok);
+                env.messageOutput().println("Not a monitor number:", monTok);
                 return;
             }
             String monStr = monTok + ":";
@@ -594,13 +595,13 @@ public class TTY implements EventNotifier {
                 StringTokenizer ct = new StringTokenizer(cmd);
                 if (ct.nextToken().equals(monStr)) {
                     monitorCommands.remove(cmd);
-                    MessageOutput.println("Unmonitoring", cmd);
+                    env.messageOutput().println("Unmonitoring", cmd);
                     return;
                 }
             }
-            MessageOutput.println("No monitor numbered:", monTok);
+            env.messageOutput().println("No monitor numbered:", monTok);
         } else {
-            MessageOutput.println("Usage: unmonitor <monitor#>");
+            env.messageOutput().println("Usage: unmonitor <monitor#>");
         }
     }
 
@@ -609,10 +610,10 @@ public class TTY implements EventNotifier {
         if (t.hasMoreTokens()) {
             String cmdfname = t.nextToken();
             if (!readCommandFile(new File(cmdfname))) {
-                MessageOutput.println("Could not open:", cmdfname);
+                env.messageOutput().println("Could not open:", cmdfname);
             }
         } else {
-            MessageOutput.println("Usage: read <command-filename>");
+            env.messageOutput().println("Usage: read <command-filename>");
         }
     }
 
@@ -625,7 +626,7 @@ public class TTY implements EventNotifier {
         try {
             if (f.canRead()) {
                 // Process initial commands.
-                MessageOutput.println("*** Reading commands from", f.getPath());
+                env.messageOutput().println("*** Reading commands from", f.getPath());
                 inFile = new BufferedReader(new FileReader(f));
                 String ln;
                 while ((ln = inFile.readLine()) != null) {
@@ -664,29 +665,30 @@ public class TTY implements EventNotifier {
         try {
             myCanonFile = dotInitFile.getCanonicalPath();
         } catch (IOException ee) {
-            MessageOutput.println("Could not open:", dotInitFile.getPath());
+            env.messageOutput().println("Could not open:", dotInitFile.getPath());
             return null;
         }
         if (canonPath == null || !canonPath.equals(myCanonFile)) {
             if (!readCommandFile(dotInitFile)) {
-                MessageOutput.println("Could not open:", dotInitFile.getPath());
+                env.messageOutput().println("Could not open:", dotInitFile.getPath());
             }
         }
         return myCanonFile;
     }
 
 
-    public TTY() throws Exception {
+    public TTY(Env env) throws Exception {
 
-        MessageOutput.println("Initializing progname", progname);
+        this.env = env;
+        env.messageOutput().println("Initializing progname", progname);
 
-        if (Env.connection().isOpen() && Env.vm().canBeModified()) {
+        if (env.connection().isOpen() && env.vm().canBeModified()) {
             /*
              * Connection opened on startup. Start event handler
              * immediately, telling it (through arg 2) to stop on the
              * VM start event.
              */
-            this.handler = new EventHandler(this, true);
+            this.handler = new EventHandler(env, this, true);
         }
         try {
             BufferedReader in =
@@ -730,17 +732,17 @@ public class TTY implements EventNotifier {
             }
 
             // Process interactive commands.
-            MessageOutput.printPrompt();
+            env.printPrompt();
             while (true) {
                 String ln = in.readLine();
                 if (ln == null) {
-                    MessageOutput.println("Input stream closed.");
+                    env.messageOutput().println("Input stream closed.");
                     ln = "quit";
                 }
 
                 if (ln.startsWith("!!") && lastLine != null) {
                     ln = lastLine + ln.substring(2);
-                    MessageOutput.printDirectln(ln);// Special case: use printDirectln()
+                    env.messageOutput().printDirectln(ln);// Special case: use printDirectln()
                 }
 
                 StringTokenizer t = new StringTokenizer(ln);
@@ -748,7 +750,7 @@ public class TTY implements EventNotifier {
                     lastLine = ln;
                     executeCommand(t);
                 } else {
-                    MessageOutput.printPrompt();
+                    env.printPrompt();
                 }
             }
         } catch (VMDisconnectedException e) {
@@ -756,22 +758,22 @@ public class TTY implements EventNotifier {
         }
     }
 
-    private static void usage() {
-        MessageOutput.println("zz usage text", new Object [] {progname,
+    private static void usage(Env env) {
+        env.messageOutput().println("zz usage text", new Object [] {progname,
                                                      File.pathSeparator});
         System.exit(1);
     }
 
-    static void usageError(String messageKey) {
-        MessageOutput.println(messageKey);
-        MessageOutput.println();
-        usage();
+    static void usageError(Env env, String messageKey) {
+        env.messageOutput().println(messageKey);
+        env.messageOutput().println();
+        usage(env);
     }
 
-    static void usageError(String messageKey, String argument) {
-        MessageOutput.println(messageKey, argument);
-        MessageOutput.println();
-        usage();
+    static void usageError(Env env, String messageKey, String argument) {
+        env.messageOutput().println(messageKey, argument);
+        env.messageOutput().println();
+        usage(env);
     }
 
     private static boolean supportsSharedMemory() {
@@ -833,10 +835,7 @@ public class TTY implements EventNotifier {
         int traceFlags = VirtualMachine.TRACE_NONE;
         boolean launchImmediately = false;
         String connectSpec = null;
-
-        MessageOutput.textResources = ResourceBundle.getBundle
-            ("com.sun.javafx.tools.debug.tty.TTYResources",
-             Locale.getDefault());
+        Env env = new Env();
 
         for (int i = 0; i < argv.length; i++) {
             String token = argv[i];
@@ -850,13 +849,13 @@ public class TTY implements EventNotifier {
                         flagStr = argv[++i];
                         traceFlags = Integer.decode(flagStr).intValue();
                     } catch (NumberFormatException nfe) {
-                        usageError("dbgtrace flag value must be an integer:",
+                        usageError(env, "dbgtrace flag value must be an integer:",
                                    flagStr);
                         return;
                     }
                 }
             } else if (token.equals("-X")) {
-                usageError("Use java minus X to see");
+                usageError(env,  "Use java minus X to see");
                 return;
             } else if (
                    // Standard VM options passed on
@@ -877,7 +876,7 @@ public class TTY implements EventNotifier {
 
                 javaArgs = addArgument(javaArgs, token);
             } else if (token.equals("-tclassic")) {
-                usageError("Classic VM no longer supported.");
+                usageError(env, "Classic VM no longer supported.");
                 return;
             } else if (token.equals("-tclient")) {
                 // -client must be the first one
@@ -887,24 +886,24 @@ public class TTY implements EventNotifier {
                 javaArgs = "-server " + javaArgs;
             } else if (token.equals("-sourcepath")) {
                 if (i == (argv.length - 1)) {
-                    usageError("No sourcepath specified.");
+                    usageError(env, "No sourcepath specified.");
                     return;
                 }
-                Env.setSourcePath(argv[++i]);
+                env.setSourcePath(argv[++i]);
             } else if (token.equals("-classpath")) {
                 if (i == (argv.length - 1)) {
-                    usageError("No classpath specified.");
+                    usageError(env, "No classpath specified.");
                     return;
                 }
                 javaArgs = addArgument(javaArgs, token);
                 javaArgs = addArgument(javaArgs, argv[++i]);
             } else if (token.equals("-attach")) {
                 if (connectSpec != null) {
-                    usageError("cannot redefine existing connection", token);
+                    usageError(env, "cannot redefine existing connection", token);
                     return;
                 }
                 if (i == (argv.length - 1)) {
-                    usageError("No attach address specified.");
+                    usageError(env, "No attach address specified.");
                     return;
                 }
                 String address = argv[++i];
@@ -924,13 +923,13 @@ public class TTY implements EventNotifier {
                 }
             } else if (token.equals("-listen") || token.equals("-listenany")) {
                 if (connectSpec != null) {
-                    usageError("cannot redefine existing connection", token);
+                    usageError(env, "cannot redefine existing connection", token);
                     return;
                 }
                 String address = null;
                 if (token.equals("-listen")) {
                     if (i == (argv.length - 1)) {
-                        usageError("No attach address specified.");
+                        usageError(env, "No attach address specified.");
                         return;
                     }
                     address = argv[++i];
@@ -956,7 +955,7 @@ public class TTY implements EventNotifier {
             } else if (token.equals("-launch")) {
                 launchImmediately = true;
             } else if (token.equals("-listconnectors")) {
-                Commands evaluator = new Commands();
+                Commands evaluator = new Commands(env);
                 evaluator.commandConnectors(FXBootstrap.virtualMachineManager());
                 return;
             } else if (token.equals("-connect")) {
@@ -967,23 +966,23 @@ public class TTY implements EventNotifier {
                  * implementation.
                  */
                 if (connectSpec != null) {
-                    usageError("cannot redefine existing connection", token);
+                    usageError(env, "cannot redefine existing connection", token);
                     return;
                 }
                 if (i == (argv.length - 1)) {
-                    usageError("No connect specification.");
+                    usageError(env, "No connect specification.");
                     return;
                 }
                 connectSpec = argv[++i];
             } else if (token.equals("-help")) {
-                usage();
+                usage(env);
             } else if (token.equals("-version")) {
-                Commands evaluator = new Commands();
+                Commands evaluator = new Commands(env);
                 evaluator.commandVersion(progname,
                                          FXBootstrap.virtualMachineManager());
                 System.exit(0);
             } else if (token.startsWith("-")) {
-                usageError("invalid option", token);
+                usageError(env, "invalid option", token);
                 return;
             } else {
                 // Everything from here is part of the command line
@@ -1028,7 +1027,7 @@ public class TTY implements EventNotifier {
         if (cmdLine.length() > 0) {
             if (!connectSpec.startsWith("com.sun.javafx.jdi.connect.FXLaunchingConnector:") &&
                 !connectSpec.startsWith("com.sun.jdi.CommandLineLaunch:")) {
-                usageError("Cannot specify command line with connector:",
+                usageError(env, "Cannot specify command line with connector:",
                            connectSpec);
                 return;
             }
@@ -1038,7 +1037,7 @@ public class TTY implements EventNotifier {
         if (javaArgs.length() > 0) {
             if (!connectSpec.startsWith("com.sun.javafx.jdi.connect.FXLaunchingConnector:") &&
                 !connectSpec.startsWith("com.sun.jdi.CommandLineLaunch:")) {
-                usageError("Cannot specify target vm arguments with connector:",
+                usageError(env, "Cannot specify target vm arguments with connector:",
                            connectSpec);
                 return;
             }
@@ -1049,10 +1048,10 @@ public class TTY implements EventNotifier {
             if (! connectSpec.endsWith(",")) {
                 connectSpec += ","; // (Bug ID 4285874)
             }
-            Env.init(connectSpec, launchImmediately, traceFlags);
-            new TTY();
+            env.init(connectSpec, launchImmediately, traceFlags);
+            new TTY(env);
         } catch(Exception e) {
-            MessageOutput.printException("Internal exception:", e);
+            env.messageOutput().printException("Internal exception:", e);
         }
     }
 }

@@ -30,12 +30,10 @@ import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.ExceptionRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.event.ClassPrepareEvent;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 abstract class EventRequestSpec {
-
+    final Env env;
     final ReferenceTypeSpec refSpec;
 
     int suspendPolicy = EventRequest.SUSPEND_ALL;
@@ -43,7 +41,8 @@ abstract class EventRequestSpec {
     EventRequest resolved = null;
     ClassPrepareRequest prepareRequest = null;
 
-    EventRequestSpec(ReferenceTypeSpec refSpec) {
+    EventRequestSpec(Env env, ReferenceTypeSpec refSpec) {
+        this.env = env;
         this.refSpec = refSpec;
     }
 
@@ -65,7 +64,7 @@ abstract class EventRequestSpec {
 
             resolved = resolveEventRequest(event.referenceType());
             prepareRequest.disable();
-            Env.vm().eventRequestManager().deleteEventRequest(prepareRequest);
+            env.vm().eventRequestManager().deleteEventRequest(prepareRequest);
             prepareRequest = null;
 
             if (refSpec instanceof PatternReferenceTypeSpec) {
@@ -89,7 +88,7 @@ abstract class EventRequestSpec {
 
     synchronized void remove() {
         if (isResolved()) {
-            Env.vm().eventRequestManager().deleteEventRequest(resolved());
+            env.vm().eventRequestManager().deleteEventRequest(resolved());
         }
         if (refSpec instanceof PatternReferenceTypeSpec) {
             PatternReferenceTypeSpec prs = (PatternReferenceTypeSpec)refSpec;
@@ -102,18 +101,18 @@ abstract class EventRequestSpec {
                  */
                 ArrayList<ExceptionRequest> deleteList = new ArrayList<ExceptionRequest>();
                 for (ExceptionRequest er :
-                         Env.vm().eventRequestManager().exceptionRequests()) {
+                         env.vm().eventRequestManager().exceptionRequests()) {
                     if (prs.matches(er.exception())) {
                         deleteList.add (er);
                     }
                 }
-                Env.vm().eventRequestManager().deleteEventRequests(deleteList);
+                env.vm().eventRequestManager().deleteEventRequests(deleteList);
             }
         }
     }
 
     private EventRequest resolveAgainstPreparedClasses() throws Exception {
-        for (ReferenceType refType : Env.vm().allClasses()) {
+        for (ReferenceType refType : env.vm().allClasses()) {
             if (refType.isPrepared() && refSpec.matches(refType)) {
                 resolved = resolveEventRequest(refType);
             }
@@ -135,7 +134,7 @@ abstract class EventRequestSpec {
                 resolveAgainstPreparedClasses();
                 if (resolved != null) {
                     prepareRequest.disable();
-                    Env.vm().eventRequestManager().deleteEventRequest(prepareRequest);
+                    env.vm().eventRequestManager().deleteEventRequest(prepareRequest);
                     prepareRequest = null;
                 }
             }

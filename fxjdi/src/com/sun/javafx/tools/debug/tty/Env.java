@@ -35,49 +35,74 @@ import java.io.*;
 
 class Env {
 
-    static EventRequestSpecList specList = new EventRequestSpecList();
+    private EventRequestSpecList specList = new EventRequestSpecList(this);
 
-    private static boolean exitDebuggerVM = true;
+    private boolean exitDebuggerVM = true;
 
-    private static VMConnection connection;
+    private VMConnection connection;
 
-    private static SourceMapper sourceMapper = new SourceMapper("");
-    private static List<String> excludes;
+    private SourceMapper sourceMapper = new SourceMapper("");
+    private List<String> excludes;
 
     private static final int SOURCE_CACHE_SIZE = 5;
-    private static List<SourceCode> sourceCache = new LinkedList<SourceCode>();
+    private List<SourceCode> sourceCache = new LinkedList<SourceCode>();
 
-    private static HashMap<String, Value> savedValues = new HashMap<String, Value>();
-    private static Method atExitMethod;
+    private HashMap<String, Value> savedValues = new HashMap<String, Value>();
+    private Method atExitMethod;
+    private MessageOutput messageOutput = new MessageOutput();
 
-    static void init(String connectSpec, boolean openNow, int flags) {
-        connection = new VMConnection(connectSpec, flags);
+    // This is a list of all known ThreadInfo objects. It survives
+    // env.invalidateAllThreadInfo, unlike the other thread related fields below.
+    private final List<ThreadInfo> threads = Collections.synchronizedList(new ArrayList<ThreadInfo>());
+    private boolean gotInitialThreads = false;
+    private ThreadInfo currentThread = null;
+    private ThreadGroupReference currentThreadGroup = null;
+
+    void init(String connectSpec, boolean openNow, int flags) {
+        connection = new VMConnection(this, connectSpec, flags);
         if (!connection.isLaunch() || openNow) {
             connection.open();
         }
     }
 
-    static void setExitDebuggerVM(boolean flag) {
+    EventRequestSpecList getSpecList() {
+        return specList;
+    }
+
+    void setExitDebuggerVM(boolean flag) {
         exitDebuggerVM = flag;
     }
 
-    static boolean getExitDebuggerVM() {
+    boolean getExitDebuggerVM() {
         return exitDebuggerVM;
     }
 
-    static VMConnection connection() {
+    VMConnection connection() {
         return connection;
     }
 
-    static VirtualMachine vm() {
+    VirtualMachine vm() {
         return connection.vm();
     }
 
-    static void shutdown() {
+    MessageOutput messageOutput() {
+        return messageOutput;
+    }
+
+    void printPrompt() {
+        messageOutput().printPrompt(getCurrentThreadInfo());
+    }
+
+    void fatalError(String messageKey) {
+        messageOutput().fatalError(messageKey);
+        shutdown();
+    }
+
+    void shutdown() {
         shutdown(null);
     }
 
-    static void shutdown(String message) {
+    void shutdown(String message) {
         if (connection != null) {
             try {
                 connection.disposeVM();
@@ -87,36 +112,36 @@ class Env {
             }
         }
         if (message != null) {
-            MessageOutput.lnprint(message);
-            MessageOutput.println();
+            messageOutput().lnprint(message);
+            messageOutput().println();
         }
         if (exitDebuggerVM) {
             System.exit(0);
         }
     }
 
-    static void setSourcePath(String srcPath) {
+    void setSourcePath(String srcPath) {
         sourceMapper = new SourceMapper(srcPath);
         sourceCache.clear();
     }
 
-    static void setSourcePath(List<String> srcList) {
+    void setSourcePath(List<String> srcList) {
         sourceMapper = new SourceMapper(srcList);
         sourceCache.clear();
     }
 
-    static String getSourcePath() {
+    String getSourcePath() {
         return sourceMapper.getSourcePath();
     }
 
-    static private List<String> excludes() {
+    private List<String> excludes() {
         if (excludes == null) {
             setExcludes("java.*, javax.*, sun.*, com.sun.*");
         }
         return excludes;
     }
 
-    static String excludesString() {
+    String excludesString() {
         StringBuffer buffer = new StringBuffer();
         for (String pattern : excludes()) {
             buffer.append(pattern);
@@ -125,25 +150,25 @@ class Env {
         return buffer.toString();
     }
 
-    static void addExcludes(StepRequest request) {
+    void addExcludes(StepRequest request) {
         for (String pattern : excludes()) {
             request.addClassExclusionFilter(pattern);
         }
     }
 
-    static void addExcludes(MethodEntryRequest request) {
+    void addExcludes(MethodEntryRequest request) {
         for (String pattern : excludes()) {
             request.addClassExclusionFilter(pattern);
         }
     }
 
-    static void addExcludes(MethodExitRequest request) {
+    void addExcludes(MethodExitRequest request) {
         for (String pattern : excludes()) {
             request.addClassExclusionFilter(pattern);
         }
     }
 
-    static void setExcludes(String excludeString) {
+    void setExcludes(String excludeString) {
         StringTokenizer t = new StringTokenizer(excludeString, " ,;");
         List<String> list = new ArrayList<String>();
         while (t.hasMoreTokens()) {
@@ -152,11 +177,11 @@ class Env {
         excludes = list;
     }
 
-    static Method atExitMethod() {
+    Method atExitMethod() {
         return atExitMethod;
     }
 
-    static void setAtExitMethod(Method mmm) {
+    void setAtExitMethod(Method mmm) {
         atExitMethod = mmm;
     }
 
@@ -165,11 +190,11 @@ class Env {
      * Return null if not available.
      * Note: returned reader must be closed.
      */
-    static BufferedReader sourceReader(Location location) {
+    BufferedReader sourceReader(Location location) {
         return sourceMapper.sourceReader(location);
     }
 
-    static synchronized String sourceLine(Location location, int lineNumber)
+    synchronized String sourceLine(Location location, int lineNumber)
                                           throws IOException {
         if (lineNumber == -1) {
             throw new IllegalArgumentException();
@@ -206,7 +231,7 @@ class Env {
     }
 
     /** Return a description of an object. */
-    static String description(ObjectReference ref) {
+    String description(ObjectReference ref) {
         ReferenceType clazz = ref.referenceType();
         long id = ref.uniqueID();
         if (clazz == null) {
@@ -262,7 +287,7 @@ class Env {
         return ret;
     }
 
-    static ReferenceType getReferenceTypeFromToken(String idToken) {
+    ReferenceType getReferenceTypeFromToken(String idToken) {
         ReferenceType cls = null;
         if (Character.isDigit(idToken.charAt(0))) {
             cls = null;
@@ -272,7 +297,7 @@ class Env {
         // loaded class whose name matches this limited regular
         // expression is selected.
         idToken = idToken.substring(1);
-        for (ReferenceType type : Env.vm().allClasses()) {
+        for (ReferenceType type : vm().allClasses()) {
             if (type.name().endsWith(idToken)) {
                 cls = type;
                 break;
@@ -280,7 +305,7 @@ class Env {
         }
     } else {
             // It's a class name
-            List<ReferenceType> classes = Env.vm().classesByName(idToken);
+            List<ReferenceType> classes = vm().classesByName(idToken);
             if (classes.size() > 0) {
                 // TO DO: handle multiples
                 cls = classes.get(0);
@@ -289,16 +314,158 @@ class Env {
         return cls;
     }
 
-    static Set<String> getSaveKeys() {
+    Set<String> getSaveKeys() {
         return savedValues.keySet();
     }
 
-    static Value getSavedValue(String key) {
+    Value getSavedValue(String key) {
         return savedValues.get(key);
     }
 
-    static void setSavedValue(String key, Value value) {
+    void setSavedValue(String key, Value value) {
         savedValues.put(key, value);
+    }
+
+    // Current thread/threadGroup methods
+    private ThreadInfo createThreadInfo(ThreadReference thread) {
+        if (thread == null) {
+            fatalError("Internal error: null ThreadInfo created");
+        }
+        return new ThreadInfo(thread);
+    }
+
+    private void initThreads() {
+        if (!gotInitialThreads) {
+            for (ThreadReference thread : vm().allThreads()) {
+                threads.add(createThreadInfo(thread));
+            }
+            gotInitialThreads = true;
+        }
+    }
+
+    void addThread(ThreadReference thread) {
+        synchronized (threads) {
+            initThreads();
+            ThreadInfo ti = createThreadInfo(thread);
+            // Guard against duplicates. Duplicates can happen during
+            // initialization when a particular thread might be added both
+            // by a thread start event and by the initial call to threads()
+            if (getThreadInfo(thread) == null) {
+                threads.add(ti);
+            }
+        }
+    }
+
+    void removeThread(ThreadReference thread) {
+        if (thread.equals(currentThread)) {
+            // Current thread has died.
+
+            // Be careful getting the thread name. If its death happens
+            // as part of VM termination, it may be too late to get the
+            // information, and an exception will be thrown.
+            String currentThreadName;
+            try {
+               currentThreadName = "\"" + thread.name() + "\"";
+            } catch (Exception e) {
+               currentThreadName = "";
+            }
+
+            setCurrentThread(null);
+
+            messageOutput().println();
+            messageOutput().println("Current thread died. Execution continuing...",
+                                  currentThreadName);
+        }
+        threads.remove(getThreadInfo(thread));
+    }
+
+    List<ThreadInfo> threads() {
+        synchronized(threads) {
+            initThreads();
+            // Make a copy to allow iteration without synchronization
+            return new ArrayList<ThreadInfo>(threads);
+        }
+    }
+
+    void invalidateAllThreadInfo() {
+        currentThread = null;
+        currentThreadGroup = null;
+        synchronized (threads) {
+            for (ThreadInfo ti : threads()) {
+                ti.invalidate();
+            }
+        }
+    }
+
+    void setThreadGroup(ThreadGroupReference tg) {
+        currentThreadGroup = tg;
+    }
+
+    void setCurrentThread(ThreadReference tr) {
+        if (tr == null) {
+            setCurrentThreadInfo(null);
+        } else {
+            ThreadInfo tinfo = getThreadInfo(tr);
+            setCurrentThreadInfo(tinfo);
+        }
+    }
+
+    void setCurrentThreadInfo(ThreadInfo tinfo) {
+        currentThread = tinfo;
+        if (currentThread != null) {
+            currentThread.invalidate();
+        }
+    }
+
+    /**
+     * Get the ThreadInfo object.
+     *
+     * @return the ThreadInfo for the currentThread thread.
+     */
+    ThreadInfo getCurrentThreadInfo() {
+        return currentThread;
+    }
+
+
+    ThreadGroupReference getCurrentThreadGroup() {
+        if (currentThreadGroup == null) {
+            // Current current thread group defaults to the first top level
+            // thread group.
+            setThreadGroup(vm().topLevelThreadGroups().get(0));
+        }
+        return currentThreadGroup;
+    }
+
+    ThreadInfo getThreadInfo(long id) {
+        ThreadInfo retInfo = null;
+
+        synchronized (threads) {
+            for (ThreadInfo ti : threads()) {
+                if (ti.getThread().uniqueID() == id) {
+                   retInfo = ti;
+                   break;
+                }
+            }
+        }
+        return retInfo;
+    }
+
+    ThreadInfo getThreadInfo(ThreadReference tr) {
+        return getThreadInfo(tr.uniqueID());
+    }
+
+    ThreadInfo getThreadInfo(String idToken) {
+        ThreadInfo tinfo = null;
+        if (idToken.startsWith("t@")) {
+            idToken = idToken.substring(2);
+        }
+        try {
+            long threadId = Long.decode(idToken).longValue();
+            tinfo = getThreadInfo(threadId);
+        } catch (NumberFormatException e) {
+            tinfo = null;
+        }
+        return tinfo;
     }
 
     static class SourceCode {
