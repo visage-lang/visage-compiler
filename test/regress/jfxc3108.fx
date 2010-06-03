@@ -2,7 +2,6 @@
  * Regression: JFXC-3108 - Compiler internal error when using sizeof seq within an on replace on the seq, when in declared in a run() block.
  *
  * @test
- * @run
  *
  */
 
