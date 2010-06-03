@@ -50,10 +50,10 @@ public class BasicTest extends JdbBase {
             fxrun();
 
             waitForBreakpointEvent();
-//          commented out, parse errors.
-//            Assert.assertTrue(verifyValue("begin", "Foo.fx says Hello"));
-//            Assert.assertTrue(verifyValue("msg1", "Breakpoint 1"));
-//            Assert.assertTrue(verifyValue("msg2", "Breakpoint 2"));
+
+            Assert.assertTrue(verifyValue("Foo.begin", "Foo.fx says Hello"));
+            Assert.assertTrue(verifyValue("Foo.msg1", "Breakpoint 1"));
+            Assert.assertTrue(verifyValue("Foo.msg2", "Breakpoint 2"));
 
             where();
             Assert.assertTrue(contains("Foo.javafx$run$ (Foo.fx:4)"));
