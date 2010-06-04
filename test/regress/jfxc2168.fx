@@ -18,9 +18,9 @@ f();
 
 someOtherVar = 1; // fires the trigger
 
-// allocate a bunch of memory
+// Do stuff.
 var seq = [0];
-for (i in [1..50000]) {
+for (i in [1..100]) {
     insert i into seq;
 }
 
