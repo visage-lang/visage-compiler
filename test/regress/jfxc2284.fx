@@ -6,12 +6,20 @@
  *
  */
 
-var x = bind 3 on replace {
-                 
-                 def y = 4 on replace {
-                             
-               	 throw new java.lang.RuntimeException("uncaught exception") //#Line5
-                            }
-               println("1.This statement should not be executed if exception thrown. x value {x}");
-               println("2.This statement should not be executed if exception thrown. x value {x}");
-             }
+import java.lang.RuntimeException;
+
+try {
+    var x = bind 3 on replace {
+                     
+                     def y = 4 on replace {
+                                 
+                     println("1.This statement should always be printed. x value {x}");
+    
+                     throw new java.lang.RuntimeException("uncaught exception")
+                                }
+                                
+                     println("2.This statement should not be executed if exception thrown. x value {x}");
+                 }
+} catch (e:RuntimeException) {
+    println("3.This statement should be executed if exception thrown.");
+}
