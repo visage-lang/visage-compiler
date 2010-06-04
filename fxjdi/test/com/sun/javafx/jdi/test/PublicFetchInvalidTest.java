@@ -69,7 +69,7 @@ public class PublicFetchInvalidTest extends JavafxTestBase {
         targetClass = bpe.location().declaringType();
 
         FXReferenceType topClass = (FXReferenceType)vm().classesByName(targetClassName).get(0);
-        writeActual("Field values for class = " + topClass);
+        writeActual("Field values for class = " + topClass.name());
         writeActual("  value of staticVar = " + topClass.FXGetValue(topClass.fieldByName("staticVar")));
         // note that staticBinder is invalid
         writeActual("  value of staticBinder = " + topClass.getValue(topClass.fieldByName("staticBinder")));

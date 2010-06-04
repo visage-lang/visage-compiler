@@ -1,5 +1,5 @@
 stop in = com.sun.javafx.jdi.test.target.PublicFetchInvalidTarget$sam
-Field values for class = class com.sun.javafx.jdi.test.target.PublicFetchInvalidTarget (loaded by instance of sun.misc.Launcher$AppClassLoader)
+Field values for class = com.sun.javafx.jdi.test.target.PublicFetchInvalidTarget
   value of staticVar = 89.0
   value of staticBinder = <void value>
   ReadOnly, Bound, Invalid flags for all fields
