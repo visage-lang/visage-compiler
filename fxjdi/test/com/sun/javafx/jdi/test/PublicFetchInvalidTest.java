@@ -70,9 +70,13 @@ public class PublicFetchInvalidTest extends JavafxTestBase {
 
         FXReferenceType topClass = (FXReferenceType)vm().classesByName(targetClassName).get(0);
         writeActual("Field values for class = " + topClass.name());
-        writeActual("  value of staticVar = " + topClass.FXGetValue(topClass.fieldByName("staticVar")));
+        writeActual("  value of staticVar = " + topClass.getValue(topClass.fieldByName("staticVar")));
         // note that staticBinder is invalid
-        writeActual("  value of staticBinder = " + topClass.getValue(topClass.fieldByName("staticBinder")));
+        if (topClass.isInvalid(topClass.fieldByName("staticBinder"))) {
+            writeActual("  staticBinder is invalid");
+        } else {
+            writeActual("  value of staticBinder = " + topClass.getValue(topClass.fieldByName("staticBinder")));
+        }
 
         writeActual("  ReadOnly, Bound, Invalid flags for all fields");
         List<Field>allFields = topClass.allFields();
@@ -84,17 +88,23 @@ public class PublicFetchInvalidTest extends JavafxTestBase {
 
         }
 
-        writeActual("  Values of all fields with VoidValue for fields with getters");
-        Map<Field, Value>allValues = topClass.getValues(allFields);
+        writeActual("  Values of all valid static fields");
+        List<Field> validFields = new java.util.ArrayList<Field>(allFields.size());
         for (Field fld: allFields) {
-            writeActual("   field = " + fld + ", value = " + allValues.get(fld));
+            if (!topClass.isInvalid(fld)) {
+                validFields.add(fld);
+            }
+        }
+        Map<Field, Value>allValues = topClass.getValues(validFields);
+        for (Field fld: validFields) {
+            writeActual("   field1 = " + fld + ", value = " + allValues.get(fld));
         }
 
         // Note that this forces staticBinder to be evaluated and the new value is fetched.
-        writeActual("  Values of all fields with forced values for fields with getters");
-        allValues = topClass.FXGetValues(allFields);
+        writeActual("  Values of all static fields");
+        allValues = topClass.getValues(allFields);
         for (Field fld: allFields) {
-            writeActual("   field = " + fld + ", value = " + allValues.get(fld));
+            writeActual("   field2 = " + fld + ", value = " + allValues.get(fld));
         }
 
         {
@@ -108,12 +118,16 @@ public class PublicFetchInvalidTest extends JavafxTestBase {
         }
 
         // Object ivars
-        FXObjectReference samObjRef = (FXObjectReference)topClass.FXGetValue(topClass.fieldByName("samObj"));
+        FXObjectReference samObjRef = (FXObjectReference)topClass.getValue(topClass.fieldByName("samObj"));
         ReferenceType samClass = (ReferenceType)samObjRef.type();
         writeActual("\nField values for object = " + samObjRef);
-        writeActual("  value of ivar0 = "          + samObjRef.FXGetValue(samClass.fieldByName("ivar0")));
-        writeActual("  value of ivar1 = "          + samObjRef.FXGetValue(samClass.fieldByName("ivar1")));
-        writeActual("  value of ivarBinder = "     + samObjRef.getValue(samClass.fieldByName("ivarBinder")));
+        writeActual("  value of ivar0 = "          + samObjRef.getValue(samClass.fieldByName("ivar0")));
+        writeActual("  value of ivar1 = "          + samObjRef.getValue(samClass.fieldByName("ivar1")));
+        if(samObjRef.isInvalid(samClass.fieldByName("ivarBinder"))) {
+            writeActual("  ivarBinder is invalid");
+        } else {
+            writeActual("  value of ivarBinder = "     + samObjRef.getValue(samClass.fieldByName("ivarBinder")));
+        }
 
         writeActual(" Readonly, Bound, and Invalid flags for all fields");
         allFields = samClass.allFields();
@@ -124,16 +138,23 @@ public class PublicFetchInvalidTest extends JavafxTestBase {
                     samObjRef.isInvalid(fld));
         }
 
-        writeActual("  Values of all fields with VoidValue for fields with getters:");
-        allValues = samObjRef.getValues(allFields);
+        writeActual("  Values of all valid object fields:");
+        validFields = new java.util.ArrayList<Field>(allFields.size());
         for (Field fld: allFields) {
-            writeActual("   field = " + fld + ", value = " + allValues.get(fld));
+            if (!samObjRef.isInvalid(fld)) {
+                validFields.add(fld);
+            }
+        }
+        allValues = samObjRef.getValues(validFields);
+        for (Field fld: validFields) {
+            writeActual("   field3 = " + fld + ", value = " + allValues.get(fld));
         }
 
-        writeActual("  Values of all fields with getters called:");
-        allValues = samObjRef.FXGetValues(allFields);
+
+        writeActual("  Values of all object fields:");
+        allValues = samObjRef.getValues(allFields);
         for (Field fld: allFields) {
-            writeActual("   field = " + fld + ", value = " + allValues.get(fld));
+            writeActual("   field4 = " + fld + ", value = " + allValues.get(fld));
         }
 
         {

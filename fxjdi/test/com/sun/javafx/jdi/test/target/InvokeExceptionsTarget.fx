@@ -23,30 +23,19 @@
 
 package com.sun.javafx.jdi.test.target;
 
-// Note that these script vars are in the 'script' inner class
-public def defStaticVar = 22.3;
-public var staticVar: Number;
-public var staticBinder = bind staticVar;
-
-
-// Nested class
-public class sam {
-    def ivarDef = 33.0;
-    public def pubivarDef = 33.0;
-    public var ivar0: Number = 89.4;
-    public var ivar1: Number;          // this is NOT named sam$ivar1 because it is public
-    public var ivarBinder = bind ivar1;
-    public function stopHere(){
-    }
-};
-
-public var samObj = sam{};
-
+class InvokeExceptionsTarget {
+    public var bb: Boolean = true;
+    public var ii: Integer = 89;;
+    public var nn: Number = 88.5;
+    public var ss: String = "Hi there, sailor";
+    public var dd: Duration = 0ms;
+    public var oo: Object ;
+    public var ff: function():Void;
+    public var qq: String[] = ["a", "b"];
+}
+public var stat: Integer = 5 ;
+var obj = InvokeExceptionsTarget{};
 function run() {
-    staticVar = 89.0;
-    // staticBinder is now invalid
-
-    samObj.ivar1 = 22.6;
-    // samObj.samBinder is now invalid
-    samObj.stopHere();
+    println(stat);
+    java.lang.Thread.sleep(10000);
 }

@@ -74,59 +74,42 @@ public class SetValueTest extends JavafxTestBase {
         ReferenceType topClass = vm().classesByName(targetClassName).get(0);
         List<Field>allFields = targetClass.allFields();
 
-        FXObjectReference initVals = (FXObjectReference)((FXReferenceType)topClass).FXGetValue(topClass.fieldByName("initVals"));
-        FXObjectReference secondVals = (FXObjectReference)((FXReferenceType)topClass).FXGetValue(topClass.fieldByName("secondVals"));
+        ObjectReference initVals = (ObjectReference)topClass.getValue(topClass.fieldByName("initVals"));
+        ObjectReference secondVals = (ObjectReference)topClass.getValue(topClass.fieldByName("secondVals"));
 
-        Map<Field, Value>secondValsValues = secondVals.FXGetValues(allFields);
+        Map<Field, Value>secondValsValues = secondVals.getValues(allFields);
 
         for (Field fld: allFields) {
             Value vv = secondValsValues.get(fld);
-            initVals.FXSetValue(fld, vv);
+            initVals.setValue(fld, vv);
         }
 
         for (Field fld: allFields) {
-            writeActual("field " + fld + ": value = " + initVals.FXGetValue(fld));
+            writeActual("field " + fld + ": value = " + initVals.getValue(fld));
         }
 
         FXClassType topClassClass = (FXClassType)topClass;
         Field statVar = topClass.fieldByName("statString");
-        topClassClass.FXSetValue(statVar, vm().mirrorOf("statString2"));
+        topClassClass.setValue(statVar, vm().mirrorOf("statString2"));
         writeActual("statString = " + topClass.getValue(statVar));
 
         statVar = topClass.fieldByName("defStatString");
         // This should be illegal - can't set a def var
         try { 
-            topClassClass.FXSetValue(statVar, vm().mirrorOf("defStatString2"));
+            topClassClass.setValue(statVar, vm().mirrorOf("defStatString2"));
         } catch(IllegalArgumentException ee) {
             writeActual(ee.toString());
         }
 
-        writeActual("defStatString = " + ((FXReferenceType)topClass).FXGetValue(statVar));
+        writeActual("defStatString = " + topClass.getValue(statVar));
 
         statVar = topClass.fieldByName("staticBinder");
-        Value invValue = ((FXReferenceType)topClass).getValue(statVar);
-        // staticBinder is invalid
-        writeActual("staticBinder = " + invValue);
-        writeActual("invValue: getClass() " + invValue.getClass());
-        writeActual("invValue: type()     " + invValue.type());
-        writeActual("invValue: instanceof VoidValue "      + (invValue instanceof VoidValue));
 
-        // This should be illegal - can't set a bound var
-        try { 
-            topClassClass.FXSetValue(statVar, vm().mirrorOf(2));
+        // This is illegal - can't set a bound var
+        try {  
+           topClassClass.setValue(statVar, vm().mirrorOf(2));
         } catch(IllegalArgumentException ee) {
-            writeActual("Can't set a bound var: " + ee.toString());
-        }
-
-        // This forces evaluation of staticBinder; it becomes valid
-        writeActual("staticBinder = " + ((FXReferenceType)topClass).FXGetValue(statVar));
-
-        statVar=topClass.fieldByName("staticBindee");
-        try {
-            // Illegal to set a var to the FXInvalidValue
-            topClassClass.FXSetValue(statVar, invValue);
-        } catch (Exception ee) {
-            writeActual("Can't set an invalid value: " + ee.toString());
+            writeActual(ee.toString());
         }
 
         testFailed = !didTestPass();

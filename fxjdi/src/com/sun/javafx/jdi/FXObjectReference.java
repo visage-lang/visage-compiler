@@ -87,14 +87,84 @@ public class FXObjectReference extends FXValue implements ObjectReference {
         return (getFlagWord(field) & mask) == mask;
     }
 
-    private Map<Field, Value> getValuesCommon(List<? extends Field> wrappedFields, boolean doInvokes) throws
-        InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    /**
+     * JDI addition:
+     */
+    public boolean isReadOnly(Field field) {
+        return areFlagBitsSet(field, virtualMachine().FXReadOnlyFlagMask());
+    }
+
+    /**
+     * JDI addition:
+     */
+    public boolean isInvalid(Field field) {
+        return areFlagBitsSet(field, virtualMachine().FXInvalidFlagMask());
+    }
+
+    /**
+     * JDI addition:
+     */
+    public boolean isBound(Field field) {
+        return areFlagBitsSet(field, virtualMachine().FXBoundFlagMask());
+    }
+
+    /**
+     * JDI extension:  This will call the getter if one exists.  If an invokeMethod Exception occurs, 
+     * it is saved in FXVirtualMachine and the default value is returned for a PrimitiveType, or null 
+     * is returned for a non PrimitiveType.
+     */
+    public Value getValue(Field field) {
+        virtualMachine().setLastFieldAccessException(null);
+        Field jdiField = FXWrapper.unwrap(field);
+        FXReferenceType wrappedClass = (FXReferenceType)referenceType();
+        if (!wrappedClass.isJavaFXType()) {
+            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
+        }
+
+        //get$xxxx methods exist for fields except private fields which have no binders
+        ReferenceType unwrappedClass = FXWrapper.unwrap(referenceType());
+        List<Method> mth = unwrappedClass.methodsByName("get" + jdiField.name());
+        if (mth.size() == 0) {
+            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
+        }
+        Exception theExc = null;
+        try {
+            return invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), 0);
+        } catch(InvalidTypeException ee) {
+            theExc = ee;
+        } catch(ClassNotLoadedException ee) {
+            theExc = ee;
+        } catch(IncompatibleThreadStateException ee) {
+            theExc = ee;
+        } catch(InvocationException ee) {
+            theExc = ee;
+        }
+        // We don't have to catch IllegalArgumentException.  It is an unchecked exception for invokeMethod
+        // and for getValue
+
+        virtualMachine().setLastFieldAccessException(theExc);
+        try {
+            return virtualMachine().defaultValue(field.type());
+        } catch(ClassNotLoadedException ee) {
+            // The type has to be a ReferenceType for which we return null;
+            return null;
+        }
+    }
+
+    /**
+     * JDI extension:  This will call a getter if one exists.  If an invokeMethod Exception occurs, 
+     * it is saved in FXVirtualMachine and the default value is returned for a PrimitiveType, or null
+     * is returned for a non PrimitiveType.
+     */
+    public Map<Field, Value> getValues(List<? extends Field> wrappedFields) {
+        virtualMachine().setLastFieldAccessException(null);
+
         // We will find fields which have no getters, and call the underlying
         // getValues to get values for all of them in one fell swoop.
         Map<Field, Field> unwrappedToWrappedMap = new HashMap<Field, Field>();
         List<Field> noGetterUnwrappedFields = new ArrayList<Field>();    // fields that don't have getters
 
-        // For fields that do have getters, we will just return VoidValue for them if
+        // But first, for fields that do have getters, call invokeMethod
         // or we will call FXGetValue for each, depending on doInvokes
         Map<Field, Value> result = new HashMap<Field, Value>();
         FXReferenceType wrappedClass = (FXReferenceType)referenceType();
@@ -106,18 +176,15 @@ public class FXObjectReference extends FXValue implements ObjectReference {
             if (wrappedClass.isJavaFXType()) {
                 List<Method> mth = unwrappedClass.methodsByName("get" + unwrapped.name());
                 if (mth.size() == 0) {
-                    // no getter
+                    // No getter
                     unwrappedToWrappedMap.put(unwrapped, wrappedField);
                     noGetterUnwrappedFields.add(unwrapped);
                 } else {
-                    // field has a getter
-                    if (doInvokes) {
-                        result.put(wrappedField, FXGetValue(wrappedField));
-                    } else {
-                        result.put(wrappedField, virtualMachine().voidValue());
-                    }
+                    // Field has a getter
+                    result.put(wrappedField, getValue(wrappedField));
                 }
             } else {
+                // Java type
                 unwrappedToWrappedMap.put(unwrapped, wrappedField);
                 noGetterUnwrappedFields.add(unwrapped);
             }                
@@ -136,92 +203,6 @@ public class FXObjectReference extends FXValue implements ObjectReference {
             Value resultValue = FXWrapper.wrap(virtualMachine(), 
                                              unwrappedFieldValues.get(unwrappedEntry.getKey()));
             result.put(wrappedField, resultValue);
-        }
-        return result;
-    }
-
-    /**
-     * Extension to JDI
-     */
-    public boolean isReadOnly(Field field) {
-        return areFlagBitsSet(field, virtualMachine().FXReadOnlyFlagMask());
-    }
-
-    /**
-     * Extension to JDI
-     */
-    public boolean isInvalid(Field field) {
-        return areFlagBitsSet(field, virtualMachine().FXInvalidFlagMask());
-    }
-
-    /**
-     * Extension to JDI
-     */
-    public boolean isBound(Field field) {
-        return areFlagBitsSet(field, virtualMachine().FXBoundFlagMask());
-    }
-
-    /**
-     * JDI Extension:  This will call the getter if one exists
-     */
-    public FXValue FXGetValue(Field field) throws
-        InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
-        Field jdiField = FXWrapper.unwrap(field);
-        FXReferenceType clazz = (FXReferenceType)referenceType();
-        if (!clazz.isJavaFXType()) {
-            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
-        }
-
-        //get$xxxx methods exist for fields except private fields which have no binders
-        List<Method> mth = FXWrapper.unwrap(clazz).methodsByName("get" + jdiField.name());
-        if (mth.size() == 0) {
-            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
-        }
-        return invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), 0);
-    }
-
-    /**
-     * Extension to JDI:  This will call the getter for a field if there is one
-     */
-    public Map<Field, Value> FXGetValues(List<? extends Field> wrappedFields) throws
-        InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
-
-        return getValuesCommon(wrappedFields, true);
-    }
-
-    /**
-     * Extension to JDI:  Return VoidValue if the field has a setter
-     */
-    public FXValue getValue(Field field) {
-        Field jdiField = FXWrapper.unwrap(field);
-        FXReferenceType wrappedClass = (FXReferenceType)referenceType();
-        if (!wrappedClass.isJavaFXType()) {
-            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
-        }
-
-        //get$xxxx methods exist for fields except private fields which have no binders
-        ReferenceType unwrappedClass = FXWrapper.unwrap(referenceType());
-        List<Method> mth = unwrappedClass.methodsByName("get" + jdiField.name());
-
-        if (mth.size() == 0) {
-            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
-        }
-        return virtualMachine().voidValue();
-    }
-
-    /**
-     * JDI Extension: This will return VoidValue for a field that has a getter
-     */
-    public Map<Field, Value> getValues(List<? extends Field> wrappedFields) {
-        
-        Map<Field,Value> result = null;
-        try {
-            // this call does no invoke, so none of the exceptions are thrown
-            result = getValuesCommon(wrappedFields, false);
-        } catch(InvalidTypeException ee) {
-        } catch(ClassNotLoadedException ee) {
-        } catch(IncompatibleThreadStateException ee) {
-        } catch(InvocationException ee) {
         }
         return result;
     }
@@ -248,10 +229,12 @@ public class FXObjectReference extends FXValue implements ObjectReference {
     }
 
     /**
-     * JDI extension:  This throws IllegalArgumentException if field has a setter method
+     * JDI extension:  This will call the setter if one exists.  If an invokeMethod Exception occurs, 
+     * it is saved in FXVirtualMachine.
      */
-    private void setValueCommon(Field field, Value value, boolean invokeAllowed)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    public void setValue(Field field, Value value) throws
+        InvalidTypeException, ClassNotLoadedException {
+        virtualMachine().setLastFieldAccessException(null);
         Field jdiField = FXWrapper.unwrap(field);
         Value jdiValue = FXWrapper.unwrap(value);
         FXReferenceType clazz = (FXReferenceType)referenceType();
@@ -267,41 +250,31 @@ public class FXObjectReference extends FXValue implements ObjectReference {
         }
 
         //get$xxxx methods exist for fields except private fields which have no binders
-        List<Method> mth = FXWrapper.unwrap(clazz).methodsByName("set" + jdiField.name());
+        List<Method> mth = clazz.methodsByName("set" + jdiField.name());
         if (mth.size() == 0) {
             // there is no setter
             underlying().setValue(jdiField, jdiValue);
             return;
         }
         // there is a setter
-        if (!invokeAllowed) {
-            throw new IllegalArgumentException("Error: FX field " + field + " has a setter; call FXSetValue instead of setValue");
-        }
         ArrayList<Value> args = new ArrayList<Value>(1);
         args.add(jdiValue);
-        invokeMethod(virtualMachine().uiThread(), mth.get(0), args, 0);
-    }
-
-    /**
-     * JDI extension:  This will call a setter if one exists.  It uses invokeMethod to do this
-     * so it can throw the same exceptions as does invokeMethod.
-     */
-    public void FXSetValue(Field field, Value value) throws 
-        InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
-        setValueCommon(field, value, true);
-    }
-
-    /**
-     * JDI extension:  This throws IllegalArgumentException if field is read only or has a setter method
-     */
-    public void setValue(Field field, Value value) throws InvalidTypeException, ClassNotLoadedException {
+        Exception theExc = null;
         try {
-            setValueCommon(field, value, false);
-        } catch (IncompatibleThreadStateException ee) {
-            // can't happen
-        } catch (InvocationException ee) {
-            // can't happen
+            invokeMethod(virtualMachine().uiThread(), mth.get(0), args, 0);
+        } catch(InvalidTypeException ee) {
+            theExc = ee;
+        } catch(ClassNotLoadedException ee) {
+            theExc = ee;
+        } catch(IncompatibleThreadStateException ee) {
+            theExc = ee;
+        } catch(InvocationException ee) {
+            theExc = ee;
         }
+        // We don't have to catch IllegalArgumentException.  It is an unchecked exception for invokeMethod
+        // and for getValue
+
+        virtualMachine().setLastFieldAccessException(theExc);
     }
 
     public long uniqueID() {

@@ -25,6 +25,7 @@ package com.sun.javafx.jdi;
 
 import com.sun.javafx.jdi.event.FXEventQueue;
 import com.sun.javafx.jdi.request.FXEventRequestManager;
+import com.sun.jdi.Type;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.BooleanType;
@@ -264,6 +265,74 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return new FXStringReference(this, underlying().mirrorOf(value));
     }
 
+    // default values
+
+    private FXBooleanValue booleanDefaultValue;
+    protected synchronized FXBooleanValue booleanDefaultValue() {
+        if (booleanDefaultValue == null) {
+            booleanDefaultValue = mirrorOf(false);
+        }
+        return booleanDefaultValue;
+    }
+
+    private FXByteValue byteDefaultValue;
+    protected synchronized FXByteValue byteDefaultValue() {
+        if (byteDefaultValue == null) {
+            byteDefaultValue = mirrorOf((byte)0);
+        }
+        return byteDefaultValue;
+    }
+
+    private FXCharValue charDefaultValue;
+    protected synchronized FXCharValue charDefaultValue() {
+        if (charDefaultValue == null) {
+            charDefaultValue = mirrorOf('\u0000');
+        }
+        return charDefaultValue;
+    }
+
+    private FXShortValue shortDefaultValue;
+    protected synchronized FXShortValue shortDefaultValue() {
+        if (shortDefaultValue == null) {
+            shortDefaultValue = mirrorOf((short)0);
+        }
+        return shortDefaultValue;
+    }
+
+    private FXIntegerValue integerDefaultValue;
+    protected synchronized FXIntegerValue integerDefaultValue() {
+        if (integerDefaultValue == null) {
+            integerDefaultValue = mirrorOf(0);
+        }
+        return integerDefaultValue;
+    }
+
+    private FXLongValue longDefaultValue;
+    protected synchronized FXLongValue longDefaultValue() {
+        if (longDefaultValue == null) {
+            longDefaultValue = mirrorOf(0l);
+        }
+        return longDefaultValue;
+    }
+
+    private FXFloatValue floatDefaultValue;
+    protected synchronized FXFloatValue floatDefaultValue() {
+        if (floatDefaultValue == null) {
+            floatDefaultValue = mirrorOf(0.0f);
+        }
+        return floatDefaultValue;
+    }
+
+    private FXDoubleValue doubleDefaultValue;
+    protected synchronized FXDoubleValue doubleDefaultValue() {
+        if (doubleDefaultValue == null) {
+            doubleDefaultValue = mirrorOf(0.0d);
+        }
+        return doubleDefaultValue;
+    }
+
+    //////////
+
     public String name() {
         return underlying().name();
     }
@@ -305,7 +374,10 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     private FXThreadReference cacheUiThread = null;
-    public FXThreadReference uiThread() {
+    /**
+     * JDI addition:  Return the thread upon which invokeMethods are performed to get/set fields
+     */
+    public ThreadReference uiThread() {
         if (cacheUiThread == null) {
             FXField uiThreadField = fxEntryType().fieldByName("uiThread");
             cacheUiThread = (FXThreadReference) ((FXReferenceType)fxEntryType()).getValue(uiThreadField);
@@ -379,7 +451,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
 
     // wrapper methods
 
-    // primitive type accessors private FXBooleanType booleanType;
+    // primitive type accessors
     private FXVoidType voidType;
     protected synchronized FXVoidType voidType(VoidType vt) {
         if (voidType == null) {
@@ -596,6 +668,19 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return new FXStackFrame(this, frame);
     }
 
+    protected Exception lastFieldAccessException = null;
+    protected void setLastFieldAccessException(Exception ee) {
+        lastFieldAccessException = ee;
+    }
+
+    /**
+     * JDI addition: Return the exception thrown by an invokeMethod call that was 
+     * performed in the most recent setValue, getValue, or getValues method call.
+     * Return null if no such exception was thrown.
+     */
+    public Exception lastFieldAccessException() {
+        return lastFieldAccessException;
+    }
 
     // cache these masks 
     private int invalidFlagMask = 0;
@@ -634,5 +719,34 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
             boundFlagMask = getFlagMask("VFLGS$IS_BOUND");
         }
         return boundFlagMask;
+    }
+    
+    protected Value defaultValue(Type type) {
+        if (type instanceof BooleanType) {
+            return booleanDefaultValue();
+        }
+        if (type instanceof ByteType) {
+            return byteDefaultValue();
+        }
+        if (type instanceof CharType) {
+            return charDefaultValue();
+        }
+        if (type instanceof DoubleType) {
+            return doubleDefaultValue();
+        }
+        if (type instanceof FloatType) {
+            return floatDefaultValue();
+        }
+        if (type instanceof IntegerType) {
+            return integerDefaultValue();
+        }
+        if (type instanceof LongType) {
+            return longDefaultValue();
+        }
+        if (type instanceof ShortType) {
+            return shortDefaultValue();
+        }
+        // else it is an object/array/sequence/...
+        return null;
     }
 }

@@ -84,8 +84,14 @@ public class FXClassType extends FXReferenceType implements ClassType {
     }
 
 
-    private void setValueCommon(Field field, Value value, boolean invokeAllowed)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    /**
+     * JDI extension:  This will call the setter if one exists.  If an invokeMethod Exception occurs, 
+     * it is saved in FXVirtualMachine.
+     */
+    public void setValue(Field field, Value value) throws 
+        InvalidTypeException, ClassNotLoadedException {
+
+        virtualMachine().setLastFieldAccessException(null);
         Field jdiField = FXWrapper.unwrap(field);
         Value jdiValue = FXWrapper.unwrap(value);
         if (!isJavaFXType()) {
@@ -107,34 +113,24 @@ public class FXClassType extends FXReferenceType implements ClassType {
             return;
         }
         // there is a setter
-        if (!invokeAllowed) {
-            throw new IllegalArgumentException("Error: FX field " + field + " has a setter; call FXSetValue instead of setValue");
-        }
         ArrayList<Value> args = new ArrayList<Value>(1);
         args.add(jdiValue);
-        invokeMethod(virtualMachine().uiThread(), mth.get(0), args, 0);
-    }
-
-    /**
-     * JDI extension:  This will call a setter if one exists.  It uses invokeMethod to do this
-     * so it can throw the same exceptions as does invokeMethod.
-     */
-    public void FXSetValue(Field field, Value value) throws 
-        InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
-        setValueCommon(field, value, true);
-    }
-
-    /**
-     * JDI extension:  This throws IllegalArgumentException if field has a setter method
-     */
-    public void setValue(Field field, Value value) throws InvalidTypeException, ClassNotLoadedException {
+        Exception theExc = null;
         try {
-            setValueCommon(field, value, false);
-        } catch (IncompatibleThreadStateException ee) {
-            // can't happen
-        } catch (InvocationException ee) {
-            // can't happen
+            invokeMethod(virtualMachine().uiThread(), mth.get(0), args, 0);
+        } catch(InvalidTypeException ee) {
+            theExc = ee;
+        } catch(ClassNotLoadedException ee) {
+            theExc = ee;
+        } catch(IncompatibleThreadStateException ee) {
+            theExc = ee;
+        } catch(InvocationException ee) {
+            theExc = ee;
         }
+        // We don't have to catch IllegalArgumentException.  It is an unchecked exception for invokeMethod
+        // and for getValue
+
+        virtualMachine().setLastFieldAccessException(theExc);
     }
 
     public List<ClassType> subclasses() {
@@ -150,8 +146,11 @@ public class FXClassType extends FXReferenceType implements ClassType {
         return (ClassType) super.underlying();
     }
 
+    /**
+     * JDI Addition:  Returns true if this is a JavaFX Type, false otherwise
+     */
     @Override
-    protected boolean isJavaFXType() {
+    public boolean isJavaFXType() {
         if (!isIsFxTypeSet) {
             isIsFxTypeSet = true;
             FXVirtualMachine fxvm = virtualMachine();

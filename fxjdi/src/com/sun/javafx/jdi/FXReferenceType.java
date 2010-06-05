@@ -201,7 +201,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
                 } else {
                     // Field has a getter
                     if (doInvokes) {
-                        result.put(wrappedField, FXGetValue(wrappedField));
+                        result.put(wrappedField, getValue(wrappedField));
                     } else {
                         result.put(wrappedField, virtualMachine().voidValue());
                     }
@@ -231,62 +231,40 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     /**
-     * Extension to JDI
+     * JDI addition:
      */
     public boolean isInvalid(Field field) {
         return areFlagBitsSet(field, virtualMachine().FXInvalidFlagMask());
     }
 
     /**
-     * Extension to JDI
+     * JDI addition:
      */
     public boolean isReadOnly(Field field) {
         return areFlagBitsSet(field, virtualMachine().FXReadOnlyFlagMask());
     }
 
     /**
-     * Extension to JDI
+     * JDI addition: 
      */
     public boolean isBound(Field field) {
         return areFlagBitsSet(field, virtualMachine().FXBoundFlagMask());
     }
 
     /**
-     * JDI Extension:  This will call the getter if one exists
+     * JDI addition:  Returns true if this is a JavaFX Type, false otherwise
      */
-    public Value FXGetValue(Field field) throws
-        InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
-
-        Field jdiField = FXWrapper.unwrap(field);
-        if (!isJavaFXType()) {
-            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
-        }
-
-        //get$xxxx methods exist for fields except private fields which have no binders
-
-        List<Method> mth = underlying().methodsByName("get" + jdiField.name());
-        if (mth.size() == 0) {
-            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
-        }
-        if (this instanceof FXClassType) {
-            return ((FXClassType)this).invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), 0);
-        }
-        throw new IllegalArgumentException("Error: Field has a getter but is not in a class: " + field);
+    public boolean isJavaFXType() {
+        return false;
     }
 
     /**
-     * Extension to JDI:  This will call the getter for a field if there is one
-     */
-    public Map<Field, Value> FXGetValues(List<? extends Field> wrappedFields) throws
-        InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
-
-        return getValuesCommon(wrappedFields, true);
-    }
-
-    /**
-     * Extension to JDI: VoidValue is returned for a field that has a setter
+     * JDI extension:  This will call the getter if one exists.  If an invokeMethod Exception occurs, 
+     * it is saved in FXVirtualMachine and the default value is returned for a PrimitiveType, or null 
+     * is returned for a non PrimitiveType.
      */
     public Value getValue(Field field) {
+        virtualMachine().setLastFieldAccessException(null);
         Field jdiField = FXWrapper.unwrap(field);
         if (!isJavaFXType()) {
             return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
@@ -295,26 +273,83 @@ public class FXReferenceType extends FXType implements ReferenceType {
         //get$xxxx methods exist for fields except private fields which have no binders
 
         List<Method> mth = underlying().methodsByName("get" + jdiField.name());
-
         if (mth.size() == 0) {
             return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
         }
-        return virtualMachine().voidValue();
+        Exception theExc = null;
+        try {
+            return ((FXClassType)this).invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), 0);
+        } catch(InvalidTypeException ee) {
+            theExc = ee;
+        } catch(ClassNotLoadedException ee) {
+            theExc = ee;
+        } catch(IncompatibleThreadStateException ee) {
+            theExc = ee;
+        } catch(InvocationException ee) {
+            theExc = ee;
+        }
+        // We don't have to catch IllegalArgumentException.  It is an unchecked exception for invokeMethod
+        // and for getValue
+
+        virtualMachine().setLastFieldAccessException(theExc);
+        try {
+            return virtualMachine().defaultValue(field.type());
+        } catch(ClassNotLoadedException ee) {
+            // The type has to be a ReferenceType for which we return null;
+            return null;
+        }
     }
 
     /**
-     * Extension to JDI:  This will return VoidValue for any field that has a getter.
+     * JDI extension:  This will call a getter if one exists.  If an invokeMethod Exception occurs, 
+     * it is saved in FXVirtualMachine and the default value is returned for a PrimitiveType, or null
+     * is returned for a non PrimitiveType.
      */
     public Map<Field, Value> getValues(List<? extends Field> wrappedFields) {
-        
-        Map<Field,Value> result = null;
-        try {
-            // this call does no invoke, so none of the exceptions are thrown
-            result = getValuesCommon(wrappedFields, false);
-        } catch(InvalidTypeException ee) {
-        } catch(ClassNotLoadedException ee) {
-        } catch(IncompatibleThreadStateException ee) {
-        } catch(InvocationException ee) {
+        virtualMachine().setLastFieldAccessException(null);
+
+        // We will find fields which have no getters, and call the underlying
+        // getValues to get values for all of them in one fell swoop.
+        Map<Field, Field> unwrappedToWrappedMap = new HashMap<Field, Field>();
+        List<Field> noGetterUnwrappedFields = new ArrayList<Field>();    // fields that don't have getters
+
+        // But first, for fields that do have getters, call invokeMethod
+        // or we will call FXGetValue for each, depending on doInvokes
+        Map<Field, Value> result = new HashMap<Field, Value>();
+
+        // Create the above Maps and lists
+        for (Field wrappedField : wrappedFields) {
+            Field unwrapped = FXWrapper.unwrap(wrappedField);
+            if (isJavaFXType()) {
+                List<Method> mth = underlying().methodsByName("get" + unwrapped.name());
+                if (mth.size() == 0) {
+                    // No getter
+                    unwrappedToWrappedMap.put(unwrapped, wrappedField);
+                    noGetterUnwrappedFields.add(unwrapped);
+                } else {
+                    // Field has a getter
+                    result.put(wrappedField, getValue(wrappedField));
+                }
+            } else {
+                // Java type
+                unwrappedToWrappedMap.put(unwrapped, wrappedField);
+                noGetterUnwrappedFields.add(unwrapped);
+            }                
+        }
+
+        // Get values for all the noGetter fields.  Note that this gets them in a single JDWP trip
+        Map<Field, Value> unwrappedFieldValues = underlying().getValues(noGetterUnwrappedFields);
+
+        // for each input Field, create a result map entry with that field as the
+        // key, and the value returned by getValues, or null if the field is invalid.
+
+        // Make a pass over the unwrapped no getter fields and for each, put its
+        // wrapped version, and wrapped value into the result Map.
+        for (Map.Entry<Field, Field> unwrappedEntry: unwrappedToWrappedMap.entrySet()) {
+            Field wrappedField = unwrappedEntry.getValue();
+            Value resultValue = FXWrapper.wrap(virtualMachine(), 
+                                             unwrappedFieldValues.get(unwrappedEntry.getKey()));
+            result.put(wrappedField, resultValue);
         }
         return result;
     }
@@ -422,9 +457,5 @@ public class FXReferenceType extends FXType implements ReferenceType {
     
     public ReferenceType _underlying() {
         return (ReferenceType)super.underlying();
-    }
-
-    protected boolean isJavaFXType() {
-        return false;
     }
 }

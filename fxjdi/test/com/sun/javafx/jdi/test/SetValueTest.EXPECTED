@@ -11,10 +11,4 @@ field com.sun.javafx.jdi.test.target.SetValueTarget$sub.pubDuration: value = ins
 field com.sun.javafx.jdi.test.target.SetValueTarget$sub.sub$privDuration: value = instance of javafx.lang.Duration
 statString = "statString2"
 defStatString = "defStatString2"
-staticBinder = <void value>
-invValue: getClass() class com.sun.javafx.jdi.FXVoidValue
-invValue: type()     void
-invValue: instanceof VoidValue true
-Can't set a bound var: java.lang.IllegalArgumentException: Error: Cannot set value of a read-only field: com.sun.javafx.jdi.test.target.SetValueTarget.staticBinder
-staticBinder = 1
-Can't set an invalid value: com.sun.jdi.InvalidTypeException
+java.lang.IllegalArgumentException: Error: Cannot set value of a read-only field: com.sun.javafx.jdi.test.target.SetValueTarget.staticBinder
