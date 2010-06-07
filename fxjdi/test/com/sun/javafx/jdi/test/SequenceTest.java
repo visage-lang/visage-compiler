@@ -28,6 +28,8 @@ import com.sun.jdi.IntegerValue;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.Value;
 import com.sun.jdi.event.BreakpointEvent;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import junit.framework.Assert;
 
@@ -73,13 +75,9 @@ public class SequenceTest extends JavafxTestBase {
         Assert.assertEquals(2, seq.size());
         Assert.assertEquals(2, seq.length());
         Assert.assertEquals(FXSequenceReference.Types.INT, seq.getElementType());
-        IntegerValue zerothElement = seq.getValueAsInt(0);
-        Assert.assertEquals(1729, zerothElement.intValue());
         Value zerothElementAsVal = seq.getValue(0);
         Assert.assertEquals(true, zerothElementAsVal instanceof IntegerValue);
         Assert.assertEquals(1729, ((IntegerValue)zerothElementAsVal).intValue());
-        IntegerValue firstElement = seq.getValueAsInt(1);
-        Assert.assertEquals(9999, firstElement.intValue());
         Value firstElementAsVal = seq.getValue(1);
         Assert.assertEquals(true, firstElementAsVal instanceof IntegerValue);
         Assert.assertEquals(9999, ((IntegerValue)firstElementAsVal).intValue());
@@ -87,8 +85,22 @@ public class SequenceTest extends JavafxTestBase {
         // sequence element set
         seq.setValue(0, vm().mirrorOf(1111));
         seq.setValue(1, vm().mirrorOf(2222));
-        Assert.assertEquals(1111, seq.getValueAsInt(0).intValue());
-        Assert.assertEquals(2222, seq.getValueAsInt(1).intValue());
+        Assert.assertEquals(1111, ((IntegerValue)seq.getValue(0)).intValue());
+        Assert.assertEquals(2222, ((IntegerValue)seq.getValue(1)).intValue());
+
+        // sequence setValues 
+        List<Value> newValues = new ArrayList<Value>(2);
+        newValues.add(vm().mirrorOf(1234));
+        newValues.add(vm().mirrorOf(5678));
+        seq.setValues(newValues);
+        Assert.assertEquals(1234, ((IntegerValue)seq.getValue(0)).intValue());
+        Assert.assertEquals(5678, ((IntegerValue)seq.getValue(1)).intValue());
+
+        // sequence getValues
+        List<Value> values = seq.getValues(0, 2);
+        Assert.assertEquals(1234, ((IntegerValue)values.get(0)).intValue());
+        Assert.assertEquals(5678, ((IntegerValue)values.get(1)).intValue());
+
 
         /*
          * resume until end
