@@ -53,6 +53,9 @@ public class FXStackFrame extends FXMirror implements StackFrame {
     }
 
     public FXValue getValue(LocalVariable var) {
+        if (isJavaFXSyntheticLocalVar(var.name())) {
+            throw new IllegalArgumentException("invalid var: " + var.name());
+        }
         return FXWrapper.wrap(virtualMachine(), underlying().getValue(FXWrapper.unwrap(var)));
     }
 
@@ -61,6 +64,9 @@ public class FXStackFrame extends FXMirror implements StackFrame {
         List<LocalVariable> unwrappedLocalVariables = new ArrayList<LocalVariable>();
         for (LocalVariable var : vars) {
             LocalVariable unwrapped = FXWrapper.unwrap(var);
+            if (isJavaFXSyntheticLocalVar(unwrapped.name())) {
+                throw new IllegalArgumentException("invalid var: " + var.name());
+            }
             unwrappedLocalVariables.add(unwrapped);
             fieldMap.put(unwrapped, var);
         }
@@ -77,6 +83,9 @@ public class FXStackFrame extends FXMirror implements StackFrame {
     }
 
     public void setValue(LocalVariable var, Value value) throws InvalidTypeException, ClassNotLoadedException {
+        if (isJavaFXSyntheticLocalVar(var.name())) {
+            throw new IllegalArgumentException("invalid var: " + var.name());
+        }
         underlying().setValue(FXWrapper.unwrap(var), FXWrapper.unwrap(value));
     }
 
@@ -89,16 +98,31 @@ public class FXStackFrame extends FXMirror implements StackFrame {
     }
 
     public FXLocalVariable visibleVariableByName(String name) throws AbsentInformationException {
-        return FXWrapper.wrap(virtualMachine(), underlying().visibleVariableByName(name));
-        
+        if (isJavaFXSyntheticLocalVar(name)) {
+            return null;
+        } else {
+            return FXWrapper.wrap(virtualMachine(), underlying().visibleVariableByName(name));
+        }
     }
 
     public List<LocalVariable> visibleVariables() throws AbsentInformationException {
-        return FXWrapper.wrapLocalVariables(virtualMachine(), underlying().visibleVariables());
+        List<LocalVariable> locals = underlying().visibleVariables();
+        List<LocalVariable> result = new ArrayList<LocalVariable>();
+        for (LocalVariable var : locals) {
+            if (! isJavaFXSyntheticLocalVar(var.name())) {
+                result.add(FXWrapper.wrap(virtualMachine(), var));
+            }
+        }
+        return result;
     }
 
     @Override
     protected StackFrame underlying() {
         return (StackFrame) super.underlying();
+    }
+
+    public boolean isJavaFXSyntheticLocalVar(String name) {
+        // FIXME: can we have a better test for JavaFX synthetic local var?
+        return isJavaFXFrame() && name.indexOf('$') != -1;
     }
 }

@@ -377,7 +377,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     /**
      * JDI addition:  Return the thread upon which invokeMethods are performed to get/set fields
      */
-    public ThreadReference uiThread() {
+    public FXThreadReference uiThread() {
         if (cacheUiThread == null) {
             FXField uiThreadField = fxEntryType().fieldByName("uiThread");
             cacheUiThread = (FXThreadReference) ((FXReferenceType)fxEntryType()).getValue(uiThreadField);
