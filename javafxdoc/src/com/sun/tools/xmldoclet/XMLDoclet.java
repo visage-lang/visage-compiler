@@ -371,8 +371,18 @@ public class XMLDoclet {
     }
 
     private void generatePackage(PackageDoc pkg) throws SAXException {
-        if (pkg.allClasses().length == 0)
+        ClassDoc[] allClasses = pkg.allClasses();
+        if (allClasses.length == 0)
             return;
+
+        // TODO: call containingPackage() on a class in this package,
+        // before processing this package. This has the side effect of
+        // calling PackageDocImpl.setDocPath() on this package, which is
+        // necessary in order for this package's doc to be processed.
+        // If setDocPath() hasn't been called by the time generateComment()
+        // is called, the package doc will be missing.
+        allClasses[0].containingPackage();
+
         attrs.clear();
         attrs.addAttribute("", "", "name", "CDATA", pkg.name());
         hd.startElement("", "", "package", attrs);
