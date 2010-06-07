@@ -306,6 +306,9 @@ public class JavafxSymtab extends Symtab {
         Type restype = null;
         for (List<Type> l = typarams; l.nonEmpty();  l = l.tail) {
             Type a = l.head;
+                System.out.println("a: " + a);
+                System.out.println("a.tsym: " + a.tsym);
+                System.out.println("a.tsym.name: " + a.tsym.name);
             if (a instanceof WildcardType)
                 a = ((WildcardType) a).type;
             if (restype == null) {
