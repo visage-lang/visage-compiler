@@ -24,6 +24,7 @@ package com.sun.javafx.jdi.test;
 
 import com.sun.javafx.jdi.FXObjectType;
 import com.sun.javafx.jdi.FXVirtualMachine;
+import com.sun.javafx.jdi.FXReferenceType;
 import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 import org.junit.Test;
@@ -61,6 +62,8 @@ public class FXObjectTypeTest extends JavafxTestBase {
         // it has to be FXObjectType
         Assert.assertEquals(true, rt instanceof FXObjectType);
         // check few methods of FXObjectType
+        // We are checking for internal methods that are filtered out by FXReferenceType, so
+        // we have to use the underlying JDI ReferenceType
         FXObjectType fxObjType = (FXObjectType)rt;
         Method count$Method = fxObjType.count$Method();
         Assert.assertEquals("count$", count$Method.name());

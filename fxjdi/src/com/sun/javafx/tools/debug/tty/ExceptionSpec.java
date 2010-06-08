@@ -32,14 +32,14 @@ class ExceptionSpec extends EventRequestSpec {
     private boolean notifyCaught;
     private boolean notifyUncaught;
 
-    private ExceptionSpec(ReferenceTypeSpec refSpec) {
-        this(refSpec, true, true);
+    private ExceptionSpec(Env env, ReferenceTypeSpec refSpec) {
+        this(env, refSpec, true, true);
     }
 
-    ExceptionSpec(ReferenceTypeSpec refSpec,
+    ExceptionSpec(Env env, ReferenceTypeSpec refSpec,
                   boolean notifyCaught,
                   boolean notifyUncaught) {
-        super(refSpec);
+        super(env, refSpec);
         this.notifyCaught = notifyCaught;
         this.notifyUncaught = notifyUncaught;
     }

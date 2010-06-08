@@ -629,7 +629,7 @@ abstract class LValue {
         Value getValue() {
             if (jdiValue == null) {
                 try {
-                    jdiValue = sequenceRef.virtualMachine().mirrorOf(sequenceRef.size(thread));
+                    jdiValue = sequenceRef.virtualMachine().mirrorOf(sequenceRef.size());
                 } catch (Exception exp) {
                     throw new RuntimeException(exp);
                 }
@@ -695,8 +695,9 @@ abstract class LValue {
         Value getValue() {
             if (jdiValue == null) {
                 try {
-                    jdiValue = sequence.get(thread, index);
+                    jdiValue = sequence.getValue(index);
                 } catch (Exception ex) {
+                    // ex.printStackTrace();
                     throw new RuntimeException(ex);
                 }
             }
@@ -705,9 +706,12 @@ abstract class LValue {
 
         void setValue0(Value val) throws InvalidTypeException,
                                          ClassNotLoadedException  {
-            // array.setValue(index, val);
-            // jdiValue = val;
-            throw new UnsupportedOperationException("not yet implemented.");
+            try {
+                jdiValue = sequence.setValue(index, val);
+            } catch (Exception ex) {
+                // ex.printStackTrace();
+                throw new RuntimeException(ex);
+            }
         }
 
         void invokeWith(List<Value> arguments) throws ParseException {

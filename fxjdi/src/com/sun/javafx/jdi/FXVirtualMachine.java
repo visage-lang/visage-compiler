@@ -25,6 +25,7 @@ package com.sun.javafx.jdi;
 
 import com.sun.javafx.jdi.event.FXEventQueue;
 import com.sun.javafx.jdi.request.FXEventRequestManager;
+import com.sun.jdi.Type;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.BooleanType;
@@ -59,6 +60,7 @@ import com.sun.jdi.StringReference;
 import com.sun.jdi.ThreadGroupReference;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VirtualMachine;
+import com.sun.jdi.Value;
 import com.sun.jdi.VoidType;
 import com.sun.jdi.VoidValue;
 import java.util.ArrayList;
@@ -263,6 +265,74 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return new FXStringReference(this, underlying().mirrorOf(value));
     }
 
+    // default values
+
+    private FXBooleanValue booleanDefaultValue;
+    protected synchronized FXBooleanValue booleanDefaultValue() {
+        if (booleanDefaultValue == null) {
+            booleanDefaultValue = mirrorOf(false);
+        }
+        return booleanDefaultValue;
+    }
+
+    private FXByteValue byteDefaultValue;
+    protected synchronized FXByteValue byteDefaultValue() {
+        if (byteDefaultValue == null) {
+            byteDefaultValue = mirrorOf((byte)0);
+        }
+        return byteDefaultValue;
+    }
+
+    private FXCharValue charDefaultValue;
+    protected synchronized FXCharValue charDefaultValue() {
+        if (charDefaultValue == null) {
+            charDefaultValue = mirrorOf('\u0000');
+        }
+        return charDefaultValue;
+    }
+
+    private FXShortValue shortDefaultValue;
+    protected synchronized FXShortValue shortDefaultValue() {
+        if (shortDefaultValue == null) {
+            shortDefaultValue = mirrorOf((short)0);
+        }
+        return shortDefaultValue;
+    }
+
+    private FXIntegerValue integerDefaultValue;
+    protected synchronized FXIntegerValue integerDefaultValue() {
+        if (integerDefaultValue == null) {
+            integerDefaultValue = mirrorOf(0);
+        }
+        return integerDefaultValue;
+    }
+
+    private FXLongValue longDefaultValue;
+    protected synchronized FXLongValue longDefaultValue() {
+        if (longDefaultValue == null) {
+            longDefaultValue = mirrorOf(0l);
+        }
+        return longDefaultValue;
+    }
+
+    private FXFloatValue floatDefaultValue;
+    protected synchronized FXFloatValue floatDefaultValue() {
+        if (floatDefaultValue == null) {
+            floatDefaultValue = mirrorOf(0.0f);
+        }
+        return floatDefaultValue;
+    }
+
+    private FXDoubleValue doubleDefaultValue;
+    protected synchronized FXDoubleValue doubleDefaultValue() {
+        if (doubleDefaultValue == null) {
+            doubleDefaultValue = mirrorOf(0.0d);
+        }
+        return doubleDefaultValue;
+    }
+
+    //////////
+
     public String name() {
         return underlying().name();
     }
@@ -303,12 +373,34 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return underlying().version();
     }
 
+    private FXThreadReference cacheUiThread = null;
+    /**
+     * JDI addition:  Return the thread upon which invokeMethods are performed to get/set fields
+     */
+    public ThreadReference uiThread() {
+        if (cacheUiThread == null) {
+            FXField uiThreadField = fxEntryType().fieldByName("uiThread");
+            cacheUiThread = (FXThreadReference) ((FXReferenceType)fxEntryType()).getValue(uiThreadField);
+        }
+        return cacheUiThread;
+    }
+
     @Override
     protected VirtualMachine underlying() {
         return (VirtualMachine) super.underlying();
     }
 
     // JavaFX types
+    public static final String FX_ENTRY_TYPE_NAME = "com.sun.javafx.runtime.Entry";
+    private FXClassType fxEntryType;
+    public synchronized FXClassType fxEntryType() {
+        if (fxEntryType == null) {
+            List<ReferenceType> refTypes = classesByName(FX_ENTRY_TYPE_NAME);
+            fxEntryType = refTypes.isEmpty() ? null : (FXClassType) refTypes.get(0);
+        }
+        return fxEntryType;
+    }
+
     public static final String FX_OBJECT_TYPE_NAME = "com.sun.javafx.runtime.FXObject";
     private FXObjectType fxObjectType;
     public synchronized FXObjectType fxObjectType() {
@@ -339,16 +431,27 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return fxSequenceType;
     }
 
+    public static final String FX_SEQUENCES_TYPE_NAME = "com.sun.javafx.runtime.sequence.Sequences";
+    private FXSequencesType fxSequencesType;
+    public synchronized FXSequencesType fxSequencesType() {
+        if (fxSequencesType == null) {
+            List<ReferenceType> refTypes = classesByName(FX_SEQUENCES_TYPE_NAME);
+            fxSequencesType = refTypes.isEmpty() ? null : (FXSequencesType) refTypes.get(0);
+        }
+        return fxSequencesType;
+    }
+
     private FXVoidValue voidValue;
-    private synchronized FXVoidValue voidValue() {
+    protected synchronized FXVoidValue voidValue() {
         if (voidValue == null) {
             voidValue = new FXVoidValue(this, underlying().mirrorOfVoid());
         }
         return voidValue;
     }
+
     // wrapper methods
 
-    // primitive type accessors private FXBooleanType booleanType;
+    // primitive type accessors
     private FXVoidType voidType;
     protected synchronized FXVoidType voidType(VoidType vt) {
         if (voidType == null) {
@@ -441,7 +544,12 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     protected FXClassType classType(ClassType ct) {
         synchronized (refTypesCache) {
             if (! refTypesCache.containsKey(ct)) {
-                refTypesCache.put(ct, new FXClassType(this, ct));
+                String name = ct.name();
+                if (name.equals(FX_SEQUENCES_TYPE_NAME)) {
+                    refTypesCache.put(ct, new FXSequencesType(this, ct));
+                } else {
+                    refTypesCache.put(ct, new FXClassType(this, ct));
+                }
             }
             return (FXClassType) refTypesCache.get(ct);
         }
@@ -558,5 +666,87 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
 
     protected FXStackFrame stackFrame(StackFrame frame) {
         return new FXStackFrame(this, frame);
+    }
+
+    protected Exception lastFieldAccessException = null;
+    protected void setLastFieldAccessException(Exception ee) {
+        lastFieldAccessException = ee;
+    }
+
+    /**
+     * JDI addition: Return the exception thrown by an invokeMethod call that was 
+     * performed in the most recent setValue, getValue, or getValues method call.
+     * Return null if no such exception was thrown.
+     */
+    public Exception lastFieldAccessException() {
+        return lastFieldAccessException;
+    }
+
+    // cache these masks 
+    private int invalidFlagMask = 0;
+    private int readOnlyFlagMask = 0;
+    private int boundFlagMask = 0;
+    private int getFlagMask(String maskName) {
+        int flagMask = 0;
+        // we only work with underlying JDI objects here
+        List<ReferenceType> rtx =  this.underlying().classesByName("com.sun.javafx.runtime.FXObject");
+        if (rtx.size() != 1) {
+            System.out.println("Can't find the ReferenceType for com.sun.javafx.runtime.FXObject");
+            return 0;
+        }
+        ReferenceType fxObjectRefType = rtx.get(0);
+        Field fieldx = fxObjectRefType.fieldByName(maskName);
+        Value flagValue = fxObjectRefType.getValue(fieldx);
+        return ((IntegerValue)flagValue).value();
+    }
+
+    protected int FXReadOnlyFlagMask() {
+        if (readOnlyFlagMask == 0) {
+            readOnlyFlagMask = getFlagMask("VFLGS$IS_READONLY");
+        }
+        return readOnlyFlagMask;
+    }
+
+    protected int FXInvalidFlagMask() {
+        if (invalidFlagMask == 0) {
+            invalidFlagMask = getFlagMask("VFLGS$IS_BOUND_INVALID");
+        }
+        return invalidFlagMask;
+    }
+
+    protected int FXBoundFlagMask() {
+        if (boundFlagMask == 0) {
+            boundFlagMask = getFlagMask("VFLGS$IS_BOUND");
+        }
+        return boundFlagMask;
+    }
+    
+    protected Value defaultValue(Type type) {
+        if (type instanceof BooleanType) {
+            return booleanDefaultValue();
+        }
+        if (type instanceof ByteType) {
+            return byteDefaultValue();
+        }
+        if (type instanceof CharType) {
+            return charDefaultValue();
+        }
+        if (type instanceof DoubleType) {
+            return doubleDefaultValue();
+        }
+        if (type instanceof FloatType) {
+            return floatDefaultValue();
+        }
+        if (type instanceof IntegerType) {
+            return integerDefaultValue();
+        }
+        if (type instanceof LongType) {
+            return longDefaultValue();
+        }
+        if (type instanceof ShortType) {
+            return shortDefaultValue();
+        }
+        // else it is an object/array/sequence/...
+        return null;
     }
 }

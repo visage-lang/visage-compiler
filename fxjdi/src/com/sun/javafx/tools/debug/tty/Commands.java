@@ -48,7 +48,7 @@ class Commands {
             /*
              * Save current thread and stack frame. (BugId 4296031)
              */
-            final ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+            final ThreadInfo threadInfo = env.getCurrentThreadInfo();
             final int stackFrame = threadInfo == null? 0 : threadInfo.getCurrentFrameIndex();
             Thread thread = new Thread("asynchronous jdb command") {
                     public void run() {
@@ -56,9 +56,9 @@ class Commands {
                             action();
                         } catch (UnsupportedOperationException uoe) {
                             //(BugId 4453329)
-                            MessageOutput.println("Operation is not supported on the target VM");
+                            env.messageOutput().println("Operation is not supported on the target VM");
                         } catch (Exception e) {
-                            MessageOutput.println("Internal exception during operation:",
+                            env.messageOutput().println("Internal exception during operation:",
                                                   e.getMessage());
                         } finally {
                             /*
@@ -67,17 +67,17 @@ class Commands {
                              * stack frame the user was looking at.  (BugId 4296031)
                              */
                             if (threadInfo != null) {
-                                ThreadInfo.setCurrentThreadInfo(threadInfo);
+                                env.setCurrentThreadInfo(threadInfo);
                                 try {
                                     threadInfo.setCurrentFrameIndex(stackFrame);
                                 } catch (IncompatibleThreadStateException e) {
-                                    MessageOutput.println("Current thread isnt suspended.");
+                                    env.messageOutput().println("Current thread isnt suspended.");
                                 } catch (ArrayIndexOutOfBoundsException e) {
-                                    MessageOutput.println("Requested stack frame is no longer active:",
+                                    env.messageOutput().println("Requested stack frame is no longer active:",
                                                           new Object []{new Integer(stackFrame)});
                                 }
                             }
-                            MessageOutput.printPrompt();
+                            env.printPrompt();
                         }
                     }
                 };
@@ -85,14 +85,16 @@ class Commands {
         }
     }
 
-    Commands() {
+    private final Env env;
+    Commands(Env env) {
+        this.env = env;
     }
 
     private Value evaluate(String expr) {
         Value result = null;
         ExpressionParser.GetFrame frameGetter = null;
         try {
-            final ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+            final ThreadInfo threadInfo = env.getCurrentThreadInfo();
             if ((threadInfo != null) && (threadInfo.getCurrentFrame() != null)) {
                 frameGetter = new ExpressionParser.GetFrame() {
                         public StackFrame get() throws IncompatibleThreadStateException {
@@ -100,14 +102,14 @@ class Commands {
                         }
                     };
             }
-            result = ExpressionParser.evaluate(expr, Env.vm(), frameGetter);
+            result = ExpressionParser.evaluate(expr, env.vm(), frameGetter);
         } catch (InvocationException ie) {
-            MessageOutput.println("Exception in expression:",
+            env.messageOutput().println("Exception in expression:",
                                   ie.exception().referenceType().name());
         } catch (Exception ex) {
             String exMessage = ex.getMessage();
             if (exMessage == null) {
-                MessageOutput.printException(exMessage, ex);
+                env.messageOutput().printException(exMessage, ex);
             } else {
                 String s;
                 try {
@@ -115,7 +117,7 @@ class Commands {
                 } catch (MissingResourceException mex) {
                     s = ex.toString();
                 }
-                MessageOutput.printDirectln(s);// Special case: use printDirectln()
+                env.messageOutput().printDirectln(s);// Special case: use printDirectln()
             }
         }
         return result;
@@ -130,7 +132,7 @@ class Commands {
          } catch (ParseException e) {
               String msg = e.getMessage();
               if (msg == null) {
-                  MessageOutput.printException(msg, e);
+                  env.messageOutput().printException(msg, e);
               } else {
                   String s;
                   try {
@@ -138,16 +140,16 @@ class Commands {
                   } catch (MissingResourceException mex) {
                       s = e.toString();
                   }
-                  MessageOutput.printDirectln(s);
+                  env.messageOutput().printDirectln(s);
               }
          }
          return valStr;
     }
 
-    private ThreadInfo doGetThread(String idToken) {
-        ThreadInfo threadInfo = ThreadInfo.getThreadInfo(idToken);
+    ThreadInfo doGetThread(String idToken) {
+        ThreadInfo threadInfo = env.getThreadInfo(idToken);
         if (threadInfo == null) {
-            MessageOutput.println("is not a valid thread id", idToken);
+            env.messageOutput().println("is not a valid thread id", idToken);
         }
         return threadInfo;
     }
@@ -182,32 +184,32 @@ class Commands {
     void commandConnectors(VirtualMachineManager vmm) {
         Collection<Connector> ccs = vmm.allConnectors();
         if (ccs.isEmpty()) {
-            MessageOutput.println("Connectors available");
+            env.messageOutput().println("Connectors available");
         }
         for (Connector cc : ccs) {
             String transportName =
                 cc.transport() == null ? "null" : cc.transport().name();
-            MessageOutput.println();
-            MessageOutput.println("Connector and Transport name",
+            env.messageOutput().println();
+            env.messageOutput().println("Connector and Transport name",
                                   new Object [] {cc.name(), transportName});
-            MessageOutput.println("Connector description", cc.description());
+            env.messageOutput().println("Connector description", cc.description());
 
             for (Connector.Argument aa : cc.defaultArguments().values()) {
-                    MessageOutput.println();
+                    env.messageOutput().println();
 
                     boolean requiredArgument = aa.mustSpecify();
                     if (aa.value() == null || aa.value() == "") {
                         //no current value and no default.
-                        MessageOutput.println(requiredArgument ?
+                        env.messageOutput().println(requiredArgument ?
                                               "Connector required argument nodefault" :
                                               "Connector argument nodefault", aa.name());
                     } else {
-                        MessageOutput.println(requiredArgument ?
+                        env.messageOutput().println(requiredArgument ?
                                               "Connector required argument default" :
                                               "Connector argument default",
                                               new Object [] {aa.name(), aa.value()});
                     }
-                    MessageOutput.println("Connector description", aa.description());
+                    env.messageOutput().println("Connector description", aa.description());
 
                 }
             }
@@ -216,18 +218,18 @@ class Commands {
 
     void commandClasses() {
         StringBuffer classList = new StringBuffer();
-        for (ReferenceType refType : Env.vm().allClasses()) {
+        for (ReferenceType refType : env.vm().allClasses()) {
             classList.append(refType.name());
             classList.append("\n");
         }
-        MessageOutput.print("** classes list **", classList.toString());
+        env.messageOutput().print("** classes list **", classList.toString());
     }
 
     void commandClass(StringTokenizer t) {
-        List<ReferenceType> list = Env.vm().allClasses();
+        List<ReferenceType> list = env.vm().allClasses();
 
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No class specified.");
+            env.messageOutput().println("No class specified.");
             return;
         }
 
@@ -238,66 +240,66 @@ class Commands {
             if (t.nextToken().toLowerCase().equals("all")) {
                 showAll = true;
             } else {
-                MessageOutput.println("Invalid option on class command");
+                env.messageOutput().println("Invalid option on class command");
                 return;
             }
         }
-        ReferenceType type = Env.getReferenceTypeFromToken(idClass);
+        ReferenceType type = env.getReferenceTypeFromToken(idClass);
         if (type == null) {
-            MessageOutput.println("is not a valid id or class name", idClass);
+            env.messageOutput().println("is not a valid id or class name", idClass);
             return;
         }
         if (type instanceof ClassType) {
             ClassType clazz = (ClassType)type;
-            MessageOutput.println("Class:", clazz.name());
+            env.messageOutput().println("Class:", clazz.name());
 
             ClassType superclass = clazz.superclass();
             while (superclass != null) {
-                MessageOutput.println("extends:", superclass.name());
+                env.messageOutput().println("extends:", superclass.name());
                 superclass = showAll ? superclass.superclass() : null;
             }
 
             List<InterfaceType> interfaces =
                 showAll ? clazz.allInterfaces() : clazz.interfaces();
             for (InterfaceType interfaze : interfaces) {
-                MessageOutput.println("implements:", interfaze.name());
+                env.messageOutput().println("implements:", interfaze.name());
             }
 
             for (ClassType sub : clazz.subclasses()) {
-                MessageOutput.println("subclass:", sub.name());
+                env.messageOutput().println("subclass:", sub.name());
             }
             for (ReferenceType nest : clazz.nestedTypes()) {
-                MessageOutput.println("nested:", nest.name());
+                env.messageOutput().println("nested:", nest.name());
             }
         } else if (type instanceof InterfaceType) {
             InterfaceType interfaze = (InterfaceType)type;
-            MessageOutput.println("Interface:", interfaze.name());
+            env.messageOutput().println("Interface:", interfaze.name());
             for (InterfaceType superinterface : interfaze.superinterfaces()) {
-                MessageOutput.println("extends:", superinterface.name());
+                env.messageOutput().println("extends:", superinterface.name());
             }
             for (InterfaceType sub : interfaze.subinterfaces()) {
-                MessageOutput.println("subinterface:", sub.name());
+                env.messageOutput().println("subinterface:", sub.name());
             }
             for (ClassType implementor : interfaze.implementors()) {
-                MessageOutput.println("implementor:", implementor.name());
+                env.messageOutput().println("implementor:", implementor.name());
             }
             for (ReferenceType nest : interfaze.nestedTypes()) {
-                MessageOutput.println("nested:", nest.name());
+                env.messageOutput().println("nested:", nest.name());
             }
         } else {  // array type
             ArrayType array = (ArrayType)type;
-            MessageOutput.println("Array:", array.name());
+            env.messageOutput().println("Array:", array.name());
         }
     }
 
     void commandMethods(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No class specified.");
+            env.messageOutput().println("No class specified.");
             return;
         }
 
         String idClass = t.nextToken();
-        ReferenceType cls = Env.getReferenceTypeFromToken(idClass);
+        ReferenceType cls = env.getReferenceTypeFromToken(idClass);
         if (cls != null) {
             StringBuffer methodsList = new StringBuffer();
             for (Method method : cls.allMethods()) {
@@ -306,20 +308,20 @@ class Commands {
                 methodsList.append(typedName(method));
                 methodsList.append('\n');
             }
-            MessageOutput.print("** methods list **", methodsList.toString());
+            env.messageOutput().print("** methods list **", methodsList.toString());
         } else {
-            MessageOutput.println("is not a valid id or class name", idClass);
+            env.messageOutput().println("is not a valid id or class name", idClass);
         }
     }
 
     void commandFields(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No class specified.");
+            env.messageOutput().println("No class specified.");
             return;
         }
 
         String idClass = t.nextToken();
-        ReferenceType cls = Env.getReferenceTypeFromToken(idClass);
+        ReferenceType cls = env.getReferenceTypeFromToken(idClass);
         if (cls != null) {
             List<Field> fields = cls.allFields();
             List<Field> visible = cls.visibleFields();
@@ -342,22 +344,22 @@ class Commands {
                 }
                 fieldsList.append(s);
             }
-            MessageOutput.print("** fields list **", fieldsList.toString());
+            env.messageOutput().print("** fields list **", fieldsList.toString());
         } else {
-            MessageOutput.println("is not a valid id or class name", idClass);
+            env.messageOutput().println("is not a valid id or class name", idClass);
         }
     }
 
     private void printThreadGroup(ThreadGroupReference tg) {
         ThreadIterator threadIter = new ThreadIterator(tg);
 
-        MessageOutput.println("Thread Group:", tg.name());
+        env.messageOutput().println("Thread Group:", tg.name());
         int maxIdLength = 0;
         int maxNameLength = 0;
         while (threadIter.hasNext()) {
             ThreadReference thr = threadIter.next();
             maxIdLength = Math.max(maxIdLength,
-                                   Env.description(thr).length());
+                                   env.description(thr).length());
             maxNameLength = Math.max(maxNameLength,
                                      thr.name().length());
         }
@@ -371,7 +373,7 @@ class Commands {
             // Note any thread group changes
             if (!thr.threadGroup().equals(tg)) {
                 tg = thr.threadGroup();
-                MessageOutput.println("Thread Group:", tg.name());
+                env.messageOutput().println("Thread Group:", tg.name());
             }
 
             /*
@@ -381,7 +383,7 @@ class Commands {
              * very long thread names, at the possible cost of lines
              * being wrapped by the display device.
              */
-            StringBuffer idBuffer = new StringBuffer(Env.description(thr));
+            StringBuffer idBuffer = new StringBuffer(env.description(thr));
             for (int i = idBuffer.length(); i < maxIdLength; i++) {
                 idBuffer.append(" ");
             }
@@ -441,7 +443,7 @@ class Commands {
             default:
                 throw new InternalError(MessageOutput.format("Invalid thread status."));
             }
-            MessageOutput.println(statusFormat,
+            env.messageOutput().println(statusFormat,
                                   new Object [] {idBuffer.toString(),
                                                  nameBuffer.toString()});
         }
@@ -449,13 +451,13 @@ class Commands {
 
     boolean commandThreads(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            printThreadGroup(ThreadInfo.group());
+            printThreadGroup(env.getCurrentThreadGroup());
             return true;
         }
         String name = t.nextToken();
-        ThreadGroupReference tg = ThreadGroupIterator.find(name);
+        ThreadGroupReference tg = ThreadGroupIterator.find(env.vm(), name);
         if (tg == null) {
-            MessageOutput.println("is not a valid threadgroup name", name);
+            env.messageOutput().println("is not a valid threadgroup name", name);
             return false;
         } else {
             printThreadGroup(tg);
@@ -464,26 +466,26 @@ class Commands {
     }
 
     void commandThreadGroups() {
-        ThreadGroupIterator it = new ThreadGroupIterator();
+        ThreadGroupIterator it = new ThreadGroupIterator(env.vm());
         int cnt = 0;
         while (it.hasNext()) {
             ThreadGroupReference tg = it.nextThreadGroup();
             ++cnt;
-            MessageOutput.println("thread group number description name",
+            env.messageOutput().println("thread group number description name",
                                   new Object [] { new Integer (cnt),
-                                                  Env.description(tg),
+                                                  env.description(tg),
                                                   tg.name()});
         }
     }
 
     boolean commandThread(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("Thread number not specified.");
+            env.messageOutput().println("Thread number not specified.");
             return false;
         }
         ThreadInfo threadInfo = doGetThread(t.nextToken());
         if (threadInfo != null) {
-            ThreadInfo.setCurrentThreadInfo(threadInfo);
+            env.setCurrentThreadInfo(threadInfo);
             return true;
         } else {
             return false;
@@ -492,16 +494,16 @@ class Commands {
 
     boolean commandThreadGroup(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("Threadgroup name not specified.");
+            env.messageOutput().println("Threadgroup name not specified.");
             return false;
         }
         String name = t.nextToken();
-        ThreadGroupReference tg = ThreadGroupIterator.find(name);
+        ThreadGroupReference tg = ThreadGroupIterator.find(env.vm(), name);
         if (tg == null) {
-            MessageOutput.println("is not a valid threadgroup name", name);
+            env.messageOutput().println("is not a valid threadgroup name", name);
             return false;
         } else {
-            ThreadInfo.setThreadGroup(tg);
+            env.setThreadGroup(tg);
             return true;
         }
     }
@@ -515,18 +517,18 @@ class Commands {
          * it is much more straightforward to launch immedidately
          * with the -launch option.
          */
-        VMConnection connection = Env.connection();
+        VMConnection connection = env.connection();
         if (!connection.isLaunch()) {
             if (!t.hasMoreTokens()) {
                 commandCont();
                 return true;
             } else {
-                MessageOutput.println("run <args> command is valid only with launched VMs");
+                env.messageOutput().println("run <args> command is valid only with launched VMs");
                 return false;
             }
         }
         if (connection.isOpen()) {
-            MessageOutput.println("VM already running. use cont to continue after events.");
+            env.messageOutput().println("VM already running. use cont to continue after events.");
             return false;
         }
 
@@ -539,17 +541,17 @@ class Commands {
             args = t.nextToken("");
             boolean argsSet = connection.setConnectorArg("main", args);
             if (!argsSet) {
-                MessageOutput.println("Unable to set main class and arguments");
+                env.messageOutput().println("Unable to set main class and arguments");
                 return false;
             }
         } else {
             args = connection.connectorArg("main");
             if (args.length() == 0) {
-                MessageOutput.println("Main class and arguments must be specified");
+                env.messageOutput().println("Main class and arguments must be specified");
                 return false;
             }
         }
-        MessageOutput.println("run", args);
+        env.messageOutput().println("run", args);
 
         /*
          * Launch the VM.
@@ -559,7 +561,7 @@ class Commands {
     }
 
     void commandLoad(StringTokenizer t) {
-        MessageOutput.println("The load command is no longer supported.");
+        env.messageOutput().println("The load command is no longer supported.");
     }
 
     private List<ThreadReference> allThreads(ThreadGroupReference group) {
@@ -573,8 +575,8 @@ class Commands {
 
     boolean commandSuspend(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            Env.vm().suspend();
-            MessageOutput.println("All threads suspended.");
+            env.vm().suspend();
+            env.messageOutput().println("All threads suspended.");
             return true;
         } else {
             boolean suspended = false;
@@ -591,9 +593,9 @@ class Commands {
 
     boolean commandResume(StringTokenizer t) {
          if (!t.hasMoreTokens()) {
-             ThreadInfo.invalidateAll();
-             Env.vm().resume();
-             MessageOutput.println("All threads resumed.");
+             env.invalidateAllThreadInfo();
+             env.vm().resume();
+             env.messageOutput().println("All threads resumed.");
              return true;
          } else {
              boolean resumed = false;
@@ -610,12 +612,12 @@ class Commands {
     }
 
     boolean commandCont() {
-        if (ThreadInfo.getCurrentThreadInfo() == null) {
-            MessageOutput.println("Nothing suspended.");
+        if (env.getCurrentThreadInfo() == null) {
+            env.messageOutput().println("Nothing suspended.");
             return false;
         }
-        ThreadInfo.invalidateAll();
-        Env.vm().resume();
+        env.invalidateAllThreadInfo();
+        env.vm().resume();
         return true;
     }
 
@@ -624,7 +626,7 @@ class Commands {
          * A previous step may not have completed on this thread;
          * if so, it gets removed here.
          */
-         EventRequestManager mgr = Env.vm().eventRequestManager();
+         EventRequestManager mgr = env.vm().eventRequestManager();
          for (StepRequest request : mgr.stepRequests()) {
              if (request.thread().equals(thread)) {
                  mgr.deleteEventRequest(request);
@@ -636,9 +638,13 @@ class Commands {
      *
      */
     StepRequest commandStep(StringTokenizer t) {
-        ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+        return commandStep(t, true);
+    }
+
+    StepRequest commandStep(StringTokenizer t, boolean resume) {
+        ThreadInfo threadInfo = env.getCurrentThreadInfo();
         if (threadInfo == null) {
-            MessageOutput.println("Nothing suspended.");
+            env.messageOutput().println("Nothing suspended.");
             return null;
         }
         int depth;
@@ -650,17 +656,19 @@ class Commands {
         }
 
         clearPreviousStep(threadInfo.getThread());
-        EventRequestManager reqMgr = Env.vm().eventRequestManager();
+        EventRequestManager reqMgr = env.vm().eventRequestManager();
         StepRequest request = reqMgr.createStepRequest(threadInfo.getThread(),
                                                        StepRequest.STEP_LINE, depth);
         if (depth == StepRequest.STEP_INTO) {
-            Env.addExcludes(request);
+            env.addExcludes(request);
         }
         // We want just the next step event and no others
         request.addCountFilter(1);
         request.enable();
-        ThreadInfo.invalidateAll();
-        Env.vm().resume();
+        env.invalidateAllThreadInfo();
+        if (resume) {
+            env.vm().resume();
+        }
         return request;
     }
 
@@ -668,48 +676,60 @@ class Commands {
      * step instruction.
      */
     StepRequest commandStepi() {
-        ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+        return commandStepi(true);
+    }
+
+    StepRequest commandStepi(boolean resume) {
+        ThreadInfo threadInfo = env.getCurrentThreadInfo();
         if (threadInfo == null) {
-            MessageOutput.println("Nothing suspended.");
+            env.messageOutput().println("Nothing suspended.");
             return null;
         }
         clearPreviousStep(threadInfo.getThread());
-        EventRequestManager reqMgr = Env.vm().eventRequestManager();
+        EventRequestManager reqMgr = env.vm().eventRequestManager();
         StepRequest request = reqMgr.createStepRequest(threadInfo.getThread(),
                                                        StepRequest.STEP_MIN,
                                                        StepRequest.STEP_INTO);
-        Env.addExcludes(request);
+        env.addExcludes(request);
         // We want just the next step event and no others
         request.addCountFilter(1);
         request.enable();
-        ThreadInfo.invalidateAll();
-        Env.vm().resume();
+        env.invalidateAllThreadInfo();
+        if (resume) {
+            env.vm().resume();
+        }
         return request;
     }
 
     StepRequest commandNext() {
-        ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+        return commandNext(true);
+    }
+
+    StepRequest commandNext(boolean resume) {
+        ThreadInfo threadInfo = env.getCurrentThreadInfo();
         if (threadInfo == null) {
-            MessageOutput.println("Nothing suspended.");
+            env.messageOutput().println("Nothing suspended.");
             return null;
         }
         clearPreviousStep(threadInfo.getThread());
-        EventRequestManager reqMgr = Env.vm().eventRequestManager();
+        EventRequestManager reqMgr = env.vm().eventRequestManager();
         StepRequest request = reqMgr.createStepRequest(threadInfo.getThread(),
                                                        StepRequest.STEP_LINE,
                                                        StepRequest.STEP_OVER);
-        Env.addExcludes(request);
+        env.addExcludes(request);
         // We want just the next step event and no others
         request.addCountFilter(1);
         request.enable();
-        ThreadInfo.invalidateAll();
-        Env.vm().resume();
+        env.invalidateAllThreadInfo();
+        if (resume) {
+            env.vm().resume();
+        }
         return request;
     }
 
     void doKill(ThreadReference thread, StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No exception object specified.");
+            env.messageOutput().println("No exception object specified.");
             return;
         }
         String expr = t.nextToken("");
@@ -717,12 +737,12 @@ class Commands {
         if ((val != null) && (val instanceof ObjectReference)) {
             try {
                 thread.stop((ObjectReference)val);
-                MessageOutput.println("killed", thread.toString());
+                env.messageOutput().println("killed", thread.toString());
             } catch (InvalidTypeException e) {
-                MessageOutput.println("Invalid exception object");
+                env.messageOutput().println("Invalid exception object");
             }
         } else {
-            MessageOutput.println("Expression must evaluate to an object");
+            env.messageOutput().println("Expression must evaluate to an object");
         }
     }
 
@@ -737,12 +757,12 @@ class Commands {
 
     void commandKill(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("Usage: kill <thread id> <throwable>");
+            env.messageOutput().println("Usage: kill <thread id> <throwable>");
             return;
         }
         ThreadInfo threadInfo = doGetThread(t.nextToken());
         if (threadInfo != null) {
-            MessageOutput.println("killing thread:", threadInfo.getThread().name());
+            env.messageOutput().println("killing thread:", threadInfo.getThread().name());
             doKillThread(threadInfo.getThread(), t);
             return;
         }
@@ -752,17 +772,17 @@ class Commands {
         boolean noExceptions = true;
 
         // Print a listing of the catch patterns currently in place
-        for (EventRequestSpec spec : Env.specList.eventRequestSpecs()) {
+        for (EventRequestSpec spec : env.getSpecList().eventRequestSpecs()) {
             if (spec instanceof ExceptionSpec) {
                 if (noExceptions) {
                     noExceptions = false;
-                    MessageOutput.println("Exceptions caught:");
+                    env.messageOutput().println("Exceptions caught:");
                 }
-                MessageOutput.println("tab", spec.toString());
+                env.messageOutput().println("tab", spec.toString());
             }
         }
         if (noExceptions) {
-            MessageOutput.println("No exceptions caught.");
+            env.messageOutput().println("No exceptions caught.");
         }
     }
 
@@ -800,11 +820,11 @@ class Commands {
         }
         if ((classPattern != null) && (notifyCaught || notifyUncaught)) {
             try {
-                spec = Env.specList.createExceptionCatch(classPattern,
+                spec = env.getSpecList().createExceptionCatch(classPattern,
                                                          notifyCaught,
                                                          notifyUncaught);
             } catch (ClassNotFoundException exc) {
-                MessageOutput.println("is not a valid class name", classPattern);
+                env.messageOutput().println("is not a valid class name", classPattern);
             }
         }
         return spec;
@@ -819,7 +839,7 @@ class Commands {
             if (spec != null) {
                 return (ExceptionRequest) resolveNow(spec);
             } else {
-                MessageOutput.println("Usage: catch exception");
+                env.messageOutput().println("Usage: catch exception");
                 return null;
             }
         }
@@ -831,23 +851,23 @@ class Commands {
             return true;
         } else {
             EventRequestSpec spec = parseExceptionSpec(t);
-            if (Env.specList.delete(spec)) {
-                MessageOutput.println("Removed:", spec.toString());
+            if (env.getSpecList().delete(spec)) {
+                env.messageOutput().println("Removed:", spec.toString());
                 return true;
             } else {
                 if (spec != null) {
-                    MessageOutput.println("Not found:", spec.toString());
+                    env.messageOutput().println("Not found:", spec.toString());
                 }
-                MessageOutput.println("Usage: ignore exception");
+                env.messageOutput().println("Usage: ignore exception");
                 return false;
             }
         }
     }
 
     boolean commandUp(StringTokenizer t) {
-        ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+        ThreadInfo threadInfo = env.getCurrentThreadInfo();
         if (threadInfo == null) {
-            MessageOutput.println("Current thread not set.");
+            env.messageOutput().println("Current thread not set.");
             return false;
         }
 
@@ -864,7 +884,7 @@ class Commands {
                 i = 0;
             }
             if (i <= 0) {
-                MessageOutput.println("Usage: up [n frames]");
+                env.messageOutput().println("Usage: up [n frames]");
                 return false;
             }
             nLevels = i;
@@ -874,17 +894,17 @@ class Commands {
             threadInfo.up(nLevels);
             return true;
         } catch (IncompatibleThreadStateException e) {
-            MessageOutput.println("Current thread isnt suspended.");
+            env.messageOutput().println("Current thread isnt suspended.");
         } catch (ArrayIndexOutOfBoundsException e) {
-            MessageOutput.println("End of stack.");
+            env.messageOutput().println("End of stack.");
         }
         return false;
     }
 
     boolean commandDown(StringTokenizer t) {
-        ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+        ThreadInfo threadInfo = env.getCurrentThreadInfo();
         if (threadInfo == null) {
-            MessageOutput.println("Current thread not set.");
+            env.messageOutput().println("Current thread not set.");
             return false;
         }
 
@@ -901,7 +921,7 @@ class Commands {
                 i = 0;
             }
             if (i <= 0) {
-                MessageOutput.println("Usage: down [n frames]");
+                env.messageOutput().println("Usage: down [n frames]");
                 return false;
             }
             nLevels = i;
@@ -911,9 +931,9 @@ class Commands {
             threadInfo.down(nLevels);
             return true;
         } catch (IncompatibleThreadStateException e) {
-            MessageOutput.println("Current thread isnt suspended.");
+            env.messageOutput().println("Current thread isnt suspended.");
         } catch (ArrayIndexOutOfBoundsException e) {
-            MessageOutput.println("End of stack.");
+            env.messageOutput().println("End of stack.");
         }
         return false;
     }
@@ -923,11 +943,11 @@ class Commands {
         try {
             stack = threadInfo.getStack();
         } catch (IncompatibleThreadStateException e) {
-            MessageOutput.println("Current thread isnt suspended.");
+            env.messageOutput().println("Current thread isnt suspended.");
             return;
         }
         if (stack == null) {
-            MessageOutput.println("Thread is not running (no stack).");
+            env.messageOutput().println("Thread is not running (no stack).");
         } else {
             int nFrames = stack.size();
             for (int i = threadInfo.getCurrentFrameIndex(); i < nFrames; i++) {
@@ -959,14 +979,14 @@ class Commands {
             }
         }
         if (pc != -1) {
-            MessageOutput.println("stack frame dump with pc",
+            env.messageOutput().println("stack frame dump with pc",
                                   new Object [] {new Integer(frameNumber + 1),
                                                  meth.declaringType().name(),
                                                  meth.name(),
                                                  methodInfo,
                                                  new Long(pc)});
         } else {
-            MessageOutput.println("stack frame dump",
+            env.messageOutput().println("stack frame dump",
                                   new Object [] {new Integer(frameNumber + 1),
                                                  meth.declaringType().name(),
                                                  meth.name(),
@@ -976,9 +996,9 @@ class Commands {
 
     boolean commandWhere(StringTokenizer t, boolean showPC) {
         if (!t.hasMoreTokens()) {
-            ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+            ThreadInfo threadInfo = env.getCurrentThreadInfo();
             if (threadInfo == null) {
-                MessageOutput.println("No thread specified.");
+                env.messageOutput().println("No thread specified.");
                 return false;
             }
             dumpStack(threadInfo, showPC);
@@ -986,8 +1006,8 @@ class Commands {
         } else {
             String token = t.nextToken();
             if (token.toLowerCase().equals("all")) {
-                for (ThreadInfo threadInfo : ThreadInfo.threads()) {
-                    MessageOutput.println("Thread:",
+                for (ThreadInfo threadInfo : env.threads()) {
+                    env.messageOutput().println("Thread:",
                                           threadInfo.getThread().name());
                     dumpStack(threadInfo, showPC);
                 }
@@ -995,7 +1015,7 @@ class Commands {
             } else {
                 ThreadInfo threadInfo = doGetThread(token);
                 if (threadInfo != null) {
-                    ThreadInfo.setCurrentThreadInfo(threadInfo);
+                    env.setCurrentThreadInfo(threadInfo);
                     dumpStack(threadInfo, showPC);
                     return true;
                 } else {
@@ -1007,9 +1027,9 @@ class Commands {
 
     boolean commandInterrupt(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+            ThreadInfo threadInfo = env.getCurrentThreadInfo();
             if (threadInfo == null) {
-                MessageOutput.println("No thread specified.");
+                env.messageOutput().println("No thread specified.");
                 return false;
             }
             threadInfo.getThread().interrupt();
@@ -1026,11 +1046,11 @@ class Commands {
     }
 
     void commandMemory() {
-        MessageOutput.println("The memory command is no longer supported.");
+        env.messageOutput().println("The memory command is no longer supported.");
     }
 
     void commandGC() {
-        MessageOutput.println("The gc command is no longer necessary.");
+        env.messageOutput().println("The gc command is no longer necessary.");
     }
 
     /*
@@ -1049,23 +1069,23 @@ class Commands {
         boolean noBreakpoints = true;
 
         // Print set breakpoints
-        for (EventRequestSpec spec : Env.specList.eventRequestSpecs()) {
+        for (EventRequestSpec spec : env.getSpecList().eventRequestSpecs()) {
             if (spec instanceof BreakpointSpec) {
                 if (noBreakpoints) {
                     noBreakpoints = false;
-                    MessageOutput.println("Breakpoints set:");
+                    env.messageOutput().println("Breakpoints set:");
                 }
-                MessageOutput.println("tab", spec.toString());
+                env.messageOutput().println("tab", spec.toString());
             }
         }
         if (noBreakpoints) {
-            MessageOutput.println("No breakpoints set.");
+            env.messageOutput().println("No breakpoints set.");
         }
     }
 
 
     private void printBreakpointCommandUsage(String atForm, String inForm) {
-        MessageOutput.println("printbreakpointcommandusage",
+        env.messageOutput().println("printbreakpointcommandusage",
                               new Object [] {atForm, inForm});
     }
 
@@ -1099,10 +1119,10 @@ class Commands {
                     return null;
                 }
                 try {
-                    breakpoint = Env.specList.createBreakpoint(classId,
+                    breakpoint = env.getSpecList().createBreakpoint(classId,
                                                                lineNumber);
                 } catch (ClassNotFoundException exc) {
-                    MessageOutput.println("is not a valid class name", classId);
+                    env.messageOutput().println("is not a valid class name", classId);
                 }
             } else {
                 // Try stripping method from class.method token.
@@ -1117,7 +1137,7 @@ class Commands {
                 List<String> argumentList = null;
                 if (rest != null) {
                     if (!rest.startsWith("(") || !rest.endsWith(")")) {
-                        MessageOutput.println("Invalid method specification:",
+                        env.messageOutput().println("Invalid method specification:",
                                               methodName + rest);
                         printBreakpointCommandUsage(atForm, inForm);
                         return null;
@@ -1132,13 +1152,13 @@ class Commands {
                     }
                 }
                 try {
-                    breakpoint = Env.specList.createBreakpoint(classId,
+                    breakpoint = env.getSpecList().createBreakpoint(classId,
                                                                methodName,
                                                                argumentList);
                 } catch (MalformedMemberNameException exc) {
-                    MessageOutput.println("is not a valid method name", methodName);
+                    env.messageOutput().println("is not a valid method name", methodName);
                 } catch (ClassNotFoundException exc) {
-                    MessageOutput.println("is not a valid class name", classId);
+                    env.messageOutput().println("is not a valid class name", classId);
                 }
             }
         } catch (Exception e) {
@@ -1149,9 +1169,9 @@ class Commands {
     }
 
     private EventRequest resolveNow(EventRequestSpec spec) {
-        boolean success = Env.specList.addEagerlyResolve(spec);
+        boolean success = env.getSpecList().addEagerlyResolve(spec);
         if (success && !spec.isResolved()) {
-            MessageOutput.println("Deferring.", spec.toString());
+            env.messageOutput().println("Deferring.", spec.toString());
         }
 
         return (success && spec.isResolved())? spec.resolved() : null;
@@ -1182,7 +1202,7 @@ class Commands {
             // unnecessary and we should consider not checking for this
             // (and making "at" and "in" optional).
             if (atIn.equals("at") && spec.isMethodBreakpoint()) {
-                MessageOutput.println("Use stop at to set a breakpoint at a line number");
+                env.messageOutput().println("Use stop at to set a breakpoint at a line number");
                 printBreakpointCommandUsage("stop at", "stop in");
                 return null;
             }
@@ -1201,11 +1221,11 @@ class Commands {
 
         BreakpointSpec spec = parseBreakpointSpec(t, "clear", "clear");
         if (spec != null) {
-            if (Env.specList.delete(spec)) {
-                MessageOutput.println("Removed:", spec.toString());
+            if (env.getSpecList().delete(spec)) {
+                env.messageOutput().println("Removed:", spec.toString());
                 return true;
             } else {
-                MessageOutput.println("Not found:", spec.toString());
+                env.messageOutput().println("Not found:", spec.toString());
                 return false;
             }
         } else {
@@ -1239,7 +1259,7 @@ class Commands {
         }
         int dot = fieldName.lastIndexOf('.');
         if (dot < 0) {
-            MessageOutput.println("Class containing field must be specified.");
+            env.messageOutput().println("Class containing field must be specified.");
             return list;
         }
         String className = fieldName.substring(0, dot);
@@ -1248,28 +1268,28 @@ class Commands {
         try {
             WatchpointSpec spec;
             if (access) {
-                spec = Env.specList.createAccessWatchpoint(className,
+                spec = env.getSpecList().createAccessWatchpoint(className,
                                                            fieldName);
                 spec.suspendPolicy = suspendPolicy;
                 list.add(spec);
             }
             if (modification) {
-                spec = Env.specList.createModificationWatchpoint(className,
+                spec = env.getSpecList().createModificationWatchpoint(className,
                                                                  fieldName);
                 spec.suspendPolicy = suspendPolicy;
                 list.add(spec);
             }
         } catch (MalformedMemberNameException exc) {
-            MessageOutput.println("is not a valid field name", fieldName);
+            env.messageOutput().println("is not a valid field name", fieldName);
         } catch (ClassNotFoundException exc) {
-            MessageOutput.println("is not a valid class name", className);
+            env.messageOutput().println("is not a valid class name", className);
         }
         return list;
     }
 
     WatchpointRequest commandWatch(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("Field to watch not specified");
+            env.messageOutput().println("Field to watch not specified");
             return null;
         }
 
@@ -1282,26 +1302,26 @@ class Commands {
 
     void commandUnwatch(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("Field to unwatch not specified");
+            env.messageOutput().println("Field to unwatch not specified");
             return;
         }
 
         for (WatchpointSpec spec : parseWatchpointSpec(t)) {
-            if (Env.specList.delete(spec)) {
-                MessageOutput.println("Removed:", spec.toString());
+            if (env.getSpecList().delete(spec)) {
+                env.messageOutput().println("Removed:", spec.toString());
             } else {
-                MessageOutput.println("Not found:", spec.toString());
+                env.messageOutput().println("Not found:", spec.toString());
             }
         }
     }
 
     void turnOnExitTrace(ThreadInfo threadInfo, int suspendPolicy) {
-        EventRequestManager erm = Env.vm().eventRequestManager();
+        EventRequestManager erm = env.vm().eventRequestManager();
         MethodExitRequest exit = erm.createMethodExitRequest();
         if (threadInfo != null) {
             exit.addThreadFilter(threadInfo.getThread());
         }
-        Env.addExcludes(exit);
+        env.addExcludes(exit);
         exit.setSuspendPolicy(suspendPolicy);
         exit.enable();
 
@@ -1347,16 +1367,16 @@ class Commands {
                         if (modif1.equals("exit")) {
                             StackFrame frame;
                             try {
-                                frame = ThreadInfo.getCurrentThreadInfo().getCurrentFrame();
+                                frame = env.getCurrentThreadInfo().getCurrentFrame();
                             } catch (IncompatibleThreadStateException ee) {
-                                MessageOutput.println("Current thread isnt suspended.");
+                                env.messageOutput().println("Current thread isnt suspended.");
                                 return;
                             }
-                            Env.setAtExitMethod(frame.location().method());
+                            env.setAtExitMethod(frame.location().method());
                             traceCmd = MessageOutput.format("trace" +
                                                     goStr + "method exit " +
                                                     "in effect for",
-                                                    Env.atExitMethod().toString());
+                                                    env.atExitMethod().toString());
                         } else {
                             traceCmd = MessageOutput.format("trace" +
                                                    goStr + "method exits " +
@@ -1368,14 +1388,14 @@ class Commands {
                         return;
                     }
                 } else {
-                   MessageOutput.println("Can only trace");
+                   env.messageOutput().println("Can only trace");
                    return;
                 }
             }
             if (modif.equals("methods")) {
                 // Turn on method entry trace
                 MethodEntryRequest entry;
-                EventRequestManager erm = Env.vm().eventRequestManager();
+                EventRequestManager erm = env.vm().eventRequestManager();
                 if (t.hasMoreTokens()) {
                     threadInfo = doGetThread(t.nextToken());
                 }
@@ -1403,7 +1423,7 @@ class Commands {
                     commandUntrace(new StringTokenizer("methods"));
                     entry = erm.createMethodEntryRequest();
                 }
-                Env.addExcludes(entry);
+                env.addExcludes(entry);
                 entry.setSuspendPolicy(suspendPolicy);
                 entry.enable();
                 turnOnExitTrace(threadInfo, suspendPolicy);
@@ -1413,13 +1433,13 @@ class Commands {
                 return;
             }
 
-            MessageOutput.println("Can only trace");
+            env.messageOutput().println("Can only trace");
             return;
         }
 
         // trace all by itself.
         if (methodTraceCommand != null) {
-            MessageOutput.printDirectln(methodTraceCommand);
+            env.messageOutput().printDirectln(methodTraceCommand);
         }
 
         // More trace lines can be added here.
@@ -1430,40 +1450,40 @@ class Commands {
         // untrace methods
 
         String modif = null;
-        EventRequestManager erm = Env.vm().eventRequestManager();
+        EventRequestManager erm = env.vm().eventRequestManager();
         if (t.hasMoreTokens()) {
             modif = t.nextToken();
         }
         if (modif == null || modif.equals("methods")) {
             erm.deleteEventRequests(erm.methodEntryRequests());
             erm.deleteEventRequests(erm.methodExitRequests());
-            Env.setAtExitMethod(null);
+            env.setAtExitMethod(null);
             methodTraceCommand = null;
         }
     }
 
     void commandList(StringTokenizer t) {
         StackFrame frame = null;
-        ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+        ThreadInfo threadInfo = env.getCurrentThreadInfo();
         if (threadInfo == null) {
-            MessageOutput.println("No thread specified.");
+            env.messageOutput().println("No thread specified.");
             return;
         }
         try {
             frame = threadInfo.getCurrentFrame();
         } catch (IncompatibleThreadStateException e) {
-            MessageOutput.println("Current thread isnt suspended.");
+            env.messageOutput().println("Current thread isnt suspended.");
             return;
         }
 
         if (frame == null) {
-            MessageOutput.println("No frames on the current call stack");
+            env.messageOutput().println("No frames on the current call stack");
             return;
         }
 
         Location loc = frame.location();
         if (loc.method().isNative()) {
-            MessageOutput.println("Current method is native");
+            env.messageOutput().println("Current method is native");
             return;
         }
 
@@ -1487,11 +1507,11 @@ class Commands {
                     // It isn't -- see if it's a method name.
                         List<Method> meths = refType.methodsByName(id);
                         if (meths == null || meths.size() == 0) {
-                            MessageOutput.println("is not a valid line number or method name for",
+                            env.messageOutput().println("is not a valid line number or method name for",
                                                   new Object [] {id, refType.name()});
                             return;
                         } else if (meths.size() > 1) {
-                            MessageOutput.println("is an ambiguous method name in",
+                            env.messageOutput().println("is an ambiguous method name in",
                                                   new Object [] {id, refType.name()});
                             return;
                         }
@@ -1502,46 +1522,46 @@ class Commands {
             int startLine = Math.max(lineno - 4, 1);
             int endLine = startLine + 9;
             if (lineno < 0) {
-                MessageOutput.println("Line number information not available for");
-            } else if (Env.sourceLine(loc, lineno) == null) {
-                MessageOutput.println("is an invalid line number for",
+                env.messageOutput().println("Line number information not available for");
+            } else if (env.sourceLine(loc, lineno) == null) {
+                env.messageOutput().println("is an invalid line number for",
                                       new Object [] {new Integer (lineno),
                                                      refType.name()});
             } else {
                 for (int i = startLine; i <= endLine; i++) {
-                    String sourceLine = Env.sourceLine(loc, i);
+                    String sourceLine = env.sourceLine(loc, i);
                     if (sourceLine == null) {
                         break;
                     }
                     if (i == lineno) {
-                        MessageOutput.println("source line number current line and line",
+                        env.messageOutput().println("source line number current line and line",
                                               new Object [] {new Integer (i),
                                                              sourceLine});
                     } else {
-                        MessageOutput.println("source line number and line",
+                        env.messageOutput().println("source line number and line",
                                               new Object [] {new Integer (i),
                                                              sourceLine});
                     }
                 }
             }
         } catch (AbsentInformationException e) {
-            MessageOutput.println("No source information available for:", loc.toString());
+            env.messageOutput().println("No source information available for:", loc.toString());
         } catch(FileNotFoundException exc) {
-            MessageOutput.println("Source file not found:", sourceFileName);
+            env.messageOutput().println("Source file not found:", sourceFileName);
         } catch(IOException exc) {
-            MessageOutput.println("I/O exception occurred:", exc.toString());
+            env.messageOutput().println("I/O exception occurred:", exc.toString());
         }
     }
 
     boolean commandLines(StringTokenizer t) { // Undocumented command: useful for testing
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("Specify class and method");
+            env.messageOutput().println("Specify class and method");
             return false;
         } else {
             String idClass = t.nextToken();
             String idMethod = t.hasMoreTokens() ? t.nextToken() : null;
             try {
-                ReferenceType refType = Env.getReferenceTypeFromToken(idClass);
+                ReferenceType refType = env.getReferenceTypeFromToken(idClass);
                 if (refType != null) {
                     List<Location> lines = null;
                     if (idMethod == null) {
@@ -1553,34 +1573,34 @@ class Commands {
                             }
                         }
                         if (lines == null) {
-                            MessageOutput.println("is not a valid method name", idMethod);
+                            env.messageOutput().println("is not a valid method name", idMethod);
                             return false;
                         }
                     }
                     for (Location line : lines) {
-                        MessageOutput.printDirectln(line.toString());// Special case: use printDirectln()
+                        env.messageOutput().printDirectln(line.toString());// Special case: use printDirectln()
                     }
                     return true;
                 } else {
-                    MessageOutput.println("is not a valid id or class name", idClass);
+                    env.messageOutput().println("is not a valid id or class name", idClass);
                     return false;
                 }
             } catch (AbsentInformationException e) {
-                MessageOutput.println("Line number information not available for", idClass);
+                env.messageOutput().println("Line number information not available for", idClass);
                 return false;
             }
         }
     }
 
     boolean commandClasspath(StringTokenizer t) {
-        if (Env.vm() instanceof PathSearchingVirtualMachine) {
-            PathSearchingVirtualMachine vm = (PathSearchingVirtualMachine)Env.vm();
-            MessageOutput.println("base directory:", vm.baseDirectory());
-            MessageOutput.println("classpath:", vm.classPath().toString());
-            MessageOutput.println("bootclasspath:", vm.bootClassPath().toString());
+        if (env.vm() instanceof PathSearchingVirtualMachine) {
+            PathSearchingVirtualMachine vm = (PathSearchingVirtualMachine)env.vm();
+            env.messageOutput().println("base directory:", vm.baseDirectory());
+            env.messageOutput().println("classpath:", vm.classPath().toString());
+            env.messageOutput().println("bootclasspath:", vm.bootClassPath().toString());
             return true;
         } else {
-            MessageOutput.println("The VM does not use paths");
+            env.messageOutput().println("The VM does not use paths");
             return false;
         }
     }
@@ -1588,20 +1608,20 @@ class Commands {
     /* Get or set the source file path list. */
     void commandUse(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.printDirectln(Env.getSourcePath());// Special case: use printDirectln()
+            env.messageOutput().printDirectln(env.getSourcePath());// Special case: use printDirectln()
         } else {
             /*
              * Take the remainder of the command line, minus
              * leading or trailing whitespace.  Embedded
              * whitespace is fine.
              */
-            Env.setSourcePath(t.nextToken("").trim());
+            env.setSourcePath(t.nextToken("").trim());
         }
     }
 
     /* Print a stack variable */
     private void printVar(LocalVariable var, Value value) {
-        MessageOutput.println("expr is value",
+        env.messageOutput().println("expr is value",
                               new Object [] {var.name(),
                                              value == null ? "null" : value.toString()});
     }
@@ -1609,9 +1629,9 @@ class Commands {
     /* Print all local variables in current stack frame. */
     boolean commandLocals() {
         StackFrame frame;
-        ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+        ThreadInfo threadInfo = env.getCurrentThreadInfo();
         if (threadInfo == null) {
-            MessageOutput.println("No default thread specified:");
+            env.messageOutput().println("No default thread specified:");
             return false;
         }
         try {
@@ -1622,19 +1642,19 @@ class Commands {
             List<LocalVariable> vars = frame.visibleVariables();
 
             if (vars.size() == 0) {
-                MessageOutput.println("No local variables");
+                env.messageOutput().println("No local variables");
                 return true;
             }
             Map<LocalVariable, Value> values = frame.getValues(vars);
 
-            MessageOutput.println("Method arguments:");
+            env.messageOutput().println("Method arguments:");
             for (LocalVariable var : vars) {
                 if (var.isArgument()) {
                     Value val = values.get(var);
                     printVar(var, val);
                 }
             }
-            MessageOutput.println("Local variables:");
+            env.messageOutput().println("Local variables:");
             for (LocalVariable var : vars) {
                 if (!var.isArgument()) {
                     Value val = values.get(var);
@@ -1643,9 +1663,9 @@ class Commands {
             }
             return true;
         } catch (AbsentInformationException aie) {
-            MessageOutput.println("Local variable information not available.");
+            env.messageOutput().println("Local variable information not available.");
         } catch (IncompatibleThreadStateException exc) {
-            MessageOutput.println("Current thread isnt suspended.");
+            env.messageOutput().println("Current thread isnt suspended.");
         }
         return false;
     }
@@ -1662,7 +1682,7 @@ class Commands {
             o.append(field.name());
             o.append(MessageOutput.format("colon space"));
             o.append(obj.getValue(field));
-            MessageOutput.printDirectln(o.toString()); // Special case: use printDirectln()
+            env.messageOutput().printDirectln(o.toString()); // Special case: use printDirectln()
         }
         if (refType instanceof ClassType) {
             ClassType sup = ((ClassType)refType).superclass();
@@ -1678,12 +1698,12 @@ class Commands {
             if (obj instanceof ArrayReference) {
                 for (Iterator<Value> it = ((ArrayReference)obj).getValues().iterator();
                      it.hasNext(); ) {
-                    MessageOutput.printDirect(it.next().toString());// Special case: use printDirect()
+                    env.messageOutput().printDirect(it.next().toString());// Special case: use printDirect()
                     if (it.hasNext()) {
-                        MessageOutput.printDirect(", ");// Special case: use printDirect()
+                        env.messageOutput().printDirect(", ");// Special case: use printDirect()
                     }
                 }
-                MessageOutput.println();
+                env.messageOutput().println();
             }
         }
     }
@@ -1692,7 +1712,7 @@ class Commands {
      */
     void doPrint(StringTokenizer t, boolean dumpObject) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No objects specified.");
+            env.messageOutput().println("No objects specified.");
             return;
         }
 
@@ -1700,20 +1720,20 @@ class Commands {
             String expr = t.nextToken("");
             Value val = evaluate(expr);
             if (val == null) {
-                MessageOutput.println("expr is null", expr.toString());
+                env.messageOutput().println("expr is null", expr.toString());
             } else if (dumpObject && (val instanceof ObjectReference) &&
                        !(val instanceof StringReference)) {
                 ObjectReference obj = (ObjectReference)val;
                 ReferenceType refType = obj.referenceType();
-                MessageOutput.println("expr is value",
+                env.messageOutput().println("expr is value",
                                       new Object [] {expr.toString(),
                                                      MessageOutput.format("grouping begin character")});
                 dump(obj, refType, refType);
-                MessageOutput.println("grouping end character");
+                env.messageOutput().println("grouping end character");
             } else {
                   String strVal = getStringValue();
                   if (strVal != null) {
-                     MessageOutput.println("expr is value", new Object [] {expr.toString(),
+                     env.messageOutput().println("expr is value", new Object [] {expr.toString(),
                                                                       strVal});
                    }
             }
@@ -1735,8 +1755,8 @@ class Commands {
          * Bare bones error checking.
          */
         if (all.indexOf('=') == -1) {
-            MessageOutput.println("Invalid assignment syntax");
-            MessageOutput.printPrompt();
+            env.messageOutput().println("Invalid assignment syntax");
+            env.printPrompt();
             return;
         }
 
@@ -1749,7 +1769,7 @@ class Commands {
 
     void doLock(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No object specified.");
+            env.messageOutput().println("No object specified.");
             return;
         }
 
@@ -1761,31 +1781,31 @@ class Commands {
                 ObjectReference object = (ObjectReference)val;
                 String strVal = getStringValue();
                 if (strVal != null) {
-                    MessageOutput.println("Monitor information for expr",
+                    env.messageOutput().println("Monitor information for expr",
                                       new Object [] {expr.trim(),
                                                      strVal});
                 }
                 ThreadReference owner = object.owningThread();
                 if (owner == null) {
-                    MessageOutput.println("Not owned");
+                    env.messageOutput().println("Not owned");
                 } else {
-                    MessageOutput.println("Owned by:",
+                    env.messageOutput().println("Owned by:",
                                           new Object [] {owner.name(),
                                                          new Integer (object.entryCount())});
                 }
                 List<ThreadReference> waiters = object.waitingThreads();
                 if (waiters.size() == 0) {
-                    MessageOutput.println("No waiters");
+                    env.messageOutput().println("No waiters");
                 } else {
                     for (ThreadReference waiter : waiters) {
-                        MessageOutput.println("Waiting thread:", waiter.name());
+                        env.messageOutput().println("Waiting thread:", waiter.name());
                     }
                 }
             } else {
-                MessageOutput.println("Expression must evaluate to an object");
+                env.messageOutput().println("Expression must evaluate to an object");
             }
         } catch (IncompatibleThreadStateException e) {
-            MessageOutput.println("Threads must be suspended");
+            env.messageOutput().println("Threads must be suspended");
         }
     }
 
@@ -1800,31 +1820,31 @@ class Commands {
     private void printThreadLockInfo(ThreadInfo threadInfo) {
         ThreadReference thread = threadInfo.getThread();
         try {
-            MessageOutput.println("Monitor information for thread", thread.name());
+            env.messageOutput().println("Monitor information for thread", thread.name());
             List<ObjectReference> owned = thread.ownedMonitors();
             if (owned.size() == 0) {
-                MessageOutput.println("No monitors owned");
+                env.messageOutput().println("No monitors owned");
             } else {
                 for (ObjectReference monitor : owned) {
-                    MessageOutput.println("Owned monitor:", monitor.toString());
+                    env.messageOutput().println("Owned monitor:", monitor.toString());
                 }
             }
             ObjectReference waiting = thread.currentContendedMonitor();
             if (waiting == null) {
-                MessageOutput.println("Not waiting for a monitor");
+                env.messageOutput().println("Not waiting for a monitor");
             } else {
-                MessageOutput.println("Waiting for monitor:", waiting.toString());
+                env.messageOutput().println("Waiting for monitor:", waiting.toString());
             }
         } catch (IncompatibleThreadStateException e) {
-            MessageOutput.println("Threads must be suspended");
+            env.messageOutput().println("Threads must be suspended");
         }
     }
 
     void commandThreadlocks(final StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            ThreadInfo threadInfo = ThreadInfo.getCurrentThreadInfo();
+            ThreadInfo threadInfo = env.getCurrentThreadInfo();
             if (threadInfo == null) {
-                MessageOutput.println("Current thread not set.");
+                env.messageOutput().println("Current thread not set.");
             } else {
                 printThreadLockInfo(threadInfo);
             }
@@ -1832,13 +1852,13 @@ class Commands {
         }
         String token = t.nextToken();
         if (token.toLowerCase().equals("all")) {
-            for (ThreadInfo threadInfo : ThreadInfo.threads()) {
+            for (ThreadInfo threadInfo : env.threads()) {
                 printThreadLockInfo(threadInfo);
             }
         } else {
             ThreadInfo threadInfo = doGetThread(token);
             if (threadInfo != null) {
-                ThreadInfo.setCurrentThreadInfo(threadInfo);
+                env.setCurrentThreadInfo(threadInfo);
                 printThreadLockInfo(threadInfo);
             }
         }
@@ -1846,7 +1866,7 @@ class Commands {
 
     void doDisableGC(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No object specified.");
+            env.messageOutput().println("No object specified.");
             return;
         }
 
@@ -1857,10 +1877,10 @@ class Commands {
             object.disableCollection();
             String strVal = getStringValue();
             if (strVal != null) {
-                 MessageOutput.println("GC Disabled for", strVal);
+                 env.messageOutput().println("GC Disabled for", strVal);
             }
         } else {
-            MessageOutput.println("Expression must evaluate to an object");
+            env.messageOutput().println("Expression must evaluate to an object");
         }
     }
 
@@ -1874,7 +1894,7 @@ class Commands {
 
     void doEnableGC(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No object specified.");
+            env.messageOutput().println("No object specified.");
             return;
         }
 
@@ -1885,10 +1905,10 @@ class Commands {
             object.enableCollection();
             String strVal = getStringValue();
             if (strVal != null) {
-                 MessageOutput.println("GC Enabled for", strVal);
+                 env.messageOutput().println("GC Enabled for", strVal);
             }
         } else {
-            MessageOutput.println("Expression must evaluate to an object");
+            env.messageOutput().println("Expression must evaluate to an object");
         }
     }
 
@@ -1902,47 +1922,47 @@ class Commands {
 
     void doSave(StringTokenizer t) {// Undocumented command: useful for testing.
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No save index specified.");
+            env.messageOutput().println("No save index specified.");
             return;
         }
 
         String key = t.nextToken();
 
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No expression specified.");
+            env.messageOutput().println("No expression specified.");
             return;
         }
         String expr = t.nextToken("");
         Value val = evaluate(expr);
         if (val != null) {
-            Env.setSavedValue(key, val);
+            env.setSavedValue(key, val);
             String strVal = getStringValue();
             if (strVal != null) {
-                 MessageOutput.println("saved", strVal);
+                 env.messageOutput().println("saved", strVal);
             }
         } else {
-            MessageOutput.println("Expression cannot be void");
+            env.messageOutput().println("Expression cannot be void");
         }
     }
 
     void commandSave(final StringTokenizer t) { // Undocumented command: useful for testing.
         if (!t.hasMoreTokens()) {
-            Set<String> keys = Env.getSaveKeys();
+            Set<String> keys = env.getSaveKeys();
             if (keys.isEmpty()) {
-                MessageOutput.println("No saved values");
+                env.messageOutput().println("No saved values");
                 return;
             }
             for (String key : keys) {
-                Value value = Env.getSavedValue(key);
+                Value value = env.getSavedValue(key);
                 if ((value instanceof ObjectReference) &&
                     ((ObjectReference)value).isCollected()) {
-                    MessageOutput.println("expr is value <collected>",
+                    env.messageOutput().println("expr is value <collected>",
                                           new Object [] {key, value.toString()});
                 } else {
                     if (value == null){
-                        MessageOutput.println("expr is null", key);
+                        env.messageOutput().println("expr is null", key);
                     } else {
-                        MessageOutput.println("expr is value",
+                        env.messageOutput().println("expr is value",
                                               new Object [] {key, value.toString()});
                     }
                 }
@@ -1959,32 +1979,32 @@ class Commands {
 
    void commandBytecodes(final StringTokenizer t) { // Undocumented command: useful for testing.
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No class specified.");
+            env.messageOutput().println("No class specified.");
             return;
         }
         String className = t.nextToken();
 
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No method specified.");
+            env.messageOutput().println("No method specified.");
             return;
         }
         // Overloading is not handled here.
         String methodName = t.nextToken();
 
-        List<ReferenceType> classes = Env.vm().classesByName(className);
+        List<ReferenceType> classes = env.vm().classesByName(className);
         // TO DO: handle multiple classes found
         if (classes.size() == 0) {
             if (className.indexOf('.') < 0) {
-                MessageOutput.println("not found (try the full name)", className);
+                env.messageOutput().println("not found (try the full name)", className);
             } else {
-                MessageOutput.println("not found", className);
+                env.messageOutput().println("not found", className);
             }
             return;
         }
 
         ReferenceType rt = classes.get(0);
         if (!(rt instanceof ClassType)) {
-            MessageOutput.println("not a class", className);
+            env.messageOutput().println("not a class", className);
             return;
         }
 
@@ -2000,7 +2020,7 @@ class Commands {
         line.append("0000: ");
         for (int i = 0; i < bytecodes.length; i++) {
             if ((i > 0) && (i % 16 == 0)) {
-                MessageOutput.printDirectln(line.toString());// Special case: use printDirectln()
+                env.messageOutput().printDirectln(line.toString());// Special case: use printDirectln()
                 line.setLength(0);
                 line.append(String.valueOf(i));
                 line.append(": ");
@@ -2018,41 +2038,41 @@ class Commands {
             line.append(' ');
         }
         if (line.length() > 6) {
-            MessageOutput.printDirectln(line.toString());// Special case: use printDirectln()
+            env.messageOutput().printDirectln(line.toString());// Special case: use printDirectln()
         }
     }
 
     void commandExclude(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.printDirectln(Env.excludesString());// Special case: use printDirectln()
+            env.messageOutput().printDirectln(env.excludesString());// Special case: use printDirectln()
         } else {
             String rest = t.nextToken("");
             if (rest.equals("none")) {
                 rest = "";
             }
-            Env.setExcludes(rest);
+            env.setExcludes(rest);
         }
     }
 
     boolean commandRedefine(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("Specify classes to redefine");
+            env.messageOutput().println("Specify classes to redefine");
             return false;
         } else {
             String className = t.nextToken();
-            List<ReferenceType> classes = Env.vm().classesByName(className);
+            List<ReferenceType> classes = env.vm().classesByName(className);
             if (classes.size() == 0) {
-                MessageOutput.println("No class named", className);
+                env.messageOutput().println("No class named", className);
                 return false;
             }
             if (classes.size() > 1) {
-                MessageOutput.println("More than one class named", className);
+                env.messageOutput().println("More than one class named", className);
                 return false;
             }
-            Env.setSourcePath(Env.getSourcePath());
+            env.setSourcePath(env.getSourcePath());
             ReferenceType refType = classes.get(0);
             if (!t.hasMoreTokens()) {
-                MessageOutput.println("Specify file name for class", className);
+                env.messageOutput().println("Specify file name for class", className);
                 return false;
             }
             String fileName = t.nextToken();
@@ -2063,7 +2083,7 @@ class Commands {
                 in.read(bytes);
                 in.close();
             } catch (Exception exc) {
-                MessageOutput.println("Error reading file",
+                env.messageOutput().println("Error reading file",
                              new Object [] {fileName, exc.toString()});
                 return false;
             }
@@ -2071,10 +2091,10 @@ class Commands {
                 = new HashMap<ReferenceType, byte[]>();
             map.put(refType, bytes);
             try {
-                Env.vm().redefineClasses(map);
+                env.vm().redefineClasses(map);
                 return true;
             } catch (Throwable exc) {
-                MessageOutput.println("Error redefining class to file",
+                env.messageOutput().println("Error redefining class to file",
                              new Object [] {className,
                                             fileName,
                                             exc});
@@ -2093,9 +2113,9 @@ class Commands {
                 return false;
             }
         } else {
-            threadInfo = ThreadInfo.getCurrentThreadInfo();
+            threadInfo = env.getCurrentThreadInfo();
             if (threadInfo == null) {
-                MessageOutput.println("No thread specified.");
+                env.messageOutput().println("No thread specified.");
                 return false;
             }
         }
@@ -2103,51 +2123,51 @@ class Commands {
         try {
             StackFrame frame = threadInfo.getCurrentFrame();
             threadInfo.getThread().popFrames(frame);
-            threadInfo = ThreadInfo.getCurrentThreadInfo();
-            ThreadInfo.setCurrentThreadInfo(threadInfo);
+            threadInfo = env.getCurrentThreadInfo();
+            env.setCurrentThreadInfo(threadInfo);
             if (reenter) {
                 commandStepi();
             }
             return true;
         } catch (Throwable exc) {
-            MessageOutput.println("Error popping frame", exc.toString());
+            env.messageOutput().println("Error popping frame", exc.toString());
             return false;
         }
     }
 
     void commandExtension(StringTokenizer t) {
         if (!t.hasMoreTokens()) {
-            MessageOutput.println("No class specified.");
+            env.messageOutput().println("No class specified.");
             return;
         }
 
         String idClass = t.nextToken();
-        ReferenceType cls = Env.getReferenceTypeFromToken(idClass);
+        ReferenceType cls = env.getReferenceTypeFromToken(idClass);
         String extension = null;
         if (cls != null) {
             try {
                 extension = cls.sourceDebugExtension();
-                MessageOutput.println("sourcedebugextension", extension);
+                env.messageOutput().println("sourcedebugextension", extension);
             } catch (AbsentInformationException e) {
-                MessageOutput.println("No sourcedebugextension specified");
+                env.messageOutput().println("No sourcedebugextension specified");
             }
         } else {
-            MessageOutput.println("is not a valid id or class name", idClass);
+            env.messageOutput().println("is not a valid id or class name", idClass);
         }
     }
 
     void commandVersion(String debuggerName,
                         VirtualMachineManager vmm) {
-        MessageOutput.println("minus version",
+        env.messageOutput().println("minus version",
                               new Object [] { debuggerName,
                                               new Integer(vmm.majorInterfaceVersion()),
                                               new Integer(vmm.minorInterfaceVersion()),
                                                   System.getProperty("java.version")});
-        if (Env.connection() != null) {
+        if (env.connection() != null) {
             try {
-                MessageOutput.printDirectln(Env.vm().description());// Special case: use printDirectln()
+                env.messageOutput().printDirectln(env.vm().description());// Special case: use printDirectln()
             } catch (VMNotConnectedException e) {
-                MessageOutput.println("No VM connected");
+                env.messageOutput().println("No VM connected");
             }
         }
     }

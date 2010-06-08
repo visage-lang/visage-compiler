@@ -24,6 +24,7 @@
 package com.sun.javafx.jdi;
 
 import com.sun.javafx.jdi.connect.FXConnector;
+import com.sun.jdi.Bootstrap;
 import com.sun.jdi.JDIPermission;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.VirtualMachineManager;
@@ -58,7 +59,7 @@ public class FXBootstrap {
         private List<Connector> connectors = new ArrayList<Connector>();
         private LaunchingConnector defaultConnector = null;
         private static final int majorVersion = 1;
-        private static final int minorVersion = 3;
+        private static final int minorVersion = 6;
         private static final Object lock = new Object();
         private static FXVirtualMachineManager vmm;
 
@@ -201,7 +202,8 @@ public class FXBootstrap {
         }
 
         public List<VirtualMachine> connectedVirtualMachines() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            VirtualMachineManager pvmm = Bootstrap.virtualMachineManager();
+            return FXWrapper.wrapVirtualMachines(pvmm.connectedVirtualMachines());
         }
 
         public void addConnector(Connector connector) {
@@ -214,12 +216,14 @@ public class FXBootstrap {
 
         public VirtualMachine createVirtualMachine(Connection connection, 
                 Process process) throws IOException {
-            throw new UnsupportedOperationException("Not supported yet.");
+            VirtualMachineManager pvmm = Bootstrap.virtualMachineManager();
+            return FXWrapper.wrap(pvmm.createVirtualMachine(connection, process));
         }
 
         public VirtualMachine createVirtualMachine(Connection connection) 
                 throws IOException {
-            throw new UnsupportedOperationException("Not supported yet.");
+            VirtualMachineManager pvmm = Bootstrap.virtualMachineManager();
+            return FXWrapper.wrap(pvmm.createVirtualMachine(connection));
         }
 
         public int majorInterfaceVersion() {

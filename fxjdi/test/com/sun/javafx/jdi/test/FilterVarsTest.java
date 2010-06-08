@@ -51,6 +51,7 @@ public class FilterVarsTest extends JavafxTestBase {
         try {
             startTests();
         } catch (Exception exp) {
+            exp.printStackTrace();
             Assert.fail(exp.getMessage());
         }
     }
@@ -104,9 +105,7 @@ public class FilterVarsTest extends JavafxTestBase {
         * deal with results of test
         * if anything has called failure("foo") testFailed will be true
         */
-       if (!testFailed) {
-           println(testClassName + ": passed");
-       } else {
+       if (testFailed) {
            throw new Exception(testClassName + ": failed");
        }
     }

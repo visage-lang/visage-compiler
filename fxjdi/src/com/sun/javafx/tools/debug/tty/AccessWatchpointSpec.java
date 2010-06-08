@@ -30,9 +30,9 @@ import com.sun.jdi.request.*;
 
 class AccessWatchpointSpec extends WatchpointSpec {
 
-    AccessWatchpointSpec(ReferenceTypeSpec refSpec, String fieldId)
+    AccessWatchpointSpec(Env env, ReferenceTypeSpec refSpec, String fieldId)
                                   throws MalformedMemberNameException {
-        super(refSpec, fieldId);
+        super(env, refSpec, fieldId);
     }
 
     /**

@@ -72,4 +72,6 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="dist" description="Builds fxjdi.jar" depends="-do-jar-with-libraries">
+    </target>
 </project>

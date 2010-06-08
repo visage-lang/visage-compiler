@@ -192,6 +192,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         Type superType = types.supertype(cDecl.type);
         ClassSymbol outerTypeSym = outerTypeSymbol(cDecl.sym); // null unless inner class with outer reference
         boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
+        boolean isRunnable = toJava.getAttrEnv().toplevel.isRunnable;
 
         JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(this, diagPos,
                 cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo, translatedFuncInfo,
@@ -253,6 +254,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.gatherFunctions(classFuncInfos);
 
             if (isScriptClass) {
+                if (isRunnable) {
+                    javaCodeMaker.makeInitThreadStaticBlock(cDecl.sym);
+                }
+
                 javaCodeMaker.makeInitClassMaps(initClassMap);
                 javaCodeMaker.gatherFunctions(scriptFuncInfos);
 
@@ -478,7 +483,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         static final int BODY_MIXIN = 2;
 
         JavaCodeMaker(JavafxAnalyzeClass analysis, ListBuffer<JCTree> definitions) {
-            super(analysis.getCurrentClassPos(), analysis.getCurrentClassDecl(), false);
+            super(null, analysis.getCurrentClassDecl(), false);
             this.analysis = analysis;
             this.definitions = definitions;
             this.scriptClassSymbol = fxmake.ScriptSymbol(getCurrentClassSymbol());
@@ -1158,14 +1163,8 @@ however this is what we need */
 
             // This method generates the statements for the method.
             public void generate() {
-                // Reset diagnostic position to current class.
-                resetDiagPos();
-                
                 // Emit method body.
                 body();
-                
-                // Reset diagnostic position to current class.
-                resetDiagPos();
             }
 
             // This method generates the statements for a mixin proxy.
@@ -1296,9 +1295,7 @@ however this is what we need */
                 
                 // Iterate thru each var.
                 for (VarInfo ai : attrInfos) {
-                    // Set to the var position.
-                    setDiagPos(ai.pos());
-                    
+                    clearDiagPos();
                     // Constrain the var.
                     if (ai.needsCloning() && !ai.isBareSynth()) {
                         // Prepare for the var.
@@ -1333,9 +1330,6 @@ however this is what we need */
                     }
                 }
                 
-                // Reset diagnostic position to current class.
-                resetDiagPos();
-        
                 // Add statement if there were some cases.
                 if (cases.nonEmpty()) { 
                     // Add if as default case.
@@ -2017,6 +2011,7 @@ however this is what we need */
                 @Override
                 public void statements() {
                     if (varInfo.isBareSynth()) {
+                        clearDiagPos();
                         // short varFlags$ = VFLG$var;
                         addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
                         
@@ -2080,6 +2075,7 @@ however this is what we need */
                                           endBlock(),
                                           null));
                         } else if (varInfo.hasBoundDefinition()) {
+                            setDiagPos(varInfo.pos());
                             // Prepare to accumulate body of if.
                             beginBlock();
 
@@ -2263,6 +2259,7 @@ however this is what we need */
                 }
             };
 
+            clearDiagPos();
             vamb.build();
         }
 
@@ -2534,7 +2531,7 @@ however this is what we need */
                 }
 
             };
-
+            clearDiagPos();
             vamb.build();
         }
 
@@ -2692,8 +2689,6 @@ however this is what we need */
         // This method constructs the accessor methods for an attribute.
         //
         public void makeAnAttributeAccessorMethods(VarInfo ai, int bodyType) {
-            setDiagPos(ai.pos());
-
             if (!ai.useAccessors()) {
                 if (ai.useGetters() && !ai.isOverride()) {
                     makeGetterAccessorMethod(ai, bodyType);
@@ -2858,9 +2853,6 @@ however this is what we need */
         //
         public void makeAttributeNumbers(List<VarInfo> attrInfos, int varCount) {
             if (!needsVCNT$()) return;
-        
-            // Reset diagnostic position to current class.
-            resetDiagPos();
 
             // Construct a static count variable (VCNT$), -1 indicates count has not been initialized.
             int initCount = analysis.isFirstTier() ? varCount : -1;
@@ -2876,9 +2868,6 @@ however this is what we need */
             for (VarInfo ai : attrInfos) {
                 // Only variables actually declared.
                 if (ai.hasEnumeration()) {
-                    // Set diagnostic position for attribute.
-                    setDiagPos(ai.pos());
-
                     // Construct offset var.
                     Name name = attributeOffsetName(ai.getSymbol());
                     JCExpression init = analysis.isFirstTier() ? Int(ai.getEnumeration()) : null;
@@ -2898,9 +2887,6 @@ however this is what we need */
             for (VarInfo ai : attrInfos) {
                 // Only variables actually declared.
                 if (ai.hasEnumeration()) {
-                    // Set diagnostic position for attribute.
-                    setDiagPos(ai.pos());
-                    
                     // Construct flags var.
                     Name name = attributeFlagsName(ai.getSymbol());
                     // Determine access flags.
@@ -2960,8 +2946,6 @@ however this is what we need */
                         for (VarInfo ai : attrInfos) {
                             // Only variables actually declared.
                             if (ai.hasEnumeration()) {
-                                // Set diagnostic position for attribute.
-                                setDiagPos(ai.pos());
                                 // Offset var name.
                                 Name name = attributeOffsetName(ai.getSymbol());
                                 // VCNT$ - n + i;
@@ -2981,7 +2965,7 @@ however this is what we need */
                     }
                 }
             };
-            
+            clearDiagPos();
             smb.build();
         }
 
@@ -3001,7 +2985,7 @@ however this is what we need */
                     }
                 }
             };
-            
+            clearDiagPos();
             smb.build();
         }
         
@@ -3104,9 +3088,6 @@ however this is what we need */
         // from a java class.
         //
         public void cloneFXBase(HashSet<String> excludes) {
-            // Reset diagnostic position to current class.
-            resetDiagPos();
-
             // Retrieve FXBase and FXObject.
             ClassSymbol fxBaseSym = (ClassSymbol)syms.javafx_FXBaseType.tsym;
             ClassSymbol fxObjectSym = (ClassSymbol)syms.javafx_FXObjectType.tsym;
@@ -3194,12 +3175,14 @@ however this is what we need */
                             // Call the appropriate mixin owner.
                             callMixin((ClassSymbol)varInfo.getSymbol().owner);
                         } else {
+                            setDiagPos(varInfo.pos());
                             // Get body of applyDefaults$.
                             if (varInfo.generateSequenceAccessors()) {
                                 addStmts(getSeqDefaultInitStatement(varInfo));
                             } else {
                                 addStmts(getDefaultInitStatements(varInfo));
                             }
+                            clearDiagPos();
                         }
                         
                         if (!stmts.isEmpty()) {
@@ -3233,9 +3216,6 @@ however this is what we need */
         public void makeFunctionNumbers(final boolean useConstants, List<JCTree> invokeCases, List<ClassSymbol> mixinClasses) {
             if (!needsFCNT$()) return;
             
-            // Reset diagnostic position to current class.
-            resetDiagPos();
-
             // Construct a static count variable (FCNT$), -1 indicates function count has not been initialized.
             int initCount = useConstants ? 0 : -1;
             addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.funcCount_FXObjectFieldName, initCount));
@@ -3660,9 +3640,6 @@ however this is what we need */
         public void makeDependencyNumbers(final boolean useConstants, final HashMap<Name, Integer> depMap, List<ClassSymbol> mixinClasses) {
             if (!needsDCNT$()) return;
             
-            // Reset diagnostic position to current class.
-            resetDiagPos();
-
             // Construct a static count variable (DCNT$), -1 indicates dep count has not been initialized.
             int initCount = useConstants ? depMap.size() : -1;
             addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.depCount_FXObjectFieldName, initCount));
@@ -4045,6 +4022,7 @@ however this is what we need */
                 @Override
                 public void statements() {
                     if (!varInfo.isOverride()) {
+                        clearDiagPos();
                         // get$var()
                         JCExpression getterExp = Getter(varSym);
                         // return get$var()
@@ -4296,10 +4274,7 @@ however this is what we need */
         // This method constructs the initializer for a var map.
         //
         public JCExpression makeInitVarMapExpression(ClassSymbol cSym, LiteralInitVarMap varMap) {
-            // Reset diagnostic position to current class.
-            resetDiagPos();
-
-             // Build up the argument list for the call.
+            // Build up the argument list for the call.
             ListBuffer<JCExpression> args = ListBuffer.lb();
             // X.VCNT$()
             args.append(Call(makeType(cSym.type), defs.count_FXObjectFieldName));
@@ -4319,8 +4294,6 @@ however this is what we need */
         // This method constructs a single var map declaration.
         //
         private JCVariableDecl makeInitVarMapDecl(ClassSymbol cSym, LiteralInitVarMap varMap) {
-            // Reset diagnostic position to current class.
-            resetDiagPos();
             // Fetch name of map.
             Name mapName = varMapName(cSym);
             // static short[] Map$X;
@@ -4333,8 +4306,6 @@ however this is what we need */
         public JCStatement makeInitVarMapInit(LiteralInitVarMap varMap) {
             // Get current class symbol.
             ClassSymbol cSym = getCurrentClassSymbol();
-            // Reset diagnostic position to current class.
-            resetDiagPos();
             // Fetch name of map.
             Name mapName = varMapName(cSym);
             // Map$X = FXBase.makeInitMap$(X.VCNT$(), X.VOFF$a, ...);
@@ -4345,9 +4316,6 @@ however this is what we need */
         // This method constructs declarations for var maps used by literal initializers.
         //
         public void makeInitClassMaps(LiteralInitClassMap initClassMap) {
-            // Reset diagnostic position to current class.
-            resetDiagPos();
-
             // For each class initialized in the current class.
             for (ClassSymbol cSym : initClassMap.classMap.keySet()) {
                 // Get the var map for the referencing class.
@@ -4441,6 +4409,27 @@ however this is what we need */
         }
 
         //
+        // Construct the static block to save the current thread in Entry.uiThread
+        //
+        public void makeInitThreadStaticBlock(ClassSymbol sym) {
+            // static {
+            //     Entry.uiThread = Thread.currentThread();
+            // }
+
+            // Buffer for init statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            stmts.append(
+                m().Exec(m().Assign(
+                    makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Entry.uiThread"),
+                    m().Apply(List.<JCExpression>nil(),
+                              makeQualifiedTree(diagPos, "java.lang.Thread.currentThread"),
+                              List.<JCExpression>nil()))
+                ));
+
+            addDefinition(m().Block(Flags.STATIC, stmts.toList()));
+        }
+
+        //
         // Construct the static block for setting defaults
         //
         public void makeInitStaticAttributesBlock(ClassSymbol sym, boolean isScriptLevel, boolean isLibrary, List<VarInfo> attrInfo, JCStatement initMap) {
@@ -4508,7 +4497,6 @@ however this is what we need */
         }
 
         private void makeConstructor(List<JCVariableDecl> params, List<Type> types, List<JCStatement> cStats) {
-            resetDiagPos();
             addDefinition(Method(Flags.PUBLIC,
                           syms.voidType,
                           names.init,
@@ -4603,7 +4591,6 @@ however this is what we need */
         // Make the field for accessing the outer members
         //
         public void makeOuterAccessorField(ClassSymbol outerTypeSym) {
-            resetDiagPos();
             // Create the field to store the outer instance reference
             addDefinition(makeField(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_FXObjectFieldName, null));
         }
@@ -4612,7 +4599,6 @@ however this is what we need */
         // Make the method for accessing the outer members
         //
         public void makeOuterAccessorMethod(ClassSymbol outerTypeSym) {
-            resetDiagPos();
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
             JavafxVarSymbol vs = new JavafxVarSymbol(types, names,Flags.PUBLIC, defs.outerAccessor_FXObjectFieldName, outerTypeSym.type, getCurrentClassSymbol());
@@ -4647,7 +4633,6 @@ however this is what we need */
             final boolean isStatic = methSym.isStatic();
             final Name functionName = functionName(methSym, false, isBound);
             
-            resetDiagPos();
             List<VarSymbol> parameters = methSym.getParameters();
             ListBuffer<JCStatement> stmts = null;
             ListBuffer<JCVariableDecl> params = ListBuffer.lb();

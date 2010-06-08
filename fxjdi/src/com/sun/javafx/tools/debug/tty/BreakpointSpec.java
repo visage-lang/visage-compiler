@@ -25,28 +25,28 @@
 
 package com.sun.javafx.tools.debug.tty;
 
+import com.sun.javafx.jdi.FXReferenceType;
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Iterator;
 
 class BreakpointSpec extends EventRequestSpec {
     String methodId;
     List<String> methodArgs;
     int lineNumber;
 
-    BreakpointSpec(ReferenceTypeSpec refSpec, int lineNumber) {
-        super(refSpec);
+    BreakpointSpec(Env env, ReferenceTypeSpec refSpec, int lineNumber) {
+        super(env, refSpec);
         this.methodId = null;
         this.methodArgs = null;
         this.lineNumber = lineNumber;
     }
 
-    BreakpointSpec(ReferenceTypeSpec refSpec, String methodId,
+    BreakpointSpec(Env env, ReferenceTypeSpec refSpec, String methodId,
                    List<String> methodArgs) throws MalformedMemberNameException {
-        super(refSpec);
+        super(env, refSpec);
         this.methodId = methodId;
         this.methodArgs = methodArgs;
         this.lineNumber = 0;
@@ -301,7 +301,7 @@ class BreakpointSpec extends EventRequestSpec {
          */
         if ((name.indexOf('.') == -1) || name.startsWith("*.")) {
             try {
-                ReferenceType argClass = Env.getReferenceTypeFromToken(name);
+                ReferenceType argClass = env.getReferenceTypeFromToken(name);
                 if (argClass != null) {
                     name = argClass.name();
                 }
@@ -325,6 +325,12 @@ class BreakpointSpec extends EventRequestSpec {
     private Method findMatchingMethod(ReferenceType refType)
                                         throws AmbiguousMethodException,
                                                NoSuchMethodException {
+        if (refType instanceof FXReferenceType && methodName().indexOf('$') != -1) {
+            // this is some sort of internal name, eg, javafx$run$
+            // which are filtered out of FXReferenceType, so we have to
+            // look at the underlying ReferenceType
+            refType = ((FXReferenceType)refType)._underlying();
+        }
 
         // Normalize the argument string once before looping below.
         List<String> argTypeNames = null;

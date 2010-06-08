@@ -57,10 +57,39 @@ public class FXTypeComponent extends FXMirror implements TypeComponent {
 
     public String name() {
         String realName = underlying().name();
-        if (realName.charAt(0) == '$') {
+        if (realName.charAt(0) != '$') {
+            return realName;
+        }
+        return realName.substring(1);
+
+        /*****
+          A first cut at dealing with the fact that if an ivar is refd
+          in a subclass, its name is mangled with the classname.
+          EG:
+             class sam {
+                 var ivar0: Number;
+                 var ivar1: Number
+                 :
+             }
+             var samObj = sam{}
+             samObj.ivar1 = 89;
+          ivar0 is named 'ivar0' but ivar1 is named sam$ivar1.  I suppose
+          there could also be a class fred with the same contents, so
+          the fred$ and sam$ are needed to distinguish.
+          For now we will do nothing with this.  The field name seen 
+          by the debugger will be sam$ivar1.
+
+        int nextDollar = realName.indexOf('$', 1);
+        if ( nextDollar == -1) {
             return realName.substring(1);
         }
-        return realName;
+        String prefix = realName.substring(1, nextDollar);
+        String fullClassName = declaringType().name();
+        String className = fullClassName.substring(fullClassName.indexOf('$') + 1);
+        if (className.equals(prefix)) {
+            return realName.substring(nextDollar + 1);
+        }
+        ****/
     }
 
     public String signature() {

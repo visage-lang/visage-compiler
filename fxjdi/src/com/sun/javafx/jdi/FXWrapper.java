@@ -64,6 +64,7 @@ import com.sun.jdi.Type;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.VoidType;
+import com.sun.jdi.VoidValue;
 import com.sun.jdi.event.EventQueue;
 import com.sun.jdi.request.EventRequestManager;
 import java.util.ArrayList;
@@ -76,6 +77,14 @@ import java.util.List;
 public class FXWrapper {
     public static FXVirtualMachine wrap(VirtualMachine vm) {
         return (vm == null)? null : new FXVirtualMachine(vm);
+    }
+
+    public static List<VirtualMachine> wrapVirtualMachines(List<VirtualMachine> vms) {
+        List<VirtualMachine> res = new ArrayList<VirtualMachine>(vms.size());
+        for (VirtualMachine vm : vms) {
+            res.add(wrap(vm));
+        }
+        return res;
     }
 
     public static FXType wrap(FXVirtualMachine fxvm, Type type) {
@@ -248,6 +257,10 @@ public class FXWrapper {
                     continue;
                 }
             }
+
+            if (fldName.equals("$assertionsDisabled") && fld.declaringType().name().equals("com.sun.javafx.runtime.FXBase")) {
+                continue;
+            }
             /*
               - mixin fields are named $MixinClassName$fieldName
               - a private script field is java private, and is named with its normal name 
@@ -270,9 +283,11 @@ public class FXWrapper {
         if (methods == null) {
             return null;
         }
-        List<Method> result = new ArrayList<Method>(methods.size());
+        List<Method> result = new ArrayList<Method>(20);
         for (Method mth : methods) {
-            result.add(fxvm.method(mth));
+            if (mth.name().indexOf('$') == -1) {
+                result.add(fxvm.method(mth));
+            }
         }
         return result;
     }
@@ -347,6 +362,8 @@ public class FXWrapper {
             } else {
                 throw new IllegalArgumentException("illegal primitive value : " + value);
             }
+        } else if (value instanceof VoidValue) {
+            return fxvm.voidValue();
         } else if (value instanceof ObjectReference) {
             return  wrap(fxvm, (ObjectReference)value);
         } else {

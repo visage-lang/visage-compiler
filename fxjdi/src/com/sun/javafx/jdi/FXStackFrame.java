@@ -43,6 +43,11 @@ public class FXStackFrame extends FXMirror implements StackFrame {
         super(fxvm, underlying);
     }
 
+    // Is this frame executing JavaFX code?
+    public boolean isJavaFXFrame() {
+        return location().declaringType().isJavaFXType();
+    }
+
     public List<Value> getArgumentValues() {
         return FXWrapper.wrapValues(virtualMachine(), underlying().getArgumentValues());
     }

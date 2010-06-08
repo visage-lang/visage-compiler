@@ -31,7 +31,6 @@ class FilterVarsTarget {
     var ivarOverride: Number; // prefix $filterVarsTarget
 }
 
-
 mixin class Mixin1 {
     var mixivar1: Number;
 }
@@ -39,9 +38,8 @@ mixin class Mixin1 {
 class FilterVarsTargetSub extends Mixin1, FilterVarsTarget {
     var subivar1: Number;  
     override var ivarOverride: Number;
-    function stopHere() {
+    function stopHere():Void {
         baseivar2;
-        javafx.lang.Builtins.println("Hi There");
     }
     function getInt() {
         return 22;
@@ -64,3 +62,4 @@ var binder2 = bind if (bb == 89) then obj.baseivar1 else obj.getInt();
 var binder3 = for (ii in [bb .. bb + 10]) {
                 ii*2
               };
+

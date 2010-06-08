@@ -6,6 +6,17 @@
  * @run
  */
 
+function className(object:Object):String {
+    var name:String = object.getClass().getName();
+    var index:Integer = name.lastIndexOf('.');
+    
+    if (index == -1) {
+        name;
+    } else {
+        name.substring(index + 1);
+    }
+}
+
 class Scene {
    var grp: Group;
 }
@@ -21,7 +32,7 @@ class Group extends Node {
        println("scene on replace called for Group {id}");
        for (node in content) {
           node.scene = scene;
-          println("set node.scene: node = {node.id}, scene = {node.scene.getClass().getName()}");
+          println("set node.scene: node = {node.id}, scene = {className(node.scene)}");
        }
     }
     var content: Node[];
@@ -57,11 +68,11 @@ ss.grp.scene = ss;
 if (g.scene == null) {
    println("Failed: g.scene = null");
 } else {
-   println("Passed: g.scene = {g.scene.getClass().getName()}");
+   println("Passed: g.scene = {className(g.scene)}");
 }
 
 if (n.scene == null) {
    println("Failed: n.scene = null");
 } else {
-   println("Passed: n.scene = {n.scene.getClass().getName()}");
+   println("Passed: n.scene = {className(n.scene)}");
 }

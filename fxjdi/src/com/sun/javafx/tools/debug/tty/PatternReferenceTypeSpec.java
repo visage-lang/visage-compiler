@@ -31,10 +31,12 @@ import java.util.StringTokenizer;
 
 
 class PatternReferenceTypeSpec implements ReferenceTypeSpec {
+    final Env env;
     final String classId;
     String stem;
 
-    PatternReferenceTypeSpec(String classId) throws ClassNotFoundException {
+    PatternReferenceTypeSpec(Env env, String classId) throws ClassNotFoundException {
+        this.env = env;
         this.classId = classId;
         stem = classId;
         if (classId.startsWith("*")) {
@@ -67,7 +69,7 @@ class PatternReferenceTypeSpec implements ReferenceTypeSpec {
 
     public ClassPrepareRequest createPrepareRequest() {
         ClassPrepareRequest request =
-            Env.vm().eventRequestManager().createClassPrepareRequest();
+            env.vm().eventRequestManager().createClassPrepareRequest();
         request.addClassFilter(classId);
         request.addCountFilter(1);
         return request;

@@ -23,6 +23,7 @@
 
 package com.sun.javafx.jdi.test;
 
+import com.sun.javafx.jdi.FXStackFrame;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
@@ -126,6 +127,12 @@ public class FramesTest extends TestScaffold {
                         .equals("foo3")) {
             failure("frame failed");
         }
+
+        // not JavaFX frames
+        for (StackFrame fr : mainThread.frames()) {
+            Assert.assertEquals(false, ((FXStackFrame)fr).isJavaFXFrame());
+        }
+
 
         if (mainThread.frames().size() != (initialSize + 3)) {
             failure("frames size failed");

@@ -1,0 +1,11 @@
+/*
+ * Regression: JFXC-2698 - Compiler crashes when compiling a block that contains an anonymous function whose body contains a forward reference.
+ *
+ * @test
+ *
+ */
+
+  {
+    def f = function() {x}
+    def x = 1024;
+  }
