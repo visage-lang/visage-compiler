@@ -63,47 +63,47 @@ public class FXSequenceType extends FXInterfaceType {
         getElementTypeMethod = methodsByName("getElementType").get(0);
     }
 
-    public Method sizeMethod() {
+    protected Method sizeMethod() {
         return sizeMethod;
     }
 
-    public Method getMethod() {
+    protected Method getMethod() {
         return getMethod;
     }
 
-    public Method getAsBooleanMethod() {
+    protected Method getAsBooleanMethod() {
         return getAsBooleanMethod;
     }
 
-    public Method getAsCharMethod() {
+    protected Method getAsCharMethod() {
         return getAsCharMethod;
     }
 
-    public Method getAsByteMethod() {
+    protected Method getAsByteMethod() {
         return getAsByteMethod;
     }
 
-    public Method getAsShortMethod() {
+    protected Method getAsShortMethod() {
         return getAsShortMethod;
     }
 
-    public Method getAsIntMethod() {
+    protected Method getAsIntMethod() {
         return getAsIntMethod;
     }
 
-    public Method getAsLongMethod() {
+    protected Method getAsLongMethod() {
         return getAsLongMethod;
     }
 
-    public Method getAsFloatMethod() {
+    protected Method getAsFloatMethod() {
         return getAsFloatMethod;
     }
 
-    public Method getAsDoubleMethod() {
+    protected Method getAsDoubleMethod() {
         return getAsDoubleMethod;
     }
 
-    public Method getElementTypeMethod() {
+    protected Method getElementTypeMethod() {
         return getElementTypeMethod;
     }
 }

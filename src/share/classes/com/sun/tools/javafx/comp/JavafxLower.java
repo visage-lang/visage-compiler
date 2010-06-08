@@ -532,7 +532,7 @@ public class JavafxLower implements JavafxVisitor {
                     !nonSeqExpected || thenPartSeq ? tree.type : types.elementTypeOrType(tree.type));
             JFXExpression falsePart = lowerExpr(tree.falsepart,
                     !nonSeqExpected || elsePartSeq ? tree.type : types.elementTypeOrType(tree.type));
-            result = m.Conditional(cond, truePart, falsePart);
+            result = m.at(tree.pos).Conditional(cond, truePart, falsePart);
             result.setType(nonSeqExpected ? syms.objectType : tree.type);
         }
     }

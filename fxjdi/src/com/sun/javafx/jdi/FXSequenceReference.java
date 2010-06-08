@@ -42,11 +42,14 @@ import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 
 /**
  * Represents a FX sequence (instanceof com.sun.javafx.runtime.sequence.Sequence).
+ * For now, class provides ArrayReference-like interface for Sequences - in future
+ * we'll add more operations like sequence insert/delete/slice etc.
  *
  * @author sundar
  */
@@ -61,31 +64,54 @@ public class FXSequenceReference extends FXObjectReference {
         super(fxvm, underlying);
     }
 
-    public Types getElementType()
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    public Types getElementType() {
         if (elementType == null) {
             Method getElementTypeMethod = virtualMachine().fxSequenceType().getElementTypeMethod();
-            Value typeInfo = invokeMethod(virtualMachine().uiThread(), getElementTypeMethod, Collections.EMPTY_LIST, 0);
-            elementType = typesFromTypeInfo((ObjectReference)typeInfo);
+            Exception theExc = null;
+            try {
+                Value typeInfo = invokeMethod(virtualMachine().uiThread(), getElementTypeMethod, Collections.EMPTY_LIST, 0);
+                elementType = typesFromTypeInfo((ObjectReference)typeInfo);
+            } catch(InvalidTypeException ee) {
+                theExc = ee;
+            } catch(ClassNotLoadedException ee) {
+                theExc = ee;
+            } catch(IncompatibleThreadStateException ee) {
+                theExc = ee;
+            } catch(InvocationException ee) {
+                theExc = ee;
+            }
+            if (theExc != null) {
+                virtualMachine().setLastFieldAccessException(theExc);
+            }
         }
         return elementType;
     }
 
-    public int size()
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    public int size() {
         Method sizeMethod = virtualMachine().fxSequenceType().sizeMethod();
-        Value value = invokeMethod(virtualMachine().uiThread(), sizeMethod, Collections.EMPTY_LIST, 0);
-        return ((IntegerValue)value).intValue();
+        Exception theExc = null;
+        try {
+            Value value = invokeMethod(virtualMachine().uiThread(), sizeMethod, Collections.EMPTY_LIST, 0);
+            return ((IntegerValue)value).intValue();
+        } catch(InvalidTypeException ee) {
+            theExc = ee;
+        } catch(ClassNotLoadedException ee) {
+            theExc = ee;
+        } catch(IncompatibleThreadStateException ee) {
+            theExc = ee;
+        } catch(InvocationException ee) {
+            theExc = ee;
+        }
+        virtualMachine().setLastFieldAccessException(theExc);
+        return 0;
     }
 
     // synonym for size
-    public int length()
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    public int length() {
         return size();
     }
 
-    public Value getValue(int index)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    public Value getValue(int index) {
         Types type = getElementType();
         switch (type) {
             case INT:
@@ -113,8 +139,15 @@ public class FXSequenceReference extends FXObjectReference {
         }
     }
 
-    public FXSequenceReference setValue(int index, Value value)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    public List<Value> getValues(int index, int length) {
+        List<Value> values = new ArrayList<Value>(length);
+        for (int i = 0; i < length; i++) {
+            values.add(getValue(index + i));
+        }
+        return values;
+    }
+
+    public FXSequenceReference setValue(int index, Value value) {
         Types type = getElementType();
         switch (type) {
             case INT:
@@ -142,130 +175,152 @@ public class FXSequenceReference extends FXObjectReference {
         }
     }
 
-    public BooleanValue getValueAsBoolean(int index)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    public FXSequenceReference setValues(List<? extends Value> values) {
+        final int len = length();
+        FXSequenceReference result = null;
+        Iterator<? extends Value> valuesItr = values.iterator();
+        for (int i = 0; i < len; i++) {
+            if (! valuesItr.hasNext()) {
+                break;
+            }
+            result = setValue(i, valuesItr.next());
+        }
+        return result;
+    }
+
+    // Internals only below this point
+    private BooleanValue getValueAsBoolean(int index) {
         Method getAsBooleanMethod = virtualMachine().fxSequenceType().getAsBooleanMethod();
         return (BooleanValue) getElement(getAsBooleanMethod, index);
     }
 
-    public CharValue getValueAsChar(int index)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private CharValue getValueAsChar(int index) {
         Method getAsCharMethod = virtualMachine().fxSequenceType().getAsCharMethod();
         return (CharValue) getElement(getAsCharMethod, index);
     }
 
-    public ByteValue getValueAsByte(int index)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private ByteValue getValueAsByte(int index) {
         Method getAsByteMethod = virtualMachine().fxSequenceType().getAsByteMethod();
         return (ByteValue) getElement(getAsByteMethod, index);
     }
 
-    public ShortValue getValueAsShort(int index)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private ShortValue getValueAsShort(int index) {
         Method getAsShortMethod = virtualMachine().fxSequenceType().getAsShortMethod();
         return (ShortValue) getElement(getAsShortMethod, index);
     }
 
-    public IntegerValue getValueAsInt(int index)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private IntegerValue getValueAsInt(int index) {
         Method getAsIntMethod = virtualMachine().fxSequenceType().getAsIntMethod();
         return (IntegerValue) getElement(getAsIntMethod, index);
     }
     
-    public LongValue getValueAsLong(int index)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private LongValue getValueAsLong(int index) {
         Method getAsLongMethod = virtualMachine().fxSequenceType().getAsLongMethod();
         return (LongValue) getElement(getAsLongMethod, index);
     }
     
-    public FloatValue getValueAsFloat(int index)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private FloatValue getValueAsFloat(int index) {
         Method getAsFloatMethod = virtualMachine().fxSequenceType().getAsFloatMethod();
         return (FloatValue) getElement(getAsFloatMethod, index);
     }
     
-    public DoubleValue getValueAsDouble(int index)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private DoubleValue getValueAsDouble(int index) {
         Method getAsDoubleMethod = virtualMachine().fxSequenceType().getAsDoubleMethod();
         return (DoubleValue) getElement(getAsDoubleMethod, index);
     }
     
-    public ObjectReference getValueAsObject(int index)
-            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private ObjectReference getValueAsObject(int index) {
         Method getMethod = virtualMachine().fxSequenceType().getMethod();
         return (ObjectReference) getElement(getMethod, index);
     }
 
-    public FXSequenceReference setIntValue(int index, IntegerValue value)
-            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private FXSequenceReference setIntValue(int index, IntegerValue value) {
         Method setIntElementMethod = virtualMachine().fxSequencesType().setIntElementMethod();
         return setElement(setIntElementMethod, index, value);
     }
 
-    public FXSequenceReference setFloatValue(int index, FloatValue value)
-            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private FXSequenceReference setFloatValue(int index, FloatValue value) {
         Method setFloatElementMethod = virtualMachine().fxSequencesType().setFloatElementMethod();
         return setElement(setFloatElementMethod, index, value);
     }
 
-    public FXSequenceReference setObjectValue(int index, ObjectReference value)
-            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private FXSequenceReference setObjectValue(int index, ObjectReference value) {
         Method setObjectElementMethod = virtualMachine().fxSequencesType().setObjectElementMethod();
         return setElement(setObjectElementMethod, index, value);
     }
 
-    public FXSequenceReference setDoubleValue(int index, DoubleValue value)
-            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private FXSequenceReference setDoubleValue(int index, DoubleValue value) {
         Method setDoubleElementMethod = virtualMachine().fxSequencesType().setDoubleElementMethod();
         return setElement(setDoubleElementMethod, index, value);
     }
 
-    public FXSequenceReference setBooleanValue(int index, BooleanValue value)
-            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private FXSequenceReference setBooleanValue(int index, BooleanValue value) {
         Method setBooleanElementMethod = virtualMachine().fxSequencesType().setBooleanElementMethod();
         return setElement(setBooleanElementMethod, index, value);
     }
 
-    public FXSequenceReference setLongValue(int index, LongValue value)
-            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private FXSequenceReference setLongValue(int index, LongValue value) {
         Method setLongElementMethod = virtualMachine().fxSequencesType().setLongElementMethod();
         return setElement(setLongElementMethod, index, value);
     }
 
-    public FXSequenceReference setShortValue(int index, ShortValue value)
-            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private FXSequenceReference setShortValue(int index, ShortValue value) {
         Method setShortElementMethod = virtualMachine().fxSequencesType().setShortElementMethod();
         return setElement(setShortElementMethod, index, value);
     }
 
-    public FXSequenceReference setByteValue(int index, ByteValue value)
-            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private FXSequenceReference setByteValue(int index, ByteValue value) {
         Method setByteElementMethod = virtualMachine().fxSequencesType().setByteElementMethod();
         return setElement(setByteElementMethod, index, value);
     }
 
-    public FXSequenceReference setCharValue(int index, CharValue value)
-            throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private FXSequenceReference setCharValue(int index, CharValue value) {
         Method setCharElementMethod = virtualMachine().fxSequencesType().setCharElementMethod();
         return setElement(setCharElementMethod, index, value);
     }
 
     // Internals only below this point
-    private Value getElement(Method method, int index)
-        throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private Value getElement(Method method, int index) {
         List<Value> args = new ArrayList<Value>(1);
         args.add(virtualMachine().mirrorOf(index));
-        return invokeMethod(virtualMachine().uiThread(), method, args, 0);
+        Exception theExc;
+        try {
+            return invokeMethod(virtualMachine().uiThread(), method, args, 0);
+        } catch(InvalidTypeException ee) {
+            theExc = ee;
+        } catch(ClassNotLoadedException ee) {
+            theExc = ee;
+        } catch(IncompatibleThreadStateException ee) {
+            theExc = ee;
+        } catch(InvocationException ee) {
+            theExc = ee;
+        }
+
+        virtualMachine().setLastFieldAccessException(theExc);
+        return defaultValue(getElementType());
     }
 
-    private FXSequenceReference setElement(Method method, int index, Value value)
-         throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
+    private FXSequenceReference setElement(Method method, int index, Value value) {
         List<Value> args = new ArrayList<Value>(3);
         args.add(this);
         args.add(value);
         args.add(virtualMachine().mirrorOf(index));
-        return (FXSequenceReference) virtualMachine().fxSequencesType().
-            invokeMethod(virtualMachine().uiThread(), method, args, 0);
+        Exception theExc;
+        try {
+            return (FXSequenceReference) virtualMachine().fxSequencesType().
+                invokeMethod(virtualMachine().uiThread(), method, args, 0);
+        } catch(InvalidTypeException ee) {
+            theExc = ee;
+        } catch(ClassNotLoadedException ee) {
+            theExc = ee;
+        } catch(IncompatibleThreadStateException ee) {
+            theExc = ee;
+        } catch(InvocationException ee) {
+            theExc = ee;
+        }
+
+        virtualMachine().setLastFieldAccessException(theExc);
+        return this;
     }
 
     private Types typesFromTypeInfo(ObjectReference typeInfo) {
@@ -274,5 +329,29 @@ public class FXSequenceReference extends FXObjectReference {
         Field nameField = typeValue.referenceType().fieldByName("name");
         String typeName = ((StringReference)typeValue.getValue(nameField)).value();
         return Types.valueOf(typeName);
+    }
+
+    private Value defaultValue(Types type) {
+        FXVirtualMachine fxvm = virtualMachine();
+        switch (type) {
+            case BOOLEAN:
+                return fxvm.booleanDefaultValue();
+            case BYTE:
+                return fxvm.byteDefaultValue();
+            case CHAR:
+                return fxvm.charDefaultValue();
+            case DOUBLE:
+                return fxvm.doubleDefaultValue();
+            case FLOAT:
+                return fxvm.floatDefaultValue();
+            case INT:
+                return fxvm.integerDefaultValue();
+            case LONG:
+                return fxvm.longDefaultValue();
+            case SHORT:
+                return fxvm.shortDefaultValue();
+            default:
+                return null;
+        }
     }
 }

@@ -76,39 +76,39 @@ public class FXSequencesType extends FXClassType {
                 setElementSignature("Ljava/lang/Object;"));
     }
 
-    public Method setBooleanElementMethod() {
+    protected Method setBooleanElementMethod() {
         return setBooleanElementMethod;
     }
 
-    public Method setCharElementMethod() {
+    protected Method setCharElementMethod() {
         return setCharElementMethod;
     }
     
-    public Method setByteElementMethod() {
+    protected Method setByteElementMethod() {
         return setByteElementMethod;
     }
 
-    public Method setShortElementMethod() {
+    protected Method setShortElementMethod() {
         return setShortElementMethod;
     }
 
-    public Method setIntElementMethod() {
+    protected Method setIntElementMethod() {
         return setIntElementMethod;
     }
 
-    public Method setLongElementMethod() {
+    protected Method setLongElementMethod() {
         return setLongElementMethod;
     }
 
-    public Method setFloatElementMethod() {
+    protected Method setFloatElementMethod() {
         return setFloatElementMethod;
     }
 
-    public Method setDoubleElementMethod() {
+    protected Method setDoubleElementMethod() {
         return setDoubleElementMethod;
     }
 
-    public Method setObjectElementMethod() {
+    protected Method setObjectElementMethod() {
         return setObjectElementMethod;
     }
 }
