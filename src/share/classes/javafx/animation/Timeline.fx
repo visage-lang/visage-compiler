@@ -477,7 +477,7 @@ public class Timeline {
     public function play() {
         if(rate != 0.0) {
             // timeline not yet started, so just start it
-            if(clip == null or not clip.isRunning()) {
+            if(clip == null or not clip.isRunning() or stopping) {
                 start();
             } else if(paused or pausing) {
                 resume();
@@ -604,6 +604,7 @@ public class Timeline {
      */
     public function stop(): Void {
         stopping = true;
+        starting = false;
         if(clip != null) {
             clip.stop();
         }
