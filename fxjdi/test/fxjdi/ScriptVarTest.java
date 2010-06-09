@@ -46,6 +46,14 @@ public class ScriptVarTest extends JdbBase {
 // }
 // @EndTest
 
+      @Test
+      public void noop() {
+         // NOTE: satisfy junit so that no spurious errors are thrown
+         // remove this method/test when the real test gets fixed
+         // below.
+      }
+
+
 //    @Test(timeout=10000)
     public void testScriptVar() {
         try {
