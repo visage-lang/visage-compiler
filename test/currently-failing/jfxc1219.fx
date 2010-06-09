@@ -1,7 +1,7 @@
 /*
  * Regression: JFXC-1219 - Issue when French quotes used with class names.
  *
- * @test
+ * @test/fail
  *
  */
 
