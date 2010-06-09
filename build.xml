@@ -2,7 +2,7 @@
 <project name="JavaFX Compiler" default="binaries" basedir=".">
     <description>Builds, tests, and runs the openjfx-compiler project.</description>
 
-    <property name="build.defs" value="../build-defs.xml"/>
+    <property name="build.defs" location="../build-defs.xml"/>
     <condition property="build.defs.missing">
        <not>
          <available file="${build.defs}" type="file" property="ignored"/>
