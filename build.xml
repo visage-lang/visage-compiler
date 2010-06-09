@@ -791,8 +791,15 @@
         </exec>
         <delete dir="${export.dir}/ROOT/current-build" />
         <copy todir="${export.dir}/ROOT/current-build">
-            <fileset dir="${dist.dir}"/>
+            <fileset dir="${dist.dir}" excludes="**/doc/api/**"/>
         </copy>
+        <!-- create an index.html redirector to the real API location -->
+        <mkdir dir="${export.dir}/ROOT/current-build/doc/api"/>
+        <echo file="${export.dir}/ROOT/current-build/doc/api/index.html" append="false">
+            &lt;HTML&gt;&lt;HEAD&gt;
+                &lt;META HTTP-EQUIV="REFRESH" content="0; url=${javafx.api.url}"&gt;
+            &lt;/HEAD&gt;&lt;/HTML&gt;
+        </echo>
         <copy todir="${export.dir}/ROOT/current-build/doc">
             <fileset dir="doc" includes="**/*.pdf"/>
         </copy>
