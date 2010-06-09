@@ -31,6 +31,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,19 +56,32 @@ public class FXThreadReference extends FXObjectReference implements ThreadRefere
     }
 
     public FXStackFrame frame(int index) throws IncompatibleThreadStateException {
-        return FXWrapper.wrap(virtualMachine(), underlying().frame(index));
+        List<StackFrame> frames = getFilteredFrames();
+        if (index < 0 || index >= frames.size()) {
+            throw new IndexOutOfBoundsException();
+        }
+        return (FXStackFrame) frames.get(index);
     }
 
     public int frameCount() throws IncompatibleThreadStateException {
-        return underlying().frameCount();
+        return getFilteredFrames().size();
     }
 
     public List<StackFrame> frames() throws IncompatibleThreadStateException {
-        return FXWrapper.wrapFrames(virtualMachine(), underlying().frames());
+        return getFilteredFrames();
     }
 
     public List<StackFrame> frames(int start, int length) throws IncompatibleThreadStateException {
-        return FXWrapper.wrapFrames(virtualMachine(), underlying().frames(start, length));
+        List<StackFrame> frames = getFilteredFrames();
+        int frameCount = frames.size();
+        if (start < 0 || start >= frameCount || length < 0 || (start+length) > frameCount) {
+            throw new IndexOutOfBoundsException();
+        }
+        List<StackFrame> result = new ArrayList<StackFrame>();
+        for (int count = start; count < (start+length); count++) {
+            result.add(frames.get(count));
+        }
+        return result;
     }
 
     public void interrupt() {
@@ -121,5 +135,32 @@ public class FXThreadReference extends FXObjectReference implements ThreadRefere
     @Override
     protected ThreadReference underlying() {
         return (ThreadReference) super.underlying();
+    }
+
+    private List<StackFrame> getFilteredFrames() throws IncompatibleThreadStateException {
+        List<StackFrame> frames = FXWrapper.wrapFrames(virtualMachine(), underlying().frames());
+        List<StackFrame> filteredFrames = new ArrayList<StackFrame>(frames.size());
+        for (StackFrame fr : frames) {
+            FXStackFrame fxfr = (FXStackFrame) fr;
+            // don't add JavaFX synthetic frames
+            if (fxfr.isJavaFXFrame() && isSynthetic(fxfr.location().method())) {
+                continue;
+            } else {
+                filteredFrames.add(fxfr);
+            }
+        }
+        return filteredFrames;
+    }
+
+    private boolean isSynthetic(FXMethod method) {
+        // FIXME: is there better way to detect synthetic method?
+        String methodName = method.name();
+        if (methodName.indexOf('$') != -1) {
+            boolean isBoundFunc = methodName.indexOf("$bFunc$") != -1; // bound functions
+            boolean isRunMethod = methodName.equals("javafx$run$");    // "run" function
+            return !isBoundFunc && !isRunMethod;
+        } else {
+            return false;
+        }
     }
 }
