@@ -40,12 +40,10 @@ import junit.framework.Assert;
 public class FrameFilterTest extends JdbBase {
 
 // @BeginTest FrameFilter.fx
-// var xx on replace {
-//     println("xx replaced");
-// }
+// public var xx;
 //
 // function run() {
-//     println("FrameFilter");
+//     xx = 3;
 // }
 // @EndTest
 
@@ -53,18 +51,18 @@ public class FrameFilterTest extends JdbBase {
     public void testFilterFrames() {
         try {
             compile("FrameFilter.fx");
-            stop("at FrameFilter:2");
+            stop("in FrameFilter.onReplace$xx");
 
             fxrun();
 
             BreakpointEvent bkpt = waitForBreakpointEvent();
             FXStackFrame frame = (FXStackFrame) bkpt.thread().frame(0);
 
-            // we should in static initializer method as opposed to the synthetic
-            // onReplace$xx method
-            Assert.assertEquals("<clinit>", frame.location().method().name());
+            // onReplace$xx is internal javafx method and so should not show up.
+            Assert.assertEquals("javafx$run$", frame.location().method().name());
 
-            // but underlying topmost frame should be onReplace$xx
+            // onReplace$xx is internal javafx method and so should show up in underlying
+            // (java JDI) frames.
             StackFrame jframe = FXWrapper.unwrap(bkpt.thread()).frame(0);
             Assert.assertEquals("onReplace$xx", jframe.location().method().name());
             
