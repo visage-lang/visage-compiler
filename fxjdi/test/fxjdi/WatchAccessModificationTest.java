@@ -71,19 +71,19 @@ public class WatchAccessModificationTest extends JdbBase {
             stop("in WatchAll.javafx$run$");
             WatchpointRequest watchpointReq = watch("all WatchAll.$numVar");//watch access (checks for access only, and not modifications)
             fxrun();
-            WatchpointEvent wpEvent = waitForWatchpointEvent();
+            WatchpointEvent wpEvent = resumeToWatchpoint();
             checkWatchPointEvent(wpEvent);
             
             list();
             step();
             list();
-            wpEvent = waitForWatchpointEvent();
+            wpEvent = resumeToWatchpoint();
             checkWatchPointEvent(wpEvent);
             step();
             list();
-            wpEvent = waitForWatchpointEvent();
+            wpEvent = resumeToWatchpoint();
             checkWatchPointEvent(wpEvent);
-            cont();
+            resumeToVMDeath();
             quit();
         } catch (Exception exp) {
             exp.printStackTrace();

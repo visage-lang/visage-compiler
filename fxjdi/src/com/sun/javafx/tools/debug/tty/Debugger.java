@@ -64,8 +64,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
 /**
@@ -204,7 +202,7 @@ public class Debugger {
     }
 
     /*
-     * Synchronous stepXXX, resumeTo methods and waitForXXX methods. These methods
+     * Synchronous stepXXX, resumeTo methods and resumeToXXX methods. These methods
      * block the calling thread till the specific event occurs in the target VM.
      */
     private StepEvent doStep(ThreadReference thread, int gran, int depth) {
@@ -215,7 +213,7 @@ public class Debugger {
         sr.addClassExclusionFilter("com.sun.*");
         sr.addCountFilter(1);
         sr.enable();
-        StepEvent retEvent = (StepEvent)waitForRequestedEvent(sr);
+        StepEvent retEvent = (StepEvent)resumeToEvent(sr);
         eventRequestManager().deleteEventRequest(sr);
         return retEvent;
     }
@@ -264,7 +262,7 @@ public class Debugger {
         final BreakpointRequest request = eventRequestManager().createBreakpointRequest(loc);
         request.addCountFilter(1);
         request.enable();
-        return (BreakpointEvent)waitForRequestedEvent(request);
+        return (BreakpointEvent)resumeToEvent(request);
     }
 
     public BreakpointEvent resumeTo(String clsName, String methodName,
@@ -297,14 +295,14 @@ public class Debugger {
         request.addClassFilter(className);
         request.addCountFilter(1);
         request.enable();
-        return (ClassPrepareEvent)waitForRequestedEvent(request);
+        return (ClassPrepareEvent)resumeToEvent(request);
     }
 
     public interface EventFilter {
         public boolean match(Event evt);
     }
 
-    public Event waitForEvent(final EventFilter filter) {
+    public Event resumeToEvent(final EventFilter filter) {
         class EventNotification {
             Event event;
             boolean disconnected = false;
@@ -328,6 +326,19 @@ public class Debugger {
                     removeThisListener();
                 }
             }
+
+            @Override
+            public void vmInterrupted() {
+                synchronized (en) {
+                    if (en.event == null) {
+                        env.invalidateAllThreadInfo();
+                        // VM suspended, but we don't have the event that is
+                        // expected -- resume the VM and keep waiting for it.
+                        vm().resume();
+                    }
+                }
+            }
+
         };
 
         addListener(adapter);
@@ -347,49 +358,69 @@ public class Debugger {
             throw new RuntimeException("VM Disconnected before requested event occurred");
         }
 
-        if (en.event.request().suspendPolicy() == EventRequest.SUSPEND_ALL) {
+        EventRequest request = en.event.request();
+        if (request != null && request.suspendPolicy() == EventRequest.SUSPEND_ALL) {
             env.invalidateAllThreadInfo();
             env.setCurrentThread(EventHandler.eventThread(en.event));
         }
         return en.event;
     }
 
-    public Event waitForRequestedEvent(final EventRequest request) {
-        return waitForEvent(new EventFilter() {
+    public Event resumeToEvent(final EventRequest request) {
+        return resumeToEvent(new EventFilter() {
             public boolean match(Event evt) {
                 return request.equals(evt.request());
             }
         });
     }
 
-    public BreakpointEvent waitForBreakpointEvent() {
-        return (BreakpointEvent) waitForEvent(new EventFilter() {
+    public BreakpointEvent resumeToBreakpoint() {
+        return (BreakpointEvent) resumeToEvent(new EventFilter() {
             public boolean match(Event evt) {
                 return (evt instanceof BreakpointEvent);
             }
         });
     }
 
-    public StepEvent waitForStepEvent() {
-        return (StepEvent) waitForEvent(new EventFilter() {
+    public StepEvent resumeToStep() {
+        return (StepEvent) resumeToEvent(new EventFilter() {
             public boolean match(Event evt) {
                 return (evt instanceof StepEvent);
             }
         });
     }
 
-    public WatchpointEvent waitForWatchpointEvent() {
-        return (WatchpointEvent) waitForEvent(new EventFilter() {
+    public WatchpointEvent resumeToWatchpoint() {
+        return (WatchpointEvent) resumeToEvent(new EventFilter() {
             public boolean match(Event evt) {
                 return (evt instanceof WatchpointEvent);
             }
         });
     }
 
-    public ExceptionEvent waitForExceptionEvent() {
-        return (ExceptionEvent) waitForEvent(new EventFilter() {
+    public ExceptionEvent resumeToException() {
+        return (ExceptionEvent) resumeToEvent(new EventFilter() {
             public boolean match(Event evt) {
                 return (evt instanceof ExceptionEvent);
+            }
+        });
+    }
+
+    /**
+     * Resumes the target VM and waits till VMDeath or VMDisconnect event occurs.
+     */
+    public VMDeathEvent resumeToVMDeath() {
+        return (VMDeathEvent) resumeToEvent(new EventFilter() {
+                public boolean match(Event evt) {
+                    return (evt instanceof VMDeathEvent);
+                }
+        });
+    }
+
+    public Event resumeToAnyEvent() {
+        return resumeToEvent(new EventFilter() {
+            public boolean match(Event evt) {
+                return true;
             }
         });
     }
@@ -518,10 +549,11 @@ public class Debugger {
     }
 
     /**
-     * Resumes the target VM after suspension.
+     * Resumes the target VM after suspension and waits for next event.
      */
-    public boolean cont() {
-        return evaluator.commandCont();
+    public Event cont() {
+        env.invalidateAllThreadInfo();
+        return resumeToAnyEvent();
     }
 
     /**
@@ -618,7 +650,7 @@ public class Debugger {
     public boolean next() {
         StepRequest req = evaluator.commandNext(false);
         if (req != null) {
-            waitForRequestedEvent(req);
+            resumeToEvent(req);
             return true;
         } else {
             return false;
@@ -653,24 +685,16 @@ public class Debugger {
         return evaluator.commandPopFrames(new StringTokenizer(command), true);
     }
 
-    public void run() {
-        run("");
+    public boolean run() {
+        return run("");
     }
 
     public boolean run(String command) {
         boolean result = evaluator.commandRun(new StringTokenizer(command));
         if ((handler == null) && env.connection().isOpen()) {
-            handler = new EventHandler(env, new EventNotifierImpl(), false);
+            handler = new EventHandler(env, new EventNotifierImpl(), true);
         }
         return result;
-    }
-
-    public boolean resume() {
-        return resume("");
-    }
-
-    public boolean resume(String command) {
-        return evaluator.commandResume(new StringTokenizer(command));
     }
 
     public boolean set(String command) {
@@ -711,7 +735,7 @@ public class Debugger {
     public boolean step(String command) {
         StepRequest req = evaluator.commandStep(new StringTokenizer(command), false);
         if (req != null) {
-            waitForRequestedEvent(req);
+            resumeToEvent(req);
             return true;
         } else {
             return false;
@@ -722,7 +746,7 @@ public class Debugger {
     public boolean stepi() {
         StepRequest req = evaluator.commandStepi(false);
         if (req != null) {
-            waitForRequestedEvent(req);
+            resumeToEvent(req);
             return true;
         } else {
             return false;
@@ -737,14 +761,6 @@ public class Debugger {
     // Returns null for deferred breakpoints.
     public BreakpointRequest stop(String command) {
         return evaluator.commandStop(new StringTokenizer(command));
-    }
-
-    public boolean suspend() {
-        return suspend("");
-    }
-
-    public boolean suspend(String command) {
-        return evaluator.commandSuspend(new StringTokenizer(command));
     }
 
     public boolean thread(String command) {

@@ -43,7 +43,7 @@ public class SequenceTests extends JdbBase {
             compile("Foo.fx");
             stop("in Foo.javafx$run$");
             fxrun();
-            waitForBreakpointEvent();
+            resumeToBreakpoint();
             next();
             list();
             print("Foo.artists[0]");
@@ -51,7 +51,8 @@ public class SequenceTests extends JdbBase {
             next();
             next();
             Assert.assertTrue(verifyValue("Foo.artists[0]", "Art Garfunkel"));
-            cont();
+            resumeToVMDeath();
+            quit();
         } catch (Exception exp) {
             exp.printStackTrace();
             Assert.fail(exp.getMessage());

@@ -57,24 +57,23 @@ public class BasicBindTest extends JdbBase {
 
             fxrun();
 
-            waitForBreakpointEvent();
+            resumeToBreakpoint();
             Assert.assertTrue(verifyNumValue("BasicBind.$bindee", 1.0));
             System.out.println("List 1");
             list();
-            waitForBreakpointEvent();
+            resumeToBreakpoint();
             Assert.assertTrue(verifyNumValue("BasicBind.$bindee", 2.0));
             System.out.println("List 2");
             list();
-            waitForBreakpointEvent();
+            resumeToBreakpoint();
             Assert.assertTrue(verifyNumValue("BasicBind.$bindee", 3.0));
             System.out.println("List 3");
             list();
-            waitForBreakpointEvent();
+            resumeToBreakpoint();
             System.out.println("List 4");
             list();
-            cont();
+            resumeToVMDeath();
             quit();
-
         } catch (Exception exp) {
             exp.printStackTrace();
             Assert.fail(exp.getMessage());

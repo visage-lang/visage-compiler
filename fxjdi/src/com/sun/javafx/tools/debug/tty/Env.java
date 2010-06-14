@@ -103,6 +103,9 @@ class Env {
     }
 
     void shutdown(String message) {
+        invalidateAllThreadInfo();
+        threads.clear();
+        
         if (connection != null) {
             try {
                 connection.disposeVM();

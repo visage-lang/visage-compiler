@@ -53,7 +53,7 @@ public class LocalVarTest extends JdbBase {
 
             fxrun();
 
-            BreakpointEvent bkpt = waitForBreakpointEvent();
+            BreakpointEvent bkpt = resumeToBreakpoint();
             // We hide JavaFX synthetic variables.
             FXStackFrame frame = (FXStackFrame) bkpt.thread().frame(0);
             LocalVariable var = frame.visibleVariableByName("_$UNUSED$_$ARGS$_");
@@ -64,7 +64,7 @@ public class LocalVarTest extends JdbBase {
             var = jframe.visibleVariableByName("_$UNUSED$_$ARGS$_");
             Assert.assertNotNull(var);
 
-            cont();
+            resumeToVMDeath();
             quit();
         } catch (Exception exp) {
             exp.printStackTrace();

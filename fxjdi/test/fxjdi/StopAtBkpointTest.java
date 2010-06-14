@@ -23,11 +23,6 @@
 
 package fxjdi;
 
-import com.sun.javafx.jdi.FXStackFrame;
-import com.sun.javafx.jdi.FXWrapper;
-import com.sun.jdi.LocalVariable;
-import com.sun.jdi.StackFrame;
-import com.sun.jdi.event.BreakpointEvent;
 import junit.framework.Assert;
 import org.junit.Test;
 
@@ -35,55 +30,51 @@ import org.junit.Test;
  *
  * @author srikalyanchandrashekar
  */
-public class ScriptVarTest extends JdbBase {
+public class StopAtBkpointTest extends JdbBase {
 
-// @BeginTest ScriptVar.fx
-// var globalV = 1.0;
+// @BeginTest StopAtBkpoint.fx
+// var binder = 1.0;
+// var bindee = bind binder;
 // function run() {
-//     println("globalV is {globalV}");
-//     globalV = 2.0;
-//     println("End reached");
+//     println("Initial bindee is {bindee}");
+//     binder = 2.0;
+//     println("Bindee is {bindee} now");
+//     binder = 3.0;
+//     println("Bindee is {bindee} now");
+//     println("StopAtBkpointTest Ends here");
 // }
 // @EndTest
 
-      @Test
-      public void noop() {
-         // NOTE: satisfy junit so that no spurious errors are thrown
-         // remove this method/test when the real test gets fixed
-         // below.
-      }
-
-
-//    @Test(timeout=10000)
-    public void testScriptVar() {
+    @Test(timeout=10000)
+    public void testStopAtBkpoint() {
         try {
             resetOutputs();
-            compile("ScriptVar.fx");
-            stop("in ScriptVar.javafx$run$");
+            compile("StopAtBkpoint.fx");
+            stop("in StopAtBkpoint.javafx$run$");
+            stop("in StopAtBkpoint:6");
+            stop("in StopAtBkpoint:8");
+            stop("in StopAtBkpoint:9");
 
             fxrun();
 
             resumeToBreakpoint();
-
-            //Assert.assertTrue(verifyNumValue("ScriptVar.globalV", 1.0));
-
+            System.out.println("List 1");
             list();
-//            Assert.assertTrue(contains("ScriptVar.javafx$run$ (ScriptVar.fx:2)"));
 
-
-            next();
+            resumeToBreakpoint();
+            System.out.println("List 2");
             list();
-            //next();
-            //Assert.assertTrue(lastContains("globalV is 1.0"));
 
-            next();
+            resumeToBreakpoint();
+            System.out.println("List 3");
             list();
-            
-//            list();
-            next();
-            //Assert.assertTrue(verifyValue("ScriptVar.globalV", "1.0"));
-            //cont();
-            //quit();
+
+            resumeToBreakpoint();
+            System.out.println("List 4");
+            list();
+
+            resumeToVMDeath();
+            quit();
         } catch (Exception exp) {
             exp.printStackTrace();
             Assert.fail(exp.getMessage());
