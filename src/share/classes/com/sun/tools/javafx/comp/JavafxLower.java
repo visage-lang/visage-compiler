@@ -907,7 +907,9 @@ public class JavafxLower implements JavafxVisitor {
             loweredValue = mergedLoweredValue.head;
         }
 
-        result = m.Block(tree.flags, loweredStats, loweredValue);
+        JFXBlock res = m.Block(tree.flags, loweredStats, loweredValue);
+        res.endpos = tree.endpos;
+        result = res;
         result.type = value != null ?
             loweredValue != null ? loweredValue.type : syms.voidType :
             tree.type;

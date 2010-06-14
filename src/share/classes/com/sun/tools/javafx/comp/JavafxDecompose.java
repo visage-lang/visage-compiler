@@ -930,7 +930,9 @@ public class JavafxDecompose implements JavafxVisitor {
             stats = decomposeContainer(tree.stats);
             value = decompose(tree.value);
         }
-        result = fxmake.at(tree.pos()).Block(tree.flags, stats, value);
+        JFXBlock res = fxmake.at(tree.pos()).Block(tree.flags, stats, value);
+        res.endpos = tree.endpos;
+        result = res;
     }
 
     public void visitFunctionValue(JFXFunctionValue tree) {

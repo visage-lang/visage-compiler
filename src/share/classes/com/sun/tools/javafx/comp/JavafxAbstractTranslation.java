@@ -1782,6 +1782,7 @@ public abstract class JavafxAbstractTranslation
                 setDiagPos(bexpr);
                 stmts.appendList(translateToStatementsResult(bexpr, isBound? syms.javafx_PointerType : mtype.getReturnType()).statements());
                 body = Block(stmts);
+                body.endpos = bexpr.endpos;
             }
 
             if (isInstanceFunction && !isMixinClass) {
