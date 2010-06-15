@@ -27,7 +27,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- *
+ * This Test is associated with JIRA JFXC-4419
  * @author srikalyanchandrashekar
  */
 public class StopAtBkpointTest extends JdbBase {
