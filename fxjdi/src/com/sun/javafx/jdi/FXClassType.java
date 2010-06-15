@@ -117,7 +117,7 @@ public class FXClassType extends FXReferenceType implements ClassType {
         args.add(jdiValue);
         Exception theExc = null;
         try {
-            invokeMethod(virtualMachine().uiThread(), mth.get(0), args, 0);
+            invokeMethod(virtualMachine().uiThread(), mth.get(0), args, ClassType.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
         } catch(ClassNotLoadedException ee) {

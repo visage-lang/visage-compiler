@@ -40,6 +40,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ShortValue;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
+import com.sun.jdi.ClassType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -69,7 +70,7 @@ public class FXSequenceReference extends FXObjectReference {
             Method getElementTypeMethod = virtualMachine().fxSequenceType().getElementTypeMethod();
             Exception theExc = null;
             try {
-                Value typeInfo = invokeMethod(virtualMachine().uiThread(), getElementTypeMethod, Collections.EMPTY_LIST, 0);
+                Value typeInfo = invokeMethod(virtualMachine().uiThread(), getElementTypeMethod, Collections.EMPTY_LIST, ClassType.INVOKE_SINGLE_THREADED);
                 elementType = typesFromTypeInfo((ObjectReference)typeInfo);
             } catch(InvalidTypeException ee) {
                 theExc = ee;
@@ -91,7 +92,7 @@ public class FXSequenceReference extends FXObjectReference {
         Method sizeMethod = virtualMachine().fxSequenceType().sizeMethod();
         Exception theExc = null;
         try {
-            Value value = invokeMethod(virtualMachine().uiThread(), sizeMethod, Collections.EMPTY_LIST, 0);
+            Value value = invokeMethod(virtualMachine().uiThread(), sizeMethod, Collections.EMPTY_LIST, ClassType.INVOKE_SINGLE_THREADED);
             return ((IntegerValue)value).intValue();
         } catch(InvalidTypeException ee) {
             theExc = ee;
@@ -285,7 +286,7 @@ public class FXSequenceReference extends FXObjectReference {
         args.add(virtualMachine().mirrorOf(index));
         Exception theExc;
         try {
-            return invokeMethod(virtualMachine().uiThread(), method, args, 0);
+            return invokeMethod(virtualMachine().uiThread(), method, args, ClassType.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
         } catch(ClassNotLoadedException ee) {
@@ -308,7 +309,7 @@ public class FXSequenceReference extends FXObjectReference {
         Exception theExc;
         try {
             return (FXSequenceReference) virtualMachine().fxSequencesType().
-                invokeMethod(virtualMachine().uiThread(), method, args, 0);
+                invokeMethod(virtualMachine().uiThread(), method, args, ClassType.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
         } catch(ClassNotLoadedException ee) {

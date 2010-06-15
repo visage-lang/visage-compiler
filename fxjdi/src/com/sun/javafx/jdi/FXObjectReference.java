@@ -129,7 +129,7 @@ public class FXObjectReference extends FXValue implements ObjectReference {
         }
         Exception theExc = null;
         try {
-            return invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), 0);
+            return invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), ObjectReference.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
         } catch(ClassNotLoadedException ee) {
@@ -261,7 +261,7 @@ public class FXObjectReference extends FXValue implements ObjectReference {
         args.add(jdiValue);
         Exception theExc = null;
         try {
-            invokeMethod(virtualMachine().uiThread(), mth.get(0), args, 0);
+            invokeMethod(virtualMachine().uiThread(), mth.get(0), args, ObjectReference.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
         } catch(ClassNotLoadedException ee) {
