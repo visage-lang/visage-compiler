@@ -145,9 +145,19 @@ public class FXMethod extends FXTypeComponent implements Method {
         return (Method) super.underlying();
     }
 
-    private static final String[] INTERNAL_METHOD_NAMES = {
+    private static final String[] INTERNAL_METHOD_PREFIXES = {
         "getFlags$",
         "setFlags$",
+        "getVOFF$",
+        "getMixin$",
+        "setMixin$",
+        "initVar$",
+        "DCNT$",
+        "FCNT$",
+        "VCNT$"
+    };
+
+    private static final String[] INTERNAL_METHOD_NAMES = {
         "varTestBits$",
         "varChangeBits$",
         "restrictSet$",
@@ -160,17 +170,24 @@ public class FXMethod extends FXTypeComponent implements Method {
         "switchDependence$",
         "notifyDependents$",
         "update$",
+        "getListenerCount$",
         "invoke$",
         "count$",
-        "VCNT$",
-        "DCNT$",
-        "FCNT$"
+        "get$",
+        "set$",
+        "size$",
+        "invalidate$"
     };
 
     private boolean isInternalMethod() {
         // FIXME: is there better way to detect internal (compiler generated) method?
         String methodName = name();
         if (methodName.indexOf('$') != -1) {
+            for (String mn : INTERNAL_METHOD_PREFIXES) {
+                if (methodName.startsWith(mn)) {
+                    return true;
+                }
+            }
             for (String mn : INTERNAL_METHOD_NAMES) {
                 if (methodName.equals(mn)) {
                     return true;
