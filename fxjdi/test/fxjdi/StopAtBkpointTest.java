@@ -27,7 +27,8 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- * This Test is associated with JIRA JFXC-4419
+ * This Test is associated with JIRA JFXC-4419. All the waitForBreakpointEvent() calls
+ * have been replaced by resumeToBreakpoint() call.
  * @author srikalyanchandrashekar
  */
 public class StopAtBkpointTest extends JdbBase {
