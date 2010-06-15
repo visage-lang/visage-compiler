@@ -285,8 +285,9 @@ public class FXWrapper {
         }
         List<Method> result = new ArrayList<Method>(20);
         for (Method mth : methods) {
-            if (mth.name().indexOf('$') == -1) {
-                result.add(fxvm.method(mth));
+            FXMethod fxm = fxvm.method(mth);
+            if (!fxm.isJavaFXInternalMethod()) {
+                result.add(fxm);
             }
         }
         return result;

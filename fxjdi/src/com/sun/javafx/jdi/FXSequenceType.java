@@ -50,60 +50,77 @@ public class FXSequenceType extends FXInterfaceType {
         if (! underlying.name().equals(FXVirtualMachine.FX_SEQUENCE_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }
-        sizeMethod = methodsByName("size").get(0);
-        getMethod = methodsByName("get").get(0);
-        getAsBooleanMethod = methodsByName("getAsBoolean").get(0);
-        getAsCharMethod = methodsByName("getAsChar").get(0);
-        getAsByteMethod = methodsByName("getAsByte").get(0);
-        getAsShortMethod = methodsByName("getAsShort").get(0);
-        getAsIntMethod = methodsByName("getAsInt").get(0);
-        getAsLongMethod = methodsByName("getAsLong").get(0);
-        getAsFloatMethod = methodsByName("getAsFloat").get(0);
-        getAsDoubleMethod = methodsByName("getAsDouble").get(0);
-        getElementTypeMethod = methodsByName("getElementType").get(0);
+    }
+
+    // If this is done in the ctor, recursion happens in wrapping a method
+    private void init() {
+        if (sizeMethod == null) {
+            sizeMethod = methodsByName("size").get(0);
+            getMethod = methodsByName("get").get(0);
+            getAsBooleanMethod = methodsByName("getAsBoolean").get(0);
+            getAsCharMethod = methodsByName("getAsChar").get(0);
+            getAsByteMethod = methodsByName("getAsByte").get(0);
+            getAsShortMethod = methodsByName("getAsShort").get(0);
+            getAsIntMethod = methodsByName("getAsInt").get(0);
+            getAsLongMethod = methodsByName("getAsLong").get(0);
+            getAsFloatMethod = methodsByName("getAsFloat").get(0);
+            getAsDoubleMethod = methodsByName("getAsDouble").get(0);
+            getElementTypeMethod = methodsByName("getElementType").get(0);
+        }
     }
 
     protected Method sizeMethod() {
+        init();
         return sizeMethod;
     }
 
     protected Method getMethod() {
+        init();
         return getMethod;
     }
 
     protected Method getAsBooleanMethod() {
+        init();
         return getAsBooleanMethod;
     }
 
     protected Method getAsCharMethod() {
+        init();
         return getAsCharMethod;
     }
 
     protected Method getAsByteMethod() {
+        init();
         return getAsByteMethod;
     }
 
     protected Method getAsShortMethod() {
+        init();
         return getAsShortMethod;
     }
 
     protected Method getAsIntMethod() {
+        init();
         return getAsIntMethod;
     }
 
     protected Method getAsLongMethod() {
+        init();
         return getAsLongMethod;
     }
 
     protected Method getAsFloatMethod() {
+        init();
         return getAsFloatMethod;
     }
 
     protected Method getAsDoubleMethod() {
+        init();
         return getAsDoubleMethod;
     }
 
     protected Method getElementTypeMethod() {
+        init();
         return getElementTypeMethod;
     }
 }
