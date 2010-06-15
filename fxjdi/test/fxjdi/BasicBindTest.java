@@ -27,7 +27,8 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- *
+ * We break at the points after the binder's value is changed assert and resume operation. We make
+ * sure execution pauses at all the breakpoints.
  * @author srikalyanchandrashekar
  */
 public class BasicBindTest extends JdbBase {
