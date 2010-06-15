@@ -32,7 +32,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- *
+ * This TC tracks a script variable for all the accesses and changes.
  * @author srikalyanchandrashekar
  */
 public class WatchAccessModificationTest extends JdbBase {
