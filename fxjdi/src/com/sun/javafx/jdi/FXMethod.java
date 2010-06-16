@@ -101,7 +101,8 @@ public class FXMethod extends FXTypeComponent implements Method {
     }
 
     public boolean isJavaFXInternalMethod() {
-        return isJavaFXMethod() && isInternalMethod();
+        return declaringType().isInternalJavaType() ||
+            (isJavaFXMethod() && isInternalMethod());
     }
 
     public FXLocation location() {
@@ -171,7 +172,6 @@ public class FXMethod extends FXTypeComponent implements Method {
         "notifyDependents$",
         "update$",
         "getListenerCount$",
-        "invoke$",
         "count$",
         "get$",
         "set$",

@@ -52,4 +52,27 @@ public class FXInterfaceType extends FXReferenceType implements InterfaceType {
     protected InterfaceType underlying() {
         return (InterfaceType) super.underlying();
     }
+    /**
+     * JDI addition:  Returns true if this is a JavaFX Type, false otherwise
+     */
+    private boolean isIsFxTypeSet = false;
+    private boolean isFXType = false;
+    public boolean isJavaFXType() {
+        if (!isIsFxTypeSet) {
+            isIsFxTypeSet = true;
+            FXVirtualMachine fxvm = virtualMachine();
+            InterfaceType fxObjType = (InterfaceType) FXWrapper.unwrap(fxvm.fxObjectType());
+            if (fxObjType != null) {
+                InterfaceType thisType = underlying();
+                List<InterfaceType> allIfaces = thisType.superinterfaces();
+                for (InterfaceType iface : allIfaces) {
+                    if (iface.equals(fxObjType)) {
+                        isFXType = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return isFXType;
+    }
 }
