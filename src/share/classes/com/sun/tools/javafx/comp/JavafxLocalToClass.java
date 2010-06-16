@@ -44,6 +44,7 @@ import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.util.Position;
 import java.util.Stack;
 
 /**
@@ -564,6 +565,7 @@ public class JavafxLocalToClass {
 
         JFXBlock body = fxmake.Block(block.flags, block.getStmts(), block.getValue());
         body.type = block.type;
+        body.pos = Position.NOPOS;
 
         JFXFunctionDefinition doit = fxmake.FunctionDefinition(
                 fxmake.Modifiers(JavafxFlags.SCRIPT_PRIVATE),
@@ -571,6 +573,7 @@ public class JavafxLocalToClass {
                 fxtype,
                 List.<JFXVar>nil(),
                 body);
+        doit.pos = Position.NOPOS;
         doit.sym = funcSym;
         doit.type = funcType;
 

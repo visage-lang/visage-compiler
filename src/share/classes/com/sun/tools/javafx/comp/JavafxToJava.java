@@ -572,7 +572,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
             if (vsym.hasForwardReference()) {
                 // create a blank variable declaration and move the declaration to the beginning of the block
-                JCExpression init = makeDefaultValue(diagPos, vsym);
+                JCExpression init = makeDefaultValue(null, vsym);
                 prependToStatements.prepend(Var(modFlags, tree.type, tree.name, init));
                 return translateDefinitionalAssignmentToSetExpression(diagPos, tree.getInitializer(), vsym, null);
             } else {
