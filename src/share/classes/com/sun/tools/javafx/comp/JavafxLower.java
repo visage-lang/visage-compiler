@@ -431,7 +431,7 @@ public class JavafxLower implements JavafxVisitor {
         try {
             enclFunc = tree;
             JFXBlock body  = (JFXBlock)lowerExpr(tree.getBodyExpression(), tree.type != null ? tree.type.getReturnType() : Type.noType);
-            JFXFunctionDefinition res = m.FunctionDefinition(tree.mods, tree.name, tree.getJFXReturnType(), tree.getParams(), body);
+            JFXFunctionDefinition res = m.at(tree.pos).FunctionDefinition(tree.mods, tree.name, tree.getJFXReturnType(), tree.getParams(), body);
             res.operation.definition = res;
             res.sym = tree.sym;
             result = res.setType(tree.type);
@@ -907,7 +907,7 @@ public class JavafxLower implements JavafxVisitor {
             loweredValue = mergedLoweredValue.head;
         }
 
-        JFXBlock res = m.Block(tree.flags, loweredStats, loweredValue);
+        JFXBlock res = m.at(tree.pos).Block(tree.flags, loweredStats, loweredValue);
         res.endpos = tree.endpos;
         result = res;
         result.type = value != null ?
