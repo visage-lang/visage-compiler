@@ -152,7 +152,7 @@ public class FXMethod extends FXTypeComponent implements Method {
         "getVOFF$",
         "getMixin$",
         "setMixin$",
-        "initVar$",
+        "initVars$",
         "DCNT$",
         "FCNT$",
         "VCNT$"
