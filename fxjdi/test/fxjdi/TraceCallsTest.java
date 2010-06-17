@@ -24,8 +24,13 @@
 package fxjdi;
 
 import com.sun.jdi.event.Event;
+import com.sun.jdi.event.EventQueue;
 import com.sun.jdi.event.MethodEntryEvent;
 import com.sun.jdi.event.MethodExitEvent;
+import com.sun.jdi.request.EventRequestManager;
+import com.sun.jdi.request.MethodEntryRequest;
+import com.sun.jdi.request.MethodExitRequest;
+import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
 
@@ -47,52 +52,54 @@ public class TraceCallsTest extends JdbBase {
 // }
 // @EndTest
 /**
- * Convenient method that compares the method name (extracted from event) with the given name.
+ * Convenient method that compares the method name (extracted from event) with the given set of names.
  * @param event
- * @param methodName
+ * @param methodName1
+ * @param methodName2
  */
-    private void checkEntryExit(Event event, String methodName) {
+    private void checkEntryExit(Event event, String methodName1, String methodName2) {
             if (event instanceof MethodEntryEvent) {
                 System.out.println("Starting method = " + ((MethodEntryEvent)event).method().toString());
-                Assert.assertTrue(((MethodEntryEvent)event).method().toString().equals(methodName));
+                Assert.assertTrue(((MethodEntryEvent)event).method().toString().equals(methodName1) || ((MethodEntryEvent)event).method().toString().equals(methodName2));
             }else if (event instanceof MethodExitEvent) {
                 System.out.println("Exiting method = " + ((MethodExitEvent)event).method().toString());
-                Assert.assertTrue(((MethodExitEvent)event).method().toString().equals(methodName));
+                Assert.assertTrue(((MethodExitEvent)event).method().toString().equals(methodName1) || ((MethodExitEvent)event).method().toString().equals(methodName2));
             }
     }
 
-    private void foo() {
-    }
 /**
- * Trace run method's exit.
+ * Trace entry and exit of method calls.
  */
 //TODO: Please uncomment the below annotation when the TC is fixed.
     @Test(timeout=5000)
     public void testTrace() {
-        foo();
-//        try {
-//            resetOutputs();//Uncomment this if you want to see the output on console
-//            compile("Method.fx");
-//            stop("in Method:7");
-//            stop("in Method:4");
-//            stop("in Method:8");
-//            fxrun();
-//            resumeToBreakpoint();
-//            trace("go methods");//Trace all the method's entry and exit
-//            Event event = resumeToAnyEvent();
-//           checkEntryExit(event, "Method.methodOne()");
-//
-//            where();
-//            list();
-//            event = resumeToAnyEvent();
-//            checkEntryExit(event, "Method.methodOne()");
-//            where();
-//            list();
-//            cont();
-//            quit();
-//        } catch (Exception exp) {
-//            exp.printStackTrace();
-//            Assert.fail(exp.getMessage());
-//        }
+        try {
+            //resetOutputs();//Uncomment this if you want to see the output on console
+            compile("Method.fx");
+            stop("in Method:7");
+            stop("in Method:4");
+            stop("in Method:8");
+            fxrun();
+            resumeToBreakpoint();
+            trace("go methods");//Trace all the method's entry and exit
+
+            where();
+            list();
+            Event event = resumeToAnyEvent();//This is definitely start of methodOne()
+           checkEntryExit(event, "Method.methodOne()", "javafx.lang.Builtins.println(java.lang.Object)");
+
+            where();
+            list();
+
+            event = resumeToAnyEvent();//This is exit of either methodOne() or println() because the breakpoint is at end of methodOne()
+           checkEntryExit(event, "Method.methodOne()", "javafx.lang.Builtins.println(java.lang.Object)");
+            where();
+            list();
+            cont();
+            quit();
+        } catch (Exception exp) {
+            exp.printStackTrace();
+            Assert.fail(exp.getMessage());
+        }
     }
 }
