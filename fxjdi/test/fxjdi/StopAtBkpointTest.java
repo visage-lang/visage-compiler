@@ -23,46 +23,56 @@
 
 package fxjdi;
 
-
-import com.sun.javafx.jdi.FXStackFrame;
-import com.sun.javafx.jdi.FXVirtualMachine;
-import com.sun.javafx.jdi.FXWrapper;
-import com.sun.jdi.LocalVariable;
-import com.sun.jdi.StackFrame;
-import com.sun.jdi.event.BreakpointEvent;
-import org.junit.Test;
 import junit.framework.Assert;
+import org.junit.Test;
 
 /**
- *
- * @author sundar
+ * This Test is associated with JIRA JFXC-4419. All the waitForBreakpointEvent() calls
+ * have been replaced by resumeToBreakpoint() call.
+ * @author srikalyanchandrashekar
  */
-public class LocalVarTest extends JdbBase {
+public class StopAtBkpointTest extends JdbBase {
 
-// @BeginTest LocalVar.fx
+// @BeginTest StopAtBkpoint.fx
+// var binder = 1.0;
+// var bindee = bind binder;
 // function run() {
-//     println("LocalVar");
+//     println("Initial bindee is {bindee}");
+//     binder = 2.0;
+//     println("Bindee is {bindee} now");
+//     binder = 3.0;
+//     println("Bindee is {bindee} now");
+//     println("StopAtBkpointTest Ends here");
 // }
 // @EndTest
 
-    @Test(timeout=5000)
-    public void testHello1() {
+    @Test(timeout=10000)
+    public void testStopAtBkpoint() {
         try {
-            compile("LocalVar.fx");
-            stop("in LocalVar.javafx$run$");
+            resetOutputs();
+            compile("StopAtBkpoint.fx");
+            stop("in StopAtBkpoint.javafx$run$");
+            stop("in StopAtBkpoint:6");
+            stop("in StopAtBkpoint:8");
+            stop("in StopAtBkpoint:9");
 
             fxrun();
 
-            BreakpointEvent bkpt = resumeToBreakpoint();
-            // We hide JavaFX synthetic variables.
-            FXStackFrame frame = (FXStackFrame) bkpt.thread().frame(0);
-            LocalVariable var = frame.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNull(var);
+            resumeToBreakpoint();
+            System.out.println("List 1");
+            list();
 
-            // underlying (java) frame object exposes this variable.
-            StackFrame jframe = FXWrapper.unwrap(frame);
-            var = jframe.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNotNull(var);
+            resumeToBreakpoint();
+            System.out.println("List 2");
+            list();
+
+            resumeToBreakpoint();
+            System.out.println("List 3");
+            list();
+
+            resumeToBreakpoint();
+            System.out.println("List 4");
+            list();
 
             resumeToVMDeath();
             quit();

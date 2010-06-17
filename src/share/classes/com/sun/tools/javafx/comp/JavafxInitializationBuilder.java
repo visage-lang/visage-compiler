@@ -621,7 +621,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method generates a java field for a varInfo.
         //
         private JCVariableDecl makeVariableField(VarInfo varInfo, JCModifiers mods, Type varType, Name name, JCExpression varInit) {
-            setDiagPos(varInfo);
             // Get the var symbol.
             JavafxVarSymbol varSym = varInfo.getSymbol();
             // Construct the variable itself.
@@ -721,12 +720,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     if (! isCurrentClassSymbol(varSym.owner))
                         annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.inheritedAnnotationClassNameString), List.<JCExpression>nil()));
-                    mods = addAccessAnnotationModifiers(diagPos, varSym.flags(), mods, annotations);
+                    mods = addAccessAnnotationModifiers(null, varSym.flags(), mods, annotations);
 
                     // Construct the value field
-                    JCExpression init = useSimpleInit(ai)              ? getSimpleInit(ai) :
+                    boolean simple = useSimpleInit(ai);
+                    JCExpression init = simple                         ? getSimpleInit(ai) :
                                         isValueType(ai.getRealType())  ? defaultValue(ai) :
                                                                          null;
+
+                    setDiagPos(simple ? ai.pos() : null);
                     addDefinition(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym), init));
                 }
             }

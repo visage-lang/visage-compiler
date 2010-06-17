@@ -32,12 +32,14 @@ class FilterMethodsTarget {
 mixin class Mixin1 {
     var mixivar1: Number = 1;
     function mixiFunc() {
+        println("Mixin1.mixiFunc");
     }
 }
 
 mixin class Mixin2 {
     var mixivar1: Number = 2;
     function mixiFunc() {
+        println("Mixin2.mixiFunc");
     }
 }
 

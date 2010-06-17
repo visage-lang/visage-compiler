@@ -49,7 +49,7 @@ public class BasicTest extends JdbBase {
 
             fxrun();
 
-            waitForBreakpointEvent();
+            resumeToBreakpoint();
 
             Assert.assertTrue(verifyValue("Foo.begin", "Foo.fx says Hello"));
             Assert.assertTrue(verifyValue("Foo.msg1", "Breakpoint 1"));
@@ -89,7 +89,7 @@ public class BasicTest extends JdbBase {
             stop("in Bar.javafx$run$");
 
             fxrun("ONE", "TWO", "THREE");
-            waitForBreakpointEvent();
+            resumeToBreakpoint();
             where();
             Assert.assertTrue(contains("Bar.javafx$run$ (Bar.fx:2)"));
 
@@ -114,7 +114,7 @@ public class BasicTest extends JdbBase {
             List<String> olist = getOutputAsList();
             Assert.assertTrue(olist.get(1).trim().equals("[2] Bar.javafx$run$ (Bar.fx:6)"));
 
-            cont();
+            resumeToVMDeath();
             quit();
 
         } catch (Exception exp) {

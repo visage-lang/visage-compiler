@@ -23,48 +23,50 @@
 
 package fxjdi;
 
-
-import com.sun.javafx.jdi.FXStackFrame;
-import com.sun.javafx.jdi.FXVirtualMachine;
-import com.sun.javafx.jdi.FXWrapper;
-import com.sun.jdi.LocalVariable;
-import com.sun.jdi.StackFrame;
-import com.sun.jdi.event.BreakpointEvent;
-import org.junit.Test;
 import junit.framework.Assert;
+import org.junit.Test;
 
 /**
  *
- * @author sundar
+ * @author srikalyanchandrashekar
  */
-public class LocalVarTest extends JdbBase {
+public class StepInUpTest extends JdbBase {
 
-// @BeginTest LocalVar.fx
-// function run() {
-//     println("LocalVar");
+// @BeginTest Method.fx
+// function simpleMethod():Void {
+//       println("Inside simple method");
+//       println("Dont break at this line");
+// }
+//
+// function run():Void {
+//      println("Beginning method calls ...");
+//      simpleMethod();
+//      println("Method calls Ends here");
 // }
 // @EndTest
-
+/**
+ * Step into another stack frame and step up to return to main stack frame
+ */
     @Test(timeout=5000)
-    public void testHello1() {
+    public void testStepInUp() {
         try {
-            compile("LocalVar.fx");
-            stop("in LocalVar.javafx$run$");
-
+            //resetOutputs();//Uncomment this if you want to see the output on console
+            compile("Method.fx");
+            stop("in Method:7");
             fxrun();
+            resumeToBreakpoint();
+            list();
 
-            BreakpointEvent bkpt = resumeToBreakpoint();
-            // We hide JavaFX synthetic variables.
-            FXStackFrame frame = (FXStackFrame) bkpt.thread().frame(0);
-            LocalVariable var = frame.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNull(var);
+            next();
+            list();
 
-            // underlying (java) frame object exposes this variable.
-            StackFrame jframe = FXWrapper.unwrap(frame);
-            var = jframe.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNotNull(var);
+            step("in");//This is equivalent to step() command without arguments. Will go into simpleMethod() frame
+            list();
 
-            resumeToVMDeath();
+            step("up");//This is step up command that brings the execution out of the current stackframe i.e simpleMethod().
+            list();
+            Assert.assertTrue(contains("Dont break at this line"));
+            cont();
             quit();
         } catch (Exception exp) {
             exp.printStackTrace();

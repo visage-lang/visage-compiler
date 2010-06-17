@@ -96,6 +96,15 @@ public class FXMethod extends FXTypeComponent implements Method {
         return underlying().isVarArgs();
     }
 
+    public boolean isJavaFXMethod() {
+        return declaringType().isJavaFXType();
+    }
+
+    public boolean isJavaFXInternalMethod() {
+        return declaringType().isInternalJavaType() ||
+            (isJavaFXMethod() && isInternalMethod());
+    }
+
     public FXLocation location() {
         return FXWrapper.wrap(virtualMachine(), underlying().location());
     }
@@ -135,5 +144,70 @@ public class FXMethod extends FXTypeComponent implements Method {
     @Override
     protected Method underlying() {
         return (Method) super.underlying();
+    }
+
+    private static final String[] INTERNAL_METHOD_PREFIXES = {
+        "getFlags$",
+        "setFlags$",
+        "getVOFF$",
+        "getMixin$",
+        "setMixin$",
+        "initVar$",
+        "DCNT$",
+        "FCNT$",
+        "VCNT$"
+    };
+
+    private static final String[] INTERNAL_METHOD_NAMES = {
+        "varTestBits$",
+        "varChangeBits$",
+        "restrictSet$",
+        "getThisRef$internal$",
+        "setThisRef$internal$",
+        "getDepChain$internal$",
+        "setDepChain$internal$",
+        "addDependent$",
+        "removeDependent$",
+        "switchDependence$",
+        "notifyDependents$",
+        "update$",
+        "getListenerCount$",
+        "count$",
+        "get$",
+        "set$",
+        "size$",
+        "invalidate$"
+    };
+
+    private boolean isInternalMethod() {
+        // FIXME: is there better way to detect internal (compiler generated) method?
+        String methodName = name();
+        if (methodName.indexOf('$') != -1) {
+            for (String mn : INTERNAL_METHOD_PREFIXES) {
+                if (methodName.startsWith(mn)) {
+                    return true;
+                }
+            }
+            for (String mn : INTERNAL_METHOD_NAMES) {
+                if (methodName.equals(mn)) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
+
+    // not used as of now..
+    // FIXME: Do we want to consider existence of LineNumberTable info
+    // to detect internal methods?
+    private boolean isLNTPresent() {
+        try {
+            allLineLocations();
+            return true;
+        } catch (AbsentInformationException exp) {
+            return false;
+        }
     }
 }

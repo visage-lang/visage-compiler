@@ -37,38 +37,44 @@ import junit.framework.Assert;
  *
  * @author sundar
  */
-public class LocalVarTest extends JdbBase {
+public class FrameFilterTest extends JdbBase {
 
-// @BeginTest LocalVar.fx
+// @BeginTest FrameFilter.fx
+// public var xx;
+//
 // function run() {
-//     println("LocalVar");
+//     xx = 3;
 // }
 // @EndTest
 
     @Test(timeout=5000)
-    public void testHello1() {
+    public void testFilterFrames() {
+        return;
+        /*
+         // FIXME: Test disabled -- till we decide on synthetic/internal methods.
+
         try {
-            compile("LocalVar.fx");
-            stop("in LocalVar.javafx$run$");
+            compile("FrameFilter.fx");
+            stop("in FrameFilter.onReplace$xx");
 
             fxrun();
 
-            BreakpointEvent bkpt = resumeToBreakpoint();
-            // We hide JavaFX synthetic variables.
+            BreakpointEvent bkpt = waitForBreakpointEvent();
             FXStackFrame frame = (FXStackFrame) bkpt.thread().frame(0);
-            LocalVariable var = frame.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNull(var);
 
-            // underlying (java) frame object exposes this variable.
-            StackFrame jframe = FXWrapper.unwrap(frame);
-            var = jframe.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNotNull(var);
+            // onReplace$xx is internal javafx method and so should not show up.
+            Assert.assertEquals("javafx$run$", frame.location().method().name());
 
-            resumeToVMDeath();
+            // onReplace$xx is internal javafx method and so should show up in underlying
+            // (java JDI) frames.
+            StackFrame jframe = FXWrapper.unwrap(bkpt.thread()).frame(0);
+            Assert.assertEquals("onReplace$xx", jframe.location().method().name());
+            
+            cont();
             quit();
         } catch (Exception exp) {
             exp.printStackTrace();
             Assert.fail(exp.getMessage());
-        }
+        }*/
     }
 }

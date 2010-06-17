@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2001-2005 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,51 +20,49 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-
 package fxjdi;
 
-
-import com.sun.javafx.jdi.FXStackFrame;
-import com.sun.javafx.jdi.FXVirtualMachine;
-import com.sun.javafx.jdi.FXWrapper;
-import com.sun.jdi.LocalVariable;
-import com.sun.jdi.StackFrame;
-import com.sun.jdi.event.BreakpointEvent;
 import org.junit.Test;
 import junit.framework.Assert;
 
 /**
  *
- * @author sundar
+ * @author srikalyanchandrashekar
  */
-public class LocalVarTest extends JdbBase {
-
-// @BeginTest LocalVar.fx
+public class HeteroObjectSequenceTest extends JdbBase {
+//@BeginTest ObjSequence.fx
+// var objSequence = [];
 // function run() {
-//     println("LocalVar");
+//      var mapObj:java.util.Map = new java.util.HashMap();
+//      var intObj:java.lang.Integer = new java.lang.Integer(0);
+//      insert mapObj into objSequence;
+//      println(objSequence);
+//      insert intObj into objSequence;
+//      println(objSequence);
+//      delete objSequence[0];
+//      println(objSequence);
 // }
-// @EndTest
+//@EndTest
 
     @Test(timeout=5000)
-    public void testHello1() {
+    public void testObjSequence() {
         try {
-            compile("LocalVar.fx");
-            stop("in LocalVar.javafx$run$");
-
+            //resetOutputs();//Uncomment this if you want to see the output on console
+            compile("ObjSequence.fx");
+            stop("in ObjSequence:7");
+            stop("in ObjSequence:9");
+            stop("in ObjSequence:10");
             fxrun();
-
-            BreakpointEvent bkpt = resumeToBreakpoint();
-            // We hide JavaFX synthetic variables.
-            FXStackFrame frame = (FXStackFrame) bkpt.thread().frame(0);
-            LocalVariable var = frame.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNull(var);
-
-            // underlying (java) frame object exposes this variable.
-            StackFrame jframe = FXWrapper.unwrap(frame);
-            var = jframe.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNotNull(var);
-
-            resumeToVMDeath();
+            resumeToBreakpoint();
+            list();
+            Assert.assertTrue(verifyValue("ObjSequence.objSequence[0]", "{}"));
+            resumeToBreakpoint();
+            list();
+            Assert.assertTrue(verifyValue("ObjSequence.objSequence", "[ {}, 0 ]"));
+            resumeToBreakpoint();
+            list();
+            Assert.assertTrue(verifyValue("ObjSequence.objSequence[0]", "0"));
+            cont();
             quit();
         } catch (Exception exp) {
             exp.printStackTrace();

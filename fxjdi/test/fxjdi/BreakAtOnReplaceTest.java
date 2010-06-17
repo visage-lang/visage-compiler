@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2001-2005 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,51 +20,46 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-
 package fxjdi;
 
-
-import com.sun.javafx.jdi.FXStackFrame;
-import com.sun.javafx.jdi.FXVirtualMachine;
-import com.sun.javafx.jdi.FXWrapper;
-import com.sun.jdi.LocalVariable;
-import com.sun.jdi.StackFrame;
-import com.sun.jdi.event.BreakpointEvent;
 import org.junit.Test;
 import junit.framework.Assert;
 
 /**
- *
- * @author sundar
+ * Test for breakpoints set inside the onreplace trigger . 
+ * @author srikalyanchandrashekar
  */
-public class LocalVarTest extends JdbBase {
-
-// @BeginTest LocalVar.fx
+public class BreakAtOnReplaceTest extends JdbBase {
+//@BeginTest OnReplace.fx
+// var binder = 1.0;
+// var bindee = bind binder on replace {
+//        println("Within onreplace..");
+//        println("Break Here");
+// };
 // function run() {
-//     println("LocalVar");
+//     println("Begin");
+//     for (i in [1..5]) {
+//          binder = i as Number;
+//     }
+//     println("Test Ends here");
 // }
-// @EndTest
+//@EndTest
 
     @Test(timeout=5000)
-    public void testHello1() {
+    public void testOnReplace() {
         try {
-            compile("LocalVar.fx");
-            stop("in LocalVar.javafx$run$");
-
+            //resetOutputs();//Uncomment this if you want to see the output on console
+            compile("OnReplace.fx");
+            stop("in OnReplace:4");
             fxrun();
+            
+            for (int i = 1;i <= 5;i++) {
+                resumeToBreakpoint();
+                Assert.assertTrue(contains("Within onreplace.."));
+                list();
+            }
 
-            BreakpointEvent bkpt = resumeToBreakpoint();
-            // We hide JavaFX synthetic variables.
-            FXStackFrame frame = (FXStackFrame) bkpt.thread().frame(0);
-            LocalVariable var = frame.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNull(var);
-
-            // underlying (java) frame object exposes this variable.
-            StackFrame jframe = FXWrapper.unwrap(frame);
-            var = jframe.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNotNull(var);
-
-            resumeToVMDeath();
+            cont();
             quit();
         } catch (Exception exp) {
             exp.printStackTrace();

@@ -1782,6 +1782,7 @@ public abstract class JavafxAbstractTranslation
                 setDiagPos(bexpr);
                 stmts.appendList(translateToStatementsResult(bexpr, isBound? syms.javafx_PointerType : mtype.getReturnType()).statements());
                 body = Block(stmts);
+                body.endpos = bexpr.endpos;
             }
 
             if (isInstanceFunction && !isMixinClass) {
@@ -1789,6 +1790,7 @@ public abstract class JavafxAbstractTranslation
                 // In the instance as instance case, there is no receiver param, so allow generated code
                 // to function by adding:   var receiver = this;
                 //TODO: this should go away
+                clearDiagPos();
                 body.stats = body.stats.prepend( m().VarDef(
                         m().Modifiers(Flags.FINAL),
                         defs.receiverName,
@@ -2751,6 +2753,7 @@ public abstract class JavafxAbstractTranslation
             JCExpression transInit = translateInstanceVariableInit(init, vsym);
             JCExpression tc = instanceName == null ? null : id(instanceName);
             JCStatement def;
+            clearDiagPos();
             if (vsym.useAccessors()) {
                 if (vsym.isSequence()) {
                     def = CallStmt(defs.Sequences_set, tc,
@@ -2781,6 +2784,7 @@ public abstract class JavafxAbstractTranslation
             ClassSymbol classSym = (ClassSymbol)classType.tsym;
             int count = varSyms.size();
 
+            clearDiagPos();
             JCVariableDecl loopVar = makeTmpLoopVar(0);
             Name loopName = loopVar.name;
             JCExpression loopLimit = Call(id(receiverName), defs.count_FXObjectMethodName);
@@ -3818,6 +3822,7 @@ public abstract class JavafxAbstractTranslation
          */
         ExpressionResult doit() {
             JCExpression tor;
+            clearDiagPos();
             if (!vsym.useAccessors() && var.isLiteralInit()) {
                 tor =   Get(vsym);
             } else if (vsym.isSynthetic()) {
@@ -3833,7 +3838,7 @@ public abstract class JavafxAbstractTranslation
                             CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym)),
                             Get(vsym)
                         );
-            } 
+            }
             return toResult(tor, vsym.type);
         }
     }

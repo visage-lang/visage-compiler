@@ -31,6 +31,7 @@ import com.sun.jdi.Location;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.ClassType;
 import com.sun.jdi.Value;
 import com.sun.jdi.ShortValue;
 import com.sun.jdi.InvalidTypeException;
@@ -278,7 +279,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
         }
         Exception theExc = null;
         try {
-            return ((FXClassType)this).invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), 0);
+            return ((FXClassType)this).invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), ClassType.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
         } catch(ClassNotLoadedException ee) {
@@ -457,5 +458,20 @@ public class FXReferenceType extends FXType implements ReferenceType {
     
     public ReferenceType _underlying() {
         return (ReferenceType)super.underlying();
+    }
+
+    private boolean isInternalJavaTypeSet = false;
+    private boolean internalJavaType = false;
+    public boolean isInternalJavaType() {
+        if (!isInternalJavaTypeSet) {
+            String myName = name();
+            if ("com.sun.javafx.runtime.FXBase".equals(myName) ||
+                "com.sun.javafx.runtime.FXObject".equals(myName) ||
+                myName.startsWith("com.sun.javafx.functions.Function")) {
+                internalJavaType = true;
+                isInternalJavaTypeSet = true;
+            }
+        }
+        return internalJavaType;
     }
 }

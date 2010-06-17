@@ -130,6 +130,18 @@ public class JdbBase extends Debugger {
         return false;
     }
 
+    public boolean verifyNumValue(String var, Number expectedValue) {
+        clearOutput();
+        print(var);
+        List<String> olist = getOutputAsList();
+        if (olist != null && olist.size() > 0) {
+            String str = olist.get(0).trim();
+            String expected = var + " = " +  expectedValue;
+            return str.equals(expected);
+        }
+        return false;
+    }
+    
     static final FileFilter CLASS_FILTER = new FileFilter() {
         public boolean accept(File pathname) {
             return pathname.getName().endsWith(".class");

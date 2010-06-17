@@ -36,6 +36,7 @@ import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.util.Options;
 import com.sun.tools.javafx.tree.JFXInterpolateValue;
 import com.sun.tools.javafx.tree.JFXTree;
+import com.sun.tools.javafx.tree.JFXBlock;
 import com.sun.tools.javafx.tree.JFXErroneous;
 import com.sun.tools.javafx.tree.JFXType;
 import com.sun.tools.javafx.tree.JavafxTreeInfo;
@@ -1292,9 +1293,15 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // case we are creating an erroneous node and it will be empty of error nodes,
         // so gets an end positon the same as its start position.
         //
-        if (genEndPos && tree != null) {
-            
-            endPositions.put(tree, end <= tree.getStartPosition() ? tree.getStartPosition()+1 : end);
+        if (tree != null) {
+            int start = tree.getStartPosition();
+            if (end <= start)
+                end = start + 1;
+            if (tree instanceof JFXBlock)
+                ((JFXBlock) tree).endpos = end;
+            if (genEndPos) {
+                endPositions.put(tree, end);
+            }
         }
     }
 

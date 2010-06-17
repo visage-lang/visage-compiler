@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2001-2005 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,50 +20,37 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-
 package fxjdi;
 
-
-import com.sun.javafx.jdi.FXStackFrame;
-import com.sun.javafx.jdi.FXVirtualMachine;
-import com.sun.javafx.jdi.FXWrapper;
-import com.sun.jdi.LocalVariable;
-import com.sun.jdi.StackFrame;
-import com.sun.jdi.event.BreakpointEvent;
+import java.util.List;
 import org.junit.Test;
 import junit.framework.Assert;
-
 /**
  *
- * @author sundar
+ * @author ksrini
  */
-public class LocalVarTest extends JdbBase {
-
-// @BeginTest LocalVar.fx
-// function run() {
-//     println("LocalVar");
-// }
-// @EndTest
+public class SequenceTests extends JdbBase {
+//@BeginTest Foo.fx
+//var artists = [ 'John Denver', 'Eric Clapton', 'Paul Simon', 'Art Garfunkel'];
+//println(artists);
+//delete artists[0..2];
+//println(artists);
+//@EndTest
 
     @Test(timeout=5000)
-    public void testHello1() {
+    public void testSequence1() {
         try {
-            compile("LocalVar.fx");
-            stop("in LocalVar.javafx$run$");
-
+            compile("Foo.fx");
+            stop("in Foo.javafx$run$");
             fxrun();
-
-            BreakpointEvent bkpt = resumeToBreakpoint();
-            // We hide JavaFX synthetic variables.
-            FXStackFrame frame = (FXStackFrame) bkpt.thread().frame(0);
-            LocalVariable var = frame.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNull(var);
-
-            // underlying (java) frame object exposes this variable.
-            StackFrame jframe = FXWrapper.unwrap(frame);
-            var = jframe.visibleVariableByName("_$UNUSED$_$ARGS$_");
-            Assert.assertNotNull(var);
-
+            resumeToBreakpoint();
+            next();
+            list();
+            print("Foo.artists[0]");
+            Assert.assertTrue(verifyValue("Foo.artists[0]", "John Denver"));
+            next();
+            next();
+            Assert.assertTrue(verifyValue("Foo.artists[0]", "Art Garfunkel"));
             resumeToVMDeath();
             quit();
         } catch (Exception exp) {
