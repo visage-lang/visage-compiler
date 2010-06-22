@@ -64,7 +64,6 @@ import com.sun.jdi.Value;
 import com.sun.jdi.VoidType;
 import com.sun.jdi.VoidValue;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -435,6 +434,8 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     private FXSequencesType fxSequencesType;
     public synchronized FXSequencesType fxSequencesType() {
         if (fxSequencesType == null) {
+            // ensure that the debuggee has loaded and initialized Sequences type
+            initSequencesType();
             List<ReferenceType> refTypes = classesByName(FX_SEQUENCES_TYPE_NAME);
             fxSequencesType = refTypes.isEmpty() ? null : (FXSequencesType) refTypes.get(0);
         }
@@ -748,5 +749,27 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         }
         // else it is an object/array/sequence/...
         return null;
+    }
+
+    // ensure that the debuggee VM has loaded and initialized Sequences type
+    private synchronized void initSequencesType() {
+        VirtualMachine vm = underlying();
+        ClassType classType = (ClassType) vm.classesByName("java.lang.Class").get(0);
+        Method forName = classType.concreteMethodByName("forName",
+                "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;");
+
+        // Class.forName(FX_SEQUENCES_TYPE_NAME, true, Entry.class.getClassLoader());
+        try {
+            List<Value> args = new ArrayList<Value>(3);
+            args.add(vm.mirrorOf(FX_SEQUENCES_TYPE_NAME));
+            args.add(vm.mirrorOf(true));
+            args.add(FXWrapper.unwrap(fxEntryType().classLoader()));
+            classType.invokeMethod(FXWrapper.unwrap(uiThread()), forName, args, 0);
+        } catch (RuntimeException exp) {
+            throw exp;
+        } catch (Exception exp) {
+            // exp.printStackTrace();
+            throw new RuntimeException(exp);
+        }
     }
 }
