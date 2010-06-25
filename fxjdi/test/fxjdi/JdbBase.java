@@ -93,7 +93,32 @@ public class JdbBase extends Debugger {
         }
         return false;
     }
-    
+/**
+ * This method checks if the given set of strings appear in the output, in the
+ * same given order . If the order is broken then it is deemed not contained. So
+ * this method is not similar to Collection.containsAll which doesn't care for order.
+ * @param expected
+ * @return
+ */
+    public boolean containsInTandem(String[] expected) {
+        if (expected == null || expected.length == 0) {
+            return false;
+        }
+        List<String> tmp = getOutputAsList();
+        int i = 0;
+        for (String x : tmp) {
+            if (i == expected.length)
+                break;
+            if (x.contains(expected[i])) {
+                i++;
+                continue;
+            }
+        }
+        if (i == expected.length)
+            return true;
+        return false;
+    }
+
     public void fxrun() {
         fxrun((String[])null);
     }
