@@ -728,7 +728,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                         isValueType(ai.getRealType())  ? defaultValue(ai) :
                                                                          null;
 
-                    setDiagPos(simple ? ai.pos() : null);
+                    // We only want a breakpoint for simple initializers - if
+                    // we're just setting the default-value we're presumably
+                    // doing the real initialization else - i.e. applyDefaulst$.
+                    // Furthermore, setting a breakpoint in <clinit> can
+                    // cause problems when loading the class, and it has
+                    // marginal usefulness.
+                    setDiagPos(simple && ! ai.isStatic() ? ai.pos() : null);
+
                     addDefinition(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym), init));
                 }
             }
