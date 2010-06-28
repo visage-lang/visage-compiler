@@ -306,12 +306,14 @@ public class Debugger {
         class EventNotification {
             Event event;
             boolean disconnected = false;
+            boolean eventReceived = false;
         }
 
         final EventNotification en = new EventNotification();
         EventNotifierAdapter adapter = new EventNotifierAdapter() {
             @Override
             public void receivedEvent(Event event) {
+                en.eventReceived = true;
                 if (filter.match(event)) {
                     synchronized (en) {
                         en.event = event;
@@ -330,13 +332,14 @@ public class Debugger {
             @Override
             public void vmInterrupted() {
                 synchronized (en) {
-                    if (en.event == null) {
+                    if (en.eventReceived && en.event == null) {
                         env.invalidateAllThreadInfo();
                         // VM suspended, but we don't have the event that is
                         // expected -- resume the VM and keep waiting for it.
                         vm().resume();
                     }
                 }
+                en.eventReceived = false;
             }
 
         };
