@@ -1233,7 +1233,8 @@ public abstract class JavafxTranslationSupport {
             boolean  setBitsNull = setBits == null;
             if (clearBitsNull) clearBits = Int(0);
             if (setBitsNull) setBits = Int(0);
-            
+
+            clearDiagPos();
             if (action == defs.varFlagActionTest) {
                 return EQ(BITAND(GetFlags(varSym), clearBits), setBits);
             } else if (isMixinClass() && !varSym.isStatic()) {
@@ -1946,20 +1947,25 @@ public abstract class JavafxTranslationSupport {
          * Invalidation support
          */
 
+        private JCStatement CallInvalidate(Symbol sym, Name flag) {
+            clearDiagPos();
+            return CallStmt(attributeInvalidateName(sym), id(flag));
+        }
+
         JCStatement CallInvalidate(Symbol sym) {
-            return CallStmt(attributeInvalidateName(sym), id(defs.phaseTransitionCASCADE_INVALIDATE));
+            return CallInvalidate(sym, defs.phaseTransitionCASCADE_INVALIDATE);
         }
 
         JCStatement CallTrigger(Symbol sym) {
-            return CallStmt(attributeInvalidateName(sym), id(defs.phaseTransitionCASCADE_TRIGGER));
+            return CallInvalidate(sym, defs.phaseTransitionCASCADE_TRIGGER);
         }
 
         JCStatement CallBeInvalidate(Symbol sym) {
-            return CallStmt(attributeInvalidateName(sym), id(defs.phaseTransitionBE_INVALIDATE));
+            return CallInvalidate(sym, defs.phaseTransitionBE_INVALIDATE);
         }
 
         JCStatement CallBeTrigger(Symbol sym) {
-            return CallStmt(attributeInvalidateName(sym), id(defs.phaseTransitionBE_TRIGGER));
+            return CallInvalidate(sym, defs.phaseTransitionBE_TRIGGER);
         }
 
         /**
@@ -1971,10 +1977,12 @@ public abstract class JavafxTranslationSupport {
         }
 
         JCStatement CallSeqInvalidate(Symbol sym, JCExpression begin, JCExpression end, JCExpression newLen) {
+            clearDiagPos();
             return CallStmt(attributeInvalidateName(sym), begin, end, newLen, id(defs.phaseTransitionCASCADE_INVALIDATE));
         }
 
         JCStatement CallSeqTrigger(Symbol sym, JCExpression begin, JCExpression end, JCExpression newLen) {
+            clearDiagPos();
             return CallStmt(attributeInvalidateName(sym), begin, end, newLen, id(defs.phaseTransitionCASCADE_TRIGGER));
         }
 

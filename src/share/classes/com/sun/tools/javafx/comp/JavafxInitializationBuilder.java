@@ -2019,8 +2019,8 @@ however this is what we need */
 
                 @Override
                 public void statements() {
+                    clearDiagPos();
                     if (varInfo.isBareSynth()) {
-                        clearDiagPos();
                         // short varFlags$ = VFLG$var;
                         addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
                         
@@ -2037,7 +2037,7 @@ however this is what we need */
                                     defaultValue(varInfo));
                         }
                         addStmt(
-                            TryWithErrorHandler(varInfo.hasSafeInitializer(),
+                            TryWithErrorHandler(varInfo,
                                 varInfo.boundPreface(),
                                 Return(returnVal),
                                 Return(defaultValue(varInfo))));
@@ -2084,7 +2084,6 @@ however this is what we need */
                                           endBlock(),
                                           null));
                         } else if (varInfo.hasBoundDefinition()) {
-                            setDiagPos(varInfo.pos());
                             // Prepare to accumulate body of if.
                             beginBlock();
 
@@ -2146,7 +2145,7 @@ however this is what we need */
                                 addStmt(Var(0, type, defs.varNewValue_ArgName, null));
 
                                 addStmt(
-                                    TryWithErrorHandler(varInfo.hasSafeInitializer(),
+                                    TryWithErrorHandler(varInfo,
                                         varInfo.boundPreface(),
                                         Stmt(m().Assign(id(defs.varNewValue_ArgName), initValue)),
                                     /*on exception*/
@@ -2240,7 +2239,8 @@ however this is what we need */
                 }
 
                 // generates try {preface, action} catch(RuntimeException re) { ErrorHandler.bindException(re); <onCatchStat> }
-                JCStatement TryWithErrorHandler(boolean isSafe, List<JCStatement> preface, JCStatement action, JCStatement onCatchStat) {
+                JCStatement TryWithErrorHandler(VarInfo varInfo, List<JCStatement> preface, JCStatement action, JCStatement onCatchStat) {
+                    boolean isSafe = varInfo.hasSafeInitializer();
                     if (isSafe) {
                         // No exceptions can be thrown, just in-line it
                         return
@@ -2253,18 +2253,19 @@ however this is what we need */
                     JCVariableDecl tmpVar = TmpVar(syms.runtimeExceptionType, null);
                     JCStatement callErrorHandler = CallStmt(defs.ErrorHandler_bindException, id(tmpVar));
 
+                    // The Javac backend expects a line-number of the catch-clause;
+                    // otherwise it sometimes emits "line 0".
+                    // But we need and want no line-number on the other boiler-plate.
+                    clearDiagPos();
+                    JCBlock cblock = Block(callErrorHandler, onCatchStat);
+                    setDiagPos(varInfo);
+                    JCCatch tcatch  = m().Catch(tmpVar, cblock);
+                    clearDiagPos();
                     return
                         Try(
-                            Block(
-                                preface,
-                                action
-                            ),
-                        m().Catch(tmpVar,
-                            Block(
-                                callErrorHandler,
-                                onCatchStat
-                            )
-                        ));
+                            Block(preface, action),
+                            tcatch
+                        );
                 }
             };
 
