@@ -1700,6 +1700,7 @@ public abstract class JavafxAbstractTranslation
             if (value == null || value.type == syms.voidType) {
                 // the block has no value: translate as simple statement and add a null return
                 block = translateToBlock(bexpr, syms.voidType);
+                clearDiagPos();
                 block.stats = block.stats.append(Return(Null()));
             } else {
                 // block has a value, return it

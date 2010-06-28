@@ -588,7 +588,7 @@ public class JavafxScriptClassBuilder {
     private JFXFunctionDefinition makeInternalRunFunction(JFXScript module, Name argName, JFXFunctionDefinition userRunFunction, List<JFXExpression> stats, JFXExpression value) {
 
         JFXBlock existingBody = null;
-        JFXBlock body = fxmake.Block(module.getStartPosition(), stats, value);
+        JFXBlock body = fxmake.at(null).Block(module.getStartPosition(), stats, value);
         int sPos = module.getStartPosition();
 
         // First assume that this is synthetic
