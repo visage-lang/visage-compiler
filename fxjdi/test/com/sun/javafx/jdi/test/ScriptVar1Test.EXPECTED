@@ -1,0 +1,11 @@
+topClass 1 = javafx.lang.Builtins, null
+topClass 1 = com.sun.javafx.jdi.test.target.ScriptVar1Target, com.sun.javafx.jdi.test.target.ScriptVar1Target
+topClass 1 = com.sun.javafx.jdi.test.target.ScriptVar1Target, com.sun.javafx.jdi.test.target.ScriptVar1Target
+topClass 1 = com.sun.javafx.jdi.test.target.ScriptVar1Target$ScriptVar1Target$Script, com.sun.javafx.jdi.test.target.ScriptVar1Target
+topClass 1 = com.sun.javafx.jdi.test.target.ScriptVar1Target, com.sun.javafx.jdi.test.target.ScriptVar1Target
+topClass 1 = sun.reflect.NativeMethodAccessorImpl, null
+topClass 1 = sun.reflect.NativeMethodAccessorImpl, null
+topClass 1 = sun.reflect.DelegatingMethodAccessorImpl, null
+topClass 1 = java.lang.reflect.Method, null
+topClass 1 = com.sun.javafx.runtime.Entry$NoRuntimeDefault, null
+topClass 2 = com.sun.javafx.jdi.test.target.ScriptVar1Target$1ScriptVar1Target$ObjLit$2, com.sun.javafx.jdi.test.target.ScriptVar1Target

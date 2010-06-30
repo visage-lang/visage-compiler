@@ -259,6 +259,51 @@ public class FXReferenceType extends FXType implements ReferenceType {
         return false;
     }
 
+    private boolean isTopClassSet = false;
+    private FXClassType topClass = null;
+    /**
+     * JDI Addition: Returns the script class for this ReferenceType if there is one, else null.
+     * If 'this' IS the script class, return 'this'.
+     */
+    public FXClassType scriptClass() {
+        if (isTopClassSet) {
+            return topClass;
+        }
+
+        isTopClassSet = true;
+        if (!isJavaFXType()) {
+            return null;
+        }
+        if (!(this instanceof FXClassType)) {
+            return null;
+        }
+
+        // Get the name of the top class.  First choice is the filename.  2nd choice
+        // is the part of this name before the first $.
+        String topClassName ;
+        String thisName = name();
+        int firstDollar = thisName.indexOf('$');
+        if (firstDollar == -1) {
+            topClass = (FXClassType)this;
+            return topClass;
+        }
+        topClassName = thisName.substring(0, firstDollar);
+
+        List<ReferenceType> xx = virtualMachine().classesByName(topClassName);
+        if (xx.size() != 1) {
+            //  shouldn't happen
+            return null;
+        }
+
+        if (!(xx.get(0) instanceof FXClassType)) {
+            // shouldn't happen
+            return null;
+        }
+        
+        topClass = (FXClassType)xx.get(0);
+        return topClass;
+    }
+
     /**
      * JDI extension:  This will call the getter if one exists.  If an invokeMethod Exception occurs, 
      * it is saved in FXVirtualMachine and the default value is returned for a PrimitiveType, or null 
