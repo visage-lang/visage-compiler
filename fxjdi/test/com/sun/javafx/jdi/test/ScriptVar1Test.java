@@ -63,7 +63,9 @@ public class ScriptVar1Test extends JavafxTestBase {
     void printTop(StackFrame frame, int count) {
         ReferenceType rt = frame.location().declaringType();
         ClassType topClass = ((FXReferenceType)rt).scriptClass();
-        writeActual("topClass " + count + " = " + rt.name() + ", " + 
+        // The ObjLit class has an inconsistend suffixe, eg sometimes $ObjLit$4 and sometimes $ObjLit$1
+        //        writeActual("userClass " + count + " = " + rt.name() + ", " + 
+        writeActual("userClass " + count + " = " + "<tbd>" + ", " + 
                            (topClass == null? null: topClass.name()));
     }
 
