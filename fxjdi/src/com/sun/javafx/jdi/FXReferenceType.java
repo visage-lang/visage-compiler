@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -257,6 +258,55 @@ public class FXReferenceType extends FXType implements ReferenceType {
      */
     public boolean isJavaFXType() {
         return false;
+    }
+
+    // Each internal class name is the name of its containing class followed by $digit.
+    // (Except for the $Script class)
+    private Pattern fxPat1 = Pattern.compile("\\$[0-9].*");
+    private boolean isUserClassSet = false;
+    private FXClassType userClass = null;
+
+    /**
+     * JDI Addition:  If this class is a JavaFX internal class, return the JavaFX user class
+     * that contains it, else null.
+     */
+    public FXClassType javaFXUserClass() {
+        if (isUserClassSet) {
+            return userClass;
+        }
+
+        isUserClassSet = true;
+        if (!isJavaFXType()) {
+            return null;
+        }
+        
+        String className = name();
+        int firstDollar = className.indexOf('$');
+        if (firstDollar == -1) {
+            return null;
+        }
+
+        String[] hit = fxPat1.split(className, 0);
+        if (hit.length != 1) {
+            return null;
+        }
+        if (!hit[0].equals(className)) {
+            List<ReferenceType> userClasses = virtualMachine().classesByName(hit[0]);
+            if (userClasses.size() != 1) {
+                // can't happen
+                return null;
+            }
+            userClass = (FXClassType)userClasses.get(0);
+            return userClass;
+        }
+
+        if (className.indexOf("$Script") == -1) {
+            return null;
+        }
+        
+        // This is a $Script class, so we want the scriptClass
+        userClass = scriptClass();
+        return userClass;
     }
 
     private boolean isTopClassSet = false;
