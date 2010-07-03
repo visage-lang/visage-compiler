@@ -73,13 +73,13 @@ public class BasicInheritenceTest extends JdbBase {
             list();
 
             resumeToBreakpoint();
-            Assert.assertTrue(lastContains(SUB_CONTENT));
+            Assert.assertTrue(contains(SUB_CONTENT));
             list();
             resumeToBreakpoint();
             list();
 
             resumeToBreakpoint();
-            Assert.assertTrue(lastContains(SOOPER_CONTENT));
+            Assert.assertTrue(contains(SOOPER_CONTENT));
             list();
             resumeToBreakpoint();
             list();

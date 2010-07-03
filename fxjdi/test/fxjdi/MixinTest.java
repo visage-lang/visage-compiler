@@ -96,11 +96,11 @@ public class MixinTest extends JdbBase {
             list();
 
             resumeToBreakpoint();
-            Assert.assertTrue(lastContains(B_FOO));
+            Assert.assertTrue(contains(B_FOO));
             list();
 
             resumeToBreakpoint();
-            Assert.assertTrue(lastContains(M_FOO));
+            Assert.assertTrue(contains(M_FOO));
             list();
 
             resumeToVMDeath();
