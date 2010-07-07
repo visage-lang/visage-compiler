@@ -23,6 +23,7 @@
 
 package com.sun.javafx.jdi;
 
+import com.sun.javafx.jdi.event.FXEventQueue;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.ClassObjectReference;
@@ -373,7 +374,9 @@ public class FXReferenceType extends FXType implements ReferenceType {
             return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
         }
         Exception theExc = null;
+        FXEventQueue eq = virtualMachine().eventQueue();
         try {
+            eq.setEventControl(true);
             return ((FXClassType)this).invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), ClassType.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
@@ -383,6 +386,8 @@ public class FXReferenceType extends FXType implements ReferenceType {
             theExc = ee;
         } catch(InvocationException ee) {
             theExc = ee;
+        } finally {
+            eq.setEventControl(false);
         }
         // We don't have to catch IllegalArgumentException.  It is an unchecked exception for invokeMethod
         // and for getValue

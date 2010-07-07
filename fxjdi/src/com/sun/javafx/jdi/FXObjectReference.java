@@ -23,6 +23,7 @@
 
 package com.sun.javafx.jdi;
 
+import com.sun.javafx.jdi.event.FXEventQueue;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
 import com.sun.jdi.IncompatibleThreadStateException;
@@ -128,7 +129,9 @@ public class FXObjectReference extends FXValue implements ObjectReference {
             return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
         }
         Exception theExc = null;
+        FXEventQueue eq = virtualMachine().eventQueue();
         try {
+            eq.setEventControl(true);
             return invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), ObjectReference.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
@@ -138,6 +141,8 @@ public class FXObjectReference extends FXValue implements ObjectReference {
             theExc = ee;
         } catch(InvocationException ee) {
             theExc = ee;
+        } finally {
+            eq.setEventControl(false);
         }
         // We don't have to catch IllegalArgumentException.  It is an unchecked exception for invokeMethod
         // and for getValue
@@ -260,7 +265,9 @@ public class FXObjectReference extends FXValue implements ObjectReference {
         ArrayList<Value> args = new ArrayList<Value>(1);
         args.add(jdiValue);
         Exception theExc = null;
+        FXEventQueue eq = virtualMachine().eventQueue();
         try {
+            eq.setEventControl(true);
             invokeMethod(virtualMachine().uiThread(), mth.get(0), args, ObjectReference.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
@@ -270,6 +277,8 @@ public class FXObjectReference extends FXValue implements ObjectReference {
             theExc = ee;
         } catch(InvocationException ee) {
             theExc = ee;
+        } finally {
+            eq.setEventControl(false);
         }
         // We don't have to catch IllegalArgumentException.  It is an unchecked exception for invokeMethod
         // and for getValue

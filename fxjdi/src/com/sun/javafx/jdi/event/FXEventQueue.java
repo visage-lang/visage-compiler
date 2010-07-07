@@ -27,22 +27,145 @@ import com.sun.javafx.jdi.FXMirror;
 import com.sun.javafx.jdi.FXVirtualMachine;
 import com.sun.jdi.event.EventQueue;
 import com.sun.jdi.event.EventSet;
+import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
  * @author sundar
  */
 public class FXEventQueue extends FXMirror implements EventQueue {
+
+    // Note that this class is not used for the internal EventQueue - 
+    // that is not exposed in the FX-JDI layer
+
+
+    // In normal operation, events are not controlled, ie, they are delivered
+    // to the caller in normal JDI fashion. 
+    // However, in some cases, NetBeans needs events to be 'controlled'.  In these
+    // cases, some events are passed thru in normal fashion and the remaining events are
+    // skipped - their eventSets are just resumed without reporting to the clent.
+
+    // This flag determines if event control is in effect or not.
+    private volatile boolean eventControl = false;
+
+    // This flag determines if the calls to change eventControl should be ignored or not.
+    // The idea is that these calls are in FX-JDI, but by default they are disabled, thus
+    // there is no event control.  The debugger can set this flag to true to allow the
+    // calls in FX-JDI to turn event control on / off.
+    private volatile boolean allowEventControl = false;
+
+    // If allowEventControl is true, this is the list of Events to pass.  EventSets containing
+    // other events are just resumed and discarded.
+    private List<Class> eventsToBePassed = new ArrayList<Class>();
+    
+    // Filter for EventSets that should be passed thru in controlled mode.
+    private boolean shouldPassEventSet(FXEventSet eventSet) {
+        if (eventsToBePassed == null) {
+            return true;
+        }
+        FXEvent newEvt = eventSet.eventIterator().next();
+        for (Class evtClass: eventsToBePassed) {
+            if (evtClass.isInstance(newEvt)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // This is called by FXJDI methods; it isn't really intended to be
+    // called by the debugger.  true means events are 'controlled'.
+    // false means events are passed thru in the normal JDI fashion.
+    public void setEventControl(boolean value) {
+        if (allowEventControl) {
+            eventControl = value;
+        }
+    }
+
+    // This can be called by the debugger to disable
+    // the setEventControl calls in fxjdi.  EG, if the debugger
+    // does not want events to be 'controlled' during the execution
+    // of internal invokeMethod calls, it can pass false to this.
+    public void setAllowEventControl(boolean value) {
+        allowEventControl = value;
+        if (!allowEventControl) {
+            eventControl = false;
+        }
+    }
+
+    /**
+     * JDI Addition:  Specify Events to be passed through while event control is enabled.
+     * If passThese is null, then all events are passed.  
+     * By default, these events are passed through when event control is enabled:
+     *    ClassPrepareEvent, VMDeathEvent, VMDisconnectEvent, VMStartEvent
+     *
+     * BreakPointEvent, StepEvent, MethodEntryEvent are all handled the same, E.G.
+     * if any of these is on the passThese list, then all three are passed.
+     */
+    public void setEventsToBePassed(List<Class> passThese) {
+        if (passThese == null) {
+            eventsToBePassed = null;
+            return;
+        }
+        List<Class> newList = new ArrayList<Class>(passThese.size() + 2);
+        boolean tripleSeen = false;
+        for (Class evtClass: passThese) {
+            if (evtClass.isInstance(FXBreakpointEvent.class) ||
+                evtClass.isInstance(FXStepEvent.class) ||
+                evtClass.isInstance(FXMethodEntryEvent.class)) {
+                if (!tripleSeen) {
+                    newList.add(FXBreakpointEvent.class);
+                    newList.add(FXStepEvent.class);
+                    newList.add(FXMethodEntryEvent.class);
+                    tripleSeen = true;
+                }
+            } else {
+                newList.add(evtClass);
+            }
+        }
+        eventsToBePassed = Collections.unmodifiableList(newList);
+    }
+
+    /**
+     * JDI Addition: Return a list of events that will be passed to the client while event 
+     * control is enabled.
+     */
+    public List<Class> getEventsToBePassed() {
+        return eventsToBePassed;
+    }
+
     public FXEventQueue(FXVirtualMachine fxvm, EventQueue underlying) {
         super(fxvm, underlying);
+        
+        eventsToBePassed.add(FXClassPrepareEvent.class);
+        eventsToBePassed.add(FXVMDeathEvent.class);
+        eventsToBePassed.add(FXVMDisconnectEvent.class);
+        eventsToBePassed.add(FXVMStartEvent.class);
     }
 
     public FXEventSet remove() throws InterruptedException {
-        return FXEventSet.wrap(virtualMachine(), underlying().remove());
+        return remove(0);
     }
 
-    public EventSet remove(long arg0) throws InterruptedException {
-        return FXEventSet.wrap(virtualMachine(), underlying().remove(arg0));
+    public FXEventSet remove(long arg0) throws InterruptedException {
+        FXEventSet eventSet;
+        while(true) {
+            // we are normally waiting under here when eventControl changes
+            eventSet = FXEventSet.wrap(virtualMachine(), underlying().remove(arg0));
+            if (!eventControl) {
+                // eventSet will be null if it timed out.
+                return eventSet;
+            }
+            if (eventSet == null) {
+                // timed out, and eventControl is true
+                return null;
+            }
+            if (shouldPassEventSet(eventSet)) {
+                return eventSet;
+            }
+            eventSet.resume();
+        }
     }
 
     @Override

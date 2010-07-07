@@ -23,6 +23,7 @@
 
 package com.sun.javafx.jdi;
 
+import com.sun.javafx.jdi.event.FXEventQueue;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
@@ -116,7 +117,9 @@ public class FXClassType extends FXReferenceType implements ClassType {
         ArrayList<Value> args = new ArrayList<Value>(1);
         args.add(jdiValue);
         Exception theExc = null;
+        FXEventQueue eq = virtualMachine().eventQueue();
         try {
+            eq.setEventControl(true);
             invokeMethod(virtualMachine().uiThread(), mth.get(0), args, ClassType.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
@@ -126,6 +129,8 @@ public class FXClassType extends FXReferenceType implements ClassType {
             theExc = ee;
         } catch(InvocationException ee) {
             theExc = ee;
+        } finally {
+            eq.setEventControl(false);
         }
         // We don't have to catch IllegalArgumentException.  It is an unchecked exception for invokeMethod
         // and for getValue
