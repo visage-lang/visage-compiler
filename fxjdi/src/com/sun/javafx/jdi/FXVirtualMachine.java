@@ -435,9 +435,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     public synchronized FXSequencesType fxSequencesType() {
         if (fxSequencesType == null) {
             // ensure that the debuggee has loaded and initialized Sequences type
-            initSequencesType();
-            List<ReferenceType> refTypes = classesByName(FX_SEQUENCES_TYPE_NAME);
-            fxSequencesType = refTypes.isEmpty() ? null : (FXSequencesType) refTypes.get(0);
+            fxSequencesType = new FXSequencesType(this, initSequencesType());
         }
         return fxSequencesType;
     }
@@ -547,7 +545,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
             if (! refTypesCache.containsKey(ct)) {
                 String name = ct.name();
                 if (name.equals(FX_SEQUENCES_TYPE_NAME)) {
-                    refTypesCache.put(ct, new FXSequencesType(this, ct));
+                    refTypesCache.put(ct, fxSequencesType());
                 } else {
                     refTypesCache.put(ct, new FXClassType(this, ct));
                 }
@@ -752,7 +750,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     // ensure that the debuggee VM has loaded and initialized Sequences type
-    private synchronized void initSequencesType() {
+    private synchronized ClassType initSequencesType() {
         VirtualMachine vm = underlying();
         ClassType classType = (ClassType) vm.classesByName("java.lang.Class").get(0);
         Method forName = classType.concreteMethodByName("forName",
@@ -764,7 +762,10 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
             args.add(vm.mirrorOf(FX_SEQUENCES_TYPE_NAME));
             args.add(vm.mirrorOf(true));
             args.add(FXWrapper.unwrap(fxEntryType().classLoader()));
-            classType.invokeMethod(FXWrapper.unwrap(uiThread()), forName, args, 0);
+            ClassObjectReference retVal = (ClassObjectReference)classType.invokeMethod(
+                                                 FXWrapper.unwrap(uiThread()), forName, args, 0);
+            // retVal must be a ClassObjectReference for the Sequences class
+            return (ClassType)retVal.reflectedType();
         } catch (RuntimeException exp) {
             throw exp;
         } catch (Exception exp) {
