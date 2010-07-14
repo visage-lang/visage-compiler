@@ -434,8 +434,13 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     private FXSequencesType fxSequencesType;
     public synchronized FXSequencesType fxSequencesType() {
         if (fxSequencesType == null) {
-            // ensure that the debuggee has loaded and initialized Sequences type
-            fxSequencesType = new FXSequencesType(this, initSequencesType());
+            List<ReferenceType> refTypes = classesByName(FX_SEQUENCES_TYPE_NAME);
+            if (refTypes.isEmpty()) {
+                // ensure that the debuggee has loaded and initialized Sequences type
+                fxSequencesType = (FXSequencesType) classType(initSequencesType());
+            } else {
+                fxSequencesType = (FXSequencesType) refTypes.get(0);
+            }
         }
         return fxSequencesType;
     }
@@ -545,7 +550,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
             if (! refTypesCache.containsKey(ct)) {
                 String name = ct.name();
                 if (name.equals(FX_SEQUENCES_TYPE_NAME)) {
-                    refTypesCache.put(ct, fxSequencesType());
+                    refTypesCache.put(ct, new FXSequencesType(this, ct));
                 } else {
                     refTypesCache.put(ct, new FXClassType(this, ct));
                 }
