@@ -33,6 +33,7 @@ import com.sun.jdi.Method;
  */
 public class FXSequencesType extends FXClassType {
     // Sequences class methods
+
     private Method setBooleanElementMethod;
     private Method setCharElementMethod;
     private Method setByteElementMethod;
@@ -42,7 +43,6 @@ public class FXSequencesType extends FXClassType {
     private Method setFloatElementMethod;
     private Method setDoubleElementMethod;
     private Method setObjectElementMethod;
-
     private static final String SET = "set";
     private static final String SIGNATURE_PREFIX = "(Lcom/sun/javafx/runtime/sequence/Sequence;";
     private static final String SIGNATURE_SUFFIX = "I)Lcom/sun/javafx/runtime/sequence/Sequence;";
@@ -53,62 +53,76 @@ public class FXSequencesType extends FXClassType {
 
     public FXSequencesType(FXVirtualMachine fxvm, ClassType underlying) {
         super(fxvm, underlying);
-        if (! underlying.name().equals(FXVirtualMachine.FX_SEQUENCES_TYPE_NAME)) {
+        if (!underlying.name().equals(FXVirtualMachine.FX_SEQUENCES_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }
-        setBooleanElementMethod = concreteMethodByName(SET,
-                setElementSignature("Z"));
-        setCharElementMethod = concreteMethodByName(SET,
-                setElementSignature("C"));
-        setByteElementMethod = concreteMethodByName(SET,
-                setElementSignature("B"));
-        setShortElementMethod = concreteMethodByName(SET,
-                setElementSignature("S"));
-        setIntElementMethod = concreteMethodByName(SET,
-                setElementSignature("I"));
-        setLongElementMethod = concreteMethodByName(SET,
-                setElementSignature("J"));
-        setFloatElementMethod = concreteMethodByName(SET,
-                setElementSignature("F"));
-        setDoubleElementMethod = concreteMethodByName(SET,
-                setElementSignature("D"));
-        setObjectElementMethod = concreteMethodByName(SET,
-                setElementSignature("Ljava/lang/Object;"));
+    }
+
+    private void init() {
+        if (setBooleanElementMethod == null) {
+            setBooleanElementMethod = concreteMethodByName(SET,
+                    setElementSignature("Z"));
+            setCharElementMethod = concreteMethodByName(SET,
+                    setElementSignature("C"));
+            setByteElementMethod = concreteMethodByName(SET,
+                    setElementSignature("B"));
+            setShortElementMethod = concreteMethodByName(SET,
+                    setElementSignature("S"));
+            setIntElementMethod = concreteMethodByName(SET,
+                    setElementSignature("I"));
+            setLongElementMethod = concreteMethodByName(SET,
+                    setElementSignature("J"));
+            setFloatElementMethod = concreteMethodByName(SET,
+                    setElementSignature("F"));
+            setDoubleElementMethod = concreteMethodByName(SET,
+                    setElementSignature("D"));
+            setObjectElementMethod = concreteMethodByName(SET,
+                    setElementSignature("Ljava/lang/Object;"));
+        }
     }
 
     protected Method setBooleanElementMethod() {
+        init();
         return setBooleanElementMethod;
     }
 
     protected Method setCharElementMethod() {
+        init();
         return setCharElementMethod;
     }
-    
+
     protected Method setByteElementMethod() {
+        init();
         return setByteElementMethod;
     }
 
     protected Method setShortElementMethod() {
+        init();
         return setShortElementMethod;
     }
 
     protected Method setIntElementMethod() {
+        init();
         return setIntElementMethod;
     }
 
     protected Method setLongElementMethod() {
+        init();
         return setLongElementMethod;
     }
 
     protected Method setFloatElementMethod() {
+        init();
         return setFloatElementMethod;
     }
 
     protected Method setDoubleElementMethod() {
+        init();
         return setDoubleElementMethod;
     }
 
     protected Method setObjectElementMethod() {
+        init();
         return setObjectElementMethod;
     }
 }
