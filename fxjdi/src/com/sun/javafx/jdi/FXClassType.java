@@ -84,10 +84,13 @@ public class FXClassType extends FXReferenceType implements ClassType {
          return FXWrapper.wrap(virtualMachine(), result);
     }
 
-
     /**
-     * JDI extension:  This will call the setter if one exists.  If an invokeMethod Exception occurs, 
-     * it is saved in FXVirtualMachine.
+     * JDI extension:  This will call the set function if one exists via invokeMethod.
+     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)} passing true
+     * and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     *
+     * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
+     * {@link FXVirtualMachine#lastFieldAccessException()}.
      */
     public void setValue(Field field, Value value) throws 
         InvalidTypeException, ClassNotLoadedException {
@@ -152,7 +155,9 @@ public class FXClassType extends FXReferenceType implements ClassType {
     }
 
     /**
-     * JDI Addition:  Returns true if this is a JavaFX Type, false otherwise
+     * JDI addition: Determines if this is a JavaFX class.
+     *
+     * @return <code>true</code> if this is a JavaFX class; false otherwise.
      */
     @Override
     public boolean isJavaFXType() {

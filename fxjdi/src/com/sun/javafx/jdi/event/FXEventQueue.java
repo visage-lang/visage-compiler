@@ -32,6 +32,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
+ * This wrapper class allows the client to control which events are suppressed and which are passed to the client while
+ * an internal invokeMethod is in progress.  Internal invokeMethods are used by get/setValue(s) methods in FXReferenceType, 
+ * FXClassType, and FXObjectReference if the field involved has a getter/setter.
  *
  * @author sundar
  */
@@ -74,9 +77,15 @@ public class FXEventQueue extends FXMirror implements EventQueue {
         return false;
     }
 
-    // This is called by FXJDI methods; it isn't really intended to be
-    // called by the debugger.  true means events are 'controlled'.
-    // false means events are passed thru in the normal JDI fashion.
+
+    /**
+     * JDI addition:  This isn't intended to be called by a client.  This is
+     * called with a value of true before internal calls to invokeMethod and 
+     * is called with a value of false after these calls.  This causes some
+     * events to not be generated during these calls; see {@link #setEventsToBePassed(List)}.
+     * @param value true means to suppress selected events while false means to not
+     * suppress events.
+     */
     public void setEventControl(boolean value) {
         if (allowEventControl) {
             eventControl = value;
@@ -87,6 +96,13 @@ public class FXEventQueue extends FXMirror implements EventQueue {
     // the setEventControl calls in fxjdi.  EG, if the debugger
     // does not want events to be 'controlled' during the execution
     // of internal invokeMethod calls, it can pass false to this.
+    /**
+     * JDI addition: Allow/disallow event suppression via {@link #setEventControl(boolean)}.
+     * This can be called by the debugger to cause events to not be suppressed during
+     * internal invokeMethod calls caused by calls to get/setValue(s).
+     * @param value true means to to allow events to be supressed while false means
+     * to ignore calls to {@link #setEventControl(boolean)}
+     */
     public void setAllowEventControl(boolean value) {
         allowEventControl = value;
         if (!allowEventControl) {
@@ -102,6 +118,7 @@ public class FXEventQueue extends FXMirror implements EventQueue {
      *
      * BreakPointEvent, StepEvent, MethodEntryEvent are all handled the same, E.G.
      * if any of these is on the passThese list, then all three are passed.
+     * @param passThese the list of events to pass on to the client instead of suppressing.
      */
     public void setEventsToBePassed(List<Class> passThese) {
         if (passThese == null) {
@@ -130,6 +147,7 @@ public class FXEventQueue extends FXMirror implements EventQueue {
     /**
      * JDI Addition: Return a list of events that will be passed to the client while event 
      * control is enabled.
+     * @return a list of events that will be passed to the client while event control is enabled.
      */
     public List<Class> getEventsToBePassed() {
         return eventsToBePassed;

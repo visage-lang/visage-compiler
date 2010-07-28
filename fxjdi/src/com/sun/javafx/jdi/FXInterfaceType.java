@@ -52,11 +52,14 @@ public class FXInterfaceType extends FXReferenceType implements InterfaceType {
     protected InterfaceType underlying() {
         return (InterfaceType) super.underlying();
     }
-    /**
-     * JDI addition:  Returns true if this is a JavaFX Type, false otherwise
-     */
+
     private boolean isIsFxTypeSet = false;
-    private boolean isFXType = false;
+    private boolean isFXType = false; 
+    /**
+     * JDI addition: Determines if this is a JavaFX type.
+     *
+     * @return <code>true</code> if this is a JavaFX type; false otherwise.
+     */
     public boolean isJavaFXType() {
         if (!isIsFxTypeSet) {
             isIsFxTypeSet = true;

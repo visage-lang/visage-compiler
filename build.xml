@@ -833,12 +833,15 @@
         <echo message="Skipping build of fxjdi because JDK 5 or earlier is in use"/>
     </target>
 
-    <target name="-fxjdi-build" description="Build fxjdi.jar on JDK >= 6" unless="preJDK6">
+    <target name="-fxjdi-build" description="Build fxjdi.jar and javadoc on JDK >= 6" unless="preJDK6">
         <echo message="Building fxjdi"/>
-        <ant dir="fxjdi" antfile="build.xml" target="jar" inheritAll="false">
+        <ant dir="fxjdi" antfile="build.xml" target="dist"  inheritAll="false">
             <property name="build.defs" value="${build.defs}" />
         </ant>
         <copy file="fxjdi/dist/fxjdi.jar" tofile="${dist.fxjdi.jar}"/>
+        <copy todir="${basedir}/dist/doc/fxjdi/api">
+              <fileset dir="fxjdi/dist/javadoc/"/>
+        </copy>
     </target>
 
     <target name="launcher" description="Copy command wrappers to dist/bin directory.">

@@ -374,7 +374,10 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
 
     private FXThreadReference cacheUiThread = null;
     /**
-     * JDI addition:  Return the thread upon which invokeMethods are performed to get/set fields
+     * JDI addition: Return the thread upon which invokeMethods are performed to get/set fields
+     *
+     * @return the thread upon which invokeMethods are performed by FX-JDI to get/set fields 
+     * that have getters/setters
      */
     public FXThreadReference uiThread() {
         if (cacheUiThread == null) {
@@ -680,7 +683,10 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     /**
      * JDI addition: Return the exception thrown by an invokeMethod call that was 
      * performed in the most recent setValue, getValue, or getValues method call.
-     * Return null if no such exception was thrown.
+     * 
+     * @return the exception thrown by an invokeMethod call that was
+     * performed in the most recent setValue, getValue, or getValues method call, or
+     * null if no such exception was thrown.
      */
     public Exception lastFieldAccessException() {
         return lastFieldAccessException;

@@ -44,13 +44,19 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 /**
- * A simple factory to create FX-JDI conns (similar to platform provided
- * com.sun.jdi.Bootstrap - except that the default is changed here).
+ * This is the FX-JDI wrapper class that implements the com.sun.jdi.Bootstrap interface.
  * 
  * @author sundar
  */
 public class FXBootstrap {
 
+    /**
+     * Get a VirtualMachineManager whose default launching connector is an instance of
+     * com.sun.javafx.jdi.connect.FXLaunchingConnector.  This VirtualMachineManager will be aware
+     * of all the connectors in FX-JDI as well as the connectors in the normal JDI implementation.
+     *
+     * @return a VirtualMachineManager
+     */
     public static VirtualMachineManager virtualMachineManager() {
         return FXVirtualMachineManager.virtualMachineManager();
     }

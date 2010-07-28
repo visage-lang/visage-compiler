@@ -48,14 +48,18 @@ import java.util.List;
 
 
 /**
- * Represents a FX sequence (instanceof com.sun.javafx.runtime.sequence.Sequence).
- * For now, class provides ArrayReference-like interface for Sequences - in future
- * we'll add more operations like sequence insert/delete/slice etc.
+ * Represents an FX sequence (instanceof com.sun.javafx.runtime.sequence.Sequence).
+ * For now, this class provides an ArrayReference-like interface for Sequences - in the future
+ * we'll add more operations such as sequence insert/delete/slice etc.
  *
  * @author sundar
  */
 public class FXSequenceReference extends FXObjectReference {
+    
     // keep this in sync. with com.sun.javafx.runtime.TypeInfo.Types enum.
+    /**
+     * The possible types of a sequence element
+     */
     public enum Types { INT, FLOAT, OBJECT, DOUBLE, BOOLEAN, LONG, SHORT, BYTE, CHAR, OTHER }
 
     // element type of this sequence
@@ -65,6 +69,11 @@ public class FXSequenceReference extends FXObjectReference {
         super(fxvm, underlying);
     }
 
+    /**
+     * Returns the element type of this sequence.
+     *
+     * @return the type of this sequences's elements
+     */
     public Types getElementType() {
         if (elementType == null) {
             Method getElementTypeMethod = virtualMachine().fxSequenceType().getElementTypeMethod();
@@ -88,6 +97,11 @@ public class FXSequenceReference extends FXObjectReference {
         return elementType;
     }
 
+    /**
+     * Returns the number of elements in this sequence
+     *
+     * @return the integer count of elements in this sequence.
+     */
     public int size() {
         Method sizeMethod = virtualMachine().fxSequenceType().sizeMethod();
         Exception theExc = null;
@@ -107,11 +121,28 @@ public class FXSequenceReference extends FXObjectReference {
         return 0;
     }
 
-    // synonym for size
+    /**
+     * Returns the number of elements in this sequence.
+     * (This is a synonym for size().)
+     *
+     * @return the integer count of elements in this sequence.
+     */
     public int length() {
         return size();
     }
 
+    /**
+     * Returns the value of a sequence element.
+     *
+     * @param index the index of the element to retrieve
+     * @return the {@link Value} at the given index, or the default value for
+     * the sequence's element type 
+     * if <CODE><I>index</I></CODE> is outside the range of this sequence,
+     * that is, if either of the following are true:
+     * <PRE>
+     *    <I>index</I> &lt; 0
+     *    <I>index</I> &gt;= {@link #length() length()} </PRE>
+     */
     public Value getValue(int index) {
         Types type = getElementType();
         switch (type) {
@@ -140,6 +171,19 @@ public class FXSequenceReference extends FXObjectReference {
         }
     }
 
+    /**
+     * Returns a range of sequence elements.
+     *
+     * @param index the index of the first element to retrieve
+     * @param length the number of elements to retrieve, or -1 to
+     * retrieve all elements to the end of this sequence.
+     * @return a list of {@link Value} objects, one for each requested
+     * sequence element ordered by array index.  When there are
+     * no elements in the specified range (e.g.
+     * <CODE><I>length</I></CODE> is zero) an empty list is returned
+     * Returns the default value for the sequence's element type for indicies in the
+     * specified range that are outside the range of the sequence.
+     */
     public List<Value> getValues(int index, int length) {
         List<Value> values = new ArrayList<Value>(length);
         for (int i = 0; i < length; i++) {
@@ -147,7 +191,26 @@ public class FXSequenceReference extends FXObjectReference {
         }
         return values;
     }
-
+    
+    /**
+     * Replace a sequence element with another value.
+     *
+     * Object values must be assignment compatible with the element type.
+     * (This implies that the component type must be loaded through the
+     * declaring class's class loader). Primitive values must be
+     * assignment compatible with the component type.
+     *
+     * @param value the new value
+     * @param index the index of the component to set.  If this is beyond the 
+     * end of the sequence, the new value is appended to the sequence.
+     *
+     * @throws InvalidTypeException if the type of <CODE><I>value</I></CODE>
+     * is not compatible with the declared type of sequence elements.
+     * @throws ClassNotLoadedException if the sequence element type
+     * has not yet been loaded through the appropriate class loader.
+     * @throws VMCannotBeModifiedException if the VirtualMachine is read-only - see {@link com.sun.jdi.VirtualMachine#canBeModified()}.
+     * @return a new sequence with the specified element replaced/added.
+     */
     public FXSequenceReference setValue(int index, Value value) {
         Types type = getElementType();
         switch (type) {
@@ -176,6 +239,16 @@ public class FXSequenceReference extends FXObjectReference {
         }
     }
 
+    /** 
+     * Return a sequence which is a copy of this sequence with the first {@link #length()} elements
+     * replaced by the elements in <CODE><I>values</I></CODE>
+     *
+     * @throws InvalidTypeException if the type of an element of <CODE><I>values</I></CODE>
+     * is not compatible with the declared type of sequence elements.
+     *
+     * @return a copy of this sequence with the first {@link #length()} elements replaced by the
+     * elements of <CODE><I>values</I></CODE>
+     */
     public FXSequenceReference setValues(List<? extends Value> values) {
         final int len = length();
         FXSequenceReference result = null;

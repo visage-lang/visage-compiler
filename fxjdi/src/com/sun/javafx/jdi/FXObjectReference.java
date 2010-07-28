@@ -89,30 +89,44 @@ public class FXObjectReference extends FXValue implements ObjectReference {
     }
 
     /**
-     * JDI addition:
+     * JDI addition: Determines if a field of this object can be modified.  For example,
+     * a field declared with a bind cannot be modified.
+     *
+     * @return <code>true</code> if the specified field is read only; false otherwise.
      */
     public boolean isReadOnly(Field field) {
         return areFlagBitsSet(field, virtualMachine().FXReadOnlyFlagMask());
     }
 
     /**
-     * JDI addition:
+     * JDI addition: Determines if the value of a field of this object is valid.  A value
+     * is invalid if a new value has been specified for the field, but not yet
+     * stored into the field, for example, because the field is lazily bound.
+     *
+     * @return <code>true</code> if the value of the specified field is invalid; false otherwise.
      */
     public boolean isInvalid(Field field) {
         return areFlagBitsSet(field, virtualMachine().FXInvalidFlagMask());
     }
 
     /**
-     * JDI addition:
+     * JDI addition: Determines if a field was declared with a bind clause.
+     *
+     * @return <code>true</code> if the specified field was declared with a bind clause; false otherwise.
      */
     public boolean isBound(Field field) {
         return areFlagBitsSet(field, virtualMachine().FXBoundFlagMask());
     }
 
     /**
-     * JDI extension:  This will call the getter if one exists.  If an invokeMethod Exception occurs, 
-     * it is saved in FXVirtualMachine and the default value is returned for a PrimitiveType, or null 
-     * is returned for a non PrimitiveType.
+     * JDI extension:  This will call the get function for the field if one exists via invokeMethod.
+     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)} passing true
+     * and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     *
+     * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
+     * {@link FXVirtualMachine#lastFieldAccessException()}. In this case,
+     * the default value for the type of the field is returned for a PrimitiveType,
+     * while null is returned for a non PrimitiveType.
      */
     public Value getValue(Field field) {
         virtualMachine().setLastFieldAccessException(null);
@@ -157,9 +171,14 @@ public class FXObjectReference extends FXValue implements ObjectReference {
     }
 
     /**
-     * JDI extension:  This will call a getter if one exists.  If an invokeMethod Exception occurs, 
-     * it is saved in FXVirtualMachine and the default value is returned for a PrimitiveType, or null
-     * is returned for a non PrimitiveType.
+     * JDI extension:  This will call the get function for a field if one exists via invokeMethod.
+     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)} passing true
+     * and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     *
+     * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
+     * {@link FXVirtualMachine#lastFieldAccessException()}. In this case,
+     * the default value for the type of the field is returned for a PrimitiveType,
+     * while null is returned for a non PrimitiveType.
      */
     public Map<Field, Value> getValues(List<? extends Field> wrappedFields) {
         virtualMachine().setLastFieldAccessException(null);
@@ -234,8 +253,12 @@ public class FXObjectReference extends FXValue implements ObjectReference {
     }
 
     /**
-     * JDI extension:  This will call the setter if one exists.  If an invokeMethod Exception occurs, 
-     * it is saved in FXVirtualMachine.
+     * JDI extension:  This will call the set function if one exists via invokeMethod.
+     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)} passing true
+     * and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     *
+     * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
+     * {@link FXVirtualMachine#lastFieldAccessException()}.
      */
     public void setValue(Field field, Value value) throws
         InvalidTypeException, ClassNotLoadedException {

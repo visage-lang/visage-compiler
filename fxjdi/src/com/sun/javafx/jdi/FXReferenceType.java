@@ -234,28 +234,39 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     /**
-     * JDI addition:
+     * JDI addition: Determines if the value of a field of this reference type is invalid.  A value
+     * is invalid if a new value has been specified for the field, but not yet
+     * stored into the field, for example, because the field is lazily bound.
+     *
+     * @return <code>true</code> if the value of the specified field is invalid; false otherwise.
      */
     public boolean isInvalid(Field field) {
         return areFlagBitsSet(field, virtualMachine().FXInvalidFlagMask());
     }
 
     /**
-     * JDI addition:
+     * JDI addition: Determines if a field of this reference type can be modified.  For example,
+     * an field declared with a bind cannot be modified.
+     *
+     * @return <code>true</code> if the specified field is read only; false otherwise.
      */
     public boolean isReadOnly(Field field) {
         return areFlagBitsSet(field, virtualMachine().FXReadOnlyFlagMask());
     }
 
     /**
-     * JDI addition: 
+     * JDI addition: Determines if a field was declared with a bind clause.
+     *
+     * @return <code>true</code> if the specified field was declared with a bind clause; false otherwise.
      */
     public boolean isBound(Field field) {
         return areFlagBitsSet(field, virtualMachine().FXBoundFlagMask());
     }
 
     /**
-     * JDI addition:  Returns true if this is a JavaFX Type, false otherwise
+     * JDI addition: Determines if this is a JavaFX class.
+     *
+     * @return <code>true</code> if this is a JavaFX class; false otherwise.
      */
     public boolean isJavaFXType() {
         return false;
@@ -268,8 +279,13 @@ public class FXReferenceType extends FXType implements ReferenceType {
     private FXClassType userClass = null;
 
     /**
-     * JDI Addition:  If this class is a JavaFX internal class, return the JavaFX user class
-     * that contains it, else null.
+     * JDI addition: Return the JavaFX user class associated with this reference type.
+     *
+     * The JavaFX compiler can generate several classes for a given class defined by the user.
+     * Given one of these internal classes, this method will return the ReferenceType for the
+     * associated user class.
+     *
+     * @return the JavaFX user class associated with this reference type if there is one, else null.
      */
     public FXClassType javaFXUserClass() {
         if (isUserClassSet) {
@@ -313,8 +329,13 @@ public class FXReferenceType extends FXType implements ReferenceType {
     private boolean isTopClassSet = false;
     private FXClassType topClass = null;
     /**
-     * JDI Addition: Returns the script class for this ReferenceType if there is one, else null.
-     * If 'this' IS the script class, return 'this'.
+     * JDI addition: Return the script class associated with this reference type.
+     *
+     * The JavaFX compiler can generate several classes for a given JavaFX file.  
+     * Given one of these classes, this method will return the associated ReferenceType 
+     * for the containing script class.
+     *
+     * @return the JavaFX script class that contains this class if there is one, else null.
      */
     public FXClassType scriptClass() {
         if (isTopClassSet) {
@@ -356,9 +377,14 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     /**
-     * JDI extension:  This will call the getter if one exists.  If an invokeMethod Exception occurs, 
-     * it is saved in FXVirtualMachine and the default value is returned for a PrimitiveType, or null 
-     * is returned for a non PrimitiveType.
+     * JDI extension: This will call the get function for the field if one exists via invokeMethod.
+     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)} passing true
+     * and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     *
+     * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
+     * {@link FXVirtualMachine#lastFieldAccessException()}. In this case,
+     * the default value for the type of the field is returned for a PrimitiveType,
+     * while null is returned for a non PrimitiveType.
      */
     public Value getValue(Field field) {
         virtualMachine().setLastFieldAccessException(null);
@@ -402,9 +428,14 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     /**
-     * JDI extension:  This will call a getter if one exists.  If an invokeMethod Exception occurs, 
-     * it is saved in FXVirtualMachine and the default value is returned for a PrimitiveType, or null
-     * is returned for a non PrimitiveType.
+     * JDI extension: This will call the get function for a field if one exists via invokeMethod.
+     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)}
+     * passing true and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     *
+     * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
+     * {@link FXVirtualMachine#lastFieldAccessException()}. In this case,
+     * the default value for the type of the field is returned for a PrimitiveType,
+     * while null is returned for a non PrimitiveType.
      */
     public Map<Field, Value> getValues(List<? extends Field> wrappedFields) {
         virtualMachine().setLastFieldAccessException(null);
