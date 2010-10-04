@@ -3,6 +3,7 @@
 ^launcher/nbproject/Package.*$
 ^bootstrap/
 ^build/
+^import/
 ^tools/
 ^dist/
 ^nbproject/private/
