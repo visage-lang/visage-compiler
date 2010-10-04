@@ -9,7 +9,7 @@
 <!-- in the project's Project Properties dialog box.-->
 <project name="fxjdi" default="default" basedir=".">
     <description>Builds, tests, and runs the project fxjdi.</description>
-    <property name="build.defs" value="../../build-defs.xml" />
+    <property name="build.defs" value="../build-defs.xml" />
     <import file="${build.defs}"/>
     <import file="nbproject/build-impl.xml"/>
     <!--

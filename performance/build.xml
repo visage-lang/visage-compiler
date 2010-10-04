@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="performance" default="run" basedir=".">
-    <property name="jfxdir" location="${basedir}/../.."/>
+    <property name="jfxdir" location="${basedir}/.."/>
     <property name="builddir" location="${basedir}/../build/performance"/>
     <property name="javafx.home" location="${basedir}/../dist"/>
     <property name="srcdir"   location="${basedir}/src"/>

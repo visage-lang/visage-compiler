@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="build-zips" basedir=".">
+
+<!--
+/*
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */
+-->
+
+    <description>
+
+        Defines targets to create developer zip bundles.
+
+        *** Sub-repositories should NOT import this file. ***
+
+        This file is imported by the build.xml file only.
+
+    </description>
+
+    <!-- The files to put into zip bundles. -->
+    <fileset dir="${jfx.sdk.dir}"
+             includes="**"
+             id="jfx.sdk.all.files"/>
+    <fileset dir="${jfx.docs.dir}"
+             includes="**"
+             id="jfx.docs.all.files"/>
+    <fileset dir="${jfx.xml.docs.dir}"
+             includes="**"
+             id="jfx.xml.docs.all.files"/>
+    <fileset dir="${jfx.samples.dir}"
+             includes="**"
+             id="jfx.samples.all.files"/>
+    <fileset dir="${jfx.deployed.dir}"
+             includes="**"
+             id="jfx.deployed.all.files"/>
+    <fileset dir="${jfx.rtdeployed.dir}"
+             includes="**"
+             id="jfx.rtdeployed.all.files"/>
+    <fileset dir="${import.dir}"
+             includes="**"
+             id="jfx.import.all.files"/>
+    <fileset dir="${jfx.jar_import.dir}"
+             includes="**"
+             id="jfx.jar_import.all.files"/>
+
+    <!-- Target to create destination directory for zip bundles. -->
+    <target name="-create-bundles-dir">
+        <mkdir dir="${jfx.bundles.dir}"/>
+    </target>
+
+    <!-- The sdk zip bundle -->
+    <target name="check-sdk-zip">
+        <uptodate property="jfx.sdk.is.unchanged"
+                  targetfile="${jfx.sdk.zip}">
+            <srcfiles refid="jfx.sdk.all.files"/>
+        </uptodate>
+    </target>
+    <target name="zip-sdk"
+            unless="jfx.sdk.is.unchanged"
+            depends="-create-bundles-dir, check-sdk-zip">
+        <zip file="${jfx.sdk.zip}" >
+            <fileset refid="jfx.sdk.all.files" />
+        </zip>
+    </target>
+
+    <!-- The xml docs zip bundle -->
+    <target name="check-xml-docs-zip">
+        <uptodate property="jfx.xml.docs.is.unchanged"
+                  targetfile="${jfx.xml.docs.zip}">
+            <srcfiles refid="jfx.xml.docs.all.files"/>
+        </uptodate>
+    </target>
+    <target name="zip-xml-docs"
+            unless="jfx.xml.docs.is.unchanged"
+            depends="-create-bundles-dir, check-xml-docs-zip">
+        <zip file="${jfx.xml.docs.zip}" >
+            <fileset refid="jfx.xml.docs.all.files" />
+        </zip>
+    </target>
+
+    <!-- The docs zip bundle -->
+    <target name="check-docs-zip">
+        <uptodate property="jfx.docs.is.unchanged"
+                  targetfile="${jfx.docs.zip}">
+            <srcfiles refid="jfx.docs.all.files"/>
+        </uptodate>
+    </target>
+    <target name="zip-docs"
+            unless="jfx.docs.is.unchanged"
+            depends="-create-bundles-dir, check-docs-zip">
+        <zip file="${jfx.docs.zip}" >
+            <fileset refid="jfx.docs.all.files" />
+        </zip>
+    </target>
+
+    <!-- The samples zip bundle -->
+    <target name="check-samples-zip">
+        <uptodate property="jfx.samples.is.unchanged"
+                  targetfile="${jfx.samples.zip}">
+            <srcfiles refid="jfx.samples.all.files"/>
+        </uptodate>
+    </target>
+    <target name="zip-samples"
+            unless="jfx.samples.is.unchanged"
+            depends="-create-bundles-dir, check-samples-zip">
+        <zip file="${jfx.samples.zip}" >
+            <fileset refid="jfx.samples.all.files" />
+        </zip>
+    </target>
+
+    <!-- The deployed zip bundle -->
+    <target name="check-deployed-zip">
+        <uptodate property="jfx.deployed.is.unchanged"
+                  targetfile="${jfx.deployed.zip}">
+            <srcfiles refid="jfx.deployed.all.files"/>
+        </uptodate>
+    </target>
+    <target name="zip-deployed"
+            unless="jfx.deployed.is.unchanged"
+            depends="-create-bundles-dir, check-deployed-zip">
+        <zip file="${jfx.deployed.zip}" >
+            <fileset refid="jfx.deployed.all.files" />
+        </zip>
+    </target>
+
+    <!-- The rt-deployed zip bundle -->
+    <target name="check-rtdeployed-zip">
+        <uptodate property="jfx.rtdeployed.is.unchanged"
+                  targetfile="${jfx.rtdeployed.zip}">
+            <srcfiles refid="jfx.rtdeployed.all.files"/>
+        </uptodate>
+    </target>
+    <target name="zip-rtdeployed"
+            unless="jfx.rtdeployed.is.unchanged"
+            depends="-create-bundles-dir, check-rtdeployed-zip">
+        <zip file="${jfx.rtdeployed.zip}" >
+            <fileset refid="jfx.rtdeployed.all.files" />
+        </zip>
+    </target>
+
+    <!-- The jar_import zip bundle -->
+    <target name="check-jar_import-zip">
+        <uptodate property="jfx.jar_import.is.unchanged"
+                  targetfile="${jfx.jar_import.zip}">
+            <srcfiles refid="jfx.jar_import.all.files"/>
+        </uptodate>
+    </target>
+    <target name="zip-jar_import"
+            unless="jfx.jar_import.is.unchanged"
+            depends="-create-bundles-dir, check-jar_import-zip">
+        <zip file="${jfx.jar_import.zip}" >
+            <fileset refid="jfx.jar_import.all.files" />
+        </zip>
+    </target>
+
+    <!-- The import zip bundle -->
+    <target name="check-import-zip">
+        <uptodate property="jfx.import.is.unchanged"
+                  targetfile="${jfx.import.zip}">
+            <srcfiles refid="jfx.import.all.files"/>
+        </uptodate>
+    </target>
+    <target name="zip-import"
+            unless="jfx.import.is.unchanged"
+            depends="-create-bundles-dir,check-import-zip">
+        <zip file="${jfx.import.zip}" >
+            <fileset refid="jfx.import.all.files" />
+        </zip>
+    </target>
+
+    <!-- Create all zip bundles. -->
+    <target name="all-zips"
+            depends="zip-sdk,
+                     zip-xml-docs,
+                     zip-docs,
+                     zip-samples,
+                     zip-deployed,
+                     zip-rtdeployed,
+                     zip-jar_import,
+                     zip-import"/>
+
+</project>

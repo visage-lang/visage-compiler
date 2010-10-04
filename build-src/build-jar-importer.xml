@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="build-jar-importer" basedir=".">
+
+<!--
+/*
+* Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
+* DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+*
+* This code is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License version 2 only, as
+* published by the Free Software Foundation.
+*
+* This code is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+* version 2 for more details (a copy is included in the LICENSE file that
+* accompanied this code).
+*
+* You should have received a copy of the GNU General Public License version
+* 2 along with this work; if not, write to the Free Software Foundation,
+* Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+* Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+* CA 95054 USA or visit www.sun.com if you need additional information or
+* have any questions.
+*/
+-->
+
+   <description>
+
+       Defines common properties and macros for getting special jar files
+       that are not freely or easily available from http: downloads.
+       See build-importer.xml for all other imported files.
+
+       In most cases, these files are available to download but either
+       involve a license acceptance step or are just too difficult to
+       automate their download.
+
+       *** Sub-repositories should NOT import this file. ***
+
+   </description>
+
+   <!-- The jar_import host or master location of these files. -->
+   <property name="jfx.jar_import.host" value="jfx.sfbay.sun.com"/>
+   <property name="jfx.jar_import.url" value="http://${jfx.jar_import.host}/closed_import"/>
+   <property name="jfx.global.jar_import.zip" value="${jfx.root.dir}/../jar_import.zip"/>
+
+   <!-- URL and destination names for all jar_import files. -->
+   <property name="jfx.rt15.url" value="${jfx.jar_import.url}/rt15.jar"/>
+   <property name="jfx.rt15.jar" location="${jfx.jar_import.dir}/rt15.jar"/>
+   <property name="jfx.script-api.url" value="${jfx.jar_import.url}/script-api.jar"/>
+   <property name="jfx.script-api.jar" location="${jfx.jar_import.dir}/script-api.jar"/>
+   <property name="jfx.plugin_exports.url" value="${jfx.jar_import.url}/plugin_exports.jar"/>
+   <property name="jfx.plugin_exports.jar" location="${jfx.jar_import.dir}/plugin_exports.jar"/>
+   <property name="jfx.jnlp.url" value="${jfx.jar_import.url}/jnlp.jar"/>
+   <property name="jfx.jnlp.jar" location="${jfx.jar_import.dir}/jnlp.jar"/>
+   <property name="jfx.amble-fonts.url" value="${jfx.jar_import.url}/amble-fonts.jar"/>
+   <property name="jfx.amble-fonts.jar" location="${jfx.jar_import.dir}/amble-fonts.jar"/>
+
+   <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+   <!-- Macrodefs -->
+   <macrodef name="jfx-jar-importer-set-exists">
+       <sequential>
+           <condition property="jfx.rt15.jar.exists">
+               <available file="${jfx.rt15.jar}" type="file"/>
+           </condition>
+           <condition property="jfx.jnlp.jar.exists">
+               <available file="${jfx.jnlp.jar}" type="file"/>
+           </condition>
+           <condition property="jfx.plugin_exports.jar.exists">
+               <available file="${jfx.plugin_exports.jar}" type="file"/>
+           </condition>
+           <condition property="jfx.script-api.jar.exists">
+               <available file="${jfx.script-api.jar}" type="file"/>
+           </condition>
+           <condition property="jfx.amble-fonts.jar.exists">
+               <available file="${jfx.amble-fonts.jar}" type="file"/>
+           </condition>
+           <!-- Do all jar_import files exist. -->
+           <condition property="jfx.all.jar_import.exists">
+               <and>
+                   <isset property="jfx.rt15.jar.exists"/>
+                   <isset property="jfx.jnlp.jar.exists"/>
+                   <isset property="jfx.script-api.jar.exists"/>
+                   <isset property="jfx.plugin_exports.jar.exists"/>
+                   <isset property="jfx.amble-fonts.jar.exists"/>
+               </and>
+           </condition>
+       </sequential>
+   </macrodef>
+
+   <macrodef name="jfx-jar-importer">
+       <attribute name="url"/>
+       <attribute name="file"/>
+       <sequential>
+           <delete file="@{file}"/>
+           <delete file="@{file}.temp"/>
+           <get src="@{url}" dest="@{file}.temp"/>
+           <move file="@{file}.temp" tofile="@{file}" verbose="true"/>
+           <delete file="@{file}.temp"/>
+       </sequential>
+   </macrodef>
+
+   <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+
+   <!-- Set exists properties. -->
+   <jfx-jar-importer-set-exists/>
+
+   <!-- Does the global jar_import.zip file exist, and should we use it. -->
+   <condition property="use.global.jar_import.zip">
+       <and>
+           <available file="${jfx.global.jar_import.zip}" type="file"/>
+           <not>
+               <isset property="jfx.all.jar_import.exists"/>
+           </not>
+       </and>
+   </condition>
+
+   <!-- We need to re-set these properties after exploding any jar_import.zip. -->
+   <target name="-set-exists">
+       <jfx-jar-importer-set-exists/>
+   </target>
+
+   <!-- Explode global jar_import.zip if needed and we have one. -->
+   <target name="-check-for-global-zip-jar-import"
+           if="use.global.jar_import.zip"
+           unless="jfx.all.jar_import.exists">
+       <do-unzip-bundle zip="${jfx.global.jar_import.zip}"
+                        dir="${jfx.jar_import.dir}"/>
+   </target>
+
+   <!-- Get and explode jar_import.zip from hudson if needed, should, and can. -->
+   <target name="-check-for-hudson-zip-jar-import"
+           if="use.hudson.jar_import.zip"
+           unless="jfx.all.jar_import.exists">
+       <do-get-previous-bundle name="jar_import"
+           url="${hudson.jfx.jar_import.url}" dir="${jfx.jar_import.dir}"/>
+   </target>
+
+   <!-- Check each individual file and download each separately. -->
+   <target name="-check-rt15"
+           unless="jfx.rt15.jar.exists"
+           if="use.jar_import.host">
+       <mkdir dir="${jfx.jar_import.dir}"/>
+       <jfx-jar-importer url="${jfx.rt15.url}" file="${jfx.rt15.jar}"/>
+   </target>
+   <target name="-check-script-api"
+           unless="jfx.script-api.jar.exists"
+           if="use.jar_import.host">
+       <mkdir dir="${jfx.jar_import.dir}"/>
+       <jfx-jar-importer url="${jfx.script-api.url}" file="${jfx.script-api.jar}"/>
+   </target>
+   <target name="-check-plugin-exports"
+           unless="jfx.plugin_exports.jar.exists"
+           if="use.jar_import.host">
+       <mkdir dir="${jfx.jar_import.dir}"/>
+       <jfx-jar-importer url="${jfx.plugin_exports.url}" file="${jfx.plugin_exports.jar}"/>
+   </target>
+   <target name="-check-jnlp"
+           unless="jfx.jnlp.jar.exists"
+           if="use.jar_import.host">
+       <mkdir dir="${jfx.jar_import.dir}"/>
+       <jfx-jar-importer url="${jfx.jnlp.url}" file="${jfx.jnlp.jar}"/>
+   </target>
+   <target name="-check-amble-fonts"
+           unless="jfx.amble-fonts.jar.exists"
+           if="use.jar_import.host">
+       <mkdir dir="${jfx.jar_import.dir}"/>
+       <jfx-jar-importer url="${jfx.amble-fonts.url}" file="${jfx.amble-fonts.jar}"/>
+   </target>
+
+   <!-- Warning when items missing in jar_import -->
+   <target name="-jar_import-report" unless="jfx.all.jar_import.exists">
+       <echo message="WARNING: Some or all of the jar_import files are not available."/>
+   </target>
+
+   <!-- Download or check jar imports. -->
+   <target name="-check-all-jar_imports"
+           depends="-check-rt15,
+                    -check-script-api,
+                    -check-plugin-exports,
+                    -check-jnlp,
+                    -check-amble-fonts,
+                    -jar_import-report"
+           unless="jfx.all.jar_import.exists">
+   </target>
+
+   <!-- Make sure we have all the jar_import files. -->
+   <target name="all-jar_imports"
+           depends="-check-for-global-zip-jar-import,-set-exists"
+           unless="jfx.all.jar_import.exists">
+               <!-- If we reached here, we need something still. -->
+       <condition property="use.hudson.jar_import.zip">
+           <and>
+               <not>
+                   <isset property="jfx.open.only"/>
+               </not>
+               <not>
+                   <isset property="jfx.all.jar_import.exists"/>
+               </not>
+               <isreachable host="${hudson.jfx.host}" timeout="10"/>
+           </and>
+       </condition>
+       <!-- Try hudson server. -->
+       <antcall target="-check-for-hudson-zip-jar-import"/>
+       <!-- Reset exists properties. -->
+       <jfx-jar-importer-set-exists/>
+       <!-- See if jar_import host should be used. -->
+       <condition property="use.jar_import.host">
+           <and>
+               <not>
+                   <isset property="jfx.open.only"/>
+               </not>
+               <not>
+                   <isset property="jfx.all.jar_import.exists"/>
+               </not>
+               <isreachable host="${jfx.jar_import.host}" timeout="10"/>
+           </and>
+       </condition>
+       <!-- Last attempt, or final check on each jar_import file. -->
+       <antcall target="-check-all-jar_imports"/>
+   </target>
+
+   <target name="clean-jar_import">
+       <delete dir="${jfx.jar_import.dir}"/>
+   </target>
+
+   <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+
+</project>

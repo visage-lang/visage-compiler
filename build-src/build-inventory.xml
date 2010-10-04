@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="build-inventory" basedir=".">
+
+<!--
+/*
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */
+-->
+
+    <description>
+
+        Contains the inventory checks for the JavaFX SDK builds.
+
+        NOTE: Not all files are checked, most are. Extra files are not errors.
+
+    </description>
+
+    <property name="jfx.sdk.inventory.ok"
+              value="${jfx.sdk.inventory.dir}/ok.log"/>
+    <property name="jfx.sdk.inventory.missing"
+              value="${jfx.sdk.inventory.dir}/missing.log"/>
+    <property name="jfx.deployed.inventory.ok"
+              value="${jfx.deployed.inventory.dir}/ok.log"/>
+    <property name="jfx.rtdeployed.inventory.ok"
+              value="${jfx.rtdeployed.inventory.dir}/ok.log"/>
+    <property name="jfx.deployed.inventory.missing"
+              value="${jfx.deployed.inventory.dir}/missing.log"/>
+
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    <!-- Macrodefs -->
+
+    <macrodef name="inventory-check">
+        <attribute name="category"/>
+        <attribute name="topdir"/>
+        <attribute name="subdir"/>
+        <attribute name="file"/>
+        <sequential>
+            <condition property="jfx.@{category}.inventory.error" value="true">
+                <not>
+                    <available file="@{topdir}/@{subdir}/@{file}" type="file"/>
+                </not>
+            </condition>
+            <condition property="jfx.@{category}.inventory.@{file}"
+                       value="${jfx.@{category}.inventory.ok}"
+                       else="${jfx.@{category}.inventory.missing}">
+                <available file="@{topdir}/@{subdir}/@{file}" type="file"/>
+            </condition>
+            <echo append="true" file="${jfx.@{category}.inventory.@{file}}"
+                  message="@{subdir}/@{file}${line.separator}"/>
+            <checksum file="${jfx.@{category}.inventory.@{file}}"
+                      property="jfx.@{category}.inventory.checksum.@{file}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="inventory-deployed-check">
+        <attribute name="dir"/>
+        <attribute name="file"/>
+        <sequential>
+            <inventory-check category="deployed"
+                             topdir="${jfx.deployed.dir}"
+                             subdir="@{dir}"
+                             file="@{file}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="inventory-rtdeployed-check">
+        <attribute name="file"/>
+        <sequential>
+            <inventory-check category="rtdeployed"
+                             topdir="${jfx.rtdeployed.dir}"
+                             subdir="."
+                             file="@{file}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="inventory-sdk-check">
+        <attribute name="dir"/>
+        <attribute name="file"/>
+        <sequential>
+            <inventory-check category="sdk"
+                             topdir="${jfx.sdk.dir}"
+                             subdir="@{dir}"
+                             file="@{file}"/>
+        </sequential>
+    </macrodef>
+
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+
+    <target name="-inventory-deployed-init">
+        <delete dir="${jfx.deployed.inventory.dir}"/>
+        <mkdir dir="${jfx.deployed.inventory.dir}"/>
+    </target>
+
+    <target name="-inventory-deployed-generic">
+        <echo message="Checking generic deployed files."/>
+        <inventory-deployed-check dir="." file="java-coffee-cup-23x20.png"/>
+        <inventory-deployed-check dir="." file="Decora.jnlp"/>
+        <inventory-deployed-check dir="." file="dtfx.js"/>
+        <inventory-deployed-check dir="." file="javafx-loading-100x100.gif"/>
+        <inventory-deployed-check dir="." file="javafx-loading-25x25.gif"/>
+        <inventory-deployed-check dir="." file="javafx-rt.jnlp"/>
+        <inventory-deployed-check dir="." file="javafx-sdk.jnlp"/>
+        <inventory-deployed-check dir="." file="jmc.jnlp"/>
+        <inventory-deployed-check dir="./shared" file="javafxc.jar"/>
+        <inventory-deployed-check dir="./shared" file="javafxdoc.jar"/>
+        <inventory-deployed-check dir="./shared" file="javafxrt.jar"/>
+        <inventory-deployed-check dir="./desktop" file="applet-launcher.jar"/>
+        <inventory-deployed-check dir="./desktop" file="eula.jar"/>
+        <inventory-deployed-check dir="./desktop" file="fxdloader.jar"/>
+        <inventory-deployed-check dir="./desktop" file="decora-runtime.jar"/>
+        <inventory-deployed-check dir="./desktop" file="javafx-anim.jar"/>
+        <inventory-deployed-check dir="./desktop" file="javafx-geom.jar"/>
+        <inventory-deployed-check dir="./desktop" file="javafx-sg-common.jar"/>
+        <inventory-deployed-check dir="./desktop" file="javafx-sg-swing.jar"/>
+        <inventory-deployed-check dir="./desktop" file="javafx-ui-common.jar"/>
+        <inventory-deployed-check dir="./desktop" file="javafx-ui-desktop.jar"/>
+        <inventory-deployed-check dir="./desktop" file="javafx-ui-swing.jar"/>
+        <inventory-deployed-check dir="./desktop" file="javafx-ui-controls.jar"/>
+        <inventory-deployed-check dir="./desktop" file="javafx-ui-charts.jar"/>
+        <inventory-deployed-check dir="./desktop" file="javafx-ext-swing.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jmc.jar"/>
+        <inventory-deployed-check dir="./desktop" file="rt15.jar"/>
+        <inventory-deployed-check dir="./desktop" file="script-api.jar"/>
+        <inventory-deployed-check dir="./desktop" file="websvc.jar"/>
+    </target>
+
+    <target name="-inventory-deployed-windows" if="isWindows">
+        <echo message="Checking windows deployed files."/>
+        <inventory-deployed-check dir="./desktop" file="decora-j2d-rsl.jar"/>
+        <inventory-deployed-check dir="./desktop" file="decora-d3d-natives-windows-i586.jar"/>
+        <inventory-deployed-check dir="./desktop" file="decora-d3d.jar"/>
+        <inventory-deployed-check dir="./desktop" file="decora-ogl.jar"/>
+        <inventory-deployed-check dir="./desktop" file="decora-sse-natives-windows-i586.jar"/>
+        <inventory-deployed-check dir="./desktop" file="decora-sse.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-common.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-awt.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jmc-natives-windows-i586.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-natives-windows-i586.jar"/>
+    </target>
+
+    <target name="-inventory-deployed-macosx" if="isMacOSX">
+        <echo message="Checking macosx deployed files."/>
+        <inventory-deployed-check dir="./desktop" file="decora-j2d-jogl.jar"/>
+        <inventory-deployed-check dir="./desktop" file="decora-ogl.jar"/>
+        <inventory-deployed-check dir="./desktop" file="decora-sse-natives-macosx-universal.jar"/>
+        <inventory-deployed-check dir="./desktop" file="decora-sse.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-common.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-awt.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jmc-natives-macosx-universal.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-natives-macosx-universal.jar"/>
+    </target>
+
+    <!-- TODO: we will need a separate inventory check for solaris-i586 -->
+    <!-- and solaris-sparc if we ever decide to support sparc -->
+    <target name="-inventory-deployed-solaris" if="isSolaris">
+        <echo message="Checking solaris deployed files."/>
+        <inventory-deployed-check dir="./desktop" file="decora-j2d-rsl.jar"/>
+	<!-- TODO: uncomment the following when JOGL is enabled for Solaris -->
+	<!--
+        <inventory-deployed-check dir="./desktop" file="decora-ogl.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-common.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-awt.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-natives-solaris-i586.jar"/>
+	-->
+        <inventory-deployed-check dir="./desktop" file="jmc-natives-solaris-i586.jar"/>
+    </target>
+
+    <target name="-inventory-deployed-linux" if="isLinux">
+        <echo message="Checking linux deployed files."/>
+        <inventory-deployed-check dir="./desktop" file="decora-j2d-rsl.jar"/>
+        <inventory-deployed-check dir="./desktop" file="decora-ogl.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-common.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-awt.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jogl-natives-linux-i586.jar"/>
+        <inventory-deployed-check dir="./desktop" file="jmc-natives-linux-i586.jar"/>
+    </target>
+
+    <target name="-inventory-deployed-check-missing" if="jfx.deployed.inventory.error">
+        <echo message="WARNING: Missing deployed files:"/>
+        <concat>
+            <file file="${jfx.deployed.inventory.missing}"/>
+        </concat>
+        <fail message="ERROR: Missing deployed files.">
+            <condition>
+                <isset property="jfx.deployed.inventory.error"/>
+            </condition>
+        </fail>
+    </target>
+
+    <target name="-inventory-rtdeployed-init">
+        <delete dir="${jfx.rtdeployed.inventory.dir}"/>
+        <mkdir dir="${jfx.rtdeployed.inventory.dir}"/>
+    </target>
+
+    <target name="-inventory-rtdeployed-generic">
+        <echo message="Checking generic rt-deployed files."/>
+        <inventory-rtdeployed-check file="java-coffee-cup-23x20.png"/>
+        <inventory-rtdeployed-check file="dtfx.js"/>
+        <inventory-rtdeployed-check file="javafx-loading-100x100.gif"/>
+        <inventory-rtdeployed-check file="javafx-loading-25x25.gif"/>
+        <inventory-rtdeployed-check file="javafx-rt.jnlp"/>
+        <inventory-rtdeployed-check file="javafx-sdk.jnlp"/>
+        <inventory-rtdeployed-check file="applet-launcher.jar"/>
+        <inventory-rtdeployed-check file="javafx-sdk.jar"/>
+        <inventory-rtdeployed-check file="javafx-sdk.jar.gz"/>
+        <inventory-rtdeployed-check file="javafx-sdk.jar.pack.gz"/>
+    </target>
+
+    <target name="-inventory-rtdeployed-windows" if="isWindows">
+        <echo message="Checking windows rt-deployed files."/>
+        <inventory-rtdeployed-check file="javafx-rt-windows-i586.jar"/>
+        <inventory-rtdeployed-check file="javafx-rt-windows-i586.jar.gz"/>
+        <inventory-rtdeployed-check file="javafx-rt-windows-i586.jar.pack.gz"/>
+        <inventory-rtdeployed-check file="javafx-rt-natives-windows-i586.jar"/>
+        <inventory-rtdeployed-check file="javafx-rt-natives-windows-i586.jar.gz"/>
+    </target>
+
+    <target name="-inventory-rtdeployed-macosx" if="isMacOSX">
+        <echo message="Checking macosx rt-deployed files."/>
+        <inventory-rtdeployed-check file="javafx-rt-macosx-universal.jar"/>
+        <inventory-rtdeployed-check file="javafx-rt-macosx-universal.jar.gz"/>
+        <inventory-rtdeployed-check file="javafx-rt-macosx-universal.jar.pack.gz"/>
+        <inventory-rtdeployed-check file="javafx-rt-natives-macosx-universal.jar"/>
+        <inventory-rtdeployed-check file="javafx-rt-natives-macosx-universal.jar.gz"/>
+    </target>
+
+    <target name="-inventory-rtdeployed-solaris" if="isSolaris">
+        <echo message="Checking solaris rt-deployed files."/>
+        <inventory-rtdeployed-check file="javafx-rt-solaris-i586.jar"/>
+        <inventory-rtdeployed-check file="javafx-rt-solaris-i586.jar.gz"/>
+        <inventory-rtdeployed-check file="javafx-rt-solaris-i586.jar.pack.gz"/>
+        <inventory-rtdeployed-check file="javafx-rt-natives-solaris-i586.jar"/>
+        <inventory-rtdeployed-check file="javafx-rt-natives-solaris-i586.jar.gz"/>
+    </target>
+
+    <target name="-inventory-rtdeployed-linux" if="isLinux">
+        <echo message="Checking linux rt-deployed files."/>
+        <inventory-rtdeployed-check file="javafx-rt-linux-i586.jar"/>
+        <inventory-rtdeployed-check file="javafx-rt-linux-i586.jar.gz"/>
+        <inventory-rtdeployed-check file="javafx-rt-linux-i586.jar.pack.gz"/>
+        <inventory-rtdeployed-check file="javafx-rt-natives-linux-i586.jar"/>
+        <inventory-rtdeployed-check file="javafx-rt-natives-linux-i586.jar.gz"/>
+    </target>
+
+    <target name="-inventory-rtdeployed-check-missing" if="jfx.rtdeployed.inventory.error">
+        <echo message="WARNING: Missing rt-deployed files:"/>
+        <concat>
+            <file file="${jfx.rtdeployed.inventory.missing}"/>
+        </concat>
+        <fail message="ERROR: Missing deployed files.">
+            <condition>
+                <isset property="jfx.rtdeployed.inventory.error"/>
+            </condition>
+        </fail>
+    </target>
+
+    <target name="-inventory-sdk-init">
+        <delete dir="${jfx.sdk.inventory.dir}"/>
+        <mkdir dir="${jfx.sdk.inventory.dir}"/>
+    </target>
+
+    <target name="-inventory-sdk-generic">
+        <echo message="Checking generic sdk files."/>
+        <!-- Lots of sample files in the sdk, just check for zip files: -->
+        <inventory-sdk-check dir="./samples/DisplayShelf"       file="DisplayShelf.zip"/>
+        <inventory-sdk-check dir="./samples/DisplayShelfMobile" file="DisplayShelfMobile.zip"/>
+        <inventory-sdk-check dir="./samples/DragAndDrop"        file="DragAndDrop.zip"/>
+        <inventory-sdk-check dir="./samples/InterestingPhotos"  file="InterestingPhotos.zip"/>
+        <inventory-sdk-check dir="./samples/LocalSearch"        file="LocalSearch.zip"/>
+        <inventory-sdk-check dir="./samples/PathAnimation"      file="PathAnimation.zip"/>
+        <inventory-sdk-check dir="./samples/PhotoEffects"       file="PhotoEffects.zip"/>
+        <inventory-sdk-check dir="./samples/PhotoFlip"          file="PhotoFlip.zip"/>
+        <inventory-sdk-check dir="./samples/SpringAnimation"    file="SpringAnimation.zip"/>
+        <inventory-sdk-check dir="." file="src.zip"/>
+        <inventory-sdk-check dir="." file="timestamp"/>
+        <inventory-sdk-check dir="." file="COPYRIGHT.html"/>
+        <inventory-sdk-check dir="." file="README.html"/>
+        <inventory-sdk-check dir="." file="THIRDPARTYLICENSEREADME.txt"/>
+        <!-- Lots of files in docs/api, just check for summary pages: -->
+        <inventory-sdk-check dir="./docs/api"                             file="index.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.animation"            file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.animation.transition" file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.async"                file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.data.pull"            file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.data.xml"             file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.ext.swing"            file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.fxd"                  file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.geometry"             file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.io.http"              file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.lang"                 file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.reflect"              file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene"                file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene.control"        file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene.effect"         file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene.effect.light"   file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene.image"          file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene.input"          file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene.layout"         file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene.media"          file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene.paint"          file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene.shape"          file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene.text"           file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.scene.transform"      file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.stage"                file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/javafx.util"                 file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs" file="emulator.html"/>
+        <inventory-sdk-check dir="./docs" file="index.html"/>
+        <inventory-sdk-check dir="./docs" file="javafx.html"/>
+        <inventory-sdk-check dir="./docs" file="javafxc.html"/>
+        <inventory-sdk-check dir="./docs" file="javafxdoc.html"/>
+        <inventory-sdk-check dir="./docs" file="javafxpackager.html"/>
+        <inventory-sdk-check dir="./docs" file="manpage.css"/>
+        <inventory-sdk-check dir="./lib"  file="javafx-runtime.properties"/>
+        <inventory-sdk-check dir="./lib/desktop" file="eula.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="fxdloader.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-runtime.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="javafx-anim.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="javafx-geom.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="javafx-sg-common.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="javafx-sg-swing.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="javafx-ui-common.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="javafx-ui-desktop.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="javafx-ui-swing.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="javafx-ui-controls.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="javafx-ui-charts.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="javafx-ext-swing.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="jmc.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="rt15.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="script-api.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="websvc.jar"/>
+        <inventory-sdk-check dir="./lib/shared" file="asm-all-3.1.jar"/>
+        <inventory-sdk-check dir="./lib/shared" file="javafxc.jar"/>
+        <inventory-sdk-check dir="./lib/shared" file="javafxdoc.jar"/>
+        <inventory-sdk-check dir="./lib/shared" file="javafxrt.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="javafxrt-main.jar"/>
+        <inventory-sdk-check dir="./lib/shared" file="toolchain.jar"/>
+        <inventory-sdk-check dir="./profiles" file="desktop.properties"/>
+    </target>
+
+    <target name="-inventory-sdk-unix" if="isUnix">
+        <echo message="Checking unix sdk files."/>
+        <inventory-sdk-check dir="./bin" file="javafx"/>
+        <inventory-sdk-check dir="./bin" file="javafxc"/>
+        <inventory-sdk-check dir="./bin" file="javafxdoc"/>
+        <inventory-sdk-check dir="./bin" file="javafxpackager"/>
+        <!-- This api file is Unix only -->
+        <inventory-sdk-check dir="./docs/api/javafx.stage" file="javafx.stage.Alert.html"/>
+    </target>
+
+    <target name="-inventory-sdk-windows" if="isWindows">
+        <echo message="Checking windows sdk files."/>
+        <inventory-sdk-check dir="./bin" file="javafx.exe"/>
+        <inventory-sdk-check dir="./bin" file="javafxw.exe"/>
+        <inventory-sdk-check dir="./bin" file="javafxc.exe"/>
+        <inventory-sdk-check dir="./bin" file="javafxdoc.exe"/>
+        <inventory-sdk-check dir="./bin" file="javafxpackager.exe"/>
+        <inventory-sdk-check dir="./emulator/mobile/bin" file="emulator.exe"/>
+        <inventory-sdk-check dir="./emulator/mobile/bin" file="preverify.exe"/>
+        <!-- FIXME: Lots of mobile emulator files in the sdk -->
+        <inventory-sdk-check dir="./lib/desktop" file="decora-j2d-rsl.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-d3d.dll"/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-d3d.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-ogl.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-sse.dll"/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-sse.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="gluegen-rt.dll"/>
+        <inventory-sdk-check dir="./lib/desktop" file="jmc.dll"/>
+        <inventory-sdk-check dir="./lib/desktop" file="jogl-common.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="jogl-awt.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="jogl_gl2.dll"/>
+        <inventory-sdk-check dir="./lib/desktop" file="nativewindow_jvm.dll"/>
+        <inventory-sdk-check dir="./lib/desktop" file="nativewindow_awt.dll"/>
+        <inventory-sdk-check dir="./lib/desktop" file="msvcp71.dll"/>
+        <inventory-sdk-check dir="./lib/desktop" file="msvcr71.dll"/>
+        <inventory-sdk-check dir="./lib/mobile" file="javafxapi-cldc.jar"/>
+        <inventory-sdk-check dir="./lib/mobile" file="javafxrt-stub-cldc.jar"/>
+        <inventory-sdk-check dir="./lib/mobile" file="javafxtools-cldc.jar"/>
+        <inventory-sdk-check dir="./profiles" file="mobile.properties"/>
+        <inventory-sdk-check dir="./lib/tv" file="cdc_1.1.jar"/>
+        <inventory-sdk-check dir="./lib/tv" file="pbp_1.1.jar"/>
+        <inventory-sdk-check dir="./lib/tv" file="javafxapi-cdc.jar"/>
+        <inventory-sdk-check dir="./lib/tv" file="javafxtools-cdc.jar"/>
+        <inventory-sdk-check dir="./profiles" file="tv.properties"/>
+    </target>
+
+    <target name="-inventory-sdk-macosx" if="isMacOSX">
+        <echo message="Checking macosx sdk files."/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-j2d-jogl.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-ogl.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-sse.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="jogl-common.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="jogl-awt.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="JMCServer"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libCoreVideoMedia.jnilib"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libdecora-sse.jnilib"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libgluegen-rt.jnilib"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libjogl_gl2.jnilib"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libnativewindow_jvm.jnilib"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libnativewindow_awt.jnilib"/>
+        <inventory-sdk-check dir="./lib/mobile" file="javafxapi-cldc.jar"/>
+        <inventory-sdk-check dir="./lib/mobile" file="javafxrt-stub-cldc.jar"/>
+        <inventory-sdk-check dir="./lib/mobile" file="javafxtools-cldc.jar"/>
+        <inventory-sdk-check dir="./emulator/mobile/bin" file="emulator"/>
+        <inventory-sdk-check dir="./emulator/mobile/bin" file="preverify"/>
+    </target>
+
+    <target name="-inventory-sdk-solaris" if="isSolaris">
+        <echo message="Checking solaris sdk files."/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-j2d-rsl.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libGStreamer.so"/>
+	<!-- TODO: uncomment the following when JOGL is enabled for Solaris -->
+	<!--
+        <inventory-sdk-check dir="./lib/desktop" file="decora-ogl.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="jogl-common.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="jogl-awt.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libgluegen-rt.so"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libjogl_gl2.so"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libnativewindow_jvm.so"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libnativewindow_awt.so"/>
+        -->
+    </target>
+
+    <target name="-inventory-sdk-linux" if="isLinux">
+        <echo message="Checking linux sdk files."/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-j2d-rsl.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libGStreamer.so"/>
+        <inventory-sdk-check dir="./lib/desktop" file="decora-ogl.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="jogl-common.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="jogl-awt.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libgluegen-rt.so"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libjogl_gl2.so"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libnativewindow_jvm.so"/>
+        <inventory-sdk-check dir="./lib/desktop" file="libnativewindow_awt.so"/>
+        <inventory-sdk-check dir="./emulator/mobile/bin" file="preverify"/>
+    </target>
+
+    <target name="-inventory-sdk-check-missing" if="jfx.sdk.inventory.error">
+        <echo message="WARNING: Missing sdk files:"/>
+        <concat>
+            <file file="${jfx.sdk.inventory.missing}"/>
+        </concat>
+        <fail message="ERROR: Missing sdk files.">
+            <condition>
+                <isset property="jfx.sdk.inventory.error"/>
+            </condition>
+        </fail>
+    </target>
+
+    <target name="-inventory-deployed"
+            depends="-inventory-deployed-generic,
+                     -inventory-deployed-windows,
+                     -inventory-deployed-macosx,
+                     -inventory-deployed-solaris,
+                     -inventory-deployed-linux">
+    </target>
+
+    <target name="-inventory-rtdeployed"
+            depends="-inventory-rtdeployed-generic,
+                     -inventory-rtdeployed-windows,
+                     -inventory-rtdeployed-macosx,
+                     -inventory-rtdeployed-solaris,
+                     -inventory-rtdeployed-linux">
+    </target>
+
+    <target name="-inventory-sdk"
+            depends="-inventory-sdk-generic,
+                     -inventory-sdk-windows,
+                     -inventory-sdk-unix,
+                     -inventory-sdk-macosx,
+                     -inventory-sdk-solaris,
+                     -inventory-sdk-linux">
+    </target>
+
+    <target name="check-sdk-inventory"
+            depends="-inventory-sdk-init,
+                     -inventory-sdk,
+                     -inventory-sdk-check-missing">
+        <echoproperties destfile="${jfx.sdk.inventory.data}">
+            <propertyset>
+                <propertyref prefix="jfx.sdk.inventory.checksum."/>
+            </propertyset>
+        </echoproperties>
+    </target>
+
+    <target name="check-deployed-inventory"
+            depends="-inventory-deployed-init,
+                     -inventory-deployed,
+                     -inventory-deployed-check-missing">
+        <echoproperties destfile="${jfx.deployed.inventory.data}">
+            <propertyset>
+                <propertyref prefix="jfx.deployed.inventory.checksum."/>
+            </propertyset>
+        </echoproperties>
+    </target>
+
+    <target name="check-rtdeployed-inventory"
+            depends="-inventory-rtdeployed-init,
+                     -inventory-rtdeployed,
+                     -inventory-rtdeployed-check-missing">
+        <echoproperties destfile="${jfx.rtdeployed.inventory.data}">
+            <propertyset>
+                <propertyref prefix="jfx.rtdeployed.inventory.checksum."/>
+            </propertyset>
+        </echoproperties>
+    </target>
+
+    <target name="check-inventory"
+            depends="check-sdk-inventory,check-deployed-inventory,check-rtdeployed-inventory">
+    </target>
+
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+
+</project>
