@@ -235,6 +235,9 @@ public class JavafxTreeInfo {
         if ((flags & JavafxFlags.PUBLIC_INIT) != 0) {
             fsb.append("public-init ");
         }
+        if ((flags & JavafxFlags.DEFAULT) != 0) {
+            fsb.append("default ");
+        }
         if ((flags & JavafxFlags.BOUND) != 0) {
             fsb.append("bound ");
         }

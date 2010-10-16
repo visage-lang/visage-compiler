@@ -1193,9 +1193,9 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             //
             type = tok.getType();
             if (    type == v4Parser.WS         || type == v4Parser.ABSTRACT    || type == v4Parser.BOUND 
-                 || type == v4Parser.OVERRIDE   || type == v4Parser.PACKAGE     || type == v4Parser.PROTECTED 
-                 || type == v4Parser.PUBLIC     || type == v4Parser.PUBLIC_READ || type == v4Parser.PUBLIC_INIT 
-                 || type == v4Parser.MIXIN
+                 || type == v4Parser.DEFAULT    || type == v4Parser.OVERRIDE    || type == v4Parser.PACKAGE
+                 || type == v4Parser.PROTECTED  || type == v4Parser.PUBLIC      || type == v4Parser.PUBLIC_READ
+                 || type == v4Parser.PUBLIC_INIT || type == v4Parser.MIXIN
                  
                  //TODO: deprecated -- remove this at some point
                  //
@@ -1574,6 +1574,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                     //
                 case    v4Parser.ABSTRACT:
                 case    v4Parser.BOUND:
+                case    v4Parser.DEFAULT:
                 case    v4Parser.PACKAGE:
                 case    v4Parser.PROTECTED:
                 case    v4Parser.PUBLIC:
@@ -1735,6 +1736,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         follow.add(v4Parser.ABSTRACT);
         follow.add(v4Parser.BOUND);
         follow.add(v4Parser.DEF);
+        follow.add(v4Parser.DEFAULT);
         follow.add(v4Parser.FUNCTION);
         follow.add(v4Parser.OVERRIDE);
         follow.add(v4Parser.PACKAGE);

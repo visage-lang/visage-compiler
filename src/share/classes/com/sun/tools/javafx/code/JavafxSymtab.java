@@ -46,6 +46,7 @@ public class JavafxSymtab extends Symtab {
     public static final String packageAnnotationClassNameString = anno + ".Package";
     public static final String publicAnnotationClassNameString = anno + ".Public";
     public static final String scriptPrivateAnnotationClassNameString = anno + ".ScriptPrivate";
+    public static final String defaultAnnotationClassNameString = anno + ".Default";
     public static final String publicInitAnnotationClassNameString = anno + ".PublicInitable";
     public static final String publicReadAnnotationClassNameString = anno + ".PublicReadable";
     public static final String bindeesAnnotationClassNameString = anno + ".JavafxBindees";
@@ -106,6 +107,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_packageAnnotationType;
     public final Type javafx_publicAnnotationType;
     public final Type javafx_scriptPrivateAnnotationType;
+    public final Type javafx_defaultAnnotationType;
     public final Type javafx_publicInitAnnotationType;
     public final Type javafx_publicReadAnnotationType;
     public final Type javafx_signatureAnnotationType;
@@ -229,6 +231,7 @@ public class JavafxSymtab extends Symtab {
         javafx_packageAnnotationType = enterClass(packageAnnotationClassNameString);
         javafx_publicAnnotationType = enterClass(publicAnnotationClassNameString);
         javafx_scriptPrivateAnnotationType = enterClass(scriptPrivateAnnotationClassNameString);
+        javafx_defaultAnnotationType = enterClass(defaultAnnotationClassNameString);
         javafx_publicInitAnnotationType = enterClass(publicInitAnnotationClassNameString);
         javafx_publicReadAnnotationType = enterClass(publicReadAnnotationClassNameString);
         javafx_signatureAnnotationType = enterClass(signatureAnnotationClassNameString);

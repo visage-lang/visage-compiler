@@ -214,6 +214,7 @@ public final class Constants {
     public static final String PUBLIC = "public";
     
     // JavaFX specific access flags
+    public static final String DEFAULT = "default";
     public static final String PUBLIC_INIT = "public-init";
     public static final String PUBLIC_READ = "public-read";
     public static final String PACKAGE_ACCESS = "package";

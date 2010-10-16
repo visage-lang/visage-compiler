@@ -39,17 +39,18 @@ public class JavafxFlags {
     // Explicit (parser set) modifier flags
     private static final long FIRST_FX_MOD_FLAG        = LAST_JAVA_FLAG << 1;
     public static final long BOUND                     = FIRST_FX_MOD_FLAG << 0;  // bound function
-    public static final long OVERRIDE                  = FIRST_FX_MOD_FLAG << 1;  // overridden function
-    public static final long IS_DEF                    = FIRST_FX_MOD_FLAG << 2;  // 'def' variable
-    public static final long PUBLIC_READ               = FIRST_FX_MOD_FLAG << 3;  // public-read var
-    public static final long PUBLIC_INIT               = FIRST_FX_MOD_FLAG << 4;  // public-init var
-    public static final long PACKAGE_ACCESS            = FIRST_FX_MOD_FLAG << 5;  // explicit 'package' access
-    public static final long MIXIN                     = FIRST_FX_MOD_FLAG << 6;  // this is a mixin class
+    public static final long DEFAULT                   = FIRST_FX_MOD_FLAG << 1;  // default var
+    public static final long OVERRIDE                  = FIRST_FX_MOD_FLAG << 2;  // overridden function
+    public static final long IS_DEF                    = FIRST_FX_MOD_FLAG << 3;  // 'def' variable
+    public static final long PUBLIC_READ               = FIRST_FX_MOD_FLAG << 4;  // public-read var
+    public static final long PUBLIC_INIT               = FIRST_FX_MOD_FLAG << 5;  // public-init var
+    public static final long PACKAGE_ACCESS            = FIRST_FX_MOD_FLAG << 6;  // explicit 'package' access
+    public static final long MIXIN                     = FIRST_FX_MOD_FLAG << 7;  // this is a mixin class
 
     // a couple of synthetic modifier flags
-    public static final long SCRIPT_PRIVATE            = FIRST_FX_MOD_FLAG << 7;  // implicily set flag if public/protected/package are not
-    public static final long SCRIPT_LEVEL_SYNTH_STATIC = FIRST_FX_MOD_FLAG << 8;  // STATIC bit has been set implicitly
-    public static final long OBJ_LIT_INIT              = FIRST_FX_MOD_FLAG << 9;
+    public static final long SCRIPT_PRIVATE            = FIRST_FX_MOD_FLAG << 8;  // implicily set flag if public/protected/package are not
+    public static final long SCRIPT_LEVEL_SYNTH_STATIC = FIRST_FX_MOD_FLAG << 9;  // STATIC bit has been set implicitly
+    public static final long OBJ_LIT_INIT              = FIRST_FX_MOD_FLAG << 10;
     private static final long LAST_FX_MOD_FLAG         = OBJ_LIT_INIT;
 
     // Flags on vars to inform translation
@@ -68,7 +69,7 @@ public class JavafxFlags {
     public static final long VARUSE_OPT_TRIGGER        = FIRST_VARUSE_FLAG << 6;  // for newElements in trigger: no usage except indexing or sizeof
     public static final long VARUSE_TMP_IN_INIT_EXPR   = FIRST_VARUSE_FLAG << 7;  // temp flag, set while inside var's initializing expression
     public static final long VARUSE_NEED_ACCESSOR      = FIRST_VARUSE_FLAG << 8;  // create accessor methods for this var
-    public static final long VARUSE_NON_LITERAL        = FIRST_VARUSE_FLAG << 9; // non-accessor still needs getter
+    public static final long VARUSE_NON_LITERAL        = FIRST_VARUSE_FLAG << 9;  // non-accessor still needs getter
     public static final long VARUSE_BIND_ACCESS        = FIRST_VARUSE_FLAG << 10; // Accessed in bind.
     public static final long VARUSE_VARREF             = FIRST_VARUSE_FLAG << 11; // Used in VarRef
     public static final long VARUSE_SPECIAL            = FIRST_VARUSE_FLAG << 12; // Ignore in varuse analysis.
@@ -92,8 +93,8 @@ public class JavafxFlags {
     
     public static final long JavafxUserFlags            = JavafxExplicitAccessFlags | MIXIN | STATIC | ABSTRACT | BOUND | OVERRIDE | PUBLIC_READ | PUBLIC_INIT;
     public static final long JavafxLocalVarFlags        = PARAMETER;
-    public static final long JavafxInstanceVarFlags     = JavafxExplicitAccessFlags | PUBLIC_READ | PUBLIC_INIT;
-    public static final long JavafxAllInstanceVarFlags  = JavafxExplicitAccessFlags | PUBLIC_READ | PUBLIC_INIT | SCRIPT_PRIVATE;
+    public static final long JavafxInstanceVarFlags     = JavafxExplicitAccessFlags | DEFAULT | PUBLIC_READ | PUBLIC_INIT;
+    public static final long JavafxAllInstanceVarFlags  = JavafxExplicitAccessFlags | DEFAULT | PUBLIC_READ | PUBLIC_INIT | SCRIPT_PRIVATE;
     public static final long JavafxScriptVarFlags       = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ;
     public static final long JavafxMemberDefFlags       = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ;
     public static final long JavafxFunctionFlags        = JavafxExplicitAccessFlags | ABSTRACT | BOUND | OVERRIDE;

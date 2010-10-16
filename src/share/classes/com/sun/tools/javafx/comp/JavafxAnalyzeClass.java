@@ -273,6 +273,9 @@ class JavafxAnalyzeClass {
 
         // Predicate for synthetic var test.
         public boolean isSynthetic() { return (getFlags() & Flags.SYNTHETIC) != 0L; }
+
+        // Predicate for default var test.
+        public boolean isDefault() { return (getFlags() & JavafxFlags.DEFAULT) != 0L; }
         
         // Predicate for protexted var test.
         public boolean isProtectedAccess() { return (getFlags() & Flags.PROTECTED) != 0L; }
