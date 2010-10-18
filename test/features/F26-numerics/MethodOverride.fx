@@ -67,7 +67,7 @@ class TesterInstance {
 }
 
 /**
- * Testing overriden functions
+ * Testing overridden functions
  */
 class TesterOverride extends TesterInstance {
     def isIntNew : Integer = 100;

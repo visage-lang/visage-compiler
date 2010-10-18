@@ -62,7 +62,6 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JavafxTreeScanner;
 import com.sun.tools.javafx.util.MsgSym;
 
-import com.sun.tools.mjavac.main.OptionName;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /** Type checking helper class for the attribution phase.
@@ -975,7 +974,7 @@ public class JavafxCheck {
     }
 
     /** Check that given modifiers are legal for given symbol and
-     *  return modifiers together with any implicit modififiers for that symbol.
+     *  return modifiers together with any implicit modifiers for that symbol.
      *  Warning: we can't use flags() here since this method
      *  is called during class enter, when flags() would cause a premature
      *  completion.
@@ -1036,10 +1035,17 @@ public class JavafxCheck {
         if (illegal != 0) {
             log.error(pos, msg, JavafxTreeInfo.flagNames(illegal), thing);
         }
+        else if (sym.kind == VAR && (flags & DEFAULT) != 0) {
+            JavafxVarSymbol vsym = (JavafxVarSymbol)sym;
+            JavafxVarSymbol defaultVar = ((JavafxClassSymbol) vsym.owner).getDefaultVar();
+            if (defaultVar != null) {
+                log.error(pos, MsgSym.MESSAGE_JAVAFX_MULTIPLE_DEFAULT_VARS, defaultVar, vsym);
+            }
+        }
         else if ((sym.kind == TYP ||
-		  checkDisjoint(pos, flags,
-				ABSTRACT | MIXIN,
-				PRIVATE | STATIC))
+		 checkDisjoint(pos, flags,
+			       ABSTRACT | MIXIN,
+			       PRIVATE | STATIC))
 		 &&
 		 checkDisjoint(pos, flags,
 			       ABSTRACT | INTERFACE,

@@ -443,4 +443,6 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_MANDATORY_COMMA = "javafx.mandatory.comma";
     public static final String MESSAGE_JAVAFX_TYPES_INCOMPATIBLE_VARS = "javafx.types.incompatible.vars";
     public static final String MESSAGE_JAVAFX_WARN_ON_USE_PACKAGE = "javafx.warn.on.use.package";
+    public static final String MESSAGE_JAVAFX_MULTIPLE_DEFAULT_VARS = "javafx.multiple.default.vars";
+    public static final String MESSAGE_JAVAFX_NO_DEFAULT_DECLARED = "javafx.no.default.declared";
 }

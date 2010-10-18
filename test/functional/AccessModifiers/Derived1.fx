@@ -8,7 +8,7 @@
  *
  * 3. public-read members can be read from anywhere.
  *
- * 4. public-init can be read/initialized from anywhere, writeable from within the script only.
+ * 4. public-init can be read/initialized from anywhere, writable from within the script only.
  *
  * @test
  * @compilefirst pack1/Base1.fx

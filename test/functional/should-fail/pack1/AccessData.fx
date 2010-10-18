@@ -72,7 +72,7 @@ function run(){
         var ref=AccessData{
 	             b:30;   //public-init can be initialized from anywhere
 		     }
-       ref.b=45;   // writeable from within the script only.
+       ref.b=45;   // writable from within the script only.
 } 
 
 

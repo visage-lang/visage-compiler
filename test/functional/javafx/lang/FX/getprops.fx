@@ -84,6 +84,8 @@ var CompilerProperties:String[] = ["compiler.err.javafx.applied.to.instance.var"
 "compiler.err.javafx.var.not.supported.here",
 "compiler.err.javafx.void.sequence.not.allowed",
 "compiler.err.javafx.wrong.type.for.bidi.bind",
+"compiler.err.javafx.multiple.default.vars",
+"compiler.err.javafx.no.default.declared",
 "compiler.err.neither.conditional.subtype",
 "compiler.err.plugin.cannot.find.plugin",
 "compiler.misc.deprecated.interface.class",
@@ -117,6 +119,3 @@ for (cp in CompilerProperties) {
   }
 }
 println("checked for {propcount} properties.");
-
-
-

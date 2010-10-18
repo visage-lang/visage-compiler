@@ -63,8 +63,8 @@ class Child extends MethodOverloadJavaClass {
 var tester = new Child;
 
 function run() {
-    // Testing Java overloaded inherited methods overriden in JavaFX
-    println("Java overloaded inherited methods overriden in JavaFX");
+    // Testing Java overloaded inherited methods overridden in JavaFX
+    println("Java overloaded inherited methods overridden in JavaFX");
     testPrimitive();
 }
 

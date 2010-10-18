@@ -97,7 +97,7 @@ public class JavafxVarSymbol extends VarSymbol {
     }
 
     public boolean isMember() {
-            return owner.kind == Kinds.TYP && (extraFlags & IS_DOT_CLASS) == 0;
+        return owner.kind == Kinds.TYP && (extraFlags & IS_DOT_CLASS) == 0;
     }
 
     public boolean isFXMember() {
@@ -156,7 +156,10 @@ public class JavafxVarSymbol extends VarSymbol {
         return owner instanceof JavafxClassSymbol &&
                ((JavafxClassSymbol) owner).isScriptingModeScript();
     }
-
+    
+    public boolean isDefault() {
+        return (flags_field & DEFAULT) != 0;
+    }
 
     private boolean accessorsRequired() {
         return (flags_field & (VARUSE_BIND_ACCESS | VARUSE_BOUND_INIT | VARUSE_HAS_TRIGGER | VARUSE_VARREF | VARUSE_FORWARD_REFERENCE)) != 0;

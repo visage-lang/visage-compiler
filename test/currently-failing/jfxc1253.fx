@@ -1,4 +1,4 @@
-/* jfxc1253 Class with overriden method cannot be compiled.
+/* jfxc1253 Class with overridden method cannot be compiled.
  * @test
  *
  */

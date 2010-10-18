@@ -301,7 +301,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             {"classMembers",                "the members of a 'class' declaration"},
             {"classMember",                 "a 'class' declaration member"},
             {"functionDefinition",          "a function declaration"},
-            {"overrideDeclaration",         "an overriden variable"},
+            {"overrideDeclaration",         "an overridden variable"},
             {"initDefinition",              "an 'init' block"},
             {"postInitDefinition",          "a 'postinit' block"},
             {"variableDeclaration",         "a variable declaration"},

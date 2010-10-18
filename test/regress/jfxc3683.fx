@@ -1,5 +1,5 @@
 /**
- * JFXC-3683 : Compiled-bind: bound object literal in overriden var causes backend failure
+ * JFXC-3683 : Compiled-bind: bound object literal in overridden var causes backend failure
  *
  * @test
  */

@@ -1075,7 +1075,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = tree.type = declType;
 
         // Need to check that the override did not specify a different type
-        // w.r.t. the one that comes from overriden variable
+        // w.r.t. the one that comes from overridden variable
         Type jfxType = attribType(tree.getJFXType(), env);
         if (jfxType != syms.javafx_UnspecifiedType &&
                 !types.isSameType(declType, jfxType)) {
@@ -1158,7 +1158,7 @@ public class JavafxAttr implements JavafxVisitor {
         // let the owner of the environment be a freshly
         // created BLOCK-method.
         JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
-        //find overriden var
+        //find overridden var
         Type type = null;
         Symbol idSym = rs.findIdentInType(localEnv, localEnv.enclClass.type, tree.getName(), VAR);
         if (idSym != null) {
@@ -1170,7 +1170,7 @@ public class JavafxAttr implements JavafxVisitor {
                 tree.sym = (JavafxVarSymbol)idSym;
             }
             else {
-                //we couldn't find the overriden var
+                //we couldn't find the overridden var
                 log.error(id.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, rs.kindName(VAR), tree.getName());
             }
         }

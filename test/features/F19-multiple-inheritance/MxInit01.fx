@@ -122,7 +122,7 @@ public class MxInit01 extends FXTestCase {
     }
 
 /*
- *  initializing in mixin and mixee, not overriden in mixee
+ *  initializing in mixin and mixee, not overridden in mixee
  */
     function testA04() {
         res="";

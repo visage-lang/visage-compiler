@@ -91,7 +91,7 @@ public class JavafxFlags {
     public static final long JavafxAccessFlags = PUBLIC | PROTECTED | PRIVATE | SCRIPT_PRIVATE;
     public static final long JavafxExplicitAccessFlags = PUBLIC | PROTECTED | PRIVATE | PACKAGE_ACCESS;
     
-    public static final long JavafxUserFlags            = JavafxExplicitAccessFlags | MIXIN | STATIC | ABSTRACT | BOUND | OVERRIDE | PUBLIC_READ | PUBLIC_INIT;
+    public static final long JavafxUserFlags            = JavafxExplicitAccessFlags | MIXIN | STATIC | ABSTRACT | BOUND | OVERRIDE | DEFAULT | PUBLIC_READ | PUBLIC_INIT;
     public static final long JavafxLocalVarFlags        = PARAMETER;
     public static final long JavafxInstanceVarFlags     = JavafxExplicitAccessFlags | DEFAULT | PUBLIC_READ | PUBLIC_INIT;
     public static final long JavafxAllInstanceVarFlags  = JavafxExplicitAccessFlags | DEFAULT | PUBLIC_READ | PUBLIC_INIT | SCRIPT_PRIVATE;

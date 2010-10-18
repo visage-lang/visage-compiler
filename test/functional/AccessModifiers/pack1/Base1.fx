@@ -8,7 +8,7 @@
  *
  * 3. public-read members can be read from anywhere.
  *
- * 4. public-init can be read/initialized from anywhere, writeable from within the script only.
+ * 4. public-init can be read/initialized from anywhere, writable from within the script only.
  * 
  * @subtest
  *
@@ -72,7 +72,7 @@ function run(){
         var ref=Base1{
 	             b:30;   //public-init can be initialized from anywhere
 		     }
-       ref.b=45;   // writeable from within the script only.
+       ref.b=45;   // writable from within the script only.
 } 
 
 

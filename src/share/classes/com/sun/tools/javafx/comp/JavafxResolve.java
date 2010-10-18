@@ -141,7 +141,7 @@ public class JavafxResolve {
             (owner.flags() & STATIC) == 0;
     }
 
-    /** Is class accessible in given evironment?
+    /** Is class accessible in given environment?
      *  @param env    The current environment.
      *  @param c      The class whose accessibility is checked.
      */
@@ -183,19 +183,36 @@ public class JavafxResolve {
                 isInnerSubClass(env.enclClass.sym, c.owner);
         }
     }
-    //where
-        /** Is given class a subclass of given base class, or an inner class
-         *  of a subclass?
-         *  Return null if no such class exists.
-         *  @param c     The class which is the subclass or is contained in it.
-         *  @param base  The base class
-         */
-        private boolean isInnerSubClass(ClassSymbol c, Symbol base) {
-            while (c != null && !c.isSubClass(base, types)) {
-                c = c.owner.enclClass();
-            }
-            return c != null;
+
+    /**
+     * Looks up the variable marked as default on the given Type.
+     * 
+     * Will return null if the TypeSymbol is not a JavaFX Class or there
+     * is no default.
+     * 
+     * @param c Type to lookup the default on.
+     * @return The default variable name or null if there is none.
+     */
+    private Name lookupDefault(TypeSymbol c) {
+        if (c instanceof JavafxClassSymbol) {
+            JavafxVarSymbol defaultVar = ((JavafxClassSymbol) c).getDefaultVar();
+            return defaultVar == null ? null : defaultVar.name;
         }
+        return null;
+    }
+
+    /** Is given class a subclass of given base class, or an inner class
+     *  of a subclass?
+     *  Return null if no such class exists.
+     *  @param c     The class which is the subclass or is contained in it.
+     *  @param base  The base class
+     */
+    private boolean isInnerSubClass(ClassSymbol c, Symbol base) {
+        while (c != null && !c.isSubClass(base, types)) {
+            c = c.owner.enclClass();
+        }
+        return c != null;
+    }
 
     boolean isAccessible(JavafxEnv<JavafxAttrContext> env, Type t) {
         return (t.tag == ARRAY)
@@ -203,7 +220,7 @@ public class JavafxResolve {
             : isAccessible(env, t.tsym);
     }
 
-    /** Is symbol accessible as a member of given type in given evironment?
+    /** Is symbol accessible as a member of given type in given environment?
      *  @param env    The current environment.
      *  @param site   The type of which the tested symbol is regarded
      *                as a member.
@@ -220,7 +237,7 @@ public class JavafxResolve {
         return isAccessibleForWrite(env, site, sym);
     }
 
-    /** Is symbol accessible for write as a member of given type in given evironment?
+    /** Is symbol accessible for write as a member of given type in given environment?
      *  @param env    The current environment.
      *  @param site   The type of which the tested symbol is regarded
      *                as a member.
@@ -465,8 +482,11 @@ public class JavafxResolve {
                      TypeSymbol c) {
         Symbol bestSoFar = varNotFound;
         Symbol sym;
-        Scope.Entry e = c.members().lookup(name);
-        while (e.scope != null) {
+        if (name == null) {
+            name = lookupDefault(c);
+        }
+        Scope.Entry e = name == null ? null : c.members().lookup(name);
+        while (e != null && e.scope != null) {
             if ((e.sym.kind & (VAR|MTH)) != 0 && (e.sym.flags_field & SYNTHETIC) == 0) {
                 sym = isAccessible(env, site, e.sym)
                     ? e.sym : new AccessError(env, site, e.sym);
@@ -488,7 +508,7 @@ public class JavafxResolve {
 
          // We failed to find the field in the single Java class supertype of the 
          // Javafx class.
-         // Now try to find the filed in all of the Javafx supertypes.
+         // Now try to find the field in all of the Javafx supertypes.
          if (bestSoFar.kind > AMBIGUOUS && c instanceof JavafxClassSymbol) {
              List<Type> supertypes = types.supertypes(c.type);
              for (Type tp : supertypes) {
@@ -1287,7 +1307,7 @@ public class JavafxResolve {
      *  @param site      The type containing the symbol to be found.
      *  @param name      The identifier's name.
      *  @param kind      Indicates the possible symbol kinds
-     *                   (a subset of VAL, TYP).
+     *                   (a subset of VAL, TYP, MTH).
      */
     Symbol findIdentInType(JavafxEnv<JavafxAttrContext> env, Type site,
                            Name name, int kind) {
@@ -1967,7 +1987,9 @@ public class JavafxResolve {
          */
         void report(Log log, DiagnosticPosition pos, Type site, Name name,
                     List<Type> argtypes, List<Type> typeargtypes) {
-            if (name != name.table.error) {
+            if (name == null) {
+                log.error(pos, MsgSym.MESSAGE_JAVAFX_NO_DEFAULT_DECLARED, site);
+            } else if (name != name.table.error) {
                 JCDiagnostic kindname = absentKindName(kind);
                 String idname = name.toString();
                 String args = "";

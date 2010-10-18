@@ -1,5 +1,5 @@
 /*
- * Regression: JFXC-3887 - var bound to overriden var in superclass is initialized too early.
+ * Regression: JFXC-3887 - var bound to overridden var in superclass is initialized too early.
  *
  * @test
  * @run

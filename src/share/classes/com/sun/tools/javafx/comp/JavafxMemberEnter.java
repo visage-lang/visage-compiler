@@ -48,7 +48,7 @@ import java.util.HashSet;
 
 
 /**
- * Add local declaratuions to current environment.
+ * Add local declarations to current environment.
  * The main entry point is {@code memberEnter}, which is called from
  * {@link JavafxAttr} when {@code visit}-ing a tree that contains local
  * declarations.
@@ -598,7 +598,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
 
         Scope enclScope = JavafxEnter.enterScope(env);
-        JavafxVarSymbol v = new JavafxVarSymbol(types, names,0, tree.name, null, enclScope.owner);
+        JavafxVarSymbol v = new JavafxVarSymbol(types, names, 0, tree.name, null, enclScope.owner);
         if (enclScope.owner.kind == TYP) {
             ((JavafxClassSymbol)enclScope.owner).addVar(v, (tree.mods.flags & STATIC) != 0);
         }
@@ -652,8 +652,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-
-
         // If the function defintion is contained within an Erroneous
         // block, the enclosing scope may not be defined. In this case
         // we do not enter the function into any scope as it belongs to
@@ -668,7 +666,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         // We don't otherwise attribute erroneous trees, hence it is safe to
         // ignore any exception. Further, the parser recovers sensibly from
         // most class definition errors (an erroneous class containing a function
-        // defintion is the most likely case to throw this method out), so the
+        // definition is the most likely case to throw this method out), so the
         // case is rare.
         //
         try {

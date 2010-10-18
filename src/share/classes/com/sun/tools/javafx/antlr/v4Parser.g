@@ -737,7 +737,7 @@ catch [RecognitionException re] {
 // Modifiers.
 // Collects the modifier flags for all known modifiers, regardless
 // of their validity with the declaration they will be associated with.
-// Attributing will verify the smeantics of the modifiers.
+// Attributing will verify the semantics of the modifiers.
 //
 modifiers
 
@@ -2935,7 +2935,7 @@ catch [RecognitionException re] {
 //
 boundExpression 
 
-    returns [JavafxBindStatus status, JFXExpression value]  // We nede to return a status flag to say how and if the
+    returns [JavafxBindStatus status, JFXExpression value]  // We need to return a status flag to say how and if the
                                                             // expression is bound, and the AST for the expression itself.
 
 @init 
@@ -3063,7 +3063,7 @@ expression
             $value = $assignmentExpression.value;
         }
         
-    | // Expressions can parse varaible declarations at all levels
+    | // Expressions can parse variable declarations at all levels
       // both local, script, class etc. It is up to the attribution phase
       // to throw out modifiers where they are not allowed such as on 
       // local variable declarations.
@@ -4634,7 +4634,7 @@ catch [RecognitionException re] {
 //
 objectLiteral
 
-    returns [ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb()]  // Gather a list of all the object literal insitalizations
+    returns [ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb()]  // Gather a list of all the object literal initializations
 
 // Where to append erroneous nodes
 //
@@ -4708,7 +4708,7 @@ objectLiteralPart
     int rPos = pos();
     
 }
-    : modifiers
+    : (modifiers) => modifiers
         (
               variableDeclaration    [$modifiers.mods, $modifiers.pos]
               
@@ -4730,6 +4730,19 @@ objectLiteralPart
         {
             $value = $oli.value;
             errNodes.append($oli.value);
+        }
+    | boundExpression
+
+        {
+            // AST
+            //
+            $value = F.at(rPos).ObjectLiteralPart
+                                    (
+                                        null,
+                                        $boundExpression.value,
+                                        $boundExpression.status
+                                    );
+            endPos($value);
         }
     ;
 // Catch an error. We create an erroneous node for anything that was at the start 

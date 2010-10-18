@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.code;
 
+import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Type;
@@ -83,6 +84,18 @@ public class JavafxClassSymbol extends ClassSymbol {
 
     public int getScriptVarCount() {
         return scriptVarCount;
+    }
+
+    public JavafxVarSymbol getDefaultVar() {
+        for (Symbol sym : members().getElements()) {
+            if (sym.kind == Kinds.VAR) {
+                JavafxVarSymbol vsym = (JavafxVarSymbol)sym;
+                if (vsym.isDefault()) {
+                    return vsym;
+                }
+            }
+        }
+        return null;
     }
     
     public boolean isScriptingModeScript() {
