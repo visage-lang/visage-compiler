@@ -186,6 +186,7 @@ RBRACKET    : ']';
 SEMI        : ';';
 COMMA       : ',';
 DOT         : '.';
+NULLCHECK   : '!.';
 EQEQ        : '==';
 EQ          : '=';
 GT          : '>';

@@ -4148,13 +4148,13 @@ postfixExpression
     : pe=primaryExpression  { $value = $pe.value; errNodes.append($pe.value); }
     
         (
-              DOT 
+              dot=(DOT|NULLCHECK)
                 ( 
                       (CLASS)=>CLASS 
                     
                         {
                             Name cName = Name.fromString(names, "class"); 
-                            $value = F.at(pos($DOT)).Select($value, cName);
+                            $value = F.at(pos($dot)).Select($value, cName);
                             endPos($value);
                             errNodes.append($value);
                         }
@@ -4162,7 +4162,7 @@ postfixExpression
                     | n1=nameAll
                       
                       {
-                            $value = F.at(pos($DOT)).Select($value, $n1.value);
+                            $value = F.at(pos($dot)).Select($value, $n1.value);
                             endPos($value);
                             errNodes.append($value);
                       }
@@ -6227,7 +6227,7 @@ qualname
     int rPos = pos();
     
     // Indicates that despite parsing correctly, we discovered an error here
-    // and so this shoudl be erroneous.
+    // and so this should be erroneous.
     //
     $inError = false;
     
@@ -6252,7 +6252,7 @@ qualname
             }
             (
                 
-                (DOT)=>DOT 
+                (DOT)=>DOT
 
                 (
                         (nameAll)=>n2=nameAll
