@@ -194,11 +194,7 @@ public class JavafxResolve {
      * @return The default variable name or null if there is none.
      */
     private Name lookupDefault(TypeSymbol c) {
-        if (c instanceof JavafxClassSymbol) {
-            JavafxVarSymbol defaultVar = ((JavafxClassSymbol) c).getDefaultVar();
-            return defaultVar == null ? null : defaultVar.name;
-        }
-        return null;
+        return c instanceof JavafxClassSymbol ? ((JavafxClassSymbol) c).getDefaultVar() : null;
     }
 
     /** Is given class a subclass of given base class, or an inner class

@@ -1523,7 +1523,7 @@ variableDeclaration [ JFXModifiers mods, int pos ]
                 
             } else {
             
-                // Here, we can have either an OVERRIDE or a striaght
+                // Here, we can have either an OVERRIDE or a straight
                 // declaration, but the AST nodes are different.
                 //
                 if  (($mods.flags & JavafxFlags.OVERRIDE) == JavafxFlags.OVERRIDE) {
@@ -1532,28 +1532,28 @@ variableDeclaration [ JFXModifiers mods, int pos ]
                     //
                     $value = F.at($pos).OverrideClassVar
                         (
-                                                        $name.value,
-                                                        $typeReference.rtype,
-                                                        $mods,
-                                                        part,
+                            $name.value,
+                            $typeReference.rtype,
+                            $mods,
+                            part,
                             bValue,
                             bStatus,
                             onReplaceValue,
-                                                        onInvalidateValue
+                            onInvalidateValue
                         );
 
                 } else {
                 
                     $value = F.at($pos).Var
-                                (
-                                    $name.value,
-                                    $typeReference.rtype,
-                                    $mods,
-                                    bValue,
-                                    bStatus,
-                                    onReplaceValue,
-                                                                onInvalidateValue
-                                );
+                        (
+                            $name.value,
+                            $typeReference.rtype,
+                            $mods,
+                            bValue,
+                            bStatus,
+                            onReplaceValue,
+                            onInvalidateValue
+                        );
                 }
             }
             // Documentation comment (if any)

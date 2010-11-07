@@ -48,6 +48,7 @@ public class JavafxClassSymbol extends ClassSymbol {
     private boolean isScriptingModeScript;
     private int memberVarCount = 0;
     private int scriptVarCount = 0;
+    private Name defaultVar;
     
     /** Creates a new instance of JavafxClassSymbol */
     public JavafxClassSymbol(long flags, Name name, Symbol owner) {
@@ -86,16 +87,12 @@ public class JavafxClassSymbol extends ClassSymbol {
         return scriptVarCount;
     }
 
-    public JavafxVarSymbol getDefaultVar() {
-        for (Symbol sym : members().getElements()) {
-            if (sym.kind == Kinds.VAR) {
-                JavafxVarSymbol vsym = (JavafxVarSymbol)sym;
-                if (vsym.isDefault()) {
-                    return vsym;
-                }
-            }
-        }
-        return null;
+    public void setDefaultVar(Name defaultVar) {
+        this.defaultVar = defaultVar;
+    }
+    
+    public Name getDefaultVar() {
+        return defaultVar;
     }
     
     public boolean isScriptingModeScript() {
