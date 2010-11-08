@@ -277,7 +277,7 @@ public class JavafxLower implements JavafxVisitor {
         ListBuffer<JFXExpression> stats = ListBuffer.lb();
 
         //if the assignop operand is an indexed expression of the kind a.x[i]
-        //then we need to cache the index value (not to recumpute it twice).
+        //then we need to cache the index value (not to recompute it twice).
 
         JFXExpression lhs = tree.lhs;
         JFXIdent index = null;
@@ -302,11 +302,11 @@ public class JavafxLower implements JavafxVisitor {
 
         if (lhs.getFXTag() == JavafxTag.SELECT) {
             JFXExpression selected = ((JFXSelect)lhs).selected;
-            JFXVar varDef = makeVar(tree.pos(), defs.exprNamePrefix(), selected, selected.type);
             // But, if this select is ClassName.foo, then we don't want
             // to create "var $expr = a;"
             Symbol sym = JavafxTreeInfo.symbolFor(selected);
             if (sym == null || sym.kind != Kinds.TYP) {
+                JFXVar varDef = makeVar(tree.pos(), defs.exprNamePrefix(), selected, selected.type);
                 selector = m.at(tree.pos).Ident(varDef.sym);
                 selector.sym = varDef.sym;
                 selector.type = varDef.type;
@@ -324,7 +324,7 @@ public class JavafxLower implements JavafxVisitor {
 
         if (selector != null) {
             JavafxVarSymbol vsym = (JavafxVarSymbol)JavafxTreeInfo.symbol(lhs);
-            varRef = m.at(tree.pos).Select(selector, vsym);
+            varRef = m.at(tree.pos).Select(selector, vsym, false);
             ((JFXSelect)varRef).sym = vsym;
         }
 
@@ -340,7 +340,7 @@ public class JavafxLower implements JavafxVisitor {
             //
             //(SELECT) $expr$.x = $expr$.x.[add/sub/mul/div](lhs);
             //(IDENT)  x = x.[add/sub/mul/div](lhs);
-            JFXSelect meth = (JFXSelect)m.at(tree.pos).Select(varRef, tree.operator.name);
+            JFXSelect meth = (JFXSelect)m.at(tree.pos).Select(varRef, tree.operator.name, false);
             meth.setType(tree.operator.type);
             meth.sym = tree.operator;
             op = m.at(tree.pos).Apply(List.<JFXExpression>nil(), meth, List.of(tree.rhs));
@@ -577,7 +577,7 @@ public class JavafxLower implements JavafxVisitor {
                 rs.newMethTemplate(List.of(syms.objectType),
                 List.<Type>nil()));
         pointerMakeSym.flags_field |= JavafxFlags.FUNC_POINTER_MAKE;
-        JFXSelect pointerMake = (JFXSelect)m.at(that.pos).Select(pointerType, pointerMakeSym);
+        JFXSelect pointerMake = (JFXSelect)m.at(that.pos).Select(pointerType, pointerMakeSym, false);
         pointerMake.sym = pointerMakeSym;
         JFXExpression pointerCall = m.at(that.pos).Apply(List.<JFXExpression>nil(),
                 pointerMake,
@@ -781,7 +781,7 @@ public class JavafxLower implements JavafxVisitor {
 
         if (selector != null) {
             JavafxVarSymbol vsym = (JavafxVarSymbol)JavafxTreeInfo.symbol(expr);
-            varRef = m.at(tree.pos).Select(selector, vsym);
+            varRef = m.at(tree.pos).Select(selector, vsym, false);
             ((JFXSelect)varRef).sym = vsym;
         }
 
@@ -945,7 +945,7 @@ public class JavafxLower implements JavafxVisitor {
                     Name zeroName = names.fromString("ZERO");
                     JFXSelect res = (JFXSelect)m.Select(
                             preTrans.makeTypeTree(syms.javafx_DurationType),
-                            zeroName).setType(syms.javafx_DurationType);
+                            zeroName, false).setType(syms.javafx_DurationType);
                     res.sym = rs.findIdentInType(env, syms.javafx_DurationType, zeroName, Kinds.VAR);
                     return res;
                 }
@@ -1120,7 +1120,7 @@ public class JavafxLower implements JavafxVisitor {
             JFXSelect qualId= (JFXSelect)tree;
             receiverVar = makeVar(tree.pos(), "rec", qualId.selected, qualId.selected.type);
             JFXIdent receiverVarRef = (JFXIdent)m.at(tree.pos).Ident(receiverVar.sym).setType(receiverVar.type);
-            meth = m.at(tree.pos).Select(receiverVarRef, msym).setType(mtype);
+            meth = m.at(tree.pos).Select(receiverVarRef, msym, false).setType(mtype);
         }
         JFXExpression call = m.at(tree.pos).Apply(List.<JFXExpression>nil(), meth, args.toList()).setType(returnType);
         JFXBlock body = (JFXBlock)m.at(tree.pos).Block(0, List.<JFXExpression>nil(), call).setType(returnType);
@@ -1375,7 +1375,7 @@ public class JavafxLower implements JavafxVisitor {
         }
         else {
             JFXExpression selected = lowerExpr(tree.selected);
-            res = (JFXSelect)m.Select(selected, tree.sym);
+            res = (JFXSelect)m.Select(selected, tree.sym, tree.nullCheck);
         }
         return res.setType(tree.type);
     }

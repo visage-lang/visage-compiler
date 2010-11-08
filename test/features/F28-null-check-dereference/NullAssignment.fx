@@ -10,6 +10,6 @@ class RecursiveNull {
 
 def rn:RecursiveNull = RecursiveNull {};
 
-println(rn.nullVar.nullVar);
-println(rn!.nullVar.nullVar);
-println(rn!.nullVar!.nullVar); // this one should fail
+println(rn.nullVar.nullVar = RecursiveNull {});
+println(rn!.nullVar.nullVar = RecursiveNull {});
+println(rn!.nullVar!.nullVar = RecursiveNull {});

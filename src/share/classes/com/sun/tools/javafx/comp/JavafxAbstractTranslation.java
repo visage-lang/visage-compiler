@@ -1295,6 +1295,11 @@ public abstract class JavafxAbstractTranslation
         }
 
         @Override
+        boolean needNullCheck() {
+            return !tree.nullCheck && super.needNullCheck();
+        }
+
+        @Override
         JFXExpression getToCheck() {
             return tree.getExpression();
         }
@@ -1317,6 +1322,11 @@ public abstract class JavafxAbstractTranslation
             this.tree = tree;
             this.name = tree.getIdentifier();
             this.tIndex = tIndex;
+        }
+
+        @Override
+        boolean needNullCheck() {
+            return tree.nullCheck && super.needNullCheck();
         }
 
         @Override
@@ -1367,6 +1377,7 @@ public abstract class JavafxAbstractTranslation
         protected final boolean useInvoke;
         protected final boolean callBound;
         protected final boolean magicPointerMakeFunction;
+        protected final boolean selectorNullCheck;
 
         // Call info
         protected final List<JFXExpression> typeargs;
@@ -1392,6 +1403,7 @@ public abstract class JavafxAbstractTranslation
             meth = tree.meth;
             JFXSelect fieldAccess = meth.getFXTag() == JavafxTag.SELECT ? (JFXSelect) meth : null;
             selector = fieldAccess != null ? fieldAccess.getExpression() : null;
+            selectorNullCheck = fieldAccess != null ? fieldAccess.nullCheck : false;
             msym = (refSym instanceof MethodSymbol) ? (MethodSymbol) refSym : null;
             funcSym = expressionSymbol(tree.meth); //either MethodSymbol or VarSymbol
             Name selectorIdName = (selector != null && selector.getFXTag() == JavafxTag.IDENT) ? ((JFXIdent) selector).getName() : null;
@@ -1537,7 +1549,7 @@ public abstract class JavafxAbstractTranslation
 
         @Override
         boolean needNullCheck() {
-            return !knownNonNull && super.needNullCheck();
+            return !selectorNullCheck && !knownNonNull && super.needNullCheck();
         }
 
         // make it final and set "inTranslateArgs" flag
@@ -2016,6 +2028,7 @@ public abstract class JavafxAbstractTranslation
         protected final JFXExpression selector;
         protected final JCExpression rhsTranslated;
         protected final boolean useAccessors;
+        protected final boolean selectorNullCheck;
 
         /**
          *
@@ -2031,6 +2044,7 @@ public abstract class JavafxAbstractTranslation
             this.indexOrNull = indexOrNull;
             this.rhs = rhs;
             this.selector = (ref instanceof JFXSelect) ? ((JFXSelect) ref).getExpression() : null;
+            this.selectorNullCheck = (ref instanceof JFXSelect) ? ((JFXSelect) ref).nullCheck : false;
             if (rhs != null) {
                 JCExpression translated = convertNullability(diagPos, translateExpr(rhs, rhsType()), rhs, rhsType());
                 this.rhsTranslated = preserveSideEffects(fullType, rhs, translated);
@@ -2072,7 +2086,7 @@ public abstract class JavafxAbstractTranslation
 
         @Override
         boolean needNullCheck() {
-            return selector != null && super.needNullCheck();
+            return !selectorNullCheck && selector != null && super.needNullCheck();
         }
 
         JCExpression translateIndex() {

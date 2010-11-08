@@ -517,7 +517,7 @@ public class JavafxScriptClassBuilder {
         }
         if (usesFile || usesDir) {
             JFXExpression moduleClassFQN = module.pid != null ?
-                fxmake.at(diagPos).Select(module.pid, moduleClassName) : fxmake.at(diagPos).Ident(moduleClassName);
+                fxmake.at(diagPos).Select(module.pid, moduleClassName, false) : fxmake.at(diagPos).Ident(moduleClassName);
             JFXExpression getFile = fxmake.at(diagPos).Identifier("com.sun.javafx.runtime.PseudoVariables.get__FILE__");
             JFXExpression forName = fxmake.at(diagPos).Identifier("java.lang.Class.forName");
             List<JFXExpression> args = List.<JFXExpression>of(fxmake.at(diagPos).Literal(moduleClassFQN.toString()));

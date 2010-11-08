@@ -607,7 +607,7 @@ importId
                             log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
                         }
                         
-                        $pid = F.at($n2.pos).Select($pid, $n2.value);
+                        $pid = F.at($n2.pos).Select($pid, $n2.value, false);
                         endPos($pid);
                     
                         // Build up new node in case of error
@@ -659,7 +659,7 @@ importId
                             
                         }
                         
-                        $pid = F.at($n2.pos).Select($pid, starBit);
+                        $pid = F.at($n2.pos).Select($pid, starBit, false);
                         endPos($pid);
 
                         // Build up new node in case of error
@@ -693,7 +693,7 @@ importId
                         JFXExpression part = F.at(semiPos()).Ident(missing);
                         errNodes.append(part);
                         endPos(part);
-                        $pid = F.at(pos($DOT)).Select($pid, missing);
+                        $pid = F.at(pos($DOT)).Select($pid, missing, false);
                         endPos($pid);
                         log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
                     }
@@ -4154,7 +4154,7 @@ postfixExpression
                     
                         {
                             Name cName = Name.fromString(names, "class"); 
-                            $value = F.at(pos($dot)).Select($value, cName);
+                            $value = F.at(pos($dot)).Select($value, cName, $dot.getType()==NULLCHECK);
                             endPos($value);
                             errNodes.append($value);
                         }
@@ -4162,7 +4162,7 @@ postfixExpression
                     | n1=nameAll
                       
                       {
-                            $value = F.at(pos($dot)).Select($value, $n1.value);
+                            $value = F.at(pos($dot)).Select($value, $n1.value, $dot.getType()==NULLCHECK);
                             endPos($value);
                             errNodes.append($value);
                       }
@@ -6265,7 +6265,7 @@ qualname
                                 //$inError = true;
                             }
                             
-                            $value = F.at(pos($DOT)).Select($value, $n2.value);
+                            $value = F.at(pos($DOT)).Select($value, $n2.value, false);
                             endPos($value); 
                             
                             // Build up new node in case of error
@@ -6276,7 +6276,7 @@ qualname
                         }
 
                     |   {
-                            $value = F.at(pos($DOT)).Select($value, Name.fromString(names, "<missing>"));
+                            $value = F.at(pos($DOT)).Select($value, Name.fromString(names, "<missing>"), false);
                             endPos($value);
                             log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
                         }

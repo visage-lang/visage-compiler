@@ -661,7 +661,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 }
                 bindStatus = oldBindStatus;
             }
-            JFXSelect res = fxmake.at(diagPos).Select(selected, sym.name);
+            JFXSelect res = fxmake.at(diagPos).Select(selected, sym.name, tree.nullCheck);
             res.sym = sym;
             if (bindStatus.isBound() && types.isSequence(tree.type)) {
                 // Add a size field to hold the previous size on selector switch

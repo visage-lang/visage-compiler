@@ -213,8 +213,8 @@ public abstract class JavafxTranslationSupport {
 
             @Override
             public void visitSelect(JFXSelect tree) {
-                // Doesn't really have side-effects but the dupllicate null checking is aweful
-                //TODO: do this in a cleaner way
+                // Doesn't really have side-effects but the duplicate null checking is awful
+                // TODO: do this in a cleaner way
                 markSideEffects();
             }
         }
