@@ -22,3 +22,4 @@
 \.rej$
 \.conflict\~$
 ^.*~$
+^.*\.DS_Store$
