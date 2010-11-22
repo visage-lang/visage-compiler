@@ -84,8 +84,10 @@ public class Builtins {
      */
     @com.sun.javafx.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
     public static boolean isInitialized(FXObject instance, int offset) {
-        return instance.varTestBits$(offset, FXObject.VFLGS$IS_BOUND, FXObject.VFLGS$IS_BOUND) ||
-               instance.varTestBits$(offset, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+        return instance != null && (
+                   instance.varTestBits$(offset, FXObject.VFLGS$IS_BOUND, FXObject.VFLGS$IS_BOUND) ||
+                   instance.varTestBits$(offset, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT)
+               );
     }
 
     /**
