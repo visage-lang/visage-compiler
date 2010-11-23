@@ -181,7 +181,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
 
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected = copy(tree.selected);
-        result = maker.at(tree.pos).Select(selected, tree.name);
+        result = maker.at(tree.pos).Select(selected, tree.name, tree.nullCheck);
     }
 
     public void visitIdent(JFXIdent tree) {

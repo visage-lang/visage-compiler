@@ -1035,13 +1035,6 @@ public class JavafxCheck {
         if (illegal != 0) {
             log.error(pos, msg, JavafxTreeInfo.flagNames(illegal), thing);
         }
-        else if (sym.kind == VAR && (flags & DEFAULT) != 0) {
-            JavafxVarSymbol vsym = (JavafxVarSymbol)sym;
-            JavafxVarSymbol defaultVar = ((JavafxClassSymbol) vsym.owner).getDefaultVar();
-            if (defaultVar != null) {
-                log.error(pos, MsgSym.MESSAGE_JAVAFX_MULTIPLE_DEFAULT_VARS, defaultVar, vsym);
-            }
-        }
         else if ((sym.kind == TYP ||
 		 checkDisjoint(pos, flags,
 			       ABSTRACT | MIXIN,

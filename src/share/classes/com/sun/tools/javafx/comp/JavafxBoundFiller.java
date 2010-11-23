@@ -242,7 +242,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
 
                 // find the symbol of Pointer.make(Object) method.
                 // The select expression Pointer.make
-                JFXSelect select = fxmake.Select(fxmake.Type(syms.javafx_PointerType), defs.make_PointerMethodName);
+                JFXSelect select = fxmake.Select(fxmake.Type(syms.javafx_PointerType), defs.make_PointerMethodName, false);
                 select.sym = preTrans.makeSyntheticPointerMake();
                 select.type = select.sym.type;
 

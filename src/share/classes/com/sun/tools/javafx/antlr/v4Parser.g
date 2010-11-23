@@ -607,7 +607,7 @@ importId
                             log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
                         }
                         
-                        $pid = F.at($n2.pos).Select($pid, $n2.value);
+                        $pid = F.at($n2.pos).Select($pid, $n2.value, false);
                         endPos($pid);
                     
                         // Build up new node in case of error
@@ -659,7 +659,7 @@ importId
                             
                         }
                         
-                        $pid = F.at($n2.pos).Select($pid, starBit);
+                        $pid = F.at($n2.pos).Select($pid, starBit, false);
                         endPos($pid);
 
                         // Build up new node in case of error
@@ -693,7 +693,7 @@ importId
                         JFXExpression part = F.at(semiPos()).Ident(missing);
                         errNodes.append(part);
                         endPos(part);
-                        $pid = F.at(pos($DOT)).Select($pid, missing);
+                        $pid = F.at(pos($DOT)).Select($pid, missing, false);
                         endPos($pid);
                         log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
                     }
@@ -1523,7 +1523,7 @@ variableDeclaration [ JFXModifiers mods, int pos ]
                 
             } else {
             
-                // Here, we can have either an OVERRIDE or a striaght
+                // Here, we can have either an OVERRIDE or a straight
                 // declaration, but the AST nodes are different.
                 //
                 if  (($mods.flags & JavafxFlags.OVERRIDE) == JavafxFlags.OVERRIDE) {
@@ -1532,28 +1532,28 @@ variableDeclaration [ JFXModifiers mods, int pos ]
                     //
                     $value = F.at($pos).OverrideClassVar
                         (
-                                                        $name.value,
-                                                        $typeReference.rtype,
-                                                        $mods,
-                                                        part,
+                            $name.value,
+                            $typeReference.rtype,
+                            $mods,
+                            part,
                             bValue,
                             bStatus,
                             onReplaceValue,
-                                                        onInvalidateValue
+                            onInvalidateValue
                         );
 
                 } else {
                 
                     $value = F.at($pos).Var
-                                (
-                                    $name.value,
-                                    $typeReference.rtype,
-                                    $mods,
-                                    bValue,
-                                    bStatus,
-                                    onReplaceValue,
-                                                                onInvalidateValue
-                                );
+                        (
+                            $name.value,
+                            $typeReference.rtype,
+                            $mods,
+                            bValue,
+                            bStatus,
+                            onReplaceValue,
+                            onInvalidateValue
+                        );
                 }
             }
             // Documentation comment (if any)
@@ -4148,13 +4148,13 @@ postfixExpression
     : pe=primaryExpression  { $value = $pe.value; errNodes.append($pe.value); }
     
         (
-              DOT 
+              dot=(DOT|NULLCHECK)
                 ( 
                       (CLASS)=>CLASS 
                     
                         {
                             Name cName = Name.fromString(names, "class"); 
-                            $value = F.at(pos($DOT)).Select($value, cName);
+                            $value = F.at(pos($dot)).Select($value, cName, $dot.getType()==NULLCHECK);
                             endPos($value);
                             errNodes.append($value);
                         }
@@ -4162,7 +4162,7 @@ postfixExpression
                     | n1=nameAll
                       
                       {
-                            $value = F.at(pos($DOT)).Select($value, $n1.value);
+                            $value = F.at(pos($dot)).Select($value, $n1.value, $dot.getType()==NULLCHECK);
                             endPos($value);
                             errNodes.append($value);
                       }
@@ -6227,7 +6227,7 @@ qualname
     int rPos = pos();
     
     // Indicates that despite parsing correctly, we discovered an error here
-    // and so this shoudl be erroneous.
+    // and so this should be erroneous.
     //
     $inError = false;
     
@@ -6252,7 +6252,7 @@ qualname
             }
             (
                 
-                (DOT)=>DOT 
+                (DOT)=>DOT
 
                 (
                         (nameAll)=>n2=nameAll
@@ -6265,7 +6265,7 @@ qualname
                                 //$inError = true;
                             }
                             
-                            $value = F.at(pos($DOT)).Select($value, $n2.value);
+                            $value = F.at(pos($DOT)).Select($value, $n2.value, false);
                             endPos($value); 
                             
                             // Build up new node in case of error
@@ -6276,7 +6276,7 @@ qualname
                         }
 
                     |   {
-                            $value = F.at(pos($DOT)).Select($value, Name.fromString(names, "<missing>"));
+                            $value = F.at(pos($DOT)).Select($value, Name.fromString(names, "<missing>"), false);
                             endPos($value);
                             log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
                         }

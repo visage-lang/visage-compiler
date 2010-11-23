@@ -31,7 +31,7 @@ import com.sun.tools.mjavac.util.Name;
 
  /**
  * Selects through packages and classes
- * @param selected selected Tree hierarchie
+ * @param selected selected Tree hierarchy
  * @param selector name of field to select thru
  * @param sym symbol of the selected class
  */
@@ -40,13 +40,15 @@ public class JFXSelect extends JFXExpression implements MemberSelectTree {
     public JFXExpression selected;
     public Name name;
     public Symbol sym;
+    public boolean nullCheck;
 
     public JFXVar boundSize;
 
-    protected JFXSelect(JFXExpression selected, Name name, Symbol sym) {
+    protected JFXSelect(JFXExpression selected, Name name, Symbol sym, boolean nullCheck) {
         this.selected = selected;
         this.name = name;
         this.sym = sym;
+        this.nullCheck = nullCheck;
     }
 
     @Override

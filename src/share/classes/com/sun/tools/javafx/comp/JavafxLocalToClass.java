@@ -496,7 +496,7 @@ public class JavafxLocalToClass {
                         nlParam.type = param.type;
                         nlParam.sym = param.sym;
                         JFXSelect nlValue = fxmake.Select(nlParam,
-                        defs.value_NonLocalReturnExceptionFieldName);
+                        defs.value_NonLocalReturnExceptionFieldName, false);
                         nlValue.type = syms.objectType;
                         nlValue.sym = rs.findIdentInType(env, syms.javafx_NonLocalReturnExceptionType, nlValue.name, Kinds.VAR);
                         catchBody.expr = fxmake.TypeCast(preTrans.makeTypeTree(returnType), nlValue).setType(returnType);
@@ -595,7 +595,7 @@ public class JavafxLocalToClass {
         inst.sym = classSymbol;
         inst.type = classSymbol.type;
 
-        JFXSelect select = fxmake.Select(inst, funcName);
+        JFXSelect select = fxmake.Select(inst, funcName, false);
         select.sym = funcSym;
         select.type = funcSym.type;
 

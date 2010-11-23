@@ -244,8 +244,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXSelect Select(JFXExpression selected, Name selector) {
-        JFXSelect tree = new JFXSelect(selected, selector, null);
+    public JFXSelect Select(JFXExpression selected, Name selector, boolean nullCheck) {
+        JFXSelect tree = new JFXSelect(selected, selector, null, nullCheck);
         tree.pos = pos;
         return tree;
     }
@@ -312,8 +312,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     /** Create a selection node from a qualifier tree and a symbol.
      *  @param base   The qualifier tree.
      */
-    public JFXExpression Select(JFXExpression base, Symbol sym) {
-        return new JFXSelect(base, sym.name, sym).setPos(pos).setType(sym.type);
+    public JFXExpression Select(JFXExpression base, Symbol sym, boolean nullCheck) {
+        return new JFXSelect(base, sym.name, sym, nullCheck).setPos(pos).setType(sym.type);
     }
 
     /** Create an identifier that refers to the variable declared in given variable
@@ -458,7 +458,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             case CLASS:
                 Type outer = t.getEnclosingType();
                 tp = outer.tag == CLASS && t.tsym.owner.kind == TYP
-                        ? Select(Type(outer), t.tsym)
+                        ? Select(Type(outer), t.tsym, false)
                         : QualIdent(t.tsym);
                 break;
             default:
@@ -975,7 +975,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             Name partName = names.fromString(part);
             tree = tree == null?
                 Ident(partName) :
-                Select(tree, partName);
+                Select(tree, partName, false);
             lastInx = endInx + 1;
         } while (inx >= 0);
         return tree;
@@ -1108,6 +1108,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             return Ident(sym);
         return isUnqualifiable(sym)
             ? Ident(sym)
-            : Select(QualIdent(sym.owner), sym);
+            : Select(QualIdent(sym.owner), sym, false);
     }
 }
