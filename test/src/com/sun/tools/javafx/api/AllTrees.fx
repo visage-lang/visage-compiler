@@ -178,6 +178,12 @@ at (1s) {
     c => 1 tween Interpolator.LINEAR;
 }
 
+// LENGTH_LITERAL
+5mm;
+
+// ANGLE_LITERAL
+90deg;
+
 // SEQUENCE_DELETE
 delete 8 from seq;
 

@@ -28,7 +28,7 @@ import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.Token;
 
 /**
- * An implementation of teh ANTLR 3.x CommonToken, with extra information
+ * An implementation of the ANTLR 3.x CommonToken, with extra information
  * concerning error recovery.
  *
  * An object of this type is created by the parser error recovery mechanisms
@@ -40,7 +40,7 @@ import org.antlr.runtime.Token;
  * can then choose to override the default value created by
  * #AbstractGeneratedParserV4.getMissingToken() according to any context information
  * they might have, but more importantly, they can see that the token they have
- * was auto inserted and therefore create differnt AST nodes to indicate the fact.
+ * was auto inserted and therefore create different AST nodes to indicate the fact.
  *
  * @author jimi
  */
@@ -55,13 +55,10 @@ public class MissingCommonToken extends CommonToken {
     }
 
     public MissingCommonToken(CharStream input, int type, int channel, int start, int stop) {
-        
         super(input, type, channel, start, stop);
-
     }
 
     public MissingCommonToken(int type) {
-
         super(type);
     }
 

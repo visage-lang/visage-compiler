@@ -347,5 +347,17 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
         mark(tree);
         super.visitTimeLiteral(tree);
     }
+
+    @Override
+    public void visitLengthLiteral(JFXLengthLiteral tree) {
+        mark(tree);
+        super.visitLengthLiteral(tree);
+    }
+
+    @Override
+    public void visitAngleLiteral(JFXAngleLiteral tree) {
+        mark(tree);
+        super.visitAngleLiteral(tree);
+    }
 }
 

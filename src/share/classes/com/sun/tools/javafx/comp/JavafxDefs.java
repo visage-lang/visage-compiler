@@ -154,6 +154,8 @@ public class JavafxDefs {
     private static final String cString = javaLang_PackageString + ".String";
     // in javafx.lang package
     private static final String cDuration = fxLang_PackageString + ".Duration";
+    private static final String cLength = fxLang_PackageString + ".Length";
+    private static final String cAngle = fxLang_PackageString + ".Angle";
     // in javafx.animation package
     public static final String cKeyValueTargetType = fxAnimation_PackageString + ".KeyValueTarget.Type";
 
@@ -169,6 +171,8 @@ public class JavafxDefs {
     public static final String internalRunFunctionString = Entry.entryMethodName();
     public static final String varGetMapString = "GETMAP$";
     public static final String zero_DurationFieldName = "javafx.lang.Duration.$ZERO";
+    public static final String zero_LengthFieldName = "javafx.lang.Length.$ZERO";
+    public static final String zero_AngleFieldName = "javafx.lang.Angle.$ZERO";
     public static final String synthForLabelPrefix = "synth_for$";
 
     public static final Pattern DATETIME_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT]");
@@ -252,6 +256,8 @@ public class JavafxDefs {
     final RuntimeMethod Pointer_switchDependence;
 
     final RuntimeMethod Duration_valueOf;
+    final RuntimeMethod Length_valueOf;
+    final RuntimeMethod Angle_valueOf;
 
     final RuntimeMethod StringLocalization_getLocalizedString;
     final RuntimeMethod FXFormatter_sprintf;
@@ -300,6 +306,32 @@ public class JavafxDefs {
     final Name gt_DurationMethodName;
     final Name toMillis_DurationMethodName;
     final Name negate_DurationMethodName;
+
+    /**
+     * Length method Names
+     */
+    final Name add_LengthMethodName;
+    final Name sub_LengthMethodName;
+    final Name mul_LengthMethodName;
+    final Name div_LengthMethodName;
+    final Name le_LengthMethodName;
+    final Name lt_LengthMethodName;
+    final Name ge_LengthMethodName;
+    final Name gt_LengthMethodName;
+    final Name negate_LengthMethodName;
+
+    /**
+     * Angle method Names
+     */
+    final Name add_AngleMethodName;
+    final Name sub_AngleMethodName;
+    final Name mul_AngleMethodName;
+    final Name div_AngleMethodName;
+    final Name le_AngleMethodName;
+    final Name lt_AngleMethodName;
+    final Name ge_AngleMethodName;
+    final Name gt_AngleMethodName;
+    final Name negate_AngleMethodName;
 
     /**
      * Sequence method Names
@@ -563,6 +595,28 @@ public class JavafxDefs {
         toMillis_DurationMethodName = names.fromString("toMillis");
         negate_DurationMethodName = names.fromString("negate");
 
+        // Initialize Length method names
+        add_LengthMethodName = names.fromString("add");
+        sub_LengthMethodName = names.fromString("sub");
+        mul_LengthMethodName = names.fromString("mul");
+        div_LengthMethodName = names.fromString("div");
+        le_LengthMethodName = names.fromString("le");
+        lt_LengthMethodName = names.fromString("lt");
+        ge_LengthMethodName = names.fromString("ge");
+        gt_LengthMethodName = names.fromString("gt");
+        negate_LengthMethodName = names.fromString("negate");
+
+        // Initialize Angle method names
+        add_AngleMethodName = names.fromString("add");
+        sub_AngleMethodName = names.fromString("sub");
+        mul_AngleMethodName = names.fromString("mul");
+        div_AngleMethodName = names.fromString("div");
+        le_AngleMethodName = names.fromString("le");
+        lt_AngleMethodName = names.fromString("lt");
+        ge_AngleMethodName = names.fromString("ge");
+        gt_AngleMethodName = names.fromString("gt");
+        negate_AngleMethodName = names.fromString("negate");
+
         cFXObjectName = names.fromString(cFXObject);
         cFXMixinName = names.fromString(cFXMixin);
         mixinClassSuffixName = names.fromString(mixinClassSuffix);
@@ -809,6 +863,8 @@ public class JavafxDefs {
         Pointer_switchDependence = new RuntimeMethod(names, cPointer, "switchDependence");
 
         Duration_valueOf = new RuntimeMethod(names, cDuration, "valueOf");
+        Length_valueOf = new RuntimeMethod(names, cLength, "valueOf");
+        Angle_valueOf = new RuntimeMethod(names, cAngle, "valueOf");
 
         StringLocalization_getLocalizedString = new RuntimeMethod(names, cStringLocalization, "getLocalizedString");
         FXFormatter_sprintf = new RuntimeMethod(names, cFXFormatter, "sprintf");

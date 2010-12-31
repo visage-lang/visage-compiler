@@ -1619,6 +1619,34 @@ public class JavafxResolve {
                 return res;
             }
         }
+        // check for Length unary minus
+        if (types.isSameType(arg, syms.javafx_LengthType)) {
+            Symbol res = null;
+            switch (optag) {
+            case NEG:
+                res = resolveMethod(pos,  env,
+                                    defs.negate_LengthMethodName,
+                                    arg, List.<Type>nil());
+                break;
+            }
+            if (res != null && res.kind == MTH) {
+                return res;
+            }
+        }
+        // check for Angle unary minus
+        if (types.isSameType(arg, syms.javafx_AngleType)) {
+            Symbol res = null;
+            switch (optag) {
+            case NEG:
+                res = resolveMethod(pos,  env,
+                                    defs.negate_AngleMethodName,
+                                    arg, List.<Type>nil());
+                break;
+            }
+            if (res != null && res.kind == MTH) {
+                return res;
+            }
+        }
         return resolveOperator(pos, optag, env, List.of(arg));
     }
 
@@ -1686,6 +1714,124 @@ public class JavafxResolve {
             case GE:
                 res =  resolveMethod(pos,  env,
                                      defs.ge_DurationMethodName,
+                                     dur, List.of(right));
+                break;
+            }
+            if (res != null && res.kind == MTH) {
+                return res;
+            } // else fall through
+        }
+        // Length operator overloading
+        if (types.isSameType(left, syms.javafx_LengthType) ||
+            types.isSameType(right, syms.javafx_LengthType)) {
+            Type dur = left;
+            Symbol res = null;
+            switch (optag) {
+            case PLUS:
+                res = resolveMethod(pos,  env,
+                                     defs.add_LengthMethodName,
+                                     dur, List.of(right));
+                break;
+            case MINUS:
+                res =  resolveMethod(pos,  env,
+                                     defs.sub_LengthMethodName,
+                                     dur, List.of(right));
+                break;
+            case MUL:
+                if (!types.isSameType(left, syms.javafx_LengthType)) {
+                    left = right;
+                    right = dur;
+                    dur = left;
+                }
+                res =  resolveMethod(pos,  env,
+                                     defs.mul_LengthMethodName,
+                                     dur,
+                                     List.of(right));
+                break;
+            case DIV:
+                res =  resolveMethod(pos,  env,
+                                     defs.div_LengthMethodName,
+                                     dur, List.of(right));
+                break;
+
+            //fix me...inline or move to static helper?
+            case LT:
+                res =  resolveMethod(pos,  env,
+                                     defs.lt_LengthMethodName,
+                                     dur, List.of(right));
+                break;
+            case LE:
+                res =  resolveMethod(pos,  env,
+                                     defs.le_LengthMethodName,
+                                     dur, List.of(right));
+                break;
+            case GT:
+                res =  resolveMethod(pos,  env,
+                                     defs.gt_LengthMethodName,
+                                     dur, List.of(right));
+                break;
+            case GE:
+                res =  resolveMethod(pos,  env,
+                                     defs.ge_LengthMethodName,
+                                     dur, List.of(right));
+                break;
+            }
+            if (res != null && res.kind == MTH) {
+                return res;
+            } // else fall through
+        }
+        // Angle operator overloading
+        if (types.isSameType(left, syms.javafx_AngleType) ||
+            types.isSameType(right, syms.javafx_AngleType)) {
+            Type dur = left;
+            Symbol res = null;
+            switch (optag) {
+            case PLUS:
+                res = resolveMethod(pos,  env,
+                                     defs.add_AngleMethodName,
+                                     dur, List.of(right));
+                break;
+            case MINUS:
+                res =  resolveMethod(pos,  env,
+                                     defs.sub_AngleMethodName,
+                                     dur, List.of(right));
+                break;
+            case MUL:
+                if (!types.isSameType(left, syms.javafx_AngleType)) {
+                    left = right;
+                    right = dur;
+                    dur = left;
+                }
+                res =  resolveMethod(pos,  env,
+                                     defs.mul_AngleMethodName,
+                                     dur,
+                                     List.of(right));
+                break;
+            case DIV:
+                res =  resolveMethod(pos,  env,
+                                     defs.div_AngleMethodName,
+                                     dur, List.of(right));
+                break;
+
+            //fix me...inline or move to static helper?
+            case LT:
+                res =  resolveMethod(pos,  env,
+                                     defs.lt_AngleMethodName,
+                                     dur, List.of(right));
+                break;
+            case LE:
+                res =  resolveMethod(pos,  env,
+                                     defs.le_AngleMethodName,
+                                     dur, List.of(right));
+                break;
+            case GT:
+                res =  resolveMethod(pos,  env,
+                                     defs.gt_AngleMethodName,
+                                     dur, List.of(right));
+                break;
+            case GE:
+                res =  resolveMethod(pos,  env,
+                                     defs.ge_AngleMethodName,
                                      dur, List.of(right));
                 break;
             }

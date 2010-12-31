@@ -335,6 +335,12 @@ public class JavafxTreeScanner implements JavafxVisitor {
     public void visitTimeLiteral(JFXTimeLiteral tree) {
     }
 
+    public void visitLengthLiteral(JFXLengthLiteral tree) {
+    }
+
+    public void visitAngleLiteral(JFXAngleLiteral tree) {
+    }
+
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         scan(tree.attribute);
         scan(tree.value);

@@ -412,7 +412,9 @@ public abstract class JavafxTranslationSupport {
     boolean isValueType(Type type) {
         return types.isSequence(type) ||
                types.isSameType(type, syms.javafx_StringType) ||
-               types.isSameType(type, syms.javafx_DurationType);
+               types.isSameType(type, syms.javafx_DurationType) ||
+               types.isSameType(type, syms.javafx_LengthType) ||
+               types.isSameType(type, syms.javafx_AngleType);
     }
 
     JCExpression makeDefaultValue(DiagnosticPosition diagPos, Type type) {
@@ -432,6 +434,12 @@ public abstract class JavafxTranslationSupport {
             }
             if (types.isSameType(type, syms.javafx_DurationType)) {
                 return makeQualifiedTree(diagPos, JavafxDefs.zero_DurationFieldName);
+            }
+            if (types.isSameType(type, syms.javafx_LengthType)) {
+                return makeQualifiedTree(diagPos, JavafxDefs.zero_LengthFieldName);
+            }
+            if (types.isSameType(type, syms.javafx_AngleType)) {
+                return makeQualifiedTree(diagPos, JavafxDefs.zero_AngleFieldName);
             }
             // fall through
         }

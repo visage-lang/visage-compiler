@@ -68,6 +68,9 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_NumberType;
     public final Type javafx_StringType;
     public final Type javafx_DurationType;
+    public final Type javafx_LengthType;
+    public final Type javafx_LengthUnitType;
+    public final Type javafx_AngleType;
 
     // Javafx other types
     public final Type javafx_AnyType;
@@ -196,6 +199,9 @@ public class JavafxSymtab extends Symtab {
         }
         javafx_StringType = stringType;
         javafx_DurationType = enterClass("javafx.lang.Duration");
+        javafx_LengthType = enterClass("javafx.lang.Length");
+        javafx_LengthUnitType = enterClass("javafx.lang.LengthUnit");
+        javafx_AngleType = enterClass("javafx.lang.Angle");
 
         javafx_AnyType = objectType;
         javafx_UnspecifiedType = unknownType;

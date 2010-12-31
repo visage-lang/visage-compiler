@@ -32,6 +32,7 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.tree.JFXAngleLiteral;
 import com.sun.tools.javafx.tree.JFXAssign;
 import com.sun.tools.javafx.tree.JFXAssignOp;
 import com.sun.tools.javafx.tree.JFXBinary;
@@ -58,6 +59,7 @@ import com.sun.tools.javafx.tree.JFXInstanciate;
 import com.sun.tools.javafx.tree.JFXInterpolateValue;
 import com.sun.tools.javafx.tree.JFXInvalidate;
 import com.sun.tools.javafx.tree.JFXKeyFrameLiteral;
+import com.sun.tools.javafx.tree.JFXLengthLiteral;
 import com.sun.tools.javafx.tree.JFXLiteral;
 import com.sun.tools.javafx.tree.JFXModifiers;
 import com.sun.tools.javafx.tree.JFXOnReplace;
@@ -681,6 +683,18 @@ final class TreeXMLSerializer implements JavafxVisitor {
         startElement(TIME_LITERAL, timeLiteral);
         emitData(timeLiteral.getValue().toString());
         endElement(TIME_LITERAL);
+    }
+
+    public void visitLengthLiteral(JFXLengthLiteral lengthLiteral) {
+        startElement(LENGTH_LITERAL, lengthLiteral);
+        emitData(lengthLiteral.getValue().toString());
+        endElement(LENGTH_LITERAL);
+    }
+
+    public void visitAngleLiteral(JFXAngleLiteral angleLiteral) {
+        startElement(ANGLE_LITERAL, angleLiteral);
+        emitData(angleLiteral.getValue().toString());
+        endElement(ANGLE_LITERAL);
     }
 
     public void visitOverrideClassVar(JFXOverrideClassVar overrideVar) {

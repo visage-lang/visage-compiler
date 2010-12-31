@@ -75,6 +75,8 @@ public final class Constants {
     public static final String DOUBLE_LITERAL = "double-literal";
     public static final String STRING_LITERAL = "string-literal";
     public static final String TIME_LITERAL = "time-literal";
+    public static final String LENGTH_LITERAL = "time-literal";
+    public static final String ANGLE_LITERAL = "time-literal";
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     public static final String VALUE = "value";

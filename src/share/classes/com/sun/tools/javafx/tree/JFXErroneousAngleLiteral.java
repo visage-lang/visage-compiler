@@ -1,10 +1,10 @@
 /*
- * Copyright 2007-2009 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2010 Visage Project.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -15,10 +15,6 @@
  * You should have received a copy of the GNU General Public License version
  * 2 along with this work; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
- * CA 95054 USA or visit www.sun.com if you need additional information or
- * have any questions.
  */
 
 package com.sun.tools.javafx.tree;
@@ -30,13 +26,13 @@ import com.sun.tools.mjavac.util.List;
 
 /**
  * Specialized tree that can indicate to the walker that it was manufactured
- * in place of a time value that should have been there in the source code but
+ * in place of an angle value that should have been there in the source code but
  * was erroneously not there (or perhaps the IDE is using this tree and the user
  * has not typed that in yet).
  *
- * @author jimi
+ * @author Stephen Chin <steveonjava@gmail.com>
  */
-public class JFXErroneousTimeLiteral extends JFXTimeLiteral  {
+public class JFXErroneousAngleLiteral extends JFXAngleLiteral  {
 
     /**
      * This class is just an Erroneous node masquerading as
@@ -46,7 +42,7 @@ public class JFXErroneousTimeLiteral extends JFXTimeLiteral  {
      */
     private JFXErroneous errNode;
 
-    protected JFXErroneousTimeLiteral(List<? extends JFXTree> errs) {
+    protected JFXErroneousAngleLiteral(List<? extends JFXTree> errs) {
         errNode = new JFXErroneous(errs);
     }
 

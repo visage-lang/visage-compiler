@@ -80,6 +80,8 @@ public interface JavafxVisitor {
     public void visitForExpressionInClause(JFXForExpressionInClause tree);
     public void visitIndexof(JFXIndexof tree);
     public void visitTimeLiteral(JFXTimeLiteral tree);
+    public void visitLengthLiteral(JFXLengthLiteral tree);
+    public void visitAngleLiteral(JFXAngleLiteral tree);
     public void visitOverrideClassVar(JFXOverrideClassVar tree);
     public void visitInterpolateValue(JFXInterpolateValue tree);
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree);

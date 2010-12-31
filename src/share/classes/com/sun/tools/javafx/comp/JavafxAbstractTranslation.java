@@ -58,6 +58,7 @@ import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.tree.TreeTranslator;
 import java.util.Map;
+import javafx.lang.LengthUnit;
 import javax.lang.model.type.TypeKind;
 import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Yield.*;
 
@@ -225,8 +226,8 @@ public abstract class JavafxAbstractTranslation
     }
 
     /**
-     * Special handling for Strings and Durations. If a value assigned to one of these is null,
-     * the default value for the type must be substituted.
+     * Special handling for Strings, Durations, Lengths, and Angles. If a value
+     * assigned to one of these is null, the default value for the type must be substituted.
      * inExpr is the input expression.  outType is the desired result type.
      * expr is the result value to use in the normal case.
      * This doesn't handle the case   var ss: String = if (true) null else "Hi there, sailor"
@@ -242,7 +243,8 @@ public abstract class JavafxAbstractTranslation
             }
 
             JCExpression doitExpr() {
-                if (outType != syms.stringType && outType != syms.javafx_DurationType) {
+                if (outType != syms.stringType && outType != syms.javafx_DurationType
+                    && outType != syms.javafx_LengthType && outType != syms.javafx_AngleType) {
                     return expr;
                 }
 
@@ -653,6 +655,7 @@ public abstract class JavafxAbstractTranslation
     private UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final int initLength, final boolean nonLocal) {
         return new UseSequenceBuilder(diagPos, elemType, null) {
 
+            @Override
             JCStatement addElement(JFXExpression exprToAdd) {
                 JCExpression expr = translateToExpression(exprToAdd, targettedType(exprToAdd));
                 JCVariableDecl varDef = TmpVar(targettedType(exprToAdd), expr);
@@ -661,6 +664,7 @@ public abstract class JavafxAbstractTranslation
                     makeAdd(expr);
             }
 
+            @Override
             List<JCExpression> makeConstructorArgs() {
                 ListBuffer<JCExpression> lb = ListBuffer.lb();
                 if (initLength != -1) {
@@ -925,6 +929,7 @@ public abstract class JavafxAbstractTranslation
             return setterPreface.toList();
         }
 
+        @Override
         abstract AbstractStatementsResult doit();
 
         JCExpression staticReference(Symbol sym) {
@@ -971,6 +976,7 @@ public abstract class JavafxAbstractTranslation
             this.tree = tree;
         }
 
+        @Override
         protected ExpressionResult doit() {
             if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
                 throw new AssertionError("Should have been converted");
@@ -1008,6 +1014,7 @@ public abstract class JavafxAbstractTranslation
                 parts = parts.tail;
                 JFXExpression exp = parts.head;
                 JCExpression texp;
+                // todo: make sure toString works for length and angle
                 if (exp != null && types.isSameType(exp.type, syms.javafx_DurationType)) {
                     texp = Call(translateExpr(exp, syms.javafx_DurationType), defs.toMillis_DurationMethodName);
                     texp = typeCast(syms.javafx_LongType, syms.javafx_DoubleType, texp);
@@ -1177,6 +1184,7 @@ public abstract class JavafxAbstractTranslation
             return tExpr;
         }
 
+        @Override
         protected AbstractStatementsResult doit() {
             JCExpression tToCheck = translateToCheck(getToCheck());
             JCExpression full = fullExpression(tToCheck);
@@ -1667,6 +1675,41 @@ public abstract class JavafxAbstractTranslation
             return toResult(
                     Call(defs.Duration_valueOf, translateExpr(value, syms.doubleType)),
                     syms.javafx_DurationType);
+        }
+    }
+
+    class LengthLiteralTranslator extends ExpressionTranslator {
+
+        JFXExpression value;
+        LengthUnit units;
+
+        LengthLiteralTranslator(JFXLengthLiteral tree) {
+            super(tree.pos());
+            this.value = tree.value;
+            this.units = tree.units;
+        }
+
+        protected ExpressionResult doit() {
+            JCExpression unitSelect = Select(makeType(syms.javafx_LengthUnitType), names.fromString(units.name()));
+            return toResult(
+                    Call(defs.Length_valueOf, translateExpr(value, syms.doubleType), unitSelect),
+                    syms.javafx_LengthType);
+        }
+    }
+
+    class AngleLiteralTranslator extends ExpressionTranslator {
+
+        JFXExpression value;
+
+        AngleLiteralTranslator(JFXAngleLiteral tree) {
+            super(tree.pos());
+            this.value = tree.value;
+        }
+
+        protected ExpressionResult doit() {
+            return toResult(
+                    Call(defs.Angle_valueOf, translateExpr(value, syms.doubleType)),
+                    syms.javafx_AngleType);
         }
     }
 
@@ -2281,6 +2324,16 @@ public abstract class JavafxAbstractTranslation
                                 Call(translateExpr(tree.arg, tree.arg.type), defs.negate_DurationMethodName),
                                 syms.javafx_DurationType);
                     }
+                    if (types.isSameType(tree.type, syms.javafx_LengthType)) {
+                        return toResult(
+                                Call(translateExpr(tree.arg, tree.arg.type), defs.negate_LengthMethodName),
+                                syms.javafx_LengthType);
+                    }
+                    if (types.isSameType(tree.type, syms.javafx_AngleType)) {
+                        return toResult(
+                                Call(translateExpr(tree.arg, tree.arg.type), defs.negate_AngleMethodName),
+                                syms.javafx_AngleType);
+                    }
                 default:
                     return toResult(
                             m().Unary(tree.getOperatorTag(), transExpr),
@@ -2446,6 +2499,90 @@ public abstract class JavafxAbstractTranslation
             throw new RuntimeException("Internal Error: bad Duration operation");
         }
 
+        boolean isLength(Type type) {
+            return types.isSameType(type, syms.javafx_LengthType);
+        }
+
+        final Type lengthNumericType = syms.javafx_NumberType;
+
+        JCExpression lengthOp() {
+            switch (tree.getFXTag()) {
+                case PLUS:
+                    return op(lhs(), defs.add_LengthMethodName, rhs());
+                case MINUS:
+                    return op(lhs(), defs.sub_LengthMethodName, rhs());
+                case DIV:
+                    return op(lhs(), defs.div_LengthMethodName, rhs(isLength(rhsType)? null : lengthNumericType));
+                case MUL: {
+                    // lhs.mul(rhs);
+                    JCExpression rcvr;
+                    JCExpression arg;
+                    if (isLength(lhsType)) {
+                        rcvr = lhs();
+                        arg = rhs(lengthNumericType);
+                    } else {
+                        //TODO: This may get side-effects out-of-order.
+                        // A simple fix is to use a static Length.mul(double,Length).
+                        // Another is to use a Block and a temporary.
+                        rcvr = rhs();
+                        arg = lhs(lengthNumericType);
+                    }
+                    return op(rcvr, defs.mul_LengthMethodName, arg);
+                }
+                case LT:
+                    return op(lhs(), defs.lt_LengthMethodName, rhs());
+                case LE:
+                    return op(lhs(), defs.le_LengthMethodName, rhs());
+                case GT:
+                    return op(lhs(), defs.gt_LengthMethodName, rhs());
+                case GE:
+                    return op(lhs(), defs.ge_LengthMethodName, rhs());
+            }
+            throw new RuntimeException("Internal Error: bad Length operation");
+        }
+
+        boolean isAngle(Type type) {
+            return types.isSameType(type, syms.javafx_AngleType);
+        }
+
+        final Type angleNumericType = syms.javafx_NumberType;
+
+        JCExpression angleOp() {
+            switch (tree.getFXTag()) {
+                case PLUS:
+                    return op(lhs(), defs.add_AngleMethodName, rhs());
+                case MINUS:
+                    return op(lhs(), defs.sub_AngleMethodName, rhs());
+                case DIV:
+                    return op(lhs(), defs.div_AngleMethodName, rhs(isAngle(rhsType)? null : angleNumericType));
+                case MUL: {
+                    // lhs.mul(rhs);
+                    JCExpression rcvr;
+                    JCExpression arg;
+                    if (isAngle(lhsType)) {
+                        rcvr = lhs();
+                        arg = rhs(angleNumericType);
+                    } else {
+                        //TODO: This may get side-effects out-of-order.
+                        // A simple fix is to use a static Angle.mul(double,Angle).
+                        // Another is to use a Block and a temporary.
+                        rcvr = rhs();
+                        arg = lhs(angleNumericType);
+                    }
+                    return op(rcvr, defs.mul_AngleMethodName, arg);
+                }
+                case LT:
+                    return op(lhs(), defs.lt_AngleMethodName, rhs());
+                case LE:
+                    return op(lhs(), defs.le_AngleMethodName, rhs());
+                case GT:
+                    return op(lhs(), defs.gt_AngleMethodName, rhs());
+                case GE:
+                    return op(lhs(), defs.ge_AngleMethodName, rhs());
+            }
+            throw new RuntimeException("Internal Error: bad Angle operation");
+        }
+
         /**
          * Translate a binary expressions
          */
@@ -2466,6 +2603,16 @@ public abstract class JavafxAbstractTranslation
                 if ((isDuration(lhsType) || isDuration(rhsType)) &&
                         tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Duration method isn't matched
                     return durationOp();
+                }
+                // Length type operator overloading
+                if ((isLength(lhsType) || isLength(rhsType)) &&
+                        tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Length method isn't matched
+                    return lengthOp();
+                }
+                // Angle type operator overloading
+                if ((isAngle(lhsType) || isAngle(rhsType)) &&
+                        tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Angle method isn't matched
+                    return angleOp();
                 }
                 return m().Binary(tree.getOperatorTag(), lhs(), rhs());
             }
@@ -4084,6 +4231,14 @@ public abstract class JavafxAbstractTranslation
 
     public void visitTimeLiteral(final JFXTimeLiteral tree) {
         result = new TimeLiteralTranslator(tree).doit();
+   }
+
+    public void visitLengthLiteral(final JFXLengthLiteral tree) {
+        result = new LengthLiteralTranslator(tree).doit();
+   }
+
+    public void visitAngleLiteral(final JFXAngleLiteral tree) {
+        result = new AngleLiteralTranslator(tree).doit();
    }
 
     public void visitTree(JFXTree that) {

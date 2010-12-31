@@ -268,10 +268,10 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitAssignop(JFXAssignOp tree) {
-        result = visitNumericAssignop(tree, types.isSameType(tree.lhs.type, syms.javafx_DurationType));
+        result = visitNumericAssignop(tree, types.isSameType(tree.lhs.type, syms.javafx_DurationType) || types.isSameType(tree.lhs.type, syms.javafx_LengthType) || types.isSameType(tree.lhs.type, syms.javafx_AngleType));
     }
     //where
-    private JFXExpression visitNumericAssignop(JFXAssignOp tree, boolean isDurationOperation) {
+    private JFXExpression visitNumericAssignop(JFXAssignOp tree, boolean isSpecialLiteralOperation) {
 
         JavafxTag opTag = tree.getNormalOperatorFXTag();
         ListBuffer<JFXExpression> stats = ListBuffer.lb();
@@ -335,8 +335,8 @@ public class JavafxLower implements JavafxVisitor {
         //Generate the binary expression this assignop translates to
         JFXExpression op = null;
 
-        if (isDurationOperation) {
-            //duration assignop
+        if (isSpecialLiteralOperation) {
+            //special literal assignop (duration, length, angle)
             //
             //(SELECT) $expr$.x = $expr$.x.[add/sub/mul/div](lhs);
             //(IDENT)  x = x.[add/sub/mul/div](lhs);
@@ -345,8 +345,7 @@ public class JavafxLower implements JavafxVisitor {
             meth.sym = tree.operator;
             op = m.at(tree.pos).Apply(List.<JFXExpression>nil(), meth, List.of(tree.rhs));
             op.setType(tree.type);
-        }
-        else {
+        } else {
             //numeric assignop
             //
             //(SELECT) $expr$.x = $expr$.x [+|-|*|/] lhs;
@@ -364,7 +363,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitBinary(JFXBinary tree) {
-        boolean isDurationBinaryExpr = tree.operator == null;
+        boolean isSpecialLiteralBinaryExpr = tree.operator == null;
         boolean isEqualExpr = (tree.getFXTag() == JavafxTag.EQ ||
                 tree.getFXTag() == JavafxTag.NE);
         boolean isSequenceOp = types.isSequence(tree.lhs.type) ||
@@ -373,22 +372,13 @@ public class JavafxLower implements JavafxVisitor {
                 (tree.rhs.type.isPrimitive() && !tree.lhs.type.isPrimitive());
         Type lhsType = tree.lhs.type;
         Type rhsType = tree.rhs.type;
-        if (!isDurationBinaryExpr) {
+        if (!isSpecialLiteralBinaryExpr) {
             lhsType = isSequenceOp && isEqualExpr ?
                 types.sequenceType(tree.operator.type.getParameterTypes().head) :
                 tree.operator.type.getParameterTypes().head;
             rhsType = isSequenceOp && isEqualExpr ?
                 types.sequenceType(tree.operator.type.getParameterTypes().tail.head) :
                 tree.operator.type.getParameterTypes().tail.head;
-        }
-        else {
-            if (!types.isSameType(tree.lhs.type, syms.javafx_DurationType) &&
-                    tree.getFXTag() == JavafxTag.MUL) {
-                rhsType = syms.javafx_DurationType;
-            }
-            else {
-                lhsType = syms.javafx_DurationType;
-            }
         }
         JFXExpression lhs = isEqualExpr && isBoxedOp && !isSequenceOp ?
             lowerExpr(tree.lhs) :
@@ -948,6 +938,20 @@ public class JavafxLower implements JavafxVisitor {
                             zeroName, false).setType(syms.javafx_DurationType);
                     res.sym = rs.findIdentInType(env, syms.javafx_DurationType, zeroName, Kinds.VAR);
                     return res;
+                } else if (types.isSameType(t, syms.javafx_LengthType)) {
+                    Name zeroName = names.fromString("ZERO");
+                    JFXSelect res = (JFXSelect)m.Select(
+                            preTrans.makeTypeTree(syms.javafx_LengthType),
+                            zeroName, false).setType(syms.javafx_LengthType);
+                    res.sym = rs.findIdentInType(env, syms.javafx_LengthType, zeroName, Kinds.VAR);
+                    return res;
+                } else if (types.isSameType(t, syms.javafx_AngleType)) {
+                    Name zeroName = names.fromString("ZERO");
+                    JFXSelect res = (JFXSelect)m.Select(
+                            preTrans.makeTypeTree(syms.javafx_AngleType),
+                            zeroName, false).setType(syms.javafx_AngleType);
+                    res.sym = rs.findIdentInType(env, syms.javafx_AngleType, zeroName, Kinds.VAR);
+                    return res;
                 }
             }
             default: return m.Literal(TypeTags.BOT, null).setType(syms.botType);
@@ -1390,6 +1394,14 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitTimeLiteral(JFXTimeLiteral tree) {
+        result = tree;
+    }
+
+    public void visitLengthLiteral(JFXLengthLiteral tree) {
+        result = tree;
+    }
+
+    public void visitAngleLiteral(JFXAngleLiteral tree) {
         result = tree;
     }
 

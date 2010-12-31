@@ -1467,7 +1467,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             
             case v4Parser.TIME_LITERAL:
             
-                // A time literal needs spacial handling as if anything wants to
+                // A time literal needs special handling so if anything wants to
                 // try and use the value it should contain, then it needs to be
                 // some valid default value. Here we use 1 second as a default
                 //
@@ -1500,7 +1500,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         t                 = new MissingCommonToken(expectedTokenType, tokenText);
                 
         // Use the current/prior token to make up a position for the
-        // manufactured one, one character after then end of the previous one.
+        // manufactured one, one character after the end of the previous one.
         //
         t.setLine                   (current.getLine());   
         t.setCharPositionInLine     (current.getStopIndex() + 1);
@@ -1653,7 +1653,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * what should have been a type such as : String and so on.
      * 
      * Performs customized resynchronization of the input stream and returns
-     * either a missing type node or an erroneous node, depdning on whether it
+     * either a missing type node or an erroneous node, depending on whether it
      * can make any sense of the error, or just has to resync to the followSet.
      * 
      * @param ruleStart The position in the input stream of the first token that
@@ -1705,7 +1705,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * This method is used whenever we wish to force a sync, even though
      * the parser has not yet checked LA(1) for alt selection. This is useful
      * in situations where only a subset of tokens can begin a new construct
-     * (such as the start of a new statement in a block) and we waat to
+     * (such as the start of a new statement in a block) and we want to
      * proactively detect garbage so that the current rule does not exit on
      * on an exception.
      *

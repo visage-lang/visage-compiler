@@ -28,38 +28,38 @@ import java.lang.Math;
 import javafx.util.Bits;
 
 /**
- * Used to specify a duration of 0ms.
+ * Used to specify a angle of 0ms.
  *
  * @profile common
  */
-public def ZERO: Duration = Duration { millis: 0}; 
+public def ZERO: Angle = Angle { millis: 0};
 
 /**
- * Used to specify a duration of 1ms.
+ * Used to specify a angle of 1ms.
  *
  * @profile common
  */
-public def ONE: Duration = Duration { millis: 1};
+public def ONE: Angle = Angle { millis: 1};
 
 /**
- * Used to specify a duration of indefinite length.
+ * Used to specify a angle of indefinite length.
  *
  * @profile common
  */
-public def INDEFINITE: Duration = Duration { millis: Double.POSITIVE_INFINITY};
+public def INDEFINITE: Angle = Angle { millis: Double.POSITIVE_INFINITY};
 
 
 // script-level "static" functions below
 
     /**
-     * Factory method that returns a Duration instance for a specified
+     * Factory method that returns a Angle instance for a specified
      * number of milliseconds.
      *
      * @param ms the number of milliseconds
-     * @return a Duration instance of the specified number of milliseconds
+     * @return a Angle instance of the specified number of milliseconds
      * @profile common
      */
-    public function valueOf(ms: Double): Duration {
+    public function valueOf(ms: Double): Angle {
         if (ms == 0)
             ZERO
         else if (ms == 1)
@@ -67,32 +67,32 @@ public def INDEFINITE: Duration = Duration { millis: Double.POSITIVE_INFINITY};
         else if (ms == Double.POSITIVE_INFINITY) //TODO: handling of negative infinity
             INDEFINITE
         else
-             Duration {
+             Angle {
                  millis: ms
              }
 
     }
-    public function valueOf(ms: Float): Duration {
+    public function valueOf(ms: Float): Angle {
         valueOf(ms as Double)
     }
 
     public def TYPE_INFO = com.sun.javafx.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
 
 /**
- * A class that defines a duration of time.  Duration instances are defined in
+ * A class that defines a angle of time.  Angle instances are defined in
  * milliseconds, but can be easily created using time literals; for
- * example, a two-and-a-half minute Duration instance can be defined in several
+ * example, a two-and-a-half minute Angle instance can be defined in several
  * ways:
- * <code><pre>    Duration t = 2m + 30s;
-    Duration t = 2.5m;
-    Duration t = 2500ms;</pre></code>
- * Duration instances are immutable, and are therefore replaced rather than modified.
- * To create a new Duration instance, either use a time literal, or use the
- * <code>Duration.valueOf(milliseconds)</code> factory method.
+ * <code><pre>    Angle t = 2m + 30s;
+    Angle t = 2.5m;
+    Angle t = 2500ms;</pre></code>
+ * Angle instances are immutable, and are therefore replaced rather than modified.
+ * To create a new Angle instance, either use a time literal, or use the
+ * <code>Angle.valueOf(milliseconds)</code> factory method.
  *
  * @profile common
  */
-public class Duration extends Comparable {
+public class Angle extends Comparable {
 
     var millis : Double;
 
@@ -128,49 +128,49 @@ public class Duration extends Comparable {
         return Math.floor(millis / 60 / 60 / 1000) as Number;
     }
 
-    /** Add this instance and another Duration instance to return a new Duration instance.
+    /** Add this instance and another Angle instance to return a new Angle instance.
      *  If either instance is INDEFINITE, return INDEFINITE.
-     *  This function does not change the value of the called Duration instance. 
+     *  This function does not change the value of the called Angle instance.
      *
      * @profile common
      */
-    public function add(other:Duration):Duration {
+    public function add(other:Angle):Angle {
         // Note that several of these functions assume that the value of millis in INDEFINITE
         // is Double.POSITIVE_INFINITY.
         return valueOf(millis + other.millis);
     }
 
-    /** Subtract other Duration instance from this instance to return a new Duration instance.
+    /** Subtract other Angle instance from this instance to return a new Angle instance.
      *  If either instance is INDEFINITE, return INDEFINITE.
-     *  This function does not change the value of the called Duration instance. 
+     *  This function does not change the value of the called Angle instance.
      *
      * @profile common
      */
-    public function sub(other:Duration):Duration {
+    public function sub(other:Angle):Angle {
         if (isIndefinite() or other.isIndefinite()) {
             return INDEFINITE;
         }
         return valueOf(millis - other.millis);
     }
 
-    /** Multiply this instance with a number to return a new Duration instance.
-     *  If the called Duration instance is INDEFINITE, return INDEFINITE.
-     *  This function does not change the value of the called Duration instance. 
+    /** Multiply this instance with a number to return a new Angle instance.
+     *  If the called Angle instance is INDEFINITE, return INDEFINITE.
+     *  This function does not change the value of the called Angle instance.
      *
      * @profile common
      */ 
-    public function mul(n:Number):Duration {
+    public function mul(n:Number):Angle {
         return valueOf(millis * n);
     }
 
 
-    /** Divide this instance by a number to return a new Duration instance.
-     *  If the called Duration instance is INDEFINITE, return INDEFINITE.
-     *  This function does not change the value of the called Duration instance. 
+    /** Divide this instance by a number to return a new Angle instance.
+     *  If the called Angle instance is INDEFINITE, return INDEFINITE.
+     *  This function does not change the value of the called Angle instance.
      *
      * @profile common
      */     
-    public function div(n:Number):Duration {
+    public function div(n:Number):Angle {
         if (n == 0) {
             throw new java.lang.ArithmeticException("/ by zero");
         }
@@ -178,15 +178,15 @@ public class Duration extends Comparable {
         return valueOf(millis / n);
     }
 
-    /** Divide this instance by another Duration to return the ratio.
+    /** Divide this instance by another Angle to return the ratio.
      *  If both instances are INDEFINITE, return NaN.
      *  If this instance is INDEFINITE, return POSITIVE_INFINITY
      *  If the other instance is INDEFINITE, return 0.0.
-     *  This function does not change the value of the called Duration instance. 
+     *  This function does not change the value of the called Angle instance.
      *
      * @profile common
      */     
-    public function div(other:Duration):Number {
+    public function div(other:Angle):Number {
         if (isIndefinite() and other.isIndefinite()) {
             return java.lang.Float.NaN;
         } 
@@ -204,15 +204,15 @@ public class Duration extends Comparable {
     }
 
     /** 
-     * Return a new Duration instance which has a negative number of milliseconds
+     * Return a new Angle instance which has a negative number of milliseconds
      * from this instance.  For example, <code>(50ms).negate()</code> returns
-     * a Duration of -50 milliseconds. 
-     * If the called Duration instance is INDEFINITE, return INDEFINITE.
-     * This function does not change the value of the called Duration instance. 
+     * a Angle of -50 milliseconds.
+     * If the called Angle instance is INDEFINITE, return INDEFINITE.
+     * This function does not change the value of the called Angle instance.
      *
      * @profile common
      */
-    public function negate():Duration {
+    public function negate():Angle {
         return if (isIndefinite()) INDEFINITE else valueOf(-millis);
     }
 
@@ -228,47 +228,47 @@ public class Duration extends Comparable {
     }
 
     /** 
-     * Returns true if the specified duration is less than (<) this instance. 
+     * Returns true if the specified angle is less than (<) this instance.
      * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */
-    public function lt(other: Duration):Boolean {
+    public function lt(other: Angle):Boolean {
         return compareTo(other) < 0;
     }
 
     /** 
-     * Returns true if the specified duration is less than or equal to (<=) this instance. 
+     * Returns true if the specified angle is less than or equal to (<=) this instance.
      * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */
-    public function le(other: Duration):Boolean {
+    public function le(other: Angle):Boolean {
         return compareTo(other) <= 0;
     }
 
     /** 
-     * Returns true if the specified duration is greater than (>) this instance. 
+     * Returns true if the specified angle is greater than (>) this instance.
      * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */
-    public function gt(other: Duration):Boolean {
+    public function gt(other: Angle):Boolean {
         return compareTo(other) > 0;
     }
 
     /**
-     * Returns true if the specified duration is greater than or equal to (>=) this instance. 
+     * Returns true if the specified angle is greater than or equal to (>=) this instance.
      * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */
-    public function ge(other: Duration):Boolean {
+    public function ge(other: Angle):Boolean {
         return compareTo(other) >= 0;
     }
 
     override function compareTo(obj : Object) : Integer {
-        def d = obj as Duration;
+        def d = obj as Angle;
         if (this.millis == d.millis) {
             return 0
         }
@@ -288,8 +288,8 @@ public class Duration extends Comparable {
     }
 
     override function equals(obj : Object) : Boolean {
-        if (obj instanceof Duration) {
-            def d = obj as Duration;
+        if (obj instanceof Angle) {
+            def d = obj as Angle;
             if (isSameObject(d, this)) {
                 return true;
             }

@@ -22,9 +22,9 @@
  */
 
 /////////////////////////////////////////////////////////////////////////////////
-// Version 4 of the JavaFX parser grammar.
+// Version 4+ of the JavaFX parser grammar.
 //
-// @author Jim Idle - Temporal Wave LLC
+// @author Stephen Chin
 //
 // Version 4 of the grammar reverts to a separate lexer and parser grammar without a separate
 // ANTLR based AST walker. This is because this is the easiest way (at the time of writing)
@@ -34,6 +34,7 @@
 //
 // Derived from prior versions by:
 //
+// @author Jim Idle - Temporal Wave LLC
 // @author Robert Field
 // @author Zhiqun Chen
 //
@@ -4443,7 +4444,7 @@ catch [RecognitionException re] {
 
     // If we were constructing an object literal or keyframe set, then
     // we will still create that, but an error node will have been added
-    // to containing block or if there is no containindg block, the script
+    // to containing block or if there is no containing block, the script
     //
     if  ($o1.parts != null) {
     
@@ -6155,11 +6156,23 @@ literal
                 {
                     $value = F.at(rPos).LiteralInteger($HEX_LITERAL.text, 16);
                 }
-                
+
             | timeValue
-            
+
                 {
                     $value = $timeValue.valNode;
+                }
+
+            | lengthValue
+
+                {
+                    $value = $lengthValue.valNode;
+                }
+
+            | angleValue
+
+                {
+                    $value = $angleValue.valNode;
                 }
                 
             | FLOATING_POINT_LITERAL
@@ -6336,16 +6349,16 @@ timeValue
 }
 
     : TIME_LITERAL
-    
+
         {
             // Check to see if error recovery made up this value for us
             //
             if  ($TIME_LITERAL instanceof MissingCommonToken) {
-            
+
                 $valNode = F.at(pos($TIME_LITERAL)).ErroneousTimeLiteral();
-                
+
             } else {
-            
+
                 // Create a real node
                 //
                 $valNode = F.at(pos($TIME_LITERAL)).TimeLiteral($TIME_LITERAL.text);
@@ -6353,7 +6366,7 @@ timeValue
             endPos($valNode);
         }
     ;
-// Catch an error. We create an erroneous node for anything that was at the start 
+// Catch an error. We create an erroneous node for anything that was at the start
 // up to wherever we made sense of the input.
 //
 catch [RecognitionException re] {
@@ -6365,13 +6378,122 @@ catch [RecognitionException re] {
     // Now we perform standard ANTLR recovery here
     //
     recover(input, re);
-    
+
     // Create the error node
     //
     $valNode = F.at(rPos).ErroneousTimeLiteral();
     endPos($valNode);
-    
+
 }
+
+// ----------
+// Length value
+// Invoked to pick up a specialized length token and create a special node
+// that indicates it was missing, if the parser created it etc.
+//
+lengthValue
+
+    returns [JFXLengthLiteral valNode]
+
+@init
+{
+    // Work out current position in the input stream
+    //
+    int rPos = pos();
+}
+
+    : LENGTH_LITERAL
+
+        {
+            // Check to see if error recovery made up this value for us
+            //
+            if  ($LENGTH_LITERAL instanceof MissingCommonToken) {
+
+                $valNode = F.at(pos($LENGTH_LITERAL)).ErroneousLengthLiteral();
+
+            } else {
+
+                // Create a real node
+                //
+                $valNode = F.at(pos($LENGTH_LITERAL)).LengthLiteral($LENGTH_LITERAL.text);
+            }
+            endPos($valNode);
+        }
+    ;
+// Catch an error. We create an erroneous node for anything that was at the start
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+
+    // First, let's report the error as the user needs to know about it
+    //
+    reportError(re);
+
+    // Now we perform standard ANTLR recovery here
+    //
+    recover(input, re);
+
+    // Create the error node
+    //
+    $valNode = F.at(rPos).ErroneousLengthLiteral();
+    endPos($valNode);
+
+}
+
+// ----------
+// Angle value
+// Invoked to pick up a specialized angle token and create a special node
+// that indicates it was missing, if the parser created it etc.
+//
+angleValue
+
+    returns [JFXAngleLiteral valNode]
+
+@init
+{
+    // Work out current position in the input stream
+    //
+    int rPos = pos();
+}
+
+    : ANGLE_LITERAL
+
+        {
+            // Check to see if error recovery made up this value for us
+            //
+            if  ($ANGLE_LITERAL instanceof MissingCommonToken) {
+
+                $valNode = F.at(pos($ANGLE_LITERAL)).ErroneousAngleLiteral();
+
+            } else {
+
+                // Create a real node
+                //
+                $valNode = F.at(pos($ANGLE_LITERAL)).AngleLiteral($ANGLE_LITERAL.text);
+            }
+            endPos($valNode);
+        }
+    ;
+// Catch an error. We create an erroneous node for anything that was at the start
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+
+    // First, let's report the error as the user needs to know about it
+    //
+    reportError(re);
+
+    // Now we perform standard ANTLR recovery here
+    //
+    recover(input, re);
+
+    // Create the error node
+    //
+    $valNode = F.at(rPos).ErroneousAngleLiteral();
+    endPos($valNode);
+
+}
+
 // -----------------------
 // ID
 // Basic identifier parse

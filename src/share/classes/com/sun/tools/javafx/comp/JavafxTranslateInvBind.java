@@ -538,6 +538,16 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
     }
 
     @Override
+    public void visitLengthLiteral(JFXLengthLiteral tree) {
+        disallowedInInverseBind();
+    }
+
+    @Override
+    public void visitAngleLiteral(JFXAngleLiteral tree) {
+        disallowedInInverseBind();
+    }
+
+    @Override
     public void visitTypeCast(JFXTypeCast tree) {
         disallowedInInverseBind();
     }

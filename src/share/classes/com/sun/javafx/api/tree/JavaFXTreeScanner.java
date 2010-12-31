@@ -370,6 +370,14 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
         return null;
     }
 
+    public R visitLengthLiteral(LengthLiteralTree node, P p) {
+        return null;
+    }
+
+    public R visitAngleLiteral(AngleLiteralTree node, P p) {
+        return null;
+    }
+
     public R visitTypeAny(TypeAnyTree node, P p) {
         return null;
     }

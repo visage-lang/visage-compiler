@@ -288,6 +288,14 @@ public enum JavafxTag {
     /** time literal
      */
     TIME_LITERAL,
+
+    /** time literal
+     */
+    LENGTH_LITERAL,
+
+    /** time literal
+     */
+    ANGLE_LITERAL,
     
     /** value clause in an interpolation
      */

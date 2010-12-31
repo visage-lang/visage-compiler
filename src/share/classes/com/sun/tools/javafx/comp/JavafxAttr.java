@@ -3940,6 +3940,14 @@ public class JavafxAttr implements JavafxVisitor {
         result = check(tree, syms.javafx_DurationType, VAL, pkind, pt, pSequenceness);
     }
 
+    public void visitLengthLiteral(JFXLengthLiteral tree) {
+        result = check(tree, syms.javafx_LengthType, VAL, pkind, pt, pSequenceness);
+    }
+
+    public void visitAngleLiteral(JFXAngleLiteral tree) {
+        result = check(tree, syms.javafx_AngleType, VAL, pkind, pt, pSequenceness);
+    }
+
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         JavafxEnv<JavafxAttrContext> dupEnv = env.dup(tree);
         dupEnv.outer = env;

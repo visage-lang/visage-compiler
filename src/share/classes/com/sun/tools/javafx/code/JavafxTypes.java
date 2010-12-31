@@ -75,7 +75,9 @@ public class JavafxTypes extends Types {
     public boolean isNullable(Type type) {
             return !type.isPrimitive() &&
                     type != syms.javafx_StringType &&
-                    type != syms.javafx_DurationType;
+                    type != syms.javafx_DurationType &&
+                    type != syms.javafx_LengthType &&
+                    type != syms.javafx_AngleType;
     }
 
     public boolean isSequence(Type type) {

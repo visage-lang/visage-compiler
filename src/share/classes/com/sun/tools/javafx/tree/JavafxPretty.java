@@ -1395,6 +1395,24 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
+    public void visitLengthLiteral(JFXLengthLiteral tree) {
+        try {
+            Double d = ((Number)tree.value.value).doubleValue();
+            print(d + tree.units.getSuffix());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitAngleLiteral(JFXAngleLiteral tree) {
+        try {
+            Double d = ((Number)tree.value.value).doubleValue();
+            print(d + tree.units.getSuffix());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         printInterpolateValue(tree);
     }

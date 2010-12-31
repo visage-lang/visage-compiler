@@ -40,6 +40,7 @@
 //
 // @author Robert Field
 // @author Zhiqun Chen
+// @author Stephen Chin
 //
 lexer grammar v4Lexer;
 
@@ -558,18 +559,74 @@ TranslationKeyBody
 // Numeric literals.
 // These are handled specailly to reduce lexer complexity and
 // negate the need to override standard ANTLR lexing methods.
-// This improves performance and enhance readibility.
+// This improves performance and enhances readability.
 // The following fragment rules are to document the types and
 // to provide a lexer symbol for the token type. The actual
 // parsing is carried out in the FLOATING_POINT_LITERAL rule.
 //
 
 // Time literals are self evident in meaning and are currently
-// recognized by the lexer. This may change as in some cases 
+// recognized by the lexer. This may change as in some cases
 // trying to do too much in the lexer results in lexing errors
 // that are difficult to recover from.
 //
 fragment    TIME_LITERAL        :   ;
+
+// Length literals are meant for expressing screen layouts.
+// This includes both physical and relative measurements.
+//
+// Physical measurements are expressed in terms of the size of the
+// final rendered version.  They are appropriate where the screen
+// characteristics are well known, but suffer from scaling issues where
+// the distance to the display varies greatly (such as cell phone vs. TV).
+// Supported measures include:
+// * in - inches: 1in is 1 physical inch
+// * cm - centimeters: 1cm is 1/2.54 of an inch
+// * mm - millimeters: 1mm is 1/10th of a centimeter
+// * pt - points: 1pt is equal to 1/72 of an inch
+// * pc - picas: 1pc is equal to 12 points
+//
+// Relative measurements are expressed in terms of other scaling factors such
+// as the font size, container size, or pixel density of the screen.
+// Supported measures include:
+// * em - Length measure relative to text height.  Historically the height
+// of the "M" ligature in the given font, this usually refers to the reference
+// font height.
+// * ex - Length measure relative to half the text height.  Historically the
+// height of the lowercase "x" in the given font, this will be set to half of
+// an "em" where no font information is available.
+// * px - A reference pixel on the given display device.  This will always be
+// precisely 1 device dependent pixel based on the resolution of the target device.
+// This measure is useful where exact pixel reproduction is required or the
+// device characteristics are known in advance.
+// * dp - A density-independent pixel that is scaled to accommodate the display
+// characteristics.  This will usually be a fixed multiple of device pixels,
+// while accounting for screen resolution and viewing distance.  On platforms
+// where density-independent pixels are not supported, 1dp will be the same
+// as 1px.
+// * sp - A scale-independent pixel that is relative to the user chosen scaling
+// factor.  For the default scale 1sp equals 1dp, with fractional multiples up
+// or down based on the scaling factor.  This is most often used to update the
+// font sizes based on user scaling, but can also be used for layout and
+// to scale graphics.  On platforms that do not support scaling, 1sp will
+// always equal 1dp (and likely 1px).
+// * % - A length measure relative to the container.  100% would be the full
+// length of the container and values between 100 and 0 would be fractionally
+// smaller.  If there is no valid reference for the container, this will be
+// treated as a length of 0.
+//
+fragment    LENGTH_LITERAL      :   ;
+
+// Angle measurements for specifying bends, angles, or alignment.
+//
+// * deg - Angle in degrees.  Negative and fractional values are allowed.  Will
+// be standardized to be between 0 and 360.
+// * rad - Angle in radians.  Radians normally require no units, but for typing
+// purposes must have this extension to be used where an angle is required.
+// * turn - A geometric turn representing 1 full revolution.  1turn is equal to
+// 360deg or Math.PI*2rad.
+//
+fragment    ANGLE_LITERAL       :   ;
 
 // Decimal literals may not have leading zeros unless
 // they are just the constant 0. They are integer only.
@@ -757,15 +814,31 @@ FLOATING_POINT_LITERAL
                     // in whatever units.
                     //
                     ('m' 's'? | 's' | 'h')
-                    
+
                     { $type = TIME_LITERAL; }
-                    
-                
+
+
+                |   // Length sequence specifier means this was 0 length
+                    // in whatever units.
+                    //
+                    ('in' | 'cm' | 'mm' | 'pt' | 'pc' | 'em' | 'ex' | 'px' | 'dp' | 'sp' | '%')
+
+                    { $type = LENGTH_LITERAL; }
+
+
+                |   // Angle sequence specifier means this was 0 angle
+                    // in whatever units.
+                    //
+                    ('deg' | 'rad' | 'turn')
+
+                    { $type = ANGLE_LITERAL; }
+
+
                 |   // We can of course have 0.nnnnn
                     //
                     { input.LA(2) != '.'}?=> '.' 
                         (
-                              // Decimal, but possibly time
+                              // Decimal, but possibly time, length, or angle
                               //
                               Digits Exponent?
                               
@@ -773,6 +846,16 @@ FLOATING_POINT_LITERAL
                                         ('m' 's'? | 's' | 'h')
                     
                                         { $type = TIME_LITERAL; }
+
+
+                                    |   ('in' | 'cm' | 'mm' | 'pt' | 'pc' | 'em' | 'ex' | 'px' | 'dp' | 'sp' | '%')
+
+                                        { $type = LENGTH_LITERAL; }
+
+
+                                    |   ('deg' | 'rad' | 'turn')
+
+                                        { $type = ANGLE_LITERAL; }
                                     
                                     |   // Just 0.nnn
                                         //
@@ -808,8 +891,8 @@ FLOATING_POINT_LITERAL
                 { input.LA(2) != '.'}?=>
                 
                     (
-                      // HAving determined that this is not a range, we check to 
-                      // see that it looks like something that shoudl be a float.
+                      // Having determined that this is not a range, we check to
+                      // see that it looks like something that should be a float.
                       // We can have an expression such as 1.intVal() and so that
                       // needs to be '1' '.' 'intVal' '(' ')'
                       // Note that 1.exxxx will always find an erroneous scientific
@@ -823,6 +906,16 @@ FLOATING_POINT_LITERAL
                           ('m' 's'? | 's' | 'h')
                     
                             { $type = TIME_LITERAL; }
+
+
+                        |   ('in' | 'cm' | 'mm' | 'pt' | 'pc' | 'em' | 'ex' | 'px' | 'dp' | 'sp' | '%')
+
+                            { $type = LENGTH_LITERAL; }
+
+
+                        |   ('deg' | 'rad' | 'turn')
+
+                            { $type = ANGLE_LITERAL; }
                                     
                         |   // Just n.nnn
                                         //
@@ -845,7 +938,16 @@ FLOATING_POINT_LITERAL
                           ('m' 's'? | 's' | 'h')
                     
                             { $type = TIME_LITERAL; }
-                    
+
+                        |   ('in' | 'cm' | 'mm' | 'pt' | 'pc' | 'em' | 'ex' | 'px' | 'dp' | 'sp' | '%')
+
+                            { $type = LENGTH_LITERAL; }
+
+
+                        |   ('deg' | 'rad' | 'turn')
+
+                            { $type = ANGLE_LITERAL; }
+
                         | Exponent              
                         
                             {
@@ -867,7 +969,7 @@ FLOATING_POINT_LITERAL
     |
         '.'
         
-            (     // Float, but is it a time?
+            (     // Float, but is it a time, length, or angle?
                   //
                   Digits Exponent?
                   
@@ -875,6 +977,16 @@ FLOATING_POINT_LITERAL
                          ('m' 's'? | 's' | 'h') 
                  
                             { $type = TIME_LITERAL; }
+
+
+                        |   ('in' | 'cm' | 'mm' | 'pt' | 'pc' | 'em' | 'ex' | 'px' | 'dp' | 'sp' | '%')
+
+                            { $type = LENGTH_LITERAL; }
+
+
+                        |   ('deg' | 'rad' | 'turn')
+
+                            { $type = ANGLE_LITERAL; }
                             
                         |   // Just  floating point
                             //
@@ -908,8 +1020,11 @@ Exponent
     
             (
                   Digits
-                |   { 
-                        log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_EXPONENT_MALFORMED); 
+                |   // Match an error in the exponent, but exclude characters
+                    // used in numeric literals (e.g. '5em')
+                    //
+                    ~('m'|'x'|'0'..'9') {
+                        log.error(getCharIndex()-2, MsgSym.MESSAGE_JAVAFX_EXPONENT_MALFORMED);
                         setText("0.0");
                     }
             )

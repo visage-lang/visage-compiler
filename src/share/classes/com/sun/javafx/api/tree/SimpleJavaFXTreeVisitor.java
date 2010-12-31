@@ -268,6 +268,14 @@ public class SimpleJavaFXTreeVisitor <R,P> implements JavaFXTreeVisitor<R,P> {
         return defaultAction(node, p);
     }
 
+    public R visitLengthLiteral(LengthLiteralTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitAngleLiteral(AngleLiteralTree node, P p) {
+        return defaultAction(node, p);
+    }
+
     public R visitInterpolateValue(InterpolateValueTree node, P p) {
         return defaultAction(node, p);
     }

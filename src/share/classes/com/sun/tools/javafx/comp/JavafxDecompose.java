@@ -1191,6 +1191,14 @@ public class JavafxDecompose implements JavafxVisitor {
         result = tree;
     }
 
+    public void visitLengthLiteral(JFXLengthLiteral tree) {
+        result = tree;
+    }
+
+    public void visitAngleLiteral(JFXAngleLiteral tree) {
+        result = tree;
+    }
+
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         boolean wasInScriptLevel = inScriptLevel;
         inScriptLevel = tree.isStatic();

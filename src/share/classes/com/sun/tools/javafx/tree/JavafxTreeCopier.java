@@ -385,6 +385,16 @@ public class JavafxTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).TimeLiteral(literal, tree.duration);
     }
 
+    public void visitLengthLiteral(JFXLengthLiteral tree) {
+        JFXLiteral literal = copy(tree.value);
+        result = maker.at(tree.pos).LengthLiteral(literal, tree.units);
+    }
+
+    public void visitAngleLiteral(JFXAngleLiteral tree) {
+        JFXLiteral literal = copy(tree.value);
+        result = maker.at(tree.pos).AngleLiteral(literal, tree.units);
+    }
+
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         Name name = tree.getName();
         JFXModifiers mods = copy(tree.getModifiers());

@@ -24,6 +24,7 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.AngleLiteralTree;
 import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
@@ -43,6 +44,7 @@ import com.sun.tools.javafx.comp.JavafxDefs;
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.Kinds.*;
 import static com.sun.tools.mjavac.code.TypeTags.*;
+import javafx.lang.LengthUnit;
 
 
 /* JavaFX version of tree maker
@@ -1007,10 +1009,9 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         //
         while (i < buf.length && (Character.isDigit(buf[i]) || buf[i] == '.' || buf[i] == 'e' || buf[i] == 'E'))
             i++;
-        
+
         assert i > 0;               // lexer should only pass valid time strings
         assert buf.length - i > 0;  // lexer should only pass valid time strings
-
 
         String dur = str.substring(i);
         Duration duration =
@@ -1030,7 +1031,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
             // Even though the number of hours/mounts/etc may be specified
             // as an integer, we still need to use a double value always because
-            // durecations such as 999999m will overflow an integer.
+            // durations such as 999999m will overflow an integer.
             //
             value = Double.valueOf(s) * duration.getMultiplier();
 
@@ -1070,6 +1071,149 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
         return tree;
     }
+
+    public JFXLengthLiteral LengthLiteral(String str) {
+        int i = 0;
+        char[] buf = str.toCharArray();
+
+        // Locate the length specifier. (also swallows the 'e' in "em")
+        //
+        while (i < buf.length && (Character.isDigit(buf[i]) || buf[i] == '.' || buf[i] == 'e' || buf[i] == 'E'))
+            i++;
+        
+        if (str.substring(i).equals("m")) {
+            // ate the 'e' in "em", backup one.
+            i--;
+        }
+
+        assert i > 0;               // lexer should only pass valid length strings
+        assert buf.length - i > 0;  // lexer should only pass valid length strings
+
+        String u = str.substring(i);
+        LengthUnit units =
+                u.equals("in") ? LengthUnit.INCH :
+                u.equals("cm") ? LengthUnit.CENTIMETER :
+                u.equals("mm") ? LengthUnit.MILLIMETER :
+                u.equals("pt") ? LengthUnit.POINT :
+                u.equals("pc") ? LengthUnit.PICA :
+                u.equals("em") ? LengthUnit.EM :
+                u.equals("px") ? LengthUnit.PIXEL :
+                u.equals("dp") ? LengthUnit.DENSITY_INDEPENDENT_PIXEL :
+                u.equals("sp") ? LengthUnit.SCALE_INDEPENDENT_PIXEL :
+                u.equals("%") ? LengthUnit.PERCENTAGE : null;
+        assert units != null : "unknown unit: '" + u + "'";
+        Object lengthVal;
+        Double value;
+        try {
+
+            // Extract the literal value up to but excluding the length
+            // specifier.
+            //
+            String s = str.substring(0, i);
+            value = Double.valueOf(s);
+
+            // Now use an integer if we will not overflow the maximum vlaue
+            // for an integer and the value is an integer number.
+            //
+            if  (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE && value == value.intValue()) {
+                lengthVal = new Integer(value.intValue());
+            }
+            else
+            {
+                // Has to stay as a double or it would overflow, or it was
+                // not an integer vlaue, such as 5.5mm
+                //
+                lengthVal = value;
+            }
+        }
+        catch (NumberFormatException ex) {
+            // error already reported in scanner
+            lengthVal = Double.NaN;
+        }
+        JFXLiteral literal = Literal(lengthVal);
+        JFXLengthLiteral tree = new JFXLengthLiteral(literal, units);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXLengthLiteral LengthLiteral(JFXLiteral literal, LengthUnit units) {
+        JFXLengthLiteral tree = new JFXLengthLiteral(literal, units);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXErroneousLengthLiteral ErroneousLengthLiteral() {
+        JFXErroneousLengthLiteral tree = new JFXErroneousLengthLiteral(List.<JFXTree>nil());
+        tree.pos = pos;
+
+        return tree;
+    }
+
+    public JFXAngleLiteral AngleLiteral(String str) {
+        int i = 0;
+        char[] buf = str.toCharArray();
+
+        // Locate the angle specifier.
+        //
+        while (i < buf.length && (Character.isDigit(buf[i]) || buf[i] == '.' || buf[i] == 'e' || buf[i] == 'E'))
+            i++;
+
+        assert i > 0;               // lexer should only pass valid angle strings
+        assert buf.length - i > 0;  // lexer should only pass valid angle strings
+
+        String u = str.substring(i);
+        AngleLiteralTree.Units units =
+                u.equals("deg") ? AngleLiteralTree.Units.DEGREES :
+                u.equals("rad") ? AngleLiteralTree.Units.RADIANS :
+                u.equals("turn") ? AngleLiteralTree.Units.TURNS : null;
+        assert units != null;
+        Object angleVal;
+        Double value;
+        try {
+
+            // Extract the literal value up to but excluding the angle
+            // specifier.
+            //
+            String s = str.substring(0, i);
+            value = Double.valueOf(s);
+
+            // Now use an integer if we will not overflow the maximum vlaue
+            // for an integer and the value is an integer number.
+            //
+            if  (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE && value == value.intValue()) {
+                angleVal = new Integer(value.intValue());
+            }
+            else
+            {
+                // Has to stay as a double or it would overflow, or it was
+                // not an integer vlaue, such as 5.5mm
+                //
+                angleVal = value;
+            }
+        }
+        catch (NumberFormatException ex) {
+            // error already reported in scanner
+            angleVal = Double.NaN;
+        }
+        JFXLiteral literal = Literal(angleVal);
+        JFXAngleLiteral tree = new JFXAngleLiteral(literal, units);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXAngleLiteral AngleLiteral(JFXLiteral literal, AngleLiteralTree.Units units) {
+        JFXAngleLiteral tree = new JFXAngleLiteral(literal, units);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXErroneousAngleLiteral ErroneousAngleLiteral() {
+        JFXErroneousAngleLiteral tree = new JFXErroneousAngleLiteral(List.<JFXTree>nil());
+        tree.pos = pos;
+
+        return tree;
+    }
+
     public JFXKeyFrameLiteral KeyFrameLiteral(JFXExpression start, List<JFXExpression> values, JFXExpression trigger) {
         JFXKeyFrameLiteral tree = new JFXKeyFrameLiteral(start, values, trigger);
         tree.pos = pos;
