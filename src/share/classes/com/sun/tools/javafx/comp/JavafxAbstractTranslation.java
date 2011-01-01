@@ -58,6 +58,7 @@ import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.tree.TreeTranslator;
 import java.util.Map;
+import javafx.lang.AngleUnit;
 import javafx.lang.LengthUnit;
 import javax.lang.model.type.TypeKind;
 import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Yield.*;
@@ -1700,15 +1701,18 @@ public abstract class JavafxAbstractTranslation
     class AngleLiteralTranslator extends ExpressionTranslator {
 
         JFXExpression value;
+        AngleUnit units;
 
         AngleLiteralTranslator(JFXAngleLiteral tree) {
             super(tree.pos());
             this.value = tree.value;
+            this.units = tree.units;
         }
 
         protected ExpressionResult doit() {
+            JCExpression unitSelect = Select(makeType(syms.javafx_AngleUnitType), names.fromString(units.name()));
             return toResult(
-                    Call(defs.Angle_valueOf, translateExpr(value, syms.doubleType)),
+                    Call(defs.Angle_valueOf, translateExpr(value, syms.doubleType), unitSelect),
                     syms.javafx_AngleType);
         }
     }

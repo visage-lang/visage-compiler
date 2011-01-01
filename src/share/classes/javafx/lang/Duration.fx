@@ -51,32 +51,32 @@ public def INDEFINITE: Duration = Duration { millis: Double.POSITIVE_INFINITY};
 
 // script-level "static" functions below
 
-    /**
-     * Factory method that returns a Duration instance for a specified
-     * number of milliseconds.
-     *
-     * @param ms the number of milliseconds
-     * @return a Duration instance of the specified number of milliseconds
-     * @profile common
-     */
-    public function valueOf(ms: Double): Duration {
-        if (ms == 0)
-            ZERO
-        else if (ms == 1)
-            ONE
-        else if (ms == Double.POSITIVE_INFINITY) //TODO: handling of negative infinity
-            INDEFINITE
-        else
-             Duration {
-                 millis: ms
-             }
+/**
+ * Factory method that returns a Duration instance for a specified
+ * number of milliseconds.
+ *
+ * @param ms the number of milliseconds
+ * @return a Duration instance of the specified number of milliseconds
+ * @profile common
+ */
+public function valueOf(ms: Double): Duration {
+    if (ms == 0)
+        ZERO
+    else if (ms == 1)
+        ONE
+    else if (ms == Double.POSITIVE_INFINITY) //TODO: handling of negative infinity
+        INDEFINITE
+    else
+         Duration {
+             millis: ms
+         }
 
-    }
-    public function valueOf(ms: Float): Duration {
-        valueOf(ms as Double)
-    }
+}
+public function valueOf(ms: Float): Duration {
+    valueOf(ms as Double)
+}
 
-    public def TYPE_INFO = com.sun.javafx.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
+public def TYPE_INFO = com.sun.javafx.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
 
 /**
  * A class that defines a duration of time.  Duration instances are defined in

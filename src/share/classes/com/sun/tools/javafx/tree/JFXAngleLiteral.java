@@ -21,6 +21,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import javafx.lang.AngleUnit;
 
 /**
  * Tree node for angle literals, such as "100deg" or "3rad".
@@ -28,18 +29,19 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
  */
 public class JFXAngleLiteral extends JFXExpression implements AngleLiteralTree {
     public JFXLiteral value;
-    public Units units;
+    public AngleUnit units;
     
    protected JFXAngleLiteral(){
         this.value = null;
         this.units = null;
     }
 
-    protected JFXAngleLiteral(JFXLiteral value, Units units) {
+    protected JFXAngleLiteral(JFXLiteral value, AngleUnit units) {
         this.value = value;
         this.units = units;
     }
 
+    @Override
     public JavafxTag getFXTag() {
         return JavafxTag.ANGLE_LITERAL;
     }
@@ -49,18 +51,22 @@ public class JFXAngleLiteral extends JFXExpression implements AngleLiteralTree {
         v.visitAngleLiteral(this);
     }
 
+    @Override
     public JavaFXKind getJavaFXKind() {
         return JavaFXKind.ANGLE_LITERAL;
     }
 
+    @Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitAngleLiteral(this, data);
     }
 
-    public Units getUnits() {
+    @Override
+    public AngleUnit getUnits() {
         return units;
     }
 
+    @Override
     public JFXLiteral getValue() {
         return value;
     }

@@ -44,8 +44,8 @@ import com.sun.tools.javafx.comp.JavafxDefs;
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.Kinds.*;
 import static com.sun.tools.mjavac.code.TypeTags.*;
+import javafx.lang.AngleUnit;
 import javafx.lang.LengthUnit;
-
 
 /* JavaFX version of tree maker
  */
@@ -1162,10 +1162,10 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         assert buf.length - i > 0;  // lexer should only pass valid angle strings
 
         String u = str.substring(i);
-        AngleLiteralTree.Units units =
-                u.equals("deg") ? AngleLiteralTree.Units.DEGREES :
-                u.equals("rad") ? AngleLiteralTree.Units.RADIANS :
-                u.equals("turn") ? AngleLiteralTree.Units.TURNS : null;
+        AngleUnit units =
+                u.equals("deg") ? AngleUnit.DEGREE :
+                u.equals("rad") ? AngleUnit.RADIAN :
+                u.equals("turn") ? AngleUnit.TURN : null;
         assert units != null;
         Object angleVal;
         Double value;
@@ -1201,7 +1201,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXAngleLiteral AngleLiteral(JFXLiteral literal, AngleLiteralTree.Units units) {
+    public JFXAngleLiteral AngleLiteral(JFXLiteral literal, AngleUnit units) {
         JFXAngleLiteral tree = new JFXAngleLiteral(literal, units);
         tree.pos = pos;
         return tree;

@@ -71,6 +71,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_LengthType;
     public final Type javafx_LengthUnitType;
     public final Type javafx_AngleType;
+    public final Type javafx_AngleUnitType;
 
     // Javafx other types
     public final Type javafx_AnyType;
@@ -202,6 +203,7 @@ public class JavafxSymtab extends Symtab {
         javafx_LengthType = enterClass("javafx.lang.Length");
         javafx_LengthUnitType = enterClass("javafx.lang.LengthUnit");
         javafx_AngleType = enterClass("javafx.lang.Angle");
+        javafx_AngleUnitType = enterClass("javafx.lang.AngleUnit");
 
         javafx_AnyType = objectType;
         javafx_UnspecifiedType = unknownType;

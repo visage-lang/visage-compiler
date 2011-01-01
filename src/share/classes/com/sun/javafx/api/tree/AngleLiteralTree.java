@@ -19,27 +19,13 @@
 
 package com.sun.javafx.api.tree;
 
+import javafx.lang.AngleUnit;
+
 /**
  * A tree node for a JavaFX Script angle literal.
  * @author Stephen Chin <steveonjava@gmail.com>
  */
 public interface AngleLiteralTree extends Tree {
-
-    public enum Units {
-        DEGREES("deg"),
-        RADIANS("rad"),
-        TURNS("turn");
-        
-        Units(String suffix) {
-            this.suffix = suffix;
-        }
-        
-        public String getSuffix() {
-            return suffix;
-        }
-        
-        private String suffix;
-    }
     
     /**
      * @return the numeric value of this tree.
@@ -49,5 +35,5 @@ public interface AngleLiteralTree extends Tree {
     /**
      * @return the units specified to declare this angle literal.
      */
-    Units getUnits();
+    AngleUnit getUnits();
 }
