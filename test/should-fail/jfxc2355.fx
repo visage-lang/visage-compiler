@@ -1,5 +1,4 @@
 /*
  * @test/compile-error
  */
-import java.awt.Color;
-Color.getRGBComponents(null);
+java.awt.Color.getRGBComponents(null);

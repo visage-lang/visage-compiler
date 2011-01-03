@@ -40,6 +40,7 @@ import com.sun.tools.javafx.tree.JFXBlock;
 import com.sun.tools.javafx.tree.JFXBreak;
 import com.sun.tools.javafx.tree.JFXCatch;
 import com.sun.tools.javafx.tree.JFXClassDeclaration;
+import com.sun.tools.javafx.tree.JFXColorLiteral;
 import com.sun.tools.javafx.tree.JFXContinue;
 import com.sun.tools.javafx.tree.JFXErroneous;
 import com.sun.tools.javafx.tree.JFXExpression;
@@ -695,6 +696,12 @@ final class TreeXMLSerializer implements JavafxVisitor {
         startElement(ANGLE_LITERAL, angleLiteral);
         emitData(angleLiteral.getValue().toString());
         endElement(ANGLE_LITERAL);
+    }
+
+    public void visitColorLiteral(JFXColorLiteral colorLiteral) {
+        startElement(COLOR_LITERAL, colorLiteral);
+        emitData(colorLiteral.getValue().toString());
+        endElement(COLOR_LITERAL);
     }
 
     public void visitOverrideClassVar(JFXOverrideClassVar overrideVar) {

@@ -41,12 +41,6 @@ import java.lang.StringBuilder;
  */
 public def ZERO:Angle = Angle {value: 0, unit: AngleUnit.RADIAN}
 
-def DF = ThreadLocal {
-    override function initialValue():Object {
-        return new DecimalFormat("#.######");
-    }
-}
-
 // script-level "static" functions below
 
 /**
@@ -72,6 +66,14 @@ public function valueOf(value:Float, unit:AngleUnit):Angle {
 }
 
 public def TYPE_INFO = com.sun.javafx.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
+
+// internal static variables
+
+def DF = ThreadLocal {
+    override function initialValue():Object {
+        return new DecimalFormat("#.######");
+    }
+}
 
 /**
  * A class that defines an angle measurement.  Angle instances can be specified
@@ -316,7 +318,6 @@ public class Angle extends Comparable, Formattable {
 
     /**
      * Returns true if the specified angle is less than (<) this instance.
-     * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */
@@ -326,7 +327,6 @@ public class Angle extends Comparable, Formattable {
 
     /** 
      * Returns true if the specified angle is less than or equal to (<=) this instance.
-     * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */
@@ -336,7 +336,6 @@ public class Angle extends Comparable, Formattable {
 
     /** 
      * Returns true if the specified angle is greater than (>) this instance.
-     * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */
@@ -346,7 +345,6 @@ public class Angle extends Comparable, Formattable {
 
     /**
      * Returns true if the specified angle is greater than or equal to (>=) this instance.
-     * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */

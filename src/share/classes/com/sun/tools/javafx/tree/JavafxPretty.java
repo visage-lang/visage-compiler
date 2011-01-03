@@ -1413,6 +1413,15 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
+    public void visitColorLiteral(JFXColorLiteral tree) {
+        try {
+            Integer i = ((Number)tree.value.value).intValue();
+            print("#" + Integer.toHexString(i));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         printInterpolateValue(tree);
     }

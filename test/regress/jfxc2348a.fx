@@ -4,6 +4,5 @@
  * see JFXC-2355.)
  * @test
  */
-import java.awt.Color;
-var c : Color = null;
+var c : java.awt.Color = null;
 c.getRGBComponents(null)

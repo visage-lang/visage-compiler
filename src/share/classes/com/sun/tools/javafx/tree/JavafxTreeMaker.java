@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.javafx.api.tree.AngleLiteralTree;
 import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
@@ -34,7 +33,6 @@ import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
-
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -1209,6 +1207,58 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     public JFXErroneousAngleLiteral ErroneousAngleLiteral() {
         JFXErroneousAngleLiteral tree = new JFXErroneousAngleLiteral(List.<JFXTree>nil());
+        tree.pos = pos;
+
+        return tree;
+    }
+
+    public JFXColorLiteral ColorLiteral(String str) {
+        // valid strings: #rgb, #rrggbb, #rgb|a, or #rrggbb|aa
+        String color;
+        String alpha = null;
+        switch (str.length()) {
+            case 4:
+                color = str.substring(1);
+                break;
+            case 7:
+                color = str.substring(1);
+                break;
+            case 6:
+                color = str.substring(1, 4);
+                alpha = str.substring(5);
+                break;
+            case 10:
+                color = str.substring(1, 7);
+                alpha = str.substring(8);
+                break;
+            default:
+                throw new IllegalStateException("malformed color literal string: " + str);
+        }
+        int colorVal = Integer.parseInt(color, 16);
+        int alphaVal = alpha == null ? 0xFF : Integer.parseInt(alpha, 16);
+        switch (str.length()) {
+            case 6:
+                alphaVal |= alphaVal << 4;
+            case 4:
+                int r = (colorVal >> 8) & 0xF; r |= r << 4;
+                int g = (colorVal >> 4) & 0xF; g |= g << 4;
+                int b = colorVal & 0xF; b |= b << 4;
+                colorVal = r << 16 | g << 8 | b;
+        }
+        JFXLiteral literal = Literal(colorVal | alphaVal << 24);
+        JFXColorLiteral tree = new JFXColorLiteral(literal);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXColorLiteral ColorLiteral(JFXLiteral literal) {
+        JFXColorLiteral tree = new JFXColorLiteral(literal);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXErroneousColorLiteral ErroneousColorLiteral() {
+        JFXErroneousColorLiteral tree = new JFXErroneousColorLiteral(List.<JFXTree>nil());
         tree.pos = pos;
 
         return tree;

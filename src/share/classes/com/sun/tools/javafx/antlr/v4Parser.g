@@ -6174,6 +6174,12 @@ literal
                 {
                     $value = $angleValue.valNode;
                 }
+
+            | colorValue
+
+                {
+                    $value = $colorValue.valNode;
+                }
                 
             | FLOATING_POINT_LITERAL
             
@@ -6490,6 +6496,60 @@ catch [RecognitionException re] {
     // Create the error node
     //
     $valNode = F.at(rPos).ErroneousAngleLiteral();
+    endPos($valNode);
+
+}
+
+// ----------
+// Color value
+// Invoked to pick up a specialized color token and create a special node
+// that indicates it was missing, if the parser created it etc.
+//
+colorValue
+
+    returns [JFXColorLiteral valNode]
+
+@init
+{
+    // Work out current position in the input stream
+    //
+    int rPos = pos();
+}
+
+    : COLOR_LITERAL
+
+        {
+            // Check to see if error recovery made up this value for us
+            //
+            if  ($COLOR_LITERAL instanceof MissingCommonToken) {
+
+                $valNode = F.at(pos($COLOR_LITERAL)).ErroneousColorLiteral();
+
+            } else {
+
+                // Create a real node
+                //
+                $valNode = F.at(pos($COLOR_LITERAL)).ColorLiteral($COLOR_LITERAL.text);
+            }
+            endPos($valNode);
+        }
+    ;
+// Catch an error. We create an erroneous node for anything that was at the start
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+
+    // First, let's report the error as the user needs to know about it
+    //
+    reportError(re);
+
+    // Now we perform standard ANTLR recovery here
+    //
+    recover(input, re);
+
+    // Create the error node
+    //
+    $valNode = F.at(rPos).ErroneousColorLiteral();
     endPos($valNode);
 
 }

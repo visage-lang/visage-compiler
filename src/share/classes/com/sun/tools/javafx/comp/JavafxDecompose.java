@@ -1199,6 +1199,10 @@ public class JavafxDecompose implements JavafxVisitor {
         result = tree;
     }
 
+    public void visitColorLiteral(JFXColorLiteral tree) {
+        result = tree;
+    }
+
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         boolean wasInScriptLevel = inScriptLevel;
         inScriptLevel = tree.isStatic();

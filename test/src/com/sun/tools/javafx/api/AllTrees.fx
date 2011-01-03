@@ -184,6 +184,9 @@ at (1s) {
 // ANGLE_LITERAL
 90deg;
 
+// COLOR_LITERAL
+#FFFFFF|FF;
+
 // SEQUENCE_DELETE
 delete 8 from seq;
 

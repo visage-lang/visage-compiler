@@ -82,6 +82,7 @@ public interface JavafxVisitor {
     public void visitTimeLiteral(JFXTimeLiteral tree);
     public void visitLengthLiteral(JFXLengthLiteral tree);
     public void visitAngleLiteral(JFXAngleLiteral tree);
+    public void visitColorLiteral(JFXColorLiteral tree);
     public void visitOverrideClassVar(JFXOverrideClassVar tree);
     public void visitInterpolateValue(JFXInterpolateValue tree);
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree);

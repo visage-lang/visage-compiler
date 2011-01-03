@@ -306,9 +306,34 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
         return true;
     }
 
+    protected boolean checkColorString(String text, int pos) {
+        // valid strings: #rgb, #rrggbb, #rgb|a, or #rrggbb|aa
+        int total = text.length();
+        int length = 0;
+        int dividerLoc = -1;
+        boolean valid = true;
+        for (int i = 1; i < total; i++) {
+            if (text.charAt(i) == '|') {
+                if (dividerLoc != -1) valid = false;
+                dividerLoc = i;
+            } else {
+                length++;
+            }
+        }
+
+        valid &= (length == 3 || length == 6) && dividerLoc == -1
+              || length == 4 && dividerLoc == 4
+              || length == 8 && dividerLoc == 7;
+
+        if (!valid) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_COLOR_WRONG_FORMAT, text);
+        }
+        return valid;
+    }
+
 
     /**
-     * Tracker for the quotes and braces used to define embbeded expressions within literal strings
+     * Tracker for the quotes and braces used to define embedded expressions within literal strings
      * such as "He{"l{"l"}o"} world".
      */
     protected class BraceQuoteTracker {

@@ -474,14 +474,19 @@ public interface Tree {
         TIME_LITERAL(TimeLiteralTree.class),
 
         /**
-         * Used for instances of {@link TimeLiteralTree}.
+         * Used for instances of {@link LengthLiteralTree}.
          */
         LENGTH_LITERAL(LengthLiteralTree.class),
 
         /**
-         * Used for instances of {@link TimeLiteralTree}.
+         * Used for instances of {@link AngleLiteralTree}.
          */
         ANGLE_LITERAL(AngleLiteralTree.class),
+
+        /**
+         * Used for instances of {@link ColorLiteralTree}.
+         */
+        COLOR_LITERAL(ColorLiteralTree.class),
 
         /**
          * Used for instances of {@link TypeAnyTree}.

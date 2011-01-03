@@ -393,6 +393,9 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_HEX_MALFORMED = "javafx.hex.malformed";
     public static final String MESSAGE_JAVAFX_HEX_FLOAT = "javafx.hex.float";
     public static final String MESSAGE_JAVAFX_HEX_MISSING = "javafx.hex.missing";
+    public static final String MESSAGE_JAVAFX_COLOR_WRONG_CHARACTERS = "javafx.color.wrong.characters";
+    public static final String MESSAGE_JAVAFX_COLOR_WRONG_FORMAT = "javafx.color.wrong.format";
+    public static final String MESSAGE_JAVAFX_COLOR_MISSING = "javafx.color.missing";
     public static final String MESSAGE_JAVAFX_OCTAL_MALFORMED = "javafx.octal.malformed";
     public static final String MESSAGE_JAVAFX_OCTAL_FLOAT = "javafx.octal.float";
     public static final String MESSAGE_JAVAFX_EXPONENT_MALFORMED = "javafx.exponent.malformed";

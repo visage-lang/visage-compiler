@@ -410,6 +410,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         importNamed(syms.javafx_DurationType.tsym, scope);
         importNamed(syms.javafx_LengthType.tsym, scope);
         importNamed(syms.javafx_AngleType.tsym, scope);
+        importNamed(syms.javafx_ColorType.tsym, scope);
         importNamed(syms.javafx_FXRuntimeType.tsym, scope);
     }
 

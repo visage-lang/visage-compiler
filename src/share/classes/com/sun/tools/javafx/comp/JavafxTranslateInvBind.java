@@ -548,6 +548,11 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
     }
 
     @Override
+    public void visitColorLiteral(JFXColorLiteral tree) {
+        disallowedInInverseBind();
+    }
+
+    @Override
     public void visitTypeCast(JFXTypeCast tree) {
         disallowedInInverseBind();
     }

@@ -268,7 +268,10 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitAssignop(JFXAssignOp tree) {
-        result = visitNumericAssignop(tree, types.isSameType(tree.lhs.type, syms.javafx_DurationType) || types.isSameType(tree.lhs.type, syms.javafx_LengthType) || types.isSameType(tree.lhs.type, syms.javafx_AngleType));
+        result = visitNumericAssignop(tree, types.isSameType(tree.lhs.type, syms.javafx_DurationType)
+                || types.isSameType(tree.lhs.type, syms.javafx_LengthType)
+                || types.isSameType(tree.lhs.type, syms.javafx_AngleType)
+                || types.isSameType(tree.lhs.type, syms.javafx_ColorType));
     }
     //where
     private JFXExpression visitNumericAssignop(JFXAssignOp tree, boolean isSpecialLiteralOperation) {
@@ -336,7 +339,7 @@ public class JavafxLower implements JavafxVisitor {
         JFXExpression op = null;
 
         if (isSpecialLiteralOperation) {
-            //special literal assignop (duration, length, angle)
+            //special literal assignop (duration, length, angle, or color)
             //
             //(SELECT) $expr$.x = $expr$.x.[add/sub/mul/div](lhs);
             //(IDENT)  x = x.[add/sub/mul/div](lhs);
@@ -952,6 +955,13 @@ public class JavafxLower implements JavafxVisitor {
                             zeroName, false).setType(syms.javafx_AngleType);
                     res.sym = rs.findIdentInType(env, syms.javafx_AngleType, zeroName, Kinds.VAR);
                     return res;
+                } else if (types.isSameType(t, syms.javafx_ColorType)) {
+                    Name blackName = names.fromString("BLACK");
+                    JFXSelect res = (JFXSelect)m.Select(
+                            preTrans.makeTypeTree(syms.javafx_ColorType),
+                            blackName, false).setType(syms.javafx_ColorType);
+                    res.sym = rs.findIdentInType(env, syms.javafx_ColorType, blackName, Kinds.VAR);
+                    return res;
                 }
             }
             default: return m.Literal(TypeTags.BOT, null).setType(syms.botType);
@@ -1402,6 +1412,10 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitAngleLiteral(JFXAngleLiteral tree) {
+        result = tree;
+    }
+
+    public void visitColorLiteral(JFXColorLiteral tree) {
         result = tree;
     }
 

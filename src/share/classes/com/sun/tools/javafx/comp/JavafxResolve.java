@@ -1647,6 +1647,20 @@ public class JavafxResolve {
                 return res;
             }
         }
+        // check for Color unary minus
+        if (types.isSameType(arg, syms.javafx_ColorType)) {
+            Symbol res = null;
+            switch (optag) {
+            case NEG:
+                res = resolveMethod(pos,  env,
+                                    defs.negate_ColorMethodName,
+                                    arg, List.<Type>nil());
+                break;
+            }
+            if (res != null && res.kind == MTH) {
+                return res;
+            }
+        }
         return resolveOperator(pos, optag, env, List.of(arg));
     }
 
@@ -1832,6 +1846,65 @@ public class JavafxResolve {
             case GE:
                 res =  resolveMethod(pos,  env,
                                      defs.ge_AngleMethodName,
+                                     dur, List.of(right));
+                break;
+            }
+            if (res != null && res.kind == MTH) {
+                return res;
+            } // else fall through
+        }
+        // Color operator overloading
+        if (types.isSameType(left, syms.javafx_ColorType) ||
+            types.isSameType(right, syms.javafx_ColorType)) {
+            Type dur = left;
+            Symbol res = null;
+            switch (optag) {
+            case PLUS:
+                res = resolveMethod(pos,  env,
+                                     defs.add_ColorMethodName,
+                                     dur, List.of(right));
+                break;
+            case MINUS:
+                res =  resolveMethod(pos,  env,
+                                     defs.sub_ColorMethodName,
+                                     dur, List.of(right));
+                break;
+            case MUL:
+                if (!types.isSameType(left, syms.javafx_ColorType)) {
+                    left = right;
+                    right = dur;
+                    dur = left;
+                }
+                res =  resolveMethod(pos,  env,
+                                     defs.mul_ColorMethodName,
+                                     dur,
+                                     List.of(right));
+                break;
+            case DIV:
+                res =  resolveMethod(pos,  env,
+                                     defs.div_ColorMethodName,
+                                     dur, List.of(right));
+                break;
+
+            //fix me...inline or move to static helper?
+            case LT:
+                res =  resolveMethod(pos,  env,
+                                     defs.lt_ColorMethodName,
+                                     dur, List.of(right));
+                break;
+            case LE:
+                res =  resolveMethod(pos,  env,
+                                     defs.le_ColorMethodName,
+                                     dur, List.of(right));
+                break;
+            case GT:
+                res =  resolveMethod(pos,  env,
+                                     defs.gt_ColorMethodName,
+                                     dur, List.of(right));
+                break;
+            case GE:
+                res =  resolveMethod(pos,  env,
+                                     defs.ge_ColorMethodName,
                                      dur, List.of(right));
                 break;
             }

@@ -31,12 +31,12 @@ public class Rect extends Shape {
 
 public class Text extends Shape { 
     //var fill:Paint = Color.black; 
-    init { fill = Color.black }
+    init { fill = java.awt.Color.black }
 } 
 
 public class MyRect extends Rect { 
     //var fill:Paint = new Color(0, 0, 255); 
-    init { fill = new Color(0, 0, 255) }
+    init { fill = new java.awt.Color(0, 0, 255) }
 } 
 
 function run() {

@@ -156,6 +156,7 @@ public class JavafxDefs {
     private static final String cDuration = fxLang_PackageString + ".Duration";
     private static final String cLength = fxLang_PackageString + ".Length";
     private static final String cAngle = fxLang_PackageString + ".Angle";
+    private static final String cColor = fxLang_PackageString + ".Color";
     // in javafx.animation package
     public static final String cKeyValueTargetType = fxAnimation_PackageString + ".KeyValueTarget.Type";
 
@@ -170,9 +171,10 @@ public class JavafxDefs {
     public static final String implFunctionSuffix = "$impl";
     public static final String internalRunFunctionString = Entry.entryMethodName();
     public static final String varGetMapString = "GETMAP$";
-    public static final String zero_DurationFieldName = "javafx.lang.Duration.$ZERO";
-    public static final String zero_LengthFieldName = "javafx.lang.Length.$ZERO";
-    public static final String zero_AngleFieldName = "javafx.lang.Angle.$ZERO";
+    public static final String zero_DurationFieldName = cDuration + ".$ZERO";
+    public static final String zero_LengthFieldName = cLength + ".$ZERO";
+    public static final String zero_AngleFieldName = cAngle + ".$ZERO";
+    public static final String black_ColorFieldName = cColor + ".$BLACK";
     public static final String synthForLabelPrefix = "synth_for$";
 
     public static final Pattern DATETIME_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT]");
@@ -258,6 +260,7 @@ public class JavafxDefs {
     final RuntimeMethod Duration_valueOf;
     final RuntimeMethod Length_valueOf;
     final RuntimeMethod Angle_valueOf;
+    final RuntimeMethod Color_valueOf;
 
     final RuntimeMethod StringLocalization_getLocalizedString;
     final RuntimeMethod FXFormatter_sprintf;
@@ -332,6 +335,19 @@ public class JavafxDefs {
     final Name ge_AngleMethodName;
     final Name gt_AngleMethodName;
     final Name negate_AngleMethodName;
+
+    /**
+     * Color method Names
+     */
+    final Name add_ColorMethodName;
+    final Name sub_ColorMethodName;
+    final Name mul_ColorMethodName;
+    final Name div_ColorMethodName;
+    final Name le_ColorMethodName;
+    final Name lt_ColorMethodName;
+    final Name ge_ColorMethodName;
+    final Name gt_ColorMethodName;
+    final Name negate_ColorMethodName;
 
     /**
      * Sequence method Names
@@ -617,6 +633,17 @@ public class JavafxDefs {
         gt_AngleMethodName = names.fromString("gt");
         negate_AngleMethodName = names.fromString("negate");
 
+        // Initialize Color method names
+        add_ColorMethodName = names.fromString("add");
+        sub_ColorMethodName = names.fromString("sub");
+        mul_ColorMethodName = names.fromString("mul");
+        div_ColorMethodName = names.fromString("div");
+        le_ColorMethodName = names.fromString("le");
+        lt_ColorMethodName = names.fromString("lt");
+        ge_ColorMethodName = names.fromString("ge");
+        gt_ColorMethodName = names.fromString("gt");
+        negate_ColorMethodName = names.fromString("negate");
+
         cFXObjectName = names.fromString(cFXObject);
         cFXMixinName = names.fromString(cFXMixin);
         mixinClassSuffixName = names.fromString(mixinClassSuffix);
@@ -865,6 +892,7 @@ public class JavafxDefs {
         Duration_valueOf = new RuntimeMethod(names, cDuration, "valueOf");
         Length_valueOf = new RuntimeMethod(names, cLength, "valueOf");
         Angle_valueOf = new RuntimeMethod(names, cAngle, "valueOf");
+        Color_valueOf = new RuntimeMethod(names, cColor, "valueOf");
 
         StringLocalization_getLocalizedString = new RuntimeMethod(names, cStringLocalization, "getLocalizedString");
         FXFormatter_sprintf = new RuntimeMethod(names, cFXFormatter, "sprintf");

@@ -557,7 +557,7 @@ TranslationKeyBody
  
 //------------------------------------------------------------
 // Numeric literals.
-// These are handled specailly to reduce lexer complexity and
+// These are handled specially to reduce lexer complexity and
 // negate the need to override standard ANTLR lexing methods.
 // This improves performance and enhances readability.
 // The following fragment rules are to document the types and
@@ -1008,7 +1008,6 @@ FLOATING_POINT_LITERAL
             )
     ;
 
-    
 fragment
 Digits  
     :   ('0'..'9')+ 
@@ -1028,6 +1027,52 @@ Exponent
                         setText("0.0");
                     }
             )
+    ;
+
+COLOR_LITERAL
+@init
+{
+    // Indicates out of range digit
+    //
+    boolean rangeError = false;
+
+    // First character of rule
+    //
+    int     sPos = getCharIndex();
+}
+    :   '#'
+        // We consume any letters and digits that follow #
+        // and control the error that we issue.
+        (
+            ('0'..'9'|'a'..'f'|'A'..'F'|'|')      // Valid Hex Color
+        |   ('g'..'z'|'G'..'Z')                   // Invalid Hex Color
+
+            {
+                rangeError = true;  // Signal at least one bad digit
+            }
+        )+
+        {
+            if  (rangeError)
+            {
+                // Error - malformed hex constant
+                //
+                log.error(sPos, MsgSym.MESSAGE_JAVAFX_COLOR_WRONG_CHARACTERS);
+                setText("#000");
+            }
+            else
+            {
+                if (! checkColorString(getText(), sPos))
+                {
+                    setText("#000");
+                }
+            }
+        }
+        |   // If no digits follow # then it is an error
+            //
+            {
+                log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_COLOR_MISSING);
+                setText("#000");
+            }
     ;
 
 // Identifiers are any sequence of characters considered

@@ -3948,6 +3948,10 @@ public class JavafxAttr implements JavafxVisitor {
         result = check(tree, syms.javafx_AngleType, VAL, pkind, pt, pSequenceness);
     }
 
+    public void visitColorLiteral(JFXColorLiteral tree) {
+        result = check(tree, syms.javafx_ColorType, VAL, pkind, pt, pSequenceness);
+    }
+
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         JavafxEnv<JavafxAttrContext> dupEnv = env.dup(tree);
         dupEnv.outer = env;

@@ -378,6 +378,10 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
         return null;
     }
 
+    public R visitColorLiteral(ColorLiteralTree node, P p) {
+        return null;
+    }
+
     public R visitTypeAny(TypeAnyTree node, P p) {
         return null;
     }

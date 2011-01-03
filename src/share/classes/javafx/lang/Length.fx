@@ -52,18 +52,6 @@ public def ZERO = Length {}
  */
 public def UNKNOWN = Double.NaN;
 
-// internal static contants
-def DPS_PER_IN:Double = 96;
-def DPS_PER_CM:Double = DPS_PER_IN / 2.54;
-def DPS_PER_MM:Double = DPS_PER_CM / 10;
-def DPS_PER_PT:Double = DPS_PER_IN / 72;
-def DPS_PER_PC:Double = DPS_PER_IN / 6;
-def DF = ThreadLocal {
-    override function initialValue():Object {
-        return new DecimalFormat("#.######");
-    }
-}
-
 // script-level "static" functions below
 
 /**
@@ -108,6 +96,19 @@ public function valueOf(value:Float, unit:LengthUnit):Length {
 }
 
 public def TYPE_INFO = com.sun.javafx.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
+
+// internal static variables
+
+def DPS_PER_IN:Double = 96;
+def DPS_PER_CM:Double = DPS_PER_IN / 2.54;
+def DPS_PER_MM:Double = DPS_PER_CM / 10;
+def DPS_PER_PT:Double = DPS_PER_IN / 72;
+def DPS_PER_PC:Double = DPS_PER_IN / 6;
+def DF = ThreadLocal {
+    override function initialValue():Object {
+        return new DecimalFormat("#.######");
+    }
+}
 
 /**
  * A class that defines a length value.  Lengths are immutable, but can be

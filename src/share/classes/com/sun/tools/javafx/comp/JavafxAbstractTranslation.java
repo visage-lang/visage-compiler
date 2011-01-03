@@ -227,7 +227,7 @@ public abstract class JavafxAbstractTranslation
     }
 
     /**
-     * Special handling for Strings, Durations, Lengths, and Angles. If a value
+     * Special handling for Strings, Durations, Lengths, Angles, and Colors. If a value
      * assigned to one of these is null, the default value for the type must be substituted.
      * inExpr is the input expression.  outType is the desired result type.
      * expr is the result value to use in the normal case.
@@ -245,7 +245,8 @@ public abstract class JavafxAbstractTranslation
 
             JCExpression doitExpr() {
                 if (outType != syms.stringType && outType != syms.javafx_DurationType
-                    && outType != syms.javafx_LengthType && outType != syms.javafx_AngleType) {
+                    && outType != syms.javafx_LengthType && outType != syms.javafx_AngleType
+                    && outType != syms.javafx_ColorType) {
                     return expr;
                 }
 
@@ -1015,7 +1016,6 @@ public abstract class JavafxAbstractTranslation
                 parts = parts.tail;
                 JFXExpression exp = parts.head;
                 JCExpression texp;
-                // todo: make sure toString works for length and angle
                 if (exp != null && types.isSameType(exp.type, syms.javafx_DurationType)) {
                     texp = Call(translateExpr(exp, syms.javafx_DurationType), defs.toMillis_DurationMethodName);
                     texp = typeCast(syms.javafx_LongType, syms.javafx_DoubleType, texp);
@@ -1717,6 +1717,22 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
+    class ColorLiteralTranslator extends ExpressionTranslator {
+
+        JFXExpression value;
+
+        ColorLiteralTranslator(JFXColorLiteral tree) {
+            super(tree.pos());
+            this.value = tree.value;
+        }
+
+        protected ExpressionResult doit() {
+            return toResult(
+                    Call(defs.Color_valueOf, translateExpr(value, syms.intType), m().Literal(TypeTags.BOOLEAN, 1)),
+                    syms.javafx_ColorType);
+        }
+    }
+
     class FunctionTranslator extends Translator {
 
         final JFXFunctionDefinition tree;
@@ -2338,6 +2354,11 @@ public abstract class JavafxAbstractTranslation
                                 Call(translateExpr(tree.arg, tree.arg.type), defs.negate_AngleMethodName),
                                 syms.javafx_AngleType);
                     }
+                    if (types.isSameType(tree.type, syms.javafx_ColorType)) {
+                        return toResult(
+                                Call(translateExpr(tree.arg, tree.arg.type), defs.negate_ColorMethodName),
+                                syms.javafx_ColorType);
+                    }
                 default:
                     return toResult(
                             m().Unary(tree.getOperatorTag(), transExpr),
@@ -2587,6 +2608,48 @@ public abstract class JavafxAbstractTranslation
             throw new RuntimeException("Internal Error: bad Angle operation");
         }
 
+        boolean isColor(Type type) {
+            return types.isSameType(type, syms.javafx_ColorType);
+        }
+
+        final Type colorNumericType = syms.javafx_NumberType;
+
+        JCExpression colorOp() {
+            switch (tree.getFXTag()) {
+                case PLUS:
+                    return op(lhs(), defs.add_ColorMethodName, rhs());
+                case MINUS:
+                    return op(lhs(), defs.sub_ColorMethodName, rhs());
+                case DIV:
+                    return op(lhs(), defs.div_ColorMethodName, rhs(isColor(rhsType)? null : colorNumericType));
+                case MUL: {
+                    // lhs.mul(rhs);
+                    JCExpression rcvr;
+                    JCExpression arg;
+                    if (isColor(lhsType)) {
+                        rcvr = lhs();
+                        arg = rhs(colorNumericType);
+                    } else {
+                        //TODO: This may get side-effects out-of-order.
+                        // A simple fix is to use a static Color.mul(double,Color).
+                        // Another is to use a Block and a temporary.
+                        rcvr = rhs();
+                        arg = lhs(colorNumericType);
+                    }
+                    return op(rcvr, defs.mul_ColorMethodName, arg);
+                }
+                case LT:
+                    return op(lhs(), defs.lt_ColorMethodName, rhs());
+                case LE:
+                    return op(lhs(), defs.le_ColorMethodName, rhs());
+                case GT:
+                    return op(lhs(), defs.gt_ColorMethodName, rhs());
+                case GE:
+                    return op(lhs(), defs.ge_ColorMethodName, rhs());
+            }
+            throw new RuntimeException("Internal Error: bad Color operation");
+        }
+
         /**
          * Translate a binary expressions
          */
@@ -2617,6 +2680,11 @@ public abstract class JavafxAbstractTranslation
                 if ((isAngle(lhsType) || isAngle(rhsType)) &&
                         tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Angle method isn't matched
                     return angleOp();
+                }
+                // Color type operator overloading
+                if ((isColor(lhsType) || isColor(rhsType)) &&
+                        tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Color method isn't matched
+                    return colorOp();
                 }
                 return m().Binary(tree.getOperatorTag(), lhs(), rhs());
             }
@@ -4243,6 +4311,10 @@ public abstract class JavafxAbstractTranslation
 
     public void visitAngleLiteral(final JFXAngleLiteral tree) {
         result = new AngleLiteralTranslator(tree).doit();
+   }
+
+    public void visitColorLiteral(final JFXColorLiteral tree) {
+        result = new ColorLiteralTranslator(tree).doit();
    }
 
     public void visitTree(JFXTree that) {

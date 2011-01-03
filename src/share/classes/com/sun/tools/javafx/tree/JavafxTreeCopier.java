@@ -395,6 +395,11 @@ public class JavafxTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).AngleLiteral(literal, tree.units);
     }
 
+    public void visitColorLiteral(JFXColorLiteral tree) {
+        JFXLiteral literal = copy(tree.value);
+        result = maker.at(tree.pos).ColorLiteral(literal);
+    }
+
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         Name name = tree.getName();
         JFXModifiers mods = copy(tree.getModifiers());

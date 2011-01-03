@@ -100,6 +100,7 @@ public interface JavaFXTreeVisitor<R,P> {
     R visitTimeLiteral(TimeLiteralTree node, P p);
     R visitLengthLiteral(LengthLiteralTree node, P p);
     R visitAngleLiteral(AngleLiteralTree node, P p);
+    R visitColorLiteral(ColorLiteralTree node, P p);
     R visitTrigger(TriggerTree node, P p);
     R visitTypeAny(TypeAnyTree node, P p);
     R visitTypeClass(TypeClassTree node, P p);

@@ -289,13 +289,17 @@ public enum JavafxTag {
      */
     TIME_LITERAL,
 
-    /** time literal
+    /** length literal
      */
     LENGTH_LITERAL,
 
-    /** time literal
+    /** angle literal
      */
     ANGLE_LITERAL,
+
+    /** color literal
+     */
+    COLOR_LITERAL,
     
     /** value clause in an interpolation
      */

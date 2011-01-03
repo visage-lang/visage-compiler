@@ -77,7 +77,8 @@ public class JavafxTypes extends Types {
                     type != syms.javafx_StringType &&
                     type != syms.javafx_DurationType &&
                     type != syms.javafx_LengthType &&
-                    type != syms.javafx_AngleType;
+                    type != syms.javafx_AngleType &&
+                    type != syms.javafx_ColorType;
     }
 
     public boolean isSequence(Type type) {
