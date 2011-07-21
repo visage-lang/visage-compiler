@@ -24,9 +24,9 @@
 package fxjdi;
 
 
-import com.sun.javafx.jdi.FXStackFrame;
-import com.sun.javafx.jdi.FXVirtualMachine;
-import com.sun.javafx.jdi.FXWrapper;
+import com.sun.visage.jdi.FXStackFrame;
+import com.sun.visage.jdi.FXVirtualMachine;
+import com.sun.visage.jdi.FXWrapper;
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.BreakpointEvent;
@@ -39,7 +39,7 @@ import junit.framework.Assert;
  */
 public class LocalVarTest extends JdbBase {
 
-// @BeginTest LocalVar.fx
+// @BeginTest LocalVar.visage
 // function run() {
 //     println("LocalVar");
 // }
@@ -48,8 +48,8 @@ public class LocalVarTest extends JdbBase {
     @Test(timeout=5000)
     public void testHello1() {
         try {
-            compile("LocalVar.fx");
-            stop("in LocalVar.javafx$run$");
+            compile("LocalVar.visage");
+            stop("in LocalVar.visage$run$");
 
             fxrun();
 

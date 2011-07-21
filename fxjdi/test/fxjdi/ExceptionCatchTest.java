@@ -36,7 +36,7 @@ import org.junit.Test;
  */
 public class ExceptionCatchTest extends JdbBase {
 
-// @BeginTest ExceptionBreak.fx
+// @BeginTest ExceptionBreak.visage
 //  function simpleArith() {
 //     throw (new java.lang.Exception("Exception of no value"));
 //  }
@@ -62,7 +62,7 @@ public class ExceptionCatchTest extends JdbBase {
     public void testExceptionBreak() {
         try {
             resetOutputs();//Uncomment this if you want to see the output on console
-            compile("ExceptionBreak.fx");
+            compile("ExceptionBreak.visage");
             stop("in ExceptionBreak:2");
             stop("in ExceptionBreak:6");
             fxrun();

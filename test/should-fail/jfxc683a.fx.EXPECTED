@@ -1,4 +1,4 @@
-test/should-fail/jfxc683a.fx:38: A sequence is not a valid expression for this operation, I am looking for an expression that yields 'jfxc683a.Node'
+test/should-fail/jfxc683a.visage:38: A sequence is not a valid expression for this operation, I am looking for an expression that yields 'jfxc683a.Node'
     content: [Node {}]
              ^
 1 error

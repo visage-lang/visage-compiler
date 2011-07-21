@@ -1,25 +1,25 @@
-test/should-fail/jfxc4173sub.fx:13: warning: Suspicious forward reference: variable l might not have been initialized.
+test/should-fail/jfxc4173sub.visage:13: warning: Suspicious forward reference: variable l might not have been initialized.
    var i:Object[] = [a => l, b => this.l, c => A.l, d => jfxc4173sub.A.l];
                           ^
-test/should-fail/jfxc4173sub.fx:13: warning: Suspicious forward reference: variable l might not have been initialized.
+test/should-fail/jfxc4173sub.visage:13: warning: Suspicious forward reference: variable l might not have been initialized.
    var i:Object[] = [a => l, b => this.l, c => A.l, d => jfxc4173sub.A.l];
                                       ^
-test/should-fail/jfxc4173sub.fx:13: warning: Suspicious forward reference: variable l might not have been initialized.
+test/should-fail/jfxc4173sub.visage:13: warning: Suspicious forward reference: variable l might not have been initialized.
    var i:Object[] = [a => l, b => this.l, c => A.l, d => jfxc4173sub.A.l];
                                                 ^
-test/should-fail/jfxc4173sub.fx:13: warning: Suspicious forward reference: variable l might not have been initialized.
+test/should-fail/jfxc4173sub.visage:13: warning: Suspicious forward reference: variable l might not have been initialized.
    var i:Object[] = [a => l, b => this.l, c => A.l, d => jfxc4173sub.A.l];
                                                                       ^
-test/should-fail/jfxc4173sub.fx:21: warning: Suspicious forward reference: variable g1 might not have been initialized.
+test/should-fail/jfxc4173sub.visage:21: warning: Suspicious forward reference: variable g1 might not have been initialized.
       var f1:Object[] = [a1 => g1];
                                ^
-test/should-fail/jfxc4173sub.fx:31: warning: Suspicious forward reference: variable h might not have been initialized.
+test/should-fail/jfxc4173sub.visage:31: warning: Suspicious forward reference: variable h might not have been initialized.
 var g:Object[] = [a => h, b => jfxc4173sub.h];
                        ^
-test/should-fail/jfxc4173sub.fx:31: warning: Suspicious forward reference: variable h might not have been initialized.
+test/should-fail/jfxc4173sub.visage:31: warning: Suspicious forward reference: variable h might not have been initialized.
 var g:Object[] = [a => h, b => jfxc4173sub.h];
                                           ^
-test/should-fail/jfxc4173sub.fx:39: warning: Suspicious forward reference: variable g1 might not have been initialized.
+test/should-fail/jfxc4173sub.visage:39: warning: Suspicious forward reference: variable g1 might not have been initialized.
    var f1:Object[] = [a1 => g1];
                             ^
 8 warnings

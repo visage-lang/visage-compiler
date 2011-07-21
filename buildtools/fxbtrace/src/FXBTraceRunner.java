@@ -51,7 +51,7 @@ import java.util.logging.Logger;
  * In order to the following environment variables or properties must be set,
  * this is to facilitate testing of arbitrary SDK and test specimens.
  *   a. BUILD_DIR   or build.dir     : clean location for the build files
- *   b. JAVAFX_HOME or javafx.home : location of javafx sdk
+ *   b. JAVAFX_HOME or visage.home : location of visage sdk
  *   c. BTRACE_HOME or btrace.home : location of btrace distro
  *   d. BASE_DIR    or base.dir    : location of the fxbtrace directory
  * 
@@ -85,7 +85,7 @@ public class FXBTraceRunner {
     // Paths we need
     static final String BUILD_DIR   = System.getProperty("build.dir",
             System.getenv("BUILD_DIR"));
-    static final String JAVAFX_HOME = System.getProperty("javafx.home", 
+    static final String JAVAFX_HOME = System.getProperty("visage.home", 
             System.getenv("JAVAFX_HOME"));
     static final String BTRACE_HOME = System.getProperty("btrace.home", 
             System.getenv("BTRACE_HOME"));
@@ -94,7 +94,7 @@ public class FXBTraceRunner {
    
     static final String FXBTRACERUNNER_NAME = "FXTrackerRunner"; 
     static final String BTRACE_CLIENT_JAR = BTRACE_HOME + "/build/btrace-client.jar";
-    static final String JAVAFXRT_JAR = JAVAFX_HOME + "/lib/shared/javafxrt.jar";
+    static final String JAVAFXRT_JAR = JAVAFX_HOME + "/lib/shared/visagert.jar";
     static final String BTRACE_COMPILER = "com.sun.btrace.compiler.Compiler";
     static final String BTRACE_AGENT_OPT = "-javaagent:" + BTRACE_HOME +
                 "/build/btrace-agent.jar=unsafe=true,script=";
@@ -196,7 +196,7 @@ public class FXBTraceRunner {
         JAVA_EXE = getExe("java").getAbsolutePath();
         TOOLS_JAR = JAVA_HOME + "/lib/tools.jar";
         BTRACE_COMPILE_CP = BTRACE_CLIENT_JAR + File.pathSeparator + TOOLS_JAR;
-        JAVAFX_EXE = getExe("javafx").getAbsolutePath();
+        JAVAFX_EXE = getExe("visage").getAbsolutePath();
     }
     
     static String getMainClassFromJar(String jarfilename) {

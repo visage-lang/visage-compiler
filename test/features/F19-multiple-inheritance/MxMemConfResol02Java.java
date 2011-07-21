@@ -1,6 +1,6 @@
 /*
  * Test for precedence and member conflict resolution.
- * @subtest MxMemConfResol02.fx
+ * @subtest MxMemConfResol02.visage
  */
 
 public class MxMemConfResol02Java {

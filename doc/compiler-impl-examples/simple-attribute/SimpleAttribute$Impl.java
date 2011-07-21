@@ -1,8 +1,8 @@
-import com.sun.javafx.runtime.FXObject;
-import com.sun.javafx.runtime.InitHelper;
-import com.sun.javafx.runtime.location.AbstractVariable;
-import com.sun.javafx.runtime.location.ChangeListener;
-import com.sun.javafx.runtime.location.IntVariable;
+import com.sun.visage.runtime.FXObject;
+import com.sun.visage.runtime.InitHelper;
+import com.sun.visage.runtime.location.AbstractVariable;
+import com.sun.visage.runtime.location.ChangeListener;
+import com.sun.visage.runtime.location.IntVariable;
 
 /**
  * SimpleAttribute

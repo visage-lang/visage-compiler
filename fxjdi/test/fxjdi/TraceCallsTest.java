@@ -40,7 +40,7 @@ import org.junit.Test;
  */
 public class TraceCallsTest extends JdbBase {
 
-// @BeginTest Method.fx
+// @BeginTest Method.visage
 // function methodOne():Void {
 //      println("methodOne call");
 //      println("methodOne end");
@@ -75,7 +75,7 @@ public class TraceCallsTest extends JdbBase {
     public void testTrace() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("Method.fx");
+            compile("Method.visage");
             stop("in Method:7");
             stop("in Method:4");
             stop("in Method:8");
@@ -86,13 +86,13 @@ public class TraceCallsTest extends JdbBase {
             where();
             list();
             Event event = resumeToAnyEvent();//This is definitely start of methodOne()
-           checkEntryExit(event, "Method.methodOne()", "javafx.lang.Builtins.println(java.lang.Object)");
+           checkEntryExit(event, "Method.methodOne()", "visage.lang.Builtins.println(java.lang.Object)");
 
             where();
             list();
 
             event = resumeToAnyEvent();//This is exit of either methodOne() or println() because the breakpoint is at end of methodOne()
-           checkEntryExit(event, "Method.methodOne()", "javafx.lang.Builtins.println(java.lang.Object)");
+           checkEntryExit(event, "Method.methodOne()", "visage.lang.Builtins.println(java.lang.Object)");
             where();
             list();
             cont();

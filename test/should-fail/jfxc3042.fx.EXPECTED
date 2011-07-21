@@ -1,9 +1,9 @@
-test/should-fail/jfxc3042.fx:9: incompatible types
+test/should-fail/jfxc3042.visage:9: incompatible types
 found   : void
 required: jfxc3042.A
 var x:A = if (true) {};
                     ^
-test/should-fail/jfxc3042.fx:9: incompatible types
+test/should-fail/jfxc3042.visage:9: incompatible types
 found   : void
 required: jfxc3042.A
 var x:A = if (true) {};

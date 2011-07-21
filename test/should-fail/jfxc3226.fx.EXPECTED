@@ -1,13 +1,13 @@
-test/should-fail/jfxc3226.fx:8: warning: bind does not detect changes in nativearray value
+test/should-fail/jfxc3226.visage:8: warning: bind does not detect changes in nativearray value
 var chars:nativearray of Character = bind text.toCharArray() on replace {
 ^
-test/should-fail/jfxc3226.fx:8: warning: trigger does not detect changes in nativearray value
+test/should-fail/jfxc3226.visage:8: warning: trigger does not detect changes in nativearray value
 var chars:nativearray of Character = bind text.toCharArray() on replace {
                                                              ^
-test/should-fail/jfxc3226.fx:11: warning: bind does not detect changes in nativearray value
+test/should-fail/jfxc3226.visage:11: warning: bind does not detect changes in nativearray value
 var chars_2:nativearray of Character = bind chars;
 ^
-test/should-fail/jfxc3226.fx:12: warning: bind does not detect changes in nativearray value
+test/should-fail/jfxc3226.visage:12: warning: bind does not detect changes in nativearray value
 var chars_3:Character[] = bind chars;
 ^
 4 warnings

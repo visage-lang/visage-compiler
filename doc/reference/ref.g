@@ -66,7 +66,7 @@ options {
 
 // Package specification for the generated parser class
 //
-package com.sun.tools.javafx.antlr;
+package com.sun.tools.visage.antlr;
 
 // Parser specific inports.
 //
@@ -76,18 +76,18 @@ import java.util.Map;
 import java.io.OutputStreamWriter;
 
 import com.sun.tools.javac.tree.*;
-import com.sun.tools.javafx.tree.*;
-import com.sun.javafx.api.tree.*;
+import com.sun.tools.visage.tree.*;
+import com.sun.visage.api.tree.*;
 
 import com.sun.tools.javac.util.*;
-import com.sun.tools.javafx.util.MsgSym;
+import com.sun.tools.visage.util.MsgSym;
 
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.visage.code.JavafxFlags;
 import static com.sun.tools.javac.util.ListBuffer.lb;
-import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.visage.api.JavafxBindStatus;
 
-import static com.sun.javafx.api.JavafxBindStatus.*;
+import static com.sun.visage.api.JavafxBindStatus.*;
 
 }
 
@@ -512,7 +512,7 @@ variableLabel
 	
 	: VAR			{ $modifiers = 0L; $pos = pos($VAR); }
 	| DEF			{ $modifiers = JavafxFlags.IS_DEF; $pos = pos($DEF); }
-	| ATTRIBUTE		{ $modifiers = 0L; $pos = pos($ATTRIBUTE); log.warning(pos($ATTRIBUTE), "javafx.not.supported.attribute"); }
+	| ATTRIBUTE		{ $modifiers = 0L; $pos = pos($ATTRIBUTE); log.warning(pos($ATTRIBUTE), "visage.not.supported.attribute"); }
 	;
 
 // ------	
@@ -1408,7 +1408,7 @@ typeName
 			  	//
 			  	// TODO: Implement this?
 			  	//
-			  	log.error(pos($LT), "javafx.generalerror", "Java generic type declarations are not currently supported");
+			  	log.error(pos($LT), "visage.generalerror", "Java generic type declarations are not currently supported");
 			  }
 			  
 			|	// Non generic

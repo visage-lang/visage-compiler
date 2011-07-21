@@ -28,16 +28,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.script.ScriptException;
 
-import com.sun.javafx.runtime.SystemProperties;
+import com.sun.visage.runtime.SystemProperties;
 
 public class VersionTest extends TestCase {
    private static final String VERSION_PATTERN_TAIL = "[1-9].[0-9].*";
 
     // The golden values
     private static final String versionProp =
-            SystemProperties.getProperty("javafx.version");
+            SystemProperties.getProperty("visage.version");
     private static final String fullversionProp =
-            SystemProperties.getProperty("javafx.runtime.version");
+            SystemProperties.getProperty("visage.runtime.version");
        /*
      * perform the mundane setups once.
      */
@@ -70,57 +70,57 @@ public class VersionTest extends TestCase {
     }
     
     /*
-     * test for javafx, using exact match
+     * test for visage, using exact match
      */
     public void testJavaFxVersion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
-        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add(Utils.visageExe.toString());
         cmdsList.add("-version");
-        assertTrue(Utils.checkExec(cmdsList, "javafx " + versionProp, false));
+        assertTrue(Utils.checkExec(cmdsList, "visage " + versionProp, false));
     }
 
     public void testJavaFxFullversion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
-        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add(Utils.visageExe.toString());
         cmdsList.add("-fullversion");
-        assertTrue(Utils.checkExec(cmdsList, "javafx full version \"" +
+        assertTrue(Utils.checkExec(cmdsList, "visage full version \"" +
                 fullversionProp + "\"", false));
     }
 
     /*
-     * test for javafxc, using regex pattern
+     * test for visagec, using regex pattern
      */
     public void testJavaFxcVersion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
-        cmdsList.add(Utils.javafxcExe.toString());
+        cmdsList.add(Utils.visagecExe.toString());
         cmdsList.add("-version");
-        assertTrue(Utils.checkExec(cmdsList, "^javafxc " + VERSION_PATTERN_TAIL, true));
+        assertTrue(Utils.checkExec(cmdsList, "^visagec " + VERSION_PATTERN_TAIL, true));
     }
 
     public void testJavaFxcFullversion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
-        cmdsList.add(Utils.javafxcExe.toString());
+        cmdsList.add(Utils.visagecExe.toString());
         cmdsList.add("-fullversion");
-        assertTrue(Utils.checkExec(cmdsList, "^javafxc full version \"" +
+        assertTrue(Utils.checkExec(cmdsList, "^visagec full version \"" +
                 VERSION_PATTERN_TAIL + "\"", true));
     }
 
     /*
-     * test for javafxdocm using regex pattern
+     * test for visagedocm using regex pattern
      */
     public void testJavaFxDocVersion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
-        cmdsList.add(Utils.javafxdocExe.toString());
+        cmdsList.add(Utils.visagedocExe.toString());
         cmdsList.add("-version");
-        assertTrue(Utils.checkExec(cmdsList, "^javafxdoc " +
+        assertTrue(Utils.checkExec(cmdsList, "^visagedoc " +
                 VERSION_PATTERN_TAIL, true));
     }
 
     public void testJavaFxDocFullversion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
-        cmdsList.add(Utils.javafxdocExe.toString());
+        cmdsList.add(Utils.visagedocExe.toString());
         cmdsList.add("-fullversion");
-        assertTrue(Utils.checkExec(cmdsList, "^javafxdoc full version \"" +
+        assertTrue(Utils.checkExec(cmdsList, "^visagedoc full version \"" +
                 VERSION_PATTERN_TAIL + "\"", true));
     }
 }

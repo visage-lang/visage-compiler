@@ -31,7 +31,7 @@ import static com.sun.btrace.BTraceUtils.*;
  */
 @BTrace public class VarTracer { 
     @OnMethod(
-        clazz="+com.sun.javafx.runtime.FXObject",
+        clazz="+com.sun.visage.runtime.FXObject",
         method="/invalidate\\$.+/"
     )
     public static void onInvalidateEnter(
@@ -43,7 +43,7 @@ import static com.sun.btrace.BTraceUtils.*;
     }
 
     @OnMethod(
-        clazz="+com.sun.javafx.runtime.FXObject",
+        clazz="+com.sun.visage.runtime.FXObject",
         method="/invalidate\\$.+/",
         location=@Location(Kind.RETURN)
     )
@@ -56,7 +56,7 @@ import static com.sun.btrace.BTraceUtils.*;
     }
     
     @OnMethod(
-        clazz="+com.sun.javafx.runtime.FXObject",
+        clazz="+com.sun.visage.runtime.FXObject",
         method="/onReplace\\$.+/"
     )
     public static void onReplaceEnter(
@@ -68,7 +68,7 @@ import static com.sun.btrace.BTraceUtils.*;
     }
 
     @OnMethod(
-        clazz="+com.sun.javafx.runtime.FXObject",
+        clazz="+com.sun.visage.runtime.FXObject",
         method="/onReplace\\$.+/",
         location=@Location(Kind.RETURN)
     )
@@ -82,7 +82,7 @@ import static com.sun.btrace.BTraceUtils.*;
     
     // "get$foo" are called to do (external) var set
     @OnMethod(
-        clazz="+com.sun.javafx.runtime.FXObject",
+        clazz="+com.sun.visage.runtime.FXObject",
         method="/get\\$.+/"
     )
     public static void onGetterEnter(
@@ -94,7 +94,7 @@ import static com.sun.btrace.BTraceUtils.*;
     }
 
     @OnMethod(
-        clazz="+com.sun.javafx.runtime.FXObject",
+        clazz="+com.sun.visage.runtime.FXObject",
         method="/get\\$.+/",
         location=@Location(Kind.RETURN)
     )
@@ -108,7 +108,7 @@ import static com.sun.btrace.BTraceUtils.*;
 
     // "set$foo" are called to do (external) var set
     @OnMethod(
-        clazz="+com.sun.javafx.runtime.FXObject",
+        clazz="+com.sun.visage.runtime.FXObject",
         method="/set\\$.+/"
     )
     public static void onSetterEnter(
@@ -120,7 +120,7 @@ import static com.sun.btrace.BTraceUtils.*;
     }
 
     @OnMethod(
-        clazz="+com.sun.javafx.runtime.FXObject",
+        clazz="+com.sun.visage.runtime.FXObject",
         method="/set\\$.+/",
         location=@Location(Kind.RETURN)
     )
@@ -134,7 +134,7 @@ import static com.sun.btrace.BTraceUtils.*;
 
     // "be$foo" are called to do recomputation set (internal set)
     @OnMethod(
-        clazz="+com.sun.javafx.runtime.FXObject",
+        clazz="+com.sun.visage.runtime.FXObject",
         method="/be\\$.+/"
     )
     public static void onBeEnter(
@@ -147,7 +147,7 @@ import static com.sun.btrace.BTraceUtils.*;
 
     // "be$foo" are called to do recomputation set (internal set)
     @OnMethod(
-        clazz="+com.sun.javafx.runtime.FXObject",
+        clazz="+com.sun.visage.runtime.FXObject",
         method="/be\\$.+/",
         location=@Location(Kind.RETURN)
     )

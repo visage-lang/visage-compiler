@@ -15,10 +15,10 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>src/configuration.cpp</itemPath>
-      <itemPath>src/javafx.cpp</itemPath>
-      <itemPath>src/javafxc.cpp</itemPath>
-      <itemPath>src/javafxdoc.cpp</itemPath>
-      <itemPath>src/javafxw.cpp</itemPath>
+      <itemPath>src/visage.cpp</itemPath>
+      <itemPath>src/visagec.cpp</itemPath>
+      <itemPath>src/visagedoc.cpp</itemPath>
+      <itemPath>src/visagew.cpp</itemPath>
       <itemPath>src/util.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -29,7 +29,7 @@
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="javafx_debug" type="1">
+    <conf name="visage_debug" type="1">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
@@ -45,7 +45,7 @@
           <warningLevel>2</warningLevel>
         </ccCompilerTool>
         <linkerTool>
-          <output>dist/Debug/javafx</output>
+          <output>dist/Debug/visage</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
@@ -56,16 +56,16 @@
       <item path="src/configuration.h">
         <itemTool>3</itemTool>
       </item>
-      <item path="src/javafx.cpp">
+      <item path="src/visage.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxc.cpp">
+      <item path="src/visagec.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxdoc.cpp">
+      <item path="src/visagedoc.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxw.cpp">
+      <item path="src/visagew.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="src/util.cpp">
@@ -75,7 +75,7 @@
         <itemTool>3</itemTool>
       </item>
     </conf>
-    <conf name="javafxc_debug" type="1">
+    <conf name="visagec_debug" type="1">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
@@ -91,7 +91,7 @@
           <warningLevel>2</warningLevel>
         </ccCompilerTool>
         <linkerTool>
-          <output>dist/Debug/javafxc</output>
+          <output>dist/Debug/visagec</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
@@ -102,16 +102,16 @@
       <item path="src/configuration.h">
         <itemTool>3</itemTool>
       </item>
-      <item path="src/javafx.cpp">
+      <item path="src/visage.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxc.cpp">
+      <item path="src/visagec.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxdoc.cpp">
+      <item path="src/visagedoc.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxw.cpp">
+      <item path="src/visagew.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="src/util.cpp">
@@ -121,7 +121,7 @@
         <itemTool>3</itemTool>
       </item>
     </conf>
-    <conf name="javafx_release" type="1">
+    <conf name="visage_release" type="1">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
@@ -142,7 +142,7 @@
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
-          <output>dist/Release/javafx</output>
+          <output>dist/Release/visage</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
@@ -153,16 +153,16 @@
       <item path="src/configuration.h">
         <itemTool>3</itemTool>
       </item>
-      <item path="src/javafx.cpp">
+      <item path="src/visage.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxc.cpp">
+      <item path="src/visagec.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxdoc.cpp">
+      <item path="src/visagedoc.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxw.cpp">
+      <item path="src/visagew.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="src/util.cpp">
@@ -172,7 +172,7 @@
         <itemTool>3</itemTool>
       </item>
     </conf>
-    <conf name="javafxc_release" type="1">
+    <conf name="visagec_release" type="1">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
@@ -193,7 +193,7 @@
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
-          <output>dist/Release/javafxc</output>
+          <output>dist/Release/visagec</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
@@ -204,16 +204,16 @@
       <item path="src/configuration.h">
         <itemTool>3</itemTool>
       </item>
-      <item path="src/javafx.cpp">
+      <item path="src/visage.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxc.cpp">
+      <item path="src/visagec.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxdoc.cpp">
+      <item path="src/visagedoc.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxw.cpp">
+      <item path="src/visagew.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="src/util.cpp">
@@ -223,7 +223,7 @@
         <itemTool>3</itemTool>
       </item>
     </conf>
-    <conf name="javafxdoc_debug" type="1">
+    <conf name="visagedoc_debug" type="1">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
@@ -239,7 +239,7 @@
           <warningLevel>2</warningLevel>
         </ccCompilerTool>
         <linkerTool>
-          <output>dist/Debug/javafxdoc</output>
+          <output>dist/Debug/visagedoc</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
@@ -250,16 +250,16 @@
       <item path="src/configuration.h">
         <itemTool>3</itemTool>
       </item>
-      <item path="src/javafx.cpp">
+      <item path="src/visage.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxc.cpp">
+      <item path="src/visagec.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxdoc.cpp">
+      <item path="src/visagedoc.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxw.cpp">
+      <item path="src/visagew.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="src/util.cpp">
@@ -269,7 +269,7 @@
         <itemTool>3</itemTool>
       </item>
     </conf>
-    <conf name="javafxdoc_release" type="1">
+    <conf name="visagedoc_release" type="1">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
@@ -290,7 +290,7 @@
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
-          <output>dist/Release/javafxdoc</output>
+          <output>dist/Release/visagedoc</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
@@ -301,16 +301,16 @@
       <item path="src/configuration.h">
         <itemTool>3</itemTool>
       </item>
-      <item path="src/javafx.cpp">
+      <item path="src/visage.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxc.cpp">
+      <item path="src/visagec.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxdoc.cpp">
+      <item path="src/visagedoc.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxw.cpp">
+      <item path="src/visagew.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="src/util.cpp">
@@ -320,7 +320,7 @@
         <itemTool>3</itemTool>
       </item>
     </conf>
-    <conf name="javafxw_release" type="1">
+    <conf name="visagew_release" type="1">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
@@ -341,7 +341,7 @@
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
-          <output>dist/Release/javafxw</output>
+          <output>dist/Release/visagew</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
@@ -352,16 +352,16 @@
       <item path="src/configuration.h">
         <itemTool>3</itemTool>
       </item>
-      <item path="src/javafx.cpp">
+      <item path="src/visage.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxc.cpp">
+      <item path="src/visagec.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxdoc.cpp">
+      <item path="src/visagedoc.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxw.cpp">
+      <item path="src/visagew.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="src/util.cpp">
@@ -371,7 +371,7 @@
         <itemTool>3</itemTool>
       </item>
     </conf>
-    <conf name="javafxw_debug" type="1">
+    <conf name="visagew_debug" type="1">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
@@ -387,7 +387,7 @@
           <warningLevel>2</warningLevel>
         </ccCompilerTool>
         <linkerTool>
-          <output>dist/Debug/javafxw</output>
+          <output>dist/Debug/visagew</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
@@ -398,16 +398,16 @@
       <item path="src/configuration.h">
         <itemTool>3</itemTool>
       </item>
-      <item path="src/javafx.cpp">
+      <item path="src/visage.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxc.cpp">
+      <item path="src/visagec.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxdoc.cpp">
+      <item path="src/visagedoc.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="src/javafxw.cpp">
+      <item path="src/visagew.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="src/util.cpp">

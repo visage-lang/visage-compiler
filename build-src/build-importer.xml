@@ -1073,7 +1073,7 @@ Description: ${import.@{item}.description}
     description="Gluegen-src: Gluegen Source"
     item="gluegen-src"
     version="2.0-20091209"
-    url="http://download.java.net/media/javafx/gluegen/bundles"
+    url="http://download.java.net/media/visage/gluegen/bundles"
     basename="gluegen-src-${import.gluegen-src.version}"
     platform=""
     includes="**"/>

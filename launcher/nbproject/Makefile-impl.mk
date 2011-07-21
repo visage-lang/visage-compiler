@@ -27,11 +27,11 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 PROJECTNAME=launcher
 
 # Active Configuration
-DEFAULTCONF=javafx_debug
+DEFAULTCONF=visage_debug
 CONF=${DEFAULTCONF}
 
 # All Configurations
-ALLCONFS=javafx_debug javafxc_debug javafx_release javafxc_release javafxdoc_debug javafxdoc_release javafxw_release javafxw_debug 
+ALLCONFS=visage_debug visagec_debug visage_release visagec_release visagedoc_debug visagedoc_release visagew_release visagew_debug 
 
 
 # build

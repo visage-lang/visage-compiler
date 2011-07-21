@@ -1,4 +1,4 @@
-test/should-fail/jfxc2244.fx:4: incompatible types
+test/should-fail/jfxc2244.visage:4: incompatible types
 found   : Integer
 required: function():void
 var f:function () = [2];

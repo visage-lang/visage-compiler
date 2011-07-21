@@ -1,70 +1,70 @@
-test\should-fail\jfxc1250instWrite.fx:48: cannot find symbol
+test\should-fail\jfxc1250instWrite.visage:48: cannot find symbol
 symbol  : variable memScr
 location: class jfxc1250instWrite.Inh
 	memScr = 99;   // ERROR: inherited, same package
 	^
-test\should-fail\jfxc1250instWrite.fx:52: memIScr has script only (default) write access in jfxc1250subFail
+test\should-fail\jfxc1250instWrite.visage:52: memIScr has script only (default) write access in jfxc1250subFail
 	memIScr = 99;   // ERROR: inherited, same package
 	^
-test\should-fail\jfxc1250instWrite.fx:56: memRScr has script only (default) write access in jfxc1250subFail
+test\should-fail\jfxc1250instWrite.visage:56: memRScr has script only (default) write access in jfxc1250subFail
 	memRScr = 99;   // ERROR: inherited, same package
 	^
-test\should-fail\jfxc1250instWrite.fx:64: cannot find symbol
+test\should-fail\jfxc1250instWrite.visage:64: cannot find symbol
 symbol  : variable memPkg
 location: class jfxc1250instWrite.InhA
 	memPkg = 99;   // ERROR: inherited, different package
 	^
-test\should-fail\jfxc1250instWrite.fx:65: cannot find symbol
+test\should-fail\jfxc1250instWrite.visage:65: cannot find symbol
 symbol  : variable memScr
 location: class jfxc1250instWrite.InhA
 	memScr = 99;   // ERROR: inherited, different package
 	^
-test\should-fail\jfxc1250instWrite.fx:68: memIPkg has package write access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:68: memIPkg has package write access in jfxc1250.a.jfxc1250subFailA
 	memIPkg = 99;   // ERROR: inherited, different package
 	^
-test\should-fail\jfxc1250instWrite.fx:69: memIScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:69: memIScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
 	memIScr = 99;   // ERROR: inherited, different package
 	^
-test\should-fail\jfxc1250instWrite.fx:72: memRPkg has package write access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:72: memRPkg has package write access in jfxc1250.a.jfxc1250subFailA
 	memRPkg = 99;   // ERROR: inherited, different package
 	^
-test\should-fail\jfxc1250instWrite.fx:73: memRScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:73: memRScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
 	memRScr = 99;   // ERROR: inherited, different package
 	^
-test\should-fail\jfxc1250instWrite.fx:124: memScr has script only (default) access in jfxc1250subFail
+test\should-fail\jfxc1250instWrite.visage:124: memScr has script only (default) access in jfxc1250subFail
 	vf.memScr = 99;   // ERROR: same package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:128: memIScr has script only (default) write access in jfxc1250subFail
+test\should-fail\jfxc1250instWrite.visage:128: memIScr has script only (default) write access in jfxc1250subFail
 	vf.memIScr = 99;   // ERROR: same package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:132: memRScr has script only (default) write access in jfxc1250subFail
+test\should-fail\jfxc1250instWrite.visage:132: memRScr has script only (default) write access in jfxc1250subFail
 	vf.memRScr = 99;   // ERROR: same package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:138: memPro has protected access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:138: memPro has protected access in jfxc1250.a.jfxc1250subFailA
 	vf.memPro = 99;   // ERROR: different package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:139: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+test\should-fail\jfxc1250instWrite.visage:139: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	vf.memPkg = 99;   // ERROR: different package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:140: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:140: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	vf.memScr = 99;   // ERROR: different package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:142: memIPro has protected write access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:142: memIPro has protected write access in jfxc1250.a.jfxc1250subFailA
 	vf.memIPro = 99;   // ERROR: different package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:143: memIPkg has package write access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:143: memIPkg has package write access in jfxc1250.a.jfxc1250subFailA
 	vf.memIPkg = 99;   // ERROR: different package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:144: memIScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:144: memIScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
 	vf.memIScr = 99;   // ERROR: different package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:146: memRPro has protected write access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:146: memRPro has protected write access in jfxc1250.a.jfxc1250subFailA
 	vf.memRPro = 99;   // ERROR: different package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:147: memRPkg has package write access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:147: memRPkg has package write access in jfxc1250.a.jfxc1250subFailA
 	vf.memRPkg = 99;   // ERROR: different package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:148: memRScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.visage:148: memRScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
 	vf.memRScr = 99;   // ERROR: different package
 	  ^
 21 errors

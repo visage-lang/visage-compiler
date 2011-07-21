@@ -1,0 +1,11 @@
+/**
+ * regression test:  Converting $Intf class references to a normal class.
+ * @test
+ * @compilefirst jfxc165a.visage
+ * @compilefirst jfxc165b.visage 
+ * @run
+ */
+
+class jfxc165 {
+	var barS : jfxc165a = jfxc165b.BAR;
+}

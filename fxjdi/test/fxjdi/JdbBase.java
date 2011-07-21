@@ -22,8 +22,8 @@
  */
 package fxjdi;
 
-import com.sun.javafx.jdi.test.JavafxTestBase;
-import com.sun.javafx.tools.debug.tty.Debugger;
+import com.sun.visage.jdi.test.JavafxTestBase;
+import com.sun.visage.tools.debug.tty.Debugger;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -49,11 +49,11 @@ public class JdbBase extends Debugger {
     private final PrintStream  psout;
     private boolean isFx = true;
     private String mainclass = null;
-    static final String FX_MAIN = "com.sun.javafx.runtime.Main";
+    static final String FX_MAIN = "com.sun.visage.runtime.Main";
 
     public JdbBase() {
         super("-classpath " + testWorkDirectory() +
-                File.pathSeparator + javafxrtJar() +
+                File.pathSeparator + visagertJar() +
                 " -sourcepath " + testWorkDirectory());
         baout = new ByteArrayOutputStream();
         psout = new PrintStream(baout);
@@ -180,7 +180,7 @@ public class JdbBase extends Debugger {
     };
     static final FileFilter FX_FILTER = new FileFilter() {
         public boolean accept(File pathname) {
-            return pathname.getName().endsWith(".fx");
+            return pathname.getName().endsWith(".visage");
         }
     };
 
@@ -314,14 +314,14 @@ public class JdbBase extends Debugger {
     }
 
     private File getFileName(String filename) {
-        if (filename.endsWith(".fx")) {
+        if (filename.endsWith(".visage")) {
             isFx = true;
-            mainclass = filename.substring(0, filename.indexOf(".fx"));
+            mainclass = filename.substring(0, filename.indexOf(".visage"));
         } else if (filename.endsWith(".java")) {
             isFx = false;
             mainclass = filename.substring(0, filename.indexOf(".java"));
         } else {
-            throw new RuntimeException("file must end with .fx or .java");
+            throw new RuntimeException("file must end with .visage or .java");
         }
         deleteAllFiles(); // start with a clean slate
         return new File(testWorkDirectory(), filename);
@@ -331,13 +331,13 @@ public class JdbBase extends Debugger {
      *
      * @param filename
      * This method will read the source file for debuggee sources, see example
-     * below, where filename is "Foo.fx" in the first example
-     * // @BeginTest Foo.fx
+     * below, where filename is "Foo.visage" in the first example
+     * // @BeginTest Foo.visage
      * // your fx script or java code
      * // more fx script or java code
      * // @EndTest
      *
-     * // @BeginTest Bar.fx
+     * // @BeginTest Bar.visage
      * // another debuggee code
      * // @EndTest
      *
@@ -351,7 +351,7 @@ public class JdbBase extends Debugger {
     }
 
     /**
-     * @param filename the file (.fx, .java)  to compile
+     * @param filename the file (.visage, .java)  to compile
      * @param is inputstream of the file
      *
      * The script or code so specified will be copied over to the working area
@@ -393,7 +393,7 @@ public class JdbBase extends Debugger {
             outFile.getAbsolutePath()
         };
         int retval = (isFx) 
-                ? com.sun.tools.javafx.Main.compile(compileArgs)
+                ? com.sun.tools.visage.Main.compile(compileArgs)
                 : com.sun.tools.javac.Main.compile(compileArgs);
 
         if (retval != 0) {
@@ -415,14 +415,14 @@ public class JdbBase extends Debugger {
         return workDir;
     }
 
-    static File javafxrtJar() {
+    static File visagertJar() {
         String javaClasspaths[] =
                 System.getProperty("java.class.path", "").split(File.pathSeparator);
         for (String x : javaClasspaths) {
-            if (x.endsWith("javafxrt.jar")) {
+            if (x.endsWith("visagert.jar")) {
                 return new File(x);
             }
         }
-        throw new RuntimeException("Error: no javafxrt.jar in the classpath");
+        throw new RuntimeException("Error: no visagert.jar in the classpath");
     }
 }

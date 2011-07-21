@@ -1,4 +1,4 @@
-test/should-fail/jfxc1904a.fx:10: Loose expression not permitted in scripts with a run() function.
+test/should-fail/jfxc1904a.visage:10: Loose expression not permitted in scripts with a run() function.
 Any expressions to be run on script invocation should be moved into run().
 System.out.println("Startup");
 ^

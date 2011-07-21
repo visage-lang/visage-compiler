@@ -1,77 +1,77 @@
 <FindBugsFilter>
     <Match>
-        <Package name="com.sun.tools.javafx.antlr"/>
+        <Package name="com.sun.tools.visage.antlr"/>
     </Match>
     <Match>    
         <!-- runtime.awt is a copy of the 1.6 AWT classes we use, but don't modify -->
-        <Package name="com.sun.javafx.runtime.awt"/>
+        <Package name="com.sun.visage.runtime.awt"/>
     </Match>
     <Match>
     		<!-- Offending methods are inherited from javac -->
-        <Class name="com.sun.tools.javafx.tree.JavafxTreeMaker" />
+        <Class name="com.sun.tools.visage.tree.JavafxTreeMaker" />
         <Bug  pattern="NM_METHOD_NAMING_CONVENTION" />
     </Match>
     <Match>
     		<!-- Offending classes are generated -->
-        <Package name="com.sun.tools.javafx.resources"/>
+        <Package name="com.sun.tools.visage.resources"/>
         <Bug pattern="NM_CLASS_NAMING_CONVENTION"/>
     </Match>
     <Match>
     		<!-- On purpose, sets global state -->
-        <Class name="~com\.sun\.tools\.javafx\.main\.RecognizedOptions\$[0-9]+"/>
+        <Class name="~com\.sun\.tools\.visage\.main\.RecognizedOptions\$[0-9]+"/>
         <Method name="process"/>
         <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
     </Match>
     <Match>
     		<!-- Reference points to (immutable) sequence -->
-        <Class name="com.sun.javafx.runtime.sequence.CartesianProduct"/>
+        <Class name="com.sun.visage.runtime.sequence.CartesianProduct"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
     <Match>
-        <!-- Exclude Duration.fx -->
-        <Class name="javafx.lang.Duration"/>
+        <!-- Exclude Duration.visage -->
+        <Class name="visage.lang.Duration"/>
     </Match>
     <Match>
-        <!-- Exclude package javafx.animation -->
-        <Package name="javafx.animation"/>
+        <!-- Exclude package visage.animation -->
+        <Package name="visage.animation"/>
     </Match>
     <Match>
-        <!-- Exclude package com.sun.javafx.runtime.util.backport -->
-        <Package name="com.sun.javafx.runtime.util.backport"/>
+        <!-- Exclude package com.sun.visage.runtime.util.backport -->
+        <Package name="com.sun.visage.runtime.util.backport"/>
     </Match>
     <Match>
         <!-- Switch-fallthrough on purpose -->
-        <Class name="com.sun.javafx.runtime.util.FXPropertyResourceBundle"/>
+        <Class name="com.sun.visage.runtime.util.FXPropertyResourceBundle"/>
         <Method name="initialize"/>
         <Bug pattern="SF_SWITCH_FALLTHROUGH"/>
     </Match>
     <Match>
 	    <!-- valid test for whether assertions are enabled -->
-	    <Class name="com.sun.tools.javafx.comp.JavafxAttr"/>
+	    <Class name="com.sun.tools.visage.comp.JavafxAttr"/>
         <Method name="attribClassBody"/>
         <Local name="assertsEnabled"/>
         <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
     </Match>
     <Match>
         <!-- Error in findbugs, confuses two scan-methods in superclass -->
-        <Class name="com.sun.tools.javafx.comp.JavafxEnter"/>
+        <Class name="com.sun.tools.visage.comp.JavafxEnter"/>
         <Method name="scan"/>
         <Bug pattern="NM_WRONG_PACKAGE_INTENTIONAL"/>
     </Match>
     <Match>
-        <Class name="com.sun.tools.javafx.ant.JavaFxAntTask$JavaFxCompilerAdapter"/>
+        <Class name="com.sun.tools.visage.ant.JavaFxAntTask$JavaFxCompilerAdapter"/>
         <Method name="execute"/>
         <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
     </Match>
     
     <!-- Temporarily disabled because work in progress -->
     <Match>
-        <!-- Exclude package javafx.reflect -->
-        <Package name="javafx.reflect"/>
+        <!-- Exclude package visage.reflect -->
+        <Package name="visage.reflect"/>
     </Match>
     <Match>
         <!-- Field isSimple is not implemented yet -->
-        <Class name="~com\.sun\.tools\.javafx\.comp\.JavafxToBound\$[0-9]+"/>
+        <Class name="~com\.sun\.tools\.visage\.comp\.JavafxToBound\$[0-9]+"/>
         <Field name="isSimple"/>
         <Bug pattern="SS_SHOULD_BE_STATIC"/>
     </Match>

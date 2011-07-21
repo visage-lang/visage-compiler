@@ -1,16 +1,16 @@
-test/should-fail/jfxc2293.fx:13: Cannot override 'one' -- this instance variable must be writable.
+test/should-fail/jfxc2293.visage:13: Cannot override 'one' -- this instance variable must be writable.
      override var one   = 10;
                   ^
-test/should-fail/jfxc2293.fx:14: Cannot override 'two' -- this instance variable must be writable.
+test/should-fail/jfxc2293.visage:14: Cannot override 'two' -- this instance variable must be writable.
      override var two   = 10;
                   ^
-test/should-fail/jfxc2293.fx:15: Cannot override 'three' -- 'three' is a 'def'.
+test/should-fail/jfxc2293.visage:15: Cannot override 'three' -- 'three' is a 'def'.
      override var three = 10;
                   ^
-test/should-fail/jfxc2293.fx:16: Duplicate variable override: variable three already overridden in jfxc2293base
+test/should-fail/jfxc2293.visage:16: Duplicate variable override: variable three already overridden in jfxc2293base
      override def three = 10;
                   ^
-test/should-fail/jfxc2293.fx:17: variable four declared 'override' but does not override another variable.
+test/should-fail/jfxc2293.visage:17: variable four declared 'override' but does not override another variable.
      override var four  = 10;
                   ^
 5 errors

@@ -1,4 +1,4 @@
-test/should-fail/jfxc1838.fx:15: Type mismatch for bind with inverse
+test/should-fail/jfxc1838.visage:15: Type mismatch for bind with inverse
 found: String
 required: Object
     to:bind hvf with inverse;

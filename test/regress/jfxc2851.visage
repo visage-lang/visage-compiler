@@ -1,0 +1,21 @@
+/**
+ * Regression test JFXC-2851 : Mixins: samples/SpringAnimation gets an NPE at com.sun.scenario.scenegraph.visage.FXNode.setTransformMatrix(FXNode.java:388)
+ *
+ * @test
+ * @compilefirst jfxc2851a.visage
+ * @compilefirst jfxc2851b.visage
+ * @run
+ */
+
+class sub extends jfxc2851b { 
+} 
+
+var jj: sub = sub{}; 
+function run() { 
+  var xx: String = jj.getit(); 
+  if (xx == null) { 
+      println("fails: {xx}"); 
+  } else { 
+      println("passes: {xx}"); 
+  } 
+} 

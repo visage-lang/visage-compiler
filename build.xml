@@ -53,7 +53,7 @@
        <matches string="${jfx.build.number}" pattern="^0*$"/>
     </condition>
 
-    <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
+    <property name="visagedoc.dir" value="${basedir}/visagedoc"/>
     <property name="launcher.dir" value="${basedir}/launcher"/>
     <property environment="env" />
     <condition property="exe" value=".exe" else="">
@@ -85,7 +85,7 @@
 
     <!-- Here are popular targets for building in this dir -->
     <target name="help"       depends="-do-help" description="Show help on targets"/>
-    <target name="binaries"   depends="jar,javafxdoc,launcher" description="Build compiler and compiler runtime binaries"/>
+    <target name="binaries"   depends="jar,visagedoc,launcher" description="Build compiler and compiler runtime binaries"/>
 
 <!-- jjh: temporarily changed to dev-test until the tests on the exclude lists can be fixed
     <target name="test"       depends="binaries,-do-test" description="Build binaries and run tests"/>
@@ -125,14 +125,14 @@
 
       name="help"
       name="jar"                                               description="Build compiler .jar files"
-      name="binaries"   depends="jar,javafxdoc,launcher"       description="Build compiler and compiler runtime binaries"
+      name="binaries"   depends="jar,visagedoc,launcher"       description="Build compiler and compiler runtime binaries"
       name="test"       depends="binaries,-do-test"            description="Build binaries and run all tests"
            To run a single framework/xxxTest.java, do
                ant test -Dincludes=framework/xxxTest.java
            or for example
                ant test -Dincludes=launchers/VersionTest.java
            To run a subset, say fxunit/ of the JFXCompilerTest tests, do
-               ant test -Dtest.fx.roots=test/fxunit -Dincludes=framework/FXCompilerTest.java
+               ant test -Dtest.visage.roots=test/fxunit -Dincludes=framework/FXCompilerTest.java
 
       name="docs"       depends="binaries,source-zip,-do-docs" description="Build binaries, docs, and src.zip"
       name="all"        depends="docs,test,pack-jars"          description="Build and test all project artifacts"
@@ -146,8 +146,8 @@
       name="test-single" depends="init,-do-not-recompile,compile-test-single,-pre-test-run-single,
                                   -do-test-run-single,-post-test-run-single" 
                                description="Run single unit test."
-            E.G.   ant test-single -Dtest.fx.includes='**/jfxc2347.fx'
-            or     ant test-single -Dtest.fx.includes=jfxc2347.fx
+            E.G.   ant test-single -Dtest.visage.includes='**/jfxc2347.visage'
+            or     ant test-single -Dtest.visage.includes=jfxc2347.visage
 
 
     Your openjfx-compiler repo must be under the top level repository, ${top-repo}.
@@ -251,7 +251,7 @@
     </target>
 
     <target name="compiler-only" depends="jar"
-            description="Build just the javafxc compiler (no bin scripts, javafxdoc, etc)"/>
+            description="Build just the visagec compiler (no bin scripts, visagedoc, etc)"/>
 
     <available property="ant.jar" value="${import.ant.jar}" file="${import.ant.jar}"/>
     <!-- if the previous location is not correct than find the ant.jar from the java.class.path value -->
@@ -288,11 +288,11 @@
         <property name="cobertura.class.path" refid="cobertura.class.path"/>
     </target>
 
-    <target name="single-fx-test-check" if="test.fx.includes">
+    <target name="single-fx-test-check" if="test.visage.includes">
         <property name="test.class" value="framework.FXCompilerTest"/>
         <property name="test.includes" value="**/FXCompilerTest.java"/>
         <property name="javac.includes" value="**/FXCompilerTest.java"/>
-        <property name="test-sys-prop.test.fx.includes" value="${test.fx.includes}"/>
+        <property name="test-sys-prop.test.visage.includes" value="${test.visage.includes}"/>
     </target>
 
 
@@ -323,7 +323,7 @@
             <arg value="tf"/>
             <arg value="${dist.jar}"/>
         </exec>
-        <taskdef name="bytecode-verify" classname="com.sun.javafx.tools.bytecodeverifier.VerifierTask">
+        <taskdef name="bytecode-verify" classname="com.sun.visage.tools.bytecodeverifier.VerifierTask">
             <classpath>
                  <pathelement location="${ant.jar}"/>
                  <pathelement location="${build.buildtools.dir}/"/>
@@ -341,34 +341,34 @@
             </manifest>
         </jar>
 -->
-        <jar compress="${jar.compress}" destfile="${dist.javafxrt.jar}" >
+        <jar compress="${jar.compress}" destfile="${dist.visagert.jar}" >
             <fileset dir="${build.classes.dir}" >
                 <include name="**/*.class" />
-                <include name="com/sun/javafx/runtime/resources/version.properties"/>
-                <exclude name="com/sun/tools/javafx/**"/>
-                <exclude name="com/sun/javafx/api/**"/>
-                <exclude name="com/sun/javafx/runtime/main/**"/>
+                <include name="com/sun/visage/runtime/resources/version.properties"/>
+                <exclude name="com/sun/tools/visage/**"/>
+                <exclude name="com/sun/visage/api/**"/>
+                <exclude name="com/sun/visage/runtime/main/**"/>
             </fileset>
         </jar>
-        <zip compress="${jar.compress}" destfile="${dist.javafxrt-main.jar}" >
+        <zip compress="${jar.compress}" destfile="${dist.visagert-main.jar}" >
             <zipfileset dir="${build.classes.dir}" >
-                <include name="com/sun/javafx/runtime/main/Main.class"/>
+                <include name="com/sun/visage/runtime/main/Main.class"/>
             </zipfileset>
         </zip>
         <!-- make CLASS.LIST file using "jar tf" command -->
         <exec executable="jar" failonerror="true"
               output="${build.classes.dir}/META-INF/CLASS.LIST">
             <arg value="tf"/>
-            <arg value="${dist.javafxrt.jar}"/>
+            <arg value="${dist.visagert.jar}"/>
         </exec>
 <!--
-        <jar compress="${jar.compress}" destfile="${dist.javafxrt.jar}" >
+        <jar compress="${jar.compress}" destfile="${dist.visagert.jar}" >
             <fileset dir="${build.classes.dir}"> 
                 <include name="**/*.class" />
-                <include name="com/sun/javafx/runtime/resources/version.properties"/>
+                <include name="com/sun/visage/runtime/resources/version.properties"/>
                 <include name="**/CLASS.LIST" />
-                <exclude name="com/sun/tools/javafx/**"/>
-                <exclude name="com/sun/javafx/api/**"/>
+                <exclude name="com/sun/tools/visage/**"/>
+                <exclude name="com/sun/visage/api/**"/>
             </fileset>
         </jar>
 -->
@@ -442,10 +442,10 @@
     </target>
 
     <target name="generate-templates" depends="-pre-compile">
-        <java classname="com.sun.javafx.tools.stringtemplate.ExpandXxxTemplate">
+        <java classname="com.sun.visage.tools.stringtemplate.ExpandXxxTemplate">
             <arg value="${build.generated.dir}" />
-            <arg value="com/sun/javafx/runtime/XxxTemplate.stg" />
-            <arg value="com/sun/javafx/runtime/sequence" />
+            <arg value="com/sun/visage/runtime/XxxTemplate.stg" />
+            <arg value="com/sun/visage/runtime/sequence" />
             <arg line="AbstractSequence Sequences XxxArraySequence" />
            <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
@@ -460,19 +460,19 @@
                   destdir="${build.generated.dir}/com"
                   includes="${includes}"/>
 
-        <!-- javafx platform version -->
-        <touch file="${javafx.version.file}" mkdirs="yes"/>
-        <echo file="${javafx.version.file}">release=${javafx.release}${line.separator}full=${javafx.full.version}
+        <!-- visage platform version -->
+        <touch file="${visage.version.file}" mkdirs="yes"/>
+        <echo file="${visage.version.file}">release=${visage.release}${line.separator}full=${visage.full.version}
         </echo>
 
-        <!-- javafxc tool version file -->
-        <touch file="${javafxc.version.file}" mkdirs="yes"/>
-        <echo file="${javafxc.version.file}">release=${javafxc.release}${line.separator}full=${javafxc.full.version}
+        <!-- visagec tool version file -->
+        <touch file="${visagec.version.file}" mkdirs="yes"/>
+        <echo file="${visagec.version.file}">release=${visagec.release}${line.separator}full=${visagec.full.version}
         </echo>
 
-        <!-- javafxdoc tool version file -->
-        <touch file="${javafxdoc.version.file}" mkdirs="yes"/>
-        <echo file="${javafxdoc.version.file}">release=${javafxdoc.release}${line.separator}full=${javafxdoc.full.version}
+        <!-- visagedoc tool version file -->
+        <touch file="${visagedoc.version.file}" mkdirs="yes"/>
+        <echo file="${visagedoc.version.file}">release=${visagedoc.release}${line.separator}full=${visagedoc.full.version}
         </echo>
 
         <pcompile srcdir="${build.generated.dir}"
@@ -507,7 +507,7 @@
              files shipped with the compiler (not related to the JavaFX Runtime
              project). -->
 
-        <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
+        <taskdef name="visagec" classname="com.sun.tools.visage.ant.JavaFxAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
                 <pathelement location="${build.classes.dir}"/>
@@ -515,16 +515,16 @@
             </classpath>
         </taskdef>
 
-        <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
+        <visagec debug="${javac.debug}" deprecation="${javac.deprecation}"
                  destdir="${build.classes.dir}"
                  excludes="${excludes}" includeantruntime="false"
-                 includes="**/*.fx" source="${javac.source}" sourcepath=""
+                 includes="**/*.visage" source="${javac.source}" sourcepath=""
                  srcdir="${src.classes.dir}" target="${javac.target}"
                  classpath="${build.classes.dir}:${javac.test.classpath}"
                  compilerclasspath="${build.classes.dir}:${javac.classpath}">
-        </javafxc>
+        </visagec>
 
-        <taskdef name="bytecode-verify" classname="com.sun.javafx.tools.bytecodeverifier.VerifierTask">
+        <taskdef name="bytecode-verify" classname="com.sun.visage.tools.bytecodeverifier.VerifierTask">
             <classpath>
                  <pathelement location="${ant.jar}"/>
                  <pathelement location="${build.buildtools.dir}/"/>
@@ -534,7 +534,7 @@
         <bytecode-verify path="${build.classes.dir}" verbose="false"/>
     </target>
 
-    <target depends="init,javafxdoc" name="-javadoc-build">
+    <target depends="init,visagedoc" name="-javadoc-build">
         <mkdir dir="${dist.javadoc.dir}"/>
         <path id="bootpath" path="${javac.classpath}"/>
         <property name="bootjars" refid="bootpath"/>
@@ -542,7 +542,7 @@
         <property name="clsjars" refid="clspath"/>
         <path id="srcpath" path="src/share/classes"/>
         <property name="srcpathprop" refid="srcpath"/>
-        <copy todir="${dist.javafxdoc.dir}">
+        <copy todir="${dist.visagedoc.dir}">
             <fileset dir="${basedir}/javadoc-files">
                 <include name="draft.*"/>
                 <include name="*.css"/>
@@ -558,23 +558,23 @@
         </javadoc>
         <!--
         switch to alternate launching method so we can add gui jars to classpath
-        <java jar="dist/lib/javafxdoc.jar" fork="true" failonerror="true">
+        <java jar="dist/lib/visagedoc.jar" fork="true" failonerror="true">
         -->
     	<mkdir dir="${build.dir}/doc"/>
         <javadoc destdir="${dist.javadoc.dir}" failonerror="true" version="${javadoc.version}" private="${javadoc.private}" source="${javac.source}"
-	    packagenames="javafx.animation,javafx.lang,javafx.reflect,javafx.util" 
+	    packagenames="visage.animation,visage.lang,visage.reflect,visage.util" 
 	    sourcepath="${src.classes.dir}">
             <doclet name="com.sun.tools.xmldoclet.XMLDoclet"
-                    path="${dist.javafxdoc.jar}">
+                    path="${dist.visagedoc.jar}">
                <param name="-o" value="${build.dir}/docs/javacode.xml"/>
                <param name="-nohtml"/>
             </doclet>
          </javadoc>
          
         <!-- generate fx class docs -->
-        <echo message="generating fx docs for ${javafxdoc.packages}"/>
-        <java  fork="true" failonerror="true" classname="com.sun.tools.javafxdoc.Main">
-            <classpath location="${dist.javafxdoc.jar}"/>
+        <echo message="generating fx docs for ${visagedoc.packages}"/>
+        <java  fork="true" failonerror="true" classname="com.sun.tools.visagedoc.Main">
+            <classpath location="${dist.visagedoc.jar}"/>
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}"/>
             </classpath>
@@ -585,15 +585,15 @@
             <arg value="-nohtml"/>
             <arg value="-sourcepath"/> <arg value="${srcpathprop}"/>
             <arg value="-classpath"/> <arg value="${clsjars}"/>
-            <arg line="${javafxdoc.packages}"/>
+            <arg line="${visagedoc.packages}"/>
         </java>
         
         
-        <java  fork="true" failonerror="true" classname="com.sun.tools.javafxdoc.Main">
-            <classpath location="${dist.javafxdoc.jar}"/>
+        <java  fork="true" failonerror="true" classname="com.sun.tools.visagedoc.Main">
+            <classpath location="${dist.visagedoc.jar}"/>
             <classpath refid="clspath"/>
             <arg value="-d"/>
-            <arg value="${dist.javafxdoc.dir}"/>
+            <arg value="${dist.visagedoc.dir}"/>
             <arg value="-sourcepath"/>
             <arg value="${srcpathprop}"/>
             <arg value="-classpath"/>
@@ -605,7 +605,7 @@
             <jvmarg value="-Xbootclasspath/p:${bootjars}"/>
             <jvmarg value="-Djava.awt.headless=true"/>
             <jvmarg value="-Xmx${jfx.javadoc.max.memory}"/>
-            <arg line="${javafxdoc.packages}"/>
+            <arg line="${visagedoc.packages}"/>
         </java>
         
     </target>
@@ -620,7 +620,7 @@
             </classpath>
         </javac>
         <taskdef name="pcompile"
-                 classname="com.sun.javafx.tools.compileproperties.CompilePropertiesTask"
+                 classname="com.sun.visage.tools.compileproperties.CompilePropertiesTask"
                  classpath="${build.buildtools.dir}/"/>
     </target>
     
@@ -748,8 +748,8 @@
     
     <target name="staticsizes" depends="jar, staticsizes-clean">
         <mkdir dir="${build.staticsizes.dir}"/>
-        <java classname="com.sun.javafx.tools.jaranalyzer.JarAnalyzer">
-            <arg value="${dist.javafxrt.jar}" />
+        <java classname="com.sun.visage.tools.jaranalyzer.JarAnalyzer">
+            <arg value="${dist.visagert.jar}" />
             <arg value="${build.staticsizes.dir}" />
             <arg value="http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${jfx.build.number}/artifact/build/staticsizes" />
             <classpath>
@@ -764,7 +764,7 @@
 
     <target name="ldclassreport" depends="binaries, ldclassreport-clean">
         <mkdir dir="${build.ldclassreport.dir}" />
-        <java classname="com.sun.javafx.tools.classreporter.ClassReporter">
+        <java classname="com.sun.visage.tools.classreporter.ClassReporter">
             <arg value="-dist.dir=${dist.dir}" />
             <arg value="-build.dir=${build.ldclassreport.dir}" />
             <arg value="-reference.url=http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${jfx.build.number}/changes" />
@@ -797,7 +797,7 @@
         <mkdir dir="${export.dir}/ROOT/current-build/doc/api"/>
         <echo file="${export.dir}/ROOT/current-build/doc/api/index.html" append="false">
             &lt;HTML&gt;&lt;HEAD&gt;
-                &lt;META HTTP-EQUIV="REFRESH" content="0; url=${javafx.api.url}"&gt;
+                &lt;META HTTP-EQUIV="REFRESH" content="0; url=${visage.api.url}"&gt;
             &lt;/HEAD&gt;&lt;/HTML&gt;
         </echo>
         <copy todir="${export.dir}/ROOT/current-build/doc">
@@ -806,11 +806,11 @@
         <copy file="${zip.bundle}" todir="${export.dir}/ROOT/current-build"/>
     </target>
 
-    <target name="javafxdoc" depends="jar">
+    <target name="visagedoc" depends="jar">
         <!-- javadoc.jar depends on doclets.jar but we don't have it. Create a temporary file here: -->
         <jar jarfile="lib/doclets.jar"/>
-        <ant dir="${javafxdoc.dir}" antfile="build.xml" target="jar" inheritall="false">
-           <property name="javafx.version" value="${javafx.version}"/>
+        <ant dir="${visagedoc.dir}" antfile="build.xml" target="jar" inheritall="false">
+           <property name="visage.version" value="${visage.version}"/>
         </ant>
         <delete file="lib/doclets.jar"/>
     </target>
@@ -851,12 +851,12 @@
         <copy todir="dist/bin">
             <fileset dir="src/bin"/>
         </copy>
-        <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
+        <chmod dir="dist/bin" perm="755" includes="**/visage*"/>
     </target>
     
-    <target name="javafxdoc-clean">
-       <echo message="clean in javafxdoc/"/>
-       <ant dir="${javafxdoc.dir}" antfile="build.xml" target="clean" inheritall="false" />
+    <target name="visagedoc-clean">
+       <echo message="clean in visagedoc/"/>
+       <ant dir="${visagedoc.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
     
     <target name="fxjdi-clean">
@@ -881,7 +881,7 @@
     <target name="real-clean">
         <antcall target="fxjdi-clean" inheritall="false"/>
         <antcall target="clean"/>
-        <antcall target="javafxdoc-clean" inheritall="true"/>
+        <antcall target="visagedoc-clean" inheritall="true"/>
         <antcall target="langref-clean" inheritall="true"/>
         <antcall target="launcher-clean" inheritall="true"/>
     </target>
@@ -935,14 +935,14 @@
                      classname="org.jdesktop.deployment.ant.pack200.Pack200Task"/>
 
         <pack200 src="${dist.jar}" gzipoutput="true" destfile='${dist.jar}.pack.gz'/>
-        <pack200 src="${dist.javafxrt.jar}" gzipoutput="true" destfile='${dist.javafxrt.jar}.pack.gz'/>
+        <pack200 src="${dist.visagert.jar}" gzipoutput="true" destfile='${dist.visagert.jar}.pack.gz'/>
     </target>
     
     <target name="source-zip" depends="init">
         <zip destfile="${dist.dir}/src.zip">
             <zipfileset file="${basedir}/LICENSE"/>
             <zipfileset dir="${src.classes.dir}"/>
-            <zipfileset dir="javafxdoc/src"/>
+            <zipfileset dir="visagedoc/src"/>
         </zip>
     </target>
     
@@ -1101,7 +1101,7 @@
     <target depends="init" name="-pre-jar">
         <dirname file="${dist.jar}" property="dist.jar.dir"/>
         <mkdir dir="${dist.jar.dir}"/>
-        <dirname file="${dist.javafxrt-main.jar}" property="dist.jar.dir2"/>
+        <dirname file="${dist.visagert-main.jar}" property="dist.jar.dir2"/>
         <mkdir dir="${dist.jar.dir2}"/>
     </target>
     <target depends="init,compile,-pre-jar" name="-do-jar-without-manifest" unless="manifest.available">
@@ -1312,16 +1312,16 @@
    - One of these .java files is FXCompilerTest.java.  It runs all the fx tests
      in the subdirs of test/ - features/, regress/. etc.  Which tests it runs are 
      controlled by:
-     - test.fx.list:   A list of tests to run.  
+     - test.visage.list:   A list of tests to run.  
      - Or,
-       - test.fx.roots:  A list of root dirs containing tests to be run.
+       - test.visage.roots:  A list of root dirs containing tests to be run.
          The default is set in project.properties.
-       - test.fx.includes:  A pattern selecting which tests under test.fx.roots to run.
-         The default is '**' which means all .fx files.
+       - test.visage.includes:  A pattern selecting which tests under test.visage.roots to run.
+         The default is '**' which means all .visage files.
 -->
 
     <target name="-init-smoke-test" depends="init">
-      <property name="test-sys-prop.test.fx.list" value="${test.smoke.tests}"/>
+      <property name="test-sys-prop.test.visage.list" value="${test.smoke.tests}"/>
       <property name="testFile" value="**/FXCompilerTest.java"/>
     </target>
 
@@ -1334,7 +1334,7 @@
     <target name="dev-xxx"   depends="-init-dev-xxx,binaries,-do-test" description="Build binaries and run tests named in file 'xxx'"/>
 
     <target name="dev-find-passes" depends="-init-dev-fail" description="Report tests that passed instead of failed in a dev-fail run">
-      <echo message="${test.fx.dev.fail.list}" file="${build.test.dir}/dev-expected-fails" />
+      <echo message="${test.visage.dev.fail.list}" file="${build.test.dir}/dev-expected-fails" />
       <exec dir="." executable="sh">
         <arg line="./dev-find-passes.sh ${build.test.dir}/dev-expected-fails ${log}"/>
       </exec>
@@ -1348,28 +1348,28 @@
 
     <target name="-init-dev-pass" depends="-pre-compile-test">
       <property name="testFile" value="**/*Test.java"/>
-      <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.exclude.list} ${test.fx.dev.fail.list}"/>
+      <property name="test-sys-prop.test.visage.exclude.list" value="${test.visage.dev.exclude.list} ${test.visage.dev.fail.list}"/>
       <mkdir dir="${build.test.results.dir}"/>
       <echo message="dev-pass" file="${build.test.dir}/dev-target" />
     </target>
 
     <target name="-init-dev-test" depends="-pre-compile-test">
       <property name="testFile" value="**/*Test.java"/>
-      <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.exclude.list}"/>
+      <property name="test-sys-prop.test.visage.exclude.list" value="${test.visage.dev.exclude.list}"/>
       <mkdir dir="${build.test.results.dir}"/>
       <echo message="dev-test" file="${build.test.dir}/dev-target" />
     </target>
 
     <target name="-init-dev-no-hang" depends="-pre-compile-test">
       <property name="testFile" value="**/*Test.java"/>
-      <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.hang.list}"/>
+      <property name="test-sys-prop.test.visage.exclude.list" value="${test.visage.dev.hang.list}"/>
       <mkdir dir="${build.test.results.dir}"/>
       <echo message="dev-no-hang" file="${build.test.dir}/dev-target" />
     </target>
 
     <target name="-init-dev-fail" depends="-pre-compile-test">
       <property name="testFile" value="**/FXCompilerTest.java"/>
-      <property name="test-sys-prop.test.fx.list" value="${test.fx.dev.fail.list}"/>
+      <property name="test-sys-prop.test.visage.list" value="${test.visage.dev.fail.list}"/>
       <mkdir dir="${build.test.results.dir}"/>
       <echo message="dev-fail" file="${build.test.dir}/dev-target" />
     </target>
@@ -1379,15 +1379,15 @@
       <copy file="${xxx}" tofile="${build.test.dir}/dev-xxx"/>
       <replaceregexp file="${build.test.dir}/dev-xxx"
                          flags="gs"
-                         match="\.fx."
-                         replace=".fx "/>
-      <loadfile property="test-sys-prop.test.fx.list" srcFile="${build.test.dir}/dev-xxx"/>
+                         match="\.visage."
+                         replace=".visage "/>
+      <loadfile property="test-sys-prop.test.visage.list" srcFile="${build.test.dir}/dev-xxx"/>
       <mkdir dir="${build.test.results.dir}"/>
       <echo message="dev-xxx" file="${build.test.dir}/dev-target" />
     </target>
 
     <target depends="init,compile-test,-pre-test-run" if="have.tests" name="-do-test-run">
-        <property name="test-sys-prop.test.fx.roots" value="${test.fx.roots}"/>
+        <property name="test-sys-prop.test.visage.roots" value="${test.visage.roots}"/>
         <condition property="testFile" value="**/*Test.java">
            <not>
                 <isset property="testFile"/>
@@ -1429,7 +1429,7 @@
           <fileset dir="build/test/results"/>
           <report format="noframes" todir="build/test/reports"/>
        </junitreport>
-      <echo message="${test.fx.dev.fail.list}" file="${build.test.dir}/dev-expected-fails" />
+      <echo message="${test.visage.dev.fail.list}" file="${build.test.dir}/dev-expected-fails" />
     </target>
 
     <target depends="init" if="netbeans.home+have.tests" name="-test-browse"/>
@@ -1437,7 +1437,7 @@
         <mkdir dir="${build.test.results.dir}"/>
     </target>
     <target depends="init,compile-test-single,-pre-test-run-single" if="have.tests" name="-do-test-run-single">
-        <property name="test-sys-prop.test.fx.roots" value="${test.fx.roots}"/>
+        <property name="test-sys-prop.test.visage.roots" value="${test.visage.roots}"/>
         <fail unless="test.class">Must select one file in the IDE or set test.class</fail>
         <property location="${build.test.results.dir}/TEST-${test.class}.xml" name="test.report.file"/>
         <delete file="${test.report.file}"/>
@@ -1516,10 +1516,18 @@
             -->
 
 
-    <target name="-do-clean" depends="javafxdoc-clean,fxjdi-clean,langref-clean,launcher-clean">
+    <target name="-do-clean" depends="visagedoc-clean,fxjdi-clean,langref-clean,launcher-clean">
         <delete quiet="true" dir="${build.dir}"/>
         <delete quiet="true" dir="${dist.dir}"/>
         <delete quiet="true" file="cobertura.ser" />
     </target>
 
+    <target name="visage-renamer">
+        <move todir="." overwrite="false" >
+          <fileset dir="." />
+          <mapper type="glob"
+                  from="*.fx"
+                  to="*.visage" />
+        </move>
+    </target>
 </project>

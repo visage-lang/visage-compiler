@@ -1,4 +1,4 @@
-test/should-fail/jfxc1904b.fx:10: Loose expressions are not permitted in scripts with exported ('public', etc) members.
+test/should-fail/jfxc1904b.visage:10: Loose expressions are not permitted in scripts with exported ('public', etc) members.
 Any expressions to be run on script invocation should be moved into run().
 System.out.println("Startup");
 ^

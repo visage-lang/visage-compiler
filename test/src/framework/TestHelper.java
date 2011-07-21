@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.sun.javafx.api.JavafxCompiler;
+import com.sun.visage.api.JavafxCompiler;
 import javax.tools.Tool;
 import javax.tools.JavaCompiler;
 import org.apache.tools.ant.Project;
@@ -42,7 +42,7 @@ import org.apache.tools.ant.types.Path;
  * @author Brian Goetz
  */
 public abstract class TestHelper {
-    private static final JavafxCompiler javafxc = javafxcLocator();
+    private static final JavafxCompiler visagec = visagecLocator();
     private static final JavaCompiler javac = javacLocator();
 
     public static final String TEST_ROOT = "test";
@@ -73,24 +73,24 @@ public abstract class TestHelper {
         Tool compiler = null;
         for (String f : files) {
             Tool ftool;
-            if (f.endsWith(".fx"))
-                ftool = javafxc;
+            if (f.endsWith(".visage"))
+                ftool = visagec;
             else if (f.endsWith(".java"))
                 ftool = javac;
             else
                 ftool = null;
             if (compiler != null && ftool != null && ftool != compiler) {
-                throw new IllegalArgumentException("cannot compile both .java and .fx with same compiler");
+                throw new IllegalArgumentException("cannot compile both .java and .visage with same compiler");
             }
             compiler = ftool;
             args.add(f);
         }
         if (compiler == null)
-          compiler = javafxc;
+          compiler = visagec;
         return compiler.run(null, out, err, args.toArray(new String[args.size()]));
     }
 
-    protected static JavafxCompiler javafxcLocator() {
+    protected static JavafxCompiler visagecLocator() {
         Object tool = compilerLocator(JavafxCompiler.class);
         if (tool == null)
             throw new IllegalStateException("No JavaFX Script compiler found");

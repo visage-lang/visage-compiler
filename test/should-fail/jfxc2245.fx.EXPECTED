@@ -1,4 +1,4 @@
-test/should-fail/jfxc2245.fx:5: unexpected type
+test/should-fail/jfxc2245.visage:5: unexpected type
 found   : String
 required: Object[]
 insert "V" into k;

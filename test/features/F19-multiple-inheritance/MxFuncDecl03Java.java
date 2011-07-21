@@ -1,5 +1,5 @@
 /*
- * @subtest MxFuncDecl03.fx
+ * @subtest MxFuncDecl03.visage
  */
 
 public interface MxFuncDecl03Java {

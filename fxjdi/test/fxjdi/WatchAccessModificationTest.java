@@ -37,7 +37,7 @@ import org.junit.Test;
  */
 public class WatchAccessModificationTest extends JdbBase {
 
-// @BeginTest WatchAll.fx
+// @BeginTest WatchAll.visage
 // var numVar = 1.0;
 // function run() {
 //     numVar = 2.0;
@@ -52,10 +52,10 @@ public class WatchAccessModificationTest extends JdbBase {
     private void checkWatchPointEvent(WatchpointEvent wpEvent) {
         if (wpEvent instanceof AccessWatchpointEvent) {
             Assert.assertTrue(((AccessWatchpointEvent)wpEvent).valueCurrent().type().name().equals("float"));
-            Assert.assertTrue(wpEvent.getClass().toString().equals("class com.sun.javafx.jdi.event.FXAccessWatchpointEvent"));
+            Assert.assertTrue(wpEvent.getClass().toString().equals("class com.sun.visage.jdi.event.FXAccessWatchpointEvent"));
         } else if (wpEvent instanceof ModificationWatchpointEvent) {
             Assert.assertTrue(((ModificationWatchpointEvent)wpEvent).valueCurrent().type().name().equals("float"));
-            Assert.assertTrue(wpEvent.getClass().toString().equals("class com.sun.javafx.jdi.event.FXModificationWatchpointEvent"));
+            Assert.assertTrue(wpEvent.getClass().toString().equals("class com.sun.visage.jdi.event.FXModificationWatchpointEvent"));
         }
     }
 /**
@@ -67,8 +67,8 @@ public class WatchAccessModificationTest extends JdbBase {
     public void testWatchAll() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("WatchAll.fx");
-            stop("in WatchAll.javafx$run$");
+            compile("WatchAll.visage");
+            stop("in WatchAll.visage$run$");
             WatchpointRequest watchpointReq = watch("all WatchAll.$numVar");//watch access (checks for access only, and not modifications)
             fxrun();
             WatchpointEvent wpEvent = resumeToWatchpoint();

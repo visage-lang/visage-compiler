@@ -13,12 +13,12 @@ from http://jdk6.dev.java.net/plugin2/ will discuss this topic. The
 following is an overview:
 
 A JavaFX Stage can be embedded in an applet using the
-com.sun.javafx.runtime.adapter.Applet class. The "MainJavaFXScript"
+com.sun.visage.runtime.adapter.Applet class. The "MainJavaFXScript"
 applet parameter indicates the JavaFX class to be run and which will
 provide the Stage instance that is embedded in the applet. For
 example,
 
-  Test.fx:
+  Test.visage:
 
     public var color = Color.YELLOW;
     public function setColor(red: Number,
@@ -43,7 +43,7 @@ example,
 
   Test.html:
 
-    <applet id="app" archive="..." code="com.sun.javafx.runtime.adapter.Applet" ...>
+    <applet id="app" archive="..." code="com.sun.visage.runtime.adapter.Applet" ...>
         <param name="MainJavaFXScript" value="Test">
     </applet>
 
@@ -59,7 +59,7 @@ supported functionality:
     script-level functions via a synthetic "script" field which is
     attached to the JavaFX applet object.
 
-      app.script.color = app.Packages.javafx.scene.paint.Color.RED;
+      app.script.color = app.Packages.visage.scene.paint.Color.RED;
       app.script.setColor(1.0, 0.0, 0.0);
 
   - Accessing public variables and calling public functions of JavaFX

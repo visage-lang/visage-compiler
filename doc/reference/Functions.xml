@@ -138,11 +138,11 @@ println( square(7) )</programlisting></para>
 
       <para>If access modifiers are added which make the script function
       visible outside the script, they may be accessed as members of the
-      script. For example, if this is script Foo.fx:</para>
+      script. For example, if this is script Foo.visage:</para>
 
       <para><programlisting>public function square(x : Number) : Number { x * x }</programlisting></para>
 
-      <para>Then script Bar.fx can access square:</para>
+      <para>Then script Bar.visage can access square:</para>
 
       <para><programlisting>println(Foo.square(10))</programlisting></para>
     </sect2>

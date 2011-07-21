@@ -1,11 +1,11 @@
-test\should-fail\jfxc2507.fx:34: Sorry, I was trying to understand a time value but I got confused when I saw 'Duration' which is an identifier.
+test\should-fail\jfxc2507.visage:34: Sorry, I was trying to understand a time value but I got confused when I saw 'Duration' which is an identifier.
  Perhaps you are missing a 'time literal'.
         at (Duration.valueOf(timeToFly)) {
             ^
-test\should-fail\jfxc2507.fx:34: Sorry, I was trying to understand a sequence creation expression but I got confused when I saw ')' which is a punctuation character.
+test\should-fail\jfxc2507.visage:34: Sorry, I was trying to understand a sequence creation expression but I got confused when I saw ')' which is a punctuation character.
         at (Duration.valueOf(timeToFly)) {
                                        ^
-test\should-fail\jfxc2507.fx:37: Sorry, I was trying to understand an expression but I got confused when I found an extra ']' which is a punctuation character that should not be there.
+test\should-fail\jfxc2507.visage:37: Sorry, I was trying to understand an expression but I got confused when I found an extra ']' which is a punctuation character that should not be there.
     ]
     ^
 3 errors

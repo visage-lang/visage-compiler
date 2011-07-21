@@ -40,7 +40,7 @@ import org.junit.Test;
  */
 public class MixinTest extends JdbBase {
 
-// @BeginTest Mixin.fx
+// @BeginTest Mixin.visage
 //var mFooCalled = "false";
 //var bFooCalled = "false";
 //mixin class M {
@@ -82,8 +82,8 @@ public class MixinTest extends JdbBase {
     public void testMixin() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("Mixin.fx");
-            stop("in Mixin.javafx$run$");
+            compile("Mixin.visage");
+            stop("in Mixin.visage$run$");
             stop("in Mixin:32");
             stop("in Mixin$C:25");
             stop("in Mixin$C:26");

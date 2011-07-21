@@ -1,0 +1,14 @@
+stop in = com.sun.visage.jdi.test.target.SetValueTarget
+field com.sun.visage.jdi.test.target.SetValueTarget$sub.pubString: value = "pubString2"
+field com.sun.visage.jdi.test.target.SetValueTarget$sub.sub$privString: value = "privString2"
+field com.sun.visage.jdi.test.target.SetValueTarget$sub.pubInteger: value = 2
+field com.sun.visage.jdi.test.target.SetValueTarget$sub.sub$privInteger: value = 2
+field com.sun.visage.jdi.test.target.SetValueTarget$sub.pubNumber: value = 2.0
+field com.sun.visage.jdi.test.target.SetValueTarget$sub.sub$privNumber: value = 2.0
+field com.sun.visage.jdi.test.target.SetValueTarget$sub.pubBoolean: value = true
+field com.sun.visage.jdi.test.target.SetValueTarget$sub.sub$privBoolean: value = true
+field com.sun.visage.jdi.test.target.SetValueTarget$sub.pubDuration: value = instance of visage.lang.Duration
+field com.sun.visage.jdi.test.target.SetValueTarget$sub.sub$privDuration: value = instance of visage.lang.Duration
+statString = "statString2"
+defStatString = "defStatString2"
+java.lang.IllegalArgumentException: Error: Cannot set value of a read-only field: com.sun.visage.jdi.test.target.SetValueTarget.staticBinder

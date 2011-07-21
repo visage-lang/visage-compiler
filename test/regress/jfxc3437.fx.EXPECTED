@@ -1,2 +1,2 @@
 Value
-[var jfxc3437.clsType:javafx.reflect.FXClassType, var jfxc3437.context:javafx.reflect.FXLocal.Context, var jfxc3437.objVal:javafx.reflect.FXObjectValue, var jfxc3437.status:Boolean]
+[var jfxc3437.clsType:visage.reflect.FXClassType, var jfxc3437.context:visage.reflect.FXLocal.Context, var jfxc3437.objVal:visage.reflect.FXObjectValue, var jfxc3437.status:Boolean]

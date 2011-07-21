@@ -1,4 +1,4 @@
-test/should-fail/jfxc1642.fx:6: sorry, not implemented: functions with more than 8 parameters
+test/should-fail/jfxc1642.visage:6: sorry, not implemented: functions with more than 8 parameters
     var a = f;
             ^
 1 error

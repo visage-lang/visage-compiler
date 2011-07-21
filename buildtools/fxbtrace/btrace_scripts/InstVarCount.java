@@ -27,7 +27,7 @@ import com.sun.btrace.AnyType;
 import java.io.File;
 import java.util.Map;
 import java.util.HashMap;
-import com.sun.javafx.runtime.FXBase;
+import com.sun.visage.runtime.FXBase;
 
 /**
  * This script prints count$() value of all FXBase subclasses.
@@ -43,7 +43,7 @@ import com.sun.javafx.runtime.FXBase;
     private static File evt = new File(System.getProperty("user.home"), "InstVarCount");
 
     @OnMethod(
-        clazz="com.sun.javafx.runtime.FXBase",
+        clazz="com.sun.visage.runtime.FXBase",
         method="<init>"
     )
     public static void onNewFXObject(@Self FXBase self, AnyType[] args) {

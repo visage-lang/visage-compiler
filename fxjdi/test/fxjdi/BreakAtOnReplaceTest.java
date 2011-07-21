@@ -30,7 +30,7 @@ import junit.framework.Assert;
  * @author srikalyanchandrashekar
  */
 public class BreakAtOnReplaceTest extends JdbBase {
-//@BeginTest OnReplace.fx
+//@BeginTest OnReplace.visage
 // var binder = 1.0;
 // var bindee = bind binder on replace {
 //        println("Within onreplace..");
@@ -49,7 +49,7 @@ public class BreakAtOnReplaceTest extends JdbBase {
     public void testOnReplace() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("OnReplace.fx");
+            compile("OnReplace.visage");
             stop("in OnReplace:4");
             fxrun();
             

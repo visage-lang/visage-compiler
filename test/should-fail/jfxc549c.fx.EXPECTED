@@ -1,4 +1,4 @@
-test/should-fail/jfxc549c.fx:8: There is a garbled class member definition starting here, I have tried to ignore it. Class members can be 'var', 'def', 'function', 'init' or 'postinit' only.
+test/should-fail/jfxc549c.visage:8: There is a garbled class member definition starting here, I have tried to ignore it. Class members can be 'var', 'def', 'function', 'init' or 'postinit' only.
     +=
     ^
 1 error

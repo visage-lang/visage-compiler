@@ -33,7 +33,7 @@ import org.junit.Test;
  */
 public class MethodUnwindTest extends JdbBase {
 
-// @BeginTest Unwind.fx
+// @BeginTest Unwind.visage
 // function foo3():Void {
 //     println("In foo3()");
 //     println("Unwinding");
@@ -56,7 +56,7 @@ public class MethodUnwindTest extends JdbBase {
     public void testUnwind() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("Unwind.fx");
+            compile("Unwind.visage");
             stop("in Unwind:11");
             stop("in Unwind:7");
             stop("in Unwind:2");
@@ -76,9 +76,9 @@ public class MethodUnwindTest extends JdbBase {
 
             list();
             wherei();
-            Assert.assertTrue(contains("  [2] Unwind.foo2 (Unwind.fx:7)"));
-            Assert.assertTrue(contains("  [3] Unwind.foo1 (Unwind.fx:11)"));
-            Assert.assertTrue(contains("  [4] Unwind.javafx$run$ (Unwind.fx:15)"));
+            Assert.assertTrue(contains("  [2] Unwind.foo2 (Unwind.visage:7)"));
+            Assert.assertTrue(contains("  [3] Unwind.foo1 (Unwind.visage:11)"));
+            Assert.assertTrue(contains("  [4] Unwind.visage$run$ (Unwind.visage:15)"));
 
             resumeToBreakpoint();
             list();

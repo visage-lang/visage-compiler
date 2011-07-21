@@ -1,6 +1,6 @@
 /*
  * Test for the 'super' keyword in mixin function bodies.
- * @subtest MxSuperKw04neg.fx
+ * @subtest MxSuperKw04neg.visage
  */
 
 public class MxSuperKw04Java {

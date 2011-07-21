@@ -30,25 +30,25 @@
     <idea-version since-build="3000"/>
     <application-components>
         <component>
-            <implementation-class>com.sun.javafx.ideaplugin.FxPlugin</implementation-class>
+            <implementation-class>com.sun.visage.ideaplugin.FxPlugin</implementation-class>
         </component>
         <component>
-            <implementation-class>com.sun.javafx.ideaplugin.project.FxSdkType</implementation-class>
+            <implementation-class>com.sun.visage.ideaplugin.project.FxSdkType</implementation-class>
         </component>
         <component>
-            <implementation-class>com.sun.javafx.ideaplugin.run.FxRunConfigurationType</implementation-class>
+            <implementation-class>com.sun.visage.ideaplugin.run.FxRunConfigurationType</implementation-class>
         </component>
     </application-components>
 
     <project-components>
         <component>
-            <implementation-class>com.sun.javafx.ideaplugin.snippets.FxSnippetsWindow</implementation-class>
+            <implementation-class>com.sun.visage.ideaplugin.snippets.FxSnippetsWindow</implementation-class>
         </component>
     </project-components>
 
     <actions>
-        <action id="javafx.NewClass"
-                class="com.sun.javafx.ideaplugin.NewFxClassAction"
+        <action id="visage.NewClass"
+                class="com.sun.visage.ideaplugin.NewFxClassAction"
                 text="JavaFX Class"
                 description="Creates new JavaFX Class">
             <add-to-group group-id="NewGroup" anchor="first" />

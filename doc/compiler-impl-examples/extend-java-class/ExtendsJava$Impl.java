@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-import com.sun.javafx.runtime.annotation.OverridesJava;
+import com.sun.visage.runtime.annotation.OverridesJava;
 
 /**
  * ExtendsJava$Impl

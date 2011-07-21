@@ -33,7 +33,7 @@ import org.junit.Test;
  */
 public class StopAtBkpointTest extends JdbBase {
 
-// @BeginTest StopAtBkpoint.fx
+// @BeginTest StopAtBkpoint.visage
 // var binder = 1.0;
 // var bindee = bind binder;
 // function run() {
@@ -50,8 +50,8 @@ public class StopAtBkpointTest extends JdbBase {
     public void testStopAtBkpoint() {
         try {
             resetOutputs();
-            compile("StopAtBkpoint.fx");
-            stop("in StopAtBkpoint.javafx$run$");
+            compile("StopAtBkpoint.visage");
+            stop("in StopAtBkpoint.visage$run$");
             stop("in StopAtBkpoint:6");
             stop("in StopAtBkpoint:8");
             stop("in StopAtBkpoint:9");

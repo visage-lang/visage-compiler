@@ -1,4 +1,4 @@
-test/should-fail/jfxc1450sf.fx:17: Missing variable initializer for dragX
+test/should-fail/jfxc1450sf.visage:17: Missing variable initializer for dragX
 Variables defined in bind must be initialized explicitly.
   var dragX : Integer; 
   ^

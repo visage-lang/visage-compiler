@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project default="ref" name="javafx-docs" basedir="..">
+<project default="ref" name="visage-docs" basedir="..">
     <property name="build.dir" value="${basedir}/build"/>
     <property name="tools.dir" value="${basedir}/tools"/>
 
@@ -104,16 +104,16 @@
         <javac srcdir="doc/antsrc"
                destdir="${doc.build.dir}/ant"
                classpath="${import.ant.jar}"/>
-        <taskdef name="tangle" classname="com.sun.javafx.ant.docbook.DocBookTangleTask">
+        <taskdef name="tangle" classname="com.sun.visage.ant.docbook.DocBookTangleTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
                 <pathelement location="${doc.build.dir}/ant"/>               
             </classpath>
         </taskdef>
-        <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
+        <taskdef name="visagec" classname="com.sun.tools.visage.ant.JavaFxAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
-                <pathelement location="dist/lib/javafxc.jar"/>
+                <pathelement location="dist/lib/visagec.jar"/>
             </classpath>
         </taskdef>
     </target>
@@ -122,11 +122,11 @@
         <mkdir dir="${doc.build.dir}/gensrc"/>
         <tangle srcdir="doc/langspec" destdir="${doc.build.dir}/gensrc"/>
         <mkdir dir="${doc.build.dir}/classes"/>
-        <javafxc destdir="${doc.build.dir}/classes"
-                 includes="**/*.fx"
+        <visagec destdir="${doc.build.dir}/classes"
+                 includes="**/*.visage"
                  srcdir="${doc.build.dir}/gensrc" target="1.5"
                  classpath="${doc.build.dir}/classes"
-                 compilerclasspath="dist/lib/javafxc.jar"/>
+                 compilerclasspath="dist/lib/visagec.jar"/>
     </target>
     
     <target name="copy-figures">

@@ -1,4 +1,4 @@
-test/features/F19-multiple-inheritance/MxUnresConf01neg.fx:18: An override variable must have the same type as the overridden variable.
+test/features/F19-multiple-inheritance/MxUnresConf01neg.visage:18: An override variable must have the same type as the overridden variable.
 found   : String
 required: Integer
     override public var bar : String;

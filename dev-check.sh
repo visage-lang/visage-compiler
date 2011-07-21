@@ -10,8 +10,8 @@ if [ "$1" = -vv ] ; then
 fi
 
 # dev-expected-fails list in canonical form, eg:
-# test/regress/jfxc979.fx
-# test/functional/sequences/SeqCompare.fx
+# test/regress/jfxc979.visage
+# test/functional/sequences/SeqCompare.visage
 
 ##cat build/test/dev-expected-fails | tr " " "\n" | sed -e '/^ *$/d' -e's@.*/\([^/]*\)/@\1/@' -e 's@ .*@@' | sort > build/test/dev-expected-fails1
 
@@ -25,7 +25,7 @@ fi
 target=`cat build/test/dev-target`
 echo "-- target run was: $target"
 
-find test -name \*.fx > ./build/test/allTests
+find test -name \*.visage > ./build/test/allTests
 
 # Note these filenames only have the last of the dirs between the test and test/, and they contain
 # / instead of \
@@ -38,7 +38,7 @@ find test -name \*.fx > ./build/test/allTests
 passingFiles=`fgrep '<td>Success' build/test/reports/junit-noframes.html  | sed -e 's@<td>@@' -e 's@<.*@@' | fgrep /`
 passingTests=`fgrep '<td>Success' build/test/reports/junit-noframes.html  | sed -e 's@<td>@@' -e 's@<.*@@' | fgrep -v /`
 
-# Expand filenames into full test/....xxx.fx form
+# Expand filenames into full test/....xxx.visage form
 passes=
 if [ ! -z "$passingFiles" ] ; then
     jjxx="$passingFiles"
@@ -83,27 +83,27 @@ compilationFails="$compilationFails $compilationFails1"
 runtimeFails=`grep '<td.* output' build/test/reports/junit-noframes.html | \
   sed -e 's@\\\@/@g' \
     -e 's@.* test/@test/@' \
-    -e 's@\.fx.*@.fx@'`
+    -e 's@\.visage.*@.visage@'`
 
-# This list only contains dir/testname.fx.  IE, the test/... is missing
+# This list only contains dir/testname.visage.  IE, the test/... is missing
 runtimeFails1=`grep '<td.*Output written' build/test/reports/junit-noframes.html | \
   sed -e 's@<td>@@' \
-    -e 's@\.fx.*@.fx@' \
+    -e 's@\.visage.*@.visage@' \
     -e 's@\\\@/@g'`
 
-# Here is another form of failure.  This one only contains testname.fx.
-# <br>junit.framework.AssertionFailedError: expected:<[ 900 ]> but was:<[ 90 ]><br/>	at bindIfSelect$1local_klass$3.doit$$2(bindIfSelect.fx:188)<br/>	at bindIfSelect.testBoundSelectInverse(bindIfSelect.fx:189)<br/>	at framework.FXUnitTestWrapper.runTest(FXUnitTestWrapper.java:86)<br/></code></td><td>0.000</td>
+# Here is another form of failure.  This one only contains testname.visage.
+# <br>junit.framework.AssertionFailedError: expected:<[ 900 ]> but was:<[ 90 ]><br/>	at bindIfSelect$1local_klass$3.doit$$2(bindIfSelect.visage:188)<br/>	at bindIfSelect.testBoundSelectInverse(bindIfSelect.visage:189)<br/>	at framework.FXUnitTestWrapper.runTest(FXUnitTestWrapper.java:86)<br/></code></td><td>0.000</td>
 
 runtimeFails2=`fgrep 'junit.framework.AssertionFailedError: expected' build/test/reports/junit-noframes.html | \
-    sed -e 's@\.fx.*@.fx@' -e 's@.*<br/>@@' -e 's@.*(@@'`
+    sed -e 's@\.visage.*@.visage@' -e 's@.*<br/>@@' -e 's@.*(@@'`
 
 runtimeFails1="$runtimeFails1 $runtimeFails2"
 
 # yet another form of failure:
-# <br>junit.framework.ComparisonFailure: null expected:<A[E]C> but was:<A[]C><br/>	at MxOnSeq01.testA02(MxOnSeq01.fx:70)<br/>	at framework.FXUnitTestWrapper.runTest(FXUnitTestWrapper.java:86)<br/></code></td><td>0.000</td>
+# <br>junit.framework.ComparisonFailure: null expected:<A[E]C> but was:<A[]C><br/>	at MxOnSeq01.testA02(MxOnSeq01.visage:70)<br/>	at framework.FXUnitTestWrapper.runTest(FXUnitTestWrapper.java:86)<br/></code></td><td>0.000</td>
 
 runtimeFails2=`fgrep 'junit.framework.ComparisonFailure' build/test/reports/junit-noframes.html | \
-    sed -e 's@\.fx.*@.fx@' -e 's@.*<br/>@@' -e 's@.*(@@'`
+    sed -e 's@\.visage.*@.visage@' -e 's@.*<br/>@@' -e 's@.*(@@'`
 
 runtimeFails1="$runtimeFails1 $runtimeFails2"
 
@@ -171,9 +171,9 @@ fi
          done
          nUnexpectedPasses=`cat ./build/test/dev-unexpected-passes | wc -l`
          if [ "$target" == dev-fail ] ; then
-             # We needed to count all the junit testlets that are inside a single .fx file
+             # We needed to count all the junit testlets that are inside a single .visage file
              # to get a count that matches hudson.  For dev-fail, there can be some of these,
-             # eg, one testlet fails so the .fx file is on the fail list.  But other testlets
+             # eg, one testlet fails so the .visage file is on the fail list.  But other testlets
              # pass.   We don't want to say there were some total passes and 0 unexpected passes.
              echo "-- $nUnexpectedPasses unexpected passes:"
          else

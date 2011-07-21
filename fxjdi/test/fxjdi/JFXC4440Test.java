@@ -23,7 +23,7 @@
 
 package fxjdi;
 
-import com.sun.javafx.jdi.FXSequenceReference;
+import com.sun.visage.jdi.FXSequenceReference;
 import com.sun.jdi.StringReference;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -34,7 +34,7 @@ import org.junit.Test;
  */
 public class JFXC4440Test extends JdbBase {
 
-// @BeginTest JFXC4440Test.fx
+// @BeginTest JFXC4440Test.visage
 // var seq : String[];
 // function run() {
 //     seq[0] = "hello";
@@ -47,7 +47,7 @@ public class JFXC4440Test extends JdbBase {
 
     @Test
     public void testStringSequencesSet() {
-        compile("JFXC4440Test.fx");
+        compile("JFXC4440Test.visage");
         
         stop("in JFXC4440Test.func");
         fxrun();

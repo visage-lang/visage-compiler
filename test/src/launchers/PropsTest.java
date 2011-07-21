@@ -78,7 +78,7 @@ public class PropsTest extends TestCase {
         String libPath = sep + "tmp" + sep + "foo" +
                 psep + ".." + sep + "xyz" + sep + "baz";
         // using cp
-        cmdsList.add(Utils.javafxExe.getAbsolutePath());
+        cmdsList.add(Utils.visageExe.getAbsolutePath());
         cmdsList.add("-Djava.library.path=" + libPath);
         cmdsList.add("-cp");
         cmdsList.add(TESTNAME + ".jar");
@@ -88,7 +88,7 @@ public class PropsTest extends TestCase {
 
         // use jar cmd
         cmdsList.clear();
-        cmdsList.add(Utils.javafxExe.getAbsolutePath());
+        cmdsList.add(Utils.visageExe.getAbsolutePath());
         cmdsList.add("-Djava.library.path=" + libPath);
         cmdsList.add("-jar");
         cmdsList.add(TESTNAME + ".jar");

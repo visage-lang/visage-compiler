@@ -21,52 +21,52 @@ To run command line debugger on Mac OS, you can use
 
 or to use JavaFX target programs:
 
-    java -jar fxjdi.jar -classpath <path-of-javafxrt.jar>  \
-        com.sun.javafx.runtime.Main <javafx-module-class>
+    java -jar fxjdi.jar -classpath <path-of-visagert.jar>  \
+        com.sun.visage.runtime.Main <visage-module-class>
 
 On Windows and Linux, you can use the following commands:
 
-    java -cp <path-of-tools.jar>:fxjdi.jar com.sun.javafx.tools.debug.tty.TTY \
+    java -cp <path-of-tools.jar>:fxjdi.jar com.sun.visage.tools.debug.tty.TTY \
         <java-main-class>
 
 or to use JavaFX target programs:
 
-    java -cp <path-of-tools.jar>:fxjdi.jar com.sun.javafx.tools.debug.tty.TTY \
-        -classpath <path-of-javafxrt.jar> com.sun.javafx.runtime.Main \
-        <javafx-module-class>
+    java -cp <path-of-tools.jar>:fxjdi.jar com.sun.visage.tools.debug.tty.TTY \
+        -classpath <path-of-visagert.jar> com.sun.visage.runtime.Main \
+        <visage-module-class>
 
 Notes on FX-JDI implementation:
     
-* FX-JDI connectors are in com.sun.javafx.jdi.connect package.
+* FX-JDI connectors are in com.sun.visage.jdi.connect package.
 
-* com.sun.javafx.jdi, .event, .request packages have classes implementing
+* com.sun.visage.jdi, .event, .request packages have classes implementing
 interfaces of com.sun.jdi, com.sun.jdi.event, com.sun.jdi.request respectively.
 
 * FX-JDI implementing classes delegate to underlying platform JDI objects.
-The wrapping/unwrapping is primarily done in com.sun.javafx.jdi.FXWrapper
-and com.sun.javafx.jdi.FXVirtualMachine.
+The wrapping/unwrapping is primarily done in com.sun.visage.jdi.FXWrapper
+and com.sun.visage.jdi.FXVirtualMachine.
 
-* FXObjectType, FXSequenceType represent com.sun.javafx.runtime.FXObject
-and com.sun.javafx.runtime.sequence.Sequence types respectively.
+* FXObjectType, FXSequenceType represent com.sun.visage.runtime.FXObject
+and com.sun.visage.runtime.sequence.Sequence types respectively.
 
-* Command line debugger implementation is com.sun.javafx.tools.debug.tty.TTY.
-See also: src/com/sun/javafx/tools/debug/README.
+* Command line debugger implementation is com.sun.visage.tools.debug.tty.TTY.
+See also: src/com/sun/visage/tools/debug/README.
 
-* com.sun.javafx.tools.debug.tty.Debugger is programmatic interface to command
+* com.sun.visage.tools.debug.tty.Debugger is programmatic interface to command
 line debugger. This is currently used for testing - but it can be in futue.
 
 * Testing:
 
 The TestScaffold framework for platform JDI testing has been customized to test
-FX-JDI. For a Java example, please refer to com.sun.javafx.jdi.test.FramesTest.
+FX-JDI. For a Java example, please refer to com.sun.visage.jdi.test.FramesTest.
 Each FX-JDI test uses launching connector with a target/debugger program.
-The target/debuggee sources are in com.sun.javafx.jdi.test.target package.
+The target/debuggee sources are in com.sun.visage.jdi.test.target package.
 For example, FramesTarget.java is the debuggee used by FramesTest.java. There
-are also JavaFX examples. HelloTarget.fx, SequenceTarget.fx are target JavaFX
+are also JavaFX examples. HelloTarget.visage, SequenceTarget.visage are target JavaFX
 programs. Corresponding debugger tests are HelloTest.java and SequenceTest.java.
 JavaFX debugger tests are derived from JavafxTestBase (which is derived from
-TestScaffold). This takes care using javafxrt.jar in classpath of debuggee
-and also using com.sun.javafx.runtime.Main as the main class of the debuggee.
+TestScaffold). This takes care using visagert.jar in classpath of debuggee
+and also using com.sun.visage.runtime.Main as the main class of the debuggee.
 
 To run the tests, run:
 

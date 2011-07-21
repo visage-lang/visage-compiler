@@ -1,9 +1,9 @@
-test/should-fail/jfxc1767.fx:4: inconvertible types
+test/should-fail/jfxc1767.visage:4: inconvertible types
 found   : <nulltype>
 required: Number
 var a: Number = null as Number;
                 ^
-test/should-fail/jfxc1767.fx:5: inconvertible types
+test/should-fail/jfxc1767.visage:5: inconvertible types
 found   : <nulltype>
 required: Number
 var b = null as Number;

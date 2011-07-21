@@ -1,6 +1,6 @@
-import com.sun.javafx.runtime.FXObject;
-import com.sun.javafx.runtime.InitHelper;
-import com.sun.javafx.runtime.location.*;
+import com.sun.visage.runtime.FXObject;
+import com.sun.visage.runtime.InitHelper;
+import com.sun.visage.runtime.location.*;
 
 /**
  * Dispatch$Impl

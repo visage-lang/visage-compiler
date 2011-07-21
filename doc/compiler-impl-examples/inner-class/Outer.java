@@ -1,7 +1,7 @@
-import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.IntVariable;
-import com.sun.javafx.runtime.location.ObjectLocation;
-import com.sun.javafx.runtime.location.ObjectVariable;
+import com.sun.visage.runtime.location.IntLocation;
+import com.sun.visage.runtime.location.IntVariable;
+import com.sun.visage.runtime.location.ObjectLocation;
+import com.sun.visage.runtime.location.ObjectVariable;
 
 class Outer implements Outer$Intf {
     private IntLocation o;

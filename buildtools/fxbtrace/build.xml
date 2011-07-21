@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="fxtracker" default="all" basedir=".">
     <property name="builddir" location="${basedir}/../../build/buildtools/fxbtrace"/>
-    <property name="javafx.home" location="${basedir}/../../../artifacts/sdk"/>
+    <property name="visage.home" location="${basedir}/../../../artifacts/sdk"/>
     <property name="srcdir"   location="${basedir}/src"/>
     <property name="btrace_scriptsdir"   location="${basedir}/btrace_scripts"/>
     <property name="btrace.script" location="${btrace_scriptsdir}/FxBtraceTracker"/>
@@ -25,7 +25,7 @@
         <javac srcdir="${btrace_scriptsdir}" destdir="${builddir}">
             <classpath>
               <pathelement location="${btrace.home}/build/btrace-client.jar"/>
-              <pathelement location="${javafx.home}/lib/shared/javafxrt.jar"/>
+              <pathelement location="${visage.home}/lib/shared/visagert.jar"/>
             </classpath>
         </javac>
     </target>
@@ -34,7 +34,7 @@
         <java classname="FXBTraceRunner" fork="true" classpath="${builddir}" 
               failonerror="true" dir="${builddir}" >
             <sysproperty key="build.dir"    value="${builddir}"/>
-            <sysproperty key="javafx.home"  value="${javafx.home}"/>
+            <sysproperty key="visage.home"  value="${visage.home}"/>
             <sysproperty key="btrace.home"  value="${btrace.home}"/>
             <sysproperty key="base.dir"     value="${basedir}"/>
             <sysproperty key="FXBTraceRunner.vmoptions" value="${FXBTraceRunner.vmoptions}"/>

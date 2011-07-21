@@ -11,7 +11,7 @@ Here are some of the more commonly used ones:
  bundle             Build distribution bundle
  clean              Remove build products
  compile            Compile project.
- compiler-only      Build just the javafxc compiler (no bin scripts, javafxdoc, etc)
+ compiler-only      Build just the visagec compiler (no bin scripts, visagedoc, etc)
  debug              Debug project in IDE.
  default            Deprecated; use 'binaries' instead
  dist               Deprecated; use 'bundle' instead
@@ -28,7 +28,7 @@ Here are some of the more commonly used ones:
  smoketest          Build binaries and run smoke tests
  test               Build binaries and run tests
  test-single        Run single unit test.
-                    eg: ant test-single -Dtest.fx.includes='**/jfxc2347.fx'
+                    eg: ant test-single -Dtest.visage.includes='**/jfxc2347.visage'
  weekly-build       Weekly build target
 
 

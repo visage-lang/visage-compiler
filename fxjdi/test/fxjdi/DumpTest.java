@@ -33,7 +33,7 @@ import org.junit.Test;
  */
 public class DumpTest extends JdbBase {
 
-// @BeginTest DumpVar.fx
+// @BeginTest DumpVar.visage
 // var globalV = 1.0;
 // var numSeq = [ 23, 34, 45, 56 ];
 // class SomeJunk {
@@ -49,11 +49,11 @@ public class DumpTest extends JdbBase {
     private static String[] expectedStrSeq = {"DumpVar.globalV = 2.0",
                                                 "DumpVar.numSeq = {" ,
                                                 "array: instance of int[4]",
-                                                "com.sun.javafx.runtime.sequence.ArraySequence.gapStart: 4" ,
-                                                "com.sun.javafx.runtime.sequence.ArraySequence.gapEnd: 4",
-                                                "com.sun.javafx.runtime.sequence.ArraySequence.DEFAULT_SIZE: 16",
-                                                "com.sun.javafx.runtime.sequence.ArraySequence.sharing: 1",
-                                                "com.sun.javafx.runtime.sequence.AbstractSequence.ti: instance of com.sun.javafx.runtime.NumericTypeInfo",
+                                                "com.sun.visage.runtime.sequence.ArraySequence.gapStart: 4" ,
+                                                "com.sun.visage.runtime.sequence.ArraySequence.gapEnd: 4",
+                                                "com.sun.visage.runtime.sequence.ArraySequence.DEFAULT_SIZE: 16",
+                                                "com.sun.visage.runtime.sequence.ArraySequence.sharing: 1",
+                                                "com.sun.visage.runtime.sequence.AbstractSequence.ti: instance of com.sun.visage.runtime.NumericTypeInfo",
                                                 "}",
                                                 "DumpVar.objLiteral = {",
                                                 "x: \"NothingHere\"",
@@ -64,7 +64,7 @@ public class DumpTest extends JdbBase {
     public void testDump() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("DumpVar.fx");
+            compile("DumpVar.visage");
             stop("in DumpVar:10");
             fxrun();
             resumeToBreakpoint();

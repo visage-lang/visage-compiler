@@ -1,7 +1,7 @@
-test/should-fail/jfxc4135.fx:8: warning: [warnonuse] Package java.util has been used.
+test/should-fail/jfxc4135.visage:8: warning: [warnonuse] Package java.util has been used.
 import java.util.*;
             ^
-test/should-fail/jfxc4135.fx:12: warning: [warnonuse] Package java.awt has been used.
+test/should-fail/jfxc4135.visage:12: warning: [warnonuse] Package java.awt has been used.
 var f = new java.awt.Frame("");
                 ^
 2 warnings

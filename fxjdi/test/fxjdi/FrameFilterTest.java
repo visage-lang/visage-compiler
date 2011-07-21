@@ -24,9 +24,9 @@
 package fxjdi;
 
 
-import com.sun.javafx.jdi.FXStackFrame;
-import com.sun.javafx.jdi.FXVirtualMachine;
-import com.sun.javafx.jdi.FXWrapper;
+import com.sun.visage.jdi.FXStackFrame;
+import com.sun.visage.jdi.FXVirtualMachine;
+import com.sun.visage.jdi.FXWrapper;
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.BreakpointEvent;
@@ -39,7 +39,7 @@ import junit.framework.Assert;
  */
 public class FrameFilterTest extends JdbBase {
 
-// @BeginTest FrameFilter.fx
+// @BeginTest FrameFilter.visage
 // public var xx;
 //
 // function run() {
@@ -54,7 +54,7 @@ public class FrameFilterTest extends JdbBase {
          // FIXME: Test disabled -- till we decide on synthetic/internal methods.
 
         try {
-            compile("FrameFilter.fx");
+            compile("FrameFilter.visage");
             stop("in FrameFilter.onReplace$xx");
 
             fxrun();
@@ -62,10 +62,10 @@ public class FrameFilterTest extends JdbBase {
             BreakpointEvent bkpt = waitForBreakpointEvent();
             FXStackFrame frame = (FXStackFrame) bkpt.thread().frame(0);
 
-            // onReplace$xx is internal javafx method and so should not show up.
-            Assert.assertEquals("javafx$run$", frame.location().method().name());
+            // onReplace$xx is internal visage method and so should not show up.
+            Assert.assertEquals("visage$run$", frame.location().method().name());
 
-            // onReplace$xx is internal javafx method and so should show up in underlying
+            // onReplace$xx is internal visage method and so should show up in underlying
             // (java JDI) frames.
             StackFrame jframe = FXWrapper.unwrap(bkpt.thread()).frame(0);
             Assert.assertEquals("onReplace$xx", jframe.location().method().name());

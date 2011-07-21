@@ -23,8 +23,8 @@
 
 package fxjdi;
 
-import com.sun.javafx.jdi.FXIntegerType;
-import com.sun.javafx.jdi.FXIntegerValue;
+import com.sun.visage.jdi.FXIntegerType;
+import com.sun.visage.jdi.FXIntegerValue;
 import com.sun.jdi.Value;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -34,7 +34,7 @@ import org.junit.Test;
  * @author srikalyanchandrashekar
  */
 public class ExprEvaluateTest extends JdbBase {
-// @BeginTest Eval.fx
+// @BeginTest Eval.visage
 //  function fact(n:Integer):Integer {
 //     if ( n <= 0 ) {
 //        return 1;
@@ -51,8 +51,8 @@ public class ExprEvaluateTest extends JdbBase {
     public void testEval() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("Eval.fx");
-            stop("in Eval.javafx$run$");
+            compile("Eval.visage");
+            stop("in Eval.visage$run$");
             stop("in Eval:10");
             fxrun();
             resumeToBreakpoint();

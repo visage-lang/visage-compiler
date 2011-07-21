@@ -34,7 +34,7 @@ import org.junit.Test;
  */
 public class JumpLocationsTest extends JdbBase {
 
-// @BeginTest Jump.fx
+// @BeginTest Jump.visage
 // function foo3():Void {
 //     println("In foo3()");
 //     println("Unwinding");
@@ -57,7 +57,7 @@ public class JumpLocationsTest extends JdbBase {
     public void testJumpLocations() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("Jump.fx");
+            compile("Jump.visage");
             stop("in Jump:11");
             stop("in Jump:7");
             stop("in Jump:3");
@@ -71,10 +71,10 @@ public class JumpLocationsTest extends JdbBase {
             resumeToBreakpoint();
             list();
             wherei();
-            Assert.assertTrue(contains("  [1] Jump.foo3 (Jump.fx:3)"));
-            Assert.assertTrue(contains("  [2] Jump.foo2 (Jump.fx:7)"));
-            Assert.assertTrue(contains("  [3] Jump.foo1 (Jump.fx:11)"));
-            Assert.assertTrue(contains("  [4] Jump.javafx$run$ (Jump.fx:15)"));
+            Assert.assertTrue(contains("  [1] Jump.foo3 (Jump.visage:3)"));
+            Assert.assertTrue(contains("  [2] Jump.foo2 (Jump.visage:7)"));
+            Assert.assertTrue(contains("  [3] Jump.foo1 (Jump.visage:11)"));
+            Assert.assertTrue(contains("  [4] Jump.visage$run$ (Jump.visage:15)"));
             cont();
             quit();
         } catch (Exception exp) {

@@ -32,7 +32,7 @@ import org.junit.Test;
  */
 public class StepInUpTest extends JdbBase {
 
-// @BeginTest Method.fx
+// @BeginTest Method.visage
 // function simpleMethod():Void {
 //       println("Inside simple method");
 //       println("Dont break at this line");
@@ -51,7 +51,7 @@ public class StepInUpTest extends JdbBase {
     public void testStepInUp() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("Method.fx");
+            compile("Method.visage");
             stop("in Method:7");
             fxrun();
             resumeToBreakpoint();

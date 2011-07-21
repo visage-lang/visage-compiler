@@ -64,12 +64,12 @@ options {
 //
 @lexer::header {
 
-package com.sun.tools.javafx.antlr;
+package com.sun.tools.visage.antlr;
 
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.Log;
-import com.sun.tools.javafx.util.MsgSym;
+import com.sun.tools.visage.util.MsgSym;
 
 }
 

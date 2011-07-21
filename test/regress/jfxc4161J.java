@@ -5,7 +5,7 @@
  *
  */
 
-import com.sun.javafx.functions.*;
+import com.sun.visage.functions.*;
 
 public class jfxc4161J {
     

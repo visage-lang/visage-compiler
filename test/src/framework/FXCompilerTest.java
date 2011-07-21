@@ -45,23 +45,23 @@ public class FXCompilerTest extends TestSuite {
     public static final String OPTIONS_COMPARE = "compare";
 
     // A list of test directories under which to look for the TEST_FX_INCLUDES patterns
-    private static final String TEST_FX_ROOTS = "test.fx.roots";
+    private static final String TEST_FX_ROOTS = "test.visage.roots";
 
     // A pattern of tests to include under the TEST_FX_ROOTS
-    private static final String TEST_FX_INCLUDES = "test.fx.includes";
+    private static final String TEST_FX_INCLUDES = "test.visage.includes";
 
     // Alternatively, a list of tests to run, eg
-    //   "test/regress/jfxc1043.fx test/regress/jfxc1053.fx"
-    private static final String TEST_FX_LIST = "test.fx.list";
+    //   "test/regress/jfxc1043.visage test/regress/jfxc1053.visage"
+    private static final String TEST_FX_LIST = "test.visage.list";
 
     // And a list of tests to skip
-    private static final String TEST_FX_EXCLUDE_LIST = "test.fx.exclude.list";
+    private static final String TEST_FX_EXCLUDE_LIST = "test.visage.exclude.list";
 
     /**
-     * Creates a test suite for this directory's .fx source files.  This
+     * Creates a test suite for this directory's .visage source files.  This
      * method is called reflectively by the JUnit test runner.
      *
-     * @param directory the top-level directory to scan for .fx source files.
+     * @param directory the top-level directory to scan for .visage source files.
      * @return a Test which
      */
     public static Test suite() throws Exception {
@@ -112,7 +112,7 @@ public class FXCompilerTest extends TestSuite {
     private static void findTests(File dir, List<Test> tests, Set<String> orphanFiles, String excludeList) throws Exception {
         String pattern = System.getProperty(TEST_FX_INCLUDES);
         DirectoryScanner ds = new DirectoryScanner();
-        ds.setIncludes(new String[]{(pattern == null ? "**/*.fx" : pattern)});
+        ds.setIncludes(new String[]{(pattern == null ? "**/*.visage" : pattern)});
         ds.setBasedir(dir);
         ds.scan();
         for (String s : ds.getIncludedFiles()) {
@@ -130,7 +130,7 @@ public class FXCompilerTest extends TestSuite {
 
     private static void handleOneTest(File testFile,  List<Test> tests, Set<String> orphanFiles) throws Exception {
         String name = testFile.getParentFile().getName() + "/" + testFile.getName();
-        assert name.lastIndexOf(".fx") > 0 : "not a JavaFX script: " + name;
+        assert name.lastIndexOf(".visage") > 0 : "not a JavaFX script: " + name;
         boolean isTest = false, isNotTest = false, isFxUnit = false,
             shouldRun = false, compileFailure = false, runFailure = false, checkCompilerMsg = false,
             noCompare = false, ignoreStdError = false;

@@ -4,7 +4,7 @@ if "%JAVAFX_HOME%"=="" goto noJavafxHome
 
 if not exist "%BTRACE_HOME%\build\btrace-agent.jar" goto noBTraceHome
 
-javac -cp "%BTRACE_HOME%\build\btrace-client.jar;%JAVAFX_HOME%\lib\shared\javafxrt.jar" %*
+javac -cp "%BTRACE_HOME%\build\btrace-client.jar;%JAVAFX_HOME%\lib\shared\visagert.jar" %*
 goto end
 
 :noBTraceHome

@@ -23,8 +23,8 @@
 
 package fxjdi;
 
-import com.sun.javafx.jdi.FXStackFrame;
-import com.sun.javafx.jdi.FXWrapper;
+import com.sun.visage.jdi.FXStackFrame;
+import com.sun.visage.jdi.FXWrapper;
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.BreakpointEvent;
@@ -37,7 +37,7 @@ import org.junit.Test;
  */
 public class ScriptVarTest extends JdbBase {
 
-// @BeginTest ScriptVar.fx
+// @BeginTest ScriptVar.visage
 // var globalV = 1.0;
 // function run() {
 //     println("globalV is {globalV}");
@@ -58,8 +58,8 @@ public class ScriptVarTest extends JdbBase {
     public void testScriptVar() {
         try {
             resetOutputs();
-            compile("ScriptVar.fx");
-            stop("in ScriptVar.javafx$run$");
+            compile("ScriptVar.visage");
+            stop("in ScriptVar.visage$run$");
 
             fxrun();
 
@@ -68,7 +68,7 @@ public class ScriptVarTest extends JdbBase {
             //Assert.assertTrue(verifyNumValue("ScriptVar.globalV", 1.0));
 
             list();
-//            Assert.assertTrue(contains("ScriptVar.javafx$run$ (ScriptVar.fx:2)"));
+//            Assert.assertTrue(contains("ScriptVar.visage$run$ (ScriptVar.visage:2)"));
 
 
             next();

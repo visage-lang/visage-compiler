@@ -55,35 +55,35 @@ public class ArgumentsTest  extends TestCase {
 
         // Call the launcher to test -help
         cmdsList.clear();
-        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add(Utils.visageExe.toString());
         cmdsList.add("-help");
         output = Utils.doExec(cmdsList);
         assertNotNull(output);
 
         // Call the launcher to test -X
         cmdsList.clear();
-        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add(Utils.visageExe.toString());
         cmdsList.add("-X");
         output = Utils.doExec(cmdsList);
         assertNotNull(output);
 
         // Call the launcher to test -?
         cmdsList.clear();
-        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add(Utils.visageExe.toString());
         cmdsList.add("-?");
         output = Utils.doExec(cmdsList);
         assertNotNull(output);
 
-        // Call the javafxc  to test -help
+        // Call the visagec  to test -help
         cmdsList.clear();
-        cmdsList.add(Utils.javafxcExe.toString());
+        cmdsList.add(Utils.visagecExe.toString());
         cmdsList.add("-help");
         output = Utils.doExec(cmdsList);
         assertNotNull(output);
 
-        // Call the javafxdoc  to test -help
+        // Call the visagedoc  to test -help
         cmdsList.clear();
-        cmdsList.add(Utils.javafxdocExe.toString());
+        cmdsList.add(Utils.visagedocExe.toString());
         cmdsList.add("-help");
         output = Utils.doExec(cmdsList);
         assertNotNull(output);
@@ -93,14 +93,14 @@ public class ArgumentsTest  extends TestCase {
     public void testBasicArguments() throws IOException {
         ArrayList<String> cmdsList = new ArrayList<String>();
         List<String> output = null;
-        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add(Utils.visageExe.toString());
         cmdsList.add("-help");
         assertTrue(Utils.checkExec(cmdsList, null, false));
 
         cmdsList.clear();
-        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add(Utils.visageExe.toString());
         String filename = "Version";
-        FileWriter fw = new FileWriter(new File(Utils.workingDir, filename + ".fx"));
+        FileWriter fw = new FileWriter(new File(Utils.workingDir, filename + ".visage"));
         PrintWriter pw = new PrintWriter(fw);
         try {
             pw.println(Utils.emitVersionFx(false));
@@ -111,14 +111,14 @@ public class ArgumentsTest  extends TestCase {
 
         // Call the compiler
         cmdsList.clear();
-        cmdsList.add(Utils.javafxcExe.toString());
-        cmdsList.add(filename + ".fx");
+        cmdsList.add(Utils.visagecExe.toString());
+        cmdsList.add(filename + ".visage");
         output = Utils.doExec(cmdsList);
         assertNotNull(output);
 
         // Call the launcher
         cmdsList.clear();
-        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add(Utils.visageExe.toString());
         cmdsList.add("-verbose:class");
         cmdsList.add(filename);
         output = Utils.doExec(cmdsList);
@@ -126,16 +126,16 @@ public class ArgumentsTest  extends TestCase {
 
         // Call the compiler with -target 1.5
         cmdsList.clear();
-        cmdsList.add(Utils.javafxcExe.toString());
+        cmdsList.add(Utils.visagecExe.toString());
         cmdsList.add("-target");
         cmdsList.add("1.5");
-        cmdsList.add(filename + ".fx");
+        cmdsList.add(filename + ".visage");
         output = Utils.doExec(cmdsList);
         assertNotNull(output);
 
         // Call the launcher to test java arguments
         cmdsList.clear();
-        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add(Utils.visageExe.toString());
         cmdsList.add("-verbose:class");
         cmdsList.add(filename);
         output = Utils.doExec(cmdsList);
@@ -143,7 +143,7 @@ public class ArgumentsTest  extends TestCase {
 
         // Call the launcher to test VM arguments
         cmdsList.clear();
-        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add(Utils.visageExe.toString());
         cmdsList.add("-J-verbose:class");
         cmdsList.add(filename);
         output = Utils.doExec(cmdsList);
@@ -287,18 +287,18 @@ public class ArgumentsTest  extends TestCase {
         assertTrue(Utils.checkExec(cmdsList, "-X"));
     }
 
-    static final String XDWARNONUSE_STR = "Foo.fx:1: warning: [warnonuse] Package ersatz.dummy has been used.";
+    static final String XDWARNONUSE_STR = "Foo.visage:1: warning: [warnonuse] Package ersatz.dummy has been used.";
     public void testJavaFxcXDArgs() throws IOException {
         ArrayList<String> cmdsList = new ArrayList<String>();
         List<String> output = null;
-        cmdsList.add(Utils.javafxcExe.toString());
-        cmdsList.add("Foo.fx");
+        cmdsList.add(Utils.visagecExe.toString());
+        cmdsList.add("Foo.visage");
         
-        Utils.createFile("Foo.fx", "import ersatz.dummy.*;");
+        Utils.createFile("Foo.visage", "import ersatz.dummy.*;");
         output = Utils.doExec(cmdsList, null, true);
         assertTrue(output.contains(XDWARNONUSE_STR));
         
-        Utils.createFile("Foo.fx", "import ersatz.dummy.FooBar;");
+        Utils.createFile("Foo.visage", "import ersatz.dummy.FooBar;");
         output = Utils.doExec(cmdsList, null, true);
         assertTrue(output.contains(XDWARNONUSE_STR));
 

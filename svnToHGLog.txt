@@ -394,7 +394,7 @@ changeset:   4379:a5184c8e7908
 branch:      trunk
 user:        ksrini
 date:        Wed Dec 31 14:35:41 2008 -0800
-summary:     [svn r4848] Fixed: JFXC-2471 javafxc -version in 1.0.1 b01
+summary:     [svn r4848] Fixed: JFXC-2471 visagec -version in 1.0.1 b01
 
 changeset:   4378:524b465c7491
 branch:      trunk
@@ -676,7 +676,7 @@ changeset:   4332:d70c03b814f0
 branch:      trunk
 user:        rfield
 date:        Thu Dec 18 19:40:47 2008 -0800
-summary:     [svn r4799] Fixed JFXC-2413 : Number->Float: jfxc1100.fx fails in translation - no such method method bind(boolean,com.sun.javafx.runtime.location.ObjectLocation<jav a.lang.Float>) in FloatVariable
+summary:     [svn r4799] Fixed JFXC-2413 : Number->Float: jfxc1100.fx fails in translation - no such method method bind(boolean,com.sun.visage.runtime.location.ObjectLocation<jav a.lang.Float>) in FloatVariable
 
 changeset:   4331:1814c622c6c6
 branch:      trunk
@@ -694,7 +694,7 @@ changeset:   4329:78d8a31829f1
 branch:      trunk
 user:        rfield
 date:        Thu Dec 18 17:15:51 2008 -0800
-summary:     [svn r4796] Fixed JFXC-2515 : Number->Float: regress test jfxc2269.fx fails in translation "mul(float) in javafx.lang.Duration cannot be applied to (double)"
+summary:     [svn r4796] Fixed JFXC-2515 : Number->Float: regress test jfxc2269.fx fails in translation "mul(float) in visage.lang.Duration cannot be applied to (double)"
 
 changeset:   4328:00f631976dbe
 branch:      trunk
@@ -1402,7 +1402,7 @@ changeset:   4211:ff8bcb9c886c
 branch:      trunk
 user:        sundararajana
 date:        Thu Nov 20 20:31:07 2008 -0800
-summary:     [svn r4671] Fixing JFXC-2404 - javafxdoc: Need to add copyright hyperlink in every doc page.
+summary:     [svn r4671] Fixing JFXC-2404 - visagedoc: Need to add copyright hyperlink in every doc page.
 
 changeset:   4210:0f3fac0aa424
 branch:      trunk
@@ -1414,7 +1414,7 @@ changeset:   4209:2e0243345aa4
 branch:      trunk
 user:        sundararajana
 date:        Thu Nov 20 01:52:16 2008 -0800
-summary:     [svn r4666] Fixing JFXC-2403 - javafxdoc: Need to add a meta tag to doc headers.
+summary:     [svn r4666] Fixing JFXC-2403 - visagedoc: Need to add a meta tag to doc headers.
 
 changeset:   4208:dc6969685925
 branch:      trunk
@@ -1654,7 +1654,7 @@ changeset:   4169:176ba6486ec1
 branch:      trunk
 user:        sundararajana
 date:        Tue Nov 11 23:51:00 2008 -0800
-summary:     [svn r4622] Fixing JFXC-2337 - javafxdoc should not put "subclass" in can-read column for
+summary:     [svn r4622] Fixing JFXC-2337 - visagedoc should not put "subclass" in can-read column for
 
 changeset:   4168:a4b3d0294b16
 branch:      trunk
@@ -1792,7 +1792,7 @@ changeset:   4146:215adf51960f
 branch:      trunk
 user:        riazaimandi
 date:        Fri Nov 07 19:59:05 2008 -0800
-summary:     [svn r4593] RT-1998/RT-1999: expose the underlying applet to applications via getArgument(javafx.applet)
+summary:     [svn r4593] RT-1998/RT-1999: expose the underlying applet to applications via getArgument(visage.applet)
 
 changeset:   4145:38e6bf6f361f
 branch:      trunk
@@ -1960,7 +1960,7 @@ changeset:   4118:5b354ed94a2f
 branch:      trunk
 user:        sundararajana
 date:        Wed Nov 05 04:56:51 2008 -0800
-summary:     [svn r4560] Fixing JFXC-2353 - javafxdoc css, script changes for look and feel.
+summary:     [svn r4560] Fixing JFXC-2353 - visagedoc css, script changes for look and feel.
 
 changeset:   4117:6d106027e23a
 branch:      trunk
@@ -1984,7 +1984,7 @@ changeset:   4114:812f969fa522
 branch:      trunk
 user:        sundararajana
 date:        Mon Nov 03 22:08:41 2008 -0800
-summary:     [svn r4555] Fixing JFXC-2306 - javafx.animation.Interpolator cannot be analyzed: NPE
+summary:     [svn r4555] Fixing JFXC-2306 - visage.animation.Interpolator cannot be analyzed: NPE
 
 changeset:   4113:c5c8ee7ddc5d
 branch:      trunk
@@ -1996,19 +1996,19 @@ changeset:   4112:cc91f53e5601
 branch:      trunk
 user:        sundararajana
 date:        Mon Nov 03 08:17:51 2008 -0800
-summary:     [svn r4552] Fixing JFXC-2249 - java.lang.ArrayStoreException: com.sun.tools.javafxdoc.PrimitiveType.
+summary:     [svn r4552] Fixing JFXC-2249 - java.lang.ArrayStoreException: com.sun.tools.visagedoc.PrimitiveType.
 
 changeset:   4111:ac546affc6d3
 branch:      trunk
 user:        sundararajana
 date:        Mon Nov 03 05:01:38 2008 -0800
-summary:     [svn r4551] Fixing JFXC-2338 javafxdoc left-hand package/class navigation panel
+summary:     [svn r4551] Fixing JFXC-2338 visagedoc left-hand package/class navigation panel
 
 changeset:   4110:ec0f5eab9b68
 branch:      trunk
 user:        davedavedave
 date:        Mon Nov 03 01:50:33 2008 -0800
-summary:     [svn r4549] RT-2328 Fix of bootclasspath/classpath in javafxc launcher
+summary:     [svn r4549] RT-2328 Fix of bootclasspath/classpath in visagec launcher
 
 changeset:   4109:ca34a99358b0
 branch:      trunk
@@ -2170,7 +2170,7 @@ changeset:   4083:4ff25b0d2b92
 branch:      trunk
 user:        ssides
 date:        Mon Oct 27 17:18:04 2008 -0700
-summary:     [svn r4518] coverage tests for javafx.util.Bits
+summary:     [svn r4518] coverage tests for visage.util.Bits
 
 changeset:   4082:9ee406298c52
 branch:      trunk
@@ -2206,7 +2206,7 @@ changeset:   4077:c8ee0fa92e66
 branch:      trunk
 user:        rfield
 date:        Sat Oct 25 09:08:20 2008 -0700
-summary:     [svn r4504] Fixed JFXC-1868 : Non-runnable scripts shouldn't be runnable (shouldn't have run, javafx$run$ or main)
+summary:     [svn r4504] Fixed JFXC-1868 : Non-runnable scripts shouldn't be runnable (shouldn't have run, visage$run$ or main)
 
 changeset:   4076:a7e90364fbe3
 branch:      trunk
@@ -2218,7 +2218,7 @@ changeset:   4075:cc8546fbbc51
 branch:      trunk
 user:        sundararajana
 date:        Fri Oct 24 12:13:07 2008 -0700
-summary:     [svn r4501] Fixing JFXC-2299 - javafxdoc fails to generate images for @example code on
+summary:     [svn r4501] Fixing JFXC-2299 - visagedoc fails to generate images for @example code on
 
 changeset:   4074:0517212e3207
 branch:      trunk
@@ -2236,13 +2236,13 @@ changeset:   4072:2c6856f34341
 branch:      trunk
 user:        sgw
 date:        Thu Oct 23 15:42:36 2008 -0700
-summary:     [svn r4495] javafx.lang package-info.java and FX.java Documentation Cleanup
+summary:     [svn r4495] visage.lang package-info.java and FX.java Documentation Cleanup
 
 changeset:   4071:ac5220cdbacd
 branch:      trunk
 user:        zhengyu1688
 date:        Thu Oct 23 11:07:07 2008 -0700
-summary:     [svn r4491] RT-348: javafx.animation classes need to be documented
+summary:     [svn r4491] RT-348: visage.animation classes need to be documented
 
 changeset:   4070:8e2cc3d38464
 branch:      trunk
@@ -2302,7 +2302,7 @@ changeset:   4061:b8358842dfdc
 branch:      trunk
 user:        vdanushevsky
 date:        Wed Oct 22 13:27:14 2008 -0700
-summary:     [svn r4480] RT-1427: javafx.version property moved into common are
+summary:     [svn r4480] RT-1427: visage.version property moved into common are
 
 changeset:   4060:6cf9ca1194d9
 branch:      trunk
@@ -2314,7 +2314,7 @@ changeset:   4059:28f2c0f44675
 branch:      trunk
 user:        sundararajana
 date:        Wed Oct 22 04:52:29 2008 -0700
-summary:     [svn r4477] Fixing JFXC-2206 javafx api docs: "Profile:" label in upper right corner is
+summary:     [svn r4477] Fixing JFXC-2206 visage api docs: "Profile:" label in upper right corner is
 
 changeset:   4058:01ab467799e7
 branch:      trunk
@@ -2368,13 +2368,13 @@ changeset:   4050:a379c088a16d
 branch:      trunk
 user:        sundararajana
 date:        Tue Oct 21 07:16:43 2008 -0700
-summary:     [svn r4467] Fixing JFXC-2266 - javafx.lang.FX (and other Java based APIs) are not documented
+summary:     [svn r4467] Fixing JFXC-2266 - visage.lang.FX (and other Java based APIs) are not documented
 
 changeset:   4049:8421dc7c990f
 branch:      trunk
 user:        sundararajana
 date:        Tue Oct 21 03:50:22 2008 -0700
-summary:     [svn r4466] Fixing JFXC-2236 - javafxdoc example ignores transform attributes.
+summary:     [svn r4466] Fixing JFXC-2236 - visagedoc example ignores transform attributes.
 
 changeset:   4048:1f7a05ea1e11
 branch:      trunk
@@ -2440,7 +2440,7 @@ changeset:   4038:a633193c2910
 branch:      trunk
 user:        davedavedave
 date:        Mon Oct 20 06:39:56 2008 -0700
-summary:     [svn r4454] Fix for #RT-1110 - Too many jars on compiler and javafxdoc class path ...
+summary:     [svn r4454] Fix for #RT-1110 - Too many jars on compiler and visagedoc class path ...
 
 changeset:   4037:dd09d767c406
 branch:      trunk
@@ -2620,7 +2620,7 @@ changeset:   4008:6a260fa9072a
 branch:      trunk
 user:        sundararajana
 date:        Wed Oct 15 10:29:34 2008 -0700
-summary:     [svn r4414] Fixing the following javafxdoc issues:
+summary:     [svn r4414] Fixing the following visagedoc issues:
 
 changeset:   4007:1b507dd1eef0
 branch:      trunk
@@ -2674,7 +2674,7 @@ changeset:   3999:6363d70f00d3
 branch:      trunk
 user:        sundararajana
 date:        Tue Oct 14 00:12:32 2008 -0700
-summary:     [svn r4402] Fixing JFXC-2145 Profile tag is ignored on function and var in javafxdoc-generated API docs.
+summary:     [svn r4402] Fixing JFXC-2145 Profile tag is ignored on function and var in visagedoc-generated API docs.
 
 changeset:   3998:1af1590afe33
 branch:      trunk
@@ -2692,7 +2692,7 @@ changeset:   3996:754de690a396
 branch:      trunk
 user:        rfield
 date:        Mon Oct 13 20:34:30 2008 -0700
-summary:     [svn r4398] Fixed JFXC-2180 : Auto-import of classes in javafx.lang not working
+summary:     [svn r4398] Fixed JFXC-2180 : Auto-import of classes in visage.lang not working
 
 changeset:   3995:9e704d082458
 branch:      trunk
@@ -2704,13 +2704,13 @@ changeset:   3994:e0af47befcd0
 branch:      trunk
 user:        ssides
 date:        Mon Oct 13 17:20:36 2008 -0700
-summary:     [svn r4395] test for javafx_lang_FX
+summary:     [svn r4395] test for visage_lang_FX
 
 changeset:   3993:d5b7d34a4fcc
 branch:      trunk
 user:        ssides
 date:        Mon Oct 13 17:19:29 2008 -0700
-summary:     [svn r4394] test for javafx_lang_FX
+summary:     [svn r4394] test for visage_lang_FX
 
 changeset:   3992:499e3a3f56d7
 branch:      trunk
@@ -3112,13 +3112,13 @@ changeset:   3926:97381adbd06a
 branch:      trunk
 user:        rfield
 date:        Sat Oct 04 17:20:09 2008 -0700
-summary:     [svn r4307] Fixed JFXC-2136 : javafx.reflectFXVarMember.setValue fails for elided instance var
+summary:     [svn r4307] Fixed JFXC-2136 : visage.reflectFXVarMember.setValue fails for elided instance var
 
 changeset:   3925:31859e8d765e
 branch:      trunk
 user:        rfield
 date:        Sat Oct 04 11:46:58 2008 -0700
-summary:     [svn r4306] Fixed JFXC-2135 : javafx.lang.Builtins change breaks FX.isInitialized and GUI runtime -- compiler change needed
+summary:     [svn r4306] Fixed JFXC-2135 : visage.lang.Builtins change breaks FX.isInitialized and GUI runtime -- compiler change needed
 
 changeset:   3924:a210425919a0
 branch:      trunk
@@ -3154,7 +3154,7 @@ changeset:   3919:74bab5c0136f
 branch:      trunk
 user:        sgw
 date:        Fri Oct 03 22:19:23 2008 -0700
-summary:     [svn r4300] Refactor javafx.lang.FX for Auto-importing via Builtins class
+summary:     [svn r4300] Refactor visage.lang.FX for Auto-importing via Builtins class
 
 changeset:   3918:474b42f6fa1d
 branch:      trunk
@@ -3484,7 +3484,7 @@ changeset:   3864:a03647c7f87d
 branch:      trunk
 user:        briangoetz
 date:        Tue Sep 30 20:22:54 2008 -0700
-summary:     [svn r4245] Revert r4243 (JFXC-2076); broke javafxgui build
+summary:     [svn r4245] Revert r4243 (JFXC-2076); broke visagegui build
 
 changeset:   3863:ada8504dd6dc
 branch:      trunk
@@ -3532,7 +3532,7 @@ changeset:   3856:e9125ed44223
 branch:      trunk
 user:        zhengyu1688
 date:        Tue Sep 30 12:02:01 2008 -0700
-summary:     [svn r4237] RT-833: Sub timeline breaks javafxgui's Bounce demo
+summary:     [svn r4237] RT-833: Sub timeline breaks visagegui's Bounce demo
 
 changeset:   3855:788b0bbb18c9
 branch:      trunk
@@ -3706,7 +3706,7 @@ changeset:   3827:dd668aa2d533
 branch:      trunk
 user:        freespirit
 date:        Sat Sep 27 14:16:25 2008 -0700
-summary:     [svn r4207] Add missing link to the html documentation for javafxdoc ...
+summary:     [svn r4207] Add missing link to the html documentation for visagedoc ...
 
 changeset:   3826:ea1c6a96f304
 branch:      trunk
@@ -3778,7 +3778,7 @@ changeset:   3815:053af2e9dd76
 branch:      trunk
 user:        sgw
 date:        Fri Sep 26 13:21:31 2008 -0700
-summary:     [svn r4195] Add com.sun.javafx.runtime.FXExit for handling FXExit across Mobile and Desktop, update FX.java for this change
+summary:     [svn r4195] Add com.sun.visage.runtime.FXExit for handling FXExit across Mobile and Desktop, update FX.java for this change
 
 changeset:   3814:13976d399a20
 branch:      trunk
@@ -4084,13 +4084,13 @@ changeset:   3764:e84a60a00f39
 branch:      trunk
 user:        davedavedave
 date:        Fri Sep 19 01:40:12 2008 -0700
-summary:     [svn r4144] Fix for javafx* shell scripts - cygpath ".:." issue worked around, sed expression fixed
+summary:     [svn r4144] Fix for visage* shell scripts - cygpath ".:." issue worked around, sed expression fixed
 
 changeset:   3763:7d682d252085
 branch:      trunk
 user:        davedavedave
 date:        Fri Sep 19 01:21:28 2008 -0700
-summary:     [svn r4143] Fix of javafx* shell script to support Cygwin
+summary:     [svn r4143] Fix of visage* shell script to support Cygwin
 
 changeset:   3762:8f3b8534e906
 branch:      trunk
@@ -4726,7 +4726,7 @@ changeset:   3657:cd9fe7978326
 branch:      trunk
 user:        joshy
 date:        Thu Sep 11 12:45:57 2008 -0700
-summary:     [svn r4037] fix for JFXC-1895 javafxdoc doesn't recognize public-init or public-read access modifiers
+summary:     [svn r4037] fix for JFXC-1895 visagedoc doesn't recognize public-init or public-read access modifiers
 
 changeset:   3656:70ce98e09fd4
 branch:      trunk
@@ -4816,7 +4816,7 @@ changeset:   3642:0f23b5280b95
 branch:      trunk
 user:        joshy
 date:        Wed Sep 10 09:45:50 2008 -0700
-summary:     [svn r4021] fix for JFXC-1899: javafxdoc doesn't sort the list of packages and
+summary:     [svn r4021] fix for JFXC-1899: visagedoc doesn't sort the list of packages and
 
 changeset:   3641:0d1b088a7a0e
 branch:      trunk
@@ -4840,7 +4840,7 @@ changeset:   3638:cb0f5d6b8124
 branch:      trunk
 user:        rfield
 date:        Tue Sep 09 20:17:30 2008 -0700
-summary:     [svn r4017] Follow-on to JFXC-1895 : javafxdoc doesn't recognize public-init or public-read access modifiers
+summary:     [svn r4017] Follow-on to JFXC-1895 : visagedoc doesn't recognize public-init or public-read access modifiers
 
 changeset:   3637:abb50754d62d
 branch:      trunk
@@ -4858,13 +4858,13 @@ changeset:   3635:55cd88c6fead
 branch:      trunk
 user:        rfield
 date:        Tue Sep 09 17:55:46 2008 -0700
-summary:     [svn r4014] Fix-up to JFXC-1895 : javafxdoc doesn't recognize public-init or public-read access modifiers
+summary:     [svn r4014] Fix-up to JFXC-1895 : visagedoc doesn't recognize public-init or public-read access modifiers
 
 changeset:   3634:9c6ae3309ab5
 branch:      trunk
 user:        rfield
 date:        Tue Sep 09 17:49:01 2008 -0700
-summary:     [svn r4013] Fixed (I'll assume) JFXC-1895 : javafxdoc doesn't recognize public-init or public-read access modifiers
+summary:     [svn r4013] Fixed (I'll assume) JFXC-1895 : visagedoc doesn't recognize public-init or public-read access modifiers
 
 changeset:   3633:488f63f5f526
 branch:      trunk
@@ -4882,7 +4882,7 @@ changeset:   3631:0b7bae66b87a
 branch:      trunk
 user:        joshy
 date:        Tue Sep 09 11:43:01 2008 -0700
-summary:     [svn r4010] fix for JFXC-1914 javafxdoc output seems currently to be biased towards the SDK documentation
+summary:     [svn r4010] fix for JFXC-1914 visagedoc output seems currently to be biased towards the SDK documentation
 
 changeset:   3630:6c7f165cbf88
 branch:      trunk
@@ -5020,7 +5020,7 @@ changeset:   3608:d5f190c7e601
 branch:      trunk
 user:        bothner
 date:        Fri Sep 05 15:30:33 2008 -0700
-summary:     [svn r3987] Skip "javafx$run$" method.
+summary:     [svn r3987] Skip "visage$run$" method.
 
 changeset:   3607:7679e61af6af
 branch:      trunk
@@ -5134,7 +5134,7 @@ changeset:   3589:58f89ee9718b
 branch:      trunk
 user:        rfield
 date:        Thu Sep 04 03:33:45 2008 -0700
-summary:     [svn r3968] Fixed JFXC-1925 : Auto-import types in javafx.lang
+summary:     [svn r3968] Fixed JFXC-1925 : Auto-import types in visage.lang
 
 changeset:   3588:86878fd6e93b
 branch:      trunk
@@ -5896,7 +5896,7 @@ changeset:   3462:15b9ce7231af
 branch:      trunk
 user:        michael_heinrichs
 date:        Fri Aug 22 07:45:33 2008 -0700
-summary:     [svn r3839] Removed check of java version. Added script-api.jar to classpath when javafxdoc is build. (JFXC-1782)
+summary:     [svn r3839] Removed check of java version. Added script-api.jar to classpath when visagedoc is build. (JFXC-1782)
 
 changeset:   3461:df5537800499
 branch:      trunk
@@ -5944,7 +5944,7 @@ changeset:   3454:a7d96c5f4d7d
 branch:      trunk
 user:        tball
 date:        Wed Aug 20 22:49:00 2008 -0700
-summary:     [svn r3831] added javafx.reflect to javadoc list
+summary:     [svn r3831] added visage.reflect to javadoc list
 
 changeset:   3453:7913fa1456c4
 branch:      trunk
@@ -6094,13 +6094,13 @@ changeset:   3429:de12d0a9a4a0
 branch:      trunk
 user:        nenik
 date:        Tue Aug 19 07:38:33 2008 -0700
-summary:     [svn r3806] Make javafxdoc more accessible to tools, part 2.
+summary:     [svn r3806] Make visagedoc more accessible to tools, part 2.
 
 changeset:   3428:17875483fb2f
 branch:      trunk
 user:        nenik
 date:        Tue Aug 19 05:41:08 2008 -0700
-summary:     [svn r3805] Make javafxdoc more accessible to tools. Also make the naming consistent.
+summary:     [svn r3805] Make visagedoc more accessible to tools. Also make the naming consistent.
 
 changeset:   3427:d056b7b0c658
 branch:      trunk
@@ -6154,7 +6154,7 @@ changeset:   3419:bf1559f8470d
 branch:      trunk
 user:        briangoetz
 date:        Mon Aug 18 10:21:50 2008 -0700
-summary:     [svn r3796] Move generation of javafxrt.jar into main compiler build
+summary:     [svn r3796] Move generation of visagert.jar into main compiler build
 
 changeset:   3418:bbf0d7efb9f3
 branch:      trunk
@@ -6166,13 +6166,13 @@ changeset:   3417:7ab6dc62d47f
 branch:      trunk
 user:        dstrupl
 date:        Mon Aug 18 07:27:23 2008 -0700
-summary:     [svn r3794] Made javafxdoc project openable in the NetBeans IDE (2). javafxdoc should not fail after clean after this.
+summary:     [svn r3794] Made visagedoc project openable in the NetBeans IDE (2). visagedoc should not fail after clean after this.
 
 changeset:   3416:6b40dd36c23e
 branch:      trunk
 user:        dstrupl
 date:        Mon Aug 18 07:08:40 2008 -0700
-summary:     [svn r3793] Made javafxdoc project openable in the NetBeans IDE.
+summary:     [svn r3793] Made visagedoc project openable in the NetBeans IDE.
 
 changeset:   3415:95dc2533afae
 branch:      trunk
@@ -6196,7 +6196,7 @@ changeset:   3412:0409f8e028a8
 branch:      trunk
 user:        tball
 date:        Sun Aug 17 19:06:21 2008 -0700
-summary:     [svn r3789] cleaned up IDE warnings in javafxdoc
+summary:     [svn r3789] cleaned up IDE warnings in visagedoc
 
 changeset:   3411:86e485cdc11c
 branch:      trunk
@@ -6580,7 +6580,7 @@ changeset:   3348:9d17baea3bbc
 branch:      trunk
 user:        bchristi
 date:        Mon Aug 11 11:24:28 2008 -0700
-summary:     [svn r3723] JavaFXBalls: Added ability to set initial Ball Painting via javafxballs.vector Setting
+summary:     [svn r3723] JavaFXBalls: Added ability to set initial Ball Painting via visageballs.vector Setting
 
 changeset:   3347:e141182fb751
 branch:      trunk
@@ -6658,7 +6658,7 @@ changeset:   3335:2df784091609
 branch:      trunk
 user:        michael_heinrichs
 date:        Thu Aug 07 01:08:27 2008 -0700
-summary:     [svn r3710] Added documentation for javafx.lang.DeferredTask and javafx.lang.Sequences (JFXC-1584).
+summary:     [svn r3710] Added documentation for visage.lang.DeferredTask and visage.lang.Sequences (JFXC-1584).
 
 changeset:   3334:bafc064efc9b
 branch:      trunk
@@ -6796,7 +6796,7 @@ changeset:   3312:bc567b79f013
 branch:      trunk
 user:        davedavedave
 date:        Mon Aug 04 09:21:39 2008 -0700
-summary:     [svn r3687] javafxc.jar is taken from ../../dist/lib directory
+summary:     [svn r3687] visagec.jar is taken from ../../dist/lib directory
 
 changeset:   3311:5d485e7eb4cd
 branch:      trunk
@@ -6946,7 +6946,7 @@ changeset:   3287:6cc452e92bee
 branch:      trunk
 user:        shan_man
 date:        Thu Jul 31 04:56:11 2008 -0700
-summary:     [svn r3659] Fixed rendering of 2D javafxballs
+summary:     [svn r3659] Fixed rendering of 2D visageballs
 
 changeset:   3286:f2694641768e
 branch:      trunk
@@ -7288,7 +7288,7 @@ changeset:   3230:13112ec87bea
 branch:      trunk
 user:        bchristi
 date:        Tue Jul 29 15:47:58 2008 -0700
-summary:     [svn r3598] javafx.scene.FontStyle -> javafx.scene.text.FontStyle, per Hudson failure mentioned in JFXC-1651.
+summary:     [svn r3598] visage.scene.FontStyle -> visage.scene.text.FontStyle, per Hudson failure mentioned in JFXC-1651.
 
 changeset:   3229:e54e52fc228d
 branch:      trunk
@@ -7360,7 +7360,7 @@ changeset:   3218:42f363695b78
 branch:      trunk
 user:        bchristi
 date:        Tue Jul 29 10:27:34 2008 -0700
-summary:     [svn r3582] Added "Classpath for Compiling Sources" to the Netbeans Run-time libraries for the anim and javafxballs demos.
+summary:     [svn r3582] Added "Classpath for Compiling Sources" to the Netbeans Run-time libraries for the anim and visageballs demos.
 
 changeset:   3217:ca7d3ea1bdce
 branch:      trunk
@@ -7378,7 +7378,7 @@ changeset:   3215:f0f252612c4f
 branch:      trunk
 user:        alexsch
 date:        Tue Jul 29 03:06:22 2008 -0700
-summary:     [svn r3578] Parse javafx.application.Frame class
+summary:     [svn r3578] Parse visage.application.Frame class
 
 changeset:   3214:668b47ed6c6d
 branch:      trunk
@@ -7978,7 +7978,7 @@ changeset:   3115:cab11dfe7722
 branch:      trunk
 user:        kcr
 date:        Mon Jul 21 09:33:03 2008 -0700
-summary:     [svn r3453] JFXC-1606: javafx shell script has incorrect location for Scenario.jar library
+summary:     [svn r3453] JFXC-1606: visage shell script has incorrect location for Scenario.jar library
 
 changeset:   3114:fe59431bc34a
 branch:      trunk
@@ -8146,7 +8146,7 @@ changeset:   3087:7328ec6f52b4
 branch:      trunk
 user:        rbair
 date:        Fri Jul 18 13:14:45 2008 -0700
-summary:     [svn r3419] Fixed error where javafxc was being created but no javafxc.jar was available. This was happening on clean. Fixed.
+summary:     [svn r3419] Fixed error where visagec was being created but no visagec.jar was available. This was happening on clean. Fixed.
 
 changeset:   3086:41c3a9ae093e
 branch:      trunk
@@ -8194,7 +8194,7 @@ changeset:   3079:df69fb27a6be
 branch:      trunk
 user:        rbair
 date:        Fri Jul 18 12:16:22 2008 -0700
-summary:     [svn r3411] removed compile-runtime-fx and moved the body to -post-compile. The use of the name "runtime" is confusing because it conotes the javafx runtime project -- but that is not what is being compiled. This target really just compiles the fx files in the compiler. The "runtime" libraries have been split in two -- some of them are shipped with the compiler while the rest are shipped with the "runtime" project. Also, calling compile-runtime-fx manually just fails, so there is no good reason for it to be separate. Might as well bundle that target into the -post-compile target and simplify the build script somewhat.
+summary:     [svn r3411] removed compile-runtime-fx and moved the body to -post-compile. The use of the name "runtime" is confusing because it conotes the visage runtime project -- but that is not what is being compiled. This target really just compiles the fx files in the compiler. The "runtime" libraries have been split in two -- some of them are shipped with the compiler while the rest are shipped with the "runtime" project. Also, calling compile-runtime-fx manually just fails, so there is no good reason for it to be separate. Might as well bundle that target into the -post-compile target and simplify the build script somewhat.
 
 changeset:   3078:bf95e1b106f0
 branch:      trunk
@@ -8242,19 +8242,19 @@ changeset:   3071:61fcf48002a1
 branch:      trunk
 user:        shan_man
 date:        Thu Jul 17 21:52:37 2008 -0700
-summary:     [svn r3402] Removing old javafx.ui
+summary:     [svn r3402] Removing old visage.ui
 
 changeset:   3070:06ad4040a636
 branch:      trunk
 user:        shan_man
 date:        Thu Jul 17 21:46:04 2008 -0700
-summary:     [svn r3401] Still removing old javafx.ui
+summary:     [svn r3401] Still removing old visage.ui
 
 changeset:   3069:bd27c3520477
 branch:      trunk
 user:        shan_man
 date:        Thu Jul 17 21:40:10 2008 -0700
-summary:     [svn r3400] Moving old javafx.ui to sandbox
+summary:     [svn r3400] Moving old visage.ui to sandbox
 
 changeset:   3068:00270a9e4860
 branch:      trunk
@@ -8446,13 +8446,13 @@ changeset:   3037:910fc3051066
 branch:      trunk
 user:        shan_man
 date:        Wed Jul 16 14:01:29 2008 -0700
-summary:     [svn r3354] Removing old tests based on javafx.ui
+summary:     [svn r3354] Removing old tests based on visage.ui
 
 changeset:   3036:49cf679bea74
 branch:      trunk
 user:        shan_man
 date:        Wed Jul 16 13:57:50 2008 -0700
-summary:     [svn r3353] Removing old tests based on javafx.ui
+summary:     [svn r3353] Removing old tests based on visage.ui
 
 changeset:   3035:79fe9ee2644b
 branch:      trunk
@@ -8470,7 +8470,7 @@ changeset:   3033:d9a9d776612d
 branch:      trunk
 user:        shan_man
 date:        Wed Jul 16 13:22:37 2008 -0700
-summary:     [svn r3349] Removed old tests that relied on javafx.ui
+summary:     [svn r3349] Removed old tests that relied on visage.ui
 
 changeset:   3032:2e83fda933ee
 branch:      trunk
@@ -8494,37 +8494,37 @@ changeset:   3029:37c980ecc3d6
 branch:      trunk
 user:        shan_man
 date:        Wed Jul 16 13:03:05 2008 -0700
-summary:     [svn r3345] Removed old tests that relied on javafx.ui
+summary:     [svn r3345] Removed old tests that relied on visage.ui
 
 changeset:   3028:48156bd2fb91
 branch:      trunk
 user:        shan_man
 date:        Wed Jul 16 13:01:08 2008 -0700
-summary:     [svn r3344] Removed old tests that relied on javafx.ui
+summary:     [svn r3344] Removed old tests that relied on visage.ui
 
 changeset:   3027:ca2d1146617d
 branch:      trunk
 user:        shan_man
 date:        Wed Jul 16 12:58:44 2008 -0700
-summary:     [svn r3343] Removed old tests that relied on javafx.ui
+summary:     [svn r3343] Removed old tests that relied on visage.ui
 
 changeset:   3026:d26e21252458
 branch:      trunk
 user:        shan_man
 date:        Wed Jul 16 12:49:02 2008 -0700
-summary:     [svn r3342] Removed old tests that relied on javafx.ui
+summary:     [svn r3342] Removed old tests that relied on visage.ui
 
 changeset:   3025:bab74968d630
 branch:      trunk
 user:        shan_man
 date:        Wed Jul 16 12:42:08 2008 -0700
-summary:     [svn r3341] Removed old tests that relied on javafx.ui
+summary:     [svn r3341] Removed old tests that relied on visage.ui
 
 changeset:   3024:33317a7e7973
 branch:      trunk
 user:        shan_man
 date:        Wed Jul 16 12:36:36 2008 -0700
-summary:     [svn r3340] Removed old tests that relied on javafx.ui
+summary:     [svn r3340] Removed old tests that relied on visage.ui
 
 changeset:   3023:dbcf051d52c4
 branch:      trunk
@@ -8728,7 +8728,7 @@ changeset:   2990:05cf265b77d5
 branch:      trunk
 user:        tball
 date:        Thu Jul 10 14:22:28 2008 -0700
-summary:     [svn r3291] Let javafxpad back into the build.
+summary:     [svn r3291] Let visagepad back into the build.
 
 changeset:   2989:ce5553bc9549
 branch:      trunk
@@ -8872,7 +8872,7 @@ changeset:   2966:d5fe545f1333
 branch:      trunk
 user:        michael_heinrichs
 date:        Wed Jul 09 10:38:51 2008 -0700
-summary:     [svn r3245] Applied the provided fix to the javafx-shellscript (JFXC-1518).
+summary:     [svn r3245] Applied the provided fix to the visage-shellscript (JFXC-1518).
 
 changeset:   2965:81eddfb1a303
 branch:      trunk
@@ -8926,7 +8926,7 @@ changeset:   2957:e8446f7c06ca
 branch:      trunk
 user:        tball
 date:        Tue Jul 08 11:03:05 2008 -0700
-summary:     [svn r3232] changed non-portable link to lib/javafxc.jar to relative path
+summary:     [svn r3232] changed non-portable link to lib/visagec.jar to relative path
 
 changeset:   2956:a5f6890cb787
 branch:      trunk
@@ -9028,7 +9028,7 @@ changeset:   2940:5ef3bb678ae0
 branch:      trunk
 user:        shan_man
 date:        Mon Jul 07 17:12:12 2008 -0700
-summary:     [svn r3209] Removed old tests based on javafx.ui runtime. Also, shouldn't have tests in the compiler test dir that rely on the runtime.
+summary:     [svn r3209] Removed old tests based on visage.ui runtime. Also, shouldn't have tests in the compiler test dir that rely on the runtime.
 
 changeset:   2939:18468208644b
 branch:      trunk
@@ -9040,7 +9040,7 @@ changeset:   2938:82606b97b22c
 branch:      trunk
 user:        shan_man
 date:        Mon Jul 07 16:49:17 2008 -0700
-summary:     [svn r3207] Pack javafxgui.jar and javafx-swing.jar
+summary:     [svn r3207] Pack visagegui.jar and visage-swing.jar
 
 changeset:   2937:2225fd4044ba
 branch:      trunk
@@ -9118,7 +9118,7 @@ changeset:   2925:a068b6b7b5a2
 branch:      trunk
 user:        freespirit
 date:        Mon Jul 07 08:25:35 2008 -0700
-summary:     [svn r3194] Replace an old copy of javafxc.jar with a symbolic link to the current built
+summary:     [svn r3194] Replace an old copy of visagec.jar with a symbolic link to the current built
 
 changeset:   2924:bc0023747b52
 branch:      trunk
@@ -9154,7 +9154,7 @@ changeset:   2919:cf2bc1fa1e56
 branch:      trunk
 user:        tball
 date:        Thu Jul 03 22:01:13 2008 -0700
-summary:     [svn r3184] JFXC-1172:  improved secondary source compilation fix to support javafxdoc.
+summary:     [svn r3184] JFXC-1172:  improved secondary source compilation fix to support visagedoc.
 
 changeset:   2918:537ccb09a27c
 branch:      trunk
@@ -9280,7 +9280,7 @@ changeset:   2898:b779a9174236
 branch:      trunk
 user:        michael_heinrichs
 date:        Tue Jul 01 06:57:34 2008 -0700
-summary:     [svn r3149] Updated javafxc-classpath (JFXC-1467).
+summary:     [svn r3149] Updated visagec-classpath (JFXC-1467).
 
 changeset:   2897:fec3c47eb34c
 branch:      trunk
@@ -9316,7 +9316,7 @@ changeset:   2892:5a66502149e4
 branch:      trunk
 user:        tball
 date:        Mon Jun 30 21:54:27 2008 -0700
-summary:     [svn r3140] Moved test with javafx.ui dependency to runtime test directory.
+summary:     [svn r3140] Moved test with visage.ui dependency to runtime test directory.
 
 changeset:   2891:969f4a37c6fb
 branch:      trunk
@@ -9472,13 +9472,13 @@ changeset:   2866:98cb282b3642
 branch:      trunk
 user:        tball
 date:        Thu Jun 26 19:37:09 2008 -0700
-summary:     [svn r3101] Partial javafxdoc man page, man page build improvements.
+summary:     [svn r3101] Partial visagedoc man page, man page build improvements.
 
 changeset:   2865:f59f718b6326
 branch:      trunk
 user:        tball
 date:        Thu Jun 26 14:43:17 2008 -0700
-summary:     [svn r3100] Replaced org.desktop support needed for remaining javafx.ui demos.
+summary:     [svn r3100] Replaced org.desktop support needed for remaining visage.ui demos.
 
 changeset:   2864:b636c3ba0644
 branch:      trunk
@@ -9514,19 +9514,19 @@ changeset:   2859:507210f1b0e1
 branch:      trunk
 user:        tball
 date:        Thu Jun 26 13:46:17 2008 -0700
-summary:     [svn r3094] Added service provider directory to javafxgui.jar
+summary:     [svn r3094] Added service provider directory to visagegui.jar
 
 changeset:   2858:b176094cd4ed
 branch:      trunk
 user:        tball
 date:        Thu Jun 26 11:15:29 2008 -0700
-summary:     [svn r3093] Split javafxrt.jar into javafxrt.jar, javafxgui.jar, javafx-swing.jar.
+summary:     [svn r3093] Split visagert.jar into visagert.jar, visagegui.jar, visage-swing.jar.
 
 changeset:   2857:337628521af5
 branch:      trunk
 user:        tball
 date:        Thu Jun 26 11:15:19 2008 -0700
-summary:     [svn r3092] Split javafxrt.jar into javafxrt.jar, javafxgui.jar, javafx-swing.jar.
+summary:     [svn r3092] Split visagert.jar into visagert.jar, visagegui.jar, visage-swing.jar.
 
 changeset:   2856:90e303f43732
 branch:      trunk
@@ -9550,7 +9550,7 @@ changeset:   2853:f14c71dddfec
 branch:      trunk
 user:        tball
 date:        Wed Jun 25 21:20:34 2008 -0700
-summary:     [svn r3087] Updated demos to use javafx-swing.jar
+summary:     [svn r3087] Updated demos to use visage-swing.jar
 
 changeset:   2852:1130fec4ebae
 branch:      trunk
@@ -9574,13 +9574,13 @@ changeset:   2849:8cda5653c559
 branch:      trunk
 user:        tball
 date:        Wed Jun 25 16:06:02 2008 -0700
-summary:     [svn r3081] Split javafx.ext.swing classes to separate javafx-swing.jar, sandbox'd RemoteImage
+summary:     [svn r3081] Split visage.ext.swing classes to separate visage-swing.jar, sandbox'd RemoteImage
 
 changeset:   2848:837542092838
 branch:      trunk
 user:        shan_man
 date:        Wed Jun 25 13:54:18 2008 -0700
-summary:     [svn r3078] update javafxballs to new runtime
+summary:     [svn r3078] update visageballs to new runtime
 
 changeset:   2847:6815f7ed8d98
 branch:      trunk
@@ -9712,19 +9712,19 @@ changeset:   2826:cfaedbe81175
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 19:40:29 2008 -0700
-summary:     [svn r3044] Merging in javafxgui
+summary:     [svn r3044] Merging in visagegui
 
 changeset:   2825:1a5a8bd1b65b
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 19:25:05 2008 -0700
-summary:     [svn r3043] Merging in javafxgui
+summary:     [svn r3043] Merging in visagegui
 
 changeset:   2824:6f1656b67cd6
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 18:57:22 2008 -0700
-summary:     [svn r3040] Merging javafxgui
+summary:     [svn r3040] Merging visagegui
 
 changeset:   2823:05955491593c
 branch:      trunk
@@ -9742,37 +9742,37 @@ changeset:   2821:dd3d00ed4dcb
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 18:49:01 2008 -0700
-summary:     [svn r3037] Merging javafxgui
+summary:     [svn r3037] Merging visagegui
 
 changeset:   2820:d00d8e49a5b9
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 18:41:02 2008 -0700
-summary:     [svn r3034] javafxgui merge
+summary:     [svn r3034] visagegui merge
 
 changeset:   2819:fba6deacf5e3
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 18:29:37 2008 -0700
-summary:     [svn r3032] javafxgui merge
+summary:     [svn r3032] visagegui merge
 
 changeset:   2818:4ec2d3671d3c
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 18:17:59 2008 -0700
-summary:     [svn r3030] javafxgui merge
+summary:     [svn r3030] visagegui merge
 
 changeset:   2817:7a5e99d0836d
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 17:58:41 2008 -0700
-summary:     [svn r3028] javafxgui merge
+summary:     [svn r3028] visagegui merge
 
 changeset:   2816:5e3d32144aa5
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 17:44:14 2008 -0700
-summary:     [svn r3027] Removing old javafxgui directory
+summary:     [svn r3027] Removing old visagegui directory
 
 changeset:   2815:5a20defeccf0
 branch:      trunk
@@ -9784,7 +9784,7 @@ changeset:   2814:b9600359f86c
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 17:22:28 2008 -0700
-summary:     [svn r3023] Working in javafxgui merge
+summary:     [svn r3023] Working in visagegui merge
 
 changeset:   2813:ce04a3858cc7
 branch:      trunk
@@ -9796,13 +9796,13 @@ changeset:   2812:243a4a57f53f
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 14:45:12 2008 -0700
-summary:     [svn r3020] Temporarily disabling custom doc stylesheet due to javafxdoc bug
+summary:     [svn r3020] Temporarily disabling custom doc stylesheet due to visagedoc bug
 
 changeset:   2811:d747728764c3
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 14:43:51 2008 -0700
-summary:     [svn r3018] Merging javafxgui
+summary:     [svn r3018] Merging visagegui
 
 changeset:   2810:528ab7f13264
 branch:      trunk
@@ -9814,19 +9814,19 @@ changeset:   2809:0be627bcc278
 branch:      trunk
 user:        jimclarke
 date:        Tue Jun 24 13:16:15 2008 -0700
-summary:     [svn r3015] port to javafx.gui
+summary:     [svn r3015] port to visage.gui
 
 changeset:   2808:045dbe355533
 branch:      trunk
 user:        jimclarke
 date:        Tue Jun 24 12:03:52 2008 -0700
-summary:     [svn r3014] move to sandbox pending enhancements to javafx.gui
+summary:     [svn r3014] move to sandbox pending enhancements to visage.gui
 
 changeset:   2807:8be47348ca74
 branch:      trunk
 user:        jimclarke
 date:        Tue Jun 24 12:03:18 2008 -0700
-summary:     [svn r3013] move to sandbox pending enhancements to javafx.gui
+summary:     [svn r3013] move to sandbox pending enhancements to visage.gui
 
 changeset:   2806:6f650152fdfc
 branch:      trunk
@@ -9838,13 +9838,13 @@ changeset:   2805:eb06084461cc
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 10:24:15 2008 -0700
-summary:     [svn r3010] Starting to merge in javafxgui
+summary:     [svn r3010] Starting to merge in visagegui
 
 changeset:   2804:42b3e08dbd6d
 branch:      trunk
 user:        shan_man
 date:        Tue Jun 24 10:17:15 2008 -0700
-summary:     [svn r3009] Starting to merge in javafxgui
+summary:     [svn r3009] Starting to merge in visagegui
 
 changeset:   2803:1ec26d3e5797
 branch:      trunk
@@ -10012,7 +10012,7 @@ changeset:   2776:b6c31e8950b4
 branch:      trunk
 user:        tball
 date:        Thu Jun 19 23:00:40 2008 -0700
-summary:     [svn r2976] JFXC-1172: inlined source completer initialization for javafxdoc.
+summary:     [svn r2976] JFXC-1172: inlined source completer initialization for visagedoc.
 
 changeset:   2775:35f736296d81
 branch:      trunk
@@ -10138,13 +10138,13 @@ changeset:   2755:2a82cf1b687a
 branch:      trunk
 user:        tball
 date:        Tue Jun 17 15:38:58 2008 -0700
-summary:     [svn r2955] last javafx.gui demo changes
+summary:     [svn r2955] last visage.gui demo changes
 
 changeset:   2754:8404c0f9e1f8
 branch:      trunk
 user:        tball
 date:        Tue Jun 17 14:08:43 2008 -0700
-summary:     [svn r2954] Updated to use javafxgui changes.
+summary:     [svn r2954] Updated to use visagegui changes.
 
 changeset:   2753:d9fa8feacf2f
 branch:      trunk
@@ -10192,13 +10192,13 @@ changeset:   2746:64f159ede60b
 branch:      trunk
 user:        tball
 date:        Mon Jun 16 10:12:45 2008 -0700
-summary:     [svn r2946] JFXC-1335:  made javafx.lang.Duration immutable.
+summary:     [svn r2946] JFXC-1335:  made visage.lang.Duration immutable.
 
 changeset:   2745:5b75f5b4a673
 branch:      trunk
 user:        tball
 date:        Mon Jun 16 09:53:32 2008 -0700
-summary:     [svn r2945] JFXC-1335:  made javafx.lang.Duration immutable.
+summary:     [svn r2945] JFXC-1335:  made visage.lang.Duration immutable.
 
 changeset:   2744:beac5dd08113
 branch:      trunk
@@ -10468,7 +10468,7 @@ changeset:   2700:fa14a876b129
 branch:      trunk
 user:        joshy
 date:        Mon Jun 09 13:40:07 2008 -0700
-summary:     [svn r2892] minor updates to javafx.xml api docs
+summary:     [svn r2892] minor updates to visage.xml api docs
 
 changeset:   2699:e1bf9be72313
 branch:      trunk
@@ -10498,7 +10498,7 @@ changeset:   2695:05547745b5ab
 branch:      trunk
 user:        shan_man
 date:        Mon Jun 09 09:46:29 2008 -0700
-summary:     [svn r2887] Prep for documenting of javafx.gui.component
+summary:     [svn r2887] Prep for documenting of visage.gui.component
 
 changeset:   2694:5e239b2799b5
 branch:      trunk
@@ -10516,7 +10516,7 @@ changeset:   2692:7c063f9d6f5e
 branch:      trunk
 user:        alexsch
 date:        Mon Jun 09 01:23:56 2008 -0700
-summary:     [svn r2883] Add javafxdev library
+summary:     [svn r2883] Add visagedev library
 
 changeset:   2691:045d1d335243
 branch:      trunk
@@ -10576,7 +10576,7 @@ changeset:   2682:6e8b4e12276b
 branch:      trunk
 user:        joshy
 date:        Sat Jun 07 14:40:43 2008 -0700
-summary:     [svn r2873] added javafx.async to the javafxdoc package list
+summary:     [svn r2873] added visage.async to the visagedoc package list
 
 changeset:   2681:2b3e1927d9d3
 branch:      trunk
@@ -10696,7 +10696,7 @@ changeset:   2662:378d289e543c
 branch:      trunk
 user:        shan_man
 date:        Wed Jun 04 10:56:09 2008 -0700
-summary:     [svn r2853] javafxgui update
+summary:     [svn r2853] visagegui update
 
 changeset:   2661:f9ebd48d339d
 branch:      trunk
@@ -10792,7 +10792,7 @@ changeset:   2646:520cb7a5c88b
 branch:      trunk
 user:        shan_man
 date:        Mon Jun 02 19:03:31 2008 -0700
-summary:     [svn r2837] javafxgui update.
+summary:     [svn r2837] visagegui update.
 
 changeset:   2645:4a5660bf3740
 branch:      trunk
@@ -10810,7 +10810,7 @@ changeset:   2643:9fa2d7576e01
 branch:      trunk
 user:        shan_man
 date:        Mon Jun 02 14:33:05 2008 -0700
-summary:     [svn r2834] javafxgui update
+summary:     [svn r2834] visagegui update
 
 changeset:   2642:50b1578f40da
 branch:      trunk
@@ -10822,13 +10822,13 @@ changeset:   2641:613c326bb140
 branch:      trunk
 user:        shan_man
 date:        Mon Jun 02 13:50:17 2008 -0700
-summary:     [svn r2832] Updating javafxgui
+summary:     [svn r2832] Updating visagegui
 
 changeset:   2640:010cf1a2190d
 branch:      trunk
 user:        shan_man
 date:        Mon Jun 02 13:43:03 2008 -0700
-summary:     [svn r2831] Updating javafxgui
+summary:     [svn r2831] Updating visagegui
 
 changeset:   2639:6a6936a118b4
 branch:      trunk
@@ -10840,13 +10840,13 @@ changeset:   2638:e973cc78660f
 branch:      trunk
 user:        shan_man
 date:        Mon Jun 02 13:30:28 2008 -0700
-summary:     [svn r2829] Updating javafxgui
+summary:     [svn r2829] Updating visagegui
 
 changeset:   2637:aa0b0513118b
 branch:      trunk
 user:        shan_man
 date:        Mon Jun 02 13:30:00 2008 -0700
-summary:     [svn r2828] Updating javafxgui
+summary:     [svn r2828] Updating visagegui
 
 changeset:   2636:b2568a328cdc
 branch:      trunk
@@ -11026,13 +11026,13 @@ changeset:   2607:c8a3da3685e2
 branch:      trunk
 user:        davedavedave
 date:        Thu May 29 05:13:56 2008 -0700
-summary:     [svn r2797] FxCompiler uses javafxc.jar from SDK
+summary:     [svn r2797] FxCompiler uses visagec.jar from SDK
 
 changeset:   2606:6c3c6e57f5c4
 branch:      trunk
 user:        alexsch
 date:        Thu May 29 04:41:15 2008 -0700
-summary:     [svn r2796] Move Preview component to javafx.tools package
+summary:     [svn r2796] Move Preview component to visage.tools package
 
 changeset:   2605:677cba3237ab
 branch:      trunk
@@ -11080,7 +11080,7 @@ changeset:   2598:9454c6c38d69
 branch:      trunk
 user:        tball
 date:        Wed May 28 16:04:03 2008 -0700
-summary:     [svn r2788] renamed reprise to javafxgui
+summary:     [svn r2788] renamed reprise to visagegui
 
 changeset:   2597:4f3527d44217
 branch:      trunk
@@ -11236,13 +11236,13 @@ changeset:   2572:1bc10de479c2
 branch:      trunk
 user:        jimclarke
 date:        Sun May 25 14:18:53 2008 -0700
-summary:     [svn r2760] Modifiy for javafx.gui package
+summary:     [svn r2760] Modifiy for visage.gui package
 
 changeset:   2571:1b323b309cf5
 branch:      trunk
 user:        jimclarke
 date:        Sun May 25 14:18:00 2008 -0700
-summary:     [svn r2759] Modifiy for javafx.gui package
+summary:     [svn r2759] Modifiy for visage.gui package
 
 changeset:   2570:099444e2f510
 branch:      trunk
@@ -11260,7 +11260,7 @@ changeset:   2568:f8b0fe88d0ee
 branch:      trunk
 user:        tball
 date:        Sun May 25 00:09:28 2008 -0700
-summary:     [svn r2756] Fixed NPE in javafxdoc.
+summary:     [svn r2756] Fixed NPE in visagedoc.
 
 changeset:   2567:3d5adb010c0f
 branch:      trunk
@@ -11272,13 +11272,13 @@ changeset:   2566:33a05998db6a
 branch:      trunk
 user:        tball
 date:        Fri May 23 22:48:03 2008 -0700
-summary:     [svn r2753] Moved javafx.ui references to runtime project, including all tests with javafx.ui imports.
+summary:     [svn r2753] Moved visage.ui references to runtime project, including all tests with visage.ui imports.
 
 changeset:   2565:d3345c497928
 branch:      trunk
 user:        tball
 date:        Fri May 23 22:46:46 2008 -0700
-summary:     [svn r2752] Moved javafx.ui references to runtime project, including all tests with javafx.ui imports.
+summary:     [svn r2752] Moved visage.ui references to runtime project, including all tests with visage.ui imports.
 
 changeset:   2564:e7933b73bd9c
 branch:      trunk
@@ -11434,7 +11434,7 @@ changeset:   2539:596e87502bf3
 branch:      trunk
 user:        tball
 date:        Mon May 19 22:15:12 2008 -0700
-summary:     [svn r2726] Added interface to insulate javafx.animation from private Pointer class.
+summary:     [svn r2726] Added interface to insulate visage.animation from private Pointer class.
 
 changeset:   2538:bdc7976af3b5
 branch:      trunk
@@ -11572,7 +11572,7 @@ changeset:   2516:8384e0053022
 branch:      trunk
 user:        tball
 date:        Sat May 10 18:03:44 2008 -0700
-summary:     [svn r2701] Added support to javafx.async for non-default HTTP request methods.
+summary:     [svn r2701] Added support to visage.async for non-default HTTP request methods.
 
 changeset:   2515:5e760bcdabc1
 branch:      trunk
@@ -11638,7 +11638,7 @@ changeset:   2505:fb69efb9a797
 branch:      trunk
 user:        jimclarke
 date:        Fri May 02 17:30:49 2008 -0700
-summary:     [svn r2689] add package javafx.sql to javadoc
+summary:     [svn r2689] add package visage.sql to javadoc
 
 changeset:   2504:efc1c71522ce
 branch:      trunk
@@ -11704,7 +11704,7 @@ changeset:   2494:93afea50d245
 branch:      trunk
 user:        tball
 date:        Wed Apr 30 13:07:47 2008 -0700
-summary:     [svn r2676] JFXC-1160: fixed javafxpad, script engine so it works on Mac OS X w/Java 5.
+summary:     [svn r2676] JFXC-1160: fixed visagepad, script engine so it works on Mac OS X w/Java 5.
 
 changeset:   2493:873945b51ba2
 branch:      trunk
@@ -11764,7 +11764,7 @@ changeset:   2484:f96863b31fcd
 branch:      trunk
 user:        briangoetz
 date:        Mon Apr 28 10:03:53 2008 -0700
-summary:     [svn r2664] When -Djavafx.debug=true is specified, send otherwise swallowed exceptions that occur in the course of binding reevaluation to std err.
+summary:     [svn r2664] When -Dvisage.debug=true is specified, send otherwise swallowed exceptions that occur in the course of binding reevaluation to std err.
 
 changeset:   2483:6c897ba797e9
 branch:      trunk
@@ -11782,7 +11782,7 @@ changeset:   2481:4046072fb8e5
 branch:      trunk
 user:        tball
 date:        Sun Apr 27 10:50:22 2008 -0700
-summary:     [svn r2659] Fixed javafxpad for Mac OS X, Java 5 use.
+summary:     [svn r2659] Fixed visagepad for Mac OS X, Java 5 use.
 
 changeset:   2480:7ffb9bff820c
 branch:      trunk
@@ -11794,7 +11794,7 @@ changeset:   2479:3efecf8c36ac
 branch:      trunk
 user:        tball
 date:        Sat Apr 26 11:31:58 2008 -0700
-summary:     [svn r2657] Moved com.sun.javafx.runtime.awt package to runtime's com.sun.tools.javafx.ui.awt, since only the UI runtime uses those 1.5 bridge classes.
+summary:     [svn r2657] Moved com.sun.visage.runtime.awt package to runtime's com.sun.tools.visage.ui.awt, since only the UI runtime uses those 1.5 bridge classes.
 
 changeset:   2478:5aaed2c3857c
 branch:      trunk
@@ -11962,7 +11962,7 @@ changeset:   2451:dabba288613e
 branch:      trunk
 user:        tball
 date:        Tue Apr 22 09:20:19 2008 -0700
-summary:     [svn r2625] Added javafx.reflect to javadoc list, package-info files for API packages, NB 6.0 project updates
+summary:     [svn r2625] Added visage.reflect to javadoc list, package-info files for API packages, NB 6.0 project updates
 
 changeset:   2450:17962d704fb1
 branch:      trunk
@@ -12040,7 +12040,7 @@ changeset:   2438:b5b4e5afe5dd
 branch:      trunk
 user:        bothner
 date:        Sat Apr 19 17:27:23 2008 -0700
-summary:     [svn r2611] New tests for javafx.reflect.
+summary:     [svn r2611] New tests for visage.reflect.
 
 changeset:   2437:bfdabdf1415a
 branch:      trunk
@@ -12136,7 +12136,7 @@ changeset:   2422:668b6e0da816
 branch:      trunk
 user:        shan_man
 date:        Wed Apr 16 21:35:16 2008 -0700
-summary:     [svn r2595] Rename Reprise.jar to javafxgui.jar
+summary:     [svn r2595] Rename Reprise.jar to visagegui.jar
 
 changeset:   2421:68a510c8dbce
 branch:      trunk
@@ -13288,7 +13288,7 @@ changeset:   2230:9e4a659e92c6
 branch:      trunk
 user:        tball
 date:        Fri Apr 04 14:43:53 2008 -0700
-summary:     [svn r2397] JFXC-1018: update javafxdoc build to include language runtime packages
+summary:     [svn r2397] JFXC-1018: update visagedoc build to include language runtime packages
 
 changeset:   2229:6ce8ddba43d7
 branch:      trunk
@@ -13354,7 +13354,7 @@ changeset:   2219:a131fb41f06f
 branch:      trunk
 user:        tball
 date:        Thu Apr 03 16:59:06 2008 -0700
-summary:     [svn r2386] JFXC-939: added fork and VM memory options to javafxc Ant task, updated runtime build to use them.
+summary:     [svn r2386] JFXC-939: added fork and VM memory options to visagec Ant task, updated runtime build to use them.
 
 changeset:   2218:1fdad21a2d28
 branch:      trunk
@@ -13378,7 +13378,7 @@ changeset:   2215:05da9aa373c6
 branch:      trunk
 user:        shan_man
 date:        Thu Apr 03 12:59:31 2008 -0700
-summary:     [svn r2382] Removed typo @ sign in javafxc.bat
+summary:     [svn r2382] Removed typo @ sign in visagec.bat
 
 changeset:   2214:e2522bb9d540
 branch:      trunk
@@ -13684,7 +13684,7 @@ changeset:   2164:2edaaca30aa9
 branch:      trunk
 user:        michael_heinrichs
 date:        Fri Mar 28 01:39:26 2008 -0700
-summary:     [svn r2330] Excluded package javafx.animation from findbugs.
+summary:     [svn r2330] Excluded package visage.animation from findbugs.
 
 changeset:   2163:a1c54255854b
 branch:      trunk
@@ -13864,7 +13864,7 @@ changeset:   2134:dc7b657ebc16
 branch:      trunk
 user:        alexsch
 date:        Wed Mar 26 05:02:46 2008 -0700
-summary:     [svn r2300] import com.sun.tools.javafx.api.JavafxcTool
+summary:     [svn r2300] import com.sun.tools.visage.api.JavafxcTool
 
 changeset:   2133:5b51e21ab582
 branch:      trunk
@@ -14038,7 +14038,7 @@ changeset:   2105:e2f465fa26a0
 branch:      trunk
 user:        bothner
 date:        Mon Mar 24 09:32:00 2008 -0700
-summary:     [svn r2271] Update javafxdoc to use new classfile-reader.
+summary:     [svn r2271] Update visagedoc to use new classfile-reader.
 
 changeset:   2104:228369190c2c
 branch:      trunk
@@ -14182,7 +14182,7 @@ changeset:   2081:43100af59813
 branch:      trunk
 user:        tball
 date:        Fri Mar 21 12:16:41 2008 -0700
-summary:     [svn r2246] JFXC-143:  put isolation classloader into ToolProvider.getJavafxCompiler(); overwrote TreeMaker.TopLevel() to avoid assertion that failed for javafxc trees.
+summary:     [svn r2246] JFXC-143:  put isolation classloader into ToolProvider.getJavafxCompiler(); overwrote TreeMaker.TopLevel() to avoid assertion that failed for visagec trees.
 
 changeset:   2080:885f3614d2bd
 branch:      trunk
@@ -14440,7 +14440,7 @@ changeset:   2038:12861302406c
 branch:      trunk
 user:        bothner
 date:        Mon Mar 17 15:16:18 2008 -0700
-summary:     [svn r2202] The front-end should be using javafx.lang.Duration, not
+summary:     [svn r2202] The front-end should be using visage.lang.Duration, not
 
 changeset:   2037:b1c79b148f81
 branch:      trunk
@@ -14536,7 +14536,7 @@ changeset:   2022:1cbcb4239e12
 branch:      trunk
 user:        rfield
 date:        Sat Mar 15 15:14:43 2008 -0700
-summary:     [svn r2185] javafxdoc part of: Long overdue rationalization of names 'operation' to 'function' in AST tree, visitors, public API, etc.
+summary:     [svn r2185] visagedoc part of: Long overdue rationalization of names 'operation' to 'function' in AST tree, visitors, public API, etc.
 
 changeset:   2021:9dae8af96504
 branch:      trunk
@@ -14770,7 +14770,7 @@ changeset:   1983:bba745bc7761
 branch:      trunk
 user:        rfield
 date:        Thu Mar 13 09:04:32 2008 -0700
-summary:     [svn r2146] Fix JFXC-916 : javafx$run$ created only once with Sequence- or SequenceLocation-parameter
+summary:     [svn r2146] Fix JFXC-916 : visage$run$ created only once with Sequence- or SequenceLocation-parameter
 
 changeset:   1982:8e55b901d371
 branch:      trunk
@@ -14866,7 +14866,7 @@ changeset:   1967:08e35ee4d951
 branch:      trunk
 user:        shan_man
 date:        Wed Mar 12 09:39:23 2008 -0700
-summary:     [svn r2130] JFXC-896: Added check for javafx.gui
+summary:     [svn r2130] JFXC-896: Added check for visage.gui
 
 changeset:   1966:baaabf7945d8
 branch:      trunk
@@ -14902,13 +14902,13 @@ changeset:   1961:c6a80b1deda4
 branch:      trunk
 user:        tball
 date:        Tue Mar 11 16:42:15 2008 -0700
-summary:     [svn r2124] JFXC-860: renamed javafx.lang.Time to javafx.lang.Duration
+summary:     [svn r2124] JFXC-860: renamed visage.lang.Time to visage.lang.Duration
 
 changeset:   1960:759060cf6e2b
 branch:      trunk
 user:        tball
 date:        Tue Mar 11 16:02:03 2008 -0700
-summary:     [svn r2123] JFXC-860: renamed javafx.lang.Time to javafx.lang.Duration
+summary:     [svn r2123] JFXC-860: renamed visage.lang.Time to visage.lang.Duration
 
 changeset:   1959:ca4cec0e5003
 branch:      trunk
@@ -15124,7 +15124,7 @@ changeset:   1924:a5661b715cb4
 branch:      trunk
 user:        PeterKessler
 date:        Sun Mar 09 22:07:05 2008 -0700
-summary:     [svn r2086] JIRA-115: misleading error message from javafxc
+summary:     [svn r2086] JIRA-115: misleading error message from visagec
 
 changeset:   1923:2932a9248ca8
 branch:      trunk
@@ -15412,7 +15412,7 @@ changeset:   1876:c90a9a3c6266
 branch:      trunk
 user:        michael_heinrichs
 date:        Tue Mar 04 09:12:34 2008 -0800
-summary:     [svn r2038] Defined interface for javafx.lang.Sequences
+summary:     [svn r2038] Defined interface for visage.lang.Sequences
 
 changeset:   1875:45d3d4a5b1e0
 branch:      trunk
@@ -15628,7 +15628,7 @@ changeset:   1840:b4cfaf6e1288
 branch:      trunk
 user:        tball
 date:        Thu Feb 28 21:35:08 2008 -0800
-summary:     [svn r2000] JNLP adjustment for javafxballs demo.
+summary:     [svn r2000] JNLP adjustment for visageballs demo.
 
 changeset:   1839:d24975a0c857
 branch:      trunk
@@ -16642,7 +16642,7 @@ changeset:   1671:95558d5c9053
 branch:      trunk
 user:        tball
 date:        Tue Feb 19 17:03:50 2008 -0800
-summary:     [svn r1827] Catch exceptions completing parameter symbols in javafxdoc.
+summary:     [svn r1827] Catch exceptions completing parameter symbols in visagedoc.
 
 changeset:   1670:eadca5608fed
 branch:      trunk
@@ -16984,7 +16984,7 @@ changeset:   1614:0079d79a3b79
 branch:      trunk
 user:        njs
 date:        Fri Feb 15 14:24:07 2008 -0800
-summary:     [svn r1747] Created a new runtime class for string localization in javafx.util package.  This library let applications associate script source file to a FX properties file, and also provides a way to localize strings in an object literal.  This fixes JFXC-697 and JFXC-698.
+summary:     [svn r1747] Created a new runtime class for string localization in visage.util package.  This library let applications associate script source file to a FX properties file, and also provides a way to localize strings in an object literal.  This fixes JFXC-697 and JFXC-698.
 
 changeset:   1613:2c1c3268fcb4
 branch:      trunk
@@ -17020,7 +17020,7 @@ changeset:   1608:5d92c19f6bce
 branch:      trunk
 user:        tball
 date:        Fri Feb 15 12:30:46 2008 -0800
-summary:     [svn r1736] JFXC-194: adding javafxdoc to main build; commented out StudioMoto copying until it is ready for distribution.
+summary:     [svn r1736] JFXC-194: adding visagedoc to main build; commented out StudioMoto copying until it is ready for distribution.
 
 changeset:   1607:783d2ede90d6
 branch:      trunk
@@ -17068,7 +17068,7 @@ changeset:   1600:e639951046b4
 branch:      trunk
 user:        tball
 date:        Fri Feb 15 08:31:45 2008 -0800
-summary:     [svn r1723] javafxc ant task properties.
+summary:     [svn r1723] visagec ant task properties.
 
 changeset:   1599:42b657a1b988
 branch:      trunk
@@ -17290,13 +17290,13 @@ changeset:   1563:405ff27099e2
 branch:      trunk
 user:        ssides
 date:        Wed Feb 13 23:06:12 2008 -0800
-summary:     [svn r1680] remove echo of javafx call from EXPECTED
+summary:     [svn r1680] remove echo of visage call from EXPECTED
 
 changeset:   1562:9a36ef73a25f
 branch:      trunk
 user:        ssides
 date:        Wed Feb 13 23:03:57 2008 -0800
-summary:     [svn r1679] remove echo of javafx call from EXPECTED
+summary:     [svn r1679] remove echo of visage call from EXPECTED
 
 changeset:   1561:710722a482c3
 branch:      trunk
@@ -18274,7 +18274,7 @@ changeset:   1399:d131532782cd
 branch:      trunk
 user:        tball
 date:        Wed Jan 23 15:06:11 2008 -0800
-summary:     [svn r1484] Turn off type parameter support in javafxdoc, since JFX doesn't have type parameters.
+summary:     [svn r1484] Turn off type parameter support in visagedoc, since JFX doesn't have type parameters.
 
 changeset:   1398:456f27a08125
 branch:      trunk
@@ -18292,7 +18292,7 @@ changeset:   1396:75c3e9d84f6b
 branch:      trunk
 user:        briangoetz
 date:        Wed Jan 23 10:35:20 2008 -0800
-summary:     [svn r1481] Add javafx.lang.FX class as repository for utility methods like isSameObject(), like java.lang.System.
+summary:     [svn r1481] Add visage.lang.FX class as repository for utility methods like isSameObject(), like java.lang.System.
 
 changeset:   1395:f2e313583570
 branch:      trunk
@@ -18382,7 +18382,7 @@ changeset:   1381:97b2bc472208
 branch:      trunk
 user:        tball
 date:        Sun Jan 20 11:16:57 2008 -0800
-summary:     [svn r1465] Fixed javafxdoc warnings about invalid @see references.
+summary:     [svn r1465] Fixed visagedoc warnings about invalid @see references.
 
 changeset:   1380:884c3280c265
 branch:      trunk
@@ -18622,7 +18622,7 @@ changeset:   1341:a5116a907590
 branch:      trunk
 user:        tball
 date:        Thu Jan 17 13:13:34 2008 -0800
-summary:     [svn r1423] javafx.lang.Time added, and support for time literals (125ms, 1.5m, etc.).
+summary:     [svn r1423] visage.lang.Time added, and support for time literals (125ms, 1.5m, etc.).
 
 changeset:   1340:95c97b8a8738
 branch:      trunk
@@ -19132,7 +19132,7 @@ changeset:   1256:e67ad42313d3
 branch:      trunk
 user:        tball
 date:        Sun Jan 06 18:52:44 2008 -0800
-summary:     [svn r1327] Applet support:  to use, either subclass javafx.ui.Applet or use com.sun.javafx.api.ui.FXApplet and set a AppletClass parameter with the class name which has the widget for the applet content.
+summary:     [svn r1327] Applet support:  to use, either subclass visage.ui.Applet or use com.sun.visage.api.ui.FXApplet and set a AppletClass parameter with the class name which has the widget for the applet content.
 
 changeset:   1255:20bc1118d1f8
 branch:      trunk
@@ -19894,13 +19894,13 @@ changeset:   1129:c4d637be4fff
 branch:      trunk
 user:        jimclarke
 date:        Tue Dec 18 09:43:40 2007 -0800
-summary:     [svn r1194] Changed to use java.awt Gradient classes if Java 6, otherwise use com.sun.javafx.runtime.awt version of these classes
+summary:     [svn r1194] Changed to use java.awt Gradient classes if Java 6, otherwise use com.sun.visage.runtime.awt version of these classes
 
 changeset:   1128:a77411cbd6d4
 branch:      trunk
 user:        jimclarke
 date:        Tue Dec 18 09:42:52 2007 -0800
-summary:     [svn r1193] Changed to use java.awt Gradient classes if Java 6, otherwise use com.sun.javafx.runtime.awt version of these classes
+summary:     [svn r1193] Changed to use java.awt Gradient classes if Java 6, otherwise use com.sun.visage.runtime.awt version of these classes
 
 changeset:   1127:786ea3037f94
 branch:      trunk
@@ -19930,7 +19930,7 @@ changeset:   1123:0c53042e1298
 branch:      trunk
 user:        tball
 date:        Mon Dec 17 19:08:20 2007 -0800
-summary:     [svn r1188] JFXC-349: fixed classpath handling in javafxc.bat.
+summary:     [svn r1188] JFXC-349: fixed classpath handling in visagec.bat.
 
 changeset:   1122:729e35483427
 branch:      trunk
@@ -20110,7 +20110,7 @@ changeset:   1093:50cb6c63428c
 branch:      trunk
 user:        alexsch
 date:        Fri Dec 14 06:56:19 2007 -0800
-summary:     [svn r1158] Change _JAVAFX_LIBS variable to _JAVAFXC_HOME for the javafxc.bat file
+summary:     [svn r1158] Change _JAVAFX_LIBS variable to _JAVAFXC_HOME for the visagec.bat file
 
 changeset:   1092:bf7cb9ee85cc
 branch:      trunk
@@ -20434,7 +20434,7 @@ changeset:   1039:1d35edc547e2
 branch:      trunk
 user:        tball
 date:        Thu Dec 06 21:57:35 2007 -0800
-summary:     [svn r1104] Java Web Start support added to javafxballs demo.
+summary:     [svn r1104] Java Web Start support added to visageballs demo.
 
 changeset:   1038:c9b20ab394b0
 branch:      trunk
@@ -20482,7 +20482,7 @@ changeset:   1031:1d13fa89456a
 branch:      trunk
 user:        tball
 date:        Thu Dec 06 16:11:36 2007 -0800
-summary:     [svn r1095] Changed javafxballs to use images.  Both vector and image nodes are still in the source, just comment out the one return in ball.createNode() and uncomment the other.
+summary:     [svn r1095] Changed visageballs to use images.  Both vector and image nodes are still in the source, just comment out the one return in ball.createNode() and uncomment the other.
 
 changeset:   1030:aa7283edbbe4
 branch:      trunk
@@ -20512,7 +20512,7 @@ changeset:   1026:88504dedae7f
 branch:      trunk
 user:        jimclarke
 date:        Thu Dec 06 09:09:19 2007 -0800
-summary:     [svn r1089] Fixes for javafxballs
+summary:     [svn r1089] Fixes for visageballs
 
 changeset:   1025:e21f5317ac5f
 branch:      trunk
@@ -20554,7 +20554,7 @@ changeset:   1019:7aca1f0bb157
 branch:      trunk
 user:        tball
 date:        Wed Dec 05 22:47:19 2007 -0800
-summary:     [svn r1082] updated javafxc scripts with dist/lib change
+summary:     [svn r1082] updated visagec scripts with dist/lib change
 
 changeset:   1018:65085bf2eea1
 branch:      trunk
@@ -20584,7 +20584,7 @@ changeset:   1014:27aa0e96ff7f
 branch:      trunk
 user:        tball
 date:        Wed Dec 05 15:59:58 2007 -0800
-summary:     [svn r1077] Fixed classpath handling in javafx scripts, include scenegraph library in distribution,
+summary:     [svn r1077] Fixed classpath handling in visage scripts, include scenegraph library in distribution,
 
 changeset:   1013:f9a9083d4dd8
 branch:      trunk
@@ -20722,7 +20722,7 @@ changeset:   991:231a3611cf9c
 branch:      trunk
 user:        bothner
 date:        Tue Dec 04 18:51:25 2007 -0800
-summary:     [svn r1052] Move sequenceType method from javafxAttr to JavafxTypes.
+summary:     [svn r1052] Move sequenceType method from visageAttr to JavafxTypes.
 
 changeset:   990:01d0e7d9b35e
 branch:      trunk
@@ -20842,7 +20842,7 @@ changeset:   971:df15099a2af4
 branch:      trunk
 user:        tball
 date:        Mon Dec 03 22:19:35 2007 -0800
-summary:     [svn r1032] Fixed remaining NPEs during javafxballs initialization.
+summary:     [svn r1032] Fixed remaining NPEs during visageballs initialization.
 
 changeset:   970:302e2d2599e8
 branch:      trunk
@@ -20866,7 +20866,7 @@ changeset:   967:8a5369156748
 branch:      trunk
 user:        tball
 date:        Mon Dec 03 16:59:28 2007 -0800
-summary:     [svn r1028] Added javafxc.args option to demo project support.
+summary:     [svn r1028] Added visagec.args option to demo project support.
 
 changeset:   966:b4aa8eb380d5
 branch:      trunk
@@ -21112,7 +21112,7 @@ changeset:   926:5b9bfd184fcb
 branch:      trunk
 user:        jimclarke
 date:        Sat Dec 01 13:13:02 2007 -0800
-summary:     [svn r987] Modified to use com.sun.tools.javafx.ui.SequenceUtil
+summary:     [svn r987] Modified to use com.sun.tools.visage.ui.SequenceUtil
 
 changeset:   925:a1cef37cbc89
 branch:      trunk
@@ -21622,7 +21622,7 @@ changeset:   841:ccebafa86468
 branch:      trunk
 user:        jimclarke
 date:        Sun Nov 25 14:04:27 2007 -0800
-summary:     [svn r902] Initial port from interpreter, refactored to align with Radial/LinearGradiaentPaint in JDK 1.6 awt packagage implemented in the compiler in the com.sun.javafx.runtime.awt package.
+summary:     [svn r902] Initial port from interpreter, refactored to align with Radial/LinearGradiaentPaint in JDK 1.6 awt packagage implemented in the compiler in the com.sun.visage.runtime.awt package.
 
 changeset:   840:6bf37de34bf1
 branch:      trunk
@@ -21658,7 +21658,7 @@ changeset:   835:fabdaad833b1
 branch:      trunk
 user:        jimclarke
 date:        Sun Nov 25 10:47:59 2007 -0800
-summary:     [svn r896] Make class visible to javafxballs
+summary:     [svn r896] Make class visible to visageballs
 
 changeset:   834:d69ed2ee6326
 branch:      trunk
@@ -21736,7 +21736,7 @@ changeset:   822:14f8bab6def5
 branch:      trunk
 user:        tball
 date:        Sat Nov 24 20:54:36 2007 -0800
-summary:     [svn r883] Changed tool name to javafxc from javafx.
+summary:     [svn r883] Changed tool name to visagec from visage.
 
 changeset:   821:83716dcffd40
 branch:      trunk
@@ -21874,7 +21874,7 @@ changeset:   799:284c1b082e73
 branch:      trunk
 user:        tball
 date:        Thu Nov 22 14:21:18 2007 -0800
-summary:     [svn r860] Fixed runtime errors in TextField, added project support for javafxc options.
+summary:     [svn r860] Fixed runtime errors in TextField, added project support for visagec options.
 
 changeset:   798:1f52e8a60fc1
 branch:      trunk
@@ -22078,7 +22078,7 @@ changeset:   765:ddbb32a7dcd9
 branch:      trunk
 user:        tball
 date:        Mon Nov 19 22:03:21 2007 -0800
-summary:     [svn r826] Copy javafx and javafx.bat to dist/bin/.
+summary:     [svn r826] Copy visage and visage.bat to dist/bin/.
 
 changeset:   764:3297fb918d3f
 branch:      trunk
@@ -22714,7 +22714,7 @@ changeset:   659:3add54f3fa7e
 branch:      trunk
 user:        rfield
 date:        Tue Nov 13 16:15:36 2007 -0800
-summary:     [svn r720] Fix JFXC-184 : Generated javafx$run$ method no longer returns result
+summary:     [svn r720] Fix JFXC-184 : Generated visage$run$ method no longer returns result
 
 changeset:   658:ee77708e2c61
 branch:      trunk
@@ -22930,7 +22930,7 @@ changeset:   623:47884adebc5c
 branch:      trunk
 user:        jimclarke
 date:        Sat Nov 10 09:08:40 2007 -0800
-summary:     [svn r684] move supporting java class to com.sun.javafx.api.ui package
+summary:     [svn r684] move supporting java class to com.sun.visage.api.ui package
 
 changeset:   622:a4969eab03ef
 branch:      trunk
@@ -23620,7 +23620,7 @@ changeset:   508:ab6d28096341
 branch:      trunk
 user:        lubomirlitchev
 date:        Thu Oct 25 14:50:11 2007 -0700
-summary:     [svn r568] Made the signature of the main module method -- javafx$run$ -- be ()Llava/lang/Object;. If the last statement is an JCExpressionStatement and the type of it's embeded expr is not void, the value of the last statement is returned. Otherwise null is returned.
+summary:     [svn r568] Made the signature of the main module method -- visage$run$ -- be ()Llava/lang/Object;. If the last statement is an JCExpressionStatement and the type of it's embeded expr is not void, the value of the last statement is returned. Otherwise null is returned.
 
 changeset:   507:44b2d5f7d165
 branch:      trunk
@@ -24106,7 +24106,7 @@ changeset:   427:fb8f748af2fb
 branch:      trunk
 user:        lubomirlitchev
 date:        Tue Oct 16 13:03:03 2007 -0700
-summary:     [svn r486] Fixed bad parsing of generified type -- com.sun.javafx.runtime.location.ObjectLocation<java.lang.Double>.
+summary:     [svn r486] Fixed bad parsing of generified type -- com.sun.visage.runtime.location.ObjectLocation<java.lang.Double>.
 
 changeset:   426:33a22aae66a4
 branch:      trunk
@@ -24310,7 +24310,7 @@ changeset:   393:ee02feee3e1a
 branch:      trunk
 user:        jimclarke
 date:        Fri Oct 12 08:41:04 2007 -0700
-summary:     [svn r452] move taskdef for javafxc to within -post-compile target so that clean target is not dependant on JavaFxAntTask
+summary:     [svn r452] move taskdef for visagec to within -post-compile target so that clean target is not dependant on JavaFxAntTask
 
 changeset:   392:9d8c3499f970
 branch:      trunk
@@ -24532,13 +24532,13 @@ changeset:   356:066d6324b33b
 branch:      trunk
 user:        rfield
 date:        Mon Oct 08 10:59:28 2007 -0700
-summary:     [svn r415] Part 1 of commit JFXC-31 : incompatible types com.sun.javafx.runtime.location.ObjectLocation<...>
+summary:     [svn r415] Part 1 of commit JFXC-31 : incompatible types com.sun.visage.runtime.location.ObjectLocation<...>
 
 changeset:   355:94ef040e7c2b
 branch:      trunk
 user:        rfield
 date:        Mon Oct 08 10:56:56 2007 -0700
-summary:     [svn r414] Fixed JFXC-31 : incompatible types com.sun.javafx.runtime.location.ObjectLocation<...>
+summary:     [svn r414] Fixed JFXC-31 : incompatible types com.sun.visage.runtime.location.ObjectLocation<...>
 
 changeset:   354:9c38238e2a49
 branch:      trunk
@@ -24634,13 +24634,13 @@ changeset:   339:e66eedfc2dad
 branch:      trunk
 user:        jimclarke
 date:        Thu Oct 04 18:45:22 2007 -0700
-summary:     [svn r398] Inital Port for javafx.ui classes from interpreter
+summary:     [svn r398] Inital Port for visage.ui classes from interpreter
 
 changeset:   338:e3860fddfdef
 branch:      trunk
 user:        tball
 date:        Thu Oct 04 18:33:12 2007 -0700
-summary:     [svn r397] Removed need for javafxrt.jar file.
+summary:     [svn r397] Removed need for visagert.jar file.
 
 changeset:   337:33e28a29872a
 branch:      trunk
@@ -24676,13 +24676,13 @@ changeset:   332:4f0dbb7f8823
 branch:      trunk
 user:        jimclarke
 date:        Thu Oct 04 17:37:33 2007 -0700
-summary:     [svn r391] Added classpath entry to javafxc task to pick up external jar files from NB project
+summary:     [svn r391] Added classpath entry to visagec task to pick up external jar files from NB project
 
 changeset:   331:33af51c5657c
 branch:      trunk
 user:        jimclarke
 date:        Thu Oct 04 17:36:16 2007 -0700
-summary:     [svn r390] Added javafxrt.jar and swing-layout.jar to libraries in NB Project
+summary:     [svn r390] Added visagert.jar and swing-layout.jar to libraries in NB Project
 
 changeset:   330:b525528ceaec
 branch:      trunk
@@ -24700,7 +24700,7 @@ changeset:   328:ef0b88e8f6f9
 branch:      trunk
 user:        tball
 date:        Thu Oct 04 15:39:29 2007 -0700
-summary:     [svn r387] Moved async classes to sandbox and re-enabled javafxc task in build.
+summary:     [svn r387] Moved async classes to sandbox and re-enabled visagec task in build.
 
 changeset:   327:c2289c51954c
 branch:      trunk
@@ -24784,7 +24784,7 @@ changeset:   314:a0148105795e
 branch:      trunk
 user:        rfield
 date:        Wed Oct 03 06:54:46 2007 -0700
-summary:     [svn r373] Fix for NPE seen by Jim (select on 'package javafx.ui' in JavafxToJava).
+summary:     [svn r373] Fix for NPE seen by Jim (select on 'package visage.ui' in JavafxToJava).
 
 changeset:   313:688778f69ee8
 branch:      trunk
@@ -25078,7 +25078,7 @@ changeset:   265:884529f6cced
 branch:      trunk
 user:        lubomirlitchev
 date:        Mon Sep 24 22:24:32 2007 -0700
-summary:     [svn r324] Re-added the notification to call the triggers at the end of the javafx$init function, so ObjectLiteral set attributes will propagate their values through triggers/bindings.
+summary:     [svn r324] Re-added the notification to call the triggers at the end of the visage$init function, so ObjectLiteral set attributes will propagate their values through triggers/bindings.
 
 changeset:   264:83f15b2dd4ef
 branch:      trunk
@@ -25942,7 +25942,7 @@ changeset:   121:d4beb236e86f
 branch:      trunk
 user:        lubomirlitchev
 date:        Mon Aug 20 02:26:14 2007 -0700
-summary:     [svn r138] on-change triggers implemented. An anonymous class is generated for each attribute on-change block. javafx$init$ method calls addChangeListener(ChangeListenerEntry) on the Location object of the attribute to register the anonymous listener.As of now the change listener is a strong reference to the anonymous class.
+summary:     [svn r138] on-change triggers implemented. An anonymous class is generated for each attribute on-change block. visage$init$ method calls addChangeListener(ChangeListenerEntry) on the Location object of the attribute to register the anonymous listener.As of now the change listener is a strong reference to the anonymous class.
 
 changeset:   120:d75e3b7bb400
 branch:      trunk
@@ -25966,7 +25966,7 @@ changeset:   117:88c31a1cc7bf
 branch:      trunk
 user:        lubomirlitchev
 date:        Sun Aug 19 12:32:58 2007 -0700
-summary:     [svn r134] More initialization implementation. Now after a NewClass AST for Javafx classes, the javafx$init method is called.
+summary:     [svn r134] More initialization implementation. Now after a NewClass AST for Javafx classes, the visage$init method is called.
 
 changeset:   116:baf0341b6416
 branch:      trunk
@@ -26410,7 +26410,7 @@ changeset:   43:0f56dd9235e9
 branch:      trunk
 user:        briangoetz
 date:        Tue Jul 31 18:17:33 2007 -0700
-summary:     [svn r56] alt-build uses javafx task to build milestone
+summary:     [svn r56] alt-build uses visage task to build milestone
 
 changeset:   42:2906509694e5
 branch:      trunk
@@ -26422,7 +26422,7 @@ changeset:   41:c5199a0d126b
 branch:      trunk
 user:        briangoetz
 date:        Tue Jul 31 12:24:18 2007 -0700
-summary:     [svn r54] Create javafxc ANT task.  Requires ANT runtime library in the build class path.
+summary:     [svn r54] Create visagec ANT task.  Requires ANT runtime library in the build class path.
 
 changeset:   40:9069de73829b
 branch:      trunk

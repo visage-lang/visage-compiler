@@ -5,7 +5,7 @@ m : Integer
 m : Integer
 jfxc2966.A
 false
-[class com.sun.javafx.runtime.FXBase]
+[class com.sun.visage.runtime.FXBase]
 a : Integer
 a : Integer
 af : class java.lang.String

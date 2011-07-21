@@ -1,4 +1,4 @@
-test/should-fail/jfxc1796.fx:4: cannot find symbol
+test/should-fail/jfxc1796.visage:4: cannot find symbol
 symbol  : class KeyEvent
 location: package java.awt
 var x = java.awt.KeyEvent.VK_Z;

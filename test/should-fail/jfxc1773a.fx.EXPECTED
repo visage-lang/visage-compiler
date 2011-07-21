@@ -1,10 +1,10 @@
-test/should-fail/jfxc1773a.fx:19: warning: Illegal forward reference: variable v is not initialized.
+test/should-fail/jfxc1773a.visage:19: warning: Illegal forward reference: variable v is not initialized.
 Foo { a:v; } //not allowed - v is referenced from the same named scope
         ^
-test/should-fail/jfxc1773a.fx:10: warning: Illegal forward reference: variable w is not initialized.
+test/should-fail/jfxc1773a.visage:10: warning: Illegal forward reference: variable w is not initialized.
 var x = w; //not allowed - w is referenced from the same named scope
         ^
-test/should-fail/jfxc1773a.fx:11: warning: Illegal forward reference: variable z is not initialized.
+test/should-fail/jfxc1773a.visage:11: warning: Illegal forward reference: variable z is not initialized.
 var y = z; //not allowed, even if z is a def variable initialized by an object literal
         ^
 3 warnings

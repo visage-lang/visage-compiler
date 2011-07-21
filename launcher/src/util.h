@@ -31,7 +31,7 @@ public:
     Util();
     ~Util();
     
-    std::string evaluatePath (const std::string& javafxpath, const std::string& libs);
+    std::string evaluatePath (const std::string& visagepath, const std::string& libs);
     int createProcess (const std::string& cmd);
 };
 

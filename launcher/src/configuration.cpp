@@ -28,7 +28,7 @@
 
 Configuration::Configuration(const std::string& prefix)
 : prefix(prefix),
-        javafxpath(""), 
+        visagepath(""), 
         classpath("."), 
         vmargs(""),
         profile_classpath(""), 
@@ -62,19 +62,19 @@ int Configuration::initConfiguration(int argc, char** argv) {
     if ( (error =  readConfigFile()) != (EXIT_SUCCESS) )  {
         return error;
     }
-    bool isjavafxw = (javafxcmd == "javafxw.exe");
+    bool isvisagew = (visagecmd == "visagew.exe");
 
     // evaluate JAVA_HOME, if javacmd not set
     if (javacmd.empty()) {
         const char* s = getenv("JAVA_HOME");
         if (s != NULL) {
             javacmd = s;
-            javacmd += isjavafxw ? "/bin/javaw.exe" : "/bin/java.exe";
+            javacmd += isvisagew ? "/bin/javaw.exe" : "/bin/java.exe";
             if (! fileExists(javacmd)) {
-                javacmd = isjavafxw ? "javaw.exe" : "java.exe";
+                javacmd = isvisagew ? "javaw.exe" : "java.exe";
             }
         } else {
-            javacmd = isjavafxw ? "javaw.exe" : "java.exe";
+            javacmd = isvisagew ? "javaw.exe" : "java.exe";
         }
     }
     
@@ -95,14 +95,14 @@ void Configuration::init() {
         classpath += s;
     }
     
-    // set default javafxpath
+    // set default visagepath
     char buf[MAX_PATH];
     GetModuleFileName (NULL, buf, MAX_PATH);
-    javafxpath = buf;
-    javafxpath.erase (javafxpath.rfind("\\"));
-    javafxpath += "\\..";
-    javafxcmd  = buf;
-    javafxcmd.erase (0,javafxcmd.rfind("\\javafx") + 1);
+    visagepath = buf;
+    visagepath.erase (visagepath.rfind("\\"));
+    visagepath += "\\..";
+    visagecmd  = buf;
+    visagecmd.erase (0,visagecmd.rfind("\\visage") + 1);
 
     // set fxargs if given directly in _FX_ARGS
     s = getenv("_FX_ARGS");
@@ -111,7 +111,7 @@ void Configuration::init() {
 
 int Configuration::readConfigFile() {
     // find file
-    std::string path = javafxpath;
+    std::string path = visagepath;
     path += "\\profiles\\" + profile_filename;
     std::ifstream file(path.c_str());
     if (file == NULL) {
@@ -211,7 +211,7 @@ int Configuration::readConfigFile() {
 
 int Configuration::parseArgs(int argc, char** argv) {
     const char *arg;
-    bool islauncher = (javafxcmd == "javafx.exe" || javafxcmd == "javafxw.exe");
+    bool islauncher = (visagecmd == "visage.exe" || visagecmd == "visagew.exe");
     bool seen_main = FALSE;
     while (argc-- > 0 && (arg = *argv++) != NULL) {
 
@@ -256,19 +256,19 @@ int Configuration::parseArgs(int argc, char** argv) {
             vmargs += arg+2;    // skip first two characters "-J"
             vmargs += "\"";
         } else if (islauncher && !seen_main && 0 == strcmp("-version", arg)) {
-            fxargs = "com.sun.javafx.runtime.LauncherHelper -version";
+            fxargs = "com.sun.visage.runtime.LauncherHelper -version";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-fullversion", arg)) {
-            fxargs = "com.sun.javafx.runtime.LauncherHelper -fullversion";
+            fxargs = "com.sun.visage.runtime.LauncherHelper -fullversion";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-help", arg)) {
-            fxargs = "com.sun.javafx.runtime.LauncherHelper -help";
+            fxargs = "com.sun.visage.runtime.LauncherHelper -help";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-?", arg)) {
-            fxargs = "com.sun.javafx.runtime.LauncherHelper -help";
+            fxargs = "com.sun.visage.runtime.LauncherHelper -help";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-X", arg)) {
-            fxargs = "com.sun.javafx.runtime.LauncherHelper -helpx";
+            fxargs = "com.sun.visage.runtime.LauncherHelper -helpx";
             return (EXIT_SUCCESS);
         } else if (islauncher && 0 == strncmp(arg, "-Djava.library.path", strlen("-Djava.library.path"))) {
             librarypath = arg;

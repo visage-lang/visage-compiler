@@ -1,70 +1,70 @@
-test\should-fail\jfxc1250inverseBindTo.fx:51: cannot find symbol
+test\should-fail\jfxc1250inverseBindTo.visage:51: cannot find symbol
 symbol  : variable memScr
 location: class jfxc1250inverseBindTo.Inh
 	Foo { toThis: bind memScr with inverse };   // ERROR: inherited, same package
 	                   ^
-test\should-fail\jfxc1250inverseBindTo.fx:55: memIScr has script only (default) bind access in jfxc1250subFail
+test\should-fail\jfxc1250inverseBindTo.visage:55: memIScr has script only (default) bind access in jfxc1250subFail
 	Foo { toThis: bind memIScr with inverse };   // ERROR: inherited, same package
 	                   ^
-test\should-fail\jfxc1250inverseBindTo.fx:59: memRScr has script only (default) bind access in jfxc1250subFail
+test\should-fail\jfxc1250inverseBindTo.visage:59: memRScr has script only (default) bind access in jfxc1250subFail
 	Foo { toThis: bind memRScr with inverse };   // ERROR: inherited, same package
 	                   ^
-test\should-fail\jfxc1250inverseBindTo.fx:67: cannot find symbol
+test\should-fail\jfxc1250inverseBindTo.visage:67: cannot find symbol
 symbol  : variable memPkg
 location: class jfxc1250inverseBindTo.InhA
 	Foo { toThis: bind memPkg with inverse };   // ERROR: inherited, different package
 	                   ^
-test\should-fail\jfxc1250inverseBindTo.fx:68: cannot find symbol
+test\should-fail\jfxc1250inverseBindTo.visage:68: cannot find symbol
 symbol  : variable memScr
 location: class jfxc1250inverseBindTo.InhA
 	Foo { toThis: bind memScr with inverse };   // ERROR: inherited, different package
 	                   ^
-test\should-fail\jfxc1250inverseBindTo.fx:71: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:71: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind memIPkg with inverse };   // ERROR: inherited, different package
 	                   ^
-test\should-fail\jfxc1250inverseBindTo.fx:72: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:72: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind memIScr with inverse };   // ERROR: inherited, different package
 	                   ^
-test\should-fail\jfxc1250inverseBindTo.fx:75: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:75: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind memRPkg with inverse };   // ERROR: inherited, different package
 	                   ^
-test\should-fail\jfxc1250inverseBindTo.fx:76: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:76: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind memRScr with inverse };   // ERROR: inherited, different package
 	                   ^
-test\should-fail\jfxc1250inverseBindTo.fx:127: memScr has script only (default) access in jfxc1250subFail
+test\should-fail\jfxc1250inverseBindTo.visage:127: memScr has script only (default) access in jfxc1250subFail
 	Foo { toThis: bind vf.memScr with inverse };   // ERROR: same package
 	                     ^
-test\should-fail\jfxc1250inverseBindTo.fx:131: memIScr has script only (default) bind access in jfxc1250subFail
+test\should-fail\jfxc1250inverseBindTo.visage:131: memIScr has script only (default) bind access in jfxc1250subFail
 	Foo { toThis: bind vf.memIScr with inverse };   // ERROR: same package
 	                     ^
-test\should-fail\jfxc1250inverseBindTo.fx:135: memRScr has script only (default) bind access in jfxc1250subFail
+test\should-fail\jfxc1250inverseBindTo.visage:135: memRScr has script only (default) bind access in jfxc1250subFail
 	Foo { toThis: bind vf.memRScr with inverse };   // ERROR: same package
 	                     ^
-test\should-fail\jfxc1250inverseBindTo.fx:141: memPro has protected access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:141: memPro has protected access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind vf.memPro with inverse };   // ERROR: different package
 	                     ^
-test\should-fail\jfxc1250inverseBindTo.fx:142: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+test\should-fail\jfxc1250inverseBindTo.visage:142: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	Foo { toThis: bind vf.memPkg with inverse };   // ERROR: different package
 	                     ^
-test\should-fail\jfxc1250inverseBindTo.fx:143: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:143: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind vf.memScr with inverse };   // ERROR: different package
 	                     ^
-test\should-fail\jfxc1250inverseBindTo.fx:145: memIPro has protected bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:145: memIPro has protected bind access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind vf.memIPro with inverse };   // ERROR: different package
 	                     ^
-test\should-fail\jfxc1250inverseBindTo.fx:146: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:146: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind vf.memIPkg with inverse };   // ERROR: different package
 	                     ^
-test\should-fail\jfxc1250inverseBindTo.fx:147: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:147: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind vf.memIScr with inverse };   // ERROR: different package
 	                     ^
-test\should-fail\jfxc1250inverseBindTo.fx:149: memRPro has protected bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:149: memRPro has protected bind access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind vf.memRPro with inverse };   // ERROR: different package
 	                     ^
-test\should-fail\jfxc1250inverseBindTo.fx:150: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:150: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind vf.memRPkg with inverse };   // ERROR: different package
 	                     ^
-test\should-fail\jfxc1250inverseBindTo.fx:151: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250inverseBindTo.visage:151: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	Foo { toThis: bind vf.memRScr with inverse };   // ERROR: different package
 	                     ^
 21 errors

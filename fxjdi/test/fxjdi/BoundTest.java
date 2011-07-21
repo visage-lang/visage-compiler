@@ -34,7 +34,7 @@ import org.junit.Test;
  */
 public class BoundTest extends JdbBase {
 
-// @BeginTest Bound.fx
+// @BeginTest Bound.visage
 //var x = 1;
 //bound function fooBar(y:Integer, z:Integer):Integer {
 //      var u = y;
@@ -60,7 +60,7 @@ public class BoundTest extends JdbBase {
     public void testBound() {
         try {
             resetOutputs();//Uncomment this if you want to see the output on console
-            compile("Bound.fx");
+            compile("Bound.visage");
             //TODO: Please uncomment the following 3 lines when the bug is been fixed
 //            stop("in Bound:13");
 //            stop("in Bound:14");

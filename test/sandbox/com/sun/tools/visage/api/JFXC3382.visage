@@ -1,0 +1,5 @@
+package com.sun.tools.visage.api;
+
+public function test(param:String) {
+    println(param);
+}

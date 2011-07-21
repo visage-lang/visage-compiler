@@ -29,8 +29,8 @@
 class Configuration {
 public:
     std::string javacmd;
-    std::string javafxcmd;
-    std::string javafxpath;
+    std::string visagecmd;
+    std::string visagepath;
     std::string classpath;
     std::string vmargs;
     std::string fxargs;

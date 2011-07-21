@@ -33,7 +33,7 @@ import org.junit.Test;
  */
 public class BasicBindTest extends JdbBase {
 
-// @BeginTest BasicBind.fx
+// @BeginTest BasicBind.visage
 // var binder = 1.0;
 // var bindee = bind binder;
 // function run() {
@@ -50,8 +50,8 @@ public class BasicBindTest extends JdbBase {
     public void testBasicBindVar() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("BasicBind.fx");
-            stop("in BasicBind.javafx$run$");
+            compile("BasicBind.visage");
+            stop("in BasicBind.visage$run$");
             stop("in BasicBind:6");
             stop("in BasicBind:8");
             stop("in BasicBind:9");

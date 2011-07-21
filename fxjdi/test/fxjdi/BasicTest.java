@@ -32,8 +32,8 @@ import junit.framework.Assert;
 
 public class BasicTest extends JdbBase {
 
-// @BeginTest Foo.fx
-// var begin = "Foo.fx says Hello";
+// @BeginTest Foo.visage
+// var begin = "Foo.visage says Hello";
 // var msg1  = "Breakpoint 1";
 // var msg2  = "Breakpoint 2";
 // FX.println(begin);
@@ -44,23 +44,23 @@ public class BasicTest extends JdbBase {
     @Test(timeout=5000)
     public void testHello1() {
         try {
-            compile("Foo.fx");
-            stop("in Foo.javafx$run$");
+            compile("Foo.visage");
+            stop("in Foo.visage$run$");
 
             fxrun();
 
             resumeToBreakpoint();
 
-            Assert.assertTrue(verifyValue("Foo.begin", "Foo.fx says Hello"));
+            Assert.assertTrue(verifyValue("Foo.begin", "Foo.visage says Hello"));
             Assert.assertTrue(verifyValue("Foo.msg1", "Breakpoint 1"));
             Assert.assertTrue(verifyValue("Foo.msg2", "Breakpoint 2"));
 
             where();
-            Assert.assertTrue(contains("Foo.javafx$run$ (Foo.fx:4)"));
+            Assert.assertTrue(contains("Foo.visage$run$ (Foo.visage:4)"));
 
      
             next();
-            Assert.assertTrue(lastContains("Foo.fx says Hello"));
+            Assert.assertTrue(lastContains("Foo.visage says Hello"));
 
             next();
             Assert.assertTrue(lastContains("Breakpoint 1"));
@@ -72,9 +72,9 @@ public class BasicTest extends JdbBase {
         }
     }
 
-// @BeginTest Bar.fx
+// @BeginTest Bar.visage
 // public function run(args: String[]):Void {
-//     println("Bar.fx says Hello");
+//     println("Bar.visage says Hello");
 //     for (i in args) {
 //         println("{i}");
 //     }
@@ -85,17 +85,17 @@ public class BasicTest extends JdbBase {
     @Test(timeout=500000)
     public void testHello2() {
         try {
-            compile("Bar.fx");
-            stop("in Bar.javafx$run$");
+            compile("Bar.visage");
+            stop("in Bar.visage$run$");
 
             fxrun("ONE", "TWO", "THREE");
             resumeToBreakpoint();
             where();
-            Assert.assertTrue(contains("Bar.javafx$run$ (Bar.fx:2)"));
+            Assert.assertTrue(contains("Bar.visage$run$ (Bar.visage:2)"));
 
             clearOutput();
             next();
-            Assert.assertTrue(lastContains("Bar.fx says Hello"));
+            Assert.assertTrue(lastContains("Bar.visage says Hello"));
 
             next();
             Assert.assertTrue(verifyValue("i", "ONE"));
@@ -112,7 +112,7 @@ public class BasicTest extends JdbBase {
             where();
             Assert.assertTrue(contains("Builtins.java"));
             List<String> olist = getOutputAsList();
-            Assert.assertTrue(olist.get(1).trim().equals("[2] Bar.javafx$run$ (Bar.fx:6)"));
+            Assert.assertTrue(olist.get(1).trim().equals("[2] Bar.visage$run$ (Bar.visage:6)"));
 
             resumeToVMDeath();
             quit();

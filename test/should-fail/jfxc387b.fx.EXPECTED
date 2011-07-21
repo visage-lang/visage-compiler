@@ -1,4 +1,4 @@
-test/should-fail/jfxc387b.fx:29: incompatible types
+test/should-fail/jfxc387b.visage:29: incompatible types
 found   : Integer
 required: String
 var bar : String = 10;

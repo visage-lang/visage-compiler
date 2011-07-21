@@ -2,13 +2,13 @@
 <project name="performance" default="run" basedir=".">
     <property name="jfxdir" location="${basedir}/.."/>
     <property name="builddir" location="${basedir}/../build/performance"/>
-    <property name="javafx.home" location="${basedir}/../dist"/>
+    <property name="visage.home" location="${basedir}/../dist"/>
     <property name="srcdir"   location="${basedir}/src"/>
     <property name="bm.srcdir" location="${basedir}/benchmarks"/>
     <property name="bm.builddir" location="${builddir}/benchmarks"/>
     <property name="bm.outdir" location="${builddir}/output"/>
     <property name="ant.jar" location="${jfxdir}/import/ant-1.7.1/apache-ant-1.7.1/lib/ant.jar"/>
-    <property name="javafxc.jar" location="${javafx.home}/lib/shared/javafxc.jar"/>
+    <property name="visagec.jar" location="${visage.home}/lib/shared/visagec.jar"/>
     <property name="javac.source" value="1.5"/>
     <property name="javac.target" value="1.5"/>
     <property name="debug" value="false"/>
@@ -37,22 +37,22 @@
          <exec executable="${java.home}/bin/java${suffix.exe}">
             <arg line="-version"/>
         </exec>
-        <echo message="javafx.home  : ${javafx.home}"/>
-        <exec executable="${javafx.home}/bin/javafx${suffix.exe}">
+        <echo message="visage.home  : ${visage.home}"/>
+        <exec executable="${visage.home}/bin/visage${suffix.exe}">
             <arg line="-version"/>
         </exec>
-        <echo message="javafxc.jar  : ${javafxc.jar}"/>
+        <echo message="visagec.jar  : ${visagec.jar}"/>
         <echo message="jfree.libpath: ${jfree.libpath}"/>
         <echo message="csv.data.dir : ${csv.data.dir}"/>
         <echo message="###################################"/>
         <mkdir dir="${builddir}"/>
         <mkdir dir="${bm.builddir}"/>
         <mkdir dir="${bm.outdir}"/>
-        <taskdef name="javafxc"
-            classname="com.sun.tools.javafx.ant.JavaFxAntTask">
+        <taskdef name="visagec"
+            classname="com.sun.tools.visage.ant.JavaFxAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
-                <pathelement location="${javafxc.jar}"/>
+                <pathelement location="${visagec.jar}"/>
             </classpath>
         </taskdef>
     </target>
@@ -68,12 +68,12 @@
     </target>
     
     <target name="compile-benchmarks" depends="init">
-        <javafxc destdir="${bm.builddir}"
-                 includes="**/*.fx" source="${javac.source}" sourcepath=""
+        <visagec destdir="${bm.builddir}"
+                 includes="**/*.visage" source="${javac.source}" sourcepath=""
                  srcdir="${bm.srcdir}" target="${javac.target}"
-                 compilerclasspath="${javafxc.jar}"
+                 compilerclasspath="${visagec.jar}"
                  failonerror="true">
-        </javafxc>
+        </visagec>
     </target>
 
     <macrodef name="run-benchmark">
@@ -84,12 +84,12 @@
         <attribute name="debug"         default="true"/>
         <sequential>
             <echo message="Runnning : @{benchmark}"/>
-            <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
+            <java classname="com.sun.tools.visage.framework.Runner" fork="true"
               classpath="${builddir}" failonerror="true" dir="${builddir}" >
                 <sysproperty key="app.name"         value="@{benchmark}"/>
                 <sysproperty key="app.classpath"    value="${bm.builddir}"/>
                 <sysproperty key="app.workdir"      value="${bm.outdir}"/>
-                <sysproperty key="javafx.home"      value="${javafx.home}"/>
+                <sysproperty key="visage.home"      value="${visage.home}"/>
                 <sysproperty key="base.dir"         value="${basedir}"/>
                 <sysproperty key="debug"            value="${debug}"/>
                 <sysproperty key="Runner.vmoptions" value="@{heapsize}"/>
@@ -118,7 +118,7 @@
             </fileset>
         </copy>
         <java fork="true" classpath="${builddir}" failonerror="true"
-            dir="${bm.outdir}" classname="com.sun.tools.javafx.framework.Reporter"
+            dir="${bm.outdir}" classname="com.sun.tools.visage.framework.Reporter"
             classpathref="jfree.classpath">
         </java>
     </target>

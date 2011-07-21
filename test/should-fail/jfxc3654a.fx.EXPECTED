@@ -1,7 +1,7 @@
-test/should-fail/jfxc3654a.fx:22: Not allowed in bind context =
+test/should-fail/jfxc3654a.visage:22: Not allowed in bind context =
       [firstInner = 
        ^
-test/should-fail/jfxc3654a.fx:20: Missing variable initializer for firstInner
+test/should-fail/jfxc3654a.visage:20: Missing variable initializer for firstInner
 Variables defined in bind must be initialized explicitly.
     var firstInner : Inner;
     ^

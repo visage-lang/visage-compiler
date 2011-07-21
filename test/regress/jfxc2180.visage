@@ -1,0 +1,8 @@
+/**
+ * Regression test JFXC-2180 : Auto-import of classes in visage.lang not working
+ *
+ * @test
+ * @run
+ */
+
+FX.exit(); 

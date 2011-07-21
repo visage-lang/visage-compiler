@@ -1,4 +1,4 @@
-test/should-fail/jfxc3071.fx:15: types jfxc3071.B and jfxc3071.A are incompatible; both define a, but with unrelated types
+test/should-fail/jfxc3071.visage:15: types jfxc3071.B and jfxc3071.A are incompatible; both define a, but with unrelated types
 class C extends A, B{}
 ^
 1 error

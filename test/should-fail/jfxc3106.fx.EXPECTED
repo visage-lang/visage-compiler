@@ -1,4 +1,4 @@
-test/should-fail/jfxc3106.fx:17: seq has script only (default) write access in jfxc3106Test
+test/should-fail/jfxc3106.visage:17: seq has script only (default) write access in jfxc3106Test
 obj.seq[0..1] = ["b", "c"]; 
    ^
 1 error

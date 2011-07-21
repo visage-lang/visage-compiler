@@ -1,4 +1,4 @@
-test/should-fail/jfxc2079.fx:5: incompatible types
+test/should-fail/jfxc2079.visage:5: incompatible types
 found   : String
 required: Boolean[]
 var f:Boolean[] = ["ra"];

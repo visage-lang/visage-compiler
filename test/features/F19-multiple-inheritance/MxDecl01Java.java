@@ -1,5 +1,5 @@
 /*
- * @subtest MxDecl01.fx
+ * @subtest MxDecl01.visage
  */
 
 public class MxDecl01Java {

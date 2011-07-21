@@ -33,7 +33,7 @@ import org.junit.Test;
  */
 public class ReentrantTest extends JdbBase {
 
-// @BeginTest Reenter.fx
+// @BeginTest Reenter.visage
 // function foo3():Void {
 //     println("In foo3()");
 //     println("Unwinding");
@@ -56,7 +56,7 @@ public class ReentrantTest extends JdbBase {
     public void testReenter() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("Reenter.fx");
+            compile("Reenter.visage");
             stop("in Reenter:11");
             stop("in Reenter:7");
             stop("in Reenter:2");
@@ -71,9 +71,9 @@ public class ReentrantTest extends JdbBase {
 
             pop();//Pop off the stack frame foo3
             wherei();
-            Assert.assertTrue(contains("  [1] Reenter.foo2 (Reenter.fx:7)"));
-            Assert.assertTrue(contains("  [2] Reenter.foo1 (Reenter.fx:11)"));
-            Assert.assertTrue(contains("  [3] Reenter.javafx$run$ (Reenter.fx:15)"));
+            Assert.assertTrue(contains("  [1] Reenter.foo2 (Reenter.visage:7)"));
+            Assert.assertTrue(contains("  [2] Reenter.foo1 (Reenter.visage:11)"));
+            Assert.assertTrue(contains("  [3] Reenter.visage$run$ (Reenter.visage:15)"));
 
             reenter();
             where();
@@ -81,9 +81,9 @@ public class ReentrantTest extends JdbBase {
             resumeToBreakpoint();
             where();
 
-            Assert.assertTrue(contains("  [1] Reenter.foo2 (Reenter.fx:7)"));
-            Assert.assertTrue(contains("  [2] Reenter.foo1 (Reenter.fx:11)"));
-            Assert.assertTrue(contains("  [3] Reenter.javafx$run$ (Reenter.fx:15)"));
+            Assert.assertTrue(contains("  [1] Reenter.foo2 (Reenter.visage:7)"));
+            Assert.assertTrue(contains("  [2] Reenter.foo1 (Reenter.visage:11)"));
+            Assert.assertTrue(contains("  [3] Reenter.visage$run$ (Reenter.visage:15)"));
 
             cont();
             quit();

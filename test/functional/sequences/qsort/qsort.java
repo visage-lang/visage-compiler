@@ -1,6 +1,6 @@
 /**
  *  For comparison, compile with javac and run...takes second to sort 3000+ items
- *  With javafx it takes a minute or more to sort 1000.
+ *  With visage it takes a minute or more to sort 1000.
  */
 public class qsort<T extends Comparable>
 {

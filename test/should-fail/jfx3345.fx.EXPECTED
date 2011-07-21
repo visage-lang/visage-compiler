@@ -1,4 +1,4 @@
-test/should-fail/jfx3345.fx:7: warning: In animation target aa.abc, aa is not a constant, but will be treated as such. You may want to rewrite as:
+test/should-fail/jfx3345.visage:7: warning: In animation target aa.abc, aa is not a constant, but will be treated as such. You may want to rewrite as:
   def temp = aa
   temp.abc => x
 

@@ -1,0 +1,16 @@
+/*
+ * Point.visage
+ */
+
+package com.sun.tools.visage.api;
+
+/**
+ * Simple class declarations for JFXC739Test.
+ */
+
+public class Point {
+    var x;
+    var y;
+}
+
+public class Point2 extends Point {}

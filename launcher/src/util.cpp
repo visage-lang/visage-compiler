@@ -31,11 +31,11 @@ Util::Util() {
 Util::~Util() {
 }
 
-std::string Util::evaluatePath (const std::string& javafxpath, const std::string& libs) {
+std::string Util::evaluatePath (const std::string& visagepath, const std::string& libs) {
     std::string result = libs;
     std::string::size_type start=0;
-    while ((start = result.find("${javafx_home}", start)) != std::string::npos) {
-        result.replace (start, 14 /* length of ${javafx_home} */, javafxpath);
+    while ((start = result.find("${visage_home}", start)) != std::string::npos) {
+        result.replace (start, 14 /* length of ${visage_home} */, visagepath);
         start += 14;
     }
     start=0;

@@ -1,4 +1,4 @@
-test/should-fail/jfxc3030.fx:11: inconvertible types
+test/should-fail/jfxc3030.visage:11: inconvertible types
 found   : jfxc3030.X
 required: jfxc3030.Y
 var y = x as Y;

@@ -33,7 +33,7 @@ import org.junit.Test;
  */
 public class BasicInheritenceTest extends JdbBase {
 
-// @BeginTest BasicInheritence.fx
+// @BeginTest BasicInheritence.visage
 // class Sooper {
 //   var a = 0;
 //   function printA():Void {
@@ -62,8 +62,8 @@ public class BasicInheritenceTest extends JdbBase {
     public void testBasicInheritence() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("BasicInheritence.fx");
-            stop("in BasicInheritence.javafx$run$");
+            compile("BasicInheritence.visage");
+            stop("in BasicInheritence.visage$run$");
             stop("in BasicInheritence$Sooper:5");
             stop("in BasicInheritence:16");
             stop("in BasicInheritence$Sub:11");

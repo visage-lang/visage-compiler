@@ -30,7 +30,7 @@ import junit.framework.Assert;
  * @author srikalyanchandrashekar
  */
 public class HeteroObjectSequenceTest extends JdbBase {
-//@BeginTest ObjSequence.fx
+//@BeginTest ObjSequence.visage
 // var objSequence = [];
 // function run() {
 //      var mapObj:java.util.Map = new java.util.HashMap();
@@ -48,7 +48,7 @@ public class HeteroObjectSequenceTest extends JdbBase {
     public void testObjSequence() {
         try {
             //resetOutputs();//Uncomment this if you want to see the output on console
-            compile("ObjSequence.fx");
+            compile("ObjSequence.visage");
             stop("in ObjSequence:7");
             stop("in ObjSequence:9");
             stop("in ObjSequence:10");

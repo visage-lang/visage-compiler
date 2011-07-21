@@ -35,7 +35,7 @@
       <programlisting>MyClass
 java.util.Map
 Duration
-javafx.animation.Timeline
+visage.animation.Timeline
 Integer</programlisting>
 
       <para>A function signature consists of the parameter types and return
@@ -281,7 +281,7 @@ def about = ##[ABOUT]&quot;JavaFX is a cool scripting language!&quot;;
 println( mon );
 println( about );</programlisting>
 
-        <para>Suppose this script is <code>Foo.fx</code>, and there is a JavaFX 
+        <para>Suppose this script is <code>Foo.visage</code>, and there is a JavaFX 
         properties file for French <code>Foo_fr.fxproperties</code>, which contains the
         following localization:</para>
 
@@ -724,7 +724,7 @@ def primes = [2, 3, 5, 7, 11];
 
             <entry><para><literal>0ms</literal></para></entry>
 
-            <entry><para><literal>javafx.lang.Duration</literal></para></entry>
+            <entry><para><literal>visage.lang.Duration</literal></para></entry>
 
             <entry><para>1 Required</para></entry>
 

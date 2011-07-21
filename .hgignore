@@ -7,7 +7,7 @@
 ^tools/
 ^dist/
 ^nbproject/private/
-^javafxdoc/build/
+^visagedoc/build/
 ^fxjdi/build/
 ^fxjdi/dist/
 ^fxjdi/nbproject/private/

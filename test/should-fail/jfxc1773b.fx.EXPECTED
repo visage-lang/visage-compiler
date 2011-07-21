@@ -1,7 +1,7 @@
-test/should-fail/jfxc1773b.fx:7: warning: Illegal forward reference: variable w is not initialized.
+test/should-fail/jfxc1773b.visage:7: warning: Illegal forward reference: variable w is not initialized.
 var u = w.a; //not allowed - w.a is a qualified forward ref where w is not an allowed forward reference
         ^
-test/should-fail/jfxc1773b.fx:8: warning: Illegal forward reference: variable q is not initialized.
+test/should-fail/jfxc1773b.visage:8: warning: Illegal forward reference: variable q is not initialized.
 var k = q.a; //not allowed - q.a is a qualified forward ref, where q is an allowed forward reference, but where both usage and decl occur in the same context
         ^
 2 warnings

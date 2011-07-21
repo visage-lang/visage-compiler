@@ -1,4 +1,4 @@
-test/should-fail/jfxc3264.fx:13: unexpected type
+test/should-fail/jfxc3264.visage:13: unexpected type
 required: variable
 found   : value
             time: 2s values: val1[0] => 300 tween Interpolator.LINEAR

@@ -1,0 +1,37 @@
+------ fields for class com.sun.visage.jdi.test.target.FilterVarsTarget$FilterVarsTargetSub
+------ all fields ------
+field = com.sun.visage.jdi.test.target.FilterVarsTarget$FilterVarsTargetSub.Mixin1$mixivar1
+field = com.sun.visage.jdi.test.target.FilterVarsTarget$FilterVarsTargetSub.subivar1
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.FilterVarsTarget$baseivar1
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.FilterVarsTarget$baseivar2
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.baseivar3
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.FilterVarsTarget$ivarOverride
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.obj
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.bb
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.binder1
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.binder2
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.binder3
+
+----- exclude inherited fields ------
+field = com.sun.visage.jdi.test.target.FilterVarsTarget$FilterVarsTargetSub.Mixin1$mixivar1
+field = com.sun.visage.jdi.test.target.FilterVarsTarget$FilterVarsTargetSub.subivar1
+
+----- visible fields ------
+field = com.sun.visage.jdi.test.target.FilterVarsTarget$FilterVarsTargetSub.Mixin1$mixivar1
+field = com.sun.visage.jdi.test.target.FilterVarsTarget$FilterVarsTargetSub.subivar1
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.FilterVarsTarget$baseivar1
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.FilterVarsTarget$baseivar2
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.baseivar3
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.FilterVarsTarget$ivarOverride
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.obj
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.bb
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.binder1
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.binder2
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.binder3
+
+----- fields by name ------
+field = null
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.FilterVarsTarget$baseivar1
+field = null
+field = com.sun.visage.jdi.test.target.FilterVarsTarget$FilterVarsTargetSub.subivar1
+field = com.sun.visage.jdi.test.target.FilterVarsTarget.obj

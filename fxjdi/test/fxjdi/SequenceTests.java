@@ -30,7 +30,7 @@ import junit.framework.Assert;
  * @author ksrini
  */
 public class SequenceTests extends JdbBase {
-//@BeginTest Foo.fx
+//@BeginTest Foo.visage
 //var artists = [ 'John Denver', 'Eric Clapton', 'Paul Simon', 'Art Garfunkel'];
 //println(artists);
 //delete artists[0..2];
@@ -40,8 +40,8 @@ public class SequenceTests extends JdbBase {
     @Test(timeout=5000)
     public void testSequence1() {
         try {
-            compile("Foo.fx");
-            stop("in Foo.javafx$run$");
+            compile("Foo.visage");
+            stop("in Foo.visage$run$");
             fxrun();
             resumeToBreakpoint();
             next();

@@ -15,7 +15,7 @@
  */
 package org.visage.lang;
 
-import com.sun.javafx.api.JavaFXScriptEngine;
+import com.sun.visage.api.JavaFXScriptEngine;
 import java.io.File;
 import java.io.FileReader;
 import javax.script.ScriptContext;
@@ -37,9 +37,9 @@ public class V19Test {
   @Test
   public void isInitializedNonNullTrue() throws Exception {
     ScriptEngineManager manager = new ScriptEngineManager();
-    ScriptEngine engine = manager.getEngineByExtension("javafx");
+    ScriptEngine engine = manager.getEngineByExtension("visage");
     assertTrue(engine instanceof JavaFXScriptEngine);
-    File script = new File("test/src/org/visage/lang/V19_isInitializedNonNullTrue.fx");
+    File script = new File("test/src/org/visage/lang/V19_isInitializedNonNullTrue.visage");
     engine.getContext().setAttribute(ScriptEngine.FILENAME, script.getAbsolutePath(), ScriptContext.ENGINE_SCOPE);
     Boolean ret = (Boolean)engine.eval(new FileReader(script));
     assertTrue(ret.booleanValue());
@@ -51,9 +51,9 @@ public class V19Test {
   @Test
   public void isInitializedNonNullFalse() throws Exception {
     ScriptEngineManager manager = new ScriptEngineManager();
-    ScriptEngine engine = manager.getEngineByExtension("javafx");
+    ScriptEngine engine = manager.getEngineByExtension("visage");
     assertTrue(engine instanceof JavaFXScriptEngine);
-    File script = new File("test/src/org/visage/lang/V19_isInitializedNonNullFalse.fx");
+    File script = new File("test/src/org/visage/lang/V19_isInitializedNonNullFalse.visage");
     engine.getContext().setAttribute(ScriptEngine.FILENAME, script.getAbsolutePath(), ScriptContext.ENGINE_SCOPE);
     Boolean ret = (Boolean)engine.eval(new FileReader(script));
     assertFalse(ret.booleanValue());
@@ -65,9 +65,9 @@ public class V19Test {
   @Test
   public void isInitializedNull() throws Exception {
     ScriptEngineManager manager = new ScriptEngineManager();
-    ScriptEngine engine = manager.getEngineByExtension("javafx");
+    ScriptEngine engine = manager.getEngineByExtension("visage");
     assertTrue(engine instanceof JavaFXScriptEngine);
-    File script = new File("test/src/org/visage/lang/V19_isInitializedNull.fx");
+    File script = new File("test/src/org/visage/lang/V19_isInitializedNull.visage");
     engine.getContext().setAttribute(ScriptEngine.FILENAME, script.getAbsolutePath(), ScriptContext.ENGINE_SCOPE);
     Boolean ret = (Boolean)engine.eval(new FileReader(script));
     assertFalse(ret.booleanValue());

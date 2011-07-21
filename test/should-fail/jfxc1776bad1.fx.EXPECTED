@@ -1,4 +1,4 @@
-test\should-fail\jfxc1776bad1.fx:7: 'run' function must either have no parameters or one parameter of type 'String[]'.
+test\should-fail\jfxc1776bad1.visage:7: 'run' function must either have no parameters or one parameter of type 'String[]'.
 Use:     function run()    or
 Or use:  function run(args : String[])
 function run(arg : String) {

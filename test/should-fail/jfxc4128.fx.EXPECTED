@@ -1,4 +1,4 @@
-test/should-fail/jfxc4128.fx:15: Illegal forward reference: variable z is not initialized.
+test/should-fail/jfxc4128.visage:15: Illegal forward reference: variable z is not initialized.
 override var x on replace { var y = z; var z = 1; }
                                     ^
 1 error

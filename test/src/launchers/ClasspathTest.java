@@ -30,7 +30,7 @@ import java.util.List;
 
 /**
  * This tests to make sure there are no collisions in the package namespace
- * of javafxc.jar and tools.jar on systems other than macs. On macs the javac
+ * of visagec.jar and tools.jar on systems other than macs. On macs the javac
  * compiler is already on the bootclasspath as classes.jar
  */
 
@@ -83,7 +83,7 @@ public class ClasspathTest extends TestCase {
     public void testBootClasspath() throws IOException {
 
         String testSrc = 
-                "import javafx.util.FXEvaluator;\n" +
+                "import visage.util.FXEvaluator;\n" +
                 "FXEvaluator.eval(\"println(\\\"Hello World\\\")\");";
 
         Utils.createFxJar(new File(Utils.workingDir, TESTNAME + ".jar"), testSrc);
@@ -92,29 +92,29 @@ public class ClasspathTest extends TestCase {
 
         File libDir = new File(Utils.getDistDir(),"lib" +
                 File.separator + "shared");
-        File javafxcFile = new File(libDir, "javafxc.jar");
+        File visagecFile = new File(libDir, "visagec.jar");
 
         // use cp
-        cmdsList.add(Utils.javafxExe.getAbsolutePath());
+        cmdsList.add(Utils.visageExe.getAbsolutePath());
 
         if (!isMac()) { // no tools.jar on mac
             cmdsList.add("-J-Xbootclasspath/p:" + getToolsJar());
         }
         cmdsList.add("-cp");
         cmdsList.add(TESTNAME + ".jar" + File.pathSeparator +
-                javafxcFile.getAbsolutePath());
+                visagecFile.getAbsolutePath());
         cmdsList.add(TESTNAME);
         output = Utils.doExec(cmdsList);
         assertTrue(output.toString().contains("Hello World"));
 
         // use jar cmd
         cmdsList.clear();
-        cmdsList.add(Utils.javafxExe.getAbsolutePath());
+        cmdsList.add(Utils.visageExe.getAbsolutePath());
         if (isMac()) { // no tools.jar on macs
-            cmdsList.add("-J-Xbootclasspath/p:" + javafxcFile);
+            cmdsList.add("-J-Xbootclasspath/p:" + visagecFile);
         } else {
             cmdsList.add("-J-Xbootclasspath/p:" + getToolsJar() +
-                    File.pathSeparator + javafxcFile);
+                    File.pathSeparator + visagecFile);
         }
         cmdsList.add("-jar");
         cmdsList.add(TESTNAME + ".jar");

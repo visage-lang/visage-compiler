@@ -42,7 +42,7 @@ import org.apache.tools.ant.util.FileUtils;
  * @author tball
  */
 public class FXRunAndCompareWrapper extends TestCase {
-    private static final String JAVAFX_MAIN = "com.sun.javafx.runtime.Main";
+    private static final String JAVAFX_MAIN = "com.sun.visage.runtime.Main";
 
     private final String name;
     private final File testFile;
@@ -90,7 +90,7 @@ public class FXRunAndCompareWrapper extends TestCase {
         errorFileName = buildDir + File.separator + className + ".ERROR";
 		copyExpectedFileName = buildDir + File.separator + className + ".EXPECTED";
         expectedFileName = testFile.getPath() + ".EXPECTED";
-        assertTrue(className.endsWith(".fx"));
+        assertTrue(className.endsWith(".visage"));
         classpath = TestHelper.getClassPath(buildDir);
     }
 
@@ -155,7 +155,7 @@ public class FXRunAndCompareWrapper extends TestCase {
 
     private void execute(String outputFileName, String errorFileName, String expectedFileName) throws IOException {
         CommandlineJava commandLine = new CommandlineJava();
-        String mainClass = className.substring(0, className.length() - ".fx".length());
+        String mainClass = className.substring(0, className.length() - ".visage".length());
         commandLine.setClassname(JAVAFX_MAIN);
         Project project = new Project();
         Path p = commandLine.createClasspath(project);

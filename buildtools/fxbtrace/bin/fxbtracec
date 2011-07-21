@@ -7,7 +7,7 @@ if [ -z "$JAVAFX_HOME" ] ; then
 fi
 
 if [ -f "${BTRACE_HOME}/build/btrace-client.jar" ] ; then
-    javac -cp ${BTRACE_HOME}/build/btrace-client.jar:${JAVAFX_HOME}/lib/shared/javafxrt.jar $*
+    javac -cp ${BTRACE_HOME}/build/btrace-client.jar:${JAVAFX_HOME}/lib/shared/visagert.jar $*
 else
     echo "Please set BTRACE_HOME before running this script"
 fi

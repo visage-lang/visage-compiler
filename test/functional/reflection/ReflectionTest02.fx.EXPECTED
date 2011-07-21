@@ -2,12 +2,12 @@ About class ReflectionTest02
 class ReflectionTest02
   Super classes of ReflectionTest02:
     class ReflectionTest02
-    class com.sun.javafx.runtime.FXBase
+    class com.sun.visage.runtime.FXBase
     class java.lang.Object
   Mixin class: false
   JavaFX Type: true
-  class com.sun.javafx.runtime.FXBase is assignable from class ReflectionTest02
-  class ReflectionTest02 is not assignable from class com.sun.javafx.runtime.FXBase
+  class com.sun.visage.runtime.FXBase is assignable from class ReflectionTest02
+  class ReflectionTest02 is not assignable from class com.sun.visage.runtime.FXBase
   class java.lang.Object is assignable from class ReflectionTest02
   class ReflectionTest02 is not assignable from class java.lang.Object
 MEMBERS of class ReflectionTest02
@@ -39,7 +39,7 @@ MEMBERS of class ReflectionTest02
    wait  isStatic=false; Declaring class: java.lang.Object 
 VARIABLES of class ReflectionTest02
   _clzStrings type:null  static=true; Decl.class: ReflectionTest02 
-  _context type:javafx.reflect.FXLocal.Context  static=true; Decl.class: ReflectionTest02 
+  _context type:visage.reflect.FXLocal.Context  static=true; Decl.class: ReflectionTest02 
 FUNCTIONS of class ReflectionTest02
   Void _func0() min_args=0; var_args: false
   class java.lang.String _func1() min_args=1; var_args: false
@@ -48,7 +48,7 @@ FUNCTIONS of class ReflectionTest02
   Integer[] _func4() min_args=2; var_args: false
   Integer[] _func5() min_args=2; var_args: false
   function(java.lang.Integer):java.lang.Integer _func6() min_args=0; var_args: false
-  class javafx.lang.Duration _func7() min_args=1; var_args: false
+  class visage.lang.Duration _func7() min_args=1; var_args: false
   Boolean _func8() min_args=2; var_args: false
   Float _func9() min_args=1; var_args: false
   class java.lang.Object clone() min_args=0; var_args: false
@@ -71,14 +71,14 @@ class ReflectionTest02.TestClass
   Super classes of ReflectionTest02.TestClass:
     class ReflectionTest02.BaseTestClass
     class ReflectionTest02.TestClass
-    class com.sun.javafx.runtime.FXBase
+    class com.sun.visage.runtime.FXBase
     class java.lang.Object
   Mixin class: false
   JavaFX Type: true
   class ReflectionTest02.BaseTestClass is assignable from class ReflectionTest02.TestClass
   class ReflectionTest02.TestClass is not assignable from class ReflectionTest02.BaseTestClass
-  class com.sun.javafx.runtime.FXBase is assignable from class ReflectionTest02.TestClass
-  class ReflectionTest02.TestClass is not assignable from class com.sun.javafx.runtime.FXBase
+  class com.sun.visage.runtime.FXBase is assignable from class ReflectionTest02.TestClass
+  class ReflectionTest02.TestClass is not assignable from class com.sun.visage.runtime.FXBase
   class java.lang.Object is assignable from class ReflectionTest02.TestClass
   class ReflectionTest02.TestClass is not assignable from class java.lang.Object
 MEMBERS of class ReflectionTest02.TestClass
@@ -178,11 +178,11 @@ FUNCTIONS of class ReflectionTest02.TestClass
   Integer[] fbFunc4() min_args=2; var_args: false
   Integer[] fbFunc5() min_args=2; var_args: false
   function(java.lang.Integer):java.lang.Integer fbFunc6() min_args=0; var_args: false
-  class javafx.lang.Duration fbFunc7() min_args=1; var_args: false
+  class visage.lang.Duration fbFunc7() min_args=1; var_args: false
   Boolean fbFunc8() min_args=2; var_args: false
   Float fbFunc9() min_args=1; var_args: false
   Void finalize() min_args=0; var_args: false
-  class com.sun.javafx.runtime.Pointer func0$bFunc$int() min_args=2; var_args: false
+  class com.sun.visage.runtime.Pointer func0$bFunc$int() min_args=2; var_args: false
   class java.lang.Class getClass() min_args=0; var_args: false
   Integer hashCode() min_args=0; var_args: false
   Void notify() min_args=0; var_args: false

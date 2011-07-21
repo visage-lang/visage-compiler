@@ -1,10 +1,10 @@
-test/should-fail/jfxc1437.fx:9: + cannot be applied to strings. Use a string expression "{a}{x}"
+test/should-fail/jfxc1437.visage:9: + cannot be applied to strings. Use a string expression "{a}{x}"
 var z = a + x;
         ^
-test/should-fail/jfxc1437.fx:10: + cannot be applied to strings. Use a string expression "yo{a}"
+test/should-fail/jfxc1437.visage:10: + cannot be applied to strings. Use a string expression "yo{a}"
 var y = "yo" + a;
         ^
-test/should-fail/jfxc1437.fx:11: + cannot be applied to strings. Use a string expression "tada{a}"
+test/should-fail/jfxc1437.visage:11: + cannot be applied to strings. Use a string expression "tada{a}"
 var q = "tada" + a + true + "--" + x;
         ^
 3 errors

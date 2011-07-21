@@ -71,11 +71,11 @@ class A {
       <command>package</command>, <command>public-read</command>, and
       <command>public-init</command> -- see the <link
       linkend="Modifiers">Access Modifiers chapter</link>. For example, if
-      this is script Foo.fx:</para>
+      this is script Foo.visage:</para>
 
       <para><programlisting>public def bohr = 0.529177e-10</programlisting></para>
 
-      <para>Then script Noof.fx can access bohr:</para>
+      <para>Then script Noof.visage can access bohr:</para>
 
       <para><programlisting>println(Foo.bohr)</programlisting></para>
 
@@ -392,9 +392,9 @@ Fahrenheit: 212.0,  Celcius: 100.0</screen>
     </command>was loaded.</para>
 
     <para>They are typically used to reference resource files stored along
-    side the compiled sources. So if the script Foo.fx is compiled, and the
+    side the compiled sources. So if the script Foo.visage is compiled, and the
     resultant Foo.class is placed in the same directory with myIcon.gif, it
-    might be accessed in Foo.fx with:</para>
+    might be accessed in Foo.visage with:</para>
 
     <programlisting>Image {
         url: "{__DIR__}myIcon.gif"

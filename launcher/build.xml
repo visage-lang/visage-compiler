@@ -22,19 +22,19 @@
     <target name="build" depends="gcc-env.check" if="gcc.windows"
             description="Build all launchers.">
         <exec executable="make" failonerror="true" searchpath="true">
-            <arg value="CONF=javafx_release" />
+            <arg value="CONF=visage_release" />
             <arg value="build" />
         </exec>
         <exec executable="make" failonerror="true" searchpath="true">
-            <arg value="CONF=javafxw_release" />
+            <arg value="CONF=visagew_release" />
             <arg value="build" />
         </exec>
         <exec executable="make" failonerror="true" searchpath="true">
-            <arg value="CONF=javafxc_release" />
+            <arg value="CONF=visagec_release" />
             <arg value="build" />
         </exec>
         <exec executable="make" failonerror="true" searchpath="true">
-            <arg value="CONF=javafxdoc_release" />
+            <arg value="CONF=visagedoc_release" />
             <arg value="build" />
         </exec>
     </target>
@@ -43,31 +43,31 @@
         <condition property="source.path" 
                 value="${launcher.dist.dir}" else="${launcher.bin.dir}">
             <and>
-                <available file="${launcher.dist.dir}/javafx.exe" />
-                <available file="${launcher.dist.dir}/javafxw.exe" />
-                <available file="${launcher.dist.dir}/javafxc.exe" />
-                <available file="${launcher.dist.dir}/javafxdoc.exe" />
+                <available file="${launcher.dist.dir}/visage.exe" />
+                <available file="${launcher.dist.dir}/visagew.exe" />
+                <available file="${launcher.dist.dir}/visagec.exe" />
+                <available file="${launcher.dist.dir}/visagedoc.exe" />
             </and>
 	</condition>
-	<copy file="${source.path}/javafx.exe" todir="${compiler.dist.dir}" />
-    <copy file="${source.path}/javafxw.exe" todir="${compiler.dist.dir}" />
-	<copy file="${source.path}/javafxc.exe" todir="${compiler.dist.dir}" />
-	<copy file="${source.path}/javafxdoc.exe" todir="${compiler.dist.dir}" />
+	<copy file="${source.path}/visage.exe" todir="${compiler.dist.dir}" />
+    <copy file="${source.path}/visagew.exe" todir="${compiler.dist.dir}" />
+	<copy file="${source.path}/visagec.exe" todir="${compiler.dist.dir}" />
+	<copy file="${source.path}/visagedoc.exe" todir="${compiler.dist.dir}" />
 	<copy file="${basedir}/lib/desktop.properties" todir="${compiler.dist.dir}/../profiles" />
     </target>
   	
     <target name="clean" depends="gcc-env.check" if="gcc.windows"
             description="Clean the build-folders.">
         <exec executable="make" failonerror="true" searchpath="true">
-            <arg value="CONF=javafx_release" />
+            <arg value="CONF=visage_release" />
             <arg value="clean" />
         </exec>
         <exec executable="make" failonerror="true" searchpath="true">
-            <arg value="CONF=javafxc_release" />
+            <arg value="CONF=visagec_release" />
             <arg value="clean" />
         </exec>
         <exec executable="make" failonerror="true" searchpath="true">
-            <arg value="CONF=javafxdoc_release" />
+            <arg value="CONF=visagedoc_release" />
             <arg value="clean" />
         </exec>
     </target>

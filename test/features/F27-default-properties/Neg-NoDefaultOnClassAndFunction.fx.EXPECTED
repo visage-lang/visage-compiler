@@ -1,7 +1,7 @@
-test\features\F27-default-properties\Neg-NoDefaultOnClassAndFunction.fx:7: modifier default not allowed on a class
+test\features\F27-default-properties\Neg-NoDefaultOnClassAndFunction.visage:7: modifier default not allowed on a class
 default class NoDefaultOnClass {
 ^
-test\features\F27-default-properties\Neg-NoDefaultOnClassAndFunction.fx:10: modifier default not allowed on a script level function
+test\features\F27-default-properties\Neg-NoDefaultOnClassAndFunction.visage:10: modifier default not allowed on a script level function
 default function noDefaultOnFunction() {
 ^
 2 errors

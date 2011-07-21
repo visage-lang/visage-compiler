@@ -1,19 +1,19 @@
-test/features/F26-numerics/VarConversions/ToByteWarnings.fx:11: warning: possible loss of precision
+test/features/F26-numerics/VarConversions/ToByteWarnings.visage:11: warning: possible loss of precision
 found   : Character
 required: Byte
 b = Values.cc;
     ^
-test/features/F26-numerics/VarConversions/ToByteWarnings.fx:12: warning: possible loss of precision
+test/features/F26-numerics/VarConversions/ToByteWarnings.visage:12: warning: possible loss of precision
 found   : Number
 required: Byte
 b = Values.ff;
           ^
-test/features/F26-numerics/VarConversions/ToByteWarnings.fx:13: warning: possible loss of precision
+test/features/F26-numerics/VarConversions/ToByteWarnings.visage:13: warning: possible loss of precision
 found   : Double
 required: Byte
 b = Values.dd;
           ^
-test/features/F26-numerics/VarConversions/ToByteWarnings.fx:14: warning: possible loss of precision
+test/features/F26-numerics/VarConversions/ToByteWarnings.visage:14: warning: possible loss of precision
 found   : Number
 required: Byte
 b = Values.nn;

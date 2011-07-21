@@ -34,7 +34,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.visage.runtime.ErrorHandler;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -106,7 +106,7 @@ public class FXUnitTestWrapper extends TestCase {
         if (errors == 0) {
             ClassLoader cl = new URLClassLoader(new URL[] { buildDir.toURL() }, FXUnitTestWrapper.class.getClassLoader());
             String className = testFile.getName();
-            className = className.substring(0, className.length() - ".fx".length());
+            className = className.substring(0, className.length() - ".visage".length());
             Class<? extends TestCase> clazz = (Class<? extends TestCase>) cl.loadClass(className);
             List<TestCase> tests = new ArrayList<TestCase>();
             Constructor<? extends TestCase> ctor = clazz.getDeclaredConstructor();

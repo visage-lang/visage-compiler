@@ -32,7 +32,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import com.sun.javafx.api.JavaFXScriptEngine;
+import com.sun.visage.api.JavaFXScriptEngine;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -43,19 +43,19 @@ import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
 /**
- * This class primarily calls into javafxrt, javafxc and javafxdoc to ensure
+ * This class primarily calls into visagert, visagec and visagedoc to ensure
  * that a conformant version strings are returned for:
  *   a. System properties.
- *   b. tools javafx, javafxc, and javafxdoc.
+ *   b. tools visage, visagec, and visagedoc.
  */
 public class Utils {
 
     private static File distDir = null;
     static File javaExe = null;
-    static File javafxExe = null;
-    static File javafxwExe = null;
-    static File javafxcExe = null;
-    static File javafxdocExe = null;
+    static File visageExe = null;
+    static File visagewExe = null;
+    static File visagecExe = null;
+    static File visagedocExe = null;
     static boolean debug = false;
     static File workingDir = null;
     static JavaCompiler javaCompiler = null;
@@ -77,7 +77,7 @@ public class Utils {
 
     static final FileFilter FX_FILTER = new FileFilter() {
         public boolean accept(File pathname) {
-            return pathname.getName().endsWith(".fx");
+            return pathname.getName().endsWith(".visage");
         }
     };
 
@@ -91,21 +91,21 @@ public class Utils {
         if (Utils.javaExe == null) {
             Utils.javaExe = Utils.getJavaExe();
         }
-        if (javafxExe == null) {
-            javafxExe = getJavaFxDistExe("javafx");
+        if (visageExe == null) {
+            visageExe = getJavaFxDistExe("visage");
         }
-         if (javafxwExe == null) {
-            javafxwExe = getJavaFxDistExe("javafxw");
+         if (visagewExe == null) {
+            visagewExe = getJavaFxDistExe("visagew");
         }
-        if (javafxcExe == null) {
-            javafxcExe = getJavaFxDistExe("javafxc");
+        if (visagecExe == null) {
+            visagecExe = getJavaFxDistExe("visagec");
         }
-        if (javafxdocExe == null) {
-            javafxdocExe = getJavaFxDistExe("javafxdoc");
+        if (visagedocExe == null) {
+            visagedocExe = getJavaFxDistExe("visagedoc");
         }
         if (engine == null) {
             ScriptEngineManager manager = new ScriptEngineManager();
-            ScriptEngine scrEng = manager.getEngineByName("javafx");
+            ScriptEngine scrEng = manager.getEngineByName("visage");
             if (scrEng instanceof JavaFXScriptEngine) {
                 engine = (JavaFXScriptEngine) scrEng;
             } else {
@@ -233,7 +233,7 @@ public class Utils {
     }
 
     /*
-     * returns the path to a javafx executable, do not
+     * returns the path to a visage executable, do not
      * use .exe extension the method will take care of
      * it.
      */
@@ -397,7 +397,7 @@ public class Utils {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         pw.print("java.lang.System.out.print(FX.getProperty(\"");
-        pw.print((fullversion) ? "javafx.runtime.version" : "javafx.version");
+        pw.print((fullversion) ? "visage.runtime.version" : "visage.version");
         pw.println("\"));");
         pw.println("java.lang.System.out.flush();");
         return sw.toString();
@@ -406,11 +406,11 @@ public class Utils {
     /*
      * Create and compile an FX file, to get the version string.
      * Note: we could use the ScriptEngine, however we would like to make
-     * sure the launchers (javafx and javafxc) works!.
+     * sure the launchers (visage and visagec) works!.
      */
     static String getVersionPropFromFX(boolean isFullVersion) throws IOException {
         String filename = "Version";
-        FileWriter fw = new FileWriter(new File(workingDir, filename + ".fx"));
+        FileWriter fw = new FileWriter(new File(workingDir, filename + ".visage"));
         PrintWriter pw = new PrintWriter(fw);
         try {
             pw.println(emitVersionFx(isFullVersion));
@@ -423,11 +423,11 @@ public class Utils {
             }
         }
         ArrayList<String> cmdsList = new ArrayList<String>();
-        cmdsList.add(javafxcExe.toString());
-        cmdsList.add(filename + ".fx");
+        cmdsList.add(visagecExe.toString());
+        cmdsList.add(filename + ".visage");
         doExec(cmdsList);
         cmdsList.clear();
-        cmdsList.add(javafxExe.toString());
+        cmdsList.add(visageExe.toString());
         cmdsList.add(filename);
         List<String> output = doExec(cmdsList);
         return output.get(0);
@@ -504,9 +504,9 @@ public class Utils {
      * usage args = "-jar", "jar-file", "app-args....."
      */
     private static List<String> getArgumentsFromLauncher(List<String> cmdsList,
-            boolean useFx, boolean usejavafxw) throws IOException {
+            boolean useFx, boolean usevisagew) throws IOException {
         File testOutput = null ;
-        if (usejavafxw) {
+        if (usevisagew) {
             testOutput = new File(workingDir, "output.log");
             if (testOutput.exists()) {
                 if (!testOutput.delete()) {
@@ -522,9 +522,9 @@ public class Utils {
         }
 
         ArrayList<String> execList = new ArrayList<String>();
-        execList.add(0, (usejavafxw)
-                ? javafxwExe.toString()
-                : javafxExe.toString()
+        execList.add(0, (usevisagew)
+                ? visagewExe.toString()
+                : visageExe.toString()
                 );
     
 
@@ -573,12 +573,12 @@ public class Utils {
         deleteAllFiles();
 
         PrintStream ps = new PrintStream(new FileOutputStream(
-                new File(workingDir, filename + ".fx")));
+                new File(workingDir, filename + ".visage")));
         ps.println(testSrc);
         ps.close();
         ArrayList<String> cmdsList = new ArrayList<String>();
-        cmdsList.add(javafxcExe.toString());
-        cmdsList.add(filename + ".fx");
+        cmdsList.add(visagecExe.toString());
+        cmdsList.add(filename + ".visage");
         List<String> fxcList = doExec(cmdsList);
         if (fxcList == null) {
             throw new RuntimeException("FX compilation failed " + filename + ".java");
@@ -615,12 +615,12 @@ public class Utils {
 
         if (isFx) {
             PrintStream ps = new PrintStream(new FileOutputStream(
-                    new File(workingDir, filename + ".fx")));
+                    new File(workingDir, filename + ".visage")));
             ps.println(emitArgsTestFx(testOutput));
             ps.close();
             ArrayList<String> cmdsList = new ArrayList<String>();
-            cmdsList.add(javafxcExe.toString());
-            cmdsList.add(filename + ".fx");
+            cmdsList.add(visagecExe.toString());
+            cmdsList.add(filename + ".visage");
             List<String> fxcList = doExec(cmdsList);
             if (fxcList == null) {
                 throw new RuntimeException("FX compilation failed " + filename + ".java");
