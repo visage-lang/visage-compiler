@@ -18,13 +18,13 @@ import javax.swing.Timer;
 import java.awt.event.*;
 
 function runLater(ms: Number, f: function(): Void): Void {
-	var timer = new Timer(ms, ActionListener {
-		public override function actionPerformed(e: ActionEvent) {
-			FX.deferAction(f);
-		}
-	});
-	timer.setRepeats(false);
-	timer.start();
+    var timer = new Timer(ms, ActionListener {
+        public override function actionPerformed(e: ActionEvent) {
+            FX.deferAction(f);
+        }
+    });
+    timer.setRepeats(false);
+    timer.start();
 }
 
 var count: Integer = 0;
@@ -39,14 +39,13 @@ var keepAlive: Timeline = Timeline {
 };
 
 var t: Timeline = Timeline {
-    repeatCount: 10
+    repeatCount: 106
     keyFrames: [
         KeyFrame {
             time: 100ms
-			action: function() {
-				count++;
-				//System.out.println("count = {count}");
-			}
+                action: function() {
+                    count++;
+            }
         }
     ]
 };
@@ -58,14 +57,17 @@ runLater(100, modifyRepeatCount);
 runLater(2000, check);
 
 function modifyRepeatCount() {
-	t.repeatCount = 5;
-	return;
+    t.repeatCount = 5;
+    return;
 }
 
 function check() {
-	//System.out.println("checking");
-	if(count != 5) {
-		throw new AssertionError("test failed");
-	}
-	keepAlive.stop();
+    try {
+        if(count != 5) {
+            println("count = {count}");
+            throw new AssertionError("test failed");
+        }
+    } finally {
+        keepAlive.stop();
+    }
 }

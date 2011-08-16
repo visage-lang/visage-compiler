@@ -78,7 +78,6 @@ function check(): Void {
     if(t.running) {
         runLater(3000, check);
     } else {
-        //System.out.println("checking");
         t.stop();
         keepAlive.stop();
 

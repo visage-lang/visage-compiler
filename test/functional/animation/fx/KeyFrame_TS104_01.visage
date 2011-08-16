@@ -51,7 +51,7 @@ var t : Timeline = Timeline {
         canSkip: false
         action: function() {				
             ea++;                
-            Thread.sleep(310);
+            Thread.sleep(510);
         }
     },		
         KeyFrame {
@@ -97,7 +97,7 @@ function check(): Void {
         //System.out.println("3rd keyFrame: {ec}");
 
         if(eb == 5) {
-            throw new AssertionError("test failed: didn't skipped");
+            throw new AssertionError("test failed: didn't skip");
         }
 
         if(ea < 5 or ec < 5) {

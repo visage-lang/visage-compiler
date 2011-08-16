@@ -28,6 +28,7 @@
 package com.sun.visage.runtime;
 
 import com.sun.visage.animation.AnimationProvider;
+import com.sun.visage.animation.DefaultAnimationProvider;
 import com.sun.visage.functions.Function0;
 import com.sun.visage.runtime.sequence.Sequence;
 import com.sun.visage.runtime.sequence.Sequences;
@@ -52,7 +53,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Entry {
 
     private static RuntimeProvider runtimeProvider;
-    private static boolean noAnimationProvider;
     private static AnimationProvider animationProvider;
     private static NamedArgumentProvider namedArgProvider;
     private static String[] commandLineArgs;
@@ -139,7 +139,7 @@ public class Entry {
     }
 
     public static AnimationProvider getAnimationProvider() {
-        if (!noAnimationProvider && (animationProvider == null)) {
+        if (animationProvider == null) {
             try {
                 animationProvider = AccessController.doPrivileged(
                         new PrivilegedAction<AnimationProvider>() {
@@ -155,7 +155,9 @@ public class Entry {
                             }
                         });
             } finally {
-                noAnimationProvider = animationProvider == null;
+                if (animationProvider == null) {
+                    animationProvider = new DefaultAnimationProvider();
+                }
             }
         }
         return animationProvider;

@@ -4,7 +4,7 @@
  * 
  * @test
  * @compilefirst jfxc3522a.visage
- * @run/fail
+ * @run
  */
 
 import visage.animation.*;

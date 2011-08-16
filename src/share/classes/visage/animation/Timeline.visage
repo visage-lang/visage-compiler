@@ -605,13 +605,14 @@ public class Timeline {
     public function stop(): Void {
         stopping = true;
         starting = false;
+        def wasRunning = running; // save this value since stopping the clip will asynchronously affect it
         if(clip != null) {
             clip.stop();
         }
 
         forward = rate >= 0;
 
-        if(not running) {
+        if(not wasRunning) {
             movePlayhead(0);
         }
     }

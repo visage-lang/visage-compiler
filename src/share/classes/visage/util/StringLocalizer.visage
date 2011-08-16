@@ -143,11 +143,12 @@ public class StringLocalizer {
         }
 
         var pkgName = className.replaceAll("\\.?[^\\.]+$", "");
-        var fileName = elem.getFileName().replaceAll("\\.[fF][xX]$", "");
+        var fileName = elem.getFileName().replaceAll(VISAGE_REGEXP, "");
         StringLocalization.getPropertiesName("{pkgName}/{fileName}");
     }
 }
 
+def VISAGE_REGEXP = "\\.[vV][iI][sS][aA][gG][eE]$";
 
 /**
  * Associates a JavaFX
@@ -186,7 +187,7 @@ public function associate(properties: String, packageName: String,
     var source: String = if (scriptFileName == "") {
             packageName;
         } else {
-            "{packageName}/{scriptFileName.replaceAll("\\.[fF][xX]$", "")}";
+            "{packageName}/{scriptFileName.replaceAll(VISAGE_REGEXP, "")}";
         };
     StringLocalization.associate(source, properties);
 }
@@ -217,7 +218,7 @@ public function dissociate(packageName: String,
     var source: String = if (scriptFileName == "") {
             packageName;
         } else {
-            "{packageName}/{scriptFileName.replaceAll("\\.[fF][xX]$", "")}";
+            "{packageName}/{scriptFileName.replaceAll(VISAGE_REGEXP, "")}";
         };
     StringLocalization.dissociate(source);
 }

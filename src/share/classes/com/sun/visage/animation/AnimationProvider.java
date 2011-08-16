@@ -41,9 +41,9 @@ public interface AnimationProvider {
     InterpolatorFactory getInterpolatorFactory();
 
     /**
-     * Indicates if there is any active animations scheduled by {@code MasterTimer}
+     * Indicates if there are any active animations scheduled by {@code MasterTimer}
      *
-     * @return true if there is any acitve animations.
+     * @return true if there are any active animations.
      *         Otherwise, return false.
      */
     boolean hasActiveAnimation();
