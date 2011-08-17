@@ -46,24 +46,30 @@ public class SharedTimer {
     }
 
     public void schedule(TimerTask task, int start, int resolution) {
-        if (timer == null) {
-            timer = new Timer();
+        synchronized (tasks) {
+            if (timer == null) {
+                timer = new Timer();
+            }
+            tasks.add(task);
+            timer.schedule(task, start, resolution);
         }
-        tasks.add(task);
-        timer.schedule(task, start, resolution);
     }
     
     public void cancel(TimerTask task) {
-        task.cancel();
-        tasks.remove(task);
-        if (tasks.isEmpty()) {
-            timer.cancel();
-            timer = null;
+        synchronized (tasks) {
+            task.cancel();
+            tasks.remove(task);
+            if (tasks.isEmpty()) {
+                timer.cancel();
+                timer = null;
+            }
         }
     }
     
     public boolean hasActiveTasks() {
-        return !tasks.isEmpty();
+        synchronized (tasks) {
+            return !tasks.isEmpty();
+        }
     }
     
     private static class SharedTimerHolder {
