@@ -21,14 +21,14 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.parsing;
+package org.visage.ideaplugin.parsing;
 
 import com.intellij.lexer.LexerBase;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.text.CharArrayCharSequence;
 import com.intellij.util.text.CharArrayUtil;
-import com.sun.tools.visage.antlr.v3Lexer;
+import org.visage.tools.antlr.v3Lexer;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.jetbrains.annotations.Nullable;

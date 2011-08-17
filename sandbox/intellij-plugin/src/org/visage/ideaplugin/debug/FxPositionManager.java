@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.debug;
+package org.visage.ideaplugin.debug;
 
 import com.intellij.debugger.NoDataException;
 import com.intellij.debugger.PositionManager;

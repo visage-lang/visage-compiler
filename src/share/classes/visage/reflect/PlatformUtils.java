@@ -24,8 +24,8 @@
 package visage.reflect;
 import java.lang.reflect.*;
 import java.lang.annotation.Annotation;
-import com.sun.visage.runtime.annotation.*;
-import com.sun.visage.runtime.annotation.Package;
+import org.visage.runtime.annotation.*;
+import org.visage.runtime.annotation.Package;
 
 /**
  * Helper methods to factor out functionality only available on J2SE.
@@ -51,7 +51,7 @@ class PlatformUtils {
     }
 
     static int checkInherited(Method m) {
-        return m.getAnnotation(com.sun.visage.runtime.annotation.Inherited.class) != null ? 1 : 0;
+        return m.getAnnotation(org.visage.runtime.annotation.Inherited.class) != null ? 1 : 0;
     }
 
     static String getCanonicalName(Class cls) {

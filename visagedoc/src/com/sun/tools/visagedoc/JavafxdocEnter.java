@@ -29,8 +29,8 @@ import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol.*;
 import com.sun.tools.mjavac.tree.JCTree;
-import com.sun.tools.visage.comp.JavafxEnter;
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.comp.JavafxEnter;
+import org.visage.tools.tree.*;
 import java.util.HashMap;
 import javax.tools.JavaFileObject;
 

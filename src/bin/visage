@@ -78,7 +78,7 @@ exec_java() {
     if [ -n "$lastarg" ]; then
         jargs="$jargs -classpath '"$full_classpath"' $lastarg"
     else
-        jargs="$jargs -classpath '"$full_classpath"' com.sun.visage.runtime.Main"
+        jargs="$jargs -classpath '"$full_classpath"' org.visage.runtime.Main"
         if [ -n "$args" ]; then
            jargs="$jargs $args"
         fi
@@ -155,7 +155,7 @@ while [ $# -gt 0 ] ; do
         -cp | -classpath) shift; classpath="$classpath:$1";;
         -version)
             if [ ! -n "$seen_main" ]; then
-               lastarg="com.sun.visage.runtime.LauncherHelper -version"
+               lastarg="org.visage.runtime.LauncherHelper -version"
                break
             else
                args="$args \"$1\""
@@ -163,7 +163,7 @@ while [ $# -gt 0 ] ; do
             ;;
         -fullversion)
             if [ ! -n "$seen_main" ]; then
-               lastarg="com.sun.visage.runtime.LauncherHelper -fullversion"
+               lastarg="org.visage.runtime.LauncherHelper -fullversion"
                break
             else
                args="$args \"$1\""
@@ -171,7 +171,7 @@ while [ $# -gt 0 ] ; do
             ;;
         -X)
             if [ ! -n "$seen_main" ]; then
-               lastarg="com.sun.visage.runtime.LauncherHelper -helpx"
+               lastarg="org.visage.runtime.LauncherHelper -helpx"
                break
             else
                args="$args \"$1\""
@@ -179,7 +179,7 @@ while [ $# -gt 0 ] ; do
             ;;
         -help | -\? )
             if [ ! -n "$seen_main" ]; then
-               lastarg="com.sun.visage.runtime.LauncherHelper -help"
+               lastarg="org.visage.runtime.LauncherHelper -help"
                break
             else
                args="$args \"$1\""

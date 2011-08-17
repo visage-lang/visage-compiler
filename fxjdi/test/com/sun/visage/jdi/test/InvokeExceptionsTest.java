@@ -22,16 +22,16 @@
  */
 
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
-import com.sun.visage.jdi.FXReferenceType;
-import com.sun.visage.jdi.FXObjectReference;
-import com.sun.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.FXReferenceType;
+import org.visage.jdi.FXObjectReference;
+import org.visage.jdi.FXVirtualMachine;
 import com.sun.jdi.Value;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.event.BreakpointEvent;
@@ -42,7 +42,7 @@ public class InvokeExceptionsTest extends JavafxTestBase {
     ReferenceType targetClass;
     ThreadReference mainThread;
 
-    private static final String targetClassName = "com.sun.visage.jdi.test.target.InvokeExceptionsTarget";
+    private static final String targetClassName = "org.visage.jdi.test.target.InvokeExceptionsTarget";
 
     public InvokeExceptionsTest() {
         super(targetClassName);

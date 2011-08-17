@@ -3,11 +3,11 @@
  * and open the template in the editor.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
-import com.sun.tools.visage.api.JavafxcTool;
-import com.sun.visage.api.tree.UnitTree;
+import org.visage.api.JavafxcTask;
+import org.visage.tools.api.JavafxcTool;
+import org.visage.api.tree.UnitTree;
 import java.io.File;
 import java.util.List;
 import javax.tools.FileObject;
@@ -38,7 +38,7 @@ public class JFXC143Test {
             JavafxcTool tool = JavafxcTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
-            File file = new File("test/src/com/sun/tools/visage/api/Hello.visage");
+            File file = new File("test/src/org/visage/tools/api/Hello.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
             JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             List<? extends UnitTree> treeList = (List)visageTask.parse();
@@ -53,7 +53,7 @@ public class JFXC143Test {
         JavafxcTool instance = new JavafxcTool();
         MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
-        File file = new File(testSrc + "/com/sun/tools/visage/api", "UndeclaredClass.visage");
+        File file = new File(testSrc + "/org/visage/tools/api", "UndeclaredClass.visage");
 	Iterable<? extends JavaFileObject> fileList = fm.getJavaFileObjects(file);
         JavafxcTask task = instance.getTask(null, fm, dl, null, fileList);
         assertNotNull("no task returned", task);

@@ -3,9 +3,9 @@
  * and open the template in the editor.
  */
 
-package com.sun.tools.visage.script;
+package org.visage.tools.script;
 
-import com.sun.visage.api.JavaFXScriptEngine;
+import org.visage.api.JavaFXScriptEngine;
 import java.io.File;
 import java.io.FileReader;
 import javax.script.Bindings;
@@ -28,7 +28,7 @@ public class JFXC1131Test {
         manager.put("greeting", "Hello");
         ScriptEngine engine = manager.getEngineByExtension("visage");
         assertTrue(engine instanceof JavaFXScriptEngine);
-        File script = new File("test/src/com/sun/tools/visage/script/JFXC1131.visage");
+        File script = new File("test/src/org/visage/tools/script/JFXC1131.visage");
         engine.getContext().setAttribute(ScriptEngine.FILENAME, script.getAbsolutePath(), ScriptContext.ENGINE_SCOPE);
         Bindings bindings = new SimpleBindings();
         bindings.put("who", "world");

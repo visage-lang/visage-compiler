@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
 /** An interface for JavaFX tree factories
  */

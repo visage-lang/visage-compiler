@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
 import java.util.*;
 
-import com.sun.visage.runtime.TypeInfo;
+import org.visage.runtime.TypeInfo;
 
 $TEMPLATE_FROM$
 

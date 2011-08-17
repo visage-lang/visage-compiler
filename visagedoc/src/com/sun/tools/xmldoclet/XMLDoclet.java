@@ -24,7 +24,7 @@
 package com.sun.tools.xmldoclet;
 
 import com.sun.javadoc.*;
-import com.sun.tools.visage.code.FunctionType;
+import org.visage.tools.code.FunctionType;
 import com.sun.tools.xslhtml.XHTMLProcessingUtils;
 import java.io.*;
 import java.lang.reflect.Method;

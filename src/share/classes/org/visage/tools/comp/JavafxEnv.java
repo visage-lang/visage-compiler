@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.tree.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

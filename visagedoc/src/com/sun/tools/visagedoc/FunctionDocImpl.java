@@ -31,7 +31,7 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.util.Position;
 
-import com.sun.tools.visage.tree.JFXFunctionDefinition;
+import org.visage.tools.tree.JFXFunctionDefinition;
 import java.lang.reflect.Modifier;
 
 /**

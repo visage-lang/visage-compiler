@@ -26,13 +26,13 @@
  * and that the internal naming scheme for user instance vars is filtered out.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ClassType;
-import com.sun.visage.jdi.FXReferenceType;
-import com.sun.visage.jdi.FXClassType;
-import com.sun.visage.jdi.FXObjectReference;
+import org.visage.jdi.FXReferenceType;
+import org.visage.jdi.FXClassType;
+import org.visage.jdi.FXObjectReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.jdi.VoidValue;
@@ -48,7 +48,7 @@ public class SetValueTest extends JavafxTestBase {
     ReferenceType targetClass;
     ThreadReference mainThread;
 
-    private static final String targetClassName = "com.sun.visage.jdi.test.target.SetValueTarget";
+    private static final String targetClassName = "org.visage.jdi.test.target.SetValueTarget";
 
     public SetValueTest() {
         super(targetClassName);

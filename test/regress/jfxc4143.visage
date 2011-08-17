@@ -8,7 +8,7 @@
  * @run
  */
 
-import com.sun.visage.runtime.Pointer;
+import org.visage.runtime.Pointer;
 
 var justDummyFilling = "this is wrong!";
 var textVar = "after bound";

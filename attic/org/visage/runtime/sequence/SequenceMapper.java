@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
 /**
  * Represents a mapping function that will be applied to each element of a sequence, used in list comprehensions.

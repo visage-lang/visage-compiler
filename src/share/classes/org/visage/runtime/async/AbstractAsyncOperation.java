@@ -21,13 +21,13 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.async;
+package org.visage.runtime.async;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import com.sun.visage.runtime.Entry;
+import org.visage.runtime.Entry;
 
 /**
  * AbstractAsyncOperation.   Base class for result-bearing, asynchronous operations. Some operations are asynchronous

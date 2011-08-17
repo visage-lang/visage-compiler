@@ -40,7 +40,7 @@ import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.Position;
 
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.tree.*;
 
 
 /**

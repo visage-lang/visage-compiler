@@ -21,27 +21,27 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.tree.MemberSelectTree;
-import com.sun.visage.api.tree.VariableTree;
-import com.sun.tools.visage.api.*;
-import com.sun.visage.api.JavafxcTask;
-import com.sun.visage.api.tree.JavaFXTreePath;
-import com.sun.visage.api.tree.JavaFXTreePathScanner;
-import com.sun.visage.api.tree.Tree;
-import com.sun.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.MemberSelectTree;
+import org.visage.api.tree.VariableTree;
+import org.visage.tools.api.*;
+import org.visage.api.JavafxcTask;
+import org.visage.api.tree.JavaFXTreePath;
+import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.Tree;
+import org.visage.api.tree.Tree.JavaFXKind;
 
-import com.sun.visage.api.tree.Tree.JavaFXKind;
-import com.sun.visage.api.tree.UnitTree;
+import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.UnitTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
-import com.sun.tools.visage.comp.JavafxAttrContext;
-import com.sun.tools.visage.comp.JavafxEnv;
-import com.sun.tools.visage.comp.JavafxResolve;
-import com.sun.tools.visage.tree.JFXClassDeclaration;
-import com.sun.tools.visage.tree.JFXVar;
+import org.visage.tools.comp.JavafxAttrContext;
+import org.visage.tools.comp.JavafxEnv;
+import org.visage.tools.comp.JavafxResolve;
+import org.visage.tools.tree.JFXClassDeclaration;
+import org.visage.tools.tree.JFXVar;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +59,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from com.sun.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.JavaFXKind.values().
  * 
  * @author David Strupl
  */
@@ -82,7 +82,7 @@ public class JFXC2324Test {
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
         List<String> options = 
                 Arrays.asList("-d", ".", "-sourcepath", testSrc, "-classpath", testClasses);
-        File file = new File(testSrc + "/com/sun/tools/visage/api", "JFXC2324.visage");
+        File file = new File(testSrc + "/org/visage/tools/api", "JFXC2324.visage");
         Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
         task = instance.getTask(null, fm, dl, null, files);
         assertNotNull("no task returned", task);

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.connect;
+package org.visage.jdi.connect;
 
 import com.sun.jdi.connect.Transport;
 

@@ -21,13 +21,13 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.parsing;
+package org.visage.ideaplugin.parsing;
 
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import com.sun.visage.ideaplugin.FxPlugin;
-import com.sun.tools.visage.antlr.v3Lexer;
+import org.visage.ideaplugin.FxPlugin;
+import org.visage.tools.antlr.v3Lexer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

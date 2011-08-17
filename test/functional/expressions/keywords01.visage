@@ -62,7 +62,7 @@ function run( ) {
 	try {
 		checkfoo(fb2,i+v); //i+v since setData uses i and fb2 is bound to v :)
 	} catch(e:Exception) {
-		TU.checkB(e instanceof com.sun.visage.runtime.BindingException,
+		TU.checkB(e instanceof org.visage.runtime.BindingException,
 				"check BindingExecption1: {e}");
 	} finally {
 	   TU.check(true,"Make sure we got to finally block");
@@ -74,7 +74,7 @@ function run( ) {
     try {
 	f2.roI = 20;
     } catch( be: Exception ) {
-	TU.checkB(be instanceof com.sun.visage.runtime.BindingException,
+	TU.checkB(be instanceof org.visage.runtime.BindingException,
 		"check BindingExecption2: {be}");
     }
     if( f2.ros().compareTo("readable")!=0){

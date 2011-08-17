@@ -36,22 +36,22 @@ FX-JDI is implemented as a set of classes that wrap the normal JDI implementatio
 <p>
 The FX-JDI classes are included in the file fxjdi.jar. In order for a client to use FX-JDI, fxjdi.jar must be on the client's classpath.  The client should first get a {@link com.sun.jdi.VirtualMachineManager} object:
 <p><CODE><blockquote>
-     com.sun.jdi.VirtualMachineManager vmm = com.sun.visage.jdi.FXBootstrap.virtualMachineManager();
+     com.sun.jdi.VirtualMachineManager vmm = org.visage.jdi.FXBootstrap.virtualMachineManager();
 </CODE></blockquote>
 <p>
-This gives the client a JavaFX enabled VirtualMachineManager (com.sun.visage.jdi.FXVirtualMachineManager).  
+This gives the client a JavaFX enabled VirtualMachineManager (org.visage.jdi.FXVirtualMachineManager).  
 The client can then get one of the following FX-JDI connectors from the VirtualMachineManager:
 <blockquote>
-<li>com.sun.visage.jdi.connect.FXLaunchingConnector (this is the default connector)</li>
-<li>com.sun.visage.jdi.connect.FXProcessAttachingConnector</li>
-<li>com.sun.visage.jdi.connect.FXRawLaunchingConnector</li>
-<li>com.sun.visage.jdi.connect.FXSocketAttachingConnector</li>
-<li>com.sun.visage.jdi.connect.FXSocketListeningConnector</li>
-<li>com.sun.visage.jdi.connect.FXSharedMemoryAttachingConnector - currently only available on Windows</li>
-<li>com.sun.visage.jdi.connect.FXSharedMemoryListeningConnector - currently only available on Windows</li>
+<li>org.visage.jdi.connect.FXLaunchingConnector (this is the default connector)</li>
+<li>org.visage.jdi.connect.FXProcessAttachingConnector</li>
+<li>org.visage.jdi.connect.FXRawLaunchingConnector</li>
+<li>org.visage.jdi.connect.FXSocketAttachingConnector</li>
+<li>org.visage.jdi.connect.FXSocketListeningConnector</li>
+<li>org.visage.jdi.connect.FXSharedMemoryAttachingConnector - currently only available on Windows</li>
+<li>org.visage.jdi.connect.FXSharedMemoryListeningConnector - currently only available on Windows</li>
 </blockquote>
 <p>
-The connector object can be used to obtain an {@link com.sun.visage.jdi.FXVirtualMachine} as described in the JDI documentation.
+The connector object can be used to obtain an {@link org.visage.jdi.FXVirtualMachine} as described in the JDI documentation.
 <p>
 This javadoc shows the classes and methods that FX-JDI adds to JDI, as well as the enhancements to existing JDI methods.
 Due to limitations of javadoc, the existing unmodified methods in these classes are also shown.   These methods have no javadoc comments, and behave as described in the JDI spec.

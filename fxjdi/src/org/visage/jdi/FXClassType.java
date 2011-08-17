@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi;
+package org.visage.jdi;
 
-import com.sun.visage.jdi.event.FXEventQueue;
+import org.visage.jdi.event.FXEventQueue;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;

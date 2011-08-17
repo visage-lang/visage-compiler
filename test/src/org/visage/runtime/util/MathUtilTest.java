@@ -1,4 +1,4 @@
-package com.sun.visage.runtime.util;
+package org.visage.runtime.util;
 
 import junit.framework.TestCase;
 

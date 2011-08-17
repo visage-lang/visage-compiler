@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import com.sun.tools.mjavac.comp.*;
 import com.sun.tools.mjavac.util.*;
@@ -38,9 +38,9 @@ import static com.sun.tools.mjavac.code.Kinds.*;
 import static com.sun.tools.mjavac.code.TypeTags.*;
 import javax.lang.model.element.ElementVisitor;
 
-import com.sun.tools.visage.code.*;
-import com.sun.tools.visage.tree.*;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.code.*;
+import org.visage.tools.tree.*;
+import org.visage.tools.util.MsgSym;
 
 /** Helper class for name resolution, used mostly by the attribution phase.
  *

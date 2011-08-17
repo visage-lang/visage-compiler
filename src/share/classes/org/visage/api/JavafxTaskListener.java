@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.api;
+package org.visage.api;
 
 /**
  * Provides a listener to monitor the activity of the Sun Java Compiler, javac.

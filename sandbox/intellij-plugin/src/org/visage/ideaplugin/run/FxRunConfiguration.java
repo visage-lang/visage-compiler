@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.run;
+package org.visage.ideaplugin.run;
 
 import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionException;

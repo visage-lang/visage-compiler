@@ -1,4 +1,4 @@
-package com.sun.visage.runtime.sequences;
+package org.visage.runtime.sequences;
 
 import java.util.*;
 import java.io.*;
@@ -11,12 +11,12 @@ public class Script {
     private static Map<String, Class<?>> testMap = new HashMap<String, Class<?>>();
     static {
         try {
-            testMap.put("JE", Class.forName("com.sun.visage.runtime.sequences.JPEGEncoder"));
+            testMap.put("JE", Class.forName("org.visage.runtime.sequences.JPEGEncoder"));
         } catch (Exception ex) {
             // ignore
         }
         try {
-            testMap.put("FM", Class.forName("com.sun.visage.runtime.sequences.FractalMadness"));
+            testMap.put("FM", Class.forName("org.visage.runtime.sequences.FractalMadness"));
         } catch (Exception ex) {
             // ignore
         }

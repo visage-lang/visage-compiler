@@ -69,7 +69,7 @@ public function valueOf(value:Float, unit:AngleUnit):Angle {
     valueOf(value as Double, unit)
 }
 
-public def TYPE_INFO = com.sun.visage.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
+public def TYPE_INFO = org.visage.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
 
 // internal static variables
 

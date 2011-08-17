@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.sun.visage.api.JavafxCompiler;
+import org.visage.api.JavafxCompiler;
 import javax.tools.Tool;
 import javax.tools.JavaCompiler;
 import org.apache.tools.ant.Project;

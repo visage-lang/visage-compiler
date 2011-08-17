@@ -13,8 +13,8 @@ var data:String = "";
 /** covered   public static boolean isSameObject(java.lang.Object, java.lang.Object);   */
 /** covered   public static boolean isInitialized(java.lang.Object);   */
 /** covered   public static java.lang.String getProperty(java.lang.String);  */
-/** covered   public static int addShutdownAction(com.sun.visage.functions.Function0);   */
-/** covered   public static void deferAction(com.sun.visage.functions.Function0);   */
+/** covered   public static int addShutdownAction(org.visage.functions.Function0);   */
+/** covered   public static void deferAction(org.visage.functions.Function0);   */
 /** NOT covered  public static boolean removeShutdownAction(int);
 
   * @param  action of type function():Void that will be removed from the Shutdown Action Stack

@@ -23,12 +23,12 @@
 
 package visage.animation;
 
-import com.sun.visage.animation.ClipFactory;
-import com.sun.visage.animation.Clip;
-import com.sun.visage.animation.InterpolatorFactory;
-import com.sun.visage.animation.TimingTarget;
-import com.sun.visage.animation.TimingTargetAdapter;
-import com.sun.visage.runtime.Entry;
+import org.visage.animation.ClipFactory;
+import org.visage.animation.Clip;
+import org.visage.animation.InterpolatorFactory;
+import org.visage.animation.TimingTarget;
+import org.visage.animation.TimingTargetAdapter;
+import org.visage.runtime.Entry;
 import visage.lang.Duration;
 import visage.util.Sequences;
 import java.lang.Object;

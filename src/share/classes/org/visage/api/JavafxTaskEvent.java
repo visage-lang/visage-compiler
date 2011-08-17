@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.api;
+package org.visage.api;
 
-import com.sun.visage.api.tree.UnitTree;
+import org.visage.api.tree.UnitTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskEvent.Kind;

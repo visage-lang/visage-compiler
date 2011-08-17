@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,8 +29,8 @@ import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.visage.runtime.sequence.Sequence;
-import com.sun.visage.runtime.sequence.Sequences;
+import org.visage.runtime.sequence.Sequence;
+import org.visage.runtime.sequence.Sequences;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

@@ -21,13 +21,13 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.parsing;
+package org.visage.ideaplugin.parsing;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
-import com.sun.tools.visage.antlr.v3Parser;
+import org.visage.tools.antlr.v3Parser;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -60,7 +60,7 @@ public class FxParser implements PsiParser {
         WrappedAntlrLexer antlrLexer = new WrappedAntlrLexer(new ANTLRStringStream(lexer.getBufferSequence().toString().substring(0, lexer.getBufferEnd())), false, false);
         v3Parser parser = new v3Parser(new CommonTokenStream(antlrLexer)) {
             protected String getParserName() {
-                return "com.sun.tools.visage.antlr.v3Parser";
+                return "org.visage.tools.antlr.v3Parser";
             }
 
             public void displayRecognitionError(String[] strings, RecognitionException e) {

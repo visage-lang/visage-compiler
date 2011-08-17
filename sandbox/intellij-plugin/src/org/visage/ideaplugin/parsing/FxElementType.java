@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.parsing;
+package org.visage.ideaplugin.parsing;
 
 import com.intellij.lang.Language;
 import com.intellij.psi.tree.IElementType;

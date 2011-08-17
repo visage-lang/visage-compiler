@@ -51,7 +51,7 @@
  * 
  * Ex.
  * 
- *     import com.sun.visage.runtime.FXDOTWriter;
+ *     import org.visage.runtime.FXDOTWriter;
  *
  *     var dot = new FXDOTWriter("sample.dot");
  *     dot.addNodes(a, b, c);
@@ -226,7 +226,7 @@
  */
 
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 import java.io.PrintStream;
 import java.lang.reflect.Array;
@@ -243,9 +243,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.sun.visage.runtime.annotation.JavafxBindees;
-import com.sun.visage.runtime.FXObject;
-import com.sun.visage.runtime.sequence.Sequence;
+import org.visage.runtime.annotation.JavafxBindees;
+import org.visage.runtime.FXObject;
+import org.visage.runtime.sequence.Sequence;
 
 public class FXDOTWriter {
     // Property settings for fonts.

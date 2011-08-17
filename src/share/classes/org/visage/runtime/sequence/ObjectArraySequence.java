@@ -21,15 +21,15 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import com.sun.visage.runtime.TypeInfo;
-import com.sun.visage.runtime.Util;
+import org.visage.runtime.TypeInfo;
+import org.visage.runtime.Util;
 
 public class ObjectArraySequence<T> extends ArraySequence<T> implements Sequence<T> {
 

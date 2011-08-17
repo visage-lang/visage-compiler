@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
-import com.sun.visage.api.JavafxBindStatus;
+import org.visage.api.JavafxBindStatus;
 
 /**
  * Marker interface -- can mark as bound

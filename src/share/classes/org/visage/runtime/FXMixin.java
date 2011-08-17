@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 /**
  * All FX Mixins must extend FXMixin; it acts as a marker interface.

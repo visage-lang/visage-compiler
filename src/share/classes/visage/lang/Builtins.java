@@ -23,7 +23,7 @@
 
 package visage.lang;
 
-import com.sun.visage.runtime.FXObject;
+import org.visage.runtime.FXObject;
 
 /**
  * These functions are automaticlly imported for
@@ -82,7 +82,7 @@ public class Builtins {
      * @param offset offset of variable to be tested
      * @return true if the variable has been initialized
      */
-    @com.sun.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
+    @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
     public static boolean isInitialized(FXObject instance, int offset) {
         return instance != null && (
                    instance.varTestBits$(offset, FXObject.VFLGS$IS_BOUND, FXObject.VFLGS$IS_BOUND) ||
@@ -97,7 +97,7 @@ public class Builtins {
      * @param offset offset of variable to be tested
      * @return true if the variable is bound
      */
-    @com.sun.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
+    @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
     public static boolean isReadOnly(FXObject instance, int offset) {
         return instance.varTestBits$(offset,
                 FXObject.VFLGS$IS_READONLY,

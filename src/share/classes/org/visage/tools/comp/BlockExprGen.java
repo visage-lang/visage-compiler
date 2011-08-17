@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.tree.*;
 import com.sun.tools.mjavac.jvm.*;
 import com.sun.tools.mjavac.comp.*;
 import com.sun.tools.mjavac.util.*;
@@ -31,7 +31,7 @@ import com.sun.tools.mjavac.tree.*;
 import com.sun.tools.mjavac.tree.JCTree.JCReturn;
 import com.sun.tools.mjavac.tree.JCTree.JCTry;
 import com.sun.tools.mjavac.code.Type;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.util.MsgSym;
 
 /**
  *

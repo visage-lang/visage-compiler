@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
 /**
  * Represents a portion of another sequence.  Subsequences should be created with the Sequences.subsequence() factory

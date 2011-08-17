@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.parsing;
+package org.visage.ideaplugin.parsing;
 
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.HighlighterColors;

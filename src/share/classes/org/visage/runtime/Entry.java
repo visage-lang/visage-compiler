@@ -25,13 +25,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
-import com.sun.visage.animation.AnimationProvider;
-import com.sun.visage.animation.DefaultAnimationProvider;
-import com.sun.visage.functions.Function0;
-import com.sun.visage.runtime.sequence.Sequence;
-import com.sun.visage.runtime.sequence.Sequences;
+import org.visage.animation.AnimationProvider;
+import org.visage.animation.DefaultAnimationProvider;
+import org.visage.functions.Function0;
+import org.visage.runtime.sequence.Sequence;
+import org.visage.runtime.sequence.Sequences;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessControlException;

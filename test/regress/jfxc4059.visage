@@ -6,8 +6,8 @@
  * @run
  */
 
-import com.sun.tools.visage.script.JavaFXScriptContext;
-import com.sun.tools.visage.script.JavaFXScriptCompiler;
+import org.visage.tools.script.JavaFXScriptContext;
+import org.visage.tools.script.JavaFXScriptCompiler;
 
 def context = new JavaFXScriptContext(jfxc4059.class.getClassLoader());
 def compiler:JavaFXScriptCompiler = getField(context, 'compiler') as JavaFXScriptCompiler;

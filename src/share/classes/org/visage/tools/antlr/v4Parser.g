@@ -102,7 +102,7 @@ scope errorStack {
 
 // Package specification for the generated parser class
 //
-package com.sun.tools.visage.antlr;
+package org.visage.tools.antlr;
 
 // Parser specific inports.
 //
@@ -112,18 +112,18 @@ import java.util.Map;
 import java.io.OutputStreamWriter;
 
 import com.sun.tools.mjavac.tree.*;
-import com.sun.tools.visage.tree.*;
-import com.sun.visage.api.tree.*;
+import org.visage.tools.tree.*;
+import org.visage.api.tree.*;
 
 import com.sun.tools.mjavac.util.*;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.util.MsgSym;
 
 import com.sun.tools.mjavac.code.*;
-import com.sun.tools.visage.code.JavafxFlags;
+import org.visage.tools.code.JavafxFlags;
 import static com.sun.tools.mjavac.util.ListBuffer.lb;
-import com.sun.visage.api.JavafxBindStatus;
+import org.visage.api.JavafxBindStatus;
 
-import static com.sun.visage.api.JavafxBindStatus.*;
+import static org.visage.api.JavafxBindStatus.*;
 
 }
  

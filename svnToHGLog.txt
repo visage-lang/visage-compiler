@@ -676,7 +676,7 @@ changeset:   4332:d70c03b814f0
 branch:      trunk
 user:        rfield
 date:        Thu Dec 18 19:40:47 2008 -0800
-summary:     [svn r4799] Fixed JFXC-2413 : Number->Float: jfxc1100.fx fails in translation - no such method method bind(boolean,com.sun.visage.runtime.location.ObjectLocation<jav a.lang.Float>) in FloatVariable
+summary:     [svn r4799] Fixed JFXC-2413 : Number->Float: jfxc1100.fx fails in translation - no such method method bind(boolean,org.visage.runtime.location.ObjectLocation<jav a.lang.Float>) in FloatVariable
 
 changeset:   4331:1814c622c6c6
 branch:      trunk
@@ -3778,7 +3778,7 @@ changeset:   3815:053af2e9dd76
 branch:      trunk
 user:        sgw
 date:        Fri Sep 26 13:21:31 2008 -0700
-summary:     [svn r4195] Add com.sun.visage.runtime.FXExit for handling FXExit across Mobile and Desktop, update FX.java for this change
+summary:     [svn r4195] Add org.visage.runtime.FXExit for handling FXExit across Mobile and Desktop, update FX.java for this change
 
 changeset:   3814:13976d399a20
 branch:      trunk
@@ -11794,7 +11794,7 @@ changeset:   2479:3efecf8c36ac
 branch:      trunk
 user:        tball
 date:        Sat Apr 26 11:31:58 2008 -0700
-summary:     [svn r2657] Moved com.sun.visage.runtime.awt package to runtime's com.sun.tools.visage.ui.awt, since only the UI runtime uses those 1.5 bridge classes.
+summary:     [svn r2657] Moved org.visage.runtime.awt package to runtime's org.visage.tools.ui.awt, since only the UI runtime uses those 1.5 bridge classes.
 
 changeset:   2478:5aaed2c3857c
 branch:      trunk
@@ -13864,7 +13864,7 @@ changeset:   2134:dc7b657ebc16
 branch:      trunk
 user:        alexsch
 date:        Wed Mar 26 05:02:46 2008 -0700
-summary:     [svn r2300] import com.sun.tools.visage.api.JavafxcTool
+summary:     [svn r2300] import org.visage.tools.api.JavafxcTool
 
 changeset:   2133:5b51e21ab582
 branch:      trunk
@@ -19132,7 +19132,7 @@ changeset:   1256:e67ad42313d3
 branch:      trunk
 user:        tball
 date:        Sun Jan 06 18:52:44 2008 -0800
-summary:     [svn r1327] Applet support:  to use, either subclass visage.ui.Applet or use com.sun.visage.api.ui.FXApplet and set a AppletClass parameter with the class name which has the widget for the applet content.
+summary:     [svn r1327] Applet support:  to use, either subclass visage.ui.Applet or use org.visage.api.ui.FXApplet and set a AppletClass parameter with the class name which has the widget for the applet content.
 
 changeset:   1255:20bc1118d1f8
 branch:      trunk
@@ -19894,13 +19894,13 @@ changeset:   1129:c4d637be4fff
 branch:      trunk
 user:        jimclarke
 date:        Tue Dec 18 09:43:40 2007 -0800
-summary:     [svn r1194] Changed to use java.awt Gradient classes if Java 6, otherwise use com.sun.visage.runtime.awt version of these classes
+summary:     [svn r1194] Changed to use java.awt Gradient classes if Java 6, otherwise use org.visage.runtime.awt version of these classes
 
 changeset:   1128:a77411cbd6d4
 branch:      trunk
 user:        jimclarke
 date:        Tue Dec 18 09:42:52 2007 -0800
-summary:     [svn r1193] Changed to use java.awt Gradient classes if Java 6, otherwise use com.sun.visage.runtime.awt version of these classes
+summary:     [svn r1193] Changed to use java.awt Gradient classes if Java 6, otherwise use org.visage.runtime.awt version of these classes
 
 changeset:   1127:786ea3037f94
 branch:      trunk
@@ -21112,7 +21112,7 @@ changeset:   926:5b9bfd184fcb
 branch:      trunk
 user:        jimclarke
 date:        Sat Dec 01 13:13:02 2007 -0800
-summary:     [svn r987] Modified to use com.sun.tools.visage.ui.SequenceUtil
+summary:     [svn r987] Modified to use org.visage.tools.ui.SequenceUtil
 
 changeset:   925:a1cef37cbc89
 branch:      trunk
@@ -21622,7 +21622,7 @@ changeset:   841:ccebafa86468
 branch:      trunk
 user:        jimclarke
 date:        Sun Nov 25 14:04:27 2007 -0800
-summary:     [svn r902] Initial port from interpreter, refactored to align with Radial/LinearGradiaentPaint in JDK 1.6 awt packagage implemented in the compiler in the com.sun.visage.runtime.awt package.
+summary:     [svn r902] Initial port from interpreter, refactored to align with Radial/LinearGradiaentPaint in JDK 1.6 awt packagage implemented in the compiler in the org.visage.runtime.awt package.
 
 changeset:   840:6bf37de34bf1
 branch:      trunk
@@ -22930,7 +22930,7 @@ changeset:   623:47884adebc5c
 branch:      trunk
 user:        jimclarke
 date:        Sat Nov 10 09:08:40 2007 -0800
-summary:     [svn r684] move supporting java class to com.sun.visage.api.ui package
+summary:     [svn r684] move supporting java class to org.visage.api.ui package
 
 changeset:   622:a4969eab03ef
 branch:      trunk
@@ -24106,7 +24106,7 @@ changeset:   427:fb8f748af2fb
 branch:      trunk
 user:        lubomirlitchev
 date:        Tue Oct 16 13:03:03 2007 -0700
-summary:     [svn r486] Fixed bad parsing of generified type -- com.sun.visage.runtime.location.ObjectLocation<java.lang.Double>.
+summary:     [svn r486] Fixed bad parsing of generified type -- org.visage.runtime.location.ObjectLocation<java.lang.Double>.
 
 changeset:   426:33a22aae66a4
 branch:      trunk
@@ -24532,13 +24532,13 @@ changeset:   356:066d6324b33b
 branch:      trunk
 user:        rfield
 date:        Mon Oct 08 10:59:28 2007 -0700
-summary:     [svn r415] Part 1 of commit JFXC-31 : incompatible types com.sun.visage.runtime.location.ObjectLocation<...>
+summary:     [svn r415] Part 1 of commit JFXC-31 : incompatible types org.visage.runtime.location.ObjectLocation<...>
 
 changeset:   355:94ef040e7c2b
 branch:      trunk
 user:        rfield
 date:        Mon Oct 08 10:56:56 2007 -0700
-summary:     [svn r414] Fixed JFXC-31 : incompatible types com.sun.visage.runtime.location.ObjectLocation<...>
+summary:     [svn r414] Fixed JFXC-31 : incompatible types org.visage.runtime.location.ObjectLocation<...>
 
 changeset:   354:9c38238e2a49
 branch:      trunk

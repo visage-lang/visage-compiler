@@ -21,8 +21,8 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
-import com.sun.visage.runtime.FXObject;
+package org.visage.runtime.sequence;
+import org.visage.runtime.FXObject;
 
 public abstract class BoundForOverSingleton<T, PT> extends BoundFor<T, PT> {
 

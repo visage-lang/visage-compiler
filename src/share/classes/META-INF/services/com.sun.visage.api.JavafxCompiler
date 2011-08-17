@@ -1,1 +1,1 @@
-com.sun.tools.visage.api.JavafxcTool
+org.visage.tools.api.JavafxcTool

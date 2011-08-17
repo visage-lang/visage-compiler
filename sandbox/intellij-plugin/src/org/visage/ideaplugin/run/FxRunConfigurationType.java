@@ -21,14 +21,14 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.run;
+package org.visage.ideaplugin.run;
 
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.sun.visage.ideaplugin.FxPlugin;
+import org.visage.ideaplugin.FxPlugin;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 

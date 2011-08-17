@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
-import com.sun.visage.api.tree.*;
-import com.sun.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.*;
+import org.visage.api.tree.Tree.JavaFXKind;
 
 import com.sun.tools.mjavac.code.Symbol;
 

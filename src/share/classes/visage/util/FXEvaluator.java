@@ -25,7 +25,7 @@ package visage.util;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-import com.sun.tools.visage.script.JavaFXScriptEngineFactory;
+import org.visage.tools.script.JavaFXScriptEngineFactory;
 
 // factored out to avoid linkage error for javax.script.* on Java 1.5
 class Evaluator {

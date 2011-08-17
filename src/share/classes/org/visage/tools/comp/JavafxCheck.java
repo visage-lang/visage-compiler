@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,18 +51,18 @@ import com.sun.tools.mjavac.jvm.Target;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
-import com.sun.visage.api.JavafxBindStatus;
-import com.sun.tools.visage.code.JavafxClassSymbol;
-import com.sun.tools.visage.code.JavafxVarSymbol;
-import com.sun.tools.visage.code.JavafxFlags;
-import com.sun.tools.visage.code.JavafxSymtab;
-import com.sun.tools.visage.code.JavafxTypes;
-import com.sun.tools.visage.comp.JavafxAttr.Sequenceness;
-import com.sun.tools.visage.tree.*;
-import com.sun.tools.visage.tree.JavafxTreeScanner;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.api.JavafxBindStatus;
+import org.visage.tools.code.JavafxClassSymbol;
+import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.JavafxSymtab;
+import org.visage.tools.code.JavafxTypes;
+import org.visage.tools.comp.JavafxAttr.Sequenceness;
+import org.visage.tools.tree.*;
+import org.visage.tools.tree.JavafxTreeScanner;
+import org.visage.tools.util.MsgSym;
 
-import static com.sun.tools.visage.code.JavafxFlags.*;
+import static org.visage.tools.code.JavafxFlags.*;
 
 /** Type checking helper class for the attribution phase.
  *

@@ -1,8 +1,8 @@
-import com.sun.visage.runtime.FXObject;
-import com.sun.visage.runtime.InitHelper;
-import com.sun.visage.runtime.location.AbstractVariable;
-import com.sun.visage.runtime.location.ChangeListener;
-import com.sun.visage.runtime.location.IntVariable;
+import org.visage.runtime.FXObject;
+import org.visage.runtime.InitHelper;
+import org.visage.runtime.location.AbstractVariable;
+import org.visage.runtime.location.ChangeListener;
+import org.visage.runtime.location.IntVariable;
 
 /**
  * SimpleAttribute

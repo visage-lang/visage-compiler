@@ -21,16 +21,16 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
-import com.sun.visage.jdi.*;
-import com.sun.visage.jdi.connect.FXLaunchingConnector;
-import com.sun.visage.jdi.connect.FXProcessAttachingConnector;
-import com.sun.visage.jdi.connect.FXRawLaunchingConnector;
-import com.sun.visage.jdi.connect.FXSharedMemoryAttachingConnector;
-import com.sun.visage.jdi.connect.FXSharedMemoryListeningConnector;
-import com.sun.visage.jdi.connect.FXSocketAttachingConnector;
-import com.sun.visage.jdi.connect.FXSocketListeningConnector;
+import org.visage.jdi.*;
+import org.visage.jdi.connect.FXLaunchingConnector;
+import org.visage.jdi.connect.FXProcessAttachingConnector;
+import org.visage.jdi.connect.FXRawLaunchingConnector;
+import org.visage.jdi.connect.FXSharedMemoryAttachingConnector;
+import org.visage.jdi.connect.FXSharedMemoryListeningConnector;
+import org.visage.jdi.connect.FXSocketAttachingConnector;
+import org.visage.jdi.connect.FXSocketListeningConnector;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.LaunchingConnector;
 import com.sun.jdi.connect.ListeningConnector;
@@ -46,39 +46,39 @@ public class ConnectorsTest {
     @Test
     public void testFXConnectors() {
         LaunchingConnector conn = FXBootstrap.virtualMachineManager().defaultConnector();
-        Assert.assertEquals("com.sun.visage.jdi.connect.FXLaunchingConnector", conn.name());
+        Assert.assertEquals("org.visage.jdi.connect.FXLaunchingConnector", conn.name());
         
         FXLaunchingConnector conn1 = new FXLaunchingConnector();
-        Assert.assertEquals("com.sun.visage.jdi.connect.FXLaunchingConnector", conn1.name());
+        Assert.assertEquals("org.visage.jdi.connect.FXLaunchingConnector", conn1.name());
         Assert.assertEquals(true, conn1 instanceof LaunchingConnector);
 
         FXProcessAttachingConnector conn2 = new FXProcessAttachingConnector();
-        Assert.assertEquals("com.sun.visage.jdi.connect.FXProcessAttachingConnector", conn2.name());
+        Assert.assertEquals("org.visage.jdi.connect.FXProcessAttachingConnector", conn2.name());
         Assert.assertEquals(true, conn2 instanceof AttachingConnector);
 
         FXRawLaunchingConnector conn3 = new FXRawLaunchingConnector();
-        Assert.assertEquals("com.sun.visage.jdi.connect.FXRawLaunchingConnector", conn3.name());
+        Assert.assertEquals("org.visage.jdi.connect.FXRawLaunchingConnector", conn3.name());
         Assert.assertEquals(true, conn3 instanceof LaunchingConnector);
 
         FXSocketAttachingConnector conn4 = new FXSocketAttachingConnector();
-        Assert.assertEquals("com.sun.visage.jdi.connect.FXSocketAttachingConnector", conn4.name());
+        Assert.assertEquals("org.visage.jdi.connect.FXSocketAttachingConnector", conn4.name());
         Assert.assertEquals(true, conn4 instanceof AttachingConnector);
 
         FXSocketListeningConnector conn5 = new FXSocketListeningConnector();
-        Assert.assertEquals("com.sun.visage.jdi.connect.FXSocketListeningConnector", conn5.name());
+        Assert.assertEquals("org.visage.jdi.connect.FXSocketListeningConnector", conn5.name());
         Assert.assertEquals(true, conn5 instanceof ListeningConnector);
 
         // Conditionally adding FX shared mem connectors - because underlying platform shared
         // memory connectors are not available on all platforms
         if (FXSharedMemoryAttachingConnector.isAvailable()) {
             FXSharedMemoryAttachingConnector conn6 = new FXSharedMemoryAttachingConnector();
-            Assert.assertEquals("com.sun.visage.jdi.connect.FXSharedMemoryAttachingConnector", conn6.name());
+            Assert.assertEquals("org.visage.jdi.connect.FXSharedMemoryAttachingConnector", conn6.name());
             Assert.assertEquals(true, conn6 instanceof AttachingConnector);
         }
 
         if (FXSharedMemoryListeningConnector.isAvailable()) {
             FXSharedMemoryListeningConnector conn7 = new FXSharedMemoryListeningConnector();
-            Assert.assertEquals("com.sun.visage.jdi.connect.FXSharedMemoryListeningConnector", conn7.name());
+            Assert.assertEquals("org.visage.jdi.connect.FXSharedMemoryListeningConnector", conn7.name());
             Assert.assertEquals(true, conn7 instanceof ListeningConnector);
         }
     }

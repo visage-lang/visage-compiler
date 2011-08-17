@@ -1,7 +1,7 @@
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
-import com.sun.visage.api.tree.UnitTree;
+import org.visage.api.JavafxcTask;
+import org.visage.api.tree.UnitTree;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class JFXC1517Test {
             dirs.add(getTmpDir());
             fileManager.setLocation(CLASS_OUTPUT, dirs);
             
-            File file = new File("test/src/com/sun/tools/visage/api/JFXC1517.visage");
+            File file = new File("test/src/org/visage/tools/api/JFXC1517.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
             JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             List<? extends UnitTree> treeList = (List)visageTask.parse();

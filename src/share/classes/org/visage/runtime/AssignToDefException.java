@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 /**
  * Exception thrown when someone tries to assign a value to a def.

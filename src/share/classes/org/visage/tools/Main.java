@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage;
+package org.visage.tools;
 
 import java.io.PrintWriter;
 import java.lang.reflect.*;
@@ -43,7 +43,7 @@ public class Main {
     static {
 	ClassLoader loader = Main.class.getClassLoader();
 	if (loader != null) {
-	    loader.setPackageAssertionStatus("com.sun.tools.visage", true);
+	    loader.setPackageAssertionStatus("org.visage.tools", true);
             
             //workaround for JFXC-964, so compiler works when IDE enables all assertions
 	    loader.setClassAssertionStatus("com.sun.tools.mjavac.code.Symbol", false);
@@ -63,7 +63,7 @@ public class Main {
         System.arraycopy(args, 1, newargs, 3, args.length - 1);
         newargs[0] = "-connect";
         newargs[1] = "com.sun.jdi.CommandLineLaunch:options=-esa -ea:com.sun.tools...";
-        newargs[2] = "com.sun.tools.visage.Main";
+        newargs[2] = "org.visage.tools.Main";
         method.invoke(null, new Object[] { newargs });
       } else {
         System.exit(compile(args));
@@ -79,8 +79,8 @@ public class Main {
      * javac, see the man page for details.
      */
     public static int compile(String[] args) {
-	com.sun.tools.visage.main.Main compiler =
-	    new com.sun.tools.visage.main.Main("visagec");
+	org.visage.tools.main.Main compiler =
+	    new org.visage.tools.main.Main("visagec");
 	return compiler.compile(args);
     }
 
@@ -97,8 +97,8 @@ public class Main {
      * javac, see the man page for details.
      */
     public static int compile(String[] args, PrintWriter out) {
-	com.sun.tools.visage.main.Main compiler =
-	    new com.sun.tools.visage.main.Main("visagec", out);
+	org.visage.tools.main.Main compiler =
+	    new org.visage.tools.main.Main("visagec", out);
 	return compiler.compile(args);
     }
 }

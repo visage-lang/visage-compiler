@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.api.tree;
+package org.visage.api.tree;
 
 import com.sun.source.tree.LineMap; // Danger: this is the one import from the javac source package
 import java.util.List;

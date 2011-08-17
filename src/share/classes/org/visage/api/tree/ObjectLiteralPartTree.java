@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.api.tree;
+package org.visage.api.tree;
 
-import com.sun.visage.api.JavafxBindStatus;
+import org.visage.api.JavafxBindStatus;
 import javax.lang.model.element.Name;
 
 /**

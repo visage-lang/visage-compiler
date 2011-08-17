@@ -2,7 +2,7 @@
   * @test
   * @run
   */
-import com.sun.tools.visage.script.*;
+import org.visage.tools.script.*;
 public function run() {
     def context = new JavaFXScriptContext(jfxc4191.class.getClassLoader());
     def compilerField = context.getClass().getDeclaredField("compiler");

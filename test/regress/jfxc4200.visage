@@ -6,7 +6,7 @@
  */
 
 import java.lang.reflect.*;
-import com.sun.visage.functions.*;
+import org.visage.functions.*;
 
 public class t {
 }

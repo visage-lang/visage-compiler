@@ -26,7 +26,7 @@
  * and that the internal naming scheme for user instance vars is filtered out.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
@@ -40,7 +40,7 @@ public class FilterMethodsTest extends JavafxTestBase {
     ReferenceType targetClass;
     ThreadReference mainThread;
 
-    private static final String targetClassName = "com.sun.visage.jdi.test.target.FilterMethodsTarget";
+    private static final String targetClassName = "org.visage.jdi.test.target.FilterMethodsTarget";
 
     public FilterMethodsTest() {
         super(targetClassName);

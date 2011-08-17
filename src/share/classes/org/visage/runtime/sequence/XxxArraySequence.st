@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
-import com.sun.visage.runtime.TypeInfo;
+import org.visage.runtime.TypeInfo;
 
 $TEMPLATE_FROM$
 

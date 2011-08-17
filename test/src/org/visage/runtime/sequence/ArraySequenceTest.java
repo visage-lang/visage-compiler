@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
-import com.sun.visage.runtime.JavaFXTestCase;
-import com.sun.visage.runtime.TypeInfo;
+import org.visage.runtime.JavaFXTestCase;
+import org.visage.runtime.TypeInfo;
 import org.junit.Assert;
 
 /**

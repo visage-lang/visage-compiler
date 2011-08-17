@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import java.util.IdentityHashMap;
 import java.util.Set;
@@ -38,15 +38,15 @@ import com.sun.tools.mjavac.util.List;
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.Kinds.*;
 import static com.sun.tools.mjavac.code.TypeTags.*;
-import com.sun.tools.visage.code.JavafxClassSymbol;
-import com.sun.tools.visage.code.JavafxSymtab;
-import com.sun.tools.visage.code.JavafxFlags;
-import com.sun.tools.visage.code.JavafxTypes;
-import com.sun.tools.visage.code.JavafxVarSymbol;
-import com.sun.tools.visage.tree.JavafxTreeMaker;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.code.JavafxClassSymbol;
+import org.visage.tools.code.JavafxSymtab;
+import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.JavafxTypes;
+import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.tree.JavafxTreeMaker;
+import org.visage.tools.util.MsgSym;
 
-import com.sun.tools.visage.main.JavafxCompiler;
+import org.visage.tools.main.JavafxCompiler;
 
 /** Provides operations to read a classfile into an internal
  *  representation. The internal representation is anchored in a

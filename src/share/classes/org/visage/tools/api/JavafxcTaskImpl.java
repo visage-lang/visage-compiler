@@ -21,13 +21,13 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxTaskEvent;
-import com.sun.visage.api.JavafxTaskListener;
-import com.sun.visage.api.JavafxcTask;
-import com.sun.visage.api.tree.Tree;
-import com.sun.visage.api.tree.UnitTree;
+import org.visage.api.JavafxTaskEvent;
+import org.visage.api.JavafxTaskListener;
+import org.visage.api.JavafxcTask;
+import org.visage.api.tree.Tree;
+import org.visage.api.tree.UnitTree;
 import com.sun.tools.mjavac.model.JavacElements;
 import com.sun.tools.mjavac.model.JavacTypes;
 import com.sun.tools.mjavac.code.Scope;
@@ -36,12 +36,12 @@ import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Options;
-import com.sun.tools.visage.comp.JavafxAttrContext;
-import com.sun.tools.visage.comp.JavafxEnv;
-import com.sun.tools.visage.main.CommandLine;
-import com.sun.tools.visage.main.Main;
-import com.sun.tools.visage.tree.JFXScript;
-import com.sun.tools.visage.tree.JFXTree;
+import org.visage.tools.comp.JavafxAttrContext;
+import org.visage.tools.comp.JavafxEnv;
+import org.visage.tools.main.CommandLine;
+import org.visage.tools.main.Main;
+import org.visage.tools.tree.JFXScript;
+import org.visage.tools.tree.JFXTree;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -61,7 +61,7 @@ import javax.tools.JavaFileObject;
 public class JavafxcTaskImpl extends JavafxcTask {
 
     public Main compilerMain;
-    private com.sun.tools.visage.main.JavafxCompiler compiler;
+    private org.visage.tools.main.JavafxCompiler compiler;
     private String[] args;
     private Context context;
     private List<JavaFileObject> fileObjects;
@@ -145,7 +145,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
             List<File> filenames = compilerMain.processArgs(CommandLine.parse(args));
             if (!filenames.isEmpty())
                 throw new IllegalArgumentException("Malformed arguments " + filenames.toString(" "));
-            compiler = com.sun.tools.visage.main.JavafxCompiler.instance(context);
+            compiler = org.visage.tools.main.JavafxCompiler.instance(context);
             compiler.keepComments = true;
             notYetEntered = new HashMap<JavaFileObject, JFXScript>();
             for (JavaFileObject file: fileObjects)

@@ -28,8 +28,8 @@ import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol.*;
-import com.sun.tools.visage.tree.*;
-import com.sun.tools.visage.comp.JavafxMemberEnter;
+import org.visage.tools.tree.*;
+import org.visage.tools.comp.JavafxMemberEnter;
 
 /**
  *  Javadoc's own memberEnter phase does a few things above and beyond that

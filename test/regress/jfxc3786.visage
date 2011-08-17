@@ -1,5 +1,5 @@
 /**
- * JFXC-3786 : Compiled Bind: TV - Crash compiling tv/tv-visage-ui-prism/src/com/sun/visage/tk/prism/AlertControl.visage.
+ * JFXC-3786 : Compiled Bind: TV - Crash compiling tv/tv-visage-ui-prism/src/org/visage/tk/prism/AlertControl.visage.
  * 
  * @test
  * @run

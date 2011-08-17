@@ -21,12 +21,12 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.script;
+package org.visage.tools.script;
 import com.sun.tools.mjavac.code.*;
 import java.lang.reflect.*;
-import com.sun.visage.runtime.TypeInfo;
-import com.sun.visage.runtime.Entry;
-import com.sun.visage.runtime.sequence.Sequence;
+import org.visage.runtime.TypeInfo;
+import org.visage.runtime.Entry;
+import org.visage.runtime.sequence.Sequence;
 import com.sun.tools.mjavac.util.Name;
 
 /**

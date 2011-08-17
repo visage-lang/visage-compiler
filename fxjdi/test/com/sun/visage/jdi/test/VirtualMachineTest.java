@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
 import com.sun.jdi.BooleanType;
 import com.sun.jdi.BooleanValue;

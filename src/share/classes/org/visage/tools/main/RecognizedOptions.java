@@ -21,15 +21,15 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.main;
+package org.visage.tools.main;
 
 import com.sun.tools.mjavac.code.Source;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.jvm.Target;
-import com.sun.tools.visage.main.JavafxOption.HiddenOption;
-import com.sun.tools.visage.main.JavafxOption.Option;
-import com.sun.tools.visage.main.JavafxOption.XOption;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.main.JavafxOption.HiddenOption;
+import org.visage.tools.main.JavafxOption.Option;
+import org.visage.tools.main.JavafxOption.XOption;
+import org.visage.tools.util.MsgSym;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Log;
@@ -41,7 +41,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 import javax.lang.model.SourceVersion;
-import static com.sun.tools.visage.main.OptionName.*;
+import static org.visage.tools.main.OptionName.*;
 
 /**
  * TODO: describe com.sun.tools.mjavac.main.RecognizedOptions

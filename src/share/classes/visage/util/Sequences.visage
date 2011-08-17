@@ -57,7 +57,7 @@ public class Sequences {
      * @profile common
      */    
     public function isEqualByContentIdentity(seq1: Object[], seq2: Object[]): Boolean {
-        return com.sun.visage.runtime.sequence.Sequences.isEqualByContentIdentity(seq1, seq2);
+        return org.visage.runtime.sequence.Sequences.isEqualByContentIdentity(seq1, seq2);
     }
     
     /**
@@ -83,7 +83,7 @@ public class Sequences {
      * @profile common 
      */
     public function binarySearch(seq: Comparable[], key: Comparable): Integer {
-        return com.sun.visage.runtime.sequence.Sequences.binarySearch(seq, key);
+        return org.visage.runtime.sequence.Sequences.binarySearch(seq, key);
     }
     
     /**
@@ -113,7 +113,7 @@ public class Sequences {
      * @profile common 
      */
     public function binarySearch(seq: Object[], key: Object, c: Comparator): Integer {
-        return com.sun.visage.runtime.sequence.Sequences.binarySearch(seq, key, c);
+        return org.visage.runtime.sequence.Sequences.binarySearch(seq, key, c);
     }
     
     /**
@@ -133,7 +133,7 @@ public class Sequences {
      * @profile common 
      */
    public function indexByIdentity(seq: Object[], key: Object): Integer {
-        return com.sun.visage.runtime.sequence.Sequences.indexByIdentity(seq, key);
+        return org.visage.runtime.sequence.Sequences.indexByIdentity(seq, key);
     }
 
     /**
@@ -155,7 +155,7 @@ public class Sequences {
      * @profile common 
      */
     public function indexOf(seq: Object[], key: Object): Integer {
-        return com.sun.visage.runtime.sequence.Sequences.indexOf(seq, key);
+        return org.visage.runtime.sequence.Sequences.indexOf(seq, key);
     }
     
     /**
@@ -175,7 +175,7 @@ public class Sequences {
      * @profile common 
      */
     public function max(seq: Comparable[]): Comparable {
-        return com.sun.visage.runtime.sequence.Sequences.max(seq);
+        return org.visage.runtime.sequence.Sequences.max(seq);
     }
     
     /**
@@ -198,7 +198,7 @@ public class Sequences {
      * @profile common 
      */
     public function max(seq: Object[], c: Comparator): Object {
-        return com.sun.visage.runtime.sequence.Sequences.max(seq, c);
+        return org.visage.runtime.sequence.Sequences.max(seq, c);
     }
     
     /**
@@ -218,7 +218,7 @@ public class Sequences {
      * @profile common 
      */
     public function min(seq: Comparable[]): Comparable {
-        return com.sun.visage.runtime.sequence.Sequences.min(seq);
+        return org.visage.runtime.sequence.Sequences.min(seq);
     }
     
      /**
@@ -241,7 +241,7 @@ public class Sequences {
      * @profile common 
      */
    public function min(seq: Object[], c: Comparator): Object {
-        return com.sun.visage.runtime.sequence.Sequences.min(seq, c);
+        return org.visage.runtime.sequence.Sequences.min(seq, c);
     }
     
     /**
@@ -262,7 +262,7 @@ public class Sequences {
      * @profile common 
      */
     public function nextIndexByIdentity(seq: Object[], key: Object, pos: Integer): Integer {
-        return com.sun.visage.runtime.sequence.Sequences.nextIndexByIdentity(seq, key, pos);
+        return org.visage.runtime.sequence.Sequences.nextIndexByIdentity(seq, key, pos);
     }
     
     /**
@@ -284,7 +284,7 @@ public class Sequences {
      * @profile common 
      */
     public function nextIndexOf(seq: Object[], key: Object, pos: Integer): Integer {
-        return com.sun.visage.runtime.sequence.Sequences.nextIndexOf(seq, key, pos);
+        return org.visage.runtime.sequence.Sequences.nextIndexOf(seq, key, pos);
     }
     
     /**
@@ -299,7 +299,7 @@ public class Sequences {
      * @profile common
      */
     public function <<reverse>> (seq:Object[]): Object[] {
-        return com.sun.visage.runtime.sequence.Sequences.<<reverse>>(seq);
+        return org.visage.runtime.sequence.Sequences.<<reverse>>(seq);
     }
     
     /**
@@ -327,7 +327,7 @@ public class Sequences {
      * @profile common 
      */
     public function sort(seq: Comparable[]): Comparable[] {
-        return com.sun.visage.runtime.sequence.Sequences.sort(seq);
+        return org.visage.runtime.sequence.Sequences.sort(seq);
     }
     
     /**
@@ -357,7 +357,7 @@ public class Sequences {
      * @profile common 
      */
     public function sort(seq: Object[], c: Comparator): Object[] {
-        return com.sun.visage.runtime.sequence.Sequences.sort(seq, c);
+        return org.visage.runtime.sequence.Sequences.sort(seq, c);
     }
 
     /**
@@ -378,6 +378,6 @@ public class Sequences {
      * @profile common
      */
     public function shuffle(seq: Object[]):Object[] {
-        return com.sun.visage.runtime.sequence.Sequences.shuffle(seq);
+        return org.visage.runtime.sequence.Sequences.shuffle(seq);
     }
 

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin;
+package org.visage.ideaplugin;
 
 import com.intellij.lang.*;
 import com.intellij.lang.annotation.ExternalAnnotator;
@@ -32,10 +32,10 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.tree.IElementType;
-import com.sun.visage.ideaplugin.parsing.FxAnnotator;
-import com.sun.visage.ideaplugin.parsing.FxHighlighter;
-import com.sun.visage.ideaplugin.parsing.FxParserDefinition;
-import com.sun.visage.ideaplugin.parsing.FxTokens;
+import org.visage.ideaplugin.parsing.FxAnnotator;
+import org.visage.ideaplugin.parsing.FxHighlighter;
+import org.visage.ideaplugin.parsing.FxParserDefinition;
+import org.visage.ideaplugin.parsing.FxTokens;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

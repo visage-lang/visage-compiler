@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.*;
-import com.sun.visage.api.tree.*;
+import org.visage.api.*;
+import org.visage.api.tree.*;
 import java.io.IOException;
 import java.util.Map;
 import javax.lang.model.element.Element;
@@ -44,13 +44,13 @@ import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Log;
 import com.sun.tools.mjavac.util.Pair;
-import com.sun.tools.visage.comp.JavafxAttr;
-import com.sun.tools.visage.comp.JavafxAttrContext;
-import com.sun.tools.visage.comp.JavafxEnter;
-import com.sun.tools.visage.comp.JavafxEnv;
-import com.sun.tools.visage.comp.JavafxMemberEnter;
-import com.sun.tools.visage.comp.JavafxResolve;
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.comp.JavafxAttr;
+import org.visage.tools.comp.JavafxAttrContext;
+import org.visage.tools.comp.JavafxEnter;
+import org.visage.tools.comp.JavafxEnv;
+import org.visage.tools.comp.JavafxMemberEnter;
+import org.visage.tools.comp.JavafxResolve;
+import org.visage.tools.tree.*;
 
 /**
  * Provides an implementation of Trees for the JavaFX Script compiler, based

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.api.tree;
+package org.visage.api.tree;
 
 /**
  * Common interface for on-replace statement nodes in an abstract syntax tree 

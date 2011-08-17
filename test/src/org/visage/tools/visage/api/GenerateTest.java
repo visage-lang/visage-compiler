@@ -1,8 +1,8 @@
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
+import org.visage.api.JavafxcTask;
 import com.sun.tools.mjavac.util.JavacFileManager;
-import com.sun.tools.visage.api.JavafxcTool;
+import org.visage.tools.api.JavafxcTool;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;

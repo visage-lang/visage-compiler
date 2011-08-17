@@ -1,1 +1,1 @@
-com.sun.tools.visage.script.JavaFXScriptEngineFactory
+org.visage.tools.script.JavaFXScriptEngineFactory

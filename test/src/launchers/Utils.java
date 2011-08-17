@@ -32,7 +32,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import com.sun.visage.api.JavaFXScriptEngine;
+import org.visage.api.JavaFXScriptEngine;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.FileReader;

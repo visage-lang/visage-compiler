@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.main;
+package org.visage.tools.main;
 
 import java.io.*;
 import java.util.HashSet;
@@ -33,22 +33,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
-import com.sun.visage.api.JavafxTaskEvent;
-import com.sun.visage.api.JavafxTaskListener;
+import org.visage.api.JavafxTaskEvent;
+import org.visage.api.JavafxTaskListener;
 import com.sun.source.util.TaskEvent;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.code.*;
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.tree.*;
 import com.sun.tools.mjavac.jvm.*;
 import com.sun.tools.mjavac.code.Symbol.*;
 import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
-import com.sun.tools.visage.comp.*;
-import com.sun.tools.visage.code.*;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.comp.*;
+import org.visage.tools.code.*;
+import org.visage.tools.util.MsgSym;
 import static com.sun.tools.mjavac.util.ListBuffer.lb;
-import com.sun.tools.visage.antlr.JavafxSyntacticAnalysis;
-import com.sun.tools.visage.tree.xml.TreeXMLTransformer;
-import com.sun.tools.visage.util.PlatformPlugin;
+import org.visage.tools.antlr.JavafxSyntacticAnalysis;
+import org.visage.tools.tree.xml.TreeXMLTransformer;
+import org.visage.tools.util.PlatformPlugin;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -63,7 +63,7 @@ import java.util.ResourceBundle;
  *  deletion without notice.</b>
  */
 public class JavafxCompiler implements ClassReader.SourceCompleter {
-    private final static String visageErrorsKey = "com.sun.tools.visage.resources.visagecompiler";
+    private final static String visageErrorsKey = "org.visage.tools.resources.visagecompiler";
     /** The context key for the compiler. */
     protected static final Context.Key<JavafxCompiler> compilerKey =
         new Context.Key<JavafxCompiler>();
@@ -88,7 +88,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         return version("full"); // mm.mm.oo[-milestone]-build
     }
 
-    private static final String versionRBName = "com.sun.tools.visage.resources.version";
+    private static final String versionRBName = "org.visage.tools.resources.version";
     private static ResourceBundle versionRB;
 
     private static String version(String key) {
@@ -1215,9 +1215,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         TreeXMLTransformer.preRegister(context);
         // if fileManager not already set, register the JavacFileManager to be used
         if (context.get(JavaFileManager.class) == null) {
-            com.sun.tools.visage.util.JavafxFileManager.preRegister(context);
+            org.visage.tools.util.JavafxFileManager.preRegister(context);
         }
-        com.sun.tools.visage.code.JavafxSymtab.preRegister(context);
-        com.sun.tools.visage.code.JavafxTypes.preRegister(context);
+        org.visage.tools.code.JavafxSymtab.preRegister(context);
+        org.visage.tools.code.JavafxTypes.preRegister(context);
     }
 }

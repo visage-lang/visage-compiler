@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 import visage.animation.KeyValueTarget;
 
@@ -37,7 +37,7 @@ public class Pointer implements KeyValueTarget {
     private final FXObject obj;
     private final int varnum;
 
-    @com.sun.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Lcom/sun/visage/runtime/Pointer;")
+    @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Lcom/sun/visage/runtime/Pointer;")
     public static Pointer make(Type type, FXObject obj, int varnum) {
         return new Pointer(type, obj, varnum);
     }

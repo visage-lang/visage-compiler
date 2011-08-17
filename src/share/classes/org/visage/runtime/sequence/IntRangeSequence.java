@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
-import com.sun.visage.runtime.TypeInfo;
+import org.visage.runtime.TypeInfo;
 
 /**
  * Special case implementation for sequences that are ranges of integers, such as [1..10].  Range sequences should

@@ -35,7 +35,7 @@ import java.awt.Graphics;
 import java.util.*;
 import java.awt.Shape;
 
-import com.sun.tools.visage.antlr.v3Lexer;
+import org.visage.tools.antlr.v3Lexer;
 import com.sun.tools.javac.util.Context;
 import java.awt.Font;
 import org.antlr.runtime.ANTLRStringStream;

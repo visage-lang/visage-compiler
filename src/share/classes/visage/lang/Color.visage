@@ -381,7 +381,7 @@ public def YELLOW = #FFFF00;
 public def YELLOWGREEN = #9ACD32;
 public def TRANSPARENT = #000000|00;
 
-public def TYPE_INFO = com.sun.visage.runtime.TypeInfo.makeAndRegisterTypeInfo(BLACK);
+public def TYPE_INFO = org.visage.runtime.TypeInfo.makeAndRegisterTypeInfo(BLACK);
 
 // internal static variables
 

@@ -2,7 +2,7 @@
  * Point.visage
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
 /**
  * Simple class declarations for JFXC739Test.

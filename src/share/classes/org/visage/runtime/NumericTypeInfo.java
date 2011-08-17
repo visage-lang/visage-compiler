@@ -1,4 +1,4 @@
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 /**
  * NumericTypeInfo

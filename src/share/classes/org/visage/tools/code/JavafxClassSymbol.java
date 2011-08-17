@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.code;
+package org.visage.tools.code;
 
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;

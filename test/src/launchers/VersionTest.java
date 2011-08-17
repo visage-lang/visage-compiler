@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.script.ScriptException;
 
-import com.sun.visage.runtime.SystemProperties;
+import org.visage.runtime.SystemProperties;
 
 public class VersionTest extends TestCase {
    private static final String VERSION_PATTERN_TAIL = "[1-9].[0-9].*";

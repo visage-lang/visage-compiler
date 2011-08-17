@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.Kinds.*;
@@ -34,9 +34,9 @@ import com.sun.tools.mjavac.jvm.*;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
-import com.sun.tools.visage.tree.*;
-import com.sun.tools.visage.code.*;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.tree.*;
+import org.visage.tools.code.*;
+import org.visage.tools.util.MsgSym;
 
 import java.util.Map;
 import java.util.HashMap;

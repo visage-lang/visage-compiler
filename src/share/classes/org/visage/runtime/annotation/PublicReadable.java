@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.annotation;
+package org.visage.runtime.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Documented;

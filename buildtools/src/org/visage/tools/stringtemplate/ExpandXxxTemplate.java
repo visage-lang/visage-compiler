@@ -1,4 +1,4 @@
-package com.sun.visage.tools.stringtemplate;
+package org.visage.tools.stringtemplate;
 
 import java.io.*;
 

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi;
+package org.visage.jdi;
 
 import com.sun.jdi.ByteType;
 

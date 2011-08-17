@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.animation;
+package org.visage.animation;
 
 /**
  * Interface for abstracting the Clip support used by the JavaFX Script

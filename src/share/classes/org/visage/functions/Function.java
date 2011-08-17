@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.functions;
+package org.visage.functions;
 
-import com.sun.visage.runtime.FXObject;
+import org.visage.runtime.FXObject;
 
 public abstract class Function<R> {
     // Class that implements the function.

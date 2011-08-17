@@ -24,7 +24,7 @@
 package com.sun.tools.visagedoc;
 
 import static com.sun.tools.mjavac.code.Flags.*;
-import static com.sun.tools.visage.code.JavafxFlags.*;
+import static org.visage.tools.code.JavafxFlags.*;
 
 /**
  *   A class whose instances are filters over Modifier bits.

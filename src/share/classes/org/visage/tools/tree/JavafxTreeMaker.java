@@ -21,24 +21,24 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
-import com.sun.visage.api.JavafxBindStatus;
-import com.sun.visage.api.tree.TimeLiteralTree.Duration;
-import com.sun.visage.api.tree.TypeTree.Cardinality;
-import com.sun.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.JavafxBindStatus;
+import org.visage.api.tree.TimeLiteralTree.Duration;
+import org.visage.api.tree.TypeTree.Cardinality;
+import org.visage.api.tree.Tree.JavaFXKind;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.visage.code.JavafxClassSymbol;
-import com.sun.tools.visage.code.JavafxFlags;
-import com.sun.tools.visage.code.JavafxSymtab;
-import com.sun.tools.visage.code.JavafxTypes;
-import com.sun.tools.visage.code.JavafxVarSymbol;
-import com.sun.tools.visage.comp.JavafxDefs;
+import org.visage.tools.code.JavafxClassSymbol;
+import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.JavafxSymtab;
+import org.visage.tools.code.JavafxTypes;
+import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.comp.JavafxDefs;
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.Kinds.*;
 import static com.sun.tools.mjavac.code.TypeTags.*;

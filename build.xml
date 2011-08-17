@@ -323,7 +323,7 @@
             <arg value="tf"/>
             <arg value="${dist.jar}"/>
         </exec>
-        <taskdef name="bytecode-verify" classname="com.sun.visage.tools.bytecodeverifier.VerifierTask">
+        <taskdef name="bytecode-verify" classname="org.visage.tools.bytecodeverifier.VerifierTask">
             <classpath>
                  <pathelement location="${ant.jar}"/>
                  <pathelement location="${build.buildtools.dir}/"/>
@@ -344,15 +344,15 @@
         <jar compress="${jar.compress}" destfile="${dist.visagert.jar}" >
             <fileset dir="${build.classes.dir}" >
                 <include name="**/*.class" />
-                <include name="com/sun/visage/runtime/resources/version.properties"/>
-                <exclude name="com/sun/tools/visage/**"/>
-                <exclude name="com/sun/visage/api/**"/>
-                <exclude name="com/sun/visage/runtime/main/**"/>
+                <include name="org/visage/runtime/resources/version.properties"/>
+                <exclude name="org/visage/tools/**"/>
+                <exclude name="org/visage/api/**"/>
+                <exclude name="org/visage/runtime/main/**"/>
             </fileset>
         </jar>
         <zip compress="${jar.compress}" destfile="${dist.visagert-main.jar}" >
             <zipfileset dir="${build.classes.dir}" >
-                <include name="com/sun/visage/runtime/main/Main.class"/>
+                <include name="org/visage/runtime/main/Main.class"/>
             </zipfileset>
         </zip>
         <!-- make CLASS.LIST file using "jar tf" command -->
@@ -365,10 +365,10 @@
         <jar compress="${jar.compress}" destfile="${dist.visagert.jar}" >
             <fileset dir="${build.classes.dir}"> 
                 <include name="**/*.class" />
-                <include name="com/sun/visage/runtime/resources/version.properties"/>
+                <include name="org/visage/runtime/resources/version.properties"/>
                 <include name="**/CLASS.LIST" />
-                <exclude name="com/sun/tools/visage/**"/>
-                <exclude name="com/sun/visage/api/**"/>
+                <exclude name="org/visage/tools/**"/>
+                <exclude name="org/visage/api/**"/>
             </fileset>
         </jar>
 -->
@@ -442,10 +442,10 @@
     </target>
 
     <target name="generate-templates" depends="-pre-compile">
-        <java classname="com.sun.visage.tools.stringtemplate.ExpandXxxTemplate">
+        <java classname="org.visage.tools.stringtemplate.ExpandXxxTemplate">
             <arg value="${build.generated.dir}" />
-            <arg value="com/sun/visage/runtime/XxxTemplate.stg" />
-            <arg value="com/sun/visage/runtime/sequence" />
+            <arg value="org/visage/runtime/XxxTemplate.stg" />
+            <arg value="org/visage/runtime/sequence" />
             <arg line="AbstractSequence Sequences XxxArraySequence" />
            <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
@@ -456,8 +456,8 @@
     </target>
 
     <target name="-do-compile" depends="init,generated-java,-pre-compile" if="have.sources">
-        <pcompile srcdir="${src.classes.dir}/com"
-                  destdir="${build.generated.dir}/com"
+        <pcompile srcdir="${src.classes.dir}/org/visage"
+                  destdir="${build.generated.dir}/org/visage"
                   includes="${includes}"/>
 
         <!-- visage platform version -->
@@ -507,7 +507,7 @@
              files shipped with the compiler (not related to the JavaFX Runtime
              project). -->
 
-        <taskdef name="visagec" classname="com.sun.tools.visage.ant.JavaFxAntTask">
+        <taskdef name="visagec" classname="org.visage.tools.ant.JavaFxAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
                 <pathelement location="${build.classes.dir}"/>
@@ -524,7 +524,7 @@
                  compilerclasspath="${build.classes.dir}:${javac.classpath}">
         </visagec>
 
-        <taskdef name="bytecode-verify" classname="com.sun.visage.tools.bytecodeverifier.VerifierTask">
+        <taskdef name="bytecode-verify" classname="org.visage.tools.bytecodeverifier.VerifierTask">
             <classpath>
                  <pathelement location="${ant.jar}"/>
                  <pathelement location="${build.buildtools.dir}/"/>
@@ -620,7 +620,7 @@
             </classpath>
         </javac>
         <taskdef name="pcompile"
-                 classname="com.sun.visage.tools.compileproperties.CompilePropertiesTask"
+                 classname="org.visage.tools.compileproperties.CompilePropertiesTask"
                  classpath="${build.buildtools.dir}/"/>
     </target>
     
@@ -748,7 +748,7 @@
     
     <target name="staticsizes" depends="jar, staticsizes-clean">
         <mkdir dir="${build.staticsizes.dir}"/>
-        <java classname="com.sun.visage.tools.jaranalyzer.JarAnalyzer">
+        <java classname="org.visage.tools.jaranalyzer.JarAnalyzer">
             <arg value="${dist.visagert.jar}" />
             <arg value="${build.staticsizes.dir}" />
             <arg value="http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${jfx.build.number}/artifact/build/staticsizes" />
@@ -764,7 +764,7 @@
 
     <target name="ldclassreport" depends="binaries, ldclassreport-clean">
         <mkdir dir="${build.ldclassreport.dir}" />
-        <java classname="com.sun.visage.tools.classreporter.ClassReporter">
+        <java classname="org.visage.tools.classreporter.ClassReporter">
             <arg value="-dist.dir=${dist.dir}" />
             <arg value="-build.dir=${build.ldclassreport.dir}" />
             <arg value="-reference.url=http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${jfx.build.number}/changes" />

@@ -21,15 +21,15 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
 import java.util.*;
 
-import com.sun.visage.runtime.AssignToBoundException;
-import com.sun.visage.runtime.TypeInfo;
-import com.sun.visage.runtime.Util;
-import com.sun.visage.runtime.FXObject;
-import com.sun.visage.runtime.NumericTypeInfo;
+import org.visage.runtime.AssignToBoundException;
+import org.visage.runtime.TypeInfo;
+import org.visage.runtime.Util;
+import org.visage.runtime.FXObject;
+import org.visage.runtime.NumericTypeInfo;
 
 /**
  * SequencesBase

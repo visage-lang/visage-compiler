@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 import java.util.Hashtable;
 import java.io.InputStream;
@@ -52,7 +52,7 @@ public class  SystemProperties {
     private static Hashtable jfxprop_list = new Hashtable();
 
     private static final String versionResourceName =
-            "/com/sun/visage/runtime/resources/version.properties";
+            "/org/visage/runtime/resources/version.properties";
     
 
     static {

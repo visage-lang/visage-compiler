@@ -50,11 +50,11 @@ public abstract class FXContext {
 
     public static final String MIXIN_SUFFIX = "$Mixin";
     public static final String FXOBJECT_NAME =
-            "com.sun.visage.runtime.FXObject";
+            "org.visage.runtime.FXObject";
     public static final String FXMIXIN_NAME =
-            "com.sun.visage.runtime.FXMixin";
+            "org.visage.runtime.FXMixin";
     public static final String FXBASE_NAME =
-            "com.sun.visage.runtime.FXBase";
+            "org.visage.runtime.FXBase";
     
     /** Get the {@code FXClassType} for the class with the given name. */
     public abstract FXClassType findClass(String name);

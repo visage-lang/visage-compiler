@@ -256,19 +256,19 @@ int Configuration::parseArgs(int argc, char** argv) {
             vmargs += arg+2;    // skip first two characters "-J"
             vmargs += "\"";
         } else if (islauncher && !seen_main && 0 == strcmp("-version", arg)) {
-            fxargs = "com.sun.visage.runtime.LauncherHelper -version";
+            fxargs = "org.visage.runtime.LauncherHelper -version";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-fullversion", arg)) {
-            fxargs = "com.sun.visage.runtime.LauncherHelper -fullversion";
+            fxargs = "org.visage.runtime.LauncherHelper -fullversion";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-help", arg)) {
-            fxargs = "com.sun.visage.runtime.LauncherHelper -help";
+            fxargs = "org.visage.runtime.LauncherHelper -help";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-?", arg)) {
-            fxargs = "com.sun.visage.runtime.LauncherHelper -help";
+            fxargs = "org.visage.runtime.LauncherHelper -help";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-X", arg)) {
-            fxargs = "com.sun.visage.runtime.LauncherHelper -helpx";
+            fxargs = "org.visage.runtime.LauncherHelper -helpx";
             return (EXIT_SUCCESS);
         } else if (islauncher && 0 == strncmp(arg, "-Djava.library.path", strlen("-Djava.library.path"))) {
             librarypath = arg;

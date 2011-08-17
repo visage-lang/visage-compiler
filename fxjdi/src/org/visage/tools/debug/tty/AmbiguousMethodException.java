@@ -23,7 +23,7 @@
  * have any questions.
  */
 
-package com.sun.visage.tools.debug.tty;
+package org.visage.tools.debug.tty;
 
 public class AmbiguousMethodException extends Exception
 {

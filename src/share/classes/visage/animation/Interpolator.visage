@@ -24,7 +24,7 @@
 package visage.animation;
 
 import java.lang.Object;
-import  com.sun.visage.animation.InterpolatorFactory;
+import  org.visage.animation.InterpolatorFactory;
 
 /**
  * Built-in interpolator that provides discrete time interpolation. 
@@ -135,7 +135,7 @@ public abstract class Interpolator {
 }
 
 class CoreInterpolator extends SimpleInterpolator {
-    var i:com.sun.visage.animation.Interpolator;
+    var i:org.visage.animation.Interpolator;
 
     override function curve(t: Number) : Number {
         i.interpolate(t)

@@ -25,7 +25,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sun.visage.runtime.annotation;
+package org.visage.runtime.annotation;
 
 import java.lang.annotation.*;
 import static java.lang.annotation.RetentionPolicy.*;

@@ -25,7 +25,7 @@ package visage.fxunit;
 import java.lang.Object;
 import java.lang.NullPointerException;
 import junit.framework.TestCase;
-import com.sun.visage.runtime.SystemProperties;
+import org.visage.runtime.SystemProperties;
 
 public class FXTestCase extends TestCase {
 

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.util;
+package org.visage.runtime.util;
 
 /**
  * Linkable represents a class that can be linked together with other objects of its kind into a linked list.  There

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.antlr;
+package org.visage.tools.antlr;
 
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonToken;

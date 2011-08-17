@@ -21,12 +21,12 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.visage.runtime.sequence.*;
+import org.visage.runtime.sequence.*;
 
 /**
  * TypeInfo

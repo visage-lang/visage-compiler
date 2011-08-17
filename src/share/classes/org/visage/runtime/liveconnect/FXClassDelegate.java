@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.liveconnect;
+package org.visage.runtime.liveconnect;
 
 import java.util.*;
 

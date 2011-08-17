@@ -26,11 +26,11 @@
  * and that the internal naming scheme for user instance vars is filtered out.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
 import com.sun.jdi.ReferenceType;
-import com.sun.visage.jdi.FXReferenceType;
-import com.sun.visage.jdi.FXObjectReference;
+import org.visage.jdi.FXReferenceType;
+import org.visage.jdi.FXObjectReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.jdi.ThreadReference;
@@ -45,7 +45,7 @@ public class PublicFetchInvalidTest extends JavafxTestBase {
     ReferenceType targetClass;
     ThreadReference mainThread;
 
-    private static final String targetClassName = "com.sun.visage.jdi.test.target.PublicFetchInvalidTarget";
+    private static final String targetClassName = "org.visage.jdi.test.target.PublicFetchInvalidTarget";
 
     public PublicFetchInvalidTest() {
         super(targetClassName);

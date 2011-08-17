@@ -30,7 +30,7 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ArrayType;
 import com.sun.tools.mjavac.util.List;
 
-import com.sun.tools.visage.code.JavafxSymtab;
+import org.visage.tools.code.JavafxSymtab;
 import static com.sun.tools.mjavac.code.TypeTags.*;
 
 

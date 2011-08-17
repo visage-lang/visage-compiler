@@ -21,12 +21,12 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
-import com.sun.visage.api.tree.JavaFXTreeVisitor;
-import com.sun.visage.api.tree.Tree;
-import com.sun.visage.api.tree.Tree.JavaFXKind;
-import com.sun.visage.api.tree.TypeArrayTree;
+import org.visage.api.tree.JavaFXTreeVisitor;
+import org.visage.api.tree.Tree;
+import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.TypeArrayTree;
 
 
 /**

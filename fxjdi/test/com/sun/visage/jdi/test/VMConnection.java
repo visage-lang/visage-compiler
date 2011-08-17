@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
-import com.sun.visage.jdi.FXBootstrap;
+import org.visage.jdi.FXBootstrap;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.*;
 

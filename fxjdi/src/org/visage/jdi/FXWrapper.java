@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi;
+package org.visage.jdi;
 
-import com.sun.visage.jdi.event.FXEventQueue;
-import com.sun.visage.jdi.request.FXEventRequestManager;
+import org.visage.jdi.event.FXEventQueue;
+import org.visage.jdi.request.FXEventRequestManager;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.BooleanType;
@@ -258,7 +258,7 @@ public class FXWrapper {
                 }
             }
 
-            if (fldName.equals("$assertionsDisabled") && fld.declaringType().name().equals("com.sun.visage.runtime.FXBase")) {
+            if (fldName.equals("$assertionsDisabled") && fld.declaringType().name().equals("org.visage.runtime.FXBase")) {
                 continue;
             }
             /*

@@ -21,15 +21,15 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.code;
+package org.visage.tools.code;
 
-import com.sun.tools.visage.comp.JavafxDefs;
-import static com.sun.tools.visage.code.JavafxTypeRepresentation.*;
+import org.visage.tools.comp.JavafxDefs;
+import static org.visage.tools.code.JavafxTypeRepresentation.*;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.code.Type.*;
 import java.util.HashMap;
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.tree.*;
 import com.sun.tools.mjavac.code.Symbol.*;
 import com.sun.tools.mjavac.jvm.ClassWriter;
 import static com.sun.tools.mjavac.code.Kinds.*;
@@ -147,7 +147,7 @@ public class JavafxTypes extends Types {
             String tname = typeRep(elemType).prefix();
             return syms.enterClass(JavafxDefs.sequence_PackageString + "." + tname + "ArraySequence");
         }
-        Type seqtype = syms.enterClass("com.sun.visage.runtime.sequence.ObjectArraySequence");
+        Type seqtype = syms.enterClass("org.visage.runtime.sequence.ObjectArraySequence");
         return applySimpleGenericType(seqtype, elemType);
     }
 

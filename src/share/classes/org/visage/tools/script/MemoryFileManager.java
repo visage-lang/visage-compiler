@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.script;
+package org.visage.tools.script;
 
-import com.sun.tools.visage.util.JavafxFileManager;
+import org.visage.tools.util.JavafxFileManager;
 import java.io.*;
 import java.nio.CharBuffer;
 import java.util.*;
@@ -379,7 +379,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
                 if(name.endsWith(EXT)) newUri.replace(newUri.length() - EXT.length(), newUri.length(), EXT);
                 return URI.create(newUri.toString());
             } catch (Exception exp) {
-                return URI.create("mfm:///com/sun/tools/visage/script/visage_source");
+                return URI.create("mfm:///org/visage/tools/script/visage_source");
             }
         }
     }

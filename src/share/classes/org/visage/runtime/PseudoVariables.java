@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 import java.net.URL;
 import java.net.MalformedURLException;

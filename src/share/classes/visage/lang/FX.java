@@ -24,13 +24,13 @@
 package visage.lang;
 
 import java.util.Vector;
-import com.sun.visage.runtime.Entry;
-import com.sun.visage.functions.Function0;
-import com.sun.visage.runtime.SystemProperties;
-import com.sun.visage.runtime.FXExit;
-import com.sun.visage.runtime.FXObject;
+import org.visage.runtime.Entry;
+import org.visage.functions.Function0;
+import org.visage.runtime.SystemProperties;
+import org.visage.runtime.FXExit;
+import org.visage.runtime.FXObject;
 
-import com.sun.visage.runtime.sequence.Sequence;
+import org.visage.runtime.sequence.Sequence;
 
 /**
  * FX, analogous to java.lang.System, is a place to store static utility methods.  
@@ -78,7 +78,7 @@ public class FX {
      * @param offset offset of variable to be tested
      * @return true if the variable has been initialized
      */
-    @com.sun.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
+    @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
     public static boolean isInitialized(FXObject instance, int varOffset) {
         return Builtins.isInitialized(instance, varOffset);
     }

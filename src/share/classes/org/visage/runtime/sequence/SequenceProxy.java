@@ -21,8 +21,8 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
-import com.sun.visage.runtime.*;
+package org.visage.runtime.sequence;
+import org.visage.runtime.*;
 
 /**
  * @author Robert Field

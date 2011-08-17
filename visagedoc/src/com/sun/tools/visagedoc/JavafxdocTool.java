@@ -30,12 +30,12 @@ import java.util.Collection;
 import com.sun.tools.mjavac.code.Symbol.*;
 import com.sun.tools.mjavac.parser.DocCommentScanner;
 import com.sun.tools.mjavac.util.Paths;
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.tree.*;
 import com.sun.tools.mjavac.util.*;
-import com.sun.tools.visage.code.JavafxSymtab;
-import com.sun.tools.visage.code.JavafxTypes;
-import com.sun.tools.visage.util.JavafxFileManager;
-import com.sun.tools.visage.comp.JavafxClassReader;
+import org.visage.tools.code.JavafxSymtab;
+import org.visage.tools.code.JavafxTypes;
+import org.visage.tools.util.JavafxFileManager;
+import org.visage.tools.comp.JavafxClassReader;
 
 /**
  *  This class could be the main entry point for Javafxdoc when Javafxdoc is 
@@ -45,7 +45,7 @@ import com.sun.tools.visage.comp.JavafxClassReader;
  *  @author Neal Gafter, Javadoc source
  *  @author Tom Ball, Javafxdoc port
  */
-public class JavafxdocTool extends com.sun.tools.visage.main.JavafxCompiler {
+public class JavafxdocTool extends org.visage.tools.main.JavafxCompiler {
     DocEnv docenv;
 
     final Context ctx;

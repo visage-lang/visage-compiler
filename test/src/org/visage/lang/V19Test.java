@@ -15,7 +15,7 @@
  */
 package org.visage.lang;
 
-import com.sun.visage.api.JavaFXScriptEngine;
+import org.visage.api.JavaFXScriptEngine;
 import java.io.File;
 import java.io.FileReader;
 import javax.script.ScriptContext;

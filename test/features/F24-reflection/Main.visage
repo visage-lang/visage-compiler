@@ -10,7 +10,7 @@
 
 import visage.reflect.*;
 import java.lang.System;
-import com.sun.visage.runtime.sequence.Sequences;
+import org.visage.runtime.sequence.Sequences;
 
 
 var context : FXLocal.Context = FXLocal.getContext();

@@ -13,7 +13,7 @@ import static com.sun.btrace.BTraceUtils.*;
     private static Map<String, AtomicInteger> histo = newHashMap();
 
     @OnMethod(
-        clazz="com.sun.visage.runtime.FXBase",
+        clazz="org.visage.runtime.FXBase",
         method="notifyDependents$"
     )
     public static void onNotifyDependents(@Self Object obj, int varNum, int phase) {
@@ -28,7 +28,7 @@ import static com.sun.btrace.BTraceUtils.*;
     }
 
     @OnMethod(
-        clazz="com.sun.visage.runtime.FXBase",
+        clazz="org.visage.runtime.FXBase",
         method="notifyDependents$"
     )
     public static void onNotifyDependents(@Self Object obj, int varNum, int startPos, int endPos, int newLength, int phase) {

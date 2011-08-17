@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.visage.api.tree;
+package org.visage.api.tree;
 
 import javax.lang.model.element.Name;
-import com.sun.visage.api.JavafxBindStatus;
-import com.sun.tools.visage.tree.JFXType;
+import org.visage.api.JavafxBindStatus;
+import org.visage.tools.tree.JFXType;
 
 /**
  * A tree node for a variable declaration.

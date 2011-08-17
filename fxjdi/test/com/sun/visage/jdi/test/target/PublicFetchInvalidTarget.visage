@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test.target;
+package org.visage.jdi.test.target;
 
 // Note that these script vars are in the 'script' inner class
 public def defStaticVar = 22.3;

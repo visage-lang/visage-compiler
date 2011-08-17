@@ -1,5 +1,5 @@
 /*
- * JFXC-3720 : Compiled bind: cannot find symbol constructor Label$anon217(<anonymous com.sun.visage.functions.Function0<java.lang.Void>>,boolean)
+ * JFXC-3720 : Compiled bind: cannot find symbol constructor Label$anon217(<anonymous org.visage.functions.Function0<java.lang.Void>>,boolean)
  *
  * @test
  *

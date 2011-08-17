@@ -20,16 +20,16 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
+import org.visage.api.JavafxcTask;
 
-import com.sun.visage.api.tree.SourcePositions;
-import com.sun.visage.api.tree.UnitTree;
-import com.sun.tools.visage.tree.JFXClassDeclaration;
-import com.sun.tools.visage.tree.JFXScript;
-import com.sun.tools.visage.tree.JFXTree;
-import com.sun.tools.visage.tree.JavafxTag;
+import org.visage.api.tree.SourcePositions;
+import org.visage.api.tree.UnitTree;
+import org.visage.tools.tree.JFXClassDeclaration;
+import org.visage.tools.tree.JFXScript;
+import org.visage.tools.tree.JFXTree;
+import org.visage.tools.tree.JavafxTag;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JavacFileManager;
 import com.sun.tools.mjavac.util.List;
@@ -47,7 +47,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from com.sun.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.JavaFXKind.values().
  *
  * @author David Strupl
  */
@@ -57,7 +57,7 @@ public class JFXC3614 {
     private static final String DIR = File.separator;
     private String visageLibs = "dist/lib/shared";
     private String visageDeskLibs = "dist/lib/desktop";
-    private String inputDir = "test/sandbox/com/sun/tools/visage/api";
+    private String inputDir = "test/sandbox/org/visage/tools/api";
     private JavafxcTrees trees;
     private UnitTree ut;
     private SourcePositions sp;

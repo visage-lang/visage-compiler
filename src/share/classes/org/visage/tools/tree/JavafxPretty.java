@@ -21,15 +21,15 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
 
-import com.sun.visage.api.JavafxBindStatus;
-import com.sun.visage.api.tree.ForExpressionInClauseTree;
+import org.visage.api.JavafxBindStatus;
+import org.visage.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.tree.JCTree;
@@ -37,7 +37,7 @@ import com.sun.tools.mjavac.util.Convert;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.Position;
-import com.sun.tools.visage.code.JavafxFlags;
+import org.visage.tools.code.JavafxFlags;
 
 import static com.sun.tools.mjavac.code.Flags.*;
 

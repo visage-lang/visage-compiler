@@ -21,11 +21,11 @@
 * have any questions.
 */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
-import com.sun.visage.api.JavafxBindStatus;
-import com.sun.tools.visage.tree.*;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.api.JavafxBindStatus;
+import org.visage.tools.tree.*;
+import org.visage.tools.util.MsgSym;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic;
 import com.sun.tools.mjavac.util.List;

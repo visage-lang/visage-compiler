@@ -30,7 +30,7 @@ options {
 
 PARSER_BEGIN(ExpressionParser)
 
-package com.sun.visage.tools.debug.expr;
+package org.visage.tools.debug.expr;
 
 import com.sun.jdi.*;
 import java.util.Stack;

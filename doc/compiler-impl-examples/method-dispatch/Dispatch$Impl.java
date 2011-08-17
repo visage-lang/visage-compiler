@@ -1,6 +1,6 @@
-import com.sun.visage.runtime.FXObject;
-import com.sun.visage.runtime.InitHelper;
-import com.sun.visage.runtime.location.*;
+import org.visage.runtime.FXObject;
+import org.visage.runtime.InitHelper;
+import org.visage.runtime.location.*;
 
 /**
  * Dispatch$Impl

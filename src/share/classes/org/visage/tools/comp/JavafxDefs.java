@@ -20,12 +20,12 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
-import com.sun.visage.runtime.Entry;
+import org.visage.runtime.Entry;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
-import com.sun.tools.visage.code.JavafxTypeRepresentation;
+import org.visage.tools.code.JavafxTypeRepresentation;
 import com.sun.tools.mjavac.code.Symbol;
 import java.util.regex.Pattern;
 
@@ -107,11 +107,11 @@ public class JavafxDefs {
      * Format: <name>_PackageNameString
      */
     public static final String javaLang_PackageString = "java.lang";
-    public static final String runtime_PackageString = "com.sun.visage.runtime";
-    public static final String runtimeUtil_PackageString = "com.sun.visage.runtime.util";
-    public static final String annotation_PackageString = "com.sun.visage.runtime.annotation";
-    public static final String functions_PackageString = "com.sun.visage.functions";
-    public static final String sequence_PackageString = "com.sun.visage.runtime.sequence";
+    public static final String runtime_PackageString = "org.visage.runtime";
+    public static final String runtimeUtil_PackageString = "org.visage.runtime.util";
+    public static final String annotation_PackageString = "org.visage.runtime.annotation";
+    public static final String functions_PackageString = "org.visage.functions";
+    public static final String sequence_PackageString = "org.visage.runtime.sequence";
     public static final String fxLang_PackageString = "visage.lang";
     public static final String fxAnimation_PackageString = "visage.animation";
 

@@ -21,13 +21,13 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
 
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.tree.JCTree.JCIdent;
-import com.sun.tools.visage.comp.BlockExprAttr;
+import org.visage.tools.comp.BlockExprAttr;
 
 public class AugmentedJCIdent extends JCIdent {
     

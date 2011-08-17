@@ -20,9 +20,9 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
-import com.sun.visage.jdi.FXStackFrame;
+import org.visage.jdi.FXStackFrame;
 import com.sun.jdi.event.BreakpointEvent;
 import org.junit.Test;
 import junit.framework.Assert;
@@ -33,7 +33,7 @@ import junit.framework.Assert;
  * @author sundar
  */
 public class HelloTest extends JavafxTestBase {
-    private static String targetClassName = "com.sun.visage.jdi.test.target.HelloTarget";
+    private static String targetClassName = "org.visage.jdi.test.target.HelloTarget";
 
     public HelloTest() {
         super(targetClassName);

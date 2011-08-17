@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
-import com.sun.visage.api.tree.*;
+import org.visage.api.tree.*;
 
 /**
  * Abstract base for types

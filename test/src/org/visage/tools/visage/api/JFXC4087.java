@@ -20,21 +20,21 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
-import com.sun.visage.api.tree.ForExpressionInClauseTree;
-import com.sun.visage.api.tree.IdentifierTree;
-import com.sun.visage.api.tree.JavaFXTreePath;
+import org.visage.api.JavafxcTask;
+import org.visage.api.tree.ForExpressionInClauseTree;
+import org.visage.api.tree.IdentifierTree;
+import org.visage.api.tree.JavaFXTreePath;
 
-import com.sun.visage.api.tree.JavaFXTreePathScanner;
-import com.sun.visage.api.tree.SourcePositions;
-import com.sun.visage.api.tree.Tree;
-import com.sun.visage.api.tree.UnitTree;
-import com.sun.visage.api.tree.VariableTree;
-import com.sun.tools.visage.tree.JFXFunctionDefinition;
-import com.sun.tools.visage.tree.JFXOverrideClassVar;
-import com.sun.tools.visage.tree.JFXTree;
+import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.SourcePositions;
+import org.visage.api.tree.Tree;
+import org.visage.api.tree.UnitTree;
+import org.visage.api.tree.VariableTree;
+import org.visage.tools.tree.JFXFunctionDefinition;
+import org.visage.tools.tree.JFXOverrideClassVar;
+import org.visage.tools.tree.JFXTree;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.util.Context;
@@ -64,7 +64,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from com.sun.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.JavaFXKind.values().
  *
  * @author David Strupl
  */
@@ -74,7 +74,7 @@ public class JFXC4087 {
     private static final String DIR = File.separator;
     private String visageLibs = "dist/lib/shared";
     private String visageDeskLibs = "dist/lib/desktop";
-    private String inputDir = "test/sandbox/com/sun/tools/visage/api";
+    private String inputDir = "test/sandbox/org/visage/tools/api";
     private JavafxcTrees trees;
     private UnitTree ut;
     private SourcePositions sp;

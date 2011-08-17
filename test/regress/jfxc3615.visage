@@ -5,7 +5,7 @@
  * @run
  */
 
-import com.sun.visage.runtime.AssignToBoundException;
+import org.visage.runtime.AssignToBoundException;
 
 println("");
 println("----------------------------------------------------");

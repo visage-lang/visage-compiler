@@ -13,7 +13,7 @@ from http://jdk6.dev.java.net/plugin2/ will discuss this topic. The
 following is an overview:
 
 A JavaFX Stage can be embedded in an applet using the
-com.sun.visage.runtime.adapter.Applet class. The "MainJavaFXScript"
+org.visage.runtime.adapter.Applet class. The "MainJavaFXScript"
 applet parameter indicates the JavaFX class to be run and which will
 provide the Stage instance that is embedded in the applet. For
 example,
@@ -43,7 +43,7 @@ example,
 
   Test.html:
 
-    <applet id="app" archive="..." code="com.sun.visage.runtime.adapter.Applet" ...>
+    <applet id="app" archive="..." code="org.visage.runtime.adapter.Applet" ...>
         <param name="MainJavaFXScript" value="Test">
     </applet>
 

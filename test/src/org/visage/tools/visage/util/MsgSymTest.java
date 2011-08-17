@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.util;
+package org.visage.tools.util;
 
 import java.io.IOException;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class MsgSymTest {
         LinkedList<ResourceBundle> resources = new LinkedList<ResourceBundle>();
         resources.add(ResourceBundle.getBundle("com.sun.tools.mjavac.resources.javac"));
         resources.add(ResourceBundle.getBundle("com.sun.tools.mjavac.resources.compiler"));
-        resources.add(ResourceBundle.getBundle("com.sun.tools.visage.resources.visagecompiler"));
+        resources.add(ResourceBundle.getBundle("org.visage.tools.resources.visagecompiler"));
         
         // general test
         checkSymbolToMessage(resources);
@@ -97,7 +97,7 @@ public class MsgSymTest {
         // read English message-list
         Properties messages = new Properties();
         try {
-            messages.load(new FileInputStream("src/share/classes/com/sun/tools/visage/resources/visagecompiler.properties"));
+            messages.load(new FileInputStream("src/share/classes/org/visage/tools/resources/visagecompiler.properties"));
 
             // general test
             checkMessageToSymbol(messages);

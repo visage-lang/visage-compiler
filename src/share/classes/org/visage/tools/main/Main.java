@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.main;
+package org.visage.tools.main;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -38,17 +38,17 @@ import com.sun.tools.mjavac.code.Source;
 import com.sun.tools.mjavac.code.Scope;
 import com.sun.tools.mjavac.jvm.Target;
 import com.sun.tools.mjavac.jvm.ClassReader;
-import com.sun.tools.visage.main.JavafxOption.Option;
+import org.visage.tools.main.JavafxOption.Option;
 import com.sun.tools.mjavac.util.*;
-import com.sun.tools.visage.main.RecognizedOptions.OptionHelper;
-import com.sun.tools.visage.util.JavafxFileManager;
-import com.sun.tools.visage.util.PlatformPlugin;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.main.RecognizedOptions.OptionHelper;
+import org.visage.tools.util.JavafxFileManager;
+import org.visage.tools.util.PlatformPlugin;
+import org.visage.tools.util.MsgSym;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.DiagnosticListener;
-import com.sun.tools.visage.comp.JavafxTranslationSupport.NotYetImplementedException;
+import org.visage.tools.comp.JavafxTranslationSupport.NotYetImplementedException;
 
 /** This class provides a commandline interface to the GJC compiler.
  *
@@ -62,7 +62,7 @@ public class Main {
     static {
         ClassLoader loader = Main.class.getClassLoader();
         if (loader != null) {
-            loader.setPackageAssertionStatus("com.sun.tools.visage", true);
+            loader.setPackageAssertionStatus("org.visage.tools", true);
             loader.setPackageAssertionStatus("com.sun.tools.mjavac", true);
         }
     }
@@ -377,16 +377,16 @@ public class Main {
         else
             backEndContext.put(JavaFileManager.class, currentFileManager);
 
-        com.sun.tools.visage.util.JavafxBackendLog.preRegister(backEndContext, context);
-        com.sun.tools.visage.comp.JavafxFlow.preRegister(backEndContext);
-        com.sun.tools.visage.code.JavafxLint.preRegister(backEndContext);
-        com.sun.tools.visage.code.BlockExprSymtab.preRegister(backEndContext);
-        com.sun.tools.visage.comp.BlockExprAttr.preRegister(backEndContext);
-        com.sun.tools.visage.comp.BlockExprEnter.preRegister(backEndContext);
-        com.sun.tools.visage.comp.BlockExprMemberEnter.preRegister(backEndContext);
-        com.sun.tools.visage.comp.BlockExprResolve.preRegister(backEndContext);
-        com.sun.tools.visage.comp.BlockExprLower.preRegister(backEndContext);
-        com.sun.tools.visage.comp.BlockExprGen.preRegister(backEndContext);
+        org.visage.tools.util.JavafxBackendLog.preRegister(backEndContext, context);
+        org.visage.tools.comp.JavafxFlow.preRegister(backEndContext);
+        org.visage.tools.code.JavafxLint.preRegister(backEndContext);
+        org.visage.tools.code.BlockExprSymtab.preRegister(backEndContext);
+        org.visage.tools.comp.BlockExprAttr.preRegister(backEndContext);
+        org.visage.tools.comp.BlockExprEnter.preRegister(backEndContext);
+        org.visage.tools.comp.BlockExprMemberEnter.preRegister(backEndContext);
+        org.visage.tools.comp.BlockExprResolve.preRegister(backEndContext);
+        org.visage.tools.comp.BlockExprLower.preRegister(backEndContext);
+        org.visage.tools.comp.BlockExprGen.preRegister(backEndContext);
 
         // Sequencing requires that we get the name table from the fully initialized back-end
         // rather than send the completed one.
@@ -399,7 +399,7 @@ public class Main {
         context.put(Options.optionsKey, backEndContext.get(Options.optionsKey));
 
         ClassReader jreader = ClassReader.instance(backEndContext);
-        com.sun.tools.visage.comp.JavafxClassReader.preRegister(context, jreader);
+        org.visage.tools.comp.JavafxClassReader.preRegister(context, jreader);
 
         if (currentFileManager == null)
             JavafxFileManager.preRegister(context); // can't create it until Log has been set up
@@ -785,7 +785,7 @@ public class Main {
         "com.sun.tools.mjavac.resources.javac";
 
     private static final String visageBundleName =
-        "com.sun.tools.visage.resources.visagecompiler";
+        "org.visage.tools.resources.visagecompiler";
 
     private static Messages messages;
 

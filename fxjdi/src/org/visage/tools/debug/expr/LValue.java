@@ -23,9 +23,9 @@
  * have any questions.
  */
 
-package com.sun.visage.tools.debug.expr;
+package org.visage.tools.debug.expr;
 
-import com.sun.visage.jdi.FXSequenceReference;
+import org.visage.jdi.FXSequenceReference;
 import com.sun.jdi.*;
 import java.util.*;
 

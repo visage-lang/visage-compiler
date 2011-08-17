@@ -20,24 +20,24 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
-import com.sun.visage.api.tree.IdentifierTree;
+import org.visage.api.JavafxcTask;
+import org.visage.api.tree.IdentifierTree;
 
-import com.sun.visage.api.tree.JavaFXTreePathScanner;
-import com.sun.visage.api.tree.SourcePositions;
-import com.sun.visage.api.tree.Tree;
-import com.sun.visage.api.tree.UnitTree;
-import com.sun.visage.api.tree.VariableTree;
-import com.sun.tools.visage.comp.JavafxEnter;
-import com.sun.tools.visage.comp.JavafxEnv;
-import com.sun.tools.visage.tree.JFXClassDeclaration;
-import com.sun.tools.visage.tree.JFXFunctionDefinition;
-import com.sun.tools.visage.tree.JFXScript;
-import com.sun.tools.visage.tree.JFXTree;
-import com.sun.tools.visage.tree.JFXVar;
-import com.sun.tools.visage.tree.JavafxTreeScanner;
+import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.SourcePositions;
+import org.visage.api.tree.Tree;
+import org.visage.api.tree.UnitTree;
+import org.visage.api.tree.VariableTree;
+import org.visage.tools.comp.JavafxEnter;
+import org.visage.tools.comp.JavafxEnv;
+import org.visage.tools.tree.JFXClassDeclaration;
+import org.visage.tools.tree.JFXFunctionDefinition;
+import org.visage.tools.tree.JFXScript;
+import org.visage.tools.tree.JFXTree;
+import org.visage.tools.tree.JFXVar;
+import org.visage.tools.tree.JavafxTreeScanner;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JavacFileManager;
@@ -64,7 +64,7 @@ public class JFXC4258Test {
     private static final String DIR = File.separator;
     private String visageLibs = "dist/lib/shared";
     private String visageDeskLibs = "dist/lib/desktop";
-    private String inputDir = "test/src/com/sun/tools/visage/api";
+    private String inputDir = "test/src/org/visage/tools/api";
     private JavafxcTrees trees;
     private UnitTree ut;
     private SourcePositions sp;

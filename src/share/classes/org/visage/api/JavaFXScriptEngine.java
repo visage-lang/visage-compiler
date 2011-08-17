@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.api;
+package org.visage.api;
 
 import java.io.Reader;
 import javax.script.Bindings;

@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.connect;
+package org.visage.jdi.connect;
 
-import com.sun.visage.jdi.FXVirtualMachine;
-import com.sun.visage.jdi.FXWrapper;
+import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.FXWrapper;
 import com.sun.jdi.connect.Connector.Argument;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.connect.ListeningConnector;

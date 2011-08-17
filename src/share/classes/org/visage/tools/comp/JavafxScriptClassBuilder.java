@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import java.net.URI;
 import java.util.HashSet;
@@ -29,21 +29,21 @@ import java.util.Map;
 import java.util.Set;
 import javax.tools.FileObject;
 
-import com.sun.visage.api.JavafxBindStatus;
-import com.sun.visage.api.tree.SyntheticTree.SynthType;
-import com.sun.visage.api.tree.TypeTree;
-import com.sun.visage.api.tree.TypeTree.Cardinality;
+import org.visage.api.JavafxBindStatus;
+import org.visage.api.tree.SyntheticTree.SynthType;
+import org.visage.api.tree.TypeTree;
+import org.visage.api.tree.TypeTree.Cardinality;
 import com.sun.tools.mjavac.code.Flags;
 import static com.sun.tools.mjavac.code.Flags.*;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.Name.Table;
-import com.sun.tools.visage.code.JavafxFlags;
-import static com.sun.tools.visage.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
-import com.sun.tools.visage.code.JavafxSymtab;
-import com.sun.tools.visage.tree.*;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.code.JavafxFlags;
+import static org.visage.tools.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
+import org.visage.tools.code.JavafxSymtab;
+import org.visage.tools.tree.*;
+import org.visage.tools.util.MsgSym;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -518,7 +518,7 @@ public class JavafxScriptClassBuilder {
         if (usesFile || usesDir) {
             JFXExpression moduleClassFQN = module.pid != null ?
                 fxmake.at(diagPos).Select(module.pid, moduleClassName, false) : fxmake.at(diagPos).Ident(moduleClassName);
-            JFXExpression getFile = fxmake.at(diagPos).Identifier("com.sun.visage.runtime.PseudoVariables.get__FILE__");
+            JFXExpression getFile = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__FILE__");
             JFXExpression forName = fxmake.at(diagPos).Identifier("java.lang.Class.forName");
             List<JFXExpression> args = List.<JFXExpression>of(fxmake.at(diagPos).Literal(moduleClassFQN.toString()));
             JFXExpression loaderCall = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), forName, args);
@@ -531,7 +531,7 @@ public class JavafxScriptClassBuilder {
             pseudoDefs.append(fileVar);
 
             if (usesDir) {
-                JFXExpression getDir = fxmake.at(diagPos).Identifier("com.sun.visage.runtime.PseudoVariables.get__DIR__");
+                JFXExpression getDir = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__DIR__");
                 args = List.<JFXExpression>of(fxmake.at(diagPos).Ident(pseudoFile));
                 JFXExpression getDirURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getDir, args);
                 pseudoDefs.append(
@@ -541,7 +541,7 @@ public class JavafxScriptClassBuilder {
             }
         }
 	if (usesProfile) {
-           JFXExpression getProfile = fxmake.at(diagPos).Identifier("com.sun.visage.runtime.PseudoVariables.get__PROFILE__");
+           JFXExpression getProfile = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__PROFILE__");
            JFXExpression getProfileString = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getProfile, List.<JFXExpression>nil());
            JFXExpression profileVar =
                 fxmake.at(diagPos).Var(pseudoProfile, getPseudoVarType(diagPos),

@@ -23,9 +23,9 @@
  * have any questions.
  */
 
-package com.sun.visage.tools.debug.tty;
+package org.visage.tools.debug.tty;
 
-import com.sun.visage.jdi.FXReferenceType;
+import org.visage.jdi.FXReferenceType;
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 

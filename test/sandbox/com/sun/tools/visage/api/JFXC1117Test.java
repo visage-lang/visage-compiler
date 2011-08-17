@@ -21,12 +21,12 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
-import com.sun.visage.api.tree.SourcePositions;
-import com.sun.visage.api.tree.UnitTree;
-import com.sun.tools.visage.antlr.v4Lexer;
+import org.visage.api.JavafxcTask;
+import org.visage.api.tree.SourcePositions;
+import org.visage.api.tree.UnitTree;
+import org.visage.tools.antlr.v4Lexer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -66,7 +66,7 @@ import org.antlr.runtime.Token;
 public class JFXC1117Test extends TestSuite {
     private static final String testSrc = System.getProperty("test.src.dir", "test/src");
     private static final String testClasses = System.getProperty("build.test.classes.dir");
-    private static File masterFile = new File(testSrc + "/com/sun/tools/visage/api", "AllTrees.visage");
+    private static File masterFile = new File(testSrc + "/org/visage/tools/api", "AllTrees.visage");
 
     /**
      * This method is called reflectively by the JUnit test runner.
@@ -178,7 +178,7 @@ public class JFXC1117Test extends TestSuite {
         private static final String FILE_TO_COMPILE = "tmp-to-compile.visage";
         private String script;
         private String reportErrorString;
-        private static File file = new File(testSrc + "/com/sun/tools/visage/api", FILE_TO_COMPILE);
+        private static File file = new File(testSrc + "/org/visage/tools/api", FILE_TO_COMPILE);
         private File tempFile;
         private Exception savedException;
         

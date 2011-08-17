@@ -27,7 +27,7 @@
 -->
 <xsl:transform version="1.0"
                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-               xmlns:c="http://xml.apache.org/xalan/java/com.sun.tools.visage.tree.xml.Compiler"
+               xmlns:c="http://xml.apache.org/xalan/java/org.visage.tools.tree.xml.Compiler"
                xmlns:fx="http://openjfx.java.sun.com">
     
     <xsl:strip-space elements="*"/>

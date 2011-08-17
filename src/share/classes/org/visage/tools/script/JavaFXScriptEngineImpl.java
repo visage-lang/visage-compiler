@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.script;
+package org.visage.tools.script;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -30,7 +30,7 @@ import java.util.*;
 import javax.script.*;
 import javax.tools.*;
 import com.sun.tools.mjavac.util.Name;
-import com.sun.visage.api.JavaFXScriptEngine;
+import org.visage.api.JavaFXScriptEngine;
 import com.sun.tools.mjavac.code.*;
 
 /**
@@ -273,7 +273,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
     // for certain variables, we look for System properties. This is
     // the prefix used for such System properties
-    private static final String SYSPROP_PREFIX = "com.sun.tools.visage.script.";
+    private static final String SYSPROP_PREFIX = "org.visage.tools.script.";
 
     private static final String SOURCEPATH = "sourcepath";
     private static String getSourcePath(ScriptContext ctx) {
@@ -281,7 +281,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         if (scope != -1) {
             return ctx.getAttribute(SOURCEPATH).toString();
         } else {
-            // look for "com.sun.tools.visage.script.sourcepath"
+            // look for "org.visage.tools.script.sourcepath"
             return System.getProperty(SYSPROP_PREFIX + SOURCEPATH);
         }
     }
@@ -292,7 +292,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         if (scope != -1) {
             return ctx.getAttribute(CLASSPATH).toString();
         } else {
-            // look for "com.sun.tools.visage.script.classpath"
+            // look for "org.visage.tools.script.classpath"
             String res = System.getProperty(SYSPROP_PREFIX + CLASSPATH);
             if (res == null) {
                 res = System.getProperty("java.class.path");

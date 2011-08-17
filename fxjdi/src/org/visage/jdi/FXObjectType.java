@@ -21,13 +21,13 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi;
+package org.visage.jdi;
 
 import com.sun.jdi.InterfaceType;
 import com.sun.jdi.Method;
 
 /**
- * This class represents com.sun.visage.runtime.FXObject interface type.
+ * This class represents org.visage.runtime.FXObject interface type.
  *
  * @author sundar
  */

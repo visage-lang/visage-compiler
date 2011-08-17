@@ -23,7 +23,7 @@
  * have any questions.
  */
 
-package com.sun.visage.tools.debug.tty;
+package org.visage.tools.debug.tty;
 
 abstract class WatchpointSpec extends EventRequestSpec {
     final String fieldId;

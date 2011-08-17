@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.antlr;
+package org.visage.tools.antlr;
 
 import java.util.HashMap;
 
@@ -34,15 +34,15 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.tree.JCTree;
 
 import com.sun.tools.mjavac.util.Options;
-import com.sun.tools.visage.tree.JFXInterpolateValue;
-import com.sun.tools.visage.tree.JFXTree;
-import com.sun.tools.visage.tree.JFXBlock;
-import com.sun.tools.visage.tree.JFXErroneous;
-import com.sun.tools.visage.tree.JFXType;
-import com.sun.tools.visage.tree.JavafxTreeInfo;
-import com.sun.tools.visage.tree.JavafxTreeMaker;
+import org.visage.tools.tree.JFXInterpolateValue;
+import org.visage.tools.tree.JFXTree;
+import org.visage.tools.tree.JFXBlock;
+import org.visage.tools.tree.JFXErroneous;
+import org.visage.tools.tree.JFXType;
+import org.visage.tools.tree.JavafxTreeInfo;
+import org.visage.tools.tree.JavafxTreeMaker;
 
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.util.MsgSym;
 import javax.tools.DiagnosticListener;
 import org.antlr.runtime.*;
 

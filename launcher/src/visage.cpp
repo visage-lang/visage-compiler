@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
         cmd += "-classpath \"" + config.classpath + "\" ";
     }
 
-    cmd += "com.sun.visage.runtime.Main ";
+    cmd += "org.visage.runtime.Main ";
     cmd += config.fxargs;
     
 

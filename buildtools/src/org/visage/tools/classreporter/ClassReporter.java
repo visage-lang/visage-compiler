@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.visage.tools.classreporter;
+package org.visage.tools.classreporter;
 
 import java.io.BufferedReader;
 import java.io.File;

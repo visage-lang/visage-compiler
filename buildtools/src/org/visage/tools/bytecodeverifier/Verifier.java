@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.tools.bytecodeverifier;
+package org.visage.tools.bytecodeverifier;
 
 import java.io.BufferedInputStream;
 import java.io.File;

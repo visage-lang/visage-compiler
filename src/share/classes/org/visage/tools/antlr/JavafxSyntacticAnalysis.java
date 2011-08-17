@@ -21,12 +21,12 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.antlr;
+package org.visage.tools.antlr;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 import com.sun.tools.mjavac.util.*;
-import com.sun.tools.visage.tree.JFXScript;
+import org.visage.tools.tree.JFXScript;
 
 /**
  *

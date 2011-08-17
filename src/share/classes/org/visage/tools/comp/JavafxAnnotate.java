@@ -21,13 +21,13 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Symbol.*;
 
-import com.sun.tools.visage.tree.JavafxTreeMaker;
+import org.visage.tools.tree.JavafxTreeMaker;
 
 /** Enter annotations on symbols.  Annotations accumulate in a queue,
  *  which is processed at the top level of any set of recursive calls

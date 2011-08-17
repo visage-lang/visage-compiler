@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.util;
+package org.visage.runtime.util;
 
 import java.util.Collections;
 import java.util.Map;
@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import com.sun.visage.runtime.util.backport.ResourceBundle;
+import org.visage.runtime.util.backport.ResourceBundle;
 
 public class StringLocalization {
 

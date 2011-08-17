@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.visage.api.tree;
+package org.visage.api.tree;
 
 /**
  * Defines the additional interface elements required for interrogating

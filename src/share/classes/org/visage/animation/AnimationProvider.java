@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.animation;
+package org.visage.animation;
 
 /**
  * Defines the interface for libraries that define the JavaFX Script animation

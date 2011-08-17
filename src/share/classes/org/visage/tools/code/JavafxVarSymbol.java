@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.code;
+package org.visage.tools.code;
 
 import com.sun.tools.mjavac.code.Kinds;
-import com.sun.tools.visage.code.JavafxClassSymbol;
+import org.visage.tools.code.JavafxClassSymbol;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
@@ -32,7 +32,7 @@ import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Name;
 import static com.sun.tools.mjavac.code.Flags.*;
 
-import static com.sun.tools.visage.code.JavafxFlags.*;
+import static org.visage.tools.code.JavafxFlags.*;
 
 /**
  * Class to hold and access variable information.

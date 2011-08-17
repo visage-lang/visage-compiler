@@ -3,9 +3,9 @@
  * and open the template in the editor.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
+import org.visage.api.JavafxcTask;
 import com.sun.source.tree.CompilationUnitTree;
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class JFXC1244Test {
             dirs.add(getTmpDir());
             fileManager.setLocation(CLASS_OUTPUT, dirs);
             
-            File file = new File("test/src/com/sun/tools/visage/api/Hello.visage");
+            File file = new File("test/src/org/visage/tools/api/Hello.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
             JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             List<? extends CompilationUnitTree> treeList = (List)visageTask.parse();

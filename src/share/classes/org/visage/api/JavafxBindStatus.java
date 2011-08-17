@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.api;
+package org.visage.api;
 
 /**
  * Effectively an enum for the possible bind status values

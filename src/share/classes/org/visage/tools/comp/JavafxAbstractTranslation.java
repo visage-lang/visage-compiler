@@ -21,13 +21,13 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 
-import com.sun.visage.api.JavafxBindStatus;
-import com.sun.visage.api.tree.SequenceSliceTree;
-import com.sun.visage.api.tree.Tree.JavaFXKind;
-import com.sun.tools.visage.code.JavafxSymtab;
+import org.visage.api.JavafxBindStatus;
+import org.visage.api.tree.SequenceSliceTree;
+import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.tools.code.JavafxSymtab;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
@@ -43,15 +43,15 @@ import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.visage.code.FunctionType;
-import com.sun.tools.visage.code.JavafxFlags;
-import com.sun.tools.visage.code.JavafxTypeRepresentation;
-import com.sun.tools.visage.code.JavafxClassSymbol;
-import com.sun.tools.visage.code.JavafxVarSymbol;
-import com.sun.tools.visage.comp.JavafxDefs.RuntimeMethod;
-import com.sun.tools.visage.comp.JavafxInitializationBuilder.LiteralInitClassMap;
-import com.sun.tools.visage.comp.JavafxInitializationBuilder.LiteralInitVarMap;
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.code.FunctionType;
+import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.JavafxTypeRepresentation;
+import org.visage.tools.code.JavafxClassSymbol;
+import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.comp.JavafxDefs.RuntimeMethod;
+import org.visage.tools.comp.JavafxInitializationBuilder.LiteralInitClassMap;
+import org.visage.tools.comp.JavafxInitializationBuilder.LiteralInitVarMap;
+import org.visage.tools.tree.*;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.jvm.Target;
 import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
@@ -61,7 +61,7 @@ import java.util.Map;
 import visage.lang.AngleUnit;
 import visage.lang.LengthUnit;
 import javax.lang.model.type.TypeKind;
-import static com.sun.tools.visage.comp.JavafxAbstractTranslation.Yield.*;
+import static org.visage.tools.comp.JavafxAbstractTranslation.Yield.*;
 
 /**
  * Common translation mechanism
@@ -720,7 +720,7 @@ public abstract class JavafxAbstractTranslation
                     primitive = true;
                     addTypeInfoArg = false;
                     JavafxTypeRepresentation typeRep = types.typeRep(elemType);
-                    localSeqBuilder = "com.sun.visage.runtime.sequence." + JavafxDefs.getTypePrefix(typeRep.ordinal()) + "ArraySequence"; //TODO: put in defs
+                    localSeqBuilder = "org.visage.runtime.sequence." + JavafxDefs.getTypePrefix(typeRep.ordinal()) + "ArraySequence"; //TODO: put in defs
                 }
                 else
                     localSeqBuilder = JavafxDefs.cObjectArraySequence;

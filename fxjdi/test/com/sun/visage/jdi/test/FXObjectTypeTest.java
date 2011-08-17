@@ -20,24 +20,24 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
-import com.sun.visage.jdi.FXObjectType;
-import com.sun.visage.jdi.FXVirtualMachine;
-import com.sun.visage.jdi.FXReferenceType;
+import org.visage.jdi.FXObjectType;
+import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.FXReferenceType;
 import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 import org.junit.Test;
 import junit.framework.Assert;
 
 /**
- * Basic sanity check for FXObjectType (which wraps com.sun.visage.runtime.FXObject)
+ * Basic sanity check for FXObjectType (which wraps org.visage.runtime.FXObject)
  *
  * @author sundar
  */
 public class FXObjectTypeTest extends JavafxTestBase {
     // any FX class will do..
-    private static String targetClassName = "com.sun.visage.jdi.test.target.HelloTarget";
+    private static String targetClassName = "org.visage.jdi.test.target.HelloTarget";
 
     public FXObjectTypeTest() {
         super(targetClassName);
@@ -54,7 +54,7 @@ public class FXObjectTypeTest extends JavafxTestBase {
 
     protected void runTests() throws Exception {
         startToMain();
-        // run till visage$run$ - so that com.sun.visage.runtime.FXObject is loaded!
+        // run till visage$run$ - so that org.visage.runtime.FXObject is loaded!
         resumeTo(targetClassName, fxRunMethodName(), fxRunMethodSignature());
 
         // look for FXObject type

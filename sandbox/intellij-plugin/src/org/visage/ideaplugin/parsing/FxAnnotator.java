@@ -1,4 +1,4 @@
-package com.sun.visage.ideaplugin.parsing;
+package org.visage.ideaplugin.parsing;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.ExternalAnnotator;
@@ -8,10 +8,10 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import com.sun.visage.api.JavafxcTask;
-import com.sun.visage.api.tree.UnitTree;
-import com.sun.visage.ideaplugin.FxCompiler;
-import com.sun.tools.visage.api.JavafxcTool;
+import org.visage.api.JavafxcTask;
+import org.visage.api.tree.UnitTree;
+import org.visage.ideaplugin.FxCompiler;
+import org.visage.tools.api.JavafxcTool;
 
 import javax.tools.*;
 import java.io.IOException;

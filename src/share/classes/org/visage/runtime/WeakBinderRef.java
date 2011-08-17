@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
-import com.sun.visage.runtime.refq.RefQ;
-import com.sun.visage.runtime.refq.WeakRef;
+import org.visage.runtime.refq.RefQ;
+import org.visage.runtime.refq.WeakRef;
 import java.lang.ref.Reference;
 
 public class WeakBinderRef extends WeakRef<FXObject> {

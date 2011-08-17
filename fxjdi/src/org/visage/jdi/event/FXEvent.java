@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.event;
+package org.visage.jdi.event;
 
-import com.sun.visage.jdi.FXMirror;
-import com.sun.visage.jdi.FXVirtualMachine;
-import com.sun.visage.jdi.request.FXEventRequest;
+import org.visage.jdi.FXMirror;
+import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.request.FXEventRequest;
 import com.sun.jdi.event.AccessWatchpointEvent;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;

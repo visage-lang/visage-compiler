@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.sun.tools.visage.framework;
+package org.visage.tools.framework;
 
 import java.io.Closeable;
 import java.io.FileNotFoundException;

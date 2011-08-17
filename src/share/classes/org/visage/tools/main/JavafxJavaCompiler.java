@@ -21,18 +21,18 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.main;
+package org.visage.tools.main;
 
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TaskEvent;
-import com.sun.tools.visage.tree.BlockExprJCBlockExpression;
+import org.visage.tools.tree.BlockExprJCBlockExpression;
 import com.sun.tools.mjavac.comp.AttrContext;
 import com.sun.tools.mjavac.comp.Env;
 import com.sun.tools.mjavac.main.*;
 import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
 import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.mjavac.util.*;
-import com.sun.tools.visage.util.JavafxBackendLog;
+import org.visage.tools.util.JavafxBackendLog;
 import com.sun.tools.mjavac.parser.Parser;
 import com.sun.tools.mjavac.parser.Scanner;
 import com.sun.tools.mjavac.parser.Token;

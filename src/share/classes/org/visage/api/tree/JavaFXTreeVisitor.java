@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.api.tree;
+package org.visage.api.tree;
 
 /**
  * A visitor of JavaFX Script trees, which extends the TreeVisitor in 

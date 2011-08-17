@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin;
+package org.visage.ideaplugin;
 
 import com.intellij.debugger.DebuggerManager;
 import com.intellij.debugger.PositionManager;
@@ -37,7 +37,7 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerAdapter;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.util.Function;
-import com.sun.visage.ideaplugin.debug.FxPositionManager;
+import org.visage.ideaplugin.debug.FxPositionManager;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

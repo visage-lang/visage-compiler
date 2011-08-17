@@ -34,7 +34,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.visage.runtime.ErrorHandler;
+import org.visage.runtime.ErrorHandler;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 

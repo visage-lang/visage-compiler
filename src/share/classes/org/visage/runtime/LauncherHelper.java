@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -35,7 +35,7 @@ public enum LauncherHelper {
     INSTANCE;
     private static final String myname = "visage";
     private static final String defaultBundleName =
-            "com.sun.visage.runtime.resources.launcher";
+            "org.visage.runtime.resources.launcher";
     private static ResourceBundle visagerb = null;
 
     private static void printVersion(boolean fullversion) {

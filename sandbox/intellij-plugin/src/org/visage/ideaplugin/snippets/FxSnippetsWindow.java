@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.snippets;
+package org.visage.ideaplugin.snippets;
 
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
@@ -31,7 +31,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.peer.PeerFactory;
 import com.intellij.ui.content.Content;
-import com.sun.visage.ideaplugin.FxPlugin;
+import org.visage.ideaplugin.FxPlugin;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 

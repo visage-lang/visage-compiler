@@ -21,14 +21,14 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Log;
-import com.sun.tools.visage.code.JavafxFlags;
-import com.sun.tools.visage.code.JavafxVarSymbol;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.util.MsgSym;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;

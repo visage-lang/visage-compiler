@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree.xml;
+package org.visage.tools.tree.xml;
 
-import com.sun.visage.api.tree.ExpressionTree;
-import com.sun.visage.api.tree.UnitTree;
-import com.sun.tools.visage.tree.JFXScript;
+import org.visage.api.tree.ExpressionTree;
+import org.visage.api.tree.UnitTree;
+import org.visage.tools.tree.JFXScript;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Options;
 import java.io.ByteArrayOutputStream;

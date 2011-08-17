@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.util;
+package org.visage.tools.util;
 
 /**
  *

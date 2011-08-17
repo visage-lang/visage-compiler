@@ -22,8 +22,8 @@
  */
 package fxjdi;
 
-import com.sun.visage.jdi.test.JavafxTestBase;
-import com.sun.visage.tools.debug.tty.Debugger;
+import org.visage.jdi.test.JavafxTestBase;
+import org.visage.tools.debug.tty.Debugger;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -49,7 +49,7 @@ public class JdbBase extends Debugger {
     private final PrintStream  psout;
     private boolean isFx = true;
     private String mainclass = null;
-    static final String FX_MAIN = "com.sun.visage.runtime.Main";
+    static final String FX_MAIN = "org.visage.runtime.Main";
 
     public JdbBase() {
         super("-classpath " + testWorkDirectory() +
@@ -393,7 +393,7 @@ public class JdbBase extends Debugger {
             outFile.getAbsolutePath()
         };
         int retval = (isFx) 
-                ? com.sun.tools.visage.Main.compile(compileArgs)
+                ? org.visage.tools.Main.compile(compileArgs)
                 : com.sun.tools.javac.Main.compile(compileArgs);
 
         if (retval != 0) {

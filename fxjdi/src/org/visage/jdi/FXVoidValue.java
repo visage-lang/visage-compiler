@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.sun.visage.jdi;
+package org.visage.jdi;
 
 import com.sun.jdi.VoidValue;
 

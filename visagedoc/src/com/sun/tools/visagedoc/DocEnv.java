@@ -36,11 +36,11 @@ import com.sun.tools.mjavac.parser.Token;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.Position;
-import com.sun.tools.visage.code.FunctionType;
-import com.sun.tools.visage.code.JavafxTypes;
-import com.sun.tools.visage.comp.JavafxAttr;
-import com.sun.tools.visage.tree.*;
-import com.sun.tools.visage.comp.JavafxClassReader;
+import org.visage.tools.code.FunctionType;
+import org.visage.tools.code.JavafxTypes;
+import org.visage.tools.comp.JavafxAttr;
+import org.visage.tools.tree.*;
+import org.visage.tools.comp.JavafxClassReader;
 
 
 /**

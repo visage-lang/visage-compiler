@@ -21,12 +21,12 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
-import com.sun.tools.visage.api.JavafxcTool;
-import com.sun.visage.api.tree.UnitTree;
-import com.sun.visage.api.tree.Tree;
+import org.visage.api.JavafxcTask;
+import org.visage.tools.api.JavafxcTool;
+import org.visage.api.tree.UnitTree;
+import org.visage.api.tree.Tree;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +58,7 @@ public class JavafxcTaskTest {
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
         List<String> options = 
                 Arrays.asList("-d", ".", "-sourcepath", testSrc, "-classpath", testClasses);
-        File file = new File(testSrc + "/com/sun/tools/visage/api", "Hello.visage");
+        File file = new File(testSrc + "/org/visage/tools/api", "Hello.visage");
 	Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
         JavafxcTask task = instance.getTask(null, fm, dl, null, files);
         assertNotNull("no task returned", task);

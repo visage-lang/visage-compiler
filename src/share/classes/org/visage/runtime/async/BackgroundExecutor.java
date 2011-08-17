@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.async;
+package org.visage.runtime.async;
 
 import java.util.concurrent.*;
 

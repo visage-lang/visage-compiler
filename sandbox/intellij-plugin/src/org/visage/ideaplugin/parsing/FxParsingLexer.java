@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.parsing;
+package org.visage.ideaplugin.parsing;
 
 import com.intellij.lexer.LexerBase;
 import com.intellij.psi.tree.IElementType;
-import com.sun.tools.visage.antlr.v3Lexer;
+import org.visage.tools.antlr.v3Lexer;
 import org.jetbrains.annotations.Nullable;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;

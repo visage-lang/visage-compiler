@@ -41,7 +41,7 @@ import javax.script.*;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
-import com.sun.visage.api.*;
+import org.visage.api.*;
 import visage.animation.*;
 import java.lang.StringBuffer;
 import java.io.*;

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.util;
+package org.visage.runtime.util;
 
 /**
  * Linkables -- methods for manipulating linked lists.

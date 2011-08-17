@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.api.tree;
+package org.visage.api.tree;
 
 import java.util.Set;
 import javax.lang.model.element.Modifier;

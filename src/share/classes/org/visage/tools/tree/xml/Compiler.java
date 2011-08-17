@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree.xml;
+package org.visage.tools.tree.xml;
 
-import com.sun.visage.api.tree.UnitTree;
+import org.visage.api.tree.UnitTree;
 import com.sun.source.tree.LineMap;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Type;
@@ -32,7 +32,7 @@ import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Convert;
 import com.sun.tools.mjavac.util.Options;
 import com.sun.tools.mjavac.util.Position;
-import com.sun.tools.visage.code.JavafxTypes;
+import org.visage.tools.code.JavafxTypes;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +43,7 @@ import java.util.Map;
  * like subtype etc. will need API calls.
  *
  * XSL stylesheets can invoke methods of this class using the namespace URI
- * http://xml.apache.org/xalan/java/com.sun.tools.visage.tree.xml.Compiler.
+ * http://xml.apache.org/xalan/java/org.visage.tools.tree.xml.Compiler.
  *
  * @author A. Sundararajan
  */

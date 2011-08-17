@@ -49,7 +49,7 @@
         <mkdir dir="${bm.builddir}"/>
         <mkdir dir="${bm.outdir}"/>
         <taskdef name="visagec"
-            classname="com.sun.tools.visage.ant.JavaFxAntTask">
+            classname="org.visage.tools.ant.JavaFxAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
                 <pathelement location="${visagec.jar}"/>
@@ -84,7 +84,7 @@
         <attribute name="debug"         default="true"/>
         <sequential>
             <echo message="Runnning : @{benchmark}"/>
-            <java classname="com.sun.tools.visage.framework.Runner" fork="true"
+            <java classname="org.visage.tools.framework.Runner" fork="true"
               classpath="${builddir}" failonerror="true" dir="${builddir}" >
                 <sysproperty key="app.name"         value="@{benchmark}"/>
                 <sysproperty key="app.classpath"    value="${bm.builddir}"/>
@@ -118,7 +118,7 @@
             </fileset>
         </copy>
         <java fork="true" classpath="${builddir}" failonerror="true"
-            dir="${bm.outdir}" classname="com.sun.tools.visage.framework.Reporter"
+            dir="${bm.outdir}" classname="org.visage.tools.framework.Reporter"
             classpathref="jfree.classpath">
         </java>
     </target>

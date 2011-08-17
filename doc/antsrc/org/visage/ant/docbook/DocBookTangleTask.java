@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.ant.docbook;
+package org.visage.ant.docbook;
 
 import java.io.File;
 

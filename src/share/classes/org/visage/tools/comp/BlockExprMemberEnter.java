@@ -21,12 +21,12 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.comp.AttrContext;
 import com.sun.tools.mjavac.comp.Env;
-import com.sun.tools.visage.tree.BlockExprJCBlockExpression;
+import org.visage.tools.tree.BlockExprJCBlockExpression;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.comp.MemberEnter;

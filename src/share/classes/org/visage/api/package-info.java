@@ -27,10 +27,10 @@
  *
  * <p>There is no requirement for a compiler at runtime.  However, if
  * a compiler is provided, it can be located using the
- * {@linkplain com.sun.visage.api.ToolProvider}, for example:
+ * {@linkplain org.visage.api.ToolProvider}, for example:
  *
  * <p>{@code JavafxCompiler compiler = ToolProvider.getJavafxCompiler();}
  */
 
-package com.sun.visage.api;
+package org.visage.api;
 

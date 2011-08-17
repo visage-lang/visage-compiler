@@ -41,7 +41,7 @@ import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
 import static com.sun.tools.mjavac.code.Flags.*;
-import static com.sun.tools.visage.code.JavafxFlags.*;
+import static org.visage.tools.code.JavafxFlags.*;
 
 /**
  * Main program of Javadoc.

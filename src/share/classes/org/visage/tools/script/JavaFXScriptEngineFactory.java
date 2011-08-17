@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.script;
+package org.visage.tools.script;
 
 import javax.script.*;
 import java.util.*;

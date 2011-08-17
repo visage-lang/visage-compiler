@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.date;
+package org.visage.runtime.date;
 
 import java.util.TimeZone;
 

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree.xml;
+package org.visage.tools.tree.xml;
 
 import com.sun.tools.mjavac.util.Context;
 import java.io.BufferedReader;

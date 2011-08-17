@@ -16,7 +16,7 @@ import java.lang.Thread;
 import java.lang.AssertionError;
 import java.lang.Throwable;
 import java.util.concurrent.TimeUnit;
-import com.sun.visage.runtime.Pointer;
+import org.visage.runtime.Pointer;
 
 var s:String = "abc";
 var bps = bind Pointer.make(s); 

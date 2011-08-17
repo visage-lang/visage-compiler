@@ -25,10 +25,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
-import com.sun.visage.api.tree.*;
-import com.sun.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.*;
+import org.visage.api.tree.Tree.JavaFXKind;
 
 import com.sun.tools.mjavac.util.List;
 

@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
-import com.sun.visage.runtime.TypeInfo;
+import org.visage.runtime.TypeInfo;
 
 /**
  * Provides a view of an underlying sequence by applying a mapping function to each element of the underlying

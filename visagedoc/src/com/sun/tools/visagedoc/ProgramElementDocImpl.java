@@ -29,11 +29,11 @@ import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 
-import com.sun.tools.visage.tree.JFXTree;
+import org.visage.tools.tree.JFXTree;
 
 import com.sun.tools.mjavac.util.Position;
 
-import com.sun.tools.visage.code.JavafxFlags;
+import org.visage.tools.code.JavafxFlags;
 import java.lang.reflect.Modifier;
 import java.text.CollationKey;
 

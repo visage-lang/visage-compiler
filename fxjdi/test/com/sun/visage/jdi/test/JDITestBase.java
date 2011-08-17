@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
-import com.sun.visage.jdi.connect.FXLaunchingConnector;
+import org.visage.jdi.connect.FXLaunchingConnector;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.Connector;
 import java.util.Map;

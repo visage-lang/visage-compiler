@@ -6,7 +6,7 @@
  */
 
 import java.lang.System;
-import com.sun.visage.runtime.util.StringLocalization;
+import org.visage.runtime.util.StringLocalization;
 
 bound function foo(): String {
     StringLocalization.getLocalizedString(null, "hello.world", "hello.world");

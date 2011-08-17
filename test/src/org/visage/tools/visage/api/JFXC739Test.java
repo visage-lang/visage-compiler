@@ -21,14 +21,14 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
-import com.sun.tools.visage.api.JavafxcTool;
-import com.sun.visage.api.tree.UnitTree;
-import com.sun.tools.visage.tree.JFXClassDeclaration;
-import com.sun.tools.visage.tree.JFXTree;
-import com.sun.tools.visage.tree.JavafxTreeScanner;
+import org.visage.api.JavafxcTask;
+import org.visage.tools.api.JavafxcTool;
+import org.visage.api.tree.UnitTree;
+import org.visage.tools.tree.JFXClassDeclaration;
+import org.visage.tools.tree.JFXTree;
+import org.visage.tools.tree.JavafxTreeScanner;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
@@ -52,7 +52,7 @@ public class JFXC739Test {
             JavafxcTool tool = JavafxcTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
-            File file = new File("test/src/com/sun/tools/visage/api/Point.visage");
+            File file = new File("test/src/org/visage/tools/api/Point.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
             JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             //Iterable<? extends CompilationUnitTree> treeList = visageTask.parse();

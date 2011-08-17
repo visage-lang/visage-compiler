@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.script;
+package org.visage.tools.script;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.code.*;
 import java.lang.reflect.*;

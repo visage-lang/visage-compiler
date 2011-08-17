@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.event;
+package org.visage.jdi.event;
 
-import com.sun.visage.jdi.FXMirror;
-import com.sun.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.FXMirror;
+import org.visage.jdi.FXVirtualMachine;
 import com.sun.jdi.event.EventQueue;
 import com.sun.jdi.event.EventSet;
 import java.util.Collections;

@@ -23,7 +23,7 @@
  * have any questions.
  */
 
-package com.sun.visage.tools.debug.tty;
+package org.visage.tools.debug.tty;
 
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.IncompatibleThreadStateException;

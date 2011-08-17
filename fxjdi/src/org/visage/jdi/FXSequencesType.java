@@ -21,13 +21,13 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi;
+package org.visage.jdi;
 
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Method;
 
 /**
- * This class represents com.sun.visage.runtime.sequence.Sequences class type.
+ * This class represents org.visage.runtime.sequence.Sequences class type.
  *
  * @author sundar
  */

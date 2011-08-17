@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
-import com.sun.visage.jdi.FXStackFrame;
+import org.visage.jdi.FXStackFrame;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
@@ -43,7 +43,7 @@ public class FramesTest extends TestScaffold {
 
     static String[] expectedNames = {"foo3", "foo2", "foo1", "main"};
 
-    private static final String targetClassName = "com.sun.visage.jdi.test.target.FramesTarget";
+    private static final String targetClassName = "org.visage.jdi.test.target.FramesTarget";
     private static final String[] ARGS = {
         "-J-classpath",
         testBuildDirectory(),

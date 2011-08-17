@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
-import com.sun.visage.runtime.sequence.Sequence;
-import com.sun.visage.runtime.sequence.Sequences;
+import org.visage.runtime.sequence.Sequence;
+import org.visage.runtime.sequence.Sequences;
 
 /**
  * Various runtime checks too messy to do inline

@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi;
+package org.visage.jdi;
 
-import com.sun.visage.jdi.connect.FXConnector;
+import org.visage.jdi.connect.FXConnector;
 import com.sun.jdi.Bootstrap;
 import com.sun.jdi.JDIPermission;
 import com.sun.jdi.VirtualMachine;
@@ -52,7 +52,7 @@ public class FXBootstrap {
 
     /**
      * Get a VirtualMachineManager whose default launching connector is an instance of
-     * com.sun.visage.jdi.connect.FXLaunchingConnector.  This VirtualMachineManager will be aware
+     * org.visage.jdi.connect.FXLaunchingConnector.  This VirtualMachineManager will be aware
      * of all the connectors in FX-JDI as well as the connectors in the normal JDI implementation.
      *
      * @return a VirtualMachineManager
@@ -150,7 +150,7 @@ public class FXBootstrap {
             boolean found = false;
             List<LaunchingConnector> launchers = launchingConnectors();
             for (LaunchingConnector lc : launchers) {
-                if (lc.name().equals("com.sun.visage.jdi.connect.FXLaunchingConnector")) {
+                if (lc.name().equals("org.visage.jdi.connect.FXLaunchingConnector")) {
                     setDefaultConnector(lc);
                     found = true;
                     break;

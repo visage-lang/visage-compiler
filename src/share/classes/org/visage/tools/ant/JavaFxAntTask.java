@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.ant;
+package org.visage.tools.ant;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -52,7 +52,7 @@ public class JavaFxAntTask extends Javac {
     private static final String FAIL_MSG
             = "JavaFX compile failed; see the compiler error output for details.";
 
-    public static final String FX_ENTRY_POINT = "com.sun.tools.visage.Main";
+    public static final String FX_ENTRY_POINT = "org.visage.tools.Main";
 
     public JavaFxAntTask() {
         super();

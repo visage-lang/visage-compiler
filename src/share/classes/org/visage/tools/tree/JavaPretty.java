@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
 import com.sun.source.tree.Tree.Kind;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import com.sun.tools.mjavac.tree.Pretty;
 import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
-import com.sun.tools.visage.comp.JavafxDefs;
+import org.visage.tools.comp.JavafxDefs;
 import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
 import com.sun.tools.mjavac.tree.JCTree.JCIdent;
 import com.sun.tools.mjavac.util.Options;
@@ -75,7 +75,7 @@ public class JavaPretty extends Pretty {
     public void visitAnnotation(JCAnnotation tree) {
         if (verbose) {
             // Super class implementation prints only simple name for
-            // annotation type. So, com.sun.visage.runtime.Package is
+            // annotation type. So, org.visage.runtime.Package is
             // printed as Package which clashes with java.lang.Package!!
             try {
                 print("@");

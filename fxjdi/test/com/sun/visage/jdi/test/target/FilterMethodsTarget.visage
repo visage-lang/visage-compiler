@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test.target;
+package org.visage.jdi.test.target;
 
 class FilterMethodsTarget {
     function priv1() {}

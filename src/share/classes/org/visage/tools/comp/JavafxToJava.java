@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,13 +37,13 @@ import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.visage.code.JavafxVarSymbol;
-import com.sun.tools.visage.comp.JavafxAbstractTranslation.Translator;
-import com.sun.tools.visage.comp.JavafxAnalyzeClass.*;
-import static com.sun.tools.visage.comp.JavafxDefs.*;
-import com.sun.tools.visage.comp.JavafxInitializationBuilder.*;
-import com.sun.tools.visage.tree.*;
-import static com.sun.tools.visage.comp.JavafxAbstractTranslation.Yield.*;
+import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.comp.JavafxAbstractTranslation.Translator;
+import org.visage.tools.comp.JavafxAnalyzeClass.*;
+import static org.visage.tools.comp.JavafxDefs.*;
+import org.visage.tools.comp.JavafxInitializationBuilder.*;
+import org.visage.tools.tree.*;
+import static org.visage.tools.comp.JavafxAbstractTranslation.Yield.*;
 
 /**
  * Translate JavaFX ASTs into Java ASTs

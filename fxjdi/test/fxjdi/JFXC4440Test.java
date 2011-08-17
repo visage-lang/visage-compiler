@@ -23,7 +23,7 @@
 
 package fxjdi;
 
-import com.sun.visage.jdi.FXSequenceReference;
+import org.visage.jdi.FXSequenceReference;
 import com.sun.jdi.StringReference;
 import junit.framework.Assert;
 import org.junit.Test;

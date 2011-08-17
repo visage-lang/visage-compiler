@@ -1,5 +1,5 @@
 /**
- * JFXC-3810 : CSSFun sample gets ClassCastException: com.sun.visage.runtime.sequence.SingletonSequence cannot be cast to visage.scene.paint.Paint'
+ * JFXC-3810 : CSSFun sample gets ClassCastException: org.visage.runtime.sequence.SingletonSequence cannot be cast to visage.scene.paint.Paint'
  *
  * @test
  * @run

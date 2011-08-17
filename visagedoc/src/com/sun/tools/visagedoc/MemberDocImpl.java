@@ -26,7 +26,7 @@ package com.sun.tools.visagedoc;
 import com.sun.javadoc.*;
 
 import com.sun.tools.mjavac.code.Symbol;
-import com.sun.tools.visage.tree.JFXTree;
+import org.visage.tools.tree.JFXTree;
 import com.sun.tools.mjavac.util.Position;
 
 /**

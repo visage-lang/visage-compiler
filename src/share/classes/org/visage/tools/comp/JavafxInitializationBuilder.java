@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Scope.Entry;
@@ -33,16 +33,16 @@ import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.visage.code.JavafxClassSymbol;
-import com.sun.tools.visage.code.JavafxFlags;
-import com.sun.tools.visage.code.JavafxSymtab;
-import com.sun.tools.visage.code.JavafxTypeRepresentation;
-import com.sun.tools.visage.code.JavafxVarSymbol;
-import com.sun.tools.visage.comp.JavafxAnalyzeClass.*;
-import com.sun.tools.visage.comp.JavafxAbstractTranslation.*;
-import com.sun.tools.visage.comp.JavafxAbstractTranslation.ExpressionResult.*;
-import static com.sun.tools.visage.comp.JavafxDefs.*;
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.code.JavafxClassSymbol;
+import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.JavafxSymtab;
+import org.visage.tools.code.JavafxTypeRepresentation;
+import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.comp.JavafxAnalyzeClass.*;
+import org.visage.tools.comp.JavafxAbstractTranslation.*;
+import org.visage.tools.comp.JavafxAbstractTranslation.ExpressionResult.*;
+import static org.visage.tools.comp.JavafxDefs.*;
+import org.visage.tools.tree.*;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.HashMap;

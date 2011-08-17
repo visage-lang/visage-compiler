@@ -25,7 +25,7 @@ import com.sun.btrace.annotations.*;
 import static com.sun.btrace.BTraceUtils.*;
 import java.util.Map;
 import java.lang.ref.*;
-import com.sun.visage.runtime.FXObject;
+import org.visage.runtime.FXObject;
 
 /**
  * This BTrace script tries to measure aggregate stat like total
@@ -57,7 +57,7 @@ import com.sun.visage.runtime.FXObject;
     private static long fxNotifyDependentsCount = 0;
 
     @OnMethod(
-	clazz="com.sun.visage.runtime.FXBase",
+	clazz="org.visage.runtime.FXBase",
         method="<init>"
     ) 
     public static void onNewFXObject(@Self Object obj, boolean dummy) {
@@ -73,7 +73,7 @@ import com.sun.visage.runtime.FXObject;
     }
 
     @OnMethod(
-        clazz="com.sun.visage.runtime.WeakBinderRef",
+        clazz="org.visage.runtime.WeakBinderRef",
         method="<init>"
     )
     public static void onNewWeakBinderRef(@Self Object obj, FXObject referred) {
@@ -82,7 +82,7 @@ import com.sun.visage.runtime.FXObject;
     }
 
     @OnMethod(
-        clazz="com.sun.visage.runtime.Dependent",
+        clazz="org.visage.runtime.Dependent",
         method="<init>"
     )
     public static void onNewDependent(@Self Object obj, FXObject referred) {
@@ -102,7 +102,7 @@ import com.sun.visage.runtime.FXObject;
     }
 
     @OnMethod(
-	clazz="com.sun.visage.runtime.FXBase",
+	clazz="org.visage.runtime.FXBase",
         method="addDependent$"
     ) 
     public static void onAddDependent(FXObject obj, int varNum, FXObject dep) {
@@ -110,7 +110,7 @@ import com.sun.visage.runtime.FXObject;
     }
 
     @OnMethod(
-	clazz="com.sun.visage.runtime.FXBase",
+	clazz="org.visage.runtime.FXBase",
         method="removeDependent$"
     ) 
     public static void onRemoveDependent(FXObject obj, int varNum, FXObject dep) {
@@ -118,7 +118,7 @@ import com.sun.visage.runtime.FXObject;
     }
 
     @OnMethod(
-	clazz="com.sun.visage.runtime.FXBase",
+	clazz="org.visage.runtime.FXBase",
         method="notifyDependents$"
     ) 
     public static void onNotifyDependents(FXObject obj, int varNum) {

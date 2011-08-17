@@ -21,13 +21,13 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
-import com.sun.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.JavafxcTask;
+import org.visage.api.tree.JavaFXTreePathScanner;
 
-import com.sun.visage.api.tree.Tree.JavaFXKind;
-import com.sun.visage.api.tree.UnitTree;
+import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.UnitTree;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
@@ -52,7 +52,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from com.sun.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.JavaFXKind.values().
  * 
  * @author David Strupl
  */
@@ -72,7 +72,7 @@ public class AllTreesAnalyzeTest {
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
         List<String> options = 
                 Arrays.asList("-d", ".", "-sourcepath", testSrc, "-classpath", testClasses);
-        File file = new File(testSrc + "/com/sun/tools/visage/api", "AllTrees.visage");
+        File file = new File(testSrc + "/org/visage/tools/api", "AllTrees.visage");
 	Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
         JavafxcTask task = instance.getTask(null, fm, dl, null, files);
         assertNotNull("no task returned", task);
@@ -88,14 +88,14 @@ public class AllTreesAnalyzeTest {
     
     /**
      * This test checks all the comments in file AllTrees.visage and compares them
-     * to the list of com.sun.visage.api.tree.Tree.JavaFXKind.values()
+     * to the list of org.visage.api.tree.Tree.JavaFXKind.values()
      */
     @Test
     public void haveAllTreesCovered() throws Exception {
         Set<String> testFileConstructs = new HashSet<String>();
         // commented out construct name in the test file
         Pattern p = Pattern.compile("// [A-Z|_]+");
-        File f = new File(testSrc + "/com/sun/tools/visage/api", "AllTrees.visage");
+        File f = new File(testSrc + "/org/visage/tools/api", "AllTrees.visage");
         FileInputStream fis = new FileInputStream(f);
         FileChannel fc = fis.getChannel();
         ByteBuffer bb = 

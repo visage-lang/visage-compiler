@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 
 /** Each DepChain is a linked list of Deps for a given bindeeVarNum.

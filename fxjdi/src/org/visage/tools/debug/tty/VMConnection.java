@@ -23,9 +23,9 @@
  * have any questions.
  */
 
-package com.sun.visage.tools.debug.tty;
+package org.visage.tools.debug.tty;
 
-import com.sun.visage.jdi.FXBootstrap;
+import org.visage.jdi.FXBootstrap;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.*;
 import com.sun.jdi.request.EventRequestManager;

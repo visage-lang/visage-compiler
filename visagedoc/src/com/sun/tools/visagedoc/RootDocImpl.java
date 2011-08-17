@@ -31,7 +31,7 @@ import com.sun.javadoc.*;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Position;
-import com.sun.tools.visage.tree.JFXClassDeclaration;
+import org.visage.tools.tree.JFXClassDeclaration;
 
 /**
  * This class holds the information from one run of javadoc.

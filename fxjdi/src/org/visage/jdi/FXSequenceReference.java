@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi;
+package org.visage.jdi;
 
 import com.sun.jdi.BooleanValue;
 import com.sun.jdi.ByteValue;
@@ -48,7 +48,7 @@ import java.util.List;
 
 
 /**
- * Represents an FX sequence (instanceof com.sun.visage.runtime.sequence.Sequence).
+ * Represents an FX sequence (instanceof org.visage.runtime.sequence.Sequence).
  * For now, this class provides an ArrayReference-like interface for Sequences - in the future
  * we'll add more operations such as sequence insert/delete/slice etc.
  *
@@ -56,7 +56,7 @@ import java.util.List;
  */
 public class FXSequenceReference extends FXObjectReference {
     
-    // keep this in sync. with com.sun.visage.runtime.TypeInfo.Types enum.
+    // keep this in sync. with org.visage.runtime.TypeInfo.Types enum.
     /**
      * The possible types of a sequence element
      */

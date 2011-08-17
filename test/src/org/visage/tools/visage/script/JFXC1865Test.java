@@ -1,6 +1,6 @@
-package com.sun.tools.visage.script;
+package org.visage.tools.script;
 
-import com.sun.visage.api.JavaFXScriptEngine;
+import org.visage.api.JavaFXScriptEngine;
 import java.io.File;
 import java.io.FileReader;
 import javax.script.ScriptContext;
@@ -21,7 +21,7 @@ public class JFXC1865Test {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine engine = manager.getEngineByExtension("visage");
         assertTrue(engine instanceof JavaFXScriptEngine);
-        File script = new File("test/src/com/sun/tools/visage/script/JFXC1865.visage");
+        File script = new File("test/src/org/visage/tools/script/JFXC1865.visage");
         engine.getContext().setAttribute(ScriptEngine.FILENAME, script.getAbsolutePath(), ScriptContext.ENGINE_SCOPE);
         Boolean ret = (Boolean)engine.eval(new FileReader(script));
         assertTrue(ret.booleanValue());

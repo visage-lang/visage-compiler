@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
-import com.sun.visage.runtime.sequence.Sequence;
+import org.visage.runtime.sequence.Sequence;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;

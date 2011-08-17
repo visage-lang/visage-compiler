@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree.xml;
+package org.visage.tools.tree.xml;
 
-import com.sun.visage.api.tree.TypeTree.Cardinality;
-import com.sun.visage.api.JavafxBindStatus;
+import org.visage.api.tree.TypeTree.Cardinality;
+import org.visage.api.JavafxBindStatus;
 import java.util.HashMap;
 import java.util.Map;
 

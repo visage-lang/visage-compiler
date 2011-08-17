@@ -1,7 +1,7 @@
 /*
  * Compile-time error:
  *
- *   setAsShort(short) in com.sun.visage.runtime.location.ShortVariable
+ *   setAsShort(short) in org.visage.runtime.location.ShortVariable
  *   cannot be applied to (int)
  *             s++;
  *             ^

@@ -23,8 +23,8 @@
 
 package visage.date;
 
-import com.sun.visage.runtime.date.DateTimeEngine;
-import com.sun.visage.runtime.date.DateTimeConverter;
+import org.visage.runtime.date.DateTimeEngine;
+import org.visage.runtime.date.DateTimeConverter;
 import java.lang.System;
 import java.util.TimeZone;
 

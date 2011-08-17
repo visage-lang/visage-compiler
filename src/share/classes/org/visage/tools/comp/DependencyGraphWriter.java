@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
-import com.sun.tools.visage.tree.JFXScript;
+import org.visage.tools.tree.JFXScript;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Options;

@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.script;
+package org.visage.tools.script;
 
-import com.sun.visage.api.JavaFXScriptEngine;
+import org.visage.api.JavaFXScriptEngine;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.util;
+package org.visage.tools.util;
 
 public class MsgSym {
     public static final String MESSAGE_JAVAFX_MSG_BUG = "visage.msg.bug";

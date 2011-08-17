@@ -21,18 +21,18 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
-import com.sun.visage.api.JavafxBindStatus;
+import org.visage.api.JavafxBindStatus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
 import javax.lang.model.element.ElementKind;
 import javax.tools.JavaFileObject;
 
-import com.sun.visage.api.tree.ForExpressionInClauseTree;
-import com.sun.visage.api.tree.Tree.JavaFXKind;
-import com.sun.visage.api.tree.TypeTree.Cardinality;
+import org.visage.api.tree.ForExpressionInClauseTree;
+import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.TypeTree.Cardinality;
 import com.sun.tools.mjavac.code.*;
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.Flags.ANNOTATION;
@@ -48,11 +48,11 @@ import com.sun.tools.mjavac.jvm.ByteCodes;
 import com.sun.tools.mjavac.jvm.Target;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.visage.code.*;
-import com.sun.tools.visage.tree.*;
-import com.sun.tools.visage.util.MsgSym;
-import static com.sun.tools.visage.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
-import com.sun.tools.visage.comp.JavafxCheck.WriteKind;
+import org.visage.tools.code.*;
+import org.visage.tools.tree.*;
+import org.visage.tools.util.MsgSym;
+import static org.visage.tools.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
+import org.visage.tools.comp.JavafxCheck.WriteKind;
 
 /** This is the main context-dependent analysis phase in GJC. It
  *  encompasses name resolution, type checking and constant folding as

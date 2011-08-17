@@ -21,12 +21,12 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
 import java.util.BitSet;
 import java.util.Iterator;
 
-import com.sun.visage.runtime.TypeInfo;
+import org.visage.runtime.TypeInfo;
 
 /**
  * Sequences are immutable, homogeneous, ordered collections.  A sequence has an element type,

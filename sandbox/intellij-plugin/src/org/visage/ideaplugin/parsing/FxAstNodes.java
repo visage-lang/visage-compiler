@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.parsing;
+package org.visage.ideaplugin.parsing;
 
 import com.intellij.psi.tree.IElementType;
-import com.sun.tools.visage.antlr.v3Parser;
-import com.sun.visage.ideaplugin.FxPlugin;
+import org.visage.tools.antlr.v3Parser;
+import org.visage.ideaplugin.FxPlugin;
 
 /**
  * FxAstNodes

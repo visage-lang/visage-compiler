@@ -21,17 +21,17 @@
 * have any questions.
 */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
-import com.sun.visage.api.JavafxBindStatus;
-import com.sun.visage.api.tree.TypeTree.Cardinality;
-import com.sun.tools.visage.code.FunctionType;
-import com.sun.tools.visage.code.JavafxClassSymbol;
-import com.sun.tools.visage.code.JavafxFlags;
-import com.sun.tools.visage.code.JavafxSymtab;
-import com.sun.tools.visage.code.JavafxTypes;
-import com.sun.tools.visage.code.JavafxVarSymbol;
-import com.sun.tools.visage.tree.*;
+import org.visage.api.JavafxBindStatus;
+import org.visage.api.tree.TypeTree.Cardinality;
+import org.visage.tools.code.FunctionType;
+import org.visage.tools.code.JavafxClassSymbol;
+import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.JavafxSymtab;
+import org.visage.tools.code.JavafxTypes;
+import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.tree.*;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Scope;

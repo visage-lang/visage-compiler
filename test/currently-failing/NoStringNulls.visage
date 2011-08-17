@@ -53,8 +53,8 @@ usArray[0] = null;
 /* This currently results in an interesting error message.
        var nullStrings : String[] = ["Add","Null", null ];
 
-  NoStringNulls.visage:24: reference to add is ambiguous, both method add(T) in com.sun.visage.runtime.sequence.SequenceBuilder<java.lang.String>
-  and method add(com.sun.visage.runtime.sequence.Sequence<? extends T>) in com.sun.visage.runtime.sequence.SequenceBuilder<java.lang.String>
+  NoStringNulls.visage:24: reference to add is ambiguous, both method add(T) in org.visage.runtime.sequence.SequenceBuilder<java.lang.String>
+  and method add(org.visage.runtime.sequence.Sequence<? extends T>) in org.visage.runtime.sequence.SequenceBuilder<java.lang.String>
   match  var nullStrings : String[] = [null,null,null ];
                              ^
   1 error

@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.connect;
+package org.visage.jdi.connect;
 
-import com.sun.visage.jdi.FXWrapper;
+import org.visage.jdi.FXWrapper;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector.Argument;

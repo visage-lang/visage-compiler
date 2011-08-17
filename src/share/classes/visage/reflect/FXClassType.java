@@ -39,13 +39,13 @@ public abstract class FXClassType extends FXType implements FXMember {
     protected static final int FX_CLASS = 2;
 
     public static final String SEQUENCE_CLASSNAME =
-            "com.sun.visage.runtime.sequence.Sequence";
+            "org.visage.runtime.sequence.Sequence";
     public static final String OBJECT_VARIABLE_CLASSNAME =
-            "com.sun.visage.runtime.location.ObjectVariable";
+            "org.visage.runtime.location.ObjectVariable";
     public static final String SEQUENCE_VARIABLE_CLASSNAME =
-            "com.sun.visage.runtime.location.SequenceVariable";
+            "org.visage.runtime.location.SequenceVariable";
     public static final String FUNCTION_CLASSNAME_PREFIX =
-            "com.sun.visage.functions.Function";
+            "org.visage.functions.Function";
     public static final String GETTER_PREFIX = "get$";
     public static final String SETTER_PREFIX = "set$";
     public static final String LOCATION_GETTER_PREFIX = "loc$";

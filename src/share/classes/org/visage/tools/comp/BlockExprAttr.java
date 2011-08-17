@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
@@ -32,8 +32,8 @@ import com.sun.tools.mjavac.comp.Env;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.*;
-import com.sun.tools.visage.tree.*;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.tree.*;
+import org.visage.tools.util.MsgSym;
 
 /** This is the main context-dependent analysis phase in GJC. It
  *  encompasses name resolution, type checking and constant folding as

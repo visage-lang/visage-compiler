@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.functions;
+package org.visage.functions;
 
-import com.sun.visage.runtime.FXObject;
+import org.visage.runtime.FXObject;
 
 public class Function4<R, A1, A2, A3, A4> extends Function<R> {
     public Function4() {}

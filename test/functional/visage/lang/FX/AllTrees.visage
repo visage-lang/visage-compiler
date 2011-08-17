@@ -1,5 +1,5 @@
 /*
- * Copied from test/src/com/sun/tools/visage/api/AllTrees.visage so that it can be run by
+ * Copied from test/src/org/visage/tools/api/AllTrees.visage so that it can be run by
  * FXCompilerTest and used in smoketest.
  *
  * @test

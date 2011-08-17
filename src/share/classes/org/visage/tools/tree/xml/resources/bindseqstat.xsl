@@ -23,8 +23,8 @@
 
 <xsl:transform
      xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-     xmlns:c="http://xml.apache.org/xalan/java/com.sun.tools.visage.tree.xml.Compiler"
-     xmlns:fxt="http://xml.apache.org/xalan/java/com.sun.tools.visage.code.JavafxTypes"
+     xmlns:c="http://xml.apache.org/xalan/java/org.visage.tools.tree.xml.Compiler"
+     xmlns:fxt="http://xml.apache.org/xalan/java/org.visage.tools.code.JavafxTypes"
      xmlns:fx="http://openjfx.java.sun.com">
 
     <xsl:import href="analyze.xsl"/>    

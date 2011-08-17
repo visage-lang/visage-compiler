@@ -1,5 +1,5 @@
 /**
- * JFXC-4175 :  Indaba Internal compiler error incompatible types found : com.sun.visage.runtime.Pointer required: visage.scene.control.Button
+ * JFXC-4175 :  Indaba Internal compiler error incompatible types found : org.visage.runtime.Pointer required: visage.scene.control.Button
  *
  * @test
  * @run

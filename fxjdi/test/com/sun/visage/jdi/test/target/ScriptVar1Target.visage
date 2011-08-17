@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test.target;
+package org.visage.jdi.test.target;
 
 var sv1 = 89;
 var sv2 = bind sv1 on replace { println("sv1 on replace")};

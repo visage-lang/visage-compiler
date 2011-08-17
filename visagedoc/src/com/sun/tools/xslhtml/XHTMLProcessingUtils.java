@@ -23,7 +23,7 @@
 
 package com.sun.tools.xslhtml;
 
-import com.sun.tools.visage.script.JavaFXScriptEngineFactory;
+import org.visage.tools.script.JavaFXScriptEngineFactory;
 import com.sun.tools.xmldoclet.Util;
 import java.awt.Color;
 import java.awt.EventQueue;

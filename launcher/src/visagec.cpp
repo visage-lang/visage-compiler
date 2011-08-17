@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
             cmd += "-classpath \"" + config.classpath + "\" ";
         }
     }
-    cmd += "com.sun.tools.visage.Main ";
+    cmd += "org.visage.tools.Main ";
     // this could have multiple space separated options, so no quoting.
     if (!config.profile_compile_opts.empty()) {
         cmd += config.profile_compile_opts + " ";

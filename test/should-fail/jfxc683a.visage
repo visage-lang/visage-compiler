@@ -15,7 +15,7 @@
  * instead of
  * 
  *     jfxc683a.visage:38: incompatible types
- *     found   : com.sun.visage.runtime.sequence.Sequence<? extends jfxc683a.Node>
+ *     found   : org.visage.runtime.sequence.Sequence<? extends jfxc683a.Node>
  *     required: jfxc683a.Node
  *         content: [Node {}]
  *                  ^

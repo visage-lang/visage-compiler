@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.code;
+package org.visage.tools.code;
 
 /**
  * Enum representing type representation.

@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.*;
+import org.visage.api.*;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -37,12 +37,12 @@ import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JavacFileManager;
 import com.sun.tools.mjavac.util.Log;
 import com.sun.tools.mjavac.util.Options;
-import com.sun.tools.visage.main.JavafxOption;
-import com.sun.tools.visage.main.Main;
-import com.sun.tools.visage.main.RecognizedOptions.GrumpyHelper;
-import com.sun.tools.visage.main.RecognizedOptions;
-import com.sun.tools.visage.util.JavafxFileManager;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.main.JavafxOption;
+import org.visage.tools.main.Main;
+import org.visage.tools.main.RecognizedOptions.GrumpyHelper;
+import org.visage.tools.main.RecognizedOptions;
+import org.visage.tools.util.JavafxFileManager;
+import org.visage.tools.util.MsgSym;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Iterator;
@@ -81,7 +81,7 @@ public final class JavafxcTool implements JavafxCompiler {
             err = System.err;
         for (String argument : arguments)
             argument.getClass(); // null check
-        return com.sun.tools.visage.Main.compile(arguments, new PrintWriter(err, true));
+        return org.visage.tools.Main.compile(arguments, new PrintWriter(err, true));
     }
 
     //@Override

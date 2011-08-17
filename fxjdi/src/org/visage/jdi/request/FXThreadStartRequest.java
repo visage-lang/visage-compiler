@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.request;
+package org.visage.jdi.request;
 
-import com.sun.visage.jdi.FXVirtualMachine;
-import com.sun.visage.jdi.FXWrapper;
+import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.FXWrapper;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.request.ThreadStartRequest;
 

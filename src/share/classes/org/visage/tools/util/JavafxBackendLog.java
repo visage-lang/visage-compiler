@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.util;
+package org.visage.tools.util;
 
 import com.sun.tools.mjavac.comp.AttrContext;
 import com.sun.tools.mjavac.comp.Env;
@@ -31,9 +31,9 @@ import com.sun.tools.mjavac.util.JCDiagnostic;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.Log;
 import com.sun.tools.mjavac.util.Options;
-import com.sun.tools.visage.main.JavafxCompiler;
-import com.sun.tools.visage.main.Main;
-import com.sun.tools.visage.tree.JavaPretty;
+import org.visage.tools.main.JavafxCompiler;
+import org.visage.tools.main.Main;
+import org.visage.tools.tree.JavaPretty;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;

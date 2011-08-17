@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi;
+package org.visage.jdi;
 
-import com.sun.visage.jdi.event.FXEventQueue;
+import org.visage.jdi.event.FXEventQueue;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.ClassObjectReference;
@@ -596,9 +596,9 @@ public class FXReferenceType extends FXType implements ReferenceType {
     public boolean isInternalJavaType() {
         if (!isInternalJavaTypeSet) {
             String myName = name();
-            if ("com.sun.visage.runtime.FXBase".equals(myName) ||
-                "com.sun.visage.runtime.FXObject".equals(myName) ||
-                myName.startsWith("com.sun.visage.functions.Function")) {
+            if ("org.visage.runtime.FXBase".equals(myName) ||
+                "org.visage.runtime.FXObject".equals(myName) ||
+                myName.startsWith("org.visage.functions.Function")) {
                 internalJavaType = true;
                 isInternalJavaTypeSet = true;
             }

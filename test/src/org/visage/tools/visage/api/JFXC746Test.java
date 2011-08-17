@@ -21,15 +21,15 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
-import com.sun.tools.visage.api.JavafxcTool;
-import com.sun.tools.visage.api.JavafxcTrees;
-import com.sun.visage.api.tree.UnitTree;
-import com.sun.visage.api.tree.ExpressionTree;
-import com.sun.visage.api.tree.Tree;
-import com.sun.visage.api.tree.SourcePositions;
+import org.visage.api.JavafxcTask;
+import org.visage.tools.api.JavafxcTool;
+import org.visage.tools.api.JavafxcTrees;
+import org.visage.api.tree.UnitTree;
+import org.visage.api.tree.ExpressionTree;
+import org.visage.api.tree.Tree;
+import org.visage.api.tree.SourcePositions;
 import java.io.File;
 import java.util.List;
 import javax.tools.FileObject;
@@ -58,7 +58,7 @@ public class JFXC746Test {
             JavafxcTool tool = JavafxcTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
-            File file = new File("test/src/com/sun/tools/visage/api/Test.visage");
+            File file = new File("test/src/org/visage/tools/api/Test.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file);
             JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             List<? extends UnitTree> treeList = (List)visageTask.parse();

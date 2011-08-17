@@ -42,7 +42,7 @@ import org.apache.tools.ant.util.FileUtils;
  * @author tball
  */
 public class FXRunAndCompareWrapper extends TestCase {
-    private static final String JAVAFX_MAIN = "com.sun.visage.runtime.Main";
+    private static final String JAVAFX_MAIN = "org.visage.runtime.Main";
 
     private final String name;
     private final File testFile;

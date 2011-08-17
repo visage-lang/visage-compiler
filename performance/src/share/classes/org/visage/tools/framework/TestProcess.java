@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.framework;
+package org.visage.tools.framework;
 
 import java.io.BufferedReader;
 import java.io.File;

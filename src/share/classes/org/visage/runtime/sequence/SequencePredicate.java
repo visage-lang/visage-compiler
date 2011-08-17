@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
 /**
  * Represents a predicate function that selects elements from a sequence, used in predicate get, delete, and

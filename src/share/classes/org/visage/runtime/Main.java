@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

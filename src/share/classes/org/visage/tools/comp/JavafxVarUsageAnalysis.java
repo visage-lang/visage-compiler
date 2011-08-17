@@ -21,17 +21,17 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.tree.*;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.util.Context;
-import static com.sun.tools.visage.code.JavafxFlags.*;
-import com.sun.visage.api.JavafxBindStatus;
-import com.sun.tools.visage.code.JavafxTypes;
-import com.sun.tools.visage.code.JavafxVarSymbol;
-import com.sun.tools.visage.comp.JavafxCheck.ForwardReferenceChecker;
+import static org.visage.tools.code.JavafxFlags.*;
+import org.visage.api.JavafxBindStatus;
+import org.visage.tools.code.JavafxTypes;
+import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.comp.JavafxCheck.ForwardReferenceChecker;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.Name;
 import java.util.EnumSet;

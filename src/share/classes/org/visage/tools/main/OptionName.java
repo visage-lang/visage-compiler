@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.main;
+package org.visage.tools.main;
 
 /**
  * TODO: describe com.sun.tools.mjavac.main.OptionName

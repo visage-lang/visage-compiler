@@ -29,11 +29,11 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.visage.functions.*;
-import com.sun.visage.runtime.FXObject;
-import com.sun.visage.runtime.TypeInfo;
-import com.sun.visage.runtime.sequence.Sequence;
-import com.sun.visage.runtime.sequence.Sequences;
+import org.visage.functions.*;
+import org.visage.runtime.FXObject;
+import org.visage.runtime.TypeInfo;
+import org.visage.runtime.sequence.Sequence;
+import org.visage.runtime.sequence.Sequences;
 
 /**
  * Implement JavaFX rfeflection on top of {@java.lang.reflect}.
@@ -125,7 +125,7 @@ public class FXLocal {
             throw new RuntimeException(ex0);
         }
 
-        static final String LOCATION_PREFIX = "com.sun.visage.runtime.location.";
+        static final String LOCATION_PREFIX = "org.visage.runtime.location.";
         static final int LOCATION_PREFIX_LENGTH = LOCATION_PREFIX.length();
         static final String VARIABLE_STRING = "Variable";
         static final int VARIABLE_STRING_LENGTH = VARIABLE_STRING.length();
@@ -951,7 +951,7 @@ public class FXLocal {
             return fld != null && (fld.getModifiers() & Modifier.FINAL) != 0;
         }
 
-        static class ListenerAdapter extends com.sun.visage.runtime.FXBase implements FXChangeListenerID {
+        static class ListenerAdapter extends org.visage.runtime.FXBase implements FXChangeListenerID {
             final FXChangeListener listener;
             
             ListenerAdapter(FXChangeListener listener) {

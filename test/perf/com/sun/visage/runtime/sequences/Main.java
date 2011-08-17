@@ -1,4 +1,4 @@
-package com.sun.visage.runtime.sequences;
+package org.visage.runtime.sequences;
 
 import java.util.*;
 import java.text.SimpleDateFormat;

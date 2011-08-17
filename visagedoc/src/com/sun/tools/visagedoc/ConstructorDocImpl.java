@@ -28,7 +28,7 @@ import com.sun.javadoc.*;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.util.Position;
-import com.sun.tools.visage.tree.JFXFunctionDefinition;
+import org.visage.tools.tree.JFXFunctionDefinition;
 
 /**
  * Represents a constructor of a java class.

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.animation;
+package org.visage.animation;
 
 /**
  * This interface provides the methods which

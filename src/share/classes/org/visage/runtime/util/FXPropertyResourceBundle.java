@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.util;
+package org.visage.runtime.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -47,8 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.sun.visage.runtime.util.backport.ResourceBundle;
-import com.sun.visage.runtime.util.backport.ResourceBundleEnumeration;
+import org.visage.runtime.util.backport.ResourceBundle;
+import org.visage.runtime.util.backport.ResourceBundleEnumeration;
 
 class FXPropertyResourceBundle extends ResourceBundle {
 
@@ -566,7 +566,7 @@ class FXPropertyResourceBundle extends ResourceBundle {
 
     private static void log(Level l, String msg) {
         if (logger == null) {
-            logger = Logger.getLogger("com.sun.visage.runtime.util.FXPropertyResourceBundle");
+            logger = Logger.getLogger("org.visage.runtime.util.FXPropertyResourceBundle");
         }
 
         logger.log(l, msg);

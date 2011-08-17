@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
 /** The visitor interface for JavaFX trees.
  */

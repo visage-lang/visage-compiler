@@ -25,7 +25,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sun.visage.api.tree;
+package org.visage.api.tree;
 
 /**
  * A tree node for a JavaFX Script color literal.

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.tools.bytecodeverifier;
+package org.visage.tools.bytecodeverifier;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;

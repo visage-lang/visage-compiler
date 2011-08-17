@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test.target;
+package org.visage.jdi.test.target;
 
 public class FramesTarget {
     static void foo3() {

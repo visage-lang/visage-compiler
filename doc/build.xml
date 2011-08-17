@@ -104,13 +104,13 @@
         <javac srcdir="doc/antsrc"
                destdir="${doc.build.dir}/ant"
                classpath="${import.ant.jar}"/>
-        <taskdef name="tangle" classname="com.sun.visage.ant.docbook.DocBookTangleTask">
+        <taskdef name="tangle" classname="org.visage.ant.docbook.DocBookTangleTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
                 <pathelement location="${doc.build.dir}/ant"/>               
             </classpath>
         </taskdef>
-        <taskdef name="visagec" classname="com.sun.tools.visage.ant.JavaFxAntTask">
+        <taskdef name="visagec" classname="org.visage.tools.ant.JavaFxAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
                 <pathelement location="dist/lib/visagec.jar"/>

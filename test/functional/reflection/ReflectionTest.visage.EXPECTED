@@ -3,7 +3,7 @@ Inherited SuperClasses of TypeInference3 =>
   class ReflectionTest.TypeInference
   class ReflectionTest.TypeInference2
   class ReflectionTest.TypeInference3
-  class com.sun.visage.runtime.FXBase
+  class org.visage.runtime.FXBase
   class java.lang.Object
  Type of anotherAttr is inferred as class java.lang.String
  Type of attr1 is inferred as class java.lang.Object
@@ -33,7 +33,7 @@ Inherited SuperClasses of TypeInference3 =>
  Return Type of method clone inferred as class java.lang.Object
  Return Type of method equals inferred as Boolean
  Return Type of method finalize inferred as Void
- Return Type of method func0$bFunc$int inferred as class com.sun.visage.runtime.Pointer
+ Return Type of method func0$bFunc$int inferred as class org.visage.runtime.Pointer
  Return Type of method func1 inferred as class java.lang.String
  Return Type of method func2 inferred as class java.lang.String
  Return Type of method func3 inferred as Integer[]

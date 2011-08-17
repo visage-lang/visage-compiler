@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.antlr;
+package org.visage.tools.antlr;
 
 import com.sun.tools.mjavac.util.Convert;
 import com.sun.tools.mjavac.util.Log;
-import com.sun.tools.visage.util.MsgSym;
+import org.visage.tools.util.MsgSym;
 import org.antlr.runtime.*;
 
 /**

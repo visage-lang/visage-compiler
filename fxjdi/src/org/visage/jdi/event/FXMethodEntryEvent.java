@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.event;
+package org.visage.jdi.event;
 
-import com.sun.visage.jdi.FXMethod;
-import com.sun.visage.jdi.FXVirtualMachine;
-import com.sun.visage.jdi.FXWrapper;
+import org.visage.jdi.FXMethod;
+import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.FXWrapper;
 import com.sun.jdi.event.MethodEntryEvent;
 
 /**

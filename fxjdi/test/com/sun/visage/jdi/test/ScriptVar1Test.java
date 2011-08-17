@@ -26,13 +26,13 @@
  * and that the internal naming scheme for user instance vars is filtered out.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ClassType;
-import com.sun.visage.jdi.FXReferenceType;
+import org.visage.jdi.FXReferenceType;
 import com.sun.jdi.event.BreakpointEvent;
 import java.util.List;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class ScriptVar1Test extends JavafxTestBase {
     ReferenceType targetClass;
     ThreadReference mainThread;
 
-    private static final String targetClassName = "com.sun.visage.jdi.test.target.ScriptVar1Target";
+    private static final String targetClassName = "org.visage.jdi.test.target.ScriptVar1Target";
 
     public ScriptVar1Test() {
         super(targetClassName);

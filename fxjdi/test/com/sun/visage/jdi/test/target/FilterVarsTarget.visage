@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test.target;
+package org.visage.jdi.test.target;
 
 class FilterVarsTarget {
     var baseivar1: Number;    // this is declared private because there are no refs

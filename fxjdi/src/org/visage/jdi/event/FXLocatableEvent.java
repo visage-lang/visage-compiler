@@ -21,12 +21,12 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.event;
+package org.visage.jdi.event;
 
-import com.sun.visage.jdi.FXLocation;
-import com.sun.visage.jdi.FXThreadReference;
-import com.sun.visage.jdi.FXVirtualMachine;
-import com.sun.visage.jdi.FXWrapper;
+import org.visage.jdi.FXLocation;
+import org.visage.jdi.FXThreadReference;
+import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.FXWrapper;
 import com.sun.jdi.event.LocatableEvent;
 
 /**

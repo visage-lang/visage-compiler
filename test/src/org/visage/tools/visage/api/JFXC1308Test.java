@@ -1,10 +1,10 @@
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
+import org.visage.api.JavafxcTask;
 import com.sun.tools.mjavac.util.JavacFileManager;
-import com.sun.tools.visage.api.JavafxcTool;
+import org.visage.tools.api.JavafxcTool;
 
-import com.sun.tools.visage.util.JavafxFileManager;
+import org.visage.tools.util.JavafxFileManager;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
@@ -32,7 +32,7 @@ public class JFXC1308Test {
         JavafxcTool tool = JavafxcTool.create();
         JavacFileManager manager = 
                 (JavafxFileManager) tool.getStandardFileManager (null, null, null);
-        File zip = new File("test/src/com/sun/tools/visage/api/jfxc1308.zip");
+        File zip = new File("test/src/org/visage/tools/api/jfxc1308.zip");
         assertTrue(zip.exists());
         manager.setLocation(StandardLocation.SOURCE_PATH, Arrays.asList(zip));
 

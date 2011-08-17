@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.tools.visage.framework;
+package org.visage.tools.framework;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
 import java.util.ArrayList;
 import java.util.List;

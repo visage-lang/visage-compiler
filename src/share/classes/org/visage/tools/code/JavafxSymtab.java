@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.code;
+package org.visage.tools.code;
 
 import com.sun.tools.mjavac.code.Symtab;
 import com.sun.tools.mjavac.code.Type;
@@ -31,7 +31,7 @@ import static com.sun.tools.mjavac.jvm.ByteCodes.*;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
 import com.sun.tools.mjavac.code.TypeTags;
-import com.sun.tools.visage.comp.JavafxDefs;
+import org.visage.tools.comp.JavafxDefs;
 import com.sun.tools.mjavac.code.Flags;
 
 /**
@@ -145,7 +145,7 @@ public class JavafxSymtab extends Symtab {
     private JavafxTypes types;
 
     public static final String functionClassPrefix =
-            "com.sun.visage.functions.Function";
+            "org.visage.functions.Function";
 
     public static void preRegister(final Context context) {
         if (context.get(symtabKey) == null)
@@ -228,8 +228,8 @@ public class JavafxSymtab extends Symtab {
         visage_KeyValueType = enterClass("visage.animation.KeyValue");
         visage_KeyFrameType = enterClass("visage.animation.KeyFrame");
         visage_KeyValueTargetType = enterClass("visage.animation.KeyValueTarget");
-        visage_PointerType = enterClass("com.sun.visage.runtime.Pointer");
-        visage_FXConstantType = enterClass("com.sun.visage.runtime.FXConstant");
+        visage_PointerType = enterClass("org.visage.runtime.Pointer");
+        visage_FXConstantType = enterClass("org.visage.runtime.FXConstant");
         visage_BoundForOverSequenceType = enterClass(JavafxDefs.cBoundForOverSequence);
         visage_BoundForOverNullableSingletonType = enterClass(JavafxDefs.cBoundForOverNullableSingleton);
         visage_BoundForOverSingletonType = enterClass(JavafxDefs.cBoundForOverSingleton);

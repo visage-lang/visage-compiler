@@ -1,8 +1,8 @@
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 import visage.animation.KeyValueTarget;
 import visage.animation.KeyValueTarget.Type;
-import com.sun.visage.runtime.sequence.*;
+import org.visage.runtime.sequence.*;
 
 /**
  * This class tests Pointer access of FXBase instance variables.

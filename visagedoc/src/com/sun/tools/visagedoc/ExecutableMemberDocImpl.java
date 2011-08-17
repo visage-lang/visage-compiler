@@ -32,8 +32,8 @@ import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Symbol.*;
 
-import com.sun.tools.visage.code.JavafxFlags;
-import com.sun.tools.visage.tree.JFXFunctionDefinition;
+import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.tree.JFXFunctionDefinition;
 import java.text.CollationKey;
 
 import java.lang.reflect.Modifier;

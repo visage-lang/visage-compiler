@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.animation;
+package org.visage.animation;
 
 /**
  * Implements the {@link TimingTarget} interface, providing stubs for all

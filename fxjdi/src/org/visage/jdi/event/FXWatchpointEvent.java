@@ -21,13 +21,13 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.event;
+package org.visage.jdi.event;
 
-import com.sun.visage.jdi.FXField;
-import com.sun.visage.jdi.FXObjectReference;
-import com.sun.visage.jdi.FXValue;
-import com.sun.visage.jdi.FXVirtualMachine;
-import com.sun.visage.jdi.FXWrapper;
+import org.visage.jdi.FXField;
+import org.visage.jdi.FXObjectReference;
+import org.visage.jdi.FXValue;
+import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.FXWrapper;
 import com.sun.jdi.event.WatchpointEvent;
 
 /**

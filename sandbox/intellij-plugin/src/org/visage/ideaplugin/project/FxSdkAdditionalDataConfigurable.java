@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.project;
+package org.visage.ideaplugin.project;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.projectRoots.*;

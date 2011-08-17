@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.api.tree;
+package org.visage.api.tree;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;

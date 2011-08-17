@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
 import com.sun.jdi.event.BreakpointEvent;
 import java.io.File;
@@ -50,7 +50,7 @@ public abstract class JavafxTestBase extends TestScaffold {
     }
 
     protected static String fxMainClassName() {
-        return "com.sun.visage.runtime.Main";
+        return "org.visage.runtime.Main";
     }
 
     protected static String fxRunMethodName() {

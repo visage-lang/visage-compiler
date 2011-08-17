@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.refq;
+package org.visage.runtime.refq;
 
 import java.lang.ref.WeakReference;
 

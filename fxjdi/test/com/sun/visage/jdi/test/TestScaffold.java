@@ -21,12 +21,12 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 import com.sun.jdi.event.*;
-import com.sun.visage.jdi.FXReferenceType;
+import org.visage.jdi.FXReferenceType;
 import java.util.*;
 import java.io.*;
 
@@ -71,12 +71,12 @@ abstract public class TestScaffold extends TargetAdapter {
     static private class ArgInfo {
         String targetVMArgs = "";
         String targetAppCommandLine = "";
-        String connectorSpec = "com.sun.visage.jdi.connect.FXLaunchingConnector:";
+        String connectorSpec = "org.visage.jdi.connect.FXLaunchingConnector:";
         int traceFlags = 0;
     }
 
     public static String testBuildDirectory() {
-        // directory where compiled com.sun.visage.jdi.test.* classes are stored.
+        // directory where compiled org.visage.jdi.test.* classes are stored.
         // This is passed as application classpath to the target debuggee VM.
         // FIXME: is there a better way to get this directory?
         return System.getProperty("build.test.classes.dir");
@@ -624,7 +624,7 @@ abstract public class TestScaffold extends TargetAdapter {
                     }
                 }
             });
-        if (connection.connector().name().equals("com.sun.visage.jdi.connect.FXLaunchingConnector") ||
+        if (connection.connector().name().equals("org.visage.jdi.connect.FXLaunchingConnector") ||
             connection.connector().name().equals("com.sun.jdi.CommandLineLaunch")) {
             if (argInfo.targetVMArgs.length() > 0) {
                 if (connection.connectorArg("options").length() > 0) {

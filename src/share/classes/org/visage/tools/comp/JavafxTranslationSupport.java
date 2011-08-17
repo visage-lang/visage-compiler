@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import java.io.OutputStreamWriter;
 
@@ -54,13 +54,13 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.Log;
 import com.sun.tools.mjavac.util.Position;
-import com.sun.tools.visage.code.JavafxFlags;
-import com.sun.tools.visage.code.JavafxSymtab;
-import com.sun.tools.visage.code.JavafxTypeRepresentation;
-import com.sun.tools.visage.code.JavafxTypes;
-import com.sun.tools.visage.code.JavafxVarSymbol;
-import static com.sun.tools.visage.comp.JavafxDefs.*;
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.JavafxSymtab;
+import org.visage.tools.code.JavafxTypeRepresentation;
+import org.visage.tools.code.JavafxTypes;
+import org.visage.tools.code.JavafxVarSymbol;
+import static org.visage.tools.comp.JavafxDefs.*;
+import org.visage.tools.tree.*;
 import com.sun.tools.mjavac.tree.JCTree.JCAssert;
 import com.sun.tools.mjavac.tree.JCTree.JCBlock;
 import com.sun.tools.mjavac.tree.JCTree.JCCatch;

@@ -23,13 +23,13 @@
  * have any questions.
  */
 
-package com.sun.visage.tools.debug.tty;
+package org.visage.tools.debug.tty;
 
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.request.*;
-import com.sun.visage.tools.debug.expr.ExpressionParser;
-import com.sun.visage.tools.debug.expr.ParseException;
+import org.visage.tools.debug.expr.ExpressionParser;
+import org.visage.tools.debug.expr.ParseException;
 
 import java.text.*;
 import java.util.*;

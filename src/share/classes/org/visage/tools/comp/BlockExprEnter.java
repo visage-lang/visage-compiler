@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Scope;
@@ -38,7 +38,7 @@ import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
-import com.sun.tools.visage.tree.BlockExprJCBlockExpression;
+import org.visage.tools.tree.BlockExprJCBlockExpression;
 
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.Kinds.*;

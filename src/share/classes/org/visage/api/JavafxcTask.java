@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.visage.api;
+package org.visage.api;
 
-import com.sun.visage.api.tree.UnitTree;
-import com.sun.visage.api.tree.Tree;
-import com.sun.visage.api.JavafxCompiler.CompilationTask;
+import org.visage.api.tree.UnitTree;
+import org.visage.api.tree.Tree;
+import org.visage.api.JavafxCompiler.CompilationTask;
 import java.io.IOException;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;

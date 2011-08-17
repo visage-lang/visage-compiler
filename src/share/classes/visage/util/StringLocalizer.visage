@@ -28,7 +28,7 @@ import java.lang.System;
 import java.lang.Thread;
 import java.lang.StackTraceElement;
 import java.util.Locale;
-import com.sun.visage.runtime.util.StringLocalization;
+import org.visage.runtime.util.StringLocalization;
 
 /**
  * Utility class for localizing strings using JavaFX properties files.
@@ -134,7 +134,7 @@ public class StringLocalizer {
 
             if (className.startsWith("visage.util.StringLocalizer")) {
                 foundMe = true;
-            } else if (className.startsWith("com.sun.visage.runtime")) {
+            } else if (className.startsWith("org.visage.runtime")) {
                 continue;  // ignore runtime frames
             } else if (foundMe) {
                 // this should be the caller's stack

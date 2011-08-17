@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
-import com.sun.tools.visage.tree.JFXTree;
+import org.visage.tools.tree.JFXTree;
 
 /** {@code JavafxEnv<A>} specialized as {@code JavafxEnv<JavafxAttrContext>}
  *

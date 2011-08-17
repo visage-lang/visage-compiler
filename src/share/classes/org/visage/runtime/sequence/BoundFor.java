@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
-import com.sun.visage.runtime.FXBase;
-import com.sun.visage.runtime.FXObject;
+package org.visage.runtime.sequence;
+import org.visage.runtime.FXBase;
+import org.visage.runtime.FXObject;
 
 /**
  *

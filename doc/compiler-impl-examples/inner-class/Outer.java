@@ -1,7 +1,7 @@
-import com.sun.visage.runtime.location.IntLocation;
-import com.sun.visage.runtime.location.IntVariable;
-import com.sun.visage.runtime.location.ObjectLocation;
-import com.sun.visage.runtime.location.ObjectVariable;
+import org.visage.runtime.location.IntLocation;
+import org.visage.runtime.location.IntVariable;
+import org.visage.runtime.location.ObjectLocation;
+import org.visage.runtime.location.ObjectVariable;
 
 class Outer implements Outer$Intf {
     private IntLocation o;

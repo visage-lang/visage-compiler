@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
 import com.sun.source.tree.TreeVisitor;
 import com.sun.tools.mjavac.code.Flags;
@@ -33,10 +33,10 @@ import com.sun.tools.mjavac.tree.TreeScanner;
 import com.sun.tools.mjavac.tree.TreeTranslator;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Position;
-import com.sun.tools.visage.comp.BlockExprAttr;
-import com.sun.tools.visage.comp.BlockExprEnter;
-import com.sun.tools.visage.comp.BlockExprMemberEnter;
-import com.sun.tools.visage.comp.JavafxPrepForBackEnd;
+import org.visage.tools.comp.BlockExprAttr;
+import org.visage.tools.comp.BlockExprEnter;
+import org.visage.tools.comp.BlockExprMemberEnter;
+import org.visage.tools.comp.JavafxPrepForBackEnd;
 
 /**
  *

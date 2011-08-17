@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.script;
+package org.visage.tools.script;
 
-import com.sun.tools.visage.api.JavafxcTool;
-import com.sun.tools.visage.api.JavafxcTaskImpl;
+import org.visage.tools.api.JavafxcTool;
+import org.visage.tools.api.JavafxcTaskImpl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,8 +39,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.tools.*;
-import com.sun.tools.visage.code.*;
-import com.sun.tools.visage.comp.*;
+import org.visage.tools.code.*;
+import org.visage.tools.comp.*;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.util.Name;
@@ -93,9 +93,9 @@ public class JavaFXScriptCompiler {
         if (names ==  null) {
             // This is the first time initCompilerContext is called.
             names = Name.Table.instance(context);
-            com.sun.tools.visage.code.JavafxSymtab.preRegister(context);
-            com.sun.tools.visage.code.JavafxTypes.preRegister(context);
-            com.sun.tools.visage.comp.JavafxClassReader.preRegister(context);
+            org.visage.tools.code.JavafxSymtab.preRegister(context);
+            org.visage.tools.code.JavafxTypes.preRegister(context);
+            org.visage.tools.comp.JavafxClassReader.preRegister(context);
             pseudoFile = names.fromString("__FILE__");
             pseudoSourceFile = names.fromString("__SOURCE_FILE__");
             pseudoDir = names.fromString("__DIR__");

@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
-import com.sun.visage.runtime.sequence.Sequence;
+import org.visage.runtime.sequence.Sequence;
 
 /**
  * Utility class for various static utility methods, such as methods that launder generic type errors that are

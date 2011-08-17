@@ -27,5 +27,5 @@
  * language compiler AST support.
  */
 
-package com.sun.visage.api.tree;
+package org.visage.api.tree;
 

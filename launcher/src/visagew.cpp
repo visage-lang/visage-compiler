@@ -95,7 +95,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE previnst, LPSTR cmdline, int cmdsho
         cmd += "-classpath \"" + config.classpath + "\" ";
     }
 
-    cmd += "com.sun.visage.runtime.Main ";
+    cmd += "org.visage.runtime.Main ";
     cmd += config.fxargs;
 
 

@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.request;
+package org.visage.jdi.request;
 
-import com.sun.visage.jdi.FXMirror;
-import com.sun.visage.jdi.FXVirtualMachine;
-import com.sun.visage.jdi.FXWrapper;
+import org.visage.jdi.FXMirror;
+import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.FXWrapper;
 import com.sun.jdi.Field;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;

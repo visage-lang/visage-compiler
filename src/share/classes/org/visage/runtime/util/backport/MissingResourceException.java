@@ -46,7 +46,7 @@
  * removed.
  */
 
-package com.sun.visage.runtime.util.backport;
+package org.visage.runtime.util.backport;
 
 import java.util.*;
 

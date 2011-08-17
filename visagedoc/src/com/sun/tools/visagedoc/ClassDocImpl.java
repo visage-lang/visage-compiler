@@ -40,9 +40,9 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
 
 
-import com.sun.tools.visage.comp.JavafxAttrContext;
-import com.sun.tools.visage.comp.JavafxEnv;
-import com.sun.tools.visage.tree.*;
+import org.visage.tools.comp.JavafxAttrContext;
+import org.visage.tools.comp.JavafxEnv;
+import org.visage.tools.tree.*;
 import static com.sun.tools.mjavac.code.Kinds.*;
 
 import java.io.File;

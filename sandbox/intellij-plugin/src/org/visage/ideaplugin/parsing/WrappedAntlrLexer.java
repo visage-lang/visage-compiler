@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.visage.ideaplugin.parsing;
+package org.visage.ideaplugin.parsing;
 
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.visage.antlr.v3Lexer;
+import org.visage.tools.antlr.v3Lexer;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.RecognitionException;
 

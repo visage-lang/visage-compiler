@@ -21,14 +21,14 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
-import com.sun.visage.api.tree.ClassDeclarationTree;
-import com.sun.visage.api.tree.JavaFXTreePath;
+import org.visage.api.JavafxcTask;
+import org.visage.api.tree.ClassDeclarationTree;
+import org.visage.api.tree.JavaFXTreePath;
 
-import com.sun.visage.api.tree.JavaFXTreePathScanner;
-import com.sun.visage.api.tree.UnitTree;
+import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.UnitTree;
 import com.sun.tools.mjavac.util.JavacFileManager;
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +44,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from com.sun.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.JavaFXKind.values().
  *
  * @author David Strupl
  */
@@ -56,7 +56,7 @@ public class JFXC3787Test {
     private String visageLibs = "dist/lib/shared";
     private String visageDeskLibs = "dist/lib/desktop";
 
-    private String inputDir = "test/src/com/sun/tools/visage/api";
+    private String inputDir = "test/src/org/visage/tools/api";
 
     private JavafxcTrees trees;
     private UnitTree ut;

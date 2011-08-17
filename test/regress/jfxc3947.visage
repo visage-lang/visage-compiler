@@ -1,10 +1,10 @@
 /**
- * regression test: JFXC-3947 : k instanceof com.sun.visage.runtime.sequence.Sequence returns true even when it is not
+ * regression test: JFXC-3947 : k instanceof org.visage.runtime.sequence.Sequence returns true even when it is not
  *
  * @test
  * @run
  */
 
 def k:Object = "Some String";
-def isSeq = (k instanceof com.sun.visage.runtime.sequence.Sequence);
+def isSeq = (k instanceof org.visage.runtime.sequence.Sequence);
 println(isSeq);

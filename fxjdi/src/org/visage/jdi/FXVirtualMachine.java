@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi;
+package org.visage.jdi;
 
-import com.sun.visage.jdi.event.FXEventQueue;
-import com.sun.visage.jdi.request.FXEventRequestManager;
+import org.visage.jdi.event.FXEventQueue;
+import org.visage.jdi.request.FXEventRequestManager;
 import com.sun.jdi.Type;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ArrayType;
@@ -393,7 +393,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     // JavaFX types
-    public static final String FX_ENTRY_TYPE_NAME = "com.sun.visage.runtime.Entry";
+    public static final String FX_ENTRY_TYPE_NAME = "org.visage.runtime.Entry";
     private FXClassType fxEntryType;
     public synchronized FXClassType fxEntryType() {
         if (fxEntryType == null) {
@@ -403,7 +403,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return fxEntryType;
     }
 
-    public static final String FX_OBJECT_TYPE_NAME = "com.sun.visage.runtime.FXObject";
+    public static final String FX_OBJECT_TYPE_NAME = "org.visage.runtime.FXObject";
     private FXObjectType fxObjectType;
     public synchronized FXObjectType fxObjectType() {
         if (fxObjectType == null) {
@@ -413,7 +413,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return fxObjectType;
     }
 
-    public static final String FX_MIXIN_TYPE_NAME = "com.sun.visage.runtime.FXMixin";
+    public static final String FX_MIXIN_TYPE_NAME = "org.visage.runtime.FXMixin";
     private FXInterfaceType fxMixinType;
     public synchronized FXReferenceType fxMixinType() {
         if (fxMixinType == null) {
@@ -423,7 +423,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return fxMixinType;
     }
 
-    public static final String FX_SEQUENCE_TYPE_NAME = "com.sun.visage.runtime.sequence.Sequence";
+    public static final String FX_SEQUENCE_TYPE_NAME = "org.visage.runtime.sequence.Sequence";
     private FXSequenceType fxSequenceType;
     public synchronized FXSequenceType fxSequenceType() {
         if (fxSequenceType == null) {
@@ -433,7 +433,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return fxSequenceType;
     }
 
-    public static final String FX_SEQUENCES_TYPE_NAME = "com.sun.visage.runtime.sequence.Sequences";
+    public static final String FX_SEQUENCES_TYPE_NAME = "org.visage.runtime.sequence.Sequences";
     private FXSequencesType fxSequencesType;
     public synchronized FXSequencesType fxSequencesType() {
         if (fxSequencesType == null) {
@@ -699,9 +699,9 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     private int getFlagMask(String maskName) {
         int flagMask = 0;
         // we only work with underlying JDI objects here
-        List<ReferenceType> rtx =  this.underlying().classesByName("com.sun.visage.runtime.FXObject");
+        List<ReferenceType> rtx =  this.underlying().classesByName("org.visage.runtime.FXObject");
         if (rtx.size() != 1) {
-            System.out.println("Can't find the ReferenceType for com.sun.visage.runtime.FXObject");
+            System.out.println("Can't find the ReferenceType for org.visage.runtime.FXObject");
             return 0;
         }
         ReferenceType fxObjectRefType = rtx.get(0);

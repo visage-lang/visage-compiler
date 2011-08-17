@@ -1,5 +1,5 @@
 stop in = visage.lang.Builtins.println
-  value of obj = instance of com.sun.visage.jdi.test.target.InvokeExceptionsTarget
+  value of obj = instance of org.visage.jdi.test.target.InvokeExceptionsTarget
 bb = false, except = com.sun.jdi.IncompatibleThreadStateException
 ii = 0, except = com.sun.jdi.IncompatibleThreadStateException
 nn = 0.0, except = com.sun.jdi.IncompatibleThreadStateException

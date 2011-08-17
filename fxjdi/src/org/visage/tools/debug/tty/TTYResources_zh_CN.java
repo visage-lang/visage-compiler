@@ -23,14 +23,14 @@
  * have any questions.
  */
 
-package com.sun.visage.tools.debug.tty;
+package org.visage.tools.debug.tty;
 
 /**
  * <p> This class represents the <code>ResourceBundle</code>
  * for the following package(s):
  *
  * <ol>
- * <li> com.sun.visage.tools.debug.tty
+ * <li> org.visage.tools.debug.tty
  * </ol>
  *
  */

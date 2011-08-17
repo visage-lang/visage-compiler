@@ -20,10 +20,10 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package com.sun.visage.runtime.main;
+package org.visage.runtime.main;
 
 /**
- * This class just delegates to com.sun.visage.runtime.Main
+ * This class just delegates to org.visage.runtime.Main
  *
  * It is used by packager to include it as part of the 
  * application jar as webstart does not allow main to
@@ -32,7 +32,7 @@ package com.sun.visage.runtime.main;
 public class Main {
 
     public static void main(String [] args) {
-        com.sun.visage.runtime.Main.main(args);
+        org.visage.runtime.Main.main(args);
     }
 
 }

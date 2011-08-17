@@ -30,8 +30,8 @@ import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.TypeTags;
 
-import com.sun.tools.visage.tree.*;
-import com.sun.tools.visage.code.JavafxFlags;
+import org.visage.tools.tree.*;
+import org.visage.tools.code.JavafxFlags;
 
 import com.sun.tools.mjavac.util.Position;
 

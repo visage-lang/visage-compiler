@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.comp;
+package org.visage.tools.comp;
 
-import com.sun.tools.visage.code.JavafxVarSymbol;
-import com.sun.tools.visage.tree.*;
-import com.sun.tools.visage.comp.JavafxAbstractTranslation.ExpressionResult;
+import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.tree.*;
+import org.visage.tools.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;

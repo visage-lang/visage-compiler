@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.util;
+package org.visage.tools.util;
 
 import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.mjavac.util.Context;
@@ -36,11 +36,11 @@ public abstract class PlatformPlugin
 {
     /** Service name of platform plug-in. */
     public final static String SERVICE = 
-        "com.sun.tools.visage.util.PlatformPlugin";
+        "org.visage.tools.util.PlatformPlugin";
 
     /** Error messages of platform plug-in. */
     public final static String MESSAGE = 
-        "com.sun.tools.visage.resources.platformplugin";
+        "org.visage.tools.resources.platformplugin";
 
     /**
      * The context key for the platform plugin. 

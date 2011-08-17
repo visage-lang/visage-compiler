@@ -76,7 +76,7 @@ public function valueOf(ms: Float): Duration {
     valueOf(ms as Double)
 }
 
-public def TYPE_INFO = com.sun.visage.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
+public def TYPE_INFO = org.visage.runtime.TypeInfo.makeAndRegisterTypeInfo(ZERO);
 
 /**
  * A class that defines a duration of time.  Duration instances are defined in

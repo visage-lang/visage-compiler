@@ -5,7 +5,7 @@
  *
  */
 
-import com.sun.visage.functions.*;
+import org.visage.functions.*;
 
 public class jfxc4161J {
     

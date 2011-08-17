@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.event;
+package org.visage.jdi.event;
 
-import com.sun.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.FXVirtualMachine;
 import com.sun.jdi.event.VMDisconnectEvent;
 
 /**

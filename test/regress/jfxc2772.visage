@@ -5,7 +5,7 @@
  * @run
  */
 
-import com.sun.visage.runtime.Pointer;
+import org.visage.runtime.Pointer;
 
 function run() {
    var bb : Byte = 1;

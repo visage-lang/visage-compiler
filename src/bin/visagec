@@ -132,7 +132,7 @@ extra_cp=""
 if [ "$profile" = "mobile" ]; then
     extra_cp="-classpath '"$user_classpath"'"
 fi
-jargs="$jargs $extra_cp com.sun.tools.visage.Main"
+jargs="$jargs $extra_cp org.visage.tools.Main"
 
 get_jarg "compile_opts"
 if [ -n "$jarg" ]; then

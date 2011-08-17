@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.visage.api;
+package org.visage.api;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  * @author Tom Ball
  */
 public class ToolProvider {
-    private static Logger logger = Logger.getLogger("com.sun.visage");
+    private static Logger logger = Logger.getLogger("org.visage");
 
     private ToolProvider() {}
 
@@ -50,11 +50,11 @@ public class ToolProvider {
     public static JavafxCompiler getJavafxCompiler() {
         try {
             URL[] urls = new URL[] {
-                getPath("com.sun.tools.visage.api.JavafxcTool"),
+                getPath("org.visage.tools.api.JavafxcTool"),
                 getPath("com.sun.tools.mjavac.util.Context")
             };
             ClassLoader cl = createPrivilegedClassLoader(urls);
-            Class<?> cls = Class.forName("com.sun.tools.visage.api.JavafxcTool", false, cl);
+            Class<?> cls = Class.forName("org.visage.tools.api.JavafxcTool", false, cl);
             return (JavafxCompiler)cls.newInstance();
         } catch (Throwable t) {
             throw new RuntimeException(t);
@@ -70,11 +70,11 @@ public class ToolProvider {
     public static JavaFXScriptEngine getJavaFXScriptEngine() {
         try {
             URL[] urls = new URL[] {
-                getPath("com.sun.tools.visage.script.JavaFXScriptEngineImpl"),
+                getPath("org.visage.tools.script.JavaFXScriptEngineImpl"),
                 getPath("com.sun.tools.mjavac.util.Context")
             };
             ClassLoader cl = createPrivilegedClassLoader(urls);
-            Class<?> cls = Class.forName("com.sun.tools.visage.script.JavaFXScriptEngineImpl", false, cl);
+            Class<?> cls = Class.forName("org.visage.tools.script.JavaFXScriptEngineImpl", false, cl);
             return (JavaFXScriptEngine)cls.newInstance();
         } catch (Throwable t) {
             throw new RuntimeException(t);

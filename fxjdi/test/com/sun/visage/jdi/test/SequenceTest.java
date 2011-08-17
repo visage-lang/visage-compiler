@@ -21,9 +21,9 @@
  * have any questions.
  */
 
-package com.sun.visage.jdi.test;
+package org.visage.jdi.test;
 
-import com.sun.visage.jdi.FXSequenceReference;
+import org.visage.jdi.FXSequenceReference;
 import com.sun.jdi.IntegerValue;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.Value;
@@ -41,7 +41,7 @@ import junit.framework.Assert;
  * @author sundar
  */
 public class SequenceTest extends JavafxTestBase {
-    private static String targetClassName = "com.sun.visage.jdi.test.target.SequenceTarget";
+    private static String targetClassName = "org.visage.jdi.test.target.SequenceTarget";
 
     public SequenceTest() {
         super(targetClassName);

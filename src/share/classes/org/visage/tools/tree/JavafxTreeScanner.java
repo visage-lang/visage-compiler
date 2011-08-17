@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
-import com.sun.visage.api.tree.ForExpressionInClauseTree;
-import com.sun.visage.api.tree.Tree;
+import org.visage.api.tree.ForExpressionInClauseTree;
+import org.visage.api.tree.Tree;
 import com.sun.tools.mjavac.util.List;
 
 /**

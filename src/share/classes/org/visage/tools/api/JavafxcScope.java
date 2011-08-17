@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
 import com.sun.tools.mjavac.code.Symtab;
 import com.sun.tools.mjavac.util.Context;
@@ -29,8 +29,8 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
-import com.sun.tools.visage.comp.JavafxAttrContext;
-import com.sun.tools.visage.comp.JavafxEnv;
+import org.visage.tools.comp.JavafxAttrContext;
+import org.visage.tools.comp.JavafxEnv;
 
 /**
  * Provides an implementation of Scope.
@@ -42,7 +42,7 @@ import com.sun.tools.visage.comp.JavafxEnv;
  *
  * @author Jonathan Gibbons;
  */
-public class JavafxcScope implements com.sun.visage.api.tree.Scope {
+public class JavafxcScope implements org.visage.api.tree.Scope {
     protected final JavafxEnv<JavafxAttrContext> env;
     private final Symtab syms;
     private final Context ctx;

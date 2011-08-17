@@ -21,16 +21,16 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.tree;
+package org.visage.tools.tree;
 
-import com.sun.visage.api.tree.Tree;
+import org.visage.api.tree.Tree;
 import java.util.Map;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.tree.JCTree;
 
-import com.sun.tools.visage.code.JavafxFlags;
+import org.visage.tools.code.JavafxFlags;
 
 /** Utility class containing inspector methods for trees.
  *

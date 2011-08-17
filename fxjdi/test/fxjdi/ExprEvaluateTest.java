@@ -23,8 +23,8 @@
 
 package fxjdi;
 
-import com.sun.visage.jdi.FXIntegerType;
-import com.sun.visage.jdi.FXIntegerValue;
+import org.visage.jdi.FXIntegerType;
+import org.visage.jdi.FXIntegerValue;
 import com.sun.jdi.Value;
 import junit.framework.Assert;
 import org.junit.Test;

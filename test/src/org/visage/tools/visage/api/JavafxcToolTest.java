@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.api;
+package org.visage.tools.api;
 
-import com.sun.visage.api.JavafxcTask;
-import com.sun.tools.visage.api.JavafxcTool;
+import org.visage.api.JavafxcTask;
+import org.visage.tools.api.JavafxcTool;
 import com.sun.tools.mjavac.util.JavacFileManager;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -69,7 +69,7 @@ public class JavafxcToolTest {
         ByteArrayOutputStream err = new ByteArrayOutputStream();
         JavafxcTool instance = JavafxcTool.create();
         int errors = instance.run(in, out, err, "-d", tmpDirectory.getPath(), 
-                                  "test/src/com/sun/tools/visage/api/Hello.visage");
+                                  "test/src/org/visage/tools/api/Hello.visage");
         if (errors > 0) {
             System.err.println("JavafxToolTest.run() out:");
             System.err.println(new String(out.toByteArray()));

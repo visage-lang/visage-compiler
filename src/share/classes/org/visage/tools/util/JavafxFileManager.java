@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visage.util;
+package org.visage.tools.util;
 
 import com.sun.tools.mjavac.util.BaseFileObject;
 import com.sun.tools.mjavac.util.Context;

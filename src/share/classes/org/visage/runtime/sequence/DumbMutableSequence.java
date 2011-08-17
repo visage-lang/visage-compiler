@@ -21,14 +21,14 @@
  * have any questions.
  */
 
-package com.sun.visage.runtime.sequence;
+package org.visage.runtime.sequence;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.sun.visage.runtime.TypeInfo;
-import com.sun.visage.runtime.Util;
+import org.visage.runtime.TypeInfo;
+import org.visage.runtime.Util;
 
 /**
  * Relatively inefficient implementation of a mutable sequence with a slice-replace operation.  This is used internally

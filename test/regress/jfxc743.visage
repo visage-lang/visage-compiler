@@ -3,7 +3,7 @@
  * @run
  */
 import java.lang.System;
-import com.sun.visage.runtime.*;
+import org.visage.runtime.*;
 class Foo {
    var alpha : Integer;
    var _alpha = {var bp = bind Pointer.make(alpha); bp.unwrap(); };

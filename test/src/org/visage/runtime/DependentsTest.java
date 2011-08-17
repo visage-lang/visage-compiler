@@ -1,4 +1,4 @@
-package com.sun.visage.runtime;
+package org.visage.runtime;
 
 /**
  * This class tests dependents maintainence for FXBase instances.

@@ -46,7 +46,7 @@
  * removed.
  */
 
-package com.sun.visage.runtime.util.backport;
+package org.visage.runtime.util.backport;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -440,7 +440,7 @@ public abstract class ResourceBundle {
 //        Class[] stack = getClassContext();
         /* Magic number 2 identifies our caller's caller */
 //        Class c = stack[2];
-        Class c = com.sun.visage.runtime.util.StringLocalization.class;
+        Class c = org.visage.runtime.util.StringLocalization.class;
         ClassLoader cl = (c == null) ? null : c.getClassLoader();
         if (cl == null) {
 	    // When the caller's loader is the boot class loader, cl is null
