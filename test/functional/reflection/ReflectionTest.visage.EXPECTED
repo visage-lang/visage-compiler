@@ -3,8 +3,8 @@ Inherited SuperClasses of TypeInference3 =>
   class ReflectionTest.TypeInference
   class ReflectionTest.TypeInference2
   class ReflectionTest.TypeInference3
-  class org.visage.runtime.FXBase
   class java.lang.Object
+  class org.visage.runtime.FXBase
  Type of anotherAttr is inferred as class java.lang.String
  Type of attr1 is inferred as class java.lang.Object
  Type of booleanAttr1 is inferred as Boolean

@@ -1016,7 +1016,7 @@ public class JavafxResolve {
 
         // We failed to find the field in the single Java class supertype of the 
         // Javafx class.
-        // Now try to find the filed in all of the Javafx supertypes.
+        // Now try to find the field in all of the Javafx supertypes.
         if (bestSoFar.kind > AMBIGUOUS && intype.tsym instanceof JavafxClassSymbol) {
             List<Type> supertypes = types.supertypes(intype);
             for (Type tp : supertypes) {

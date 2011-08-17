@@ -58,7 +58,7 @@ public abstract class JavafxTestBase extends TestScaffold {
     }
 
     protected static String fxRunMethodSignature() {
-        return "(Lcom/sun/visage/runtime/sequence/Sequence;)Ljava/lang/Object;";
+        return "(Lorg/visage/runtime/sequence/Sequence;)Ljava/lang/Object;";
     }
 
     protected static final String[] ARGS = {

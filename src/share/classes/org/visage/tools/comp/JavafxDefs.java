@@ -182,7 +182,7 @@ public class JavafxDefs {
     public static final char typeCharToEscape = '.';
     public static final char escapeTypeChar = '_';
 
-    // Must match com.sun.tools.runtime.sequence.Sequences.UNDEFINED_MARKER_INT
+    // Must match org.visage.runtime.sequence.Sequences.UNDEFINED_MARKER_INT
     public static final int UNDEFINED_MARKER_INT = -1000;
 
 

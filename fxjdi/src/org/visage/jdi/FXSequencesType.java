@@ -44,8 +44,8 @@ public class FXSequencesType extends FXClassType {
     private Method setDoubleElementMethod;
     private Method setObjectElementMethod;
     private static final String SET = "set";
-    private static final String SIGNATURE_PREFIX = "(Lcom/sun/visage/runtime/sequence/Sequence;";
-    private static final String SIGNATURE_SUFFIX = "I)Lcom/sun/visage/runtime/sequence/Sequence;";
+    private static final String SIGNATURE_PREFIX = "(Lorg/visage/runtime/sequence/Sequence;";
+    private static final String SIGNATURE_SUFFIX = "I)Lorg/visage/runtime/sequence/Sequence;";
 
     private String setElementSignature(String type) {
         return SIGNATURE_PREFIX + type + SIGNATURE_SUFFIX;

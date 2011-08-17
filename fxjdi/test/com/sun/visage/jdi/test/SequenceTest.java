@@ -62,7 +62,7 @@ public class SequenceTest extends JavafxTestBase {
 
         // break into function printSeq(arg: Integer[])
         BreakpointEvent bpe = resumeTo(targetClassName, "printSeq",
-                "(Lcom/sun/visage/runtime/sequence/Sequence;)V");
+                "(Lorg/visage/runtime/sequence/Sequence;)V");
 
         mainThread = bpe.thread();
 

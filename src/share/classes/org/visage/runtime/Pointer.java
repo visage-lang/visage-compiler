@@ -37,7 +37,7 @@ public class Pointer implements KeyValueTarget {
     private final FXObject obj;
     private final int varnum;
 
-    @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Lcom/sun/visage/runtime/Pointer;")
+    @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Lorg/visage/runtime/Pointer;")
     public static Pointer make(Type type, FXObject obj, int varnum) {
         return new Pointer(type, obj, varnum);
     }

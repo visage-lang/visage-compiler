@@ -2,14 +2,14 @@ About class ReflectionTest02
 class ReflectionTest02
   Super classes of ReflectionTest02:
     class ReflectionTest02
-    class org.visage.runtime.FXBase
     class java.lang.Object
+    class org.visage.runtime.FXBase
   Mixin class: false
   JavaFX Type: true
-  class org.visage.runtime.FXBase is assignable from class ReflectionTest02
-  class ReflectionTest02 is not assignable from class org.visage.runtime.FXBase
   class java.lang.Object is assignable from class ReflectionTest02
   class ReflectionTest02 is not assignable from class java.lang.Object
+  class org.visage.runtime.FXBase is assignable from class ReflectionTest02
+  class ReflectionTest02 is not assignable from class org.visage.runtime.FXBase
 MEMBERS of class ReflectionTest02
    _clzStrings  isStatic=true; Declaring class: ReflectionTest02 
    _context  isStatic=true; Declaring class: ReflectionTest02 
@@ -71,16 +71,16 @@ class ReflectionTest02.TestClass
   Super classes of ReflectionTest02.TestClass:
     class ReflectionTest02.BaseTestClass
     class ReflectionTest02.TestClass
-    class org.visage.runtime.FXBase
     class java.lang.Object
+    class org.visage.runtime.FXBase
   Mixin class: false
   JavaFX Type: true
   class ReflectionTest02.BaseTestClass is assignable from class ReflectionTest02.TestClass
   class ReflectionTest02.TestClass is not assignable from class ReflectionTest02.BaseTestClass
-  class org.visage.runtime.FXBase is assignable from class ReflectionTest02.TestClass
-  class ReflectionTest02.TestClass is not assignable from class org.visage.runtime.FXBase
   class java.lang.Object is assignable from class ReflectionTest02.TestClass
   class ReflectionTest02.TestClass is not assignable from class java.lang.Object
+  class org.visage.runtime.FXBase is assignable from class ReflectionTest02.TestClass
+  class ReflectionTest02.TestClass is not assignable from class org.visage.runtime.FXBase
 MEMBERS of class ReflectionTest02.TestClass
    clone  isStatic=false; Declaring class: java.lang.Object 
    equals  isStatic=false; Declaring class: java.lang.Object 
