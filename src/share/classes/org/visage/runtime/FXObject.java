@@ -117,6 +117,8 @@ public interface FXObject {
 
     public static final int PHASE_TRANS$CLEAR_BE            = ~((VFLGS$BE_STATE_BIT)
                                                             | (VFLGS$BE_STATE_BIT          << PHASE_TRANS$NEXT_STATE_SHIFT));
+    public boolean isInitialized$internal$();
+    public void setInitialized$internal$(boolean initialized);
 
     public int getFlags$(final int varNum);
     public void setFlags$(final int varNum, final int value);

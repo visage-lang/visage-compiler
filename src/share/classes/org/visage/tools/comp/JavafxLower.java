@@ -446,7 +446,12 @@ public class JavafxLower implements JavafxVisitor {
                 JFXExpression varExpr = lowerExpr(tree.args.head);
                 ListBuffer<JFXExpression> syntheticArgs = ListBuffer.lb();
                 syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.INST).setType(syms.visage_FXObjectType));
-                syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.VARNUM).setType(syms.intType));
+                
+                if (varExpr.getFXTag() == JavafxTag.IDENT && ((JFXIdent)varExpr).getName().equals(names._this)) {
+                    syntheticArgs.append(m.at(tree.pos).LiteralInteger("-1", 10).setType(syms.intType));
+                } else {
+                    syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.VARNUM).setType(syms.intType));
+                }
                 
                 Symbol msym = builtins_Func ?
                     preTrans.makeSyntheticBuiltinsMethod(sym.name) :

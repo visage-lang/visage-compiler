@@ -159,6 +159,8 @@ public class FXMethod extends FXTypeComponent implements Method {
     };
 
     private static final String[] INTERNAL_METHOD_NAMES = {
+        "isInitialized$internal$",
+        "setInitialized$internal$",
         "varTestBits$",
         "varChangeBits$",
         "restrictSet$",

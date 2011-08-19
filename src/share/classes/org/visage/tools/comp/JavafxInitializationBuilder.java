@@ -3003,6 +3003,7 @@ however this is what we need */
         private void cloneFXBaseVar(JavafxVarSymbol var, HashSet<String> excludes) {
             // Var name as a string.
             String str = var.name.toString();
+            String upperStr = str.substring(0, 1).toUpperCase() + str.substring(1);
             // Var modifier flags.
             long flags = var.flags();
             
@@ -3020,7 +3021,8 @@ however this is what we need */
             
             // Construct the getter.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            Name name = names.fromString("get" + str);
+            boolean isBoolean = var.getTypeRepresentation() == JavafxTypeRepresentation.TYPE_REPRESENTATION_BOOLEAN;
+            Name name = names.fromString((isBoolean ? "is" : "get") + upperStr);
             stmts.append(Return(id(var)));
             // public int getVar { return Var; }
             MethodSymbol getMethSym = makeMethodSymbol(flags, type, name, List.<Type>nil());
@@ -3032,7 +3034,7 @@ however this is what we need */
 
             // Construct the setter.
             stmts = ListBuffer.lb();
-            name = names.fromString("set" + str);
+            name = names.fromString("set" + upperStr);
             Name argName = names.fromString("value");
             JCVariableDecl arg = Param(type, argName);
             stmts.append(m().Exec(m().Assign(id(var), id(argName))));

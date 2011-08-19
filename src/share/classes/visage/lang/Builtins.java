@@ -26,7 +26,7 @@ package visage.lang;
 import org.visage.runtime.FXObject;
 
 /**
- * These functions are automaticlly imported for
+ * These functions are automatically imported for
  * all JavaFX Scripts to use
  *
  * @author Brian Goetz
@@ -85,8 +85,9 @@ public class Builtins {
     @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
     public static boolean isInitialized(FXObject instance, int offset) {
         return instance != null && (
-                   instance.varTestBits$(offset, FXObject.VFLGS$IS_BOUND, FXObject.VFLGS$IS_BOUND) ||
-                   instance.varTestBits$(offset, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT)
+                   offset == -1 ? instance.isInitialized$internal$() // this pointer uses -1
+                   : instance.varTestBits$(offset, FXObject.VFLGS$IS_BOUND, FXObject.VFLGS$IS_BOUND) ||
+                     instance.varTestBits$(offset, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT)
                );
     }
 
@@ -99,8 +100,9 @@ public class Builtins {
      */
     @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
     public static boolean isReadOnly(FXObject instance, int offset) {
-        return instance.varTestBits$(offset,
-                FXObject.VFLGS$IS_READONLY,
-                FXObject.VFLGS$IS_READONLY);
+        return offset == -1 ? true // this pointer uses -1 (and is read only)
+               : instance.varTestBits$(offset,
+                 FXObject.VFLGS$IS_READONLY,
+                 FXObject.VFLGS$IS_READONLY);
     }
 }

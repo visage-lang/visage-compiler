@@ -101,6 +101,14 @@ import org.visage.runtime.sequence.Sequences;
  * @author Robert Field
  */
  public class FXBase implements FXObject {
+    public boolean initialized$internal$ = false;
+    public boolean isInitialized$internal$() {
+        return initialized$internal$;
+    }
+    public void setInitialized$internal$(boolean initialized) {
+        this.initialized$internal$ = initialized;
+    }
+    
     // First class count.
     public int count$() { return 0; }
     public static int count$(FXObject obj) { return 0; }
@@ -162,23 +170,23 @@ import org.visage.runtime.sequence.Sequences;
     }
 
     // dependents management
-    public WeakBinderRef ThisRef$internal$;
-    public DepChain DepChain$internal$;
+    public WeakBinderRef thisRef$internal$;
+    public DepChain depChain$internal$;
 
     public WeakBinderRef getThisRef$internal$() {
-       return ThisRef$internal$;
+       return thisRef$internal$;
     }
 
     public void setThisRef$internal$(WeakBinderRef bref) {
-       ThisRef$internal$ = bref;
+       thisRef$internal$ = bref;
     }
 
    public DepChain getDepChain$internal$() {
-        return DepChain$internal$;
+        return depChain$internal$;
     }
 
     public void setDepChain$internal$(DepChain depChain) {
-        this.DepChain$internal$ = depChain;
+        this.depChain$internal$ = depChain;
     }
 
     public void addDependent$(final int varNum, FXObject dep, final int depNum) {
@@ -287,10 +295,12 @@ import org.visage.runtime.sequence.Sequences;
 
     public void complete$() {
         userInit$();
+        setInitialized$internal$(true);
         postInit$();
     }
     public static void complete$(FXObject obj) {
         obj.userInit$();
+        obj.setInitialized$internal$(true);
         obj.postInit$();
     }
 
