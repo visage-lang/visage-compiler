@@ -77,6 +77,16 @@ public class Builtins {
 
     /**
      * Test if an instance variable has been initialized.
+     * <p>
+     * Can also be used on the current class via a "this" reference to determine
+     * if variable initialization has completed.
+     * <p>
+     * When used on an instance variable, the semantics are as follows:
+     * <ul>
+     * <li>Initialized is false for all variables when a class is first initiated
+     * <li>As variables have their initial values set this becomes true except for variables that have no default specified
+     * <li>Upon setting a variable value to a non-default value this also becomes true
+     * </ul>
      *
      * @param instance instance to be tested
      * @param offset offset of variable to be tested

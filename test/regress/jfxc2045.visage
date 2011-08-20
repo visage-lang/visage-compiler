@@ -13,6 +13,11 @@ class ii {
     println("x init: {isInitialized(x)}");
     println("s init: {isInitialized(s)}");
     println("o init: {isInitialized(o)}");
+    println("this init: {isInitialized(this)}");
+  }
+  
+  postinit {
+    println("this postinit: {isInitialized(this)}");
   }
 }
 
