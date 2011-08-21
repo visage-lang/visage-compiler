@@ -10,30 +10,37 @@
 # Environment
 MKDIR=mkdir
 CP=cp
+GREP=grep
+NM=nm
 CCADMIN=CCadmin
 RANLIB=ranlib
-CC=
-CCC=g++.exe
-CXX=g++.exe
-FC=
+CC=gcc
+CCC=g++-3
+CXX=g++-3
+FC=gfortran
+AS=as
 
 # Macros
-PLATFORM=Cygwin-Windows
+CND_PLATFORM=Cygwin_4.x-Windows
+CND_CONF=visagew_debug
+CND_DISTDIR=dist
+CND_BUILDDIR=build
 
 # Include project Makefile
 include Makefile
 
 # Object Directory
-OBJECTDIR=build/visagew_debug/${PLATFORM}
+OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/src/configuration.o \
-	${OBJECTDIR}/src/visagec.o \
-	${OBJECTDIR}/src/util.o \
-	${OBJECTDIR}/src/visagew.o \
 	${OBJECTDIR}/src/visagedoc.o \
-	${OBJECTDIR}/src/visage.o
+	${OBJECTDIR}/src/visage.o \
+	${OBJECTDIR}/src/visagec.o \
+	${OBJECTDIR}/src/visagew.o \
+	${OBJECTDIR}/src/util.o \
+	${OBJECTDIR}/src/configuration.o
+
 
 # C Compiler Flags
 CFLAGS=
@@ -45,36 +52,19 @@ CXXFLAGS=-mno-cygwin
 # Fortran Compiler Flags
 FFLAGS=
 
+# Assembler Flags
+ASFLAGS=
+
 # Link Libraries and Options
 LDLIBSOPTIONS=
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	${MAKE}  -f nbproject/Makefile-visagew_debug.mk dist/Debug/visagew.exe
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk dist/Debug/visagew.exe
 
 dist/Debug/visagew.exe: ${OBJECTFILES}
 	${MKDIR} -p dist/Debug
 	${LINK.cc} -o dist/Debug/visagew ${OBJECTFILES} ${LDLIBSOPTIONS} 
-
-${OBJECTDIR}/src/configuration.o: src/configuration.cpp 
-	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/configuration.o src/configuration.cpp
-
-${OBJECTDIR}/src/visagec.o: src/visagec.cpp 
-	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visagec.o src/visagec.cpp
-
-${OBJECTDIR}/src/util.o: src/util.cpp 
-	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/util.o src/util.cpp
-
-${OBJECTDIR}/src/visagew.o: src/visagew.cpp 
-	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visagew.o src/visagew.cpp
 
 ${OBJECTDIR}/src/visagedoc.o: src/visagedoc.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -86,12 +76,32 @@ ${OBJECTDIR}/src/visage.o: src/visage.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visage.o src/visage.cpp
 
+${OBJECTDIR}/src/visagec.o: src/visagec.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} $@.d
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visagec.o src/visagec.cpp
+
+${OBJECTDIR}/src/visagew.o: src/visagew.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} $@.d
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visagew.o src/visagew.cpp
+
+${OBJECTDIR}/src/util.o: src/util.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} $@.d
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/util.o src/util.cpp
+
+${OBJECTDIR}/src/configuration.o: src/configuration.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} $@.d
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/configuration.o src/configuration.cpp
+
 # Subprojects
 .build-subprojects:
 
 # Clean Targets
-.clean-conf:
-	${RM} -r build/visagew_debug
+.clean-conf: ${CLEAN_SUBPROJECTS}
+	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
 	${RM} dist/Debug/visagew.exe
 
 # Subprojects

@@ -29,7 +29,7 @@
 #include <string>
 
 /*
- * The only difference between this and visage is that it uses teh WinMain
+ * The only difference between this and visage is that it uses the WinMain
  * entry point which allows us to suppress the MS-DOS Window when launched
  * from cmd.exe or by the Windows OS.
  */

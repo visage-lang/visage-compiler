@@ -10,6 +10,41 @@
             <header-extensions>h</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>
+            <sourceRootList/>
+            <confList>
+                <confElem>
+                    <name>visage_debug</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>visagec_debug</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>visage_release</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>visagec_release</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>visagedoc_debug</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>visagedoc_release</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>visagew_release</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>visagew_debug</name>
+                    <type>1</type>
+                </confElem>
+            </confList>
         </data>
     </configuration>
 </project>

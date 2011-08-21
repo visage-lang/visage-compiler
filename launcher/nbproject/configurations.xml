@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="51">
-  <logicalFolder name="root" displayName="root" projectFiles="true">
+<configurationDescriptor version="79">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
@@ -15,11 +15,11 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>src/configuration.cpp</itemPath>
+      <itemPath>src/util.cpp</itemPath>
       <itemPath>src/visage.cpp</itemPath>
       <itemPath>src/visagec.cpp</itemPath>
       <itemPath>src/visagedoc.cpp</itemPath>
       <itemPath>src/visagew.cpp</itemPath>
-      <itemPath>src/util.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -31,391 +31,183 @@
   <confs>
     <conf name="visage_debug" type="1">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>Cygwin_4.x|Cygwin_4.x</compilerSet>
       </toolsSet>
       <compileType>
-        <ccCompilerTool>
+        <ccTool>
+          <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFX</Elem>
             <Elem>DEBUG</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>
-        </ccCompilerTool>
+        </ccTool>
         <linkerTool>
           <output>dist/Debug/visage</output>
-          <linkerLibItems>
-          </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="src/configuration.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/configuration.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="src/visage.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagec.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagedoc.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagew.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="visagec_debug" type="1">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>Cygwin_4.x|Cygwin_4.x</compilerSet>
       </toolsSet>
       <compileType>
-        <ccCompilerTool>
+        <ccTool>
+          <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXC</Elem>
             <Elem>DEBUG</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>
-        </ccCompilerTool>
+        </ccTool>
         <linkerTool>
           <output>dist/Debug/visagec</output>
-          <linkerLibItems>
-          </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="src/configuration.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/configuration.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="src/visage.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagec.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagedoc.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagew.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="visage_release" type="1">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>Cygwin_4.x|Cygwin_4.x</compilerSet>
       </toolsSet>
       <compileType>
-        <cCompilerTool>
+        <cTool>
           <developmentMode>5</developmentMode>
-        </cCompilerTool>
-        <ccCompilerTool>
+        </cTool>
+        <ccTool>
           <developmentMode>5</developmentMode>
+          <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFX</Elem>
           </preprocessorList>
-        </ccCompilerTool>
+        </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
           <output>dist/Release/visage</output>
-          <linkerLibItems>
-          </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="src/configuration.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/configuration.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="src/visage.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagec.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagedoc.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagew.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="visagec_release" type="1">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>Cygwin_4.x|Cygwin_4.x</compilerSet>
       </toolsSet>
       <compileType>
-        <cCompilerTool>
+        <cTool>
           <developmentMode>5</developmentMode>
-        </cCompilerTool>
-        <ccCompilerTool>
+        </cTool>
+        <ccTool>
           <developmentMode>5</developmentMode>
+          <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXC</Elem>
           </preprocessorList>
-        </ccCompilerTool>
+        </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
           <output>dist/Release/visagec</output>
-          <linkerLibItems>
-          </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="src/configuration.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/configuration.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="src/visage.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagec.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagedoc.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagew.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="visagedoc_debug" type="1">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>Cygwin_4.x|Cygwin_4.x</compilerSet>
       </toolsSet>
       <compileType>
-        <ccCompilerTool>
+        <ccTool>
+          <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXDOC</Elem>
             <Elem>DEBUG</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>
-        </ccCompilerTool>
+        </ccTool>
         <linkerTool>
           <output>dist/Debug/visagedoc</output>
-          <linkerLibItems>
-          </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="src/configuration.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/configuration.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="src/visage.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagec.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagedoc.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagew.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="visagedoc_release" type="1">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>Cygwin_4.x|Cygwin_4.x</compilerSet>
       </toolsSet>
       <compileType>
-        <cCompilerTool>
+        <cTool>
           <developmentMode>5</developmentMode>
-        </cCompilerTool>
-        <ccCompilerTool>
+        </cTool>
+        <ccTool>
           <developmentMode>5</developmentMode>
+          <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXDOC</Elem>
           </preprocessorList>
-        </ccCompilerTool>
+        </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
           <output>dist/Release/visagedoc</output>
-          <linkerLibItems>
-          </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="src/configuration.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/configuration.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="src/visage.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagec.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagedoc.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagew.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="visagew_release" type="1">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>Cygwin_4.x|Cygwin_4.x</compilerSet>
       </toolsSet>
       <compileType>
-        <cCompilerTool>
+        <cTool>
           <developmentMode>5</developmentMode>
-        </cCompilerTool>
-        <ccCompilerTool>
+        </cTool>
+        <ccTool>
           <developmentMode>5</developmentMode>
+          <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mwindows -mno-cygwin -s</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXW</Elem>
           </preprocessorList>
-        </ccCompilerTool>
+        </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
           <output>dist/Release/visagew</output>
-          <linkerLibItems>
-          </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="src/configuration.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/configuration.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="src/visage.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagec.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagedoc.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagew.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="visagew_debug" type="1">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>Cygwin_4.x|Cygwin_4.x</compilerSet>
       </toolsSet>
       <compileType>
-        <ccCompilerTool>
+        <ccTool>
+          <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXW</Elem>
             <Elem>DEBUG</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>
-        </ccCompilerTool>
+        </ccTool>
         <linkerTool>
           <output>dist/Debug/visagew</output>
-          <linkerLibItems>
-          </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="src/configuration.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/configuration.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="src/visage.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagec.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagedoc.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/visagew.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="src/util.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
   </confs>
 </configurationDescriptor>
