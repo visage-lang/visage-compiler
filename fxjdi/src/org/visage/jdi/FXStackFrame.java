@@ -43,7 +43,7 @@ public class FXStackFrame extends FXMirror implements StackFrame {
         super(fxvm, underlying);
     }
 
-    // Is this frame executing JavaFX code?
+    // Is this frame executing Visage code?
     public boolean isJavaFXFrame() {
         return location().declaringType().isJavaFXType();
     }
@@ -122,7 +122,7 @@ public class FXStackFrame extends FXMirror implements StackFrame {
     }
 
     public boolean isJavaFXSyntheticLocalVar(String name) {
-        // FIXME: can we have a better test for JavaFX synthetic local var?
+        // FIXME: can we have a better test for Visage synthetic local var?
         return isJavaFXFrame() && name.indexOf('$') != -1;
     }
 }

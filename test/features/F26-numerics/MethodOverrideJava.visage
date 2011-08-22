@@ -1,4 +1,4 @@
-/* Java overloaded methods and their overriding and invocation from JavaFX
+/* Java overloaded methods and their overriding and invocation from Visage
  * Both primitive types and wrapper classes are tested
  *
  * @compilefirst MethodOverloadJavaClass.java
@@ -63,8 +63,8 @@ class Child extends MethodOverloadJavaClass {
 var tester = new Child;
 
 function run() {
-    // Testing Java overloaded inherited methods overridden in JavaFX
-    println("Java overloaded inherited methods overridden in JavaFX");
+    // Testing Java overloaded inherited methods overridden in Visage
+    println("Java overloaded inherited methods overridden in Visage");
     testPrimitive();
 }
 

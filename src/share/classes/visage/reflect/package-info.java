@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-/** Provides reflective access to JavaFX values and types.
+/** Provides reflective access to Visage values and types.
  *
- * This packages defines a Java API (rather than a JavaFX API), 
- * so it can be used from both Java and JavaFX code.
- * A future JavaFX API may be layered on top of this.
+ * This packages defines a Java API (rather than a Visage API), 
+ * so it can be used from both Java and Visage code.
+ * A future Visage API may be layered on top of this.
  *
  * <h2>Context</h2>
  * The objects in this package are directly or indirectly created
@@ -52,7 +52,7 @@
  * remote control, or in general access to data in a different VM.
  *
  * <h2>Object creation</h2>
- * To do the equivalent of the JavaFX code:
+ * To do the equivalent of the Visage code:
  * <blockquote><pre>
  * var x = ...;
  * var z = Foo { a: 10; b: bind x.y };

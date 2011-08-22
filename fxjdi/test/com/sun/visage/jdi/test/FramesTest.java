@@ -128,7 +128,7 @@ public class FramesTest extends TestScaffold {
             failure("frame failed");
         }
 
-        // not JavaFX frames
+        // not Visage frames
         for (StackFrame fr : mainThread.frames()) {
             Assert.assertEquals(false, ((FXStackFrame)fr).isJavaFXFrame());
         }

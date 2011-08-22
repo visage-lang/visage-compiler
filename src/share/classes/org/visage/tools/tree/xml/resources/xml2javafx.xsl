@@ -22,8 +22,8 @@
  -->
 
 <!--
-    This stylesheet converts XML representation of JavaFX AST (abstract
-    syntax tree) to JavaFX source code form.
+    This stylesheet converts XML representation of Visage AST (abstract
+    syntax tree) to Visage source code form.
 -->
 <xsl:transform version="1.0"
                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"

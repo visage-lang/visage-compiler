@@ -23,7 +23,7 @@
 
 package org.visage.tools.tree;
 
-/** The visitor interface for JavaFX trees.
+/** The visitor interface for Visage trees.
  */
 public interface JavafxVisitor {
     public void visitScript(JFXScript tree);

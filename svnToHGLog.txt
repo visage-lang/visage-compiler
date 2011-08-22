@@ -3310,7 +3310,7 @@ changeset:   3893:c76ea8546672
 branch:      trunk
 user:        kbr
 date:        Thu Oct 02 17:38:56 2008 -0700
-summary:     [svn r4274] JFXC-2121 : Need ability to script JavaFX applets from a web page
+summary:     [svn r4274] JFXC-2121 : Need ability to script Visage applets from a web page
 
 changeset:   3892:95e7152b22b4
 branch:      trunk
@@ -4048,7 +4048,7 @@ changeset:   3770:01a9efa52142
 branch:      trunk
 user:        davedavedave
 date:        Fri Sep 19 11:45:00 2008 -0700
-summary:     [svn r4150] JavaFX shell launcher: fix for USER_CP conversion to win2unix format under Cygwin
+summary:     [svn r4150] Visage shell launcher: fix for USER_CP conversion to win2unix format under Cygwin
 
 changeset:   3769:ab68e5fa7e21
 branch:      trunk
@@ -4174,13 +4174,13 @@ changeset:   3749:539350f56bc4
 branch:      trunk
 user:        joshy
 date:        Thu Sep 18 14:11:47 2008 -0700
-summary:     [svn r4129] fix for JFXC-1977 JavaFX API doc. needs to include a listing of subclasses for parent class.
+summary:     [svn r4129] fix for JFXC-1977 Visage API doc. needs to include a listing of subclasses for parent class.
 
 changeset:   3748:c24bb786bff7
 branch:      trunk
 user:        joshy
 date:        Thu Sep 18 13:38:15 2008 -0700
-summary:     [svn r4128] fix for JFXC-1978 JavaFX API doc: Attribute is still used for class variable
+summary:     [svn r4128] fix for JFXC-1978 Visage API doc: Attribute is still used for class variable
 
 changeset:   3747:2d94f8d5883c
 branch:      trunk
@@ -4240,7 +4240,7 @@ changeset:   3738:d5baf6930a23
 branch:      trunk
 user:        sgw
 date:        Wed Sep 17 17:18:54 2008 -0700
-summary:     [svn r4118] Add JavaFX Script Application Management API FX.exit() with Actions
+summary:     [svn r4118] Add Visage Application Management API FX.exit() with Actions
 
 changeset:   3737:3933a5632b1e
 branch:      trunk
@@ -4930,7 +4930,7 @@ changeset:   3623:eb857053df93
 branch:      trunk
 user:        bothner
 date:        Mon Sep 08 10:01:07 2008 -0700
-summary:     [svn r4002] Copy EXISTS flag from Java package symbol to JavaFX package symbol.
+summary:     [svn r4002] Copy EXISTS flag from Java package symbol to Visage package symbol.
 
 changeset:   3622:56328cf4577e
 branch:      trunk
@@ -5716,7 +5716,7 @@ changeset:   3492:12574214dc21
 branch:      trunk
 user:        freespirit
 date:        Mon Aug 25 11:49:21 2008 -0700
-summary:     [svn r3869] Remove the use of an "SPI" to find the JavaFX runtime implementation.  This is not currently
+summary:     [svn r3869] Remove the use of an "SPI" to find the Visage runtime implementation.  This is not currently
 
 changeset:   3491:261730be71ec
 branch:      trunk
@@ -5908,7 +5908,7 @@ changeset:   3460:d88897704aed
 branch:      trunk
 user:        bothner
 date:        Thu Aug 21 18:33:19 2008 -0700
-summary:     [svn r3837] Remove a questionable (for JavaFX) assert in code generation.
+summary:     [svn r3837] Remove a questionable (for Visage) assert in code generation.
 
 changeset:   3459:bbb6914f2163
 branch:      trunk
@@ -5956,7 +5956,7 @@ changeset:   3452:2e7e020217ed
 branch:      trunk
 user:        JimIdle
 date:        Wed Aug 20 18:20:32 2008 -0700
-summary:     [svn r3829] Ongoing modifications for version 4 of the JavaFX ANTLR parser.
+summary:     [svn r3829] Ongoing modifications for version 4 of the Visage ANTLR parser.
 
 changeset:   3451:2aac547a95f9
 branch:      trunk
@@ -5974,7 +5974,7 @@ changeset:   3449:f31593d56af2
 branch:      trunk
 user:        JimIdle
 date:        Wed Aug 20 14:26:15 2008 -0700
-summary:     [svn r3826] Begin the process of building v4 of the JavaFX lexer/parser.
+summary:     [svn r3826] Begin the process of building v4 of the Visage lexer/parser.
 
 changeset:   3448:5332ddd51fca
 branch:      trunk
@@ -6898,7 +6898,7 @@ changeset:   3295:d3662b83c15d
 branch:      trunk
 user:        davedavedave
 date:        Fri Aug 01 02:49:38 2008 -0700
-summary:     [svn r3669] Default JavaFX locations updated
+summary:     [svn r3669] Default Visage locations updated
 
 changeset:   3294:f560c076eeea
 branch:      trunk
@@ -8170,13 +8170,13 @@ changeset:   3083:b6ec02e8311b
 branch:      trunk
 user:        rbair
 date:        Fri Jul 18 12:43:03 2008 -0700
-summary:     [svn r3415] Update the JavaFX Runtime project so that running unit tests works, building a fresh workspace works, the project.properties is much cleaner, etc. One thing I did which is cheating is that I hardcoded in the paths to the libs instead of using the tools-defs.xml and associated xml files.
+summary:     [svn r3415] Update the Visage Runtime project so that running unit tests works, building a fresh workspace works, the project.properties is much cleaner, etc. One thing I did which is cheating is that I hardcoded in the paths to the libs instead of using the tools-defs.xml and associated xml files.
 
 changeset:   3082:afe60cd04746
 branch:      trunk
 user:        rbair
 date:        Fri Jul 18 12:42:55 2008 -0700
-summary:     [svn r3414] Update the JavaFX Runtime project so that running unit tests works, building a fresh workspace works, the project.properties is much cleaner, etc. One thing I did which is cheating is that I hardcoded in the paths to the libs instead of using the tools-defs.xml and associated xml files.
+summary:     [svn r3414] Update the Visage Runtime project so that running unit tests works, building a fresh workspace works, the project.properties is much cleaner, etc. One thing I did which is cheating is that I hardcoded in the paths to the libs instead of using the tools-defs.xml and associated xml files.
 
 changeset:   3081:4c75af699032
 branch:      trunk
@@ -10456,7 +10456,7 @@ changeset:   2702:bae85b265b36
 branch:      trunk
 user:        tball
 date:        Mon Jun 09 14:15:17 2008 -0700
-summary:     [svn r2894] Hid -source option, since JavaFX Script doesn't have different versions of its syntax.
+summary:     [svn r2894] Hid -source option, since Visage doesn't have different versions of its syntax.
 
 changeset:   2701:aa812a4f9c29
 branch:      trunk
@@ -10936,13 +10936,13 @@ changeset:   2622:28176408f160
 branch:      trunk
 user:        davedavedave
 date:        Fri May 30 07:12:30 2008 -0700
-summary:     [svn r2812] Improved JavaFX SDK editor
+summary:     [svn r2812] Improved Visage SDK editor
 
 changeset:   2621:d903b2afd6d6
 branch:      trunk
 user:        davedavedave
 date:        Fri May 30 06:58:39 2008 -0700
-summary:     [svn r2811] More options in JavaFX run-configuration
+summary:     [svn r2811] More options in Visage run-configuration
 
 changeset:   2620:afc4cbab7447
 branch:      trunk
@@ -11218,7 +11218,7 @@ changeset:   2575:12b19eb84b95
 branch:      trunk
 user:        davedavedave
 date:        Tue May 27 01:32:53 2008 -0700
-summary:     [svn r2764] JavaFX Script Run Configuration Type added
+summary:     [svn r2764] Visage Run Configuration Type added
 
 changeset:   2574:5b53c3b0ebb7
 branch:      trunk
@@ -11308,7 +11308,7 @@ changeset:   2560:0e6adf55fa34
 branch:      trunk
 user:        davedavedave
 date:        Fri May 23 08:48:19 2008 -0700
-summary:     [svn r2747] JavaFX Script SDK added (FxSdkType class)
+summary:     [svn r2747] Visage SDK added (FxSdkType class)
 
 changeset:   2559:c3cfa9dce702
 branch:      trunk
@@ -12994,7 +12994,7 @@ changeset:   2279:0790070f4be9
 branch:      trunk
 user:        michael_heinrichs
 date:        Mon Apr 07 02:47:21 2008 -0700
-summary:     [svn r2446] Added JavaFX-wrapper to Sequences.isEqualByIdentity (JFXC-1036).
+summary:     [svn r2446] Added Visage-wrapper to Sequences.isEqualByIdentity (JFXC-1036).
 
 changeset:   2278:e4e4eddd1816
 branch:      trunk
@@ -13456,7 +13456,7 @@ changeset:   2202:bf23ae887fc9
 branch:      trunk
 user:        michael_heinrichs
 date:        Wed Apr 02 12:47:37 2008 -0700
-summary:     [svn r2369] Removed &trade; from docs, because it causes the build to fail. I do not understand why it fails, because it is also used in JavaFX-Language.xml and works there.
+summary:     [svn r2369] Removed &trade; from docs, because it causes the build to fail. I do not understand why it fails, because it is also used in Visage-Language.xml and works there.
 
 changeset:   2201:563a28f7d816
 branch:      trunk
@@ -15928,7 +15928,7 @@ changeset:   1790:f6c9c767a52c
 branch:      trunk
 user:        campbell
 date:        Tue Feb 26 10:12:01 2008 -0800
-summary:     [svn r1950] JFXC-786: JavaFX Runtime filter package should be built upon Effects Framework
+summary:     [svn r1950] JFXC-786: Visage Runtime filter package should be built upon Effects Framework
 
 changeset:   1789:8494a9e5b306
 branch:      trunk
@@ -17956,7 +17956,7 @@ changeset:   1452:73b661fd3323
 branch:      trunk
 user:        tball
 date:        Wed Jan 30 09:59:47 2008 -0800
-summary:     [svn r1537] XMLDoclet improvements: added language attribute, works on both JavaFX Script and Java sources.
+summary:     [svn r1537] XMLDoclet improvements: added language attribute, works on both Visage and Java sources.
 
 changeset:   1451:fc48d5f23ea6
 branch:      trunk
@@ -18310,7 +18310,7 @@ changeset:   1393:8647ae99e2ba
 branch:      trunk
 user:        jimclarke
 date:        Tue Jan 22 17:09:23 2008 -0800
-summary:     [svn r1478] JavaFX version of the BasicDND demo from the Java tutorial for DnD
+summary:     [svn r1478] Visage version of the BasicDND demo from the Java tutorial for DnD
 
 changeset:   1392:d624814bbeff
 branch:      trunk
@@ -18898,7 +18898,7 @@ changeset:   1295:8acc277c6681
 branch:      trunk
 user:        tball
 date:        Mon Jan 14 13:18:20 2008 -0800
-summary:     [svn r1371] Added JavaFX version of JavacTrees, JavacScope.
+summary:     [svn r1371] Added Visage version of JavacTrees, JavacScope.
 
 changeset:   1294:744c2455915f
 branch:      trunk
@@ -19060,7 +19060,7 @@ changeset:   1268:04ed3d10a967
 branch:      trunk
 user:        jimclarke
 date:        Mon Jan 07 17:00:51 2008 -0800
-summary:     [svn r1339] Initial checkin for JavaFX XML framework
+summary:     [svn r1339] Initial checkin for Visage XML framework
 
 changeset:   1267:9b8e4516b922
 branch:      trunk
@@ -19216,7 +19216,7 @@ changeset:   1242:cab500836bcc
 branch:      trunk
 user:        bothner
 date:        Fri Jan 04 20:43:23 2008 -0800
-summary:     [svn r1313] New flag COMPOUND_CLASS is used to indicate a Javafx class that is
+summary:     [svn r1313] New flag COMPOUND_CLASS is used to indicate a Visage class that is
 
 changeset:   1241:449cd1533f03
 branch:      trunk
@@ -19858,7 +19858,7 @@ changeset:   1135:dd064c40dcfc
 branch:      trunk
 user:        tball
 date:        Tue Dec 18 21:58:00 2007 -0800
-summary:     [svn r1202] cleaned up JavaFX pretty-printer
+summary:     [svn r1202] cleaned up Visage pretty-printer
 
 changeset:   1134:9a70fd865911
 branch:      trunk
@@ -20320,7 +20320,7 @@ changeset:   1058:afc7c06e41a7
 branch:      trunk
 user:        tball
 date:        Sat Dec 08 22:23:52 2007 -0800
-summary:     [svn r1123] Test to verify simple JavaFX graphics object can be instantiated and accessed from Java.
+summary:     [svn r1123] Test to verify simple Visage graphics object can be instantiated and accessed from Java.
 
 changeset:   1057:322b8ce67efa
 branch:      trunk
@@ -20380,7 +20380,7 @@ changeset:   1048:4afb51cab4b3
 branch:      trunk
 user:        tball
 date:        Fri Dec 07 16:47:40 2007 -0800
-summary:     [svn r1113] JFXC-336: added JavaFX version of SimpleTreeVisitor.
+summary:     [svn r1113] JFXC-336: added Visage version of SimpleTreeVisitor.
 
 changeset:   1047:898eb3eff0ab
 branch:      trunk
@@ -20944,7 +20944,7 @@ changeset:   954:058c277faf9f
 branch:      trunk
 user:        rfield
 date:        Sun Dec 02 16:16:49 2007 -0800
-summary:     [svn r1015] Regression test for JFXC-250 : Non JavaFX Primitive types ('AssertionError on InternalWindow.fx')
+summary:     [svn r1015] Regression test for JFXC-250 : Non Visage Primitive types ('AssertionError on InternalWindow.fx')
 
 changeset:   953:0d55f9f98352
 branch:      trunk
@@ -22492,7 +22492,7 @@ changeset:   696:fee97a4f2def
 branch:      trunk
 user:        tball
 date:        Wed Nov 14 22:28:45 2007 -0800
-summary:     [svn r757] Moved some functionality out of UIContextImpl.java to JavaFX sources.
+summary:     [svn r757] Moved some functionality out of UIContextImpl.java to Visage sources.
 
 changeset:   695:83642567175b
 branch:      trunk
@@ -22654,7 +22654,7 @@ changeset:   669:7e8ecf51b1d9
 branch:      trunk
 user:        bothner
 date:        Wed Nov 14 11:00:11 2007 -0800
-summary:     [svn r730] "Port" error message to JavaFX.
+summary:     [svn r730] "Port" error message to Visage.
 
 changeset:   668:da1930994cc6
 branch:      trunk
@@ -23224,13 +23224,13 @@ changeset:   574:5042dfdb310d
 branch:      trunk
 user:        rfield
 date:        Sun Nov 04 12:26:42 2007 -0800
-summary:     [svn r635] Further work on my last commit (single-pass non-destructive translation from JavaFX ASTs to Java ASTs).
+summary:     [svn r635] Further work on my last commit (single-pass non-destructive translation from Visage ASTs to Java ASTs).
 
 changeset:   573:ced6e1434e3c
 branch:      trunk
 user:        rfield
 date:        Sun Nov 04 10:25:43 2007 -0800
-summary:     [svn r634] Some finishing touches on my last commit (single-pass non-destructive translation from JavaFX ASTs to Java ASTs)
+summary:     [svn r634] Some finishing touches on my last commit (single-pass non-destructive translation from Visage ASTs to Java ASTs)
 
 changeset:   572:00d7ec12f775
 branch:      trunk
@@ -24070,7 +24070,7 @@ changeset:   433:f15eecba72b8
 branch:      trunk
 user:        bothner
 date:        Wed Oct 17 14:14:57 2007 -0700
-summary:     [svn r493] In Javafx.AttrattribClassBody check for abstract methods *after* we've
+summary:     [svn r493] In Visage.AttrattribClassBody check for abstract methods *after* we've
 
 changeset:   432:09b6c24d4cf8
 branch:      trunk
@@ -24232,7 +24232,7 @@ changeset:   406:65886bb8e379
 branch:      trunk
 user:        tball
 date:        Fri Oct 12 23:36:42 2007 -0700
-summary:     [svn r465] JFXC-59: added unit test for JavaFX compiler implementation of javax.tools.Tool.
+summary:     [svn r465] JFXC-59: added unit test for Visage compiler implementation of javax.tools.Tool.
 
 changeset:   405:a5a7cf0f0e83
 branch:      trunk
@@ -24460,7 +24460,7 @@ changeset:   368:3ef7e0081735
 branch:      trunk
 user:        lubomirlitchev
 date:        Tue Oct 09 17:45:10 2007 -0700
-summary:     [svn r427] Added the synthetic NUM$FIELDS to a JavaFX class.
+summary:     [svn r427] Added the synthetic NUM$FIELDS to a Visage class.
 
 changeset:   367:9c4b1e399034
 branch:      trunk
@@ -24490,7 +24490,7 @@ changeset:   363:f23367224754
 branch:      trunk
 user:        lubomirlitchev
 date:        Mon Oct 08 18:13:34 2007 -0700
-summary:     [svn r422] Fixed failing regress test. (For JavaFX there is no need to invoke Flow analizer. JavaFX doesn't impose restrictions on initialized/non-initialized vars, non-reachable statements and/or uncought exception declarations in method signature.
+summary:     [svn r422] Fixed failing regress test. (For Visage there is no need to invoke Flow analizer. Visage doesn't impose restrictions on initialized/non-initialized vars, non-reachable statements and/or uncought exception declarations in method signature.
 
 changeset:   362:e78587f8366a
 branch:      trunk
@@ -25132,7 +25132,7 @@ changeset:   256:4ed4c857e227
 branch:      trunk
 user:        lubomirlitchev
 date:        Mon Sep 24 14:27:40 2007 -0700
-summary:     [svn r315] Allowing forward read-reference of uninitialized Javafx attributes.
+summary:     [svn r315] Allowing forward read-reference of uninitialized Visage attributes.
 
 changeset:   255:f251aac39bd9
 branch:      trunk
@@ -25966,7 +25966,7 @@ changeset:   117:88c31a1cc7bf
 branch:      trunk
 user:        lubomirlitchev
 date:        Sun Aug 19 12:32:58 2007 -0700
-summary:     [svn r134] More initialization implementation. Now after a NewClass AST for Javafx classes, the visage$init method is called.
+summary:     [svn r134] More initialization implementation. Now after a NewClass AST for Visage classes, the visage$init method is called.
 
 changeset:   116:baf0341b6416
 branch:      trunk
@@ -26008,7 +26008,7 @@ changeset:   110:e2676185e985
 branch:      trunk
 user:        rfield
 date:        Thu Aug 16 22:59:43 2007 -0700
-summary:     [svn r127] Grammar and JavaFX AST part of sequence creation expressions. (not usable yet)
+summary:     [svn r127] Grammar and Visage AST part of sequence creation expressions. (not usable yet)
 
 changeset:   109:513bb6963364
 branch:      trunk
@@ -26266,7 +26266,7 @@ changeset:   67:25dcf966047b
 branch:      trunk
 user:        rfield
 date:        Thu Aug 09 12:21:08 2007 -0700
-summary:     [svn r84] Until we have and in preparation for having JavaFX JUnit tests, this is the very beginning of a set of tests.  Please run these before doing a commit.
+summary:     [svn r84] Until we have and in preparation for having Visage JUnit tests, this is the very beginning of a set of tests.  Please run these before doing a commit.
 
 changeset:   66:54b080c45604
 branch:      trunk
@@ -26494,13 +26494,13 @@ changeset:   29:877453509b35
 branch:      trunk
 user:        lubomirlitchev
 date:        Thu Jul 26 17:59:56 2007 -0700
-summary:     [svn r42] Set the result of the Attr visitor when setting the type of JavaFX primitive type VarDecl.
+summary:     [svn r42] Set the result of the Attr visitor when setting the type of Visage primitive type VarDecl.
 
 changeset:   28:8145c766c881
 branch:      trunk
 user:        lubomirlitchev
 date:        Thu Jul 26 07:46:34 2007 -0700
-summary:     [svn r41] Initial replace trigger functionality. Fixed a problem with not entering JavaFX primitive types into the compilation unit -- for on-demand imports and error reporting if imported a Java class with same name.
+summary:     [svn r41] Initial replace trigger functionality. Fixed a problem with not entering Visage primitive types into the compilation unit -- for on-demand imports and error reporting if imported a Java class with same name.
 
 changeset:   27:0a99a2a28c4b
 branch:      trunk
@@ -26560,7 +26560,7 @@ changeset:   18:f9fbfbc457ca
 branch:      trunk
 user:        tball
 date:        Thu Jul 19 16:09:22 2007 -0700
-summary:     [svn r28] Changed project name to JavaFX Compiler, made jar name lower-case to match build message.
+summary:     [svn r28] Changed project name to Visage Compiler, made jar name lower-case to match build message.
 
 changeset:   17:1e00e9843842
 branch:      trunk
@@ -26632,7 +26632,7 @@ changeset:   6:4746dfe89003
 branch:      trunk
 user:        cindyc
 date:        Wed Jul 18 14:22:56 2007 -0700
-summary:     [svn r9] OpenJFX Compiler is the 'project' name, so corrected references to compiler 'product' name as JavaFX compiler.
+summary:     [svn r9] OpenJFX Compiler is the 'project' name, so corrected references to compiler 'product' name as Visage compiler.
 
 changeset:   5:562536c8d0e2
 branch:      trunk
@@ -26644,7 +26644,7 @@ changeset:   4:50e1ec1a3032
 branch:      trunk
 user:        cindyc
 date:        Wed Jul 18 12:58:27 2007 -0700
-summary:     [svn r7] changed references to 'Javafx Compiler' to 'OpenJFX Compiler'
+summary:     [svn r7] changed references to 'Visage Compiler' to 'OpenJFX Compiler'
 
 changeset:   3:5fbed0dfd512
 branch:      trunk

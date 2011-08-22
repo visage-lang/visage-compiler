@@ -34,7 +34,7 @@ import org.visage.api.JavaFXScriptEngine;
 import com.sun.tools.mjavac.code.*;
 
 /**
- * This is script engine for the JavaFX Script language, based on
+ * This is script engine for the Visage language, based on
  * the https://scripting.dev.java.net Java language script engine by
  * A. Sundararajan.
  */

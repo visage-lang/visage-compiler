@@ -23,7 +23,7 @@
 
 package visage.reflect;
 
-/** Mirroring of a JavaFX Boolean value.
+/** Mirroring of a Visage Boolean value.
  *
  * @author Per Bothner
  * @profile desktop

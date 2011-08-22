@@ -197,7 +197,7 @@ println(values);</programlisting>
 
       <para>A non-bound function is one that is not proceeded with the bound
       keyword. For calls to Java<superscript>TM</superscript> methods or
-      non-bound JavaFX<superscript>TM</superscript> functions, the function is
+      non-bound Visage functions, the function is
       re-invoked if any of the arguments change. However, the body of a
       function is a black-box, dependencies it might have beyond the
       parameters do not cause a recalculation. For example:</para>

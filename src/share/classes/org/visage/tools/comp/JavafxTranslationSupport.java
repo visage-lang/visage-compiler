@@ -331,7 +331,7 @@ public abstract class JavafxTranslationSupport {
 
     /**
      * Build a Java AST representing the specified type.
-     * Convert JavaFX class references to interface references.
+     * Convert Visage class references to interface references.
      * */
     public JCExpression makeType(DiagnosticPosition diagPos, Type t) {
         return makeType(diagPos, t, true);
@@ -339,7 +339,7 @@ public abstract class JavafxTranslationSupport {
 
     /**
      * Build a Java AST representing the specified type.
-     * If "makeIntf" is set, convert JavaFX class references to interface references.
+     * If "makeIntf" is set, convert Visage class references to interface references.
      * */
     public JCExpression makeType(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
         while (t instanceof CapturedType) {

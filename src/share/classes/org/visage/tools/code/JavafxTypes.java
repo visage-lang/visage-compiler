@@ -189,8 +189,8 @@ public class JavafxTypes extends Types {
         Type lub = lub(s.baseType(), t.baseType());
         if (lub.isCompound()) {
             //members of the compound type could not be ordered properly
-            //due to the fact that JavaFX allows MI through mixins
-            //the compound supertype should always be a JavaFX class
+            //due to the fact that Visage allows MI through mixins
+            //the compound supertype should always be a Visage class
             //while the superinterfaces should be mixins
             Type clazz = null;
             ListBuffer<Type> interfaces = new ListBuffer<Type>();

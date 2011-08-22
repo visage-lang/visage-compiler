@@ -24,7 +24,7 @@
 package org.visage.api.tree;
 
 /**
- * A tree node for an unknown JavaFX Script type.
+ * A tree node for an unknown Visage type.
  */
 public interface TypeUnknownTree extends Tree {
 }

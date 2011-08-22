@@ -572,7 +572,7 @@ public class Color extends Comparable, Formattable, Interpolatable {
 
     /**
      * Formatting function that allows colors to be properly formatted by
-     * printf, String.format, or the JavaFX format primitive.
+     * printf, String.format, or the Visage format primitive.
      * <p>
      * Width sets the minimum width of this field, following the justification
      * rules set in flags.

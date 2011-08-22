@@ -396,7 +396,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
 
     public static void importPredefs(JavafxSymtab syms, Scope scope) {
-        // Import-on-demand the JavaFX types
+        // Import-on-demand the Visage types
         importNamed(syms.objectType.tsym, scope);
         importNamed(syms.visage_BooleanType.tsym, scope);
         importNamed(syms.visage_CharacterType.tsym, scope);

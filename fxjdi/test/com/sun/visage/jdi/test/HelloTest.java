@@ -28,7 +28,7 @@ import org.junit.Test;
 import junit.framework.Assert;
 
 /**
- * A simple JavaFX target test - just tests breakpoint inside "run" method.
+ * A simple Visage target test - just tests breakpoint inside "run" method.
  *
  * @author sundar
  */
@@ -51,7 +51,7 @@ public class HelloTest extends JavafxTestBase {
     protected void runTests() throws Exception {
         startToMain();
 
-        // go to "run" method of JavaFX class
+        // go to "run" method of Visage class
         BreakpointEvent bpe = resumeTo(targetClassName, fxRunMethodName(),
                 fxRunMethodSignature());
 

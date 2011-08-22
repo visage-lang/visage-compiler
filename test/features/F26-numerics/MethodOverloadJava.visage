@@ -1,4 +1,4 @@
-/* Java overloaded methods and their invocation from JavaFX
+/* Java overloaded methods and their invocation from Visage
  * Both primitive types and wrapper classes are tested
  *
  * @compilefirst MethodOverloadJavaClass.java

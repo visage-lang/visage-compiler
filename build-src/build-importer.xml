@@ -466,7 +466,7 @@ Description: ${import.@{item}.description}
 	      message=""/>
         <fail unless="platform.home"
 	       message="You have to setup platform.home property to JDK 5+ for proper building. Example: ant -Dplatform.home=/usr/lib/java/jdk1.6.0_10"/>
-        <fail message="You need JDK 1.5 or higher to build JavaFX Player.">
+        <fail message="You need JDK 1.5 or higher to build Visage Player.">
             <condition>
                 <not>
                     <available classname="java.lang.Appendable"/>

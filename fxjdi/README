@@ -1,4 +1,4 @@
-This directory contains JDI implementation for JavaFX.
+This directory contains JDI implementation for Visage.
 
 How to build/test fxjdi.jar?
 
@@ -19,7 +19,7 @@ To run command line debugger on Mac OS, you can use
 
     java -jar fxjdi.jar <java-main-class>
 
-or to use JavaFX target programs:
+or to use Visage target programs:
 
     java -jar fxjdi.jar -classpath <path-of-visagert.jar>  \
         org.visage.runtime.Main <visage-module-class>
@@ -29,7 +29,7 @@ On Windows and Linux, you can use the following commands:
     java -cp <path-of-tools.jar>:fxjdi.jar org.visage.tools.debug.tty.TTY \
         <java-main-class>
 
-or to use JavaFX target programs:
+or to use Visage target programs:
 
     java -cp <path-of-tools.jar>:fxjdi.jar org.visage.tools.debug.tty.TTY \
         -classpath <path-of-visagert.jar> org.visage.runtime.Main \
@@ -62,9 +62,9 @@ FX-JDI. For a Java example, please refer to org.visage.jdi.test.FramesTest.
 Each FX-JDI test uses launching connector with a target/debugger program.
 The target/debuggee sources are in org.visage.jdi.test.target package.
 For example, FramesTarget.java is the debuggee used by FramesTest.java. There
-are also JavaFX examples. HelloTarget.visage, SequenceTarget.visage are target JavaFX
+are also Visage examples. HelloTarget.visage, SequenceTarget.visage are target Visage
 programs. Corresponding debugger tests are HelloTest.java and SequenceTest.java.
-JavaFX debugger tests are derived from JavafxTestBase (which is derived from
+Visage debugger tests are derived from JavafxTestBase (which is derived from
 TestScaffold). This takes care using visagert.jar in classpath of debuggee
 and also using org.visage.runtime.Main as the main class of the debuggee.
 

@@ -89,32 +89,32 @@ public abstract class FXContext {
         return null;
     }
 
-    /** Get the run-time representation of the JavaFX {@code Boolean} type. */
+    /** Get the run-time representation of the Visage {@code Boolean} type. */
     public FXPrimitiveType getBooleanType() {
         return FXPrimitiveType.booleanType;
     }
 
-    /** Get the run-time representation of the JavaFX {@code Character} type. */
+    /** Get the run-time representation of the Visage {@code Character} type. */
     public FXPrimitiveType getCharacterType() {
         return FXPrimitiveType.charType;
     }
 
-    /** Get the run-time representation of the JavaFX {@code Byte} type. */
+    /** Get the run-time representation of the Visage {@code Byte} type. */
     public FXPrimitiveType getByteType() {
         return FXPrimitiveType.byteType;
     }
 
-     /** Get the run-time representation of the JavaFX {@code Short} type. */
+     /** Get the run-time representation of the Visage {@code Short} type. */
     public FXPrimitiveType getShortType() {
         return FXPrimitiveType.shortType;
     }
 
-   /** Get the run-time representation of the JavaFX {@code Integer} type. */
+   /** Get the run-time representation of the Visage {@code Integer} type. */
     public FXPrimitiveType getIntegerType() {
         return FXPrimitiveType.integerType;
     }
 
-   /** Get the run-time representation of the JavaFX {@code Long} type. */
+   /** Get the run-time representation of the Visage {@code Long} type. */
     public FXPrimitiveType getLongType() {
         return FXPrimitiveType.longType;
     }
@@ -127,7 +127,7 @@ public abstract class FXContext {
         return FXPrimitiveType.doubleType;
     }
 
-   /** Get the run-time representation of the JavaFX {@code Number} type. */
+   /** Get the run-time representation of the Visage {@code Number} type. */
     public FXPrimitiveType getNumberType() {
         return getFloatType();
     }
@@ -136,7 +136,7 @@ public abstract class FXContext {
         return findClass("java.lang.String");
     }
 
-    /** Get the run-time representation of the JavaFX {@code Void} type. */
+    /** Get the run-time representation of the Visage {@code Void} type. */
     public FXPrimitiveType getVoidType() {
         return FXPrimitiveType.voidType;
     }

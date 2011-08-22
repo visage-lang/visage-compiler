@@ -9,7 +9,7 @@ var model = HelloWorldModel {
 };
 
 Frame {
-    title: bind "{model.saying} JavaFX"
+    title: bind "{model.saying} Visage"
     width: 200
     content: TextField {
         value: bind model.saying

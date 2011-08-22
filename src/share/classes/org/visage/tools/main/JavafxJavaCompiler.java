@@ -76,7 +76,7 @@ public class JavafxJavaCompiler extends JavaCompiler {
 
     @Override
     public void initProcessAnnotations(Iterable<? extends Processor> arg0) {
-        // JavaFX Script doesn't support annotations
+        // Visage doesn't support annotations
     }
 
     public void backEnd(List<JCCompilationUnit> externalModules, ListBuffer<JavaFileObject> results) throws IOException {

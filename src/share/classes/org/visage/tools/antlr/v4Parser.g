@@ -22,7 +22,7 @@
  */
 
 /////////////////////////////////////////////////////////////////////////////////
-// Version 4+ of the JavaFX parser grammar.
+// Version 4+ of the Visage parser grammar.
 //
 // @author Stephen Chin
 //
@@ -214,14 +214,14 @@ import static org.visage.api.JavafxBindStatus.*;
 // We cannot do syntax directed parsing as it means you cannot use LL(*)
 // algorithms for grammar analysis and code generation.
 //
-// The parsers job is to produce the JavaFX specialized AST, which
+// The parsers job is to produce the Visage specialized AST, which
 // is the basis for all the rest of the tool chain, including symbol table and code 
 // generation as well as code completion for editors and so on.
 // ------------------------------------------------------------------
 
 /**
- * The usual entry point for the JavaFX parser, this will parse a complete
- * script body and manufacture the JavaFX AST.
+ * The usual entry point for the Visage parser, this will parse a complete
+ * script body and manufacture the Visage AST.
  *
  * A script, like many other syntactical elements, can have an associated
  * comment. When the parse is complete, we scan the tokens that are normally
@@ -1124,7 +1124,7 @@ catch [RecognitionException re] {
 //
 functionDefinition [ JFXModifiers mods, int pos ]
 
-    returns [JFXTree value]     // A function defintion has a specialized node in the JavaFX AST
+    returns [JFXTree value]     // A function defintion has a specialized node in the Visage AST
 
 @init { 
 
@@ -4855,7 +4855,7 @@ catch [RecognitionException re] {
 
 // -------  
 // Strings
-// JavaFX string expressions are more richly expressive than the more usual
+// Visage string expressions are more richly expressive than the more usual
 // quoted strings.
 //
 // 1) A translation key may prefix string literals;
@@ -5646,7 +5646,7 @@ catch [RecognitionException re] {
   
     // Now create an AST node that represents a missing type, The required entry
     // is of type Name so we use an identifier name that cannot exist in
-    // JavaFX, so that IDEs can detect it.
+    // Visage, so that IDEs can detect it.
     //
     // Note that if this was part of a type refernce: ':' tttt, then we want to
     // report the error with reference to the ':' as this is easier for the IDE

@@ -15,7 +15,7 @@
  */
 
 /**
- * JavaFX source file reproducing the issue detailed in Visage Issue 19
+ * Visage source file reproducing the issue detailed in Visage Issue 19
  * (http://code.google.com/p/visage/issues/detail?id=19).
  *
  * @author J.H. Kupers

@@ -16,7 +16,7 @@ function func(x: Integer) {
     var languages : Language[];
 
     var l1 = Language { name: bind "Java" };
-    var l2 = Language { name: bind "Javafx" };
+    var l2 = Language { name: bind "Visage" };
 
     if (x == 0) languages = [l1, l2]
     else if (x == 1) languages = [l2, l1]

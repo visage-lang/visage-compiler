@@ -266,7 +266,7 @@ public class PointerTest extends JavaFXTestCase {
         int[] arr = { 8, 5, 7, 1, -1 };
         seq.addFromArray(arr, 0, arr.length);
         sequencePtr.set(seq);
-        stringPtr.set("JavaFX");
+        stringPtr.set("Visage");
 
         assertEquals(Byte.valueOf((byte)1), bytePtr.get());	
         assertEquals(Byte.valueOf((byte)1), fxObj.get$(fxObj.VOFF$byteVar));	
@@ -286,7 +286,7 @@ public class PointerTest extends JavaFXTestCase {
         assertEquals(true, fxObj.get$(fxObj.VOFF$booleanVar));
         assertEquals(true, Sequences.isEqual(seq, (Sequence)sequencePtr.get()));
         assertEquals(true, Sequences.isEqual(seq, (Sequence)fxObj.get$(fxObj.VOFF$sequenceVar)));
-        assertEquals("JavaFX", stringPtr.get());
-        assertEquals("JavaFX", fxObj.get$(fxObj.VOFF$stringVar));
+        assertEquals("Visage", stringPtr.get());
+        assertEquals("Visage", fxObj.get$(fxObj.VOFF$stringVar));
     } 
 }

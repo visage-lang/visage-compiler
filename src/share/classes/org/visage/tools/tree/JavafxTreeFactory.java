@@ -23,7 +23,7 @@
 
 package org.visage.tools.tree;
 
-/** An interface for JavaFX tree factories
+/** An interface for Visage tree factories
  */
 public interface JavafxTreeFactory {
     // Was only slightly implemented, never utilized, and needing complete change

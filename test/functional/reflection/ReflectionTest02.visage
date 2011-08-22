@@ -95,7 +95,7 @@ function inspectClass( context: FXLocal.Context, clzName:String, fxov: FXObjectV
                 }
 
 		println("  Mixin class: {clsTestClass.isMixin() }");
-		println("  JavaFX Type: {clsTestClass.isJfxType()}");
+		println("  Visage Type: {clsTestClass.isJfxType()}");
 		for( clz in clsTestClass.getSuperClasses(true) ) {
                   if (not clz.getName().equals("net.sourceforge.cobertura.coveragedata.HasBeenInstrumented")) {
                       if (not clz.equals(clsTestClass)) {

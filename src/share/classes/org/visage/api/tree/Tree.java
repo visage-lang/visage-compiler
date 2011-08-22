@@ -25,7 +25,7 @@ package org.visage.api.tree;
 
 /**
  * Common interface for all nodes in an abstract syntax tree for the 
- * JavaFX Script language.
+ * Visage language.
  *
  * <p><b>WARNING:</b> This interface and its sub-interfaces are
  * subject to change as the Java&trade; programming language evolves.
@@ -551,7 +551,7 @@ public interface Tree {
     }
 
     /**
-     * Gets the JavaFX kind of this tree.
+     * Gets the Visage kind of this tree.
      *
      * @return the kind of this tree.
      */

@@ -63,13 +63,13 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
     int	eStringStart = 0;
     
     /**
-     * Construct a new JavaFX lexer with no pre-known input stream
+     * Construct a new Visage lexer with no pre-known input stream
      */
     protected AbstractGeneratedLexerV4() {
     }
 
     /**
-     * Construct a new JavaFX lexer installing the character stream at
+     * Construct a new Visage lexer installing the character stream at
      * the same time.
      * 
      * @param input The character stream that the lexer will scan, which should already
@@ -80,9 +80,9 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
     }
 
     /**
-     * Construct a new JavaFX lexer installing the character stream and
+     * Construct a new Visage lexer installing the character stream and
      * the shared state (used if there is more than one lexer, which is currently
-     * not used by the JavaFX compiler) at the same time.
+     * not used by the Visage compiler) at the same time.
      * 
      * @param input The character stream that the lexer will scan, which should already
      *              be opened and initialized.
@@ -107,7 +107,7 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
 
     /**
      * Used in lexer rule actions to create a literal string conforming to
-     * the format string of JavaFX compound string: %pattern -> internal representation.
+     * the format string of Visage compound string: %pattern -> internal representation.
      */
     void processFormatString() {
         
@@ -206,11 +206,11 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
 
     /**
      * Overrides the standard ANTLR 3.1 lexer error message generator
-     * to provide a message that will make more sense to JavaFX programmers.
+     * to provide a message that will make more sense to Visage programmers.
      * @param e The exception that the lexer raised because it could not decode
      *          what to do next.
      * @param tokenNames The ANTLR supplied list of token names as used in the lexer.
-     * @return The string that shuold be used as the error message by the JavaFX compiler
+     * @return The string that shuold be used as the error message by the Visage compiler
      */
     @Override
     public String getErrorMessage(RecognitionException e, String[] tokenNames) {
@@ -246,7 +246,7 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
                 // is used as belt and braces protection.
                 //
                 mb.append("Sorry, but the character " + getCharErrorDisplay(e.c));
-                mb.append("is not allowed in a JavaFX script. Well at least, not here.");
+                mb.append("is not allowed in a Visage. Well at least, not here.");
             }
         
         } else {
@@ -264,7 +264,7 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
 
     /**
      * Override for the ANTLR 3.x message display routine so that we can log
-     * errors within the JavaFX compiler infrastructure.
+     * errors within the Visage compiler infrastructure.
      * 
      * @param tokenNames ANTLR provided array of the lexer token names
      * @param e The excpetion that was raised by the lexer, for further action.

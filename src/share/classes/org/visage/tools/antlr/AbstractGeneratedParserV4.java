@@ -995,9 +995,9 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * telling us that a parsing exception occurred.
      * 
      * We call our own override of getErrorMessage, and this will build the
-     * a string that is geared towards the JavaFX script author. Then we work out
+     * a string that is geared towards the Visage author. Then we work out
      * where we are in the character stream and record the error using the
-     * JavaFX infrastructure.
+     * Visage infrastructure.
      */
     @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
@@ -1006,7 +1006,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         String msg = getErrorMessage(e, getFXTokenNames(tokenNames));
         
-        // And record the information using the JavaFX error sink and the
+        // And record the information using the Visage error sink and the
         // DiagnosticPostion interface of the errorNode, which is created
         // by the getErrorMessage call.
         //
@@ -1019,9 +1019,9 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * telling us that a parsing exception occurred.
      *
      * We call our own override of getErrorMessage, and this will build the
-     * a string that is geared towards the JavaFX script author. Then we work out
+     * a string that is geared towards the Visage author. Then we work out
      * where we are in the character stream and record the error using the
-     * JavaFX infrastructure.
+     * Visage infrastructure.
      */
 
     public void displayRecognitionError(String[] tokenNames, RecognitionException e, JFXTree node) {
@@ -1030,7 +1030,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         String msg = getErrorMessage(e, getFXTokenNames(tokenNames));
 
-        // And record the information using the JavaFX error sink and the
+        // And record the information using the Visage error sink and the
         // DiagnosticPostion interface of the supplied node.
         //
         log.error(node, MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
@@ -1449,7 +1449,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         
         // When we are manufacturing a token for error recovery, we must intercept
         // a number of token types and create something that can be sensibly used
-        // by the JavaFX AST to indicate that it was in error. Otherwise the AST
+        // by the Visage AST to indicate that it was in error. Otherwise the AST
         // will appear to be perfectly correct.
         //
         switch (expectedTokenType)
@@ -1679,7 +1679,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
 	{
 		// Now create an AST node that represents a missing type, The required entry
 		// is of type Name so we use an identifier name that cannot exist in
-		// JavaFX, so that IDEs can detect it.
+		// Visage, so that IDEs can detect it.
 		//
 		errNode = F.at(ruleStart).ErroneousType();
 		

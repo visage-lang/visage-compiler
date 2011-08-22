@@ -23,7 +23,7 @@
 
 /**
  * <p>Extends the Java programming language compiler framework
- * to support the JavaFX Script language compiler.  
+ * to support the Visage language compiler.  
  *
  * <p>There is no requirement for a compiler at runtime.  However, if
  * a compiler is provided, it can be located using the

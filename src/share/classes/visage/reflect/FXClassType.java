@@ -24,7 +24,7 @@
 package visage.reflect;
 import java.util.*;
 
-/** A run-time representation of a JavaFX class.
+/** A run-time representation of a Visage class.
  * Corresponds to {@code java.lang.Class}.
  *
  * @author Per Bothner

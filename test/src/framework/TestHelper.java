@@ -93,7 +93,7 @@ public abstract class TestHelper {
     protected static JavafxCompiler visagecLocator() {
         Object tool = compilerLocator(JavafxCompiler.class);
         if (tool == null)
-            throw new IllegalStateException("No JavaFX Script compiler found");
+            throw new IllegalStateException("No Visage compiler found");
         return (JavafxCompiler) tool;
     }
 

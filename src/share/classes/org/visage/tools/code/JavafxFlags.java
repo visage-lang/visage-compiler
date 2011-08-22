@@ -25,7 +25,7 @@ package org.visage.tools.code;
 import static com.sun.tools.mjavac.code.Flags.*;
 
 /**
- * Some Javafx-specific flags for {@code Symbols}'s {@code flags_field}.
+ * Some Visage-specific flags for {@code Symbols}'s {@code flags_field}.
  *
  * @author Robert Field
  * @author Per Bothner
@@ -84,7 +84,7 @@ public class JavafxFlags {
     
     // Class flags -- reuse same bits as VARUSE* flags
     private static final long FIRST_FX_CLASS_FLAG    = LAST_FX_MOD_FLAG << 1;
-    public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // JavaFX class
+    public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // Visage class
     public static final long CLASS_HAS_INIT_BLOCK    = FIRST_FX_CLASS_FLAG << 2;  // there is an init block on the class
     public static final long FX_BOUND_FUNCTION_CLASS = FIRST_FX_CLASS_FLAG << 3;  // This is a local class that implements bound functions
 

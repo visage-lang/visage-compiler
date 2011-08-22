@@ -1,4 +1,4 @@
-JavaFX compiler feature test #2
+Visage compiler feature test #2
 
 Demonstrated:
  - unidirectional binding of module-level variables to expressions containing module-level variables

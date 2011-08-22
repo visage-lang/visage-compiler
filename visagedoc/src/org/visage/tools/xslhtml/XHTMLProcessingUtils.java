@@ -699,7 +699,7 @@ public class XHTMLProcessingUtils {
                 }
             } else {
                 Object fxclass = ret.getClass();
-                pw.println("ERROR: Unrecongized JavaFX class: " + fxclass); 
+                pw.println("ERROR: Unrecongized Visage class: " + fxclass); 
                 pw.flush();
                 return;
             } 

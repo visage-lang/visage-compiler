@@ -30,7 +30,7 @@ package org.visage.api.tree;
 import visage.lang.LengthUnit;
 
 /**
- * A tree node for a JavaFX Script length literal.
+ * A tree node for a Visage length literal.
  * @author Stephen Chin <steveonjava@gmail.com>
  */
 public interface LengthLiteralTree extends Tree {

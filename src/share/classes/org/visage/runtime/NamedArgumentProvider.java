@@ -25,7 +25,7 @@ package org.visage.runtime;
 
 /**
  * Defines a mechanism for libraries to provide access to named
- * arguments. This is needed to allow JavaFX Script programs embedded
+ * arguments. This is needed to allow Visage programs embedded
  * in applets to access the incoming applet parameters in a portable
  * manner.
  */

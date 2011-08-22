@@ -56,7 +56,7 @@ public class JavafxSymtab extends Symtab {
     public static final String inheritedAnnotationClassNameString = anno + ".Inherited";
     public static final String sourceNameAnnotationClassNameString = anno + ".SourceName";
 
-    // Javafx built-in(value) types
+    // Visage built-in(value) types
     public final Type visage_BooleanType;
     public final Type visage_CharacterType;
     public final Type visage_ByteType;
@@ -74,7 +74,7 @@ public class JavafxSymtab extends Symtab {
     public final Type visage_AngleUnitType;
     public final Type visage_ColorType;
 
-    // Javafx other types
+    // Visage other types
     public final Type visage_AnyType;
     public final Type visage_UnspecifiedType;
     public final Type visage_AutoImportRuntimeType;
@@ -170,7 +170,7 @@ public class JavafxSymtab extends Symtab {
         Options options = Options.instance(context);
         String numberChoice = options.get("Number");
 
-        // Make the array length var symbol a JavaFX var symbol
+        // Make the array length var symbol a Visage var symbol
         JavafxVarSymbol fxLengthVar = new JavafxVarSymbol(
             types,
             names,
@@ -288,7 +288,7 @@ public class JavafxSymtab extends Symtab {
         enterBinop("and", booleanType, booleanType, booleanType, bool_and);
         enterBinop("or", booleanType, booleanType, booleanType, bool_or);
 
-        // Enter JavaFX operators.
+        // Enter Visage operators.
         enterUnop("sizeof", visage_SequenceType, visage_IntegerType, 0);
 
         //TODO: I think these are ancient garbage, needs verification

@@ -56,9 +56,9 @@ public class FXInterfaceType extends FXReferenceType implements InterfaceType {
     private boolean isIsFxTypeSet = false;
     private boolean isFXType = false; 
     /**
-     * JDI addition: Determines if this is a JavaFX type.
+     * JDI addition: Determines if this is a Visage type.
      *
-     * @return <code>true</code> if this is a JavaFX type; false otherwise.
+     * @return <code>true</code> if this is a Visage type; false otherwise.
      */
     public boolean isJavaFXType() {
         if (!isIsFxTypeSet) {

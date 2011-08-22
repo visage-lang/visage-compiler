@@ -20,7 +20,7 @@ var sundar = BoundPerson { name: "Sundar" }
 var kannan = BoundPerson { name: "Kannan" }
 
 var person = sundar;
-var arg = "JavaFX";
+var arg = "Visage";
 var k = bind person.greet(arg);
 println(k);
 
@@ -29,7 +29,7 @@ person.name = "Sundararajan";
 println(k);
 
 // argument change
-arg = "JavaFX Script";
+arg = "Visage";
 println(k);
 
 // change the receiver

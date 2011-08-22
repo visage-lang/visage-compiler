@@ -31,7 +31,7 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 
 /**
- * Provides details about work that has been done by the JavaFX Compiler.
+ * Provides details about work that has been done by the Visage Compiler.
  */
 public final class JavafxTaskEvent
 {

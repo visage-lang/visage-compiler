@@ -49,7 +49,7 @@ import javax.tools.JavaFileObject;
 public class JavafxFileManager extends JavacFileManager {
     
     /**
-     * The JavaFX Script source file extension.
+     * The Visage source file extension.
      * @see javax.tools.JavaFileObject.Kind.SOURCE
      */
     public static final String FX_SOURCE_SUFFIX = ".visage";

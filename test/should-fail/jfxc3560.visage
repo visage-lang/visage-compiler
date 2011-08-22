@@ -1,5 +1,5 @@
 /**
- * JFXC-3560 -  Compiling a JavaFX file having 2 classes crashes the compiler
+ * JFXC-3560 -  Compiling a Visage file having 2 classes crashes the compiler
  * 
  * @test/compile-error
  */

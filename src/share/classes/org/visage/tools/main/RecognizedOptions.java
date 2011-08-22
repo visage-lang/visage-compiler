@@ -597,7 +597,7 @@ public class RecognizedOptions {
         @Override
 	    public boolean matches(String s) {
 		this.s = s;
-		return s.endsWith(".visage");  // Javafx source file
+		return s.endsWith(".visage");  // Visage source file
 	    }
         @Override
 	    public boolean process(Options options, String option) {

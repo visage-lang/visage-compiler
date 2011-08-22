@@ -8,7 +8,7 @@
 
 bound function identity(s: String[]) { s }
 
-var seq = ["Java", "JavaFX", "JavaScript"];
+var seq = ["Java", "Visage", "JavaScript"];
 
 var bs = bind identity(seq);
 

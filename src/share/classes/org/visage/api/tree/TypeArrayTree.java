@@ -24,7 +24,7 @@
 package org.visage.api.tree;
 
 /**
- * A tree node for an array JavaFX Script type.
+ * A tree node for an array Visage type.
  */
 public interface TypeArrayTree extends Tree {
     TypeTree getElementType();

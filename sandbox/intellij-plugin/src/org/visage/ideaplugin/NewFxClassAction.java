@@ -45,7 +45,7 @@ import org.jetbrains.annotations.NotNull;
 public class NewFxClassAction extends CreateElementActionBase {
 
     public NewFxClassAction() {
-        super("JavaFX Class", "Creates JavaFX Class", FxPlugin.FX_ICON);
+        super("Visage Class", "Creates Visage Class", FxPlugin.FX_ICON);
     }
 
     @NotNull
@@ -55,7 +55,7 @@ public class NewFxClassAction extends CreateElementActionBase {
             return PsiElement.EMPTY_ARRAY;
 
         MyInputValidator validator = new MyInputValidator(project, directory);
-        Messages.showInputDialog(project, "Enter a new class name", "New JavaFX Class",
+        Messages.showInputDialog(project, "Enter a new class name", "New Visage Class",
                 Messages.getQuestionIcon(), "", validator);
 
         return validator.getCreatedElements();
@@ -79,10 +79,10 @@ public class NewFxClassAction extends CreateElementActionBase {
     }
 
     protected String getCommandName() {
-        return "Create JavaFX Class";
+        return "Create Visage Class";
     }
 
     protected String getActionName(PsiDirectory psiDirectory, String s) {
-        return "Creating JavaFX Class " + s;
+        return "Creating Visage Class " + s;
     }
 }

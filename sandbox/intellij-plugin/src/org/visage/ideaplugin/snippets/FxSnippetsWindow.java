@@ -65,7 +65,7 @@ public class FxSnippetsWindow implements ProjectComponent {
 
         DefaultMutableTreeNode imports = new CategoryNode ("Imports");
         imports.add (new SnippetsNode ("General Java Imports", "import java.lang.*;\n" + "import java.util.*;\n"));
-        imports.add (new SnippetsNode ("General JavaFX Imports", "import visage.animation.*;\n" + "import visage.application.*;\n" + "import visage.ext.swing.*;\n" + "import visage.input.*;\n" + "import visage.lang.*;\n" + "import visage.scene.*;\n" + "import visage.scene.effect.*;\n" + "import visage.scene.geometry.*;\n" + "import visage.scene.image.*;\n" + "import visage.scene.layout.*;\n" + "import visage.scene.media.*;\n" + "import visage.scene.paint.*;\n" + "import visage.scene.text.*;\n" + "import visage.scene.transform.*;\n"));
+        imports.add (new SnippetsNode ("General Visage Imports", "import visage.animation.*;\n" + "import visage.application.*;\n" + "import visage.ext.swing.*;\n" + "import visage.input.*;\n" + "import visage.lang.*;\n" + "import visage.scene.*;\n" + "import visage.scene.effect.*;\n" + "import visage.scene.geometry.*;\n" + "import visage.scene.image.*;\n" + "import visage.scene.layout.*;\n" + "import visage.scene.media.*;\n" + "import visage.scene.paint.*;\n" + "import visage.scene.text.*;\n" + "import visage.scene.transform.*;\n"));
         root.add (imports);
         
         DefaultMutableTreeNode apps = new CategoryNode ("Applications");
@@ -200,7 +200,7 @@ public class FxSnippetsWindow implements ProjectComponent {
     }
 
     @NonNls @NotNull public String getComponentName () {
-        return "JavaFX Snippets";
+        return "Visage Snippets";
     }
 
     public void initComponent () {
@@ -213,7 +213,7 @@ public class FxSnippetsWindow implements ProjectComponent {
         JScrollPane pane = new JScrollPane (tree);
         pane.setPreferredSize(new Dimension (100, 100));
         ToolWindowManager windowmgr = ToolWindowManager.getInstance (project);
-		ToolWindow window = windowmgr.registerToolWindow("JavaFX Snippets", true, ToolWindowAnchor.RIGHT);
+		ToolWindow window = windowmgr.registerToolWindow("Visage Snippets", true, ToolWindowAnchor.RIGHT);
 		PeerFactory pf = PeerFactory.getInstance();
 		Content content = pf.getContentFactory().createContent(pane, null, false);
 		window.getContentManager().addContent(content);
@@ -222,7 +222,7 @@ public class FxSnippetsWindow implements ProjectComponent {
 
     public void projectClosed () {
 //        window.setAvailable (false, null);
-        ToolWindowManager.getInstance (project).unregisterToolWindow ("JavaFX Snippets");
+        ToolWindowManager.getInstance (project).unregisterToolWindow ("Visage Snippets");
     }
 
     private static final class CategoryNode extends DefaultMutableTreeNode {

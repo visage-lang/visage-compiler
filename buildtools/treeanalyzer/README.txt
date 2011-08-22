@@ -1,4 +1,4 @@
-JavaFX ASTs can be analyzed using AST/XML facility. When compiler is
+Visage ASTs can be analyzed using AST/XML facility. When compiler is
 invoked with -XDtreexsl=<.xsl> option, the compiler generates XML
 view of AST and invokes user supplied XSL sheet(s) on those.
 

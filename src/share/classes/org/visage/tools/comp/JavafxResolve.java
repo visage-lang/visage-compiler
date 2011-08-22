@@ -122,9 +122,9 @@ public class JavafxResolve {
     /** An environment is "static" if its static level is greater than
      *  the one of its outer environment
      */
-// JavaFX change
+// Visage change
     public
-// JavaFX change
+// Visage change
     static boolean isStatic(JavafxEnv<JavafxAttrContext> env) {
         return env.info.staticLevel > env.outer.info.staticLevel;
     }
@@ -187,7 +187,7 @@ public class JavafxResolve {
     /**
      * Looks up the variable marked as default on the given Type.
      * 
-     * Will return null if the TypeSymbol is not a JavaFX Class or there
+     * Will return null if the TypeSymbol is not a Visage Class or there
      * is no default.
      * 
      * @param c Type to lookup the default on.
@@ -500,8 +500,8 @@ public class JavafxResolve {
         }
 
          // We failed to find the field in the single Java class supertype of the 
-         // Javafx class.
-         // Now try to find the field in all of the Javafx supertypes.
+         // Visage class.
+         // Now try to find the field in all of the Visage supertypes.
          if (bestSoFar.kind > AMBIGUOUS && c instanceof JavafxClassSymbol) {
              List<Type> supertypes = types.supertypes(c.type);
              for (Type tp : supertypes) {
@@ -1015,8 +1015,8 @@ public class JavafxResolve {
         }
 
         // We failed to find the field in the single Java class supertype of the 
-        // Javafx class.
-        // Now try to find the field in all of the Javafx supertypes.
+        // Visage class.
+        // Now try to find the field in all of the Visage supertypes.
         if (bestSoFar.kind > AMBIGUOUS && intype.tsym instanceof JavafxClassSymbol) {
             List<Type> supertypes = types.supertypes(intype);
             for (Type tp : supertypes) {
@@ -1083,9 +1083,9 @@ public class JavafxResolve {
      *                   always a superclass or implemented interface of
      *                   site's class.
      */
-// Javafx change
+// Visage change
     public
-// Javafx change
+// Visage change
     Symbol findMemberType(JavafxEnv<JavafxAttrContext> env,
                           Type site,
                           Name name,
@@ -1108,8 +1108,8 @@ public class JavafxResolve {
         }
 
         // We failed to find the field in the single Java class supertype of the 
-        // Javafx class.
-        // Now try to find the filed in all of the Javafx supertypes.
+        // Visage class.
+        // Now try to find the filed in all of the Visage supertypes.
 //        if (bestSoFar.kind > AMBIGUOUS && c instanceof JavafxClassSymbol) {
 //            List<Type> supertypes = ((JavafxClassSymbol)c).getSuperTypes();
 //            for (Type tp : supertypes) {
@@ -1376,9 +1376,9 @@ public class JavafxResolve {
     }
     /** Same as above, but without type arguments and arguments.
      */
-// Javafx change
+// Visage change
     public
-// Javafx change
+// Visage change
     Symbol access(Symbol sym,
                   DiagnosticPosition pos,
                   Type site,
@@ -1513,7 +1513,7 @@ public class JavafxResolve {
      *  @param typeargtypes  The types of the constructor invocation's type
      *                   arguments.
      */
-    public // Javafx change
+    public // Visage change
     Symbol resolveConstructor(DiagnosticPosition pos,
                               JavafxEnv<JavafxAttrContext> env,
                               Type site,
@@ -1542,7 +1542,7 @@ public class JavafxResolve {
      *  @param allowBoxing Allow boxing and varargs conversions.
      *  @param useVarargs Box trailing arguments into an array for varargs.
      */
-    public // Javafx change
+    public // Visage change
     Symbol resolveConstructor(DiagnosticPosition pos, JavafxEnv<JavafxAttrContext> env,
                               Type site, List<Type> argtypes,
                               List<Type> typeargtypes,
@@ -1933,7 +1933,7 @@ public class JavafxResolve {
      * @param c             The qualifier.
      * @param name          The identifier's name.
      */
-    public // Javafx change
+    public // Visage change
     Symbol resolveSelf(DiagnosticPosition pos,
                        JavafxEnv<JavafxAttrContext> env,
                        TypeSymbol c,
@@ -1993,7 +1993,7 @@ public class JavafxResolve {
      * Resolve an appropriate implicit this instance for t's container.
      * JLS2 8.8.5.1 and 15.9.2
      */
-    public // Javafx change
+    public // Visage change
     Type resolveImplicitThis(DiagnosticPosition pos, JavafxEnv<JavafxAttrContext> env, Type t) {
         Type thisType = (((t.tsym.owner.kind & (MTH|VAR)) != 0)
                          ? resolveSelf(pos, env, t.getEnclosingType().tsym, names._this)
@@ -2009,7 +2009,7 @@ public class JavafxResolve {
 
     /** A localized string describing a given kind.
      */
-    public // Javafx change
+    public // Visage change
     JCDiagnostic kindName(int kind) {
         switch (kind) {
         case PCK: return JCDiagnostic.fragment(MsgSym.KINDNAME_PACKAGE);
@@ -2061,7 +2061,7 @@ public class JavafxResolve {
 
     /** A localized string describing a given set of kinds.
      */
-    public // Javafx change
+    public // Visage change
     static JCDiagnostic kindNames(int kind) {
         StringBuffer key = new StringBuffer();
         key.append(MsgSym.KINDNAME);

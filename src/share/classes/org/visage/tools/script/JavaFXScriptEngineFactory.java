@@ -27,7 +27,7 @@ import javax.script.*;
 import java.util.*;
 
 /**
- * This is the script engine factory for "JavaFX Script" engines, based on 
+ * This is the script engine factory for "Visage" engines, based on 
  * JavaScriptEngineFactory from the Scripting project at 
  * https://scripting.dev.java.net/.
  * 
@@ -36,7 +36,7 @@ import java.util.*;
  */
 public class JavaFXScriptEngineFactory implements ScriptEngineFactory {
     public String getEngineName() { 
-        return "JavaFX Script Engine";
+        return "Visage Engine";
     }
 
     public String getEngineVersion() {

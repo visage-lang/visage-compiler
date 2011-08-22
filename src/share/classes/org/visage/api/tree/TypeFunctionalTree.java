@@ -26,7 +26,7 @@ package org.visage.api.tree;
 import java.util.List;
 
 /**
- * A tree node for a functional JavaFX Script type.
+ * A tree node for a functional Visage type.
  */
 public interface TypeFunctionalTree extends Tree {
     TypeTree getReturnType();

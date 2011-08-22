@@ -105,7 +105,7 @@ public abstract class ProgramElementDocImpl
     }
 
     public int modifierSpecifier() {
-        throw new UnsupportedOperationException("cannot use modifierSpecifier() with JavaFX");
+        throw new UnsupportedOperationException("cannot use modifierSpecifier() with Visage");
     }
 
     /**

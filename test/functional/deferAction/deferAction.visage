@@ -12,7 +12,7 @@ import visage.lang.FX;
 import java.lang.Exception;
 
 /**
- * Example JavaFX Script showing the usage of FX.deferAction()
+ * Example Visage showing the usage of FX.deferAction()
  *
  * Output from this script will be as follows:
  * {@code Starting Script}
@@ -36,7 +36,7 @@ try {
 
 /**
  * A void Function that takes no arguments will be run by the
- * JavaFX Script Runtime at a later time determined by the
+ * Visage Runtime at a later time determined by the
  * implementation
  */
 FX.deferAction(function() : Void {

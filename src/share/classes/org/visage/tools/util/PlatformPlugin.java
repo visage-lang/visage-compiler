@@ -30,7 +30,7 @@ import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Log;
 
 /**
- * JavaFX Script compiler platform plug-in.
+ * Visage compiler platform plug-in.
  */
 public abstract class PlatformPlugin
 {

@@ -274,7 +274,7 @@ import org.visage.runtime.sequence.Sequences;
     }
 
     /**
-     * Constructor called for a (non-empty) JavaFX object literal.
+     * Constructor called for a (non-empty) Visage object literal.
      * @param dummy Marker only. Ignored.
      */
     public FXBase(boolean dummy) {

@@ -23,7 +23,7 @@
 
 package visage.reflect;
 
-/** A run-time representation of a JavaFX sequence type.
+/** A run-time representation of a Visage sequence type.
  *
  * @author Per Bothner
  * @profile desktop

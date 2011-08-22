@@ -50,7 +50,7 @@ public class JavaFxAntTask extends Javac {
     public String profile;
 
     private static final String FAIL_MSG
-            = "JavaFX compile failed; see the compiler error output for details.";
+            = "Visage compile failed; see the compiler error output for details.";
 
     public static final String FX_ENTRY_POINT = "org.visage.tools.Main";
 
@@ -190,7 +190,7 @@ public class JavaFxAntTask extends Javac {
                 if (ex instanceof BuildException) {
                     throw (BuildException) ex;
                 } else {
-                    throw new BuildException("Error starting JavaFX compiler",
+                    throw new BuildException("Error starting Visage compiler",
                             ex, location);
                 }
             }

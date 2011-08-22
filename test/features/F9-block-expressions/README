@@ -1,4 +1,4 @@
-JavaFX compiler feature test #1 -- block expression
+Visage compiler feature test #1 -- block expression
 
 Demonstrated:
 - blocks are expressions that return return values to surrounding expressions

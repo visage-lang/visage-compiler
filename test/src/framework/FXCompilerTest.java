@@ -32,7 +32,7 @@ import junit.framework.TestSuite;
 import org.apache.tools.ant.DirectoryScanner;
 
 /**
- * Simple JUnit test suite for the JavaFX script compiler.
+ * Simple JUnit test suite for the Visage compiler.
  *
  * @author tball
  */
@@ -130,7 +130,7 @@ public class FXCompilerTest extends TestSuite {
 
     private static void handleOneTest(File testFile,  List<Test> tests, Set<String> orphanFiles) throws Exception {
         String name = testFile.getParentFile().getName() + "/" + testFile.getName();
-        assert name.lastIndexOf(".visage") > 0 : "not a JavaFX script: " + name;
+        assert name.lastIndexOf(".visage") > 0 : "not a Visage: " + name;
         boolean isTest = false, isNotTest = false, isFxUnit = false,
             shouldRun = false, compileFailure = false, runFailure = false, checkCompilerMsg = false,
             noCompare = false, ignoreStdError = false;

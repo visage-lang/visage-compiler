@@ -28,7 +28,7 @@
 
     <description>
 
-        Checks and prints the environment variables for JavaFX project.
+        Checks and prints the environment variables for Visage project.
         Where necessary, environment variable settings or system file
         locations may be placed into properties here.
 

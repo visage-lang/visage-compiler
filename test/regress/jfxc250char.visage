@@ -1,5 +1,5 @@
 /**
- * regression test: handling non-JavaFX primitive types
+ * regression test: handling non-Visage primitive types
  * @test
  * @run
  */

@@ -32,7 +32,7 @@ import java.io.FileReader;
 import java.io.FileNotFoundException;
 
 /**
- * Base class for tests in which the target is a JavaFX application. This takes
+ * Base class for tests in which the target is a Visage application. This takes
  * care of setting visagert.jar in classpath in addition to application class path.
  * Also has utility methods for visage methods.
  *

@@ -25,7 +25,7 @@
                     <location>src</location>
                 </source-folder>
                 <source-folder>
-                    <label>JavaFX Compiler</label>
+                    <label>Visage Compiler</label>
                     <location>.</location>
                     <encoding>UTF-8</encoding>
                 </source-folder>

@@ -9,17 +9,17 @@
   <title xml:id="Types.title">Types and Values</title>
 
   <para>This chapter covers the data types and values which can be represented
-  and manipulated in JavaFX Script.<remark></remark></para>
+  and manipulated in Visage.<remark></remark></para>
 
   <sect1>
-    <title>JavaFX Script Data Types</title>
+    <title>Visage Data Types</title>
 
-    <para>JavaFX Script data types, hereafter called JavaFX types, describe
-    the kinds of values a JavaFX expression can have. Every JavaFX variable,
+    <para>Visage data types, hereafter called Visage types, describe
+    the kinds of values a Visage expression can have. Every Visage variable,
     function, and expression has a type, most often determined from context.
-    JavaFX variables can explicitly declare their type; a function can
+    Visage variables can explicitly declare their type; a function can
     explicitly declare the types of its parameters and the type of its return
-    value. JavaFX types (with the exception of <link
+    value. Visage types (with the exception of <link
     linkend="Void">Void</link>) consist of an <emphasis>element
     specifier</emphasis> and a <emphasis>cardinality</emphasis>. The element
     specifier determines what the type holds and the cardinality determines
@@ -29,7 +29,7 @@
       <title>Element Specifier</title>
 
       <para>Element specifiers are classes or function signatures. Classes
-      include both JavaFX classes and Java classes. These are some example
+      include both Visage classes and Java classes. These are some example
       representations of element specifiers which are classes:</para>
 
       <programlisting>MyClass
@@ -61,7 +61,7 @@ function():Integer</programlisting>
       <title>Cardinality</title>
 
       <para>The cardinality of a type determines how many elements can be held
-      in a JavaFX type. The three cardinalities are
+      in a Visage type. The three cardinalities are
       <emphasis>optional</emphasis>, <emphasis>required</emphasis>, and
       <emphasis>sequence</emphasis>.</para>
 
@@ -71,7 +71,7 @@ function():Integer</programlisting>
         <para>Optional cardinality means there can be one element or no
         elements. This is the cardinality associated with most types,
         currently including all user defined classes. If you define a class
-        Foo, then the JavaFX type "Foo" has class Foo as its element specifier
+        Foo, then the Visage type "Foo" has class Foo as its element specifier
         and optional as its cardinality. For example:</para>
 
         <programlisting>var x : Foo;</programlisting>
@@ -116,7 +116,7 @@ function():Integer</programlisting>
   <sect1 xml:id="DefaultValues">
     <title xml:id="DefaultValues.title">Default Values</title>
 
-    <para>Each JavaFX type has an associated default value. The default
+    <para>Each Visage type has an associated default value. The default
     variable is the value of a variable before it is set. It is also the value
     of an expression of that type if an error is encountered. For types with
     optional cardinality their default value is null. For example:</para>
@@ -267,9 +267,9 @@ println( greeting );</programlisting>
         a mechanism to be able to replace a string literal by a translation
         selected at run-time.</para>
         <para>If a double hash sign <code>##</code> is prefixed to a string literal,
-        JavaFX substitutes the string literal with a localized one at 
-        run-time, if JavaFX finds appropriate localization in JavaFX properties files
-        on the classpath.  A JavaFX properties file contains localized strings for a 
+        Visage substitutes the string literal with a localized one at 
+        run-time, if Visage finds appropriate localization in Visage properties files
+        on the classpath.  A Visage properties file contains localized strings for a 
         locale as <code>&quot;key&quot; = &quot;value&quot;</code> pairs.  
         Localized strings are searched using the original string literals as keys.
         If no localized string is found, the original string literal is used as a default.
@@ -277,51 +277,51 @@ println( greeting );</programlisting>
         (<code>[]</code>).  For example:</para>
 
         <programlisting>def mon = ##&quot;Monday&quot;;
-def about = ##[ABOUT]&quot;JavaFX is a cool scripting language!&quot;;
+def about = ##[ABOUT]&quot;Visage is a cool scripting language!&quot;;
 println( mon );
 println( about );</programlisting>
 
-        <para>Suppose this script is <code>Foo.visage</code>, and there is a JavaFX 
+        <para>Suppose this script is <code>Foo.visage</code>, and there is a Visage 
         properties file for French <code>Foo_fr.fxproperties</code>, which contains the
         following localization:</para>
 
         <programlisting>&quot;Monday&quot; = &quot;Lundi&quot;
-&quot;ABOUT&quot; = &quot;JavaFX est un langage de script cool !&quot;</programlisting>
+&quot;ABOUT&quot; = &quot;Visage est un langage de script cool !&quot;</programlisting>
 
         <para>The script will print:</para>
 
         <screen>Lundi
-JavaFX est un langage de script cool !</screen>
+Visage est un langage de script cool !</screen>
 
         <para>in French locale.  You can also provide layered properties files
         for finer grained control.  For example, you can provide localized texts that 
         are France specific in <code>Foo_fr_FR.fxproperties</code>, and keep 
         other French localized texts that are country independent in 
-        <code>Foo_fr.fxproperties</code>.  Then the JavaFX searches the 
+        <code>Foo_fr.fxproperties</code>.  Then the Visage searches the 
         appropriate localized texts by attempting the following fallback
         search in French France (<code>fr_FR</code>) locale:
         <programlisting>Foo_fr_FR.fxproperties
 Foo_fr.fxproperties
 (original string)</programlisting>
 
-        For more information on the locale and how the JavaFX properties
+        For more information on the locale and how the Visage properties
         file is located, refer to <code>java.util.Locale</code> and 
         <code>java.util.ResourceBundle</code> classes of the Java platform.</para>
 
-        <para>The encoding of a JavaFX properties file is
+        <para>The encoding of a Visage properties file is
         <code>UTF-8</code>.  Other encodings can be specified with
         the <code>@charset</code> directive.  For example:</para>
 
         <programlisting>@charset &quot;ISO-8859-1&quot;;</programlisting>
 
-        <para>is specified in the first line of the JavaFX properties file, the
+        <para>is specified in the first line of the Visage properties file, the
         file is read in <code>ISO-8859-1</code> encoding.  If the string literal contains <link linkend="stringExpression">string-expressions</link>, corresponding properties
         should only contain the <code>FORMAT_STRING_LITERAL</code> parts
         of the string expressions, without curly braces and expression parts.  For
         example:
         <programlisting>def gCal = new GregorianCalendar(1995, Calendar.MAY, 23);
 def bday = ##&quot;The birthday of Duke is {%1$tB gCal} {%2$te gCal}, {%3$tY gCal}.&quot;;</programlisting>
-        Then a JavaFX properties file that contains the localized text for 
+        Then a Visage properties file that contains the localized text for 
         &quot;<code>bday</code>&quot; should look like (e.g., for French):
         <programlisting>&quot;The birthday of Duke is %1$tB %2$te, %3$tY.&quot; = &quot;L'anniversaire du duc est le %2$te %1$tB %3$tY.&quot;</programlisting>
         Note that the position of those <code>FORMAT_STRING_LITERAL</code> parts
@@ -595,7 +595,7 @@ def primes = [2, 3, 5, 7, 11];
     <code>Integer[]</code> type, so <code>primes</code> is type inferenced to
     <code>Integer[]</code> type.</para>
 
-    <para>Note that unlike arrays in Java, JavaFX sequences are NOT Objects.
+    <para>Note that unlike arrays in Java, Visage sequences are NOT Objects.
     That means that sequences cannot contain sequences, Nested sequences are
     automatically flattened. The null value in a sequence context is converted
     to the empty sequence []. For example, the following are all

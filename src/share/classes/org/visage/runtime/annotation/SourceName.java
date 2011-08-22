@@ -30,7 +30,7 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Annotation to indicate the JavaFX source name a member derives from.
+ * Annotation to indicate the Visage source name a member derives from.
  * Used when a the name was "mangled" to field a member name.
  */
 @Retention(RUNTIME)

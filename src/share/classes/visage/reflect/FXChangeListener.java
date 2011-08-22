@@ -23,7 +23,7 @@
 
 package visage.reflect;
 
-/** Mirroring of a JavaFX ChangeListener.
+/** Mirroring of a Visage ChangeListener.
  *
  * @author Jim Laskey
  * @profile desktop

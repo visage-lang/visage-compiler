@@ -1,5 +1,5 @@
 /**
- * JFXC-3317 : Optimize bound JavaFX var select with mutable selectors
+ * JFXC-3317 : Optimize bound Visage var select with mutable selectors
  *
  * Set a high max for memory use of a linked list with bound select covered by JFXC-3317.
  * Fail if it goes over or if there is an apparent leak.

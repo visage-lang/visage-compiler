@@ -39,7 +39,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Tests for JavaFX Script scripting engine.
+ * Tests for Visage scripting engine.
  * 
  * @author Tom Ball
  */

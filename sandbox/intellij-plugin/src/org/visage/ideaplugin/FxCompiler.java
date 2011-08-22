@@ -136,7 +136,7 @@ public class FxCompiler implements TranslatingCompiler {
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
-                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with Visage Compiler of SDK: " + jdk.getName (), null, 0, 0);
                 compilationFailed.set (true);
                 break;
             }
@@ -151,7 +151,7 @@ public class FxCompiler implements TranslatingCompiler {
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Exception e) {
-                    compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                    compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with Visage Compiler of SDK: " + jdk.getName (), null, 0, 0);
                     compilationFailed.set (true);
                     break;
                 }
@@ -175,7 +175,7 @@ public class FxCompiler implements TranslatingCompiler {
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
-                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with Visage Compiler of SDK: " + jdk.getName (), null, 0, 0);
                 compilationFailed.set (true);
                 break;
             }
@@ -210,7 +210,7 @@ public class FxCompiler implements TranslatingCompiler {
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
-                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with Visage Compiler of SDK: " + jdk.getName (), null, 0, 0);
                 compilationFailed.set (true);
                 break;
             }

@@ -32,7 +32,7 @@
  * thousand words.  Looking at an object set graphically can simplify understanding
  * of some of the problems.
  * 
- * FXDOTWriter is designed to analyze a set of Javafx/Java objects and generate a
+ * FXDOTWriter is designed to analyze a set of Visage/Java objects and generate a
  * dot format file.  The file can be passed to any number of tools for further
  * analysis.  The multi-platform tools are described at http://graphviz.org/.  The
  * most commonly used are the 'dot' command and the 'Graphviz' application.

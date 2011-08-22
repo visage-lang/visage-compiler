@@ -27,7 +27,7 @@ import java.util.List;
 
 
 /**
- * A tree node for a JavaFX Script keyframe literal.
+ * A tree node for a Visage keyframe literal.
  * @author tball
  */
 public interface KeyFrameLiteralTree extends ExpressionTree {

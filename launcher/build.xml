@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="JavaFX Compiler Launchers" default="default" basedir=".">
+<project name="Visage Compiler Launchers" default="default" basedir=".">
     <description>Builds the launchers of the openjfx-compiler project.</description>
     
     <property environment="env" />

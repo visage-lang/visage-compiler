@@ -1,4 +1,4 @@
-JavaFX compiler feature test #7
+Visage compiler feature test #7
 
 Demonstrated:
  - Compiling multiple modules together on the same command line

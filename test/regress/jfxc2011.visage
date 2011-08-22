@@ -7,5 +7,5 @@
 
 var s ;
 var t = bind s;
-s= "JavaFX";
+s= "Visage";
 println(t);

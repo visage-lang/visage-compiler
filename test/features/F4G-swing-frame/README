@@ -1,4 +1,4 @@
-JavaFX compiler feature test #4
+Visage compiler feature test #4
 
 Demonstrated:
  - Instantiate a JFrame with a JTextField using raw Swing calls

@@ -27,7 +27,7 @@ import com.sun.tools.mjavac.code.Lint;
 import com.sun.tools.mjavac.util.Context;
 
 /**
- * JavaFX Script version of javac's Lint service.
+ * Visage version of javac's Lint service.
  *
  * @author Tom Ball
  */
@@ -59,7 +59,7 @@ public class JavafxLint extends Lint{
 
     @Override
     public boolean isSuppressed(LintCategory lc) {
-        // Suppress unchecked warnings, since JavaFX Script doesn't support annotations.
+        // Suppress unchecked warnings, since Visage doesn't support annotations.
         return lc == LintCategory.UNCHECKED ? true : super.isSuppressed(lc);
     }
 }

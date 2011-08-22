@@ -53,7 +53,7 @@ import java.util.Set;
 import java.util.Stack;
 
 /**
- * Build the representation(s) of a JavaFX class.  Includes class initialization, attribute and function proxies.
+ * Build the representation(s) of a Visage class.  Includes class initialization, attribute and function proxies.
  * With support for mixins.
  *
  * @author Robert Field
@@ -283,7 +283,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
 
             if (!hasFxSuper) {
-                // Has a non-JavaFX super, so we can't use FXBase, therefore we need
+                // Has a non-Visage super, so we can't use FXBase, therefore we need
                 // to clone the necessary vars and methods.
                 // This code must be after all methods have been added to cDefinitions,
 
@@ -4496,7 +4496,7 @@ however this is what we need */
         
         //
         // Make a constructor to be called by Java code.
-        // Simply pass up to super, unless this is the last JavaFX class, in which case add object initialization
+        // Simply pass up to super, unless this is the last Visage class, in which case add object initialization
         //
         public void makeJavaEntryConstructor() {
             //    public Foo() {
@@ -4512,7 +4512,7 @@ however this is what we need */
         }
 
         //
-        // Make a constructor to be called by JavaFX code.
+        // Make a constructor to be called by Visage code.
         //
         public void makeFXEntryConstructor(List<VarInfo> varInfos, ClassSymbol outerTypeSym) {
             ListBuffer<JCStatement> stmts = ListBuffer.lb();

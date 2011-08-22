@@ -43,7 +43,7 @@ import org.visage.runtime.sequence.Sequence;
 public class FX {
 
     /**
-     * Compare two JavaFX Script Objects
+     * Compare two Visage Objects
      * 
      * @param a the first object to be compared
      * @param b the second object to compare
@@ -86,7 +86,7 @@ public class FX {
     /**
      * Gets the system property indicated by the specified key.
      * <p></p>
-     * System Properties in JavaFX environment can be classified into 2 types:
+     * System Properties in Visage environment can be classified into 2 types:
      * <p>
      * 1. Runtime platform associated property. 
      *    Those properties have an equivalent in current java runtime 
@@ -94,9 +94,9 @@ public class FX {
      *    those properties by mapping specified key with runtime platform key.<br>
      *    If there is a security manager, property access permission is checked. This may result in a SecurityException.  
      * </p><p>
-     * 2. JavaFX specific property. 
-     *    Those properties are specific to JavaFX environment therefore
-     *    value of the properties is specified in the JavaFX tree.
+     * 2. Visage specific property. 
+     *    Those properties are specific to Visage environment therefore
+     *    value of the properties is specified in the Visage tree.
      * </p>
      * <br>
      * This set of system properties always includes values for the following keys: <p>
@@ -105,7 +105,7 @@ public class FX {
      * <tr><th>Key</th>
      *     <th>Description of Associated Value</th>
      * <tr><td><code>visage.version</code></td>
-     *     <td><code>JavaFX  release version - visage specific property</code></td></tr>
+     *     <td><code>Visage  release version - visage specific property</code></td></tr>
      * <tr><td><code>visage.application.codebase</code></td>
      *     <td><code>Application codebase - visage specific property</code></td></tr>  
      * <tr><td><code>visage.java.version</code></td>
@@ -279,7 +279,7 @@ public class FX {
     }
 
     /**
-     * For JavaFX Script applications that are started on the command
+     * For Visage applications that are started on the command
      * line,running application. This will return Unnamed Arguments
      *
      * @return Sequence of commandline args as strings, this will return
@@ -295,7 +295,7 @@ public class FX {
     }
 
     /**
-     * Returns the named incoming argument for the current JavaFX
+     * Returns the named incoming argument for the current Visage
      * Script program; this is used for certain environments (in
      * particular, applets) where incoming arguments are represented
      * as name/value pairs. This usually returns a String, but some
@@ -305,7 +305,7 @@ public class FX {
      * Returns null if the given named argument does not exist.
      * </p><p> 
      * getArgument("visage.applet") will return the underlying applet that is
-     * used to run the JavaFX script application inside the browser. This is 
+     * used to run the Visage application inside the browser. This is 
      * an experimental facility, that may be changed in future versions.
      * </p><p> 
      * This can be used as follows:

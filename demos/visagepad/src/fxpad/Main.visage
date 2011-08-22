@@ -58,7 +58,7 @@ function run(__ARGS__ : String[]) {
                 filter: function(f:File):Boolean {
                     return f.isDirectory() or f.getName().endsWith(".visage");
                 }
-                description: "JavaFX Files (*.visage)"
+                description: "Visage Files (*.visage)"
            }
     };
     

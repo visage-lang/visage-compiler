@@ -28,7 +28,7 @@
 package org.visage.api.tree;
 
 /**
- * A tree node for a JavaFX Script color literal.
+ * A tree node for a Visage color literal.
  * @author Stephen Chin <steveonjava@gmail.com>
  */
 public interface ColorLiteralTree extends Tree {

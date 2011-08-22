@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# JavaFX Script doc generation script for Linux/Solaris/OS X.
+# Visage doc generation script for Linux/Solaris/OS X.
 #
 # Uses the same core arguments as the JDK's javadoc command, but uses 
 # the XMLDoclet and an XSLT translator to generate documentation.  Run

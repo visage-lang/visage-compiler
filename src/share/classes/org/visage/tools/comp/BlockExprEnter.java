@@ -90,12 +90,12 @@ public class BlockExprEnter extends Enter {
 		q.flags_field |= EXISTS;
 	    c = reader.enterClass(tree.name, packge);
 	    packge.members().enterIfAbsent(c);
-// Javafx change start
+// Visage change start
 //            if ((tree.mods.flags & PUBLIC) != 0 && !classNameMatchesFileName(c, env)) {
 //		log.error(tree.pos(),
 //			  "class.public.should.be.in.file", tree.name);
 //	    }
-// Javafx change end
+// Visage change end
         } else {
 	    if (tree.name.len != 0 &&
 		!chk.checkUniqueClassName(tree.pos(), tree.name, enclScope)) {

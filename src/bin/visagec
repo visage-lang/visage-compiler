@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# JavaFX Script compiler script for Linux/Solaris/OS X.
+# Visage compiler script for Linux/Solaris/OS X.
 #
 # Uses the same arguments as the JDK's javac command.
 #

@@ -37,7 +37,7 @@ import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.util.FileUtils;
 
 /**
- * Compiles a single JavaFX script source file and executes the resulting class.
+ * Compiles a single Visage source file and executes the resulting class.
  *
  * @author tball
  */

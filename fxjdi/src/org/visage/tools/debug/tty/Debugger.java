@@ -433,7 +433,7 @@ public class Debugger {
      * you'd use with jdb's "print" or "set" command. The expression is evaluated
      * in current thread's current frame context. You can access locals from that 
      * frame and also evaluate object fields/static fields etc. from there. For 
-     * example, if "seq" is a local variable of type JavaFX integer sequence, 
+     * example, if "seq" is a local variable of type Visage integer sequence, 
      * 
      *     Debugger dbg = ...
      *     dbg.evaluate("seq[0]");

@@ -49,7 +49,7 @@ public final class FxSdkType extends SdkType implements ApplicationComponent {
     public static final String JAVA_SDK_PROPERTY_NAME = "java-sdk";
 
     public FxSdkType () {
-        super ("JavaFX Script SDK");
+        super ("Visage SDK");
     }
 
     public static FxSdkType getInstance() {
@@ -59,9 +59,9 @@ public final class FxSdkType extends SdkType implements ApplicationComponent {
     @Nullable
     public String suggestHomePath () {
         if (SystemInfo.isWindows)
-            return "c:\\Program Files\\JavaFX\\visage-sdk1.0pre1\\";
+            return "c:\\Program Files\\Visage\\visage-sdk1.0pre1\\";
         if (SystemInfo.isMac)
-            return "/System/Library/Frameworks/JavaFX.framework/Versions/Current/";
+            return "/System/Library/Frameworks/Visage.framework/Versions/Current/";
         return null;
     }
 
@@ -191,7 +191,7 @@ public final class FxSdkType extends SdkType implements ApplicationComponent {
     }
 
     public String getPresentableName () {
-        return "JavaFX Script SDK";
+        return "Visage SDK";
     }
 
     public Icon getIcon () {

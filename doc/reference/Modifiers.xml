@@ -69,7 +69,7 @@
   or instance variables, and overriding and setting or binding in an object
   literal of an instance variable.</para>
 
-  <para>Because of the central use of object literals in JavaFX, instance
+  <para>Because of the central use of object literals in Visage, instance
   variables tend to be externally visiable -- and therefore need more refined
   access modifiers. Two access modifiers apply only to instance and script
   <command>var</command>.</para>

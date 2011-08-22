@@ -33,7 +33,7 @@ import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
 
 /**
- * Provides access to functionality specific to the JavaFX Script compiler,
+ * Provides access to functionality specific to the Visage compiler,
  * based on JavacTask.
  *
  * @see com.sun.source.util.JavacTask
@@ -59,7 +59,7 @@ public abstract class JavafxcTask implements CompilationTask {
     public abstract int errorCheck() throws IOException;
 
     /**
-     * Complete all analysis prior to conversion of the JavaFX Script compiler 
+     * Complete all analysis prior to conversion of the Visage compiler 
      * AST to Javac AST.  
      *
      * @return a list of abstract syntax trees

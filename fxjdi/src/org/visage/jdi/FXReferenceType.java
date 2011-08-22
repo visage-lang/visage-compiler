@@ -264,9 +264,9 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     /**
-     * JDI addition: Determines if this is a JavaFX class.
+     * JDI addition: Determines if this is a Visage class.
      *
-     * @return <code>true</code> if this is a JavaFX class; false otherwise.
+     * @return <code>true</code> if this is a Visage class; false otherwise.
      */
     public boolean isJavaFXType() {
         return false;
@@ -279,13 +279,13 @@ public class FXReferenceType extends FXType implements ReferenceType {
     private FXClassType userClass = null;
 
     /**
-     * JDI addition: Return the JavaFX user class associated with this reference type.
+     * JDI addition: Return the Visage user class associated with this reference type.
      *
-     * The JavaFX compiler can generate several classes for a given class defined by the user.
+     * The Visage compiler can generate several classes for a given class defined by the user.
      * Given one of these internal classes, this method will return the ReferenceType for the
      * associated user class.
      *
-     * @return the JavaFX user class associated with this reference type if there is one, else null.
+     * @return the Visage user class associated with this reference type if there is one, else null.
      */
     public FXClassType javaFXUserClass() {
         if (isUserClassSet) {
@@ -331,11 +331,11 @@ public class FXReferenceType extends FXType implements ReferenceType {
     /**
      * JDI addition: Return the script class associated with this reference type.
      *
-     * The JavaFX compiler can generate several classes for a given JavaFX file.  
+     * The Visage compiler can generate several classes for a given Visage file.  
      * Given one of these classes, this method will return the associated ReferenceType 
      * for the containing script class.
      *
-     * @return the JavaFX script class that contains this class if there is one, else null.
+     * @return the Visage class that contains this class if there is one, else null.
      */
     public FXClassType scriptClass() {
         if (isTopClassSet) {

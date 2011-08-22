@@ -7,7 +7,7 @@
  * @run
  */
 
-var str = "JavaFX";  
+var str = "Visage";  
 
 var bo : Object = bind str;
 
@@ -23,7 +23,7 @@ try {
 println((bo as String).substring(0, 6));
 println((bo as String).length());
 
-str = "JavaFX is great";
+str = "Visage is great";
 
 // bo should follow as 'str' is changed
 println(bo);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="JavaFX Compiler" default="binaries" basedir=".">
+<project name="Visage Compiler" default="binaries" basedir=".">
     <description>Builds, tests, and runs the openjfx-compiler project.</description>
 
     <property name="build.defs" location="build-defs.xml"/>
@@ -261,7 +261,7 @@
     </pathconvert>
 
     <target name="check-ant">
-        <fail message="Ant version 1.7.0 or later is required to build JavaFX.">
+        <fail message="Ant version 1.7.0 or later is required to build Visage.">
             <condition>
                 <not>
                     <antversion atleast="1.7.0"/>
@@ -297,7 +297,7 @@
 
 
     <target name="-pre-init" depends="check-ant,check-jdk-1.5,tool-paths,single-fx-test-check">
-        <fail unless="has-jdk-1.5">You need JDK 1.5 or higher to build JavaFX.</fail>
+        <fail unless="has-jdk-1.5">You need JDK 1.5 or higher to build Visage.</fail>
         <echo message="JDK version ${java.version}"/>
         <echo message="Ant version ${ant.version}"/>
     </target>
@@ -504,7 +504,7 @@
     
     <target name="-post-compile">
         <!-- compiles the fx files in the compiler workspace. These are the runtime
-             files shipped with the compiler (not related to the JavaFX Runtime
+             files shipped with the compiler (not related to the Visage Runtime
              project). -->
 
         <taskdef name="visagec" classname="org.visage.tools.ant.JavaFxAntTask">
@@ -691,7 +691,7 @@
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
-    <target name="langref" description="Build JavaFX Script Language Reference.">
+    <target name="langref" description="Build Visage Language Reference.">
         <ant antfile="doc/build.xml" target="ref" inheritAll="true"/>
 
         <copy todir="dist/doc/reference">

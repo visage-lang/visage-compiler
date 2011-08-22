@@ -23,7 +23,7 @@
 
 package visage.reflect;
 
-/** A run-time represention of a JavaFX attribute in a class.
+/** A run-time represention of a Visage attribute in a class.
  * Corresponds to {@code java.lang.reflect.Field},
  * and {@code com.sun.jdi.Field}, respectively.
  *

@@ -1,4 +1,4 @@
-test/should-fail/jfxc1169.visage:11: Attempting to create a JavaFX class using new with a non-empty parameter list. Use object literal instead.
+test/should-fail/jfxc1169.visage:11: Attempting to create a Visage class using new with a non-empty parameter list. Use object literal instead.
 var x =bind new InvalidConstArgTest(1); // Invalid call
                                     ^
 1 error

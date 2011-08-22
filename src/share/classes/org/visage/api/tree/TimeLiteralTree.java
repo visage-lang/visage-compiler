@@ -24,7 +24,7 @@
 package org.visage.api.tree;
 
 /**
- * A tree node for a JavaFX Script time literal.
+ * A tree node for a Visage time literal.
  * @author tball
  */
 public interface TimeLiteralTree extends Tree {

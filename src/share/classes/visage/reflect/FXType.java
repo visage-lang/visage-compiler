@@ -23,7 +23,7 @@
 
 package visage.reflect;
 
-/** A run-time representation of a JavaFX type.
+/** A run-time representation of a Visage type.
  * Corresponds to {@code java.lang.reflect.Type}.
  *
  * @author Per Bothner

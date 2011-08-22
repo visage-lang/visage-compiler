@@ -23,8 +23,8 @@
 
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin>
-    <name>JavaFX</name>
-    <description>Plugin for the JavaFX Script Programming Language</description>
+    <name>Visage</name>
+    <description>Plugin for the Visage Programming Language</description>
     <version>0.21</version>
     <vendor>Sun Microsystems</vendor>
     <idea-version since-build="3000"/>
@@ -49,8 +49,8 @@
     <actions>
         <action id="visage.NewClass"
                 class="org.visage.ideaplugin.NewFxClassAction"
-                text="JavaFX Class"
-                description="Creates new JavaFX Class">
+                text="Visage Class"
+                description="Creates new Visage Class">
             <add-to-group group-id="NewGroup" anchor="first" />
         </action>
     </actions>

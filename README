@@ -1,6 +1,6 @@
-Building the JavaFX Script Compiler
+Building the Visage Compiler
 
-Building the JavaFX Script compiler Java 5 or 6 and Apache Ant 1.7.  
+Building the Visage compiler Java 5 or 6 and Apache Ant 1.7.  
 
 The "ant -projecthelp" command displays the various build targets available.
 Here are some of the more commonly used ones:
@@ -21,7 +21,7 @@ Here are some of the more commonly used ones:
  hudson-dev         Build and test all project artifacts for each developer push
  jar                Build JAR.
  javadoc            Build Javadoc.
- langref            Build JavaFX Script Language Reference.
+ langref            Build Visage Language Reference.
  launcher           Copy command wrappers to dist/bin directory.
  milestone-build    Milestone build target
  run                Run a main class.

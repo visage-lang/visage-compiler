@@ -1413,7 +1413,7 @@ public class JavafxCheck {
         }
 
 	// Error if overriding method has weaker access (JLS 8.4.6.3).
-/*---------------  Taken out. Javafx doesn't have the JLS 8.4.6.3 rule...
+/*---------------  Taken out. Visage doesn't have the JLS 8.4.6.3 rule...
 	if ((origin.flags() & INTERFACE) == 0 &&
 		 protection(m.flags()) > protection(other.flags())) {
 	    log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), "override.weaker.access",

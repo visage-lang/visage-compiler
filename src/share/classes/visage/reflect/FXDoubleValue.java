@@ -23,7 +23,7 @@
 
 package visage.reflect;
 
-/** Mirroring of a JavaFX Double value.
+/** Mirroring of a Visage Double value.
  *
  * @author Per Bothner
  * @profile desktop

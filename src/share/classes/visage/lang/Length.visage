@@ -989,7 +989,7 @@ public class Length extends Comparable, Formattable {
 
     /**
      * Formatting function that allows lengths to be properly formatted by
-     * printf, String.format, or the JavaFX format primitive.
+     * printf, String.format, or the Visage format primitive.
      * <p>
      * Width sets the minimum width of this field, following the justification
      * rules set in flags.

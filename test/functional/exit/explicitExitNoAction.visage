@@ -10,7 +10,7 @@
 import visage.lang.FX;
 
 /**
- * Example JavaFX Script showing the usage of FX.addShutdownAction() with an
+ * Example Visage showing the usage of FX.addShutdownAction() with an
  * explicit FX.exit() call.
  * The exit occurs when the script when FX.exit is called.
  *

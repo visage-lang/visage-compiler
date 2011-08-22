@@ -272,7 +272,7 @@ public class JavafxTreeInfo {
      */
     public static int opPrec(JavafxTag op) {
 	switch(op) {
-	case ASSIGN: // Java distinguished, JavaFX doesn't -- Java-style
+	case ASSIGN: // Java distinguished, Visage doesn't -- Java-style
             return assignPrec;
 	case PLUS_ASG:
 	case MINUS_ASG:
@@ -387,7 +387,7 @@ public class JavafxTreeInfo {
         case NULLCHK:
             return Tree.JavaFXKind.OTHER;
 
-        // JavaFX tags which are used in javac trees
+        // Visage tags which are used in javac trees
         case SIZEOF:
             return Tree.JavaFXKind.OTHER;
         case REVERSE:

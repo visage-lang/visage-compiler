@@ -1,5 +1,5 @@
 /**
- * Regression test: JFXC-3042 : JavaFX script compiler fails with an exception
+ * Regression test: JFXC-3042 : Visage compiler fails with an exception
  *
  * @test/compile-error
  */

@@ -45,7 +45,7 @@ import static com.sun.tools.mjavac.code.TypeTags.*;
 import visage.lang.AngleUnit;
 import visage.lang.LengthUnit;
 
-/* JavaFX version of tree maker
+/* Visage version of tree maker
  */
 public class JavafxTreeMaker implements JavafxTreeFactory {
 

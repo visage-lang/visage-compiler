@@ -24,7 +24,7 @@
 package org.visage.api.tree;
 
 /**
- * A visitor of JavaFX Script trees, which extends the TreeVisitor in 
+ * A visitor of Visage trees, which extends the TreeVisitor in 
  * the javac Compiler API.
  *
  * <p> Classes implementing this interface may or may not throw a

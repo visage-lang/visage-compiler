@@ -46,7 +46,7 @@ import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.util.Name;
 
 /**
- * Simple interface to the JavaFX Script compiler using JSR 199 Compiler API.
+ * Simple interface to the Visage compiler using JSR 199 Compiler API.
  * This is "cumulative": Script-level declarations make by one script are
  * visible to future scripts, so this represents a "compiler context".
  * Based on https://scripting.dev.java.net's JavaCompiler by A. Sundararajan.

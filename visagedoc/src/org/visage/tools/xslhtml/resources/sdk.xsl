@@ -25,7 +25,7 @@
 <!--
     Author     : joshua.marinacci@sun.com
     Description: customize the output with special doctags for use only
-    by the JavaFX GUI project.
+    by the Visage GUI project.
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -224,21 +224,21 @@
                     <h3><xsl:value-of select="$std.doctitle.prefix"/> Overview <xsl:value-of select="$std.doctitle.suffix"/></h3>
                     
                     <xsl:if test="$sdk-overview='true'">
-                        <p>The JavaFX <sup>tm</sup> Platform is a rich client platform for cross-screen rich internet applications (RIA) and content. It consists of common elements (2D graphics, Animation, Text and Media) and device specific elements for desktop, mobile and TV.  The JavaFX common set of APIs allow source level portability of the common set of functionalities across all platforms supported by JavaFX.
+                        <p>The Visage <sup>tm</sup> Platform is a rich client platform for cross-screen rich internet applications (RIA) and content. It consists of common elements (2D graphics, Animation, Text and Media) and device specific elements for desktop, mobile and TV.  The Visage common set of APIs allow source level portability of the common set of functionalities across all platforms supported by Visage.
 
-                        The JavaFX Runtimes targeted for different devices will ensure consistency and fidelity for content created based on the JavaFX Common APIs.
+                        The Visage Runtimes targeted for different devices will ensure consistency and fidelity for content created based on the Visage Common APIs.
 
-                        The JavaFX Common APIs will continue to evolve to match more powerful, common capabilities on the various device types.
+                        The Visage Common APIs will continue to evolve to match more powerful, common capabilities on the various device types.
 
                         </p>
 
                         <p><img src="platform_diagram.png"/></p>
 
-                        <h3>What you can build with JavaFX:</h3>
+                        <h3>What you can build with Visage:</h3>
 
-                        <p><b>Cross Platform Applications:</b> If you want to develop a RIA across screens then you need to use JavaFX Common APIs only. The JavaFX Common APIs currently support 2D Graphics, Animation and Text across all platforms. In future, there will be support for audio, video, networking, local storage and other relevant components in JavaFX Common.</p>
+                        <p><b>Cross Platform Applications:</b> If you want to develop a RIA across screens then you need to use Visage Common APIs only. The Visage Common APIs currently support 2D Graphics, Animation and Text across all platforms. In future, there will be support for audio, video, networking, local storage and other relevant components in Visage Common.</p>
 
-                        <p><b>Desktop Applications:</b> If you are designing a desktop only application  ( Windows and Mac are currently supported) you can extend the functionality of the JavaFX applications by using APIs that are optimized for the desktop in addition to JavaFX Common. This will allow your application to adapt to a desktop look and feel with the JavaFX Swing extensions and also take advantage of Device Media Frameworks and advanced graphics support.</p>
+                        <p><b>Desktop Applications:</b> If you are designing a desktop only application  ( Windows and Mac are currently supported) you can extend the functionality of the Visage applications by using APIs that are optimized for the desktop in addition to Visage Common. This will allow your application to adapt to a desktop look and feel with the Visage Swing extensions and also take advantage of Device Media Frameworks and advanced graphics support.</p>
                     </xsl:if>
                     <table class="package-docs">
                         <tr><th></th></tr>

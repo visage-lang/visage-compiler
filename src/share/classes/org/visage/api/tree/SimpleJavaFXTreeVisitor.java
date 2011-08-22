@@ -24,7 +24,7 @@
 package org.visage.api.tree;
 
 /**
- * A simple visitor for JavaFX tree nodes.
+ * A simple visitor for Visage tree nodes.
  *
  * @author Tom Ball
  */

@@ -42,7 +42,7 @@ import com.sun.source.tree.TreeVisitor;
 
 
 /**
- * The base of the JavaFX AST
+ * The base of the Visage AST
  * well... except for things like statement which (at least for now) have to be subclassed
  * off other parts of the JCTree.
  */
@@ -150,7 +150,7 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
     public abstract void accept(JavafxVisitor v);
     
     /**
-     * Gets the JavaFX kind of this tree.
+     * Gets the Visage kind of this tree.
      *
      * @return the kind of this tree.
      */

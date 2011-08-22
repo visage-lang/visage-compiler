@@ -22,7 +22,7 @@
  */
 
 /////////////////////////////////////////////////////////////////////////////////
-// Version 4 of the JavaFX lexer
+// Version 4 of the Visage lexer
 //
 // @author Jim Idle
 //
@@ -1081,7 +1081,7 @@ COLOR_LITERAL
 // them with '<<' and '>>' - this allows external references to
 // methods, properties and so on , where the external language
 // does not restrict the identifier names to such a pattern or does
-// not regard JavaFX keywords as invalid identifiers.
+// not regard Visage keywords as invalid identifiers.
 //
 IDENTIFIER 
     : Letter (Letter|JavaIDDigit)*
@@ -1134,7 +1134,7 @@ JavaIDDigit
 
 
 
-// As with whitespace, JavaFX comments are not seen by the parser.
+// As with whitespace, Visage comments are not seen by the parser.
 // However, certain constructs such as the script itself, will search
 // the token stream for documentation comments of the form '/**' .* '*/'
 // The are therefore preserved on the hidden channel.

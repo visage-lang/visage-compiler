@@ -1510,9 +1510,9 @@ diff --git a/src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java b/sr
      /** Visitor result field: a tree
       */
 -    protected JCTree result;
-+// JavaFX change
++// Visage change
 +    public
-+// JavaFX change
++// Visage change
 +    JCTree result;
  
      /** Visitor method: Translate a single node.

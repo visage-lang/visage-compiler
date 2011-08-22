@@ -10,7 +10,7 @@
 
   <para>Classes represent kinds of things, whether they be concrete things,
   graphical things, or conceptual things. And instances of classes represent
-  specific things. For example, in JavaFX:</para>
+  specific things. For example, in Visage:</para>
 
   <para><programlisting>class Shoe {
    var color : String;
@@ -273,13 +273,13 @@ println( p );
   <sect1>
     <title>Inheritance</title>
 
-    <para>JavaFX classes may inherit from other JavaFX classes, from Java
+    <para>Visage classes may inherit from other Visage classes, from Java
     interfaces, and from Java classes -- the <command>extends</command> clause
     of the class definition lists these classes and interfaces.</para>
 
-    <para>A JavaFX class may inherit from one (JavaFX or Java) class, any
+    <para>A Visage class may inherit from one (Visage or Java) class, any
     number of Java interfaces, and any number of certain (to be specified)
-    kinds of JavaFX classes.</para>
+    kinds of Visage classes.</para>
   </sect1>
 
   <sect1 xml:id="InstanceInitialization">
@@ -290,7 +290,7 @@ println( p );
     <sect2>
       <title>Initialization Order</title>
 
-      <para>A new JavaFX class instance is initialized in this order:</para>
+      <para>A new Visage class instance is initialized in this order:</para>
 
       <itemizedlist spacing="compact">
         <listitem>
@@ -308,7 +308,7 @@ println( p );
         </listitem>
 
         <listitem>
-          <simpara>The instance variables of JavaFX superclasses are
+          <simpara>The instance variables of Visage superclasses are
           set.</simpara>
         </listitem>
 

@@ -5,7 +5,7 @@
  */
 
 // contains static methods that accept Java primitive
-// array type arguments. These are called from JavaFX
+// array type arguments. These are called from Visage
 // to check that we can pass primitive sequences to these.
 
 public class jfxc2852ArrayPrinter {

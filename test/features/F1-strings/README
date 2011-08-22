@@ -1,4 +1,4 @@
-JavaFX compiler feature test #1 -- simple string manipulation and println
+Visage compiler feature test #1 -- simple string manipulation and println
 
 Demonstrated:
  - module-level variables with explicit Integer and String type declaration

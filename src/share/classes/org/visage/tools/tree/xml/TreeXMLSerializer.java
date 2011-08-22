@@ -1003,7 +1003,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
             emitListItem(PUBLIC);
         }
             
-        // Now handle JavaFX specific flags
+        // Now handle Visage specific flags
         if ((flagBits & JavafxFlags.DEFAULT) != 0) {
             emitListItem(DEFAULT);
         }

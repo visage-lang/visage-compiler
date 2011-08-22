@@ -22,17 +22,17 @@
  */
 
 /**
- * This package provides JavaFX Script Runtime APIs
+ * This package provides Visage Runtime APIs
  * <p>
  * <h2>Builtins</h2>
- * This class is automatically imported to all JavaFX Scripts
+ * This class is automatically imported to all Visage Files
  * </p>
  * <h2>FX</h2>
  * The FX class contains number of static entry points
- * for a couple of different API sets provided by JavaFX Script.
+ * for a couple of different API sets provided by Visage.
  * <ul>
  * <li> Application Model
- * <p>JavaFX Script APIs are categorized into following profiles.   </p>
+ * <p>Visage APIs are categorized into following profiles.   </p>
  * <ul>
  * <li>Common Profile
  * <p>This API is common across all platforms</p>
@@ -43,12 +43,12 @@
  * <p>This API is available only in the mobile environment.</p>
  * </ul>
  * <p>If an application needs to be portable across all screens,
- * it has to limit itself to common profile APIs. The JavaFX Script
- * Runtime has the ability to run JavaFX Scripts
+ * it has to limit itself to common profile APIs. The Visage
+ * Runtime has the ability to run Visage Files
  * that use the common or desktop API sets in any supported Browser.
  * </p>
  * <li> Argument or Parameter Handling
- * <p>JavaFX Scripts can get Arguments or Parameters in 2 different 
+ * <p>Visage Files can get Arguments or Parameters in 2 different 
  * forms
  * <ul><li>Named
  * <p>Named Parameters come in the form of a Name, Value pair typically

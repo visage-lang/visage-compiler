@@ -27,7 +27,7 @@ import org.visage.runtime.FXObject;
 
 /**
  * These functions are automatically imported for
- * all JavaFX Scripts to use
+ * all Visage Files to use
  *
  * @author Brian Goetz
  * @author Saul Wold
@@ -35,7 +35,7 @@ import org.visage.runtime.FXObject;
  */
 public class Builtins {
     /**
-     * Compare 2 JavaFX Script Objects
+     * Compare 2 Visage Objects
      * 
      * @param a The first object to be compared
      * @param b the second object to be compared

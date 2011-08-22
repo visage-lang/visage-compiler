@@ -149,7 +149,7 @@ public class FXDelegate implements InvocationDelegate {
     public Object newInstance(Object clazz,
                               Object[] arguments) throws Exception {
         // FIXME
-        throw new UnsupportedOperationException("Instantiation of JavaFX classes not yet supported");
+        throw new UnsupportedOperationException("Instantiation of Visage classes not yet supported");
     }
 
     //----------------------------------------------------------------------

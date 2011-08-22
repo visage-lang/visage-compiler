@@ -22,7 +22,7 @@
  */
 
 /**
- * Provides interfaces to represent JavaFX Script language source code as 
+ * Provides interfaces to represent Visage language source code as 
  * abstract syntax trees (AST).  This package extends the Java programming 
  * language compiler AST support.
  */

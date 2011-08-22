@@ -33,7 +33,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 
 /**
- * An Ant task to extract JavaFX Script and Java example source files from 
+ * An Ant task to extract Visage and Java example source files from 
  * DocBook sources.  This allows a build to verify that they can be compiled 
  * and possibly executed.
  * 

@@ -9,7 +9,7 @@ var model = HelloWorldModel {
 };
 
 Frame {
-    title: "Hello World JavaFX"
+    title: "Hello World Visage"
     width: 200
 
     content: Label {

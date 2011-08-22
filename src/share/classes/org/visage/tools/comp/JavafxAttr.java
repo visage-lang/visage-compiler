@@ -2983,7 +2983,7 @@ public class JavafxAttr implements JavafxVisitor {
         return expression.type;
     }
 
-// Begin JavaFX trees
+// Begin Visage trees
     //@Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         // Local classes have not been entered yet, so we need to do it now:
@@ -3716,7 +3716,7 @@ public class JavafxAttr implements JavafxVisitor {
             attribDecl(l.head, env);
             // Check that declarations in inner classes are not static (JLS 8.1.2)
             // Make an exception for static constants.
-            // Javafx allows that.
+            // Visage allows that.
 //            if (c.owner.kind != PCK &&
 //                ((c.flags() & STATIC) == 0 || c.name == names.empty) &&
 //                (JavafxTreeInfo.flags(l.head) & (STATIC | INTERFACE)) != 0) {

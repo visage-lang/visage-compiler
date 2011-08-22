@@ -44,11 +44,11 @@ public class FxRunConfigurationType implements ConfigurationType {
     }
 
     public String getDisplayName () {
-        return "JavaFX Script";
+        return "Visage";
     }
 
     public String getConfigurationTypeDescription () {
-        return "Runs a JavaFX Script application";
+        return "Runs a Visage application";
     }
 
     public Icon getIcon () {
@@ -59,7 +59,7 @@ public class FxRunConfigurationType implements ConfigurationType {
         return new ConfigurationFactory[] {
             new ConfigurationFactory (this) {
                 public RunConfiguration createTemplateConfiguration (Project project) {
-                    return new FxRunConfiguration ("JavaFX Script Application", this, project);
+                    return new FxRunConfiguration ("Visage Application", this, project);
                 }
             }
         };

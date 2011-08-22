@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="JavaFX Compiler Tools Definitions" basedir=".">
+<project name="Visage Compiler Tools Definitions" basedir=".">
 
     <property name="base.dir" value="${basedir}"/>
 

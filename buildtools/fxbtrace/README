@@ -1,4 +1,4 @@
-This directory contains support for using BTrace with JavaFX applications.
+This directory contains support for using BTrace with Visage applications.
 To use BTrace, you need to use JDK 6. BTrace does *not* work with JDK 5.
 
 Steps to use:

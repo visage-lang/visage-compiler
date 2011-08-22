@@ -14,9 +14,9 @@ var b1 = "Two{1 + 1 }Three{ 1.5 *2}done";
 var b2 = 'Two{1 + 1 }Three{ 1.5 *2}done';
 System.out.println(b1);
 
-var goldc = "Welcome to CAFE JavaFX";
-var c1 = "Welcome to { %X ((12*16 + 10)*16 + 15)*16 + 14 } JavaFX";
-var c2 = 'Welcome to { %X ((12*16 + 10)*16 + 15)*16 + 14 } JavaFX';
+var goldc = "Welcome to CAFE Visage";
+var c1 = "Welcome to { %X ((12*16 + 10)*16 + 15)*16 + 14 } Visage";
+var c2 = 'Welcome to { %X ((12*16 + 10)*16 + 15)*16 + 14 } Visage';
 System.out.println(c1);
 
 var ok =

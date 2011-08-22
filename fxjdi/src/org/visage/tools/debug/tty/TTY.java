@@ -35,7 +35,7 @@ import java.util.*;
 import java.io.*;
 
 /**
- * This is a command line debugger for JavaFX programs. This class is same as
+ * This is a command line debugger for Visage programs. This class is same as
  * the main class of "jdb" tool except that this one uses FX-JDI launching
  * connector by default.
  *

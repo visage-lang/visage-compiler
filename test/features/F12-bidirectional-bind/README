@@ -1,4 +1,4 @@
-JavaFX compiler feature test #12 -- bidirectional binding
+Visage compiler feature test #12 -- bidirectional binding
  
 Demonstrated:
  - bind with inverse for an attribute

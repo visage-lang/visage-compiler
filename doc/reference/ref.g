@@ -22,7 +22,7 @@
  */
 
 /////////////////////////////////////////////////////////////////////////////////
-// Version 4 of the JavaFX parser grammar.
+// Version 4 of the Visage parser grammar.
 //
 // @author Jim Idle
 //
@@ -752,7 +752,7 @@ assignOp
 	| PERCENTEQ
 		{ 
 			$op = JavafxTag.MOD_ASG;
-			log.warning(pos($PERCENTEQ), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The operator \%= will not be supported in the JavaFX 1.0 release" );
+			log.warning(pos($PERCENTEQ), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The operator \%= will not be supported in the Visage 1.0 release" );
 		}
 	;
 	
@@ -1121,7 +1121,7 @@ objectLiteralInit
 
 // -------	
 // Strings
-// JavaFX string expresoins are more richly expressive than the more usual
+// Visage string expresoins are more richly expressive than the more usual
 // quoted strings.
 //
 // 1) A translation key may prefix string literals;

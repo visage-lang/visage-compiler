@@ -1,5 +1,5 @@
 /*
- * Regression test JFXC-3309/JFXC-3489: Java Scripting API does not work in JavaFX 1.2
+ * Regression test JFXC-3309/JFXC-3489: Java Scripting API does not work in Visage 1.2
  *
  * @test
  * @run

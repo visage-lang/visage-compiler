@@ -27,11 +27,11 @@ import java.util.List;
 
 /**
  * Common interface for for-expression nodes in an abstract syntax tree for the 
- * JavaFX Script language.
+ * Visage language.
  *
  * <p><b>WARNING:</b> This interface and its sub-interfaces are 
- * subject to change as the JavaFX Script programming language evolves.
- * These interfaces are implemented by Sun's JavaFX Script compiler (visagec) 
+ * subject to change as the Visage programming language evolves.
+ * These interfaces are implemented by the Visage compiler (visagec) 
  * and should not be implemented either directly or indirectly by 
  * other applications.
  *

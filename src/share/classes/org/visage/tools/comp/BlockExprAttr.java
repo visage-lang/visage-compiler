@@ -150,7 +150,7 @@ public class BlockExprAttr extends Attr  {
             attribStat(l.head, env);
             // Check that declarations in inner classes are not static (JLS 8.1.2)
             // Make an exception for static constants.
-            // Javafx doesn't have this restriction
+            // Visage doesn't have this restriction
 //            if (c.owner.kind != PCK &&
 //                ((c.flags() & STATIC) == 0 || c.name == names.empty) &&
 //                (TreeInfo.flags(l.head) & (STATIC | INTERFACE)) != 0) {
@@ -179,7 +179,7 @@ public class BlockExprAttr extends Attr  {
     }
 
     /**
-     * Force an expected kind that was provided by the JavaFX front-end
+     * Force an expected kind that was provided by the Visage front-end
      */
     public void visitAugmentedIdent(AugmentedJCIdent tree) {
         if (tree.pkind != Kinds.NIL && tree.sym == null) {

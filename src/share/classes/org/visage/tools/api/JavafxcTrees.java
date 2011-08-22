@@ -53,7 +53,7 @@ import org.visage.tools.comp.JavafxResolve;
 import org.visage.tools.tree.*;
 
 /**
- * Provides an implementation of Trees for the JavaFX Script compiler, based
+ * Provides an implementation of Trees for the Visage compiler, based
  * on JavacTrees.
  *
  * @author Peter von der Ah&eacute;

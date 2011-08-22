@@ -30,7 +30,7 @@ package org.visage.api.tree;
 import visage.lang.AngleUnit;
 
 /**
- * A tree node for a JavaFX Script angle literal.
+ * A tree node for a Visage angle literal.
  * @author Stephen Chin <steveonjava@gmail.com>
  */
 public interface AngleLiteralTree extends Tree {

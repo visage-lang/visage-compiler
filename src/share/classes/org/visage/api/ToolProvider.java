@@ -33,7 +33,7 @@ import java.security.PrivilegedActionException;
 import java.util.logging.Logger;
 
 /**
- * JavaFX version of javac's ToolProvider class.
+ * Visage version of javac's ToolProvider class.
  *
  * @author Tom Ball
  */
@@ -43,7 +43,7 @@ public class ToolProvider {
     private ToolProvider() {}
 
     /**
-     * Gets a JavaFX Script compiler instance.
+     * Gets a Visage compiler instance.
      * @return the compiler instance or {@code null} if no compiler
      *         is included as part of the application classpath
      */
@@ -62,7 +62,7 @@ public class ToolProvider {
     }
 
     /**
-     * Gets a JavaFX Script script engine instance.  This is an alternative
+     * Gets a Visage engine instance.  This is an alternative
      * to the general use where the script engine is looked up as a service.
      * @return the script engine instance or {@code null} if no script engine
      *         is included as part of the application classpath

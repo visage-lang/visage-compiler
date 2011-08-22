@@ -28,7 +28,7 @@ Windows: In the Explorer, copy the "langtools" directory from OpenJDK
          directory and paste it this directory.
 
 
-Apply JavaFX Script javac Patches
+Apply Visage javac Patches
 
 From the command-line (patch must be available):
 
@@ -37,8 +37,8 @@ From the command-line (patch must be available):
 
                                 -- OR --
 
-In NetBeans, open the JavaFX Compiler project, change to the Files panel, 
-and select JavaFX Compiler->javac/langtools/src/share/classes.  Right-click 
+In NetBeans, open the Visage Compiler project, change to the Files panel, 
+and select Visage Compiler->javac/langtools/src/share/classes.  Right-click 
 on that directory, run Tools->Apply Diff Patch.
 
 

@@ -23,7 +23,7 @@
 
 package visage.reflect;
 
-/** A run-time representation of a JavaFX function type.
+/** A run-time representation of a Visage function type.
  *
  * @author Per Bothner
  * @profile desktop
@@ -50,7 +50,7 @@ public class FXFunctionType extends FXType {
     public int minArgs() { return minArgs; }
 
     /** Was this method declared to take a variable number of arguments?
-     * This is a place-holder for future functionality.  (JavaFX doesn't yet
+     * This is a place-holder for future functionality.  (Visage doesn't yet
      * support var-args, and we don't set it properly for Java methods either.)
      */
     public boolean isVarArgs() { return varArgs; }

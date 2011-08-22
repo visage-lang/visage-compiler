@@ -34,7 +34,7 @@ import static com.sun.tools.mjavac.code.TypeTags.*;
 import static com.sun.tools.mjavac.code.Flags.*;
 
 /**
- * Marker wrapper on class: this is a JavaFX class
+ * Marker wrapper on class: this is a Visage class
  * 
  * @author llitchev
  */

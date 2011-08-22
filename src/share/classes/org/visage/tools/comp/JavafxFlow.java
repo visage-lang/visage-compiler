@@ -61,6 +61,6 @@ public class JavafxFlow extends Flow {
      */
     @Override
     public void analyzeTree(JCTree tree, TreeMaker make) {
-        // Do not do anything here for now. JavaFX doesn't need assignment/unassignment, reachability and checked exceptions analysis
+        // Do not do anything here for now. Visage doesn't need assignment/unassignment, reachability and checked exceptions analysis
     }
 }

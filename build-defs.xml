@@ -28,7 +28,7 @@
 
     <description>
 
-        Defines common properties and macros for JavaFX project.
+        Defines common properties and macros for Visage project.
 
         Sub-repositories should import this file into their build.xml file.
 

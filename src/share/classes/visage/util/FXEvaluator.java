@@ -47,8 +47,8 @@ public class FXEvaluator {
 
     /**
      * <p>
-     * Evaluates a JavaFX Script source string and returns its result, if any.
-     * This method depends upon the JavaFX Script compiler API being accessible
+     * Evaluates a Visage source string and returns its result, if any.
+     * This method depends upon the Visage compiler API being accessible
      * by the application, such as including the <code>visagec.jar</code> file
      * in the application's classpath.
      * </p>
@@ -67,7 +67,7 @@ public class FXEvaluator {
      * (<code>javax.script</code>).
      * </p>
      * 
-     * @param script the JavaFX Script source to evaluate
+     * @param script the Visage source to evaluate
      * @return the results from evaluating the script, or null if no results
      *         are returned by the script.
      * @throws javax.script.ScriptException

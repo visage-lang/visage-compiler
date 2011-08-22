@@ -26,21 +26,21 @@ package org.visage.runtime;
 import java.lang.reflect.Method;
 
 /**
- * Defines the interface for libraries that define JavaFX Script entry points.
+ * Defines the interface for libraries that define Visage entry points.
  * 
  * @author Tom Ball
  */
 public interface RuntimeProvider {
 
     /**
-     * Returns true if this provider is used by the JavaFX Script application.
+     * Returns true if this provider is used by the Visage application.
      * 
-     * @param application the JavaFX Script application to be run
+     * @param application the Visage application to be run
      */
     boolean usesRuntimeLibrary(Class application);
     
     /**
-     * Starts execution of the JavaFX Script application.
+     * Starts execution of the Visage application.
      * 
      * @param entryPoint the application method to execute.
      */
@@ -49,7 +49,7 @@ public interface RuntimeProvider {
     void deferAction(Runnable action);
 
     /**
-     * Exit JavaFX Script application
+     * Exit Visage application
      * <p>
      * Do any any nessecary cleanup here so the runtime
      * can exit cleanly

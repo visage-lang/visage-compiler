@@ -24,7 +24,7 @@
 package org.visage.jdi.test.target;
 
 /**
- * A simple JavaFX target application.
+ * A simple Visage target application.
 
  * @author sundar
  */

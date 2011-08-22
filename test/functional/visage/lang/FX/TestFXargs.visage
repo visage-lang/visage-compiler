@@ -11,7 +11,7 @@ public class JAVAFX_LANG_TEST {
 
 	/**public static org.visage.runtime.sequence.Sequence getArguments();  
 	* As documented:
-	*   For JavaFX Script applications that are started on the command
+	*   For Visage applications that are started on the command
 	*   line,running application. Returns null if there were no incoming
 	*   arguments or if this application was not invoked from the
 	*   command line.

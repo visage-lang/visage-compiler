@@ -35,7 +35,7 @@ import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 
 /**
- * The interface to the JavaFX Script scripting engine API.  Its use is
+ * The interface to the Visage scripting engine API.  Its use is
  * optional, as full script functionality is available via the javax.script
  * API.  In addition to the full script API, this interface defines versions
  * of the <code>eval</code> and <code>compile</code> <code>ScriptEngine</code>

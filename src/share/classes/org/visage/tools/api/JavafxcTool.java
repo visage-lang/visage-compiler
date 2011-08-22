@@ -49,7 +49,7 @@ import java.util.Iterator;
 import java.util.Locale;
 
 /**
- * The Tool API implementation for the JavaFX Script compiler, based on the
+ * The Tool API implementation for the Visage compiler, based on the
  * javac compiler tool implementation.
  *
  * @author Tom Ball

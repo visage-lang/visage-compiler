@@ -24,7 +24,7 @@
 package org.visage.api.tree;
 
 /**
- * A tree node for a JavaFX Script type.
+ * A tree node for a Visage type.
  * 
  * @author tball
  */

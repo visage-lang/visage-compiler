@@ -101,13 +101,13 @@ public class MixinTest extends JdbBase {
 
             resumeToBreakpoint();
             list();
-            print(B_FOO);//This will print the value of JavaFX variable
+            print(B_FOO);//This will print the value of Visage variable
             //System.out.println(verifyValue(B_FOO, "true"));
             Assert.assertTrue(contains(B_FOO + " = \"true\""));
 
             resumeToBreakpoint();
             list();
-            print(M_FOO);//This will print the value of JavaFX variable
+            print(M_FOO);//This will print the value of Visage variable
             //System.out.println(verifyValue(M_FOO, "true"));
             Assert.assertTrue(contains(M_FOO + " = \"true\""));
 

@@ -24,7 +24,7 @@
 package org.visage.api.tree;
 
 /**
- * A tree node for a JavaFX interpolate value description, such as 
+ * A tree node for a Visage interpolate value description, such as 
  * "<code>500 tween LINEAR</code>", where the interpolate type is LINEAR
  * while 500 is the value to interpolate over.
  * @author tball

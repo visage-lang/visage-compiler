@@ -24,7 +24,7 @@
 package org.visage.animation;
 
 /**
- * Defines the interface for libraries that define the JavaFX Script animation
+ * Defines the interface for libraries that define the Visage animation
  * support.
  *
  */

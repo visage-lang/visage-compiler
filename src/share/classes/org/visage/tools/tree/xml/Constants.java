@@ -211,12 +211,12 @@ public final class Constants {
     public static final String ATTR_IDREF = "IDREF";
     public static final String ATTR_CDATA = "CDATA";
     
-    // Java access flags applicable to JavaFX
+    // Java access flags applicable to Visage
     public static final String ABSTRACT = "abstract";
     public static final String PROTECTED = "protected";
     public static final String PUBLIC = "public";
     
-    // JavaFX specific access flags
+    // Visage specific access flags
     public static final String DEFAULT = "default";
     public static final String PUBLIC_INIT = "public-init";
     public static final String PUBLIC_READ = "public-read";

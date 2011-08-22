@@ -23,7 +23,7 @@
 
 package visage.reflect;
 
-/** Mirroring of a JavaFX Long (or Java long) value.
+/** Mirroring of a Visage Long (or Java long) value.
  *
  * @author Per Bothner
  * @profile desktop

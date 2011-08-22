@@ -31,7 +31,7 @@ import java.util.Locale;
 import org.visage.runtime.util.StringLocalization;
 
 /**
- * Utility class for localizing strings using JavaFX properties files.
+ * Utility class for localizing strings using Visage properties files.
  *
  * An object of this class is used to find the appropriate localized
  * strings for the given variables.  For example,
@@ -47,16 +47,16 @@ import org.visage.runtime.util.StringLocalization;
  * System.out.println(localizer.localizedString);
  * </pre></code>
  *
- * By default, translations are retrieved from the JavaFX properties file
+ * By default, translations are retrieved from the Visage properties file
  * which has the same package and file name as the caller's script file.  For
  * example, a call from the script <code>foo.bar.Example</code> will search
  * translated strings from <code>foo/bar/Example_xx.fxproperties</code> where 'xx'
  * represents the locale. By calling <code>associate()/dissociate()</code> functions,
- * different JavaFX properties files can be used for the translation.  For example,
+ * different Visage properties files can be used for the translation.  For example,
  * <pre><code>
  * StringLocalizer.associate("foo.bar.resources.MyResources", "foo.bar");
  * </code></pre>
- * After this call, all the translations from JavaFX script files in
+ * After this call, all the translations from Visage files in
  * <code>foo.bar</code> package are searched in
  * <code>foo/bar/resources/MyResources_xx.fxproperties</code>, where 'xx' denotes
  * the default locale.
@@ -68,14 +68,14 @@ import org.visage.runtime.util.StringLocalization;
 public class StringLocalizer {
 
     /**
-     * The string that represents the 'key' in the JavaFX properties file
+     * The string that represents the 'key' in the Visage properties file
      *
      * @needsreview
      */
     public var key: String;
 
     /**
-     * The locale used for determining the JavaFX properties resource
+     * The locale used for determining the Visage properties resource
      * bundle.  If it is not explicitly specified, Locale.getDefault()
      * is used.
      * Note: Made this script private for now, as there is no Locale class in some
@@ -84,13 +84,13 @@ public class StringLocalizer {
     var locale: Locale = Locale.getDefault();
 
     /**
-     * The canonical base name of the JavaFX properties file.  It consists
-     * of the package name and the base bundle name of the JavaFX properties
+     * The canonical base name of the Visage properties file.  It consists
+     * of the package name and the base bundle name of the Visage properties
      * file.  For example, the canonical base name of 'MyResources_xx.fxproperties',
      * where 'xx' denotes the locale, in 'foo.bar' package is
      * 'foo.bar.MyResources'.  If this variable is not explicitly specified,
      * it is synthesized from the caller's package and script file name, e.g.,
-     * a JavaFX Script 'Example.visage' is in 'foo.bar' package, the synthesized
+     * a Visage 'Example.visage' is in 'foo.bar' package, the synthesized
      * canonical base name will be 'foo.bar.Example'.
      *
      * @needsreview
@@ -107,7 +107,7 @@ public class StringLocalizer {
 
     /**
      * The localized string for the given variables.  If there
-     * is no appropriate localized string found in JavaFX properties files,
+     * is no appropriate localized string found in Visage properties files,
      * this variable will have the value in <code>defaultString</code> if
      * it is specified, otherwise it will have the value in <code>key</code>.
      *
@@ -151,16 +151,16 @@ public class StringLocalizer {
 def VISAGE_REGEXP = "\\.[vV][iI][sS][aA][gG][eE]$";
 
 /**
- * Associates a JavaFX
- * package with a JavaFX properties file.  If an association is made, further
+ * Associates a Visage
+ * package with a Visage properties file.  If an association is made, further
  * localizations in the source script files in the
- * specified package will be searched within the specified JavaFX properties
+ * specified package will be searched within the specified Visage properties
  * file.
  *
  * @needsreview
- * @param properties denotes the canonical base name of the JavaFX properties
+ * @param properties denotes the canonical base name of the Visage properties
  *     file, e.g., 'foo.bar.MyResources'.
- * @param packageName denotes the JavaFX package name, e.g., 'foo.bar'.
+ * @param packageName denotes the Visage package name, e.g., 'foo.bar'.
  * @profile desktop
  */
 public function associate(properties: String, packageName: String) : Void {
@@ -168,16 +168,16 @@ public function associate(properties: String, packageName: String) : Void {
 }
 
 /**
- * Associates a JavaFX Script source file
- * with a JavaFX properties file.  If an association is made, further
+ * Associates a Visage source file
+ * with a Visage properties file.  If an association is made, further
  * localizations in the specified source script file
- * will be searched within the specified JavaFX properties
+ * will be searched within the specified Visage properties
  * file.
  *
  * @needsreview
- * @param properties denotes the canonical base name of the JavaFX properties
+ * @param properties denotes the canonical base name of the Visage properties
  *     file, e.g., 'foo.bar.MyResources'.
- * @param packageName denotes the JavaFX package name of the source script file,
+ * @param packageName denotes the Visage package name of the source script file,
  *     e.g., 'foo.bar'.
  * @param scriptFileName the file name of the source script file, e.g., 'Example.visage'.
  * @profile desktop
@@ -193,11 +193,11 @@ public function associate(properties: String, packageName: String,
 }
 
 /**
- * Dissociates a JavaFX
- * package from any JavaFX properties file.
+ * Dissociates a Visage
+ * package from any Visage properties file.
  *
  * @needsreview
- * @param packageName denotes the JavaFX package name, e.g., 'foo.bar'.
+ * @param packageName denotes the Visage package name, e.g., 'foo.bar'.
  * @profile desktop
  */
 public function dissociate(packageName: String) : Void {
@@ -205,11 +205,11 @@ public function dissociate(packageName: String) : Void {
 }
 
 /**
- * Dissociates a JavaFX Script source file
- * from any JavaFX properties file.
+ * Dissociates a Visage source file
+ * from any Visage properties file.
  *
  * @needsreview
- * @param packageName denotes the JavaFX package name, e.g., 'foo.bar'.
+ * @param packageName denotes the Visage package name, e.g., 'foo.bar'.
  * @param scriptFileName the file name of the source script file, e.g., 'Example.visage'.
  * @profile desktop
  */

@@ -155,9 +155,9 @@ public class FXClassType extends FXReferenceType implements ClassType {
     }
 
     /**
-     * JDI addition: Determines if this is a JavaFX class.
+     * JDI addition: Determines if this is a Visage class.
      *
-     * @return <code>true</code> if this is a JavaFX class; false otherwise.
+     * @return <code>true</code> if this is a Visage class; false otherwise.
      */
     @Override
     public boolean isJavaFXType() {

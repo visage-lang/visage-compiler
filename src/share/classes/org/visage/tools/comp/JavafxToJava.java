@@ -46,7 +46,7 @@ import org.visage.tools.tree.*;
 import static org.visage.tools.comp.JavafxAbstractTranslation.Yield.*;
 
 /**
- * Translate JavaFX ASTs into Java ASTs
+ * Translate Visage ASTs into Java ASTs
  *
  * @author Robert Field
  * @author Per Bothner

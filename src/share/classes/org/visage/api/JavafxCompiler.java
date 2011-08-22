@@ -35,7 +35,7 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.Tool;
 
 /**
- * The interface to invoke JavaFX Script compilers from programs, used with 
+ * The interface to invoke Visage compilers from programs, used with 
  * ServiceLoader lookup.  This interface is based on the JavaCompiler interface;
  * see its documentation for detailed descriptions.
  * @see javax.tools.JavaCompiler

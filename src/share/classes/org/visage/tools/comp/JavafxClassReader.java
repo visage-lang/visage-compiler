@@ -211,7 +211,7 @@ public class JavafxClassReader extends ClassReader {
     /** Map javac Type/Symbol to visage Type/Symbol. */
     IdentityHashMap<Object,Object> typeMap = new IdentityHashMap<Object,Object>();
     
-    /** Translate a List of raw JVM types to Javafx types. */
+    /** Translate a List of raw JVM types to Visage types. */
     List<Type> translateTypes (List<Type> types) {
         if (types == null)
             return null;
@@ -228,7 +228,7 @@ public class JavafxClassReader extends ClassReader {
         return ts;
     }
 
-    /** Translate raw JVM type to Javafx type. */
+    /** Translate raw JVM type to Visage type. */
     Type translateType (Type type) {
         if (type == null)
             return null;
@@ -408,7 +408,7 @@ public class JavafxClassReader extends ClassReader {
                     mtype = sigToType(names.fromString(sig));
                 }
                 catch (Exception e) {
-                    throw new AssertionError("Bad Javafx signature");
+                    throw new AssertionError("Bad Visage signature");
                 }
             }
         }

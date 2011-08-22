@@ -132,9 +132,9 @@ public class JavafxEnter extends JavafxTreeScanner {
     /** The queue of all classes that might still need to be completed;
      *	saved and initialized by main().
      */
-// JavaFX change
+// Visage change
     protected
-// JavaFX change
+// Visage change
     ListBuffer<ClassSymbol> uncompleted;
 
     /** A dummy class to serve as enclClass for toplevel environments.
@@ -219,9 +219,9 @@ public class JavafxEnter extends JavafxTreeScanner {
 
     /** Visitor result: the computed type.
      */
-// JavaFX change
+// Visage change
     protected
-// JavaFX change
+// Visage change
     Type result;
 
     /** Visitor method: enter all classes in given tree, catching any
@@ -247,9 +247,9 @@ public class JavafxEnter extends JavafxTreeScanner {
 
     /** Visitor method: enter classes of a list of trees, returning a list of types.
      */
-// JavaFX change
+// Visage change
     protected
-// JavaFX change
+// Visage change
             <T extends JFXTree> List<Type> classEnter(List<T> trees, JavafxEnv<JavafxAttrContext> env) {
         ListBuffer<Type> ts = new ListBuffer<Type>();
         for (List<T> l = trees; l.nonEmpty(); l = l.tail) {

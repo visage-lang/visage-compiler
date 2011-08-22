@@ -30,8 +30,8 @@ import java.util.jar.Manifest;
 
 /**
  * The main method in this class calls the
- * Entry.start() to initialize JavaFX runtime
- * and invoke user's JavaFX class. This is to
+ * Entry.start() to initialize Visage runtime
+ * and invoke user's Visage class. This is to
  * avoid running static initializer of user's
  * class from the main thread. See: JFXC-1888.
  *
@@ -64,7 +64,7 @@ public class Main {
 		// webstart case
                 mclassname = mclassname.substring(mclassname.indexOf('=')+1);
 	    }
-            // load the user's JavaFX class but do *not* initialize!
+            // load the user's Visage class but do *not* initialize!
             mainClass = Class.forName(mclassname, false,
                     Thread.currentThread().getContextClassLoader());
         } catch (ClassNotFoundException cnfe) {
@@ -73,7 +73,7 @@ public class Main {
             errorExit(getErrorMessage("loadfailed", mclassname), ioe);
         }
 
-        // if it is a JavaFX class, call Entry.start() 
+        // if it is a Visage class, call Entry.start() 
         // else just execute "main" method.
         if (FXObject.class.isAssignableFrom(mainClass)) {
             try {

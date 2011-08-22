@@ -392,7 +392,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return (VirtualMachine) super.underlying();
     }
 
-    // JavaFX types
+    // Visage types
     public static final String FX_ENTRY_TYPE_NAME = "org.visage.runtime.Entry";
     private FXClassType fxEntryType;
     public synchronized FXClassType fxEntryType() {

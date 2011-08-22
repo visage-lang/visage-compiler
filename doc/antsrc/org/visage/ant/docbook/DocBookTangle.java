@@ -35,7 +35,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Extracts JavaFX Script and Java example source files from 
+ * Extracts Visage and Java example source files from 
  * DocBook sources.  This allows a build to verify that they can be compiled 
  * and possibly executed.
  * 

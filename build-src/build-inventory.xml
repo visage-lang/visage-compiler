@@ -28,7 +28,7 @@
 
     <description>
 
-        Contains the inventory checks for the JavaFX SDK builds.
+        Contains the inventory checks for the Visage SDK builds.
 
         NOTE: Not all files are checked, most are. Extra files are not errors.
 

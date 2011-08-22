@@ -562,7 +562,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     out.close();
                 }
             } catch (IOException ex) {
-                System.err.println("Exception thrown in JavaFX pretty printing: " + ex);
+                System.err.println("Exception thrown in Visage pretty printing: " + ex);
             }
         }
     }
@@ -595,7 +595,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     }
                 }
             } catch (IOException ex) {
-                System.err.println("Exception thrown in JavaFX pretty printing: " + ex);
+                System.err.println("Exception thrown in Visage pretty printing: " + ex);
             }
         }
     }

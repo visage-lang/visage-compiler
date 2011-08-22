@@ -32,7 +32,7 @@ import java.util.*;
 import javax.tools.*;
 
 /**
- * This is the main class for JavaFX script shell.
+ * This is the main class for Visage shell.
  */
 public class ScriptShell implements DiagnosticListener<JavaFileObject> {
     JavaFXScriptContext context;

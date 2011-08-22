@@ -169,8 +169,8 @@ public class Reporter {
         sb.append("   </TR>");
         sb.append("   <TR>");
         sb.append("     <TH><P><B>Benchmark</B></P></TH>");
-        sb.append("     <TD><P><B>JavaFX 1.2.1</B></P></TD>");
-        sb.append("     <TD><P><B>JavaFX 1.3</B></P></TD>");
+        sb.append("     <TD><P><B>Visage 1.2.1</B></P></TD>");
+        sb.append("     <TD><P><B>Visage 1.3</B></P></TD>");
         sb.append("     <TD><P><B>Goal</B></P></TD>");
         sb.append("     <TD><P><B>Last</B></P></TD>");
         sb.append("     <TD><P><B>Current</B></P></TD>");

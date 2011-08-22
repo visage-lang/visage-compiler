@@ -145,7 +145,7 @@ public class FXThreadReference extends FXObjectReference implements ThreadRefere
         try {
             for (StackFrame fr : frames) {
                 FXStackFrame fxfr = (FXStackFrame) fr;
-                // don't add JavaFX synthetic frames
+                // don't add Visage synthetic frames
                 if (fxfr.location().method().isJavaFXInternalMethod()) {
                     continue;
                 } else {

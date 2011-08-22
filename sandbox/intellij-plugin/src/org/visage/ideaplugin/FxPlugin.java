@@ -50,7 +50,7 @@ public class FxPlugin implements ApplicationComponent {
     public static final Language FX_LANGUAGE = new FxLanguage();
     public static final LanguageFileType FX_FILE_TYPE = new FxFileType();
     public static final String FX_FILE_EXTENSION = "visage";
-    public static final String FX_LANGUAGE_NAME = "JavaFX Script";
+    public static final String FX_LANGUAGE_NAME = "Visage";
     public static final Icon FX_ICON = IconLoader.getIcon("/icons/fx.png");
 
     public FxPlugin() {

@@ -29,7 +29,7 @@ import org.visage.api.tree.Tree.JavaFXKind;
 import com.sun.tools.mjavac.code.Symbol;
 
 /**
- * JavaFX unary expressions
+ * Visage unary expressions
  *
  * @author Tom Ball
  */

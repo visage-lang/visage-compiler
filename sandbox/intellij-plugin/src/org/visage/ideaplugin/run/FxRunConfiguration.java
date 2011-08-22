@@ -174,7 +174,7 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
 
     public void checkConfiguration () throws RuntimeConfigurationException {
         if (mainClass == null  &&  "".equals (mainClass))
-            throw new RuntimeConfigurationException ("No main JavaFX Script class specified");
+            throw new RuntimeConfigurationException ("No main Visage class specified");
     }
 
     public Module[] getModules () {

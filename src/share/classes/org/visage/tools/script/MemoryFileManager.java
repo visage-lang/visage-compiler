@@ -50,7 +50,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 
     Map<String,ClassOutputBuffer> emittedClasses;
 
-    /** JavaFX Script source file extension. */
+    /** Visage source file extension. */
     private final static String EXT = ".visage";
 
     public MemoryFileManager(JavaFileManager fileManager, ClassLoader cl,

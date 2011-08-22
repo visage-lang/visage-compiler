@@ -36,7 +36,7 @@ import org.visage.runtime.sequence.Sequence;
 import org.visage.runtime.sequence.Sequences;
 
 /**
- * Implement JavaFX reflection on top of {@java.lang.reflect}.
+ * Implement Visage reflection on top of {@java.lang.reflect}.
  * Hence, this implementation can only reflect/mirror values and classes
  * in the same VM that is doing the reflection.
  *

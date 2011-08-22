@@ -1,5 +1,5 @@
 /**
- * JFXC-3317 : Optimize bound JavaFX var select with mutable selectors
+ * JFXC-3317 : Optimize bound Visage var select with mutable selectors
  *
  * @compilefirst jfxc3317Mix.visage
  * @compilefirst jfxc3317Impl.visage

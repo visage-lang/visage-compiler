@@ -25,7 +25,7 @@ import com.sun.btrace.annotations.*;
 import static com.sun.btrace.BTraceUtils.*;
 
 /**
- * Prints trace message at every JavaFX var getter/setter call entry/return.
+ * Prints trace message at every Visage var getter/setter call entry/return.
  * Also, prints trace messages on internal setter (the "be$foo" methods).
  *
  * @author A. Sundararajan

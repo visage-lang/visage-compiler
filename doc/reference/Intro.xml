@@ -8,21 +8,21 @@
          xmlns:db="http://docbook.org/ns/docbook">
   <title>Introduction</title>
 
-  <para>This chapter discusses the what and why of JavaFX Script, and provides
+  <para>This chapter discusses the what and why of Visage, and provides
   some simple examples to give you an overview of the language.</para>
 
   <sect1>
-    <title>Why JavaFX Script?</title>
+    <title>Why Visage?</title>
 
-    <para>There are thousands of programming languages, so why use JavaFX
-    Script? Two good reasons are: ubiquitous delivery, and rapid development
-    of graphical applications. JavaFX is built on the Java platform, which is
-    available on everything from cell phones to supercomputers. JavaFX Script
+    <para>There are thousands of programming languages, so why use Visage?
+    Two good reasons are: ubiquitous delivery, and rapid development
+    of graphical applications. Visage is built on the Java platform, which is
+    available on everything from cell phones to supercomputers. Visage
     is designed so that the developer can express their desired results
     succinctly and simply. Where most programming languages require the
     developer to describe what they want <emphasis>imperatively</emphasis>
-    (tell me <emphasis>how</emphasis> to achieve the effect you want), JavaFX
-    Script allows you to instead express many things
+    (tell me <emphasis>how</emphasis> to achieve the effect you want), Visage
+    allows you to instead express many things
     <emphasis>declaratively</emphasis> (tell me <emphasis>what</emphasis> you
     want, and I'll figure out how to make it happen). Declarative programming
     is particularly powerful in expressing the interactive relationships
@@ -31,11 +31,11 @@
   </sect1>
 
   <sect1>
-    <title>What is JavaFX Script?</title>
+    <title>What is Visage?</title>
 
-    <para>JavaFX Script is a compilable scripting language which allows you to
+    <para>Visage is a compilable scripting language which allows you to
     quickly and easily write interactive graphical applications (also known as
-    Rich Internet Appllications, or RIAs). JavaFX Script gets its heritage
+    Rich Internet Appllications, or RIAs). Visage gets its heritage
     from both scripting languages, which offer fast and easy development with
     less of the armor provided by conventional languages, and object-oriented
     languages like Java, which offer the ability to build robust reusable
@@ -48,13 +48,13 @@
   </sect1>
 
   <sect1>
-    <title>A Taste of JavaFX Script</title>
+    <title>A Taste of Visage</title>
 
-    <para>The best way to get the flavor of JavaFX Script is to see some
+    <para>The best way to get the flavor of Visage is to see some
     examples! Don't worry if some of these don't make sense, the rest of this
     Reference will provide the details.</para>
 
-    <para>JavaFX Script programs are written as one or more
+    <para>Visage programs are written as one or more
     <emphasis>scripts</emphasis>. A script consists of expressions and
     declarations, typically in a file. The following is an expression and thus
     a valid script:</para>
@@ -77,11 +77,11 @@
 
     <screen>Hello, World</screen>
 
-    <para>While it was certainly easy to write Hello World in JavaFX Script,
+    <para>While it was certainly easy to write Hello World in Visage,
     this isn't really in the spirit of the language, since it isn't graphical.
     There is a separate tutorial on using the graphics capabilities of the
-    JavaFX platform; see 
-    <ulink url="http://java.sun.com/visage/1/tutorials/ui/">Building GUI Applications With JavaFX</ulink>
+    Visage platform; see 
+    <ulink url="http://java.sun.com/visage/1/tutorials/ui/">Building GUI Applications With Visage</ulink>
     for that.</para>
 
     <para>You can, of course, have more complex expressions:</para>
@@ -123,7 +123,7 @@ println("Circumference is { circumference(r) } ")</programlisting>
     <command>radius</command> as input, and returns the value of the
     expression <command>2 * PI * radius</command>.</para>
 
-    <para>Note that JavaFX Script uses <emphasis>type inference</emphasis> to
+    <para>Note that Visage uses <emphasis>type inference</emphasis> to
     figure out the type of variables and function. Type inference means that
     the compiler figures out the types of variables and functions from
     context, rather than requiring us to name them explicitly. We are always
@@ -137,8 +137,8 @@ function circumference(radius : Number) : Number {
 } 
 println("Circumference is { circumference(r) }")</programlisting>
 
-    <para>Like many other languages, including Java, C++, and Ruby, JavaFX
-    Script allows you to use classes to represent a real or abstract entity.
+    <para>Like many other languages, including Java, C++, and Ruby, Visage
+    allows you to use classes to represent a real or abstract entity.
     In this case, a point:</para>
 
     <programlisting>class Point { 
@@ -176,9 +176,9 @@ println("Circumference is { circumference(r) }")</programlisting>
 
     <screen>Point 12, 9</screen>
 
-    <para>For an example-based introduction to JavaFX, see the tutorial
-    <ulink url="http://java.sun.com/visage/1/tutorials/core/">Learning the JavaFX Script Programming Language</ulink>
- JavaFX Script
+    <para>For an example-based introduction to Visage, see the tutorial
+    <ulink url="http://java.sun.com/visage/1/tutorials/core/">Learning the Visage Programming Language</ulink>
+ Visage
     Tutorial.</para>
   </sect1>
 </chapter>

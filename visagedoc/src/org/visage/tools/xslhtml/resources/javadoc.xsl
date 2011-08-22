@@ -36,12 +36,12 @@
     <xsl:param name="inline-classlist">false</xsl:param>
     <xsl:param name="inline-descriptions">false</xsl:param>
     <xsl:param name="root-path">../</xsl:param>
-    <xsl:param name="std.doctitle.prefix">JavaFX @visageversion@ API | </xsl:param>
+    <xsl:param name="std.doctitle.prefix">Visage @visageversion@ API | </xsl:param>
     <xsl:param name="std.doctitle.suffix"> | Java FX</xsl:param>
     
     <xsl:template name="add-meta-tags">
         <meta name="collection" content="api"/>
-        <meta name="keywords" content="JavaFX, Java FX"/>
+        <meta name="keywords" content="Visage, Java FX"/>
     </xsl:template>
     
     <xsl:template name="add-copyright-link">

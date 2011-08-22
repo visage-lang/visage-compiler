@@ -1099,7 +1099,7 @@ class JavafxAnalyzeClass {
     // This class is used for basic functions declared in the current visage class.
     //
     static class TranslatedFuncInfo extends FuncInfo {
-        // Javafx definition of the function.
+        // Visage definition of the function.
         private final JFXFunctionDefinition jfxFuncDef;
         
         // Java translation of the function.

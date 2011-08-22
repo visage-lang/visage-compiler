@@ -28,10 +28,10 @@ import java.io.InputStream;
 
 public class  SystemProperties {
    /**
-    * JavaFX System Properties table.
+    * Visage System Properties table.
     * First column represents visage property name with "visage" prefix stripped off.
     * Second column represents underlying runtime platform equivalent. 
-    * "jfx_specific" value in the runtime platform equivalent field indicates the property is JavaFX specific.
+    * "jfx_specific" value in the runtime platform equivalent field indicates the property is Visage specific.
     * Empty string in   the runtime platform equivalent field indicates thete is no equivalent property for given platform.
     */
     private static String[] sysprop_table = {
@@ -40,7 +40,7 @@ public class  SystemProperties {
 
 
     /**
-     * JavaFX Specific System Properties table.
+     * Visage Specific System Properties table.
      * First column represents visage environment specific property name with "visage" prefix stripped off.
      * Second column represents value of the property 
     */
@@ -101,9 +101,9 @@ public class  SystemProperties {
     /**
      * Registers a statically allocated System Properties table 
      * Once registered properties listed in the table are availabe for inquiry through FX.getProperty().
-     * Table is defined as a String array with JavaFX property name followed by property value or property mapping identifier
-     * depending on whether the table contains JavaFX specific properties or not.
-     * Note that JavaFX property names have "visage" stripped out to optimize table lookup.
+     * Table is defined as a String array with Visage property name followed by property value or property mapping identifier
+     * depending on whether the table contains Visage specific properties or not.
+     * Note that Visage property names have "visage" stripped out to optimize table lookup.
      * The following identifiers are available:
      * </p>
      * 1. Underlying runtime platform property name. When listed, FX.getProperty() will invoke System.getProperty()
@@ -112,18 +112,18 @@ public class  SystemProperties {
      *    {"version", "java.version"}
      * </p>   
      * 2. "visage_specific". When listed indicates there is no association between the property and underlying runtime
-     *    platform. Rather the property is JavaFX specific. In that case another table needs to be provided with values
-     *    for all JavaFX specific properties. JavaFX specific properties table is a string array containing property name
+     *    platform. Rather the property is Visage specific. In that case another table needs to be provided with values
+     *    for all Visage specific properties. Visage specific properties table is a string array containing property name
      *    and corresponding property value.
      *    example:
      *    {"hw.radio", "none"} 
      * </p>     
      * 3. Empty string. When listed, the meaning there is no association between the property and underlying runtime 
-     *    platform nor the property is JavaFX specific. FX.getProperty() invoked on that property returns null.
+     *    platform nor the property is Visage specific. FX.getProperty() invoked on that property returns null.
      *    example:
      *    {"supports.mixing", "none"} 
      * @param table System Properties table
-     * @param jfx_specific Indicates the table contains JavaFX specific properties
+     * @param jfx_specific Indicates the table contains Visage specific properties
      */      
     public static void addProperties (String[] table, boolean jfx_specific) {
         if (table == null)
@@ -171,8 +171,8 @@ public class  SystemProperties {
     }
 
    /*
-    * Removes the property from JavaFX System Properties list 
-    * @param key JavaFX System Property name
+    * Removes the property from Visage System Properties list 
+    * @param key Visage System Property name
     */
     public static void clearProperty (String key) {
         if (key == null)
@@ -194,7 +194,7 @@ public class  SystemProperties {
 
         props.remove(key);
 
-        // Remove the prop from the JavaFX specific properties table if applicable
+        // Remove the prop from the Visage specific properties table if applicable
         if (value.equals("jfx_specific")) {
            props = jfxprop_list;                
             props.remove(key);
@@ -202,10 +202,10 @@ public class  SystemProperties {
     }
 
     /**
-     * Adds a new JavaFX specific property or modifyies existing property value.
+     * Adds a new Visage specific property or modifyies existing property value.
      * Note that there is no method in this class to set underlying platform 
      * property as MIDP doesn't support System.setProperty() method.
-     * @param key JavaFX Property name
+     * @param key Visage Property name
      * @param value Property value
      * @throws NullPointerException if key or value is null
      */

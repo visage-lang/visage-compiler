@@ -10,7 +10,7 @@
 import visage.lang.FX;
 
 /**
- * Example JavaFX Script showing the usage of FX.addShutdownAction() with an
+ * Example Visage showing the usage of FX.addShutdownAction() with an
  * explicit FX.exit() call.
  * The exit occurs when the script when FX.exit is called.
  *
@@ -39,7 +39,7 @@ function runAtExit() {
 }
 /*
  * Add the runAtExit function to the stack for the Shutdown Actions
- * this stack will be executed when the JavaFX Script exits.
+ * this stack will be executed when the Visage exits.
  */
 FX.addShutdownAction(runAtExit);
 

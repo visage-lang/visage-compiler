@@ -51,7 +51,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 
 /**
- * JavaFX Script implementation of a JavaFX compilation task, based on
+ * Visage implementation of a Visage compilation task, based on
  * JavacTaskImpl.  This class extends JavafxTask to isolate the internal
  * visage and javac compiler API from the public API.
  *

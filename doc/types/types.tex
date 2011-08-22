@@ -29,23 +29,23 @@
 \section{The abstract type system}
 
 For sake of clarity, we first develop an an \emph{abstract type
-system} for JavaFX, whose syntax is divorced from the surface syntax
-of the JavaFX Script language.  After defining the typing rules in the
-abstract type system, we then map the JavaFX language syntax to the
+system} for Visage, whose syntax is divorced from the surface syntax
+of the Visage language.  After defining the typing rules in the
+abstract type system, we then map the Visage language syntax to the
 abstract type system to form the \emph{user type system}.  Not all
 types in the abstract type system are necessarily denotable or
 expressible in the user type system.
 
 \subsection{Ground types and cardinalities}
 
-Most JavaFX types are built from a combination of an element type and
+Most Visage types are built from a combination of an element type and
 a ``cardinality''; the useful cardinalities are ``exactly one'' (a
 \emph{required} type), ``zero or one'' (an \emph{optional} type), and
 ``zero or more'' (a \emph{sequence} type).  The element type defines
 the type of the elements that a variable of that type may take on.  We
 use the term \emph{ground type} to define a type that can be combined
-with a cardinality to yield a JavaFX type.  All Java classes are valid
-as \emph{ground types}, as are all JavaFX classes, as well as the
+with a cardinality to yield a Visage type.  All Java classes are valid
+as \emph{ground types}, as are all Visage classes, as well as the
 predefined classes \<Int32>, \<Float64>, and \<Boolean>.  The unary
 cardinality operators (or type constructors) \<req>, \<opt>, and
 \<seq>, define required, optional, and sequence type respectively.
@@ -63,9 +63,9 @@ functions are handled by currying; nullary functions will be handled
 by introducing a \<Void> type.
 
 The metavariables $A$, $B$, and $C$ (and their derivatives) range over
-class names (whether defined in Java or JavaFX, including interfaces).  Where
+class names (whether defined in Java or Visage, including interfaces).  Where
 they appear with a $J$ subscript ($A_J$), they represent Java classes; where they
-appear with an $F$ subscript, they represent JavaFX classes.  
+appear with an $F$ subscript, they represent Visage classes.  
 The metavariables $E$, $F$, and $G$ range over the ground types.  The
 metavariables $S$, $T$, $U$, and $V$ range over all types.
 
@@ -88,7 +88,7 @@ The notation $\bar{A}$ in the syntax rules and typing judgements
 indicates a list of zero or more elements that would match the
 metavariable $A$; where $\bar{A}$ appears, the elements of $\bar{A}$
 are identified as $A_i$.  It is used, for example, in the syntax for
-defining a class to indicate that a JavaFX class may have multiple
+defining a class to indicate that a Visage class may have multiple
 superclasses.  When it appears in the conclusion of a typing
 judgement, it means that the conclusion is true for all the elements
 that match the metavariable $A$.
@@ -169,7 +169,7 @@ of the same ground type but with an optional cardinality, as follows:
 \label{sec:null}
 
 The special type \<Null> has only the single distinguished value
-\<null>.  In JavaFX, as in SQL, \<null> represents a nonexistent
+\<null>.  In Visage, as in SQL, \<null> represents a nonexistent
 value.  The special type $\<Null>\sqb$ has only the single distinguished
 value $\sqb$, which is equal to \<null> but has a different static type.  
 Figure \ref{null-typing} shows the syntax and typing
@@ -265,9 +265,9 @@ Figure \ref{basic-subtype} shows the subtyping rules for the types
 defined in Figure \ref{basic-type-syntax}.  Rules \textsc{S-Refl},
 \textsc{S-Trans}, \textsc{S-Cov}, and \textsc{T-Sub} are standard, and
 borrowed from $\lambda_{<:}$ (the simply typed lambda calculus with
-subtyping).  \textsc{S-Java} shows how Java subtyping maps to JavaFX
+subtyping).  \textsc{S-Java} shows how Java subtyping maps to Visage
 subtyping; \textsc{S-Card} and \textsc{S-Extends} show the subtyping
-relationships for cardinality types and class types in JavaFX.  
+relationships for cardinality types and class types in Visage.  
 
 \begin{figure}[htpb]
 \[ \inference[\textsc{S-Refl}]{}{T <: T}
@@ -438,7 +438,7 @@ figure \ref{user-types} shows some proposed syntax for this.
 \section{Java primitive types}
 
 While the ``built-in'' types \<Integer> and \<Number> are generally
-enough for standalone programs, since JavaFX classes can extend Java
+enough for standalone programs, since Visage classes can extend Java
 classes, the type system needs to accomodate Java primitives.  We can
 easily add new ground types for the additional Java primitives
 (\<Int8>, \<Int16>, \<UInt16>, \<Int64>, and \<Float32>) to the abstract type system: 
@@ -455,12 +455,12 @@ system.  \<Number> would continue to be a synonym for \<Float64>, preserving the
 
 \subsection{Primitives in Java type signatures}
 
-JavaFX code can access Java fields and call Java methods.  Where a Java
-type signature (method or field) contains a primitive type, JavaFX interprets this 
+Visage code can access Java fields and call Java methods.  Where a Java
+type signature (method or field) contains a primitive type, Visage interprets this 
 as a required type (e.g., a \<float> is interpreted has having type $\req \<Float32>$.)  
 Reference types in Java type signatures are treated as optional types.  
 For example, when assigning the
-result of a Java method that return \<String> to a JavaFX variable, the type
+result of a Java method that return \<String> to a Visage variable, the type
 of the method return value is $\opt \<String>$, and so it would have to be converted
 to a value of type $\req \<String>$ as described in section \ref{sec:null-conversions}.  
 
@@ -485,13 +485,13 @@ direction, possibly with a compiler warning:
 
 \subsection{Java arrays}
 
-While it is possible to convert between Java arrays and JavaFX
+While it is possible to convert between Java arrays and Visage
 sequences, the conversion is expensive.  To reduce the need for
 conversion, we introduce array types into the type system.  Where
 array types appear in Java type signatures, they are treated as array
 types rather than converting to sequences.  
 
-We can introduce arrays into the JavaFX type system by slighly refactoring the 
+We can introduce arrays into the Visage type system by slighly refactoring the 
 syntax of ground types and adding an $\arr$ type constructor, introducing (possibly nested)
 arrays of primitive types and reference types: 
 

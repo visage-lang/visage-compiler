@@ -9,11 +9,11 @@
          xmlns:db="http://docbook.org/ns/docbook">
   <title>Expressions</title>
 
-  <para>JavaFX Script code consists of definitions and executable code; all
+  <para>Visage code consists of definitions and executable code; all
   executable code is in the form of expressions. This chapter describes the
   syntax, meaning, and use of expressions.</para>
 
-  <para>This chapter is organized by the syntactic structure of JavaFX
+  <para>This chapter is organized by the syntactic structure of Visage
   expressions. Because the hierarchy of the syntax determines the precedence
   of operators, the syntax of an expression may be expressed in terms of other
   expression non-terminals which are unrelated (except by operator
@@ -495,7 +495,7 @@ println(names);
 
       <para>A newExpression can be used to create an instance of a Java class.
       It allows the arguments to a Java constructor to be provided. It can
-      also be used to create an instance of a JavaFX class, but <link
+      also be used to create an instance of a Visage class, but <link
       linkend="objectLiteral">objectLiteral</link> is generally used for that
       purpose.</para>
 
@@ -1898,7 +1898,7 @@ var baseFile = new java.io.File("base.txt");
       <title>objectLiteral</title>
 
       <para>An object literal is the primary way that new instances of a class
-      are created in JavaFX Script. They also allow adding new functionality
+      are created in Visage. They also allow adding new functionality
       to the instance including functions and additional on-replace clauses on
       instance variables.</para>
 
@@ -1932,8 +1932,8 @@ var baseFile = new java.io.File("base.txt");
         </mediaobject>
       </figure>
 
-      <para>The <emphasis>qualifiedName</emphasis> must reference a JavaFX
-      Script class.</para>
+      <para>The <emphasis>qualifiedName</emphasis> must reference a Visage
+      class.</para>
 
       <para>For these examples assume a Point class defined like this:</para>
 

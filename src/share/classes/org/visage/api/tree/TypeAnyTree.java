@@ -24,7 +24,7 @@
 package org.visage.api.tree;
 
 /**
- * A tree node for an "any" JavaFX Script type.
+ * A tree node for an "any" Visage type.
  */
 public interface TypeAnyTree extends Tree {
 }
