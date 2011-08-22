@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visagedoc;
+package org.visage.tools.visagedoc;
 
 import com.sun.tools.mjavac.code.Symbol.PackageSymbol;
 import com.sun.tools.mjavac.jvm.ClassReader;

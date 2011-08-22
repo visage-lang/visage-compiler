@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visagedoc;
+package org.visage.tools.visagedoc;
 
 import java.io.IOException;
 import java.io.FileInputStream;

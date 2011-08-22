@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visagedoc;
+package org.visage.tools.visagedoc;
 
 import com.sun.javadoc.*;
 
@@ -63,7 +63,7 @@ class Start {
     private static final String visagedocName = "visagedoc";
 
     private static final String standardDocletClassName =
-        "com.sun.tools.xmldoclet.XMLDoclet";
+        "org.visage.tools.xmldoclet.XMLDoclet";
 
     private ListBuffer<String[]> options = new ListBuffer<String[]>();
 
@@ -128,7 +128,7 @@ class Start {
     }
 
     private static final String versionRBName =
-            "com.sun.tools.visagedoc.resources.version";
+            "org.visage.tools.visagedoc.resources.version";
     private static ResourceBundle versionRB;
 
     private static String version(String key) {

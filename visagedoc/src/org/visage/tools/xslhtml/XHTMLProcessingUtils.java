@@ -21,10 +21,10 @@
  * have any questions.
  */
 
-package com.sun.tools.xslhtml;
+package org.visage.tools.xslhtml;
 
 import org.visage.tools.script.JavaFXScriptEngineFactory;
-import com.sun.tools.xmldoclet.Util;
+import org.visage.tools.xmldoclet.Util;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
@@ -489,7 +489,7 @@ public class XHTMLProcessingUtils {
         if (msgRB == null) {
             try {
                 messageRB = msgRB =
-                    ResourceBundle.getBundle("com.sun.tools.xslhtml.resources.xslhtml");
+                    ResourceBundle.getBundle("org.visage.tools.xslhtml.resources.xslhtml");
             } catch (MissingResourceException e) {
                 throw new Error("Fatal: Resource for visagedoc is missing");
             }

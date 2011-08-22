@@ -21,11 +21,11 @@
  * have any questions.
  */
 
-package com.sun.tools.xmldoclet;
+package org.visage.tools.xmldoclet;
 
 import com.sun.javadoc.*;
 import org.visage.tools.code.FunctionType;
-import com.sun.tools.xslhtml.XHTMLProcessingUtils;
+import org.visage.tools.xslhtml.XHTMLProcessingUtils;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -874,7 +874,7 @@ public class XMLDoclet {
         if (msgRB == null) {
             try {
                 messageRB = msgRB =
-                    ResourceBundle.getBundle("com.sun.tools.xmldoclet.resources.xmldoclet");
+                    ResourceBundle.getBundle("org.visage.tools.xmldoclet.resources.xmldoclet");
             } catch (MissingResourceException e) {
                 throw new Error("Fatal: Resource for visagedoc is missing");
             }

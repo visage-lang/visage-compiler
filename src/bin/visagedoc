@@ -131,7 +131,7 @@ add_jarg "javadoc_bootclasspath_prepend" "-Xbootclasspath/p:"
 add_jarg "javadoc_bootclasspath_append" "-Xbootclasspath/a:"
 add_jarg "javadoc_nativelibpath" "-Djava.library.path="
 
-jargs="$jargs com.sun.tools.visagedoc.Main -classpath '"$classpath"'"
+jargs="$jargs org.visage.tools.visagedoc.Main -classpath '"$classpath"'"
 if [ -n "$args" ]; then
     jargs="$jargs $args"
 fi

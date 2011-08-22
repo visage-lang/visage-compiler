@@ -1996,7 +1996,7 @@ changeset:   4112:cc91f53e5601
 branch:      trunk
 user:        sundararajana
 date:        Mon Nov 03 08:17:51 2008 -0800
-summary:     [svn r4552] Fixing JFXC-2249 - java.lang.ArrayStoreException: com.sun.tools.visagedoc.PrimitiveType.
+summary:     [svn r4552] Fixing JFXC-2249 - java.lang.ArrayStoreException: org.visage.tools.visagedoc.PrimitiveType.
 
 changeset:   4111:ac546affc6d3
 branch:      trunk

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visagedoc;
+package org.visage.tools.visagedoc;
 
 import java.io.PrintWriter;
 import java.text.MessageFormat;
@@ -136,7 +136,7 @@ public class Messager extends Log implements DocErrorReporter {
             try {
                 this.messageRB = msgRB =
                     ResourceBundle.getBundle(
-                          "com.sun.tools.visagedoc.resources.visagedoc");
+                          "org.visage.tools.visagedoc.resources.visagedoc");
             } catch (MissingResourceException e) {
                 throw new Error("Fatal: Resource for visagedoc is missing");
             }

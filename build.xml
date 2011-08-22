@@ -564,7 +564,7 @@
         <javadoc destdir="${dist.javadoc.dir}" failonerror="true" version="${javadoc.version}" private="${javadoc.private}" source="${javac.source}"
 	    packagenames="visage.animation,visage.lang,visage.reflect,visage.util" 
 	    sourcepath="${src.classes.dir}">
-            <doclet name="com.sun.tools.xmldoclet.XMLDoclet"
+            <doclet name="org.visage.tools.xmldoclet.XMLDoclet"
                     path="${dist.visagedoc.jar}">
                <param name="-o" value="${build.dir}/docs/javacode.xml"/>
                <param name="-nohtml"/>
@@ -573,7 +573,7 @@
          
         <!-- generate fx class docs -->
         <echo message="generating fx docs for ${visagedoc.packages}"/>
-        <java  fork="true" failonerror="true" classname="com.sun.tools.visagedoc.Main">
+        <java  fork="true" failonerror="true" classname="org.visage.tools.visagedoc.Main">
             <classpath location="${dist.visagedoc.jar}"/>
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}"/>
@@ -589,7 +589,7 @@
         </java>
         
         
-        <java  fork="true" failonerror="true" classname="com.sun.tools.visagedoc.Main">
+        <java  fork="true" failonerror="true" classname="org.visage.tools.visagedoc.Main">
             <classpath location="${dist.visagedoc.jar}"/>
             <classpath refid="clspath"/>
             <arg value="-d"/>

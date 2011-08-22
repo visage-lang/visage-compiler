@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visagedoc;
+package org.visage.tools.visagedoc;
 
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Position;

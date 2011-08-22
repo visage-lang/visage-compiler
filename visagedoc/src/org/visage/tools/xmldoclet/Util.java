@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.xmldoclet;
+package org.visage.tools.xmldoclet;
 
 import java.io.File;
 import java.io.FileInputStream;

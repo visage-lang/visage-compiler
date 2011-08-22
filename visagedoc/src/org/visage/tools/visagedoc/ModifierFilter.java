@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.tools.visagedoc;
+package org.visage.tools.visagedoc;
 
 import static com.sun.tools.mjavac.code.Flags.*;
 import static org.visage.tools.code.JavafxFlags.*;
