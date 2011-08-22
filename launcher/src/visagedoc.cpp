@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-#ifdef PROJECT_JAVAFXDOC
+#ifdef PROJECT_VISAGEDOC
 
 #include <string>
 
@@ -69,4 +69,4 @@ int main(int argc, char** argv) {
     return util.createProcess (cmd);
 }
 
-#endif  /* PROJECT_JAVAFXDOC */
+#endif  /* PROJECT_VISAGEDOC */

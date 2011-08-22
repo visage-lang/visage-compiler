@@ -39,7 +39,7 @@
           <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin</commandLine>
           <preprocessorList>
-            <Elem>PROJECT_JAVAFX</Elem>
+            <Elem>PROJECT_VISAGE</Elem>
             <Elem>DEBUG</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>
@@ -59,7 +59,7 @@
           <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin</commandLine>
           <preprocessorList>
-            <Elem>PROJECT_JAVAFXC</Elem>
+            <Elem>PROJECT_VISAGEC</Elem>
             <Elem>DEBUG</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>
@@ -83,7 +83,7 @@
           <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
-            <Elem>PROJECT_JAVAFX</Elem>
+            <Elem>PROJECT_VISAGE</Elem>
           </preprocessorList>
         </ccTool>
         <fortranCompilerTool>
@@ -108,7 +108,7 @@
           <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
-            <Elem>PROJECT_JAVAFXC</Elem>
+            <Elem>PROJECT_VISAGEC</Elem>
           </preprocessorList>
         </ccTool>
         <fortranCompilerTool>
@@ -129,7 +129,7 @@
           <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin</commandLine>
           <preprocessorList>
-            <Elem>PROJECT_JAVAFXDOC</Elem>
+            <Elem>PROJECT_VISAGEDOC</Elem>
             <Elem>DEBUG</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>
@@ -153,7 +153,7 @@
           <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
-            <Elem>PROJECT_JAVAFXDOC</Elem>
+            <Elem>PROJECT_VISAGEDOC</Elem>
           </preprocessorList>
         </ccTool>
         <fortranCompilerTool>
@@ -178,7 +178,7 @@
           <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mwindows -mno-cygwin -s</commandLine>
           <preprocessorList>
-            <Elem>PROJECT_JAVAFXW</Elem>
+            <Elem>PROJECT_VISAGEW</Elem>
           </preprocessorList>
         </ccTool>
         <fortranCompilerTool>
@@ -199,7 +199,7 @@
           <commandlineTool>g++-3</commandlineTool>
           <commandLine>-mno-cygwin</commandLine>
           <preprocessorList>
-            <Elem>PROJECT_JAVAFXW</Elem>
+            <Elem>PROJECT_VISAGEW</Elem>
             <Elem>DEBUG</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-#ifdef PROJECT_JAVAFX
+#ifdef PROJECT_VISAGE
 
 #include "configuration.h"
 #include "util.h"
@@ -95,4 +95,4 @@ int main(int argc, char** argv) {
     return util.createProcess(cmd);
 }
 
-#endif  /* PROJECT_JAVAFX */
+#endif  /* PROJECT_VISAGE */

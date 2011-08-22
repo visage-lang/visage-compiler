@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-#ifdef PROJECT_JAVAFXC
+#ifdef PROJECT_VISAGEC
 
 #include "configuration.h"
 #include "util.h"
@@ -86,4 +86,4 @@ int main(int argc, char** argv) {
     return util.createProcess (cmd);
 }
 
-#endif  /* PROJECT_JAVAFXC */
+#endif  /* PROJECT_VISAGEC */

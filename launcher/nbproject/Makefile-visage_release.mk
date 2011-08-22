@@ -69,32 +69,32 @@ dist/Release/visage.exe: ${OBJECTFILES}
 ${OBJECTDIR}/src/visagedoc.o: src/visagedoc.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -DPROJECT_JAVAFX -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visagedoc.o src/visagedoc.cpp
+	$(COMPILE.cc) -O2 -DPROJECT_VISAGE -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visagedoc.o src/visagedoc.cpp
 
 ${OBJECTDIR}/src/visage.o: src/visage.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -DPROJECT_JAVAFX -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visage.o src/visage.cpp
+	$(COMPILE.cc) -O2 -DPROJECT_VISAGE -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visage.o src/visage.cpp
 
 ${OBJECTDIR}/src/visagec.o: src/visagec.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -DPROJECT_JAVAFX -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visagec.o src/visagec.cpp
+	$(COMPILE.cc) -O2 -DPROJECT_VISAGE -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visagec.o src/visagec.cpp
 
 ${OBJECTDIR}/src/visagew.o: src/visagew.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -DPROJECT_JAVAFX -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visagew.o src/visagew.cpp
+	$(COMPILE.cc) -O2 -DPROJECT_VISAGE -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/visagew.o src/visagew.cpp
 
 ${OBJECTDIR}/src/util.o: src/util.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -DPROJECT_JAVAFX -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/util.o src/util.cpp
+	$(COMPILE.cc) -O2 -DPROJECT_VISAGE -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/util.o src/util.cpp
 
 ${OBJECTDIR}/src/configuration.o: src/configuration.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -DPROJECT_JAVAFX -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/configuration.o src/configuration.cpp
+	$(COMPILE.cc) -O2 -DPROJECT_VISAGE -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/configuration.o src/configuration.cpp
 
 # Subprojects
 .build-subprojects:

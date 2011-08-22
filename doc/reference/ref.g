@@ -99,7 +99,7 @@ script
 	:  pd=packageDecl si=scriptItems 
 	
 		{
-			// Construct the JavFX AST
+			// Construct the Visage AST
 			//
 			$result = F.Script($packageDecl.value, $si.items.toList());
             setDocComment($result, docComment);	// Add any detected documentation comment

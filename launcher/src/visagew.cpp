@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-#ifdef PROJECT_JAVAFXW
+#ifdef PROJECT_VISAGEW
 
 #include "configuration.h"
 #include "util.h"
@@ -102,6 +102,6 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE previnst, LPSTR cmdline, int cmdsho
     return util.createProcess(cmd);
 }
 
-#endif  /* PROJECT_JAVAFXW */
+#endif  /* PROJECT_VISAGEW */
 
 
