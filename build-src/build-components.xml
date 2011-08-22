@@ -153,7 +153,7 @@
     <do-setup-and-import-component component="jogl"/>
     <do-setup-and-import-component component="media"/>
     <do-setup-and-import-component component="mobile"/>
-    <do-setup-and-import-component component="openjfx-compiler"/>
+    <do-setup-and-import-component component="visage-compiler"/>
     <do-setup-and-import-component component="runtime"/>
     <do-setup-and-import-component component="samples"/>
     <do-setup-and-import-component component="tests"/>
@@ -194,7 +194,7 @@
             <isset property="jfx.media.exists"/>
             <isset property="jfx.mobile.exists"/>
             <isset property="jfx.mobile.emulator.exists.or.is.not.needed"/>
-            <isset property="jfx.openjfx-compiler.exists"/>
+            <isset property="jfx.visage-compiler.exists"/>
             <isset property="jfx.runtime.exists"/>
             <isset property="jfx.samples.exists"/>
             <isset property="jfx.tests.exists"/>
@@ -213,7 +213,7 @@
             <!-- WARNING: Order of building is important here, be careful. -->
             <antcall target="tools-@{target}"/>
             <antcall target="jogl-@{target}"/>
-            <antcall target="openjfx-compiler-@{target}"/>
+            <antcall target="visage-compiler-@{target}"/>
             <antcall target="media-@{target}"/>
             <antcall target="runtime-@{target}"/>
             <antcall target="fxdloader-@{target}"/>
@@ -242,7 +242,7 @@
                      jogl-clone,
                      media-clone,
                      mobile-clone,
-                     openjfx-compiler-clone,
+                     visage-compiler-clone,
                      runtime-clone,
                      samples-clone,
                      tests-clone,
@@ -263,7 +263,7 @@
                      jogl-tip,
                      media-tip,
                      mobile-tip,
-                     openjfx-compiler-tip,
+                     visage-compiler-tip,
                      runtime-tip,
                      samples-tip,
                      tests-tip,

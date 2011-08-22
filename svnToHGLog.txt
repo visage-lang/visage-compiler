@@ -1,4 +1,4 @@
-This is an hg log of a trial conversion of the svn openjfx-compiler repo to HG.
+This is an hg log of a trial conversion of the svn visage-compiler repo to HG.
 This log differs from the log of the REAL converted-to-HG repo in that:
 
 - the svn repo had several empty changesets, apparently caused by web checkins.
@@ -5398,7 +5398,7 @@ changeset:   3545:7695ae21f738
 branch:      trunk
 user:        baechul
 date:        Thu Aug 28 09:45:32 2008 -0700
-summary:     [svn r3922] Test started failed(http://openjfx.java.sun.com/jira/browse/JFXC-1804). Removing for analyzing the root cause.
+summary:     [svn r3922] Test started failed(http://visage.org/jira/browse/JFXC-1804). Removing for analyzing the root cause.
 
 changeset:   3544:6de821f4ec51
 branch:      trunk
@@ -5422,7 +5422,7 @@ changeset:   3541:4660a28b1dd7
 branch:      trunk
 user:        JimIdle
 date:        Wed Aug 27 20:03:57 2008 -0700
-summary:     [svn r3918] - Ensure that JFX AST nodes are created with the same token
+summary:     [svn r3918] - Ensure that Visage AST nodes are created with the same token
 
 changeset:   3540:7f42ac9395a1
 branch:      trunk
@@ -5890,7 +5890,7 @@ changeset:   3463:771306db4005
 branch:      trunk
 user:        joshy
 date:        Fri Aug 22 13:17:56 2008 -0700
-summary:     [svn r3840] fix for JFX-1832 Packages get multiple listings if they are in multiple XML files
+summary:     [svn r3840] fix for Visage-1832 Packages get multiple listings if they are in multiple XML files
 
 changeset:   3462:15b9ce7231af
 branch:      trunk
@@ -5962,7 +5962,7 @@ changeset:   3451:2aac547a95f9
 branch:      trunk
 user:        JimIdle
 date:        Wed Aug 20 17:49:15 2008 -0700
-summary:     [svn r3828] Update parser super class to incorporate new JFX tree building methods.
+summary:     [svn r3828] Update parser super class to incorporate new Visage tree building methods.
 
 changeset:   3450:7b68759d6759
 branch:      trunk
@@ -7546,13 +7546,13 @@ changeset:   3187:28df79a4bb10
 branch:      trunk
 user:        rbair
 date:        Mon Jul 28 13:06:50 2008 -0700
-summary:     [svn r3549] Added .equals to Color. Fix for http://openjfx.java.sun.com/jira/browse/JFXC-1673
+summary:     [svn r3549] Added .equals to Color. Fix for http://visage.org/jira/browse/JFXC-1673
 
 changeset:   3186:821ae5392071
 branch:      trunk
 user:        rbair
 date:        Mon Jul 28 12:38:20 2008 -0700
-summary:     [svn r3547] Added .equals to Color. Fix for http://openjfx.java.sun.com/jira/browse/JFXC-1673
+summary:     [svn r3547] Added .equals to Color. Fix for http://visage.org/jira/browse/JFXC-1673
 
 changeset:   3185:35c3da703d72
 branch:      trunk
@@ -9598,13 +9598,13 @@ changeset:   2845:bbebacac117e
 branch:      trunk
 user:        breh
 date:        Wed Jun 25 12:20:04 2008 -0700
-summary:     [svn r3074] Enhances geometry package with SVGPath class, which allows constructing shapes from path definitions using SVG syntax. Fixes issue http://openjfx.java.sun.com/jira/browse/JFXC-1302
+summary:     [svn r3074] Enhances geometry package with SVGPath class, which allows constructing shapes from path definitions using SVG syntax. Fixes issue http://visage.org/jira/browse/JFXC-1302
 
 changeset:   2844:7fc3cd5f6b89
 branch:      trunk
 user:        breh
 date:        Wed Jun 25 12:16:56 2008 -0700
-summary:     [svn r3073] Enhances Font class with functions allowing to use embedded/external fonts. Fixes issue http://openjfx.java.sun.com/jira/browse/JFXC-1301
+summary:     [svn r3073] Enhances Font class with functions allowing to use embedded/external fonts. Fixes issue http://visage.org/jira/browse/JFXC-1301
 
 changeset:   2843:39e6b94f9de6
 branch:      trunk
@@ -10450,7 +10450,7 @@ changeset:   2703:842d4c7c2e1c
 branch:      trunk
 user:        rfield
 date:        Mon Jun 09 16:20:47 2008 -0700
-summary:     [svn r2895] Fix JFXC-1196 : NPE when binding a method from inherited JFX class
+summary:     [svn r2895] Fix JFXC-1196 : NPE when binding a method from inherited Visage class
 
 changeset:   2702:bae85b265b36
 branch:      trunk
@@ -12178,13 +12178,13 @@ changeset:   2415:54d296881289
 branch:      trunk
 user:        tball
 date:        Wed Apr 16 09:19:59 2008 -0700
-summary:     [svn r2588] JFXC-1010:  added support for the JFX unary operators sizeof and reverse.
+summary:     [svn r2588] JFXC-1010:  added support for the Visage unary operators sizeof and reverse.
 
 changeset:   2414:12103f922646
 branch:      trunk
 user:        tball
 date:        Wed Apr 16 09:06:01 2008 -0700
-summary:     [svn r2587] JFXC-1010:  added support for the JFX unary operators sizeof and reverse.
+summary:     [svn r2587] JFXC-1010:  added support for the Visage unary operators sizeof and reverse.
 
 changeset:   2413:3de4de4d7d13
 branch:      trunk
@@ -14842,7 +14842,7 @@ changeset:   1971:6c5e3d4caa7b
 branch:      trunk
 user:        tball
 date:        Wed Mar 12 16:17:41 2008 -0700
-summary:     [svn r2134] JFXC-907: JFX-ized JavafxTrees.getElement(), .getPath().
+summary:     [svn r2134] JFXC-907: Visage-ized JavafxTrees.getElement(), .getPath().
 
 changeset:   1970:e8fca87e1c54
 branch:      trunk
@@ -18274,7 +18274,7 @@ changeset:   1399:d131532782cd
 branch:      trunk
 user:        tball
 date:        Wed Jan 23 15:06:11 2008 -0800
-summary:     [svn r1484] Turn off type parameter support in visagedoc, since JFX doesn't have type parameters.
+summary:     [svn r1484] Turn off type parameter support in visagedoc, since Visage doesn't have type parameters.
 
 changeset:   1398:456f27a08125
 branch:      trunk
@@ -19258,7 +19258,7 @@ changeset:   1235:2739344a4ce3
 branch:      trunk
 user:        tball
 date:        Fri Jan 04 13:54:00 2008 -0800
-summary:     [svn r1306] Very early version of javadoc for JFX:  builds and runs, but needs a different
+summary:     [svn r1306] Very early version of javadoc for Visage:  builds and runs, but needs a different
 
 changeset:   1234:e9b6d96b93b6
 branch:      trunk
@@ -22756,7 +22756,7 @@ changeset:   652:7fffa31fd3a2
 branch:      trunk
 user:        lubomirlitchev
 date:        Mon Nov 12 16:20:06 2007 -0800
-summary:     [svn r713] Make sure JFX ObjLit and anonymous classes extending Java classes are generated at the place where they are created and not at the beginning of the enclosing method. This way the relevant local variables are visible/accessible.
+summary:     [svn r713] Make sure Visage ObjLit and anonymous classes extending Java classes are generated at the place where they are created and not at the beginning of the enclosing method. This way the relevant local variables are visible/accessible.
 
 changeset:   651:66c5d5db9109
 branch:      trunk
@@ -23272,7 +23272,7 @@ changeset:   566:c0872bf20c7b
 branch:      trunk
 user:        tball
 date:        Thu Nov 01 22:29:03 2007 -0700
-summary:     [svn r627] JFXC-183:  fixed stack overflow when printing JFX class declarations; removed debug statement from test.
+summary:     [svn r627] JFXC-183:  fixed stack overflow when printing Visage class declarations; removed debug statement from test.
 
 changeset:   565:8cf6ff937987
 branch:      trunk
@@ -23464,7 +23464,7 @@ changeset:   534:fbb59f2ed74f
 branch:      trunk
 user:        rfield
 date:        Sun Oct 28 16:51:23 2007 -0700
-summary:     [svn r595] Fix JFXC-164 : Non-JFX imports create bogus $Intf imports causing compile failures
+summary:     [svn r595] Fix JFXC-164 : Non-Visage imports create bogus $Intf imports causing compile failures
 
 changeset:   533:d5e32909f1ae
 branch:      trunk
@@ -23530,7 +23530,7 @@ changeset:   523:3aa7999c4101
 branch:      trunk
 user:        tball
 date:        Fri Oct 26 21:42:09 2007 -0700
-summary:     [svn r584] JFXC-152: implemented basic tree API for JFX which is similar to javac's.  Moved JavafxBindStatus to public API package.
+summary:     [svn r584] JFXC-152: implemented basic tree API for Visage which is similar to javac's.  Moved JavafxBindStatus to public API package.
 
 changeset:   522:d39aba8901fb
 branch:      trunk
@@ -23704,7 +23704,7 @@ changeset:   494:e59e4d353ca8
 branch:      trunk
 user:        lubomirlitchev
 date:        Wed Oct 24 09:54:10 2007 -0700
-summary:     [svn r554] Replaced all references, except newInstance to JFX classes to corresponding JFXClass$Intf interfaces. Enable a commented out test.
+summary:     [svn r554] Replaced all references, except newInstance to Visage classes to corresponding JFXClass$Intf interfaces. Enable a commented out test.
 
 changeset:   493:92600b98d6bb
 branch:      trunk
@@ -24688,7 +24688,7 @@ changeset:   330:b525528ceaec
 branch:      trunk
 user:        jimclarke
 date:        Thu Oct 04 17:35:31 2007 -0700
-summary:     [svn r389] copied jar files from openjfx.dev.java.net project
+summary:     [svn r389] copied jar files from visage.dev.java.net project
 
 changeset:   329:2b41c114b64e
 branch:      trunk
@@ -24736,7 +24736,7 @@ changeset:   322:319eebab7f54
 branch:      trunk
 user:        ejrenaud
 date:        Wed Oct 03 12:50:39 2007 -0700
-summary:     [svn r381] Changed Issue Tracker link to Issues/Bugs - modified url of link to http://openjfx.java.sun.com/jira/
+summary:     [svn r381] Changed Issue Tracker link to Issues/Bugs - modified url of link to http://visage.org/jira/
 
 changeset:   321:5494755e34dd
 branch:      trunk
@@ -24766,7 +24766,7 @@ changeset:   317:b9f56c145f4d
 branch:      trunk
 user:        tball
 date:        Wed Oct 03 10:34:49 2007 -0700
-summary:     [svn r376] Changed issues URL to http://openjfx.java.sun.com/jira/.
+summary:     [svn r376] Changed issues URL to http://visage.org/jira/.
 
 changeset:   316:a97667d4d466
 branch:      trunk
@@ -26632,7 +26632,7 @@ changeset:   6:4746dfe89003
 branch:      trunk
 user:        cindyc
 date:        Wed Jul 18 14:22:56 2007 -0700
-summary:     [svn r9] OpenJFX Compiler is the 'project' name, so corrected references to compiler 'product' name as Visage compiler.
+summary:     [svn r9] Visage Compiler is the 'project' name, so corrected references to compiler 'product' name as Visage compiler.
 
 changeset:   5:562536c8d0e2
 branch:      trunk
@@ -26644,7 +26644,7 @@ changeset:   4:50e1ec1a3032
 branch:      trunk
 user:        cindyc
 date:        Wed Jul 18 12:58:27 2007 -0700
-summary:     [svn r7] changed references to 'Visage Compiler' to 'OpenJFX Compiler'
+summary:     [svn r7] changed references to 'Visage Compiler' to 'Visage Compiler'
 
 changeset:   3:5fbed0dfd512
 branch:      trunk
@@ -26668,5 +26668,5 @@ changeset:   0:55484a992fc3
 branch:      trunk
 user:        httpd
 date:        Wed Jul 18 09:52:48 2007 -0700
-summary:     [svn r1] Initial data for the openjfx-compiler project.
+summary:     [svn r1] Initial data for the visage-compiler project.
 

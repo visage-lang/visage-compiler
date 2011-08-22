@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Visage Compiler" default="binaries" basedir=".">
-    <description>Builds, tests, and runs the openjfx-compiler project.</description>
+    <description>Builds, tests, and runs the visage-compiler project.</description>
 
     <property name="build.defs" location="build-defs.xml"/>
     <condition property="build.defs.missing">
@@ -13,7 +13,7 @@
         <format property="date.stamp" pattern="yyyy-MM-dd"/>
     </tstamp>
 
-    <property name="top-repo" value="openjfx-compiler~soma-setup"/>
+    <property name="top-repo" value="visage-compiler~soma-setup"/>
     <property name="top-url" value="http://kenai.com/hg/${top-repo}"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="dist.dir" value="${basedir}/dist"/>
@@ -23,16 +23,16 @@
 :
     ${build.defs} does not exist.  
 
-    Your openjfx-compiler repo must be under the top level repository, ${top-repo}.
+    Your visage-compiler repo must be under the top level repository, ${top-repo}.
     You should do this:
       cd ..
       hg clone ${top-url}
-      mv openjfx-compiler ${top-repo}
+      mv visage-compiler ${top-repo}
 
     And then, you must create the ${top-repo}/import/ directory containing all the external
     packages that are needed to build:
       download file import.zip from
-        http://kenai.com/projects/openjfx-compiler/downloads
+        http://kenai.com/projects/visage-compiler/downloads
       cp ...../import.zip .
       cd ${top-repo}
       ant import
@@ -40,7 +40,7 @@
     You don't really have to download import.zip.  If it does not exist, then the 'ant import' command
     will use http to fetch all the needed packages.  But, this is slow and prone to timeouts.
 
-    After doing the above, you can cd openjfx-compiler and do your build.
+    After doing the above, you can cd visage-compiler and do your build.
     </fail>
 
     <import file="${build.defs}"/>
@@ -150,16 +150,16 @@
             or     ant test-single -Dtest.visage.includes=jfxc2347.visage
 
 
-    Your openjfx-compiler repo must be under the top level repository, ${top-repo}.
+    Your visage-compiler repo must be under the top level repository, ${top-repo}.
     You should do this:
       cd ..
       hg clone ${top-url}
-      mv openjfx-compiler ${top-repo}
+      mv visage-compiler ${top-repo}
 
     And then, you must create the ${top-repo}/import/ directory containing all the external
     packages that are needed to build:
       download file import.zip from
-        http://kenai.com/projects/openjfx-compiler/downloads
+        http://kenai.com/projects/visage-compiler/downloads
       cp ...../import.zip .
       cd ${top-repo}
       ant import
@@ -167,7 +167,7 @@
     You don't really have to download import.zip.  If it does not exist, then the 'ant import' command
     will use http to fetch all the needed packages.  But, this is slow and prone to timeouts.
 
-    After doing the above, you can cd openjfx-compiler and do your build.
+    After doing the above, you can cd visage-compiler and do your build.
 
        </echo>
      </target>
@@ -208,9 +208,9 @@
         </copy>
         <mkdir dir="${jfx.xml.docs.dir}"/>
         <copy file="${build.dir}/docs/javacode.xml"
-              tofile="${jfx.xml.docs.dir}/openjfx-compiler_javacode.xml"/>
+              tofile="${jfx.xml.docs.dir}/visage-compiler_javacode.xml"/>
         <copy file="build/docs/fxcode.xml"
-              tofile="${jfx.xml.docs.dir}/openjfx-compiler_fxcode.xml"/>
+              tofile="${jfx.xml.docs.dir}/visage-compiler_fxcode.xml"/>
     </target>
 
     <target name="-do-jfx-clean-deploy">
@@ -713,7 +713,7 @@
                  classpathref="findbugs.class.path" />
         <mkdir dir="${dist.findbugs.dir}"/>
         <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${import.findbugs.home}" jvmargs="-Xmx512m"
-                  projectName="OpenJFX compiler ${full.version}" excludeFilter="findbugs-exclude.xml">
+                  projectName="Visage compiler ${full.version}" excludeFilter="findbugs-exclude.xml">
             <class location="${build.classes.dir}"/>
             <auxclasspath path="${javac.classpath}:${import.junit.jar}"/>
             <sourcepath path="${src.classes.dir}"/>
@@ -751,7 +751,7 @@
         <java classname="org.visage.tools.jaranalyzer.JarAnalyzer">
             <arg value="${dist.visagert.jar}" />
             <arg value="${build.staticsizes.dir}" />
-            <arg value="http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${jfx.build.number}/artifact/build/staticsizes" />
+            <arg value="http://visage.org/hudson/job/visage-compiler/${jfx.build.number}/artifact/build/staticsizes" />
             <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
             </classpath>
@@ -767,7 +767,7 @@
         <java classname="org.visage.tools.classreporter.ClassReporter">
             <arg value="-dist.dir=${dist.dir}" />
             <arg value="-build.dir=${build.ldclassreport.dir}" />
-            <arg value="-reference.url=http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${jfx.build.number}/changes" />
+            <arg value="-reference.url=http://visage.org/hudson/job/visage-compiler/${jfx.build.number}/changes" />
             <classpath>
                 <pathelement location="${build.buildtools.dir}" />
             </classpath>
@@ -903,7 +903,7 @@
         <mail from="${weekly.buildmaster}" 
               replyto="${weekly.build.alias}"
               tolist="${weekly.build.alias}"
-              message="${date.stamp} weekly build completed:\n\nhttp://openjfx.java.sun.com/builds/weekly/openjfx-compiler/weekly-${date.stamp}"
+              message="${date.stamp} weekly build completed:\n\nhttp://visage.org/builds/weekly/visage-compiler/weekly-${date.stamp}"
               subject="Weekly build available"/>
     </target>
     

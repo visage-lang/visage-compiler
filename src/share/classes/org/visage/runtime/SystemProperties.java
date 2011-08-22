@@ -161,7 +161,7 @@ public class  SystemProperties {
         }                        
 
                 
-        // Now check if the property is JFX specific and has no association with Runtime Environment
+        // Now check if the property is Visage specific and has no association with Runtime Environment
         if (found.equals("jfx_specific")) {
             props = jfxprop_list;
             return (String)props.get(key);

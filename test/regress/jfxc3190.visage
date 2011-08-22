@@ -1,5 +1,5 @@
 /*
- * Regression: JFXC-3190 - internal error in the OpenJFX compiler (1.2-dev- ali-2009-05-03).
+ * Regression: JFXC-3190 - internal error in the Visage compiler (1.2-dev- ali-2009-05-03).
  *
  * @test
  *

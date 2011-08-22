@@ -1036,7 +1036,7 @@ public class JavafxPretty implements JavafxVisitor {
                 print(")");
             }
             {
-                // JFX instantiation
+                // Visage instantiation
                 print(" {");
                 if (tree.getParts().nonEmpty()) {
                     indent();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Visage Compiler Launchers" default="default" basedir=".">
-    <description>Builds the launchers of the openjfx-compiler project.</description>
+    <description>Builds the launchers of the visage-compiler project.</description>
     
     <property environment="env" />
     <property name="env.Path" value="${env.PATH}" />

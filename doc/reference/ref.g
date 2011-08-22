@@ -344,7 +344,7 @@ classMember
 // ----------
 // Functions.
 // While funcitnos can be declared at any level, their syntax is the same.
-// As always, the semantic pass of the JFX tree must verify that the
+// As always, the semantic pass of the Visage tree must verify that the
 // supplied modifers are valid in this context.
 //
 functionDefinition 
@@ -521,7 +521,7 @@ variableLabel
 //
 throw
 
-	returns [JFXExpression value]	// Returns the JFX Expression tree representing what we must throw
+	returns [JFXExpression value]	// Returns the Visage Expression tree representing what we must throw
 
 	: THROW valueExpression ((SEMI)=>SEMI)?
 	
@@ -911,7 +911,7 @@ multiplicativeExpression
 //
 multOps
 
-	returns [JavafxTag multOp]	// Returns the JFX operator type
+	returns [JavafxTag multOp]	// Returns the Visage operator type
 	
 	: STAR    	{ $multOp = JavafxTag.MUL;	}
 	| SLASH   	{ $multOp = JavafxTag.DIV;	}

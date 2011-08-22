@@ -67,10 +67,10 @@ import java.util.logging.Logger;
  *  % java -DFXBTraceRunner.vmoptions="-Xmx512m, -Xss128, -Xfoobar=XX" FXBTraceRunner options
  * 
  * Files:
- *  a. jfx/openjfx-compiler/buildtools/fxbtrace/btrace_scripts/*.java
+ *  a. jfx/visage-compiler/buildtools/fxbtrace/btrace_scripts/*.java
  *     Various btrace script files that can be used to trace FX apps.
  * 
- *  b. jfx/openjfx-compiler/buildtools/fxbtrace/src/FXBTraceRunner.java
+ *  b. jfx/visage-compiler/buildtools/fxbtrace/src/FXBTraceRunner.java
  *     This is simply a runner script takes care of compile the script, 
  *     running btrace on the application, killing the application.
  *  

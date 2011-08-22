@@ -36,7 +36,7 @@ The command "ant help" will show additional help.
 
 Please file any bugs using our JIRA issue tracking system:
 
-    http://openjfx.java.sun.com/jira/secure/Dashboard.jspa
+    http://visage.org/jira/secure/Dashboard.jspa
 
 NOTE:  when the project is first checked-out, the NetBeans IDE will report 
 "unresolved library" warnings.  These warnings are resolved when building

@@ -41,7 +41,7 @@ public final class Constants {
     }
 
     // XML namespace URI used for AST XML elements
-    public static final String JFXASTXML_NS = "http://openjfx.java.sun.com";
+    public static final String JFXASTXML_NS = "http://visage.org";
     public static final String JFXASTXML_PREFIX = "fx:";
 
     // doc comments

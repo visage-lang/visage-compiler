@@ -826,7 +826,7 @@ catch [RecognitionException re] {
  }
  
 // Class definition.
-// Parses a complete class definition and builds up the JFX AST
+// Parses a complete class definition and builds up the Visage AST
 // that represents this.
 //
 // param mods The previously built modifier flags
@@ -949,11 +949,11 @@ catch [RecognitionException re] {
 // -----------------
 // Super class spec.
 // Parses a list of super classes for a class definition and builds the
-// associated JFX AST.
+// associated Visage AST.
 //
 supers 
 
-    returns [ListBuffer<JFXExpression> ids = new ListBuffer<JFXExpression>()]   // The return is a list of JFX expressions representing one
+    returns [ListBuffer<JFXExpression> ids = new ListBuffer<JFXExpression>()]   // The return is a list of Visage expressions representing one
                                                                                 // or more super class type name.
 @init
 {
@@ -1072,7 +1072,7 @@ syncClass[ListBuffer<JFXTree> mems]
 //
 classMember[ListBuffer<JFXTree> mems]
 
-    returns [JFXTree member]        // A class member has a specialized JFX tree node, which is what
+    returns [JFXTree member]        // A class member has a specialized Visage tree node, which is what
                                     // we return from this rule.
 
  @init {
@@ -1119,7 +1119,7 @@ catch [RecognitionException re] {
 // ----------
 // Functions.
 // While funcitnos can be declared at any level, their syntax is the same.
-// As always, the semantic pass of the JFX tree must verify that the
+// As always, the semantic pass of the Visage tree must verify that the
 // supplied modifers are valid in this context.
 //
 functionDefinition [ JFXModifiers mods, int pos ]
@@ -1290,7 +1290,7 @@ catch [RecognitionException re] {
 //
 initDefinition
 
-    returns [JFXTree value] // The initialisation block has a specialized JFX tree node
+    returns [JFXTree value] // The initialisation block has a specialized Visage tree node
 
 @init
 {
@@ -1339,7 +1339,7 @@ catch [RecognitionException re] {
 //
 postInitDefinition
 
-    returns [JFXTree value] // Post initialization has its own specialized JFX tree node
+    returns [JFXTree value] // Post initialization has its own specialized Visage tree node
 
 @init
 {
@@ -1392,7 +1392,7 @@ catch [RecognitionException re] {
 // While they can be defined at different levels (script, member, local) the syntax
 // for declaring variables, and the modifiers and so on are all exactly
 // the same (syntactically) at all levels.
-// Parser a variable declaration and return the resultant JFX expression tree.
+// Parser a variable declaration and return the resultant Visage expression tree.
 //
 variableDeclaration [ JFXModifiers mods, int pos ]
 
@@ -1655,7 +1655,7 @@ catch [RecognitionException re] {
 //
 formalParameter
 
-    returns [JFXVar var]    // Formal parameters are contained in a JFX tree var node.
+    returns [JFXVar var]    // Formal parameters are contained in a Visage tree var node.
     
 @init
 {
@@ -1732,7 +1732,7 @@ catch [RecognitionException re] {
 //
 block [ int inPos]
 
-    returns [JFXBlock value]    // The block expression has a specialized node inthe JFX tree
+    returns [JFXBlock value]    // The block expression has a specialized node inthe Visage tree
 
 // Where the error routines should append any errors
 //
@@ -2049,7 +2049,7 @@ catch [RecognitionException re] {
 //
 onReplaceClause
 
-    returns [JFXOnReplace value]    // onReplace has its own JFX Tree node type
+    returns [JFXOnReplace value]    // onReplace has its own Visage Tree node type
 
 @init
 {
@@ -2128,7 +2128,7 @@ catch [RecognitionException re] {
 //
 onInvalidateClause
 
-    returns [JFXOnReplace value]    // onReplace has its own JFX Tree node type
+    returns [JFXOnReplace value]    // onReplace has its own Visage Tree node type
 
 @init
 {
@@ -2267,7 +2267,7 @@ catch [RecognitionException re] {
 //
 throwStatement
 
-    returns [JFXExpression value]   // Returns the JFX Expression tree representing what we must throw
+    returns [JFXExpression value]   // Returns the Visage Expression tree representing what we must throw
     
 @init
 {
@@ -2311,7 +2311,7 @@ catch [RecognitionException re] {
 //
 whileStatement
     
-    returns [JFXExpression value]   // Returns the JFX Expression tree representing the WHILE
+    returns [JFXExpression value]   // Returns the Visage Expression tree representing the WHILE
     
 @init
 {
@@ -2370,7 +2370,7 @@ catch [RecognitionException re] {
 //
 insertStatement  
     
-    returns [JFXExpression value]   // All steatemetns return a JFX expression tree
+    returns [JFXExpression value]   // All steatemetns return a Visage expression tree
     
 @init
 {
@@ -2514,7 +2514,7 @@ catch [RecognitionException re] {
 //
 deleteStatement  
 
-    returns [JFXExpression value]   // Delete returns a JFX Expression tree
+    returns [JFXExpression value]   // Delete returns a Visage Expression tree
     
 @init
 {
@@ -2579,7 +2579,7 @@ catch [RecognitionException re] {
 //
 invalidateStatement
 
-    returns [JFXExpression value]   // Delete returns a JFX Expression tree
+    returns [JFXExpression value]   // Delete returns a Visage Expression tree
 
 @init
 {
@@ -2619,7 +2619,7 @@ catch [RecognitionException re] {
 //
 returnStatement
 
-    returns [JFXExpression value]   // RETURN returns a JFX Expression tree
+    returns [JFXExpression value]   // RETURN returns a Visage Expression tree
 @init
 {
     // Start of rule for error node production/
@@ -2676,7 +2676,7 @@ catch [RecognitionException re] {
 //
 tryStatement
 
-    returns [JFXExpression value]   // returns a JFX Expression tree
+    returns [JFXExpression value]   // returns a Visage Expression tree
     
 @init
 {
@@ -2843,7 +2843,7 @@ catch [RecognitionException re] {
 
 finallyClause
 
-    returns [JFXBlock value] // returns a JFX Expression tree
+    returns [JFXBlock value] // returns a Visage Expression tree
 
 @init
 {
@@ -2884,7 +2884,7 @@ catch [RecognitionException re] {
 //
 catchClause
 
-    returns [JFXCatch value]    // Catch has its own JFX tree node type
+    returns [JFXCatch value]    // Catch has its own Visage tree node type
 
 @init
 {
@@ -3036,7 +3036,7 @@ catch [RecognitionException re] {
 //
 expression
 
-    returns [JFXExpression value]   // Expression has its own dedicated JFX tree node type
+    returns [JFXExpression value]   // Expression has its own dedicated Visage tree node type
  
  @init
  {
@@ -3761,7 +3761,7 @@ catch [RecognitionException re] {
 //
 relOps
 
-    returns [JavafxTag relOp]   // Returns the JFX operator type
+    returns [JavafxTag relOp]   // Returns the Visage operator type
     
     : LTGT
         { 
@@ -3852,7 +3852,7 @@ catch [RecognitionException re] {
 //
 arithOps
 
-    returns [JavafxTag arithOp] // Returns the JFX operator type
+    returns [JavafxTag arithOp] // Returns the Visage operator type
     
     : PLUS      { $arithOp = JavafxTag.PLUS;    }
     | SUB       { $arithOp = JavafxTag.MINUS;   }
@@ -3928,7 +3928,7 @@ catch [RecognitionException re] {
 //
 multOps
 
-    returns [JavafxTag multOp]  // Returns the JFX operator type
+    returns [JavafxTag multOp]  // Returns the Visage operator type
     
     : STAR      { $multOp = JavafxTag.MUL;  }
     | SLASH     { $multOp = JavafxTag.DIV;  }
@@ -4031,7 +4031,7 @@ catch [RecognitionException re] {
 //
 unaryOps
 
-    returns [JavafxTag unOp]    // Returns the JFX operator type
+    returns [JavafxTag unOp]    // Returns the Visage operator type
     
     : SUB           { $unOp = JavafxTag.NEG; }
     | NOT           { $unOp = JavafxTag.NOT; }
@@ -4547,7 +4547,7 @@ functionExpression
         block   [-1]    { errNodes.append($block.value); }
     
         {
-            // JFX AST
+            // Visage AST
             //
             $value = F.at(pos($FUNCTION)).FunctionValue
                                 (

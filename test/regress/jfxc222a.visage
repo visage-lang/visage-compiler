@@ -1,4 +1,4 @@
-/* JFXC-222:  support for extending a single Java class from a JFX class
+/* JFXC-222:  support for extending a single Java class from a Visage class
  * @test
  */
 import javax.swing.JButton; 

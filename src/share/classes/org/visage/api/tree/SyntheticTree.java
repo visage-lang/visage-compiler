@@ -24,7 +24,7 @@
 package org.visage.api.tree;
 
 /**
- * Common interface for JFX Tree nodes that allows tree walkers to discover
+ * Common interface for Visage Tree nodes that allows tree walkers to discover
  * whether a node was synthesized by the compiler (synthetic main() for instance)
  * or was created as a consequence of parsing the input source. This interface
  * is mainly used by IDE plugins, but is available to any tree walker.

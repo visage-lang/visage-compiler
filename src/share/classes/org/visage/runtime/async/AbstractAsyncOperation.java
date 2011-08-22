@@ -31,10 +31,10 @@ import org.visage.runtime.Entry;
 
 /**
  * AbstractAsyncOperation.   Base class for result-bearing, asynchronous operations. Some operations are asynchronous
- * because they would potentially block the EDT for unacceptably long. Since JFX lacks a clear concurrency model,
- * allowing users to execute arbitrary JFX code in background threads would invariably cause problems.  Therefore,
+ * because they would potentially block the EDT for unacceptably long. Since Visage lacks a clear concurrency model,
+ * allowing users to execute arbitrary Visage code in background threads would invariably cause problems.  Therefore,
  * we provide a number of Java classes for async operations, which will execute in a background thread, such as
- * "fetch a resource over the web".  Async operations should not access any JFX state except the immutable parameters
+ * "fetch a resource over the web".  Async operations should not access any Visage state except the immutable parameters
  * passed in, and should not have side effects other than those managed by thread-safe Java classes.
  *
  * Async operations are one-time use; subclasses should not attempt to reuse them.  

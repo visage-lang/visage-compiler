@@ -1,5 +1,5 @@
 /**
- * regression test: JFXC-1196 : NPE when binding a method from inherited JFX class
+ * regression test: JFXC-1196 : NPE when binding a method from inherited Visage class
  * @test
  * @run
  */

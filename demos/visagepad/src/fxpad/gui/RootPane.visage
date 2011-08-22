@@ -117,7 +117,7 @@ public class RootPane extends Component, Container {
 
         if (not Sequences.isEqualByContentIdentity(menus, fromJMenuBar)) {
             // PENDING(shannonh) - want to do this without firing the trigger
-            // http://openjfx.java.sun.com/jira/browse/JFXC-1007
+            // http://visage.org/jira/browse/JFXC-1007
             menus = fromJMenuBar;
         }
     }    

@@ -17,14 +17,14 @@
 <br>
 Last Modified:  Feb 2, 2009<br>
 <p><br>
-We now have a compiler project on server kenai.com: <a href=http://kenai.com/projects/openjfx-compiler><b>Visage Compiler</b></a>
+We now have a compiler project on server kenai.com: <a href=http://kenai.com/projects/visage-compiler><b>Visage Compiler</b></a>
 <br>The marina master repository is available for browsing or cloning:
 <DIV CLASS="indented">
-<a class="moz-txt-link-freetext" href="http://kenai.com/hg/openjfx-compiler~marina-master">http://kenai.com/hg/openjfx-compiler~marina-master</a><br>
+<a class="moz-txt-link-freetext" href="http://kenai.com/hg/visage-compiler~marina-master">http://kenai.com/hg/visage-compiler~marina-master</a><br>
 </DIV>
 <br>
 
-The <a href=http://openjfx.java.sun.com/hudson/job/openjfx-compiler>Hudson builds</a> are also available.
+The <a href=http://visage.org/hudson/job/visage-compiler>Hudson builds</a> are also available.
 
 <b>'Developer' status in this new project will be by invitation from the compiler team, at least for the time being.</b>
 <br>
@@ -38,11 +38,11 @@ The kenai server does not support pushes using ssh which means that clones are d
 </p>
 <DIV CLASS="indented">
 hg clone <a class="moz-txt-link-freetext"
- href="http://kenai.com/hg/openjfx-compiler%7Emarina-master">http://kenai.com/hg/openjfx-compiler~marina-master</a>
+ href="http://kenai.com/hg/visage-compiler%7Emarina-master">http://kenai.com/hg/visage-compiler~marina-master</a>
 </DIV>
 <DIV CLASS="indented">
 hg push <a class="moz-txt-link-freetext"
- href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://kenai.com/hg/openjfx-compiler~marina-master</a>
+ href="https://kenai.com/hg/visage-compiler%7Emarina-master">https://kenai.com/hg/visage-compiler~marina-master</a>
 </DIV>
 <p>Older versions of mercurial do not support https, at least not on Solaris. </p>
 
@@ -56,7 +56,7 @@ Neither hg version .95  nor hg version 1.0.1 works on Solaris with https.  Inste
 </p>
 <DIV CLASS="indented">
     hg push <a class="moz-txt-link-freetext"
-     href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://kenai.com/hg/openjfx-compiler~marina-master</a>
+     href="https://kenai.com/hg/visage-compiler%7Emarina-master">https://kenai.com/hg/visage-compiler~marina-master</a>
   <br>
     abort: Python support for SSL and HTTPS is not installed
 </DIV>
@@ -124,10 +124,10 @@ kenai username and password each time you do a push.<br>
 Here is how you enter your kenai username/password during an hg push:<br>
 </p>
 <p>&nbsp; hg push <a class="moz-txt-link-freetext"
- href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://kenai.com/hg/openjfx-compiler~marina-master</a><br>
+ href="https://kenai.com/hg/visage-compiler%7Emarina-master">https://kenai.com/hg/visage-compiler~marina-master</a><br>
 </p>
 <blockquote>pushing to <a class="moz-txt-link-freetext"
- href="https://kenai.com//hg/openjfx-compiler%7Etest-marina">https://kenai.com//hg/openjfx-compiler~test-marina</a><br>
+ href="https://kenai.com//hg/visage-compiler%7Etest-marina">https://kenai.com//hg/visage-compiler~test-marina</a><br>
 searching for changes<br>
 http authorization required<br>
 realm: Mercurial Repository<br>
@@ -142,13 +142,13 @@ added 1 changesets with 1 changes to 1 files<br>
 You can also embed your kenai username in the hg push command, for
 example:<br>
 &nbsp;&nbsp;&nbsp; hg push <a class="moz-txt-link-freetext"
- href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://fredcdobbs@kenai.com/hg/openjfx-compiler~marina-master</a><br>
+ href="https://kenai.com/hg/visage-compiler%7Emarina-master">https://fredcdobbs@kenai.com/hg/visage-compiler~marina-master</a><br>
 <br>
 In fact, we have reports  of cases where on windows, if you <b>don't</b> embed your kenai user name in the URL, hg hangs and uses 100% of the CPU!
 <br>
 You can also embed your password:<br>
 &nbsp;&nbsp;&nbsp; hg push <a class="moz-txt-link-freetext"
- href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://fredcdobbs:GiveMeTheGold@kenai.com/hg/openjfx-compiler~marina-master</a><br>
+ href="https://kenai.com/hg/visage-compiler%7Emarina-master">https://fredcdobbs:GiveMeTheGold@kenai.com/hg/visage-compiler~marina-master</a><br>
 <br>
 
 <br>NOTE:  I have not been able to do a push on Windows from an xemacs shell buffer running cygwin. It appears that hg or ??? can't read input in this
@@ -162,7 +162,7 @@ case.  It works ok if I do the push in a cygwin command window.  If you know how
 NOTE:  We have a test repository that you can use for testing without worrying about breaking something.
 It is here : 
 <a class="moz-txt-link-freetext"
- href="http://kenai.com/hg/openjfx-compiler%7Etest-marina">http://kenai.com/hg/openjfx-compiler~test-marina</a><br>
+ href="http://kenai.com/hg/visage-compiler%7Etest-marina">http://kenai.com/hg/visage-compiler~test-marina</a><br>
 
 <b>If you push to it, be very sure that you are pushing to it and not to the marina-master!</b>
 <br><br>
@@ -186,7 +186,7 @@ online again.)
 <p>You can get help from hg by doing <b>hg help [command]</b>
 <p>To get a clone of the compiler repository, do this:<br>
 &nbsp;&nbsp;&nbsp; <b>hg clone <a class="moz-txt-link-freetext"
- href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">http://kenai.com/hg/openjfx-compiler~marina-master</a><br>
+ href="https://kenai.com/hg/visage-compiler%7Emarina-master">http://kenai.com/hg/visage-compiler~marina-master</a><br>
 </b><br>
 
 To make a change, just edit files. To see what changes have been made:<br>
@@ -202,7 +202,7 @@ the changeset to the 'parent':<br>
 <br>
 To actually push your new changesets to the master, you would then do<br>
 &nbsp;&nbsp; <b>hg push <a class="moz-txt-link-freetext"
- href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://kenai.com/hg/openjfx-compiler~marina-master</a></b><br>
+ href="https://kenai.com/hg/visage-compiler%7Emarina-master">https://kenai.com/hg/visage-compiler~marina-master</a></b><br>
 <br>
 Sometimes this will fail because someone else pushed a change between your commit and
 your push. To avoid this, you should do these three commands as
@@ -211,7 +211,7 @@ quickly as possible<br>
 any changes<br>
 &nbsp;&nbsp; hg commit -m "comment"&nbsp; <br>
 &nbsp;&nbsp; hg push <a class="moz-txt-link-freetext"
- href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://kenai.com/hg/openjfx-compiler~marina-master</a></b><br>
+ href="https://kenai.com/hg/visage-compiler%7Emarina-master">https://kenai.com/hg/visage-compiler~marina-master</a></b><br>
 <br>
 If the push fails, then do<br>
 &nbsp;&nbsp;&nbsp; <b>hg rollback</b><br>

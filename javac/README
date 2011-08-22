@@ -3,7 +3,7 @@ The javac Wrapper Project
 The OpenJDK project at https://jdk-jrl-sources.dev.java.net/ has a source 
 base which consists of several separately-buildable projects; "langtools" 
 is the project where the javac source base and build reside.  This project 
-wraps the "langtools" to integrate the javac build into the OpenJFX Script
+wraps the "langtools" to integrate the javac build into the Visage
 compiler project's build. 
 
 NOTE: once the javac.jar is built the ant scripts will rename the package

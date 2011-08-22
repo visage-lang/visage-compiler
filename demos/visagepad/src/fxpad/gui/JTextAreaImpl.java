@@ -7,7 +7,7 @@ import java.beans.*;
 
 // PENDING(shannonh) - this is public only to work around a compiler bug.
 // Remove public modifier when resolved.
-// http://openjfx.java.sun.com/jira/browse/JFXC-1050
+// http://visage.org/jira/browse/JFXC-1050
 public class JTextAreaImpl extends JTextArea implements PropertyChangeListener {
 
     private java.awt.Paint backgroundPaint;

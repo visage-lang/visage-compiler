@@ -1,5 +1,5 @@
 /*
- * Internal error in OpenJFX compiler caused by already defined variable in Sequence.
+ * Internal error in Visage compiler caused by already defined variable in Sequence.
  *
  * @test/compile-error
  */

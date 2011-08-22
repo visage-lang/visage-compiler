@@ -290,8 +290,8 @@ public class JarAnalyzer {
 
     }
     private static final String BLDTAG = "BLDTAG";
-    private static final String OPENJFX =
-            "http://openjfx.java.sun.com/hudson/job/openjfx-compiler/" +
+    private static final String VISAGE =
+            "http://visage.org/hudson/job/visage-compiler/" +
             BLDTAG + "/artifact/dist/lib/shared/visagert.jar";
 
     private static JarStat getTotals(File file) {
@@ -328,8 +328,8 @@ public class JarAnalyzer {
             System.exit(1);
         } else if (args[0].endsWith("compare")) {
             try {
-                URL url1 = new URL(OPENJFX.replace(BLDTAG, args[1]));
-                URL url2 = new URL(OPENJFX.replace(BLDTAG, args[2]));
+                URL url1 = new URL(VISAGE.replace(BLDTAG, args[1]));
+                URL url2 = new URL(VISAGE.replace(BLDTAG, args[2]));
                 Hashtable<String, PkgEntry> tbl1 = readJarFile(url1);
                 Hashtable<String, PkgEntry> tbl2 = readJarFile(url2);
                 dumpToFile(args[1], args[2], System.out, tbl1, tbl2);
