@@ -561,8 +561,8 @@ public class ScriptShell implements DiagnosticListener<JavaFileObject> {
     private List<Command> scripts = new ArrayList<Command>();
     // error messages resource
     private static ResourceBundle msgRes;
-    private static String BUNDLE_NAME = "com.sun.tools.script.shell.messages";
-    private static String PROGRAM_NAME = "jfxrunscript";
+    private static String BUNDLE_NAME = "org.visage.tools.script.shell.messages";
+    private static String PROGRAM_NAME = "visagerunscript";
 
     static {
         //        msgRes = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault());
