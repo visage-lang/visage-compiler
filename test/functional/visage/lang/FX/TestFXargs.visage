@@ -5,7 +5,7 @@
  * @test
  * @run/param arg1 arg2 arg3
  */
-import visage.lang.FX;
+import visage.lang.Visage;
 
 public class JAVAFX_LANG_TEST {
 
@@ -27,7 +27,7 @@ public class JAVAFX_LANG_TEST {
 	  
   public function GetArgumentsTest()
 	{
-	  var args = FX.getArguments();
+	  var args = Visage.getArguments();
       check(expectedArgs,args,"args[]");
 	}
 
@@ -36,7 +36,7 @@ public class JAVAFX_LANG_TEST {
 		/** Gets arguments by number string. This may be subject to change. */
 		var arg; var idx = 0;
 		for( a in ["0","1","2"])  {   	
-    		arg = FX.getArgument(a);
+    		arg = Visage.getArgument(a);
     	   check(arg.toString(),expectedArgs[idx++],"one arg check");
 		}
 	}
@@ -47,7 +47,7 @@ public class JAVAFX_LANG_TEST {
 
 		/** get non-existant argument */
 		try	{
-			nullarg = FX.getArgument("asdfasdf");
+			nullarg = Visage.getArgument("asdfasdf");
 		}	catch (npe:java.lang.NullPointerException)	{
 			caughtNPE=true;
 		}
@@ -56,7 +56,7 @@ public class JAVAFX_LANG_TEST {
 
 		/** get past end of argument list */
 		try	{
-			nullarg = FX.getArgument("3");
+			nullarg = Visage.getArgument("3");
 		}	catch (npe:java.lang.NullPointerException)	{
 			caughtNPE=true;
 		}
@@ -66,7 +66,7 @@ public class JAVAFX_LANG_TEST {
 
 		/** get before left end of argument list */
 		try	{
-			nullarg = FX.getArgument("-1");
+			nullarg = Visage.getArgument("-1");
 		}	catch (npe:java.lang.NullPointerException)	{
 			caughtNPE=true;
 		}

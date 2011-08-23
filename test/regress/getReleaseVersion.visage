@@ -3,9 +3,9 @@
  * @run
  */
 import java.lang.System;
-import visage.lang.FX;
+import visage.lang.Visage;
 
-var version: String = FX.getProperty("visage.version");
+var version: String = Visage.getProperty("visage.version");
 var ok = true;
 if (version == "unknown")
     ok = false;

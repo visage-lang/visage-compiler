@@ -18,22 +18,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalByteActByte(): Byte { 120 as Byte }
     function testParamByteActByte() {
        var r_val: String = paramByte(120 as Byte);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActByte_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActByte_val: Byte={r_val};");       
        assertEquals("{res.resParamByteActByte_val as Long}", "{r_val}");
 
        var par: Byte = 120 as Byte;
        var r_var: String = paramByte(par);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActByte_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActByte_var: Byte={r_var};\n//");       
        assertEquals("{res.resParamByteActByte_var as Long}", "{r_var}");
     }
 
     function testRetByteActByte() {
        var r_val: Byte = retvalByteActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActByte_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActByte_val: Byte={r_val};");       
        assertEquals("{res.resRetByteActByte_val as Long}", "{r_val as Long}");
 
        var r_var: Byte = retvarByteActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActByte_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActByte_var: Byte={r_var};\n//");       
        assertEquals("{res.resRetByteActByte_var as Long}", "{r_var as Long}");
     }
 
@@ -41,22 +41,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalByteActShort(): Byte { 30000 as Short }
     function testParamByteActShort() {
        var r_val: String = paramByte(30000 as Short);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActShort_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActShort_val: Byte={r_val};");       
        assertEquals("{res.resParamByteActShort_val as Long}", "{r_val}");
 
        var par: Short = 30000 as Short;
        var r_var: String = paramByte(par);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActShort_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActShort_var: Byte={r_var};\n//");       
        assertEquals("{res.resParamByteActShort_var as Long}", "{r_var}");
     }
 
     function testRetByteActShort() {
        var r_val: Byte = retvalByteActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActShort_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActShort_val: Byte={r_val};");       
        assertEquals("{res.resRetByteActShort_val as Long}", "{r_val as Long}");
 
        var r_var: Byte = retvarByteActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActShort_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActShort_var: Byte={r_var};\n//");       
        assertEquals("{res.resRetByteActShort_var as Long}", "{r_var as Long}");
     }
 
@@ -64,22 +64,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalByteActCharacter(): Byte { 64 as Character }
     function testParamByteActCharacter() {
        //FAIL var r_val: String = paramByte(64 as Character);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamByteActCharacter_val: Byte={r_val};");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamByteActCharacter_val: Byte={r_val};");       
        ////FAIL assertEquals("{res.resParamByteActCharacter_val as Long}", "{r_val}");
 
        //FAIL var par: Character = 64 as Character;
        //FAIL var r_var: String = paramByte(par);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamByteActCharacter_var: Byte={r_var};\n//");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamByteActCharacter_var: Byte={r_var};\n//");       
        ////FAIL assertEquals("{res.resParamByteActCharacter_var as Long}", "{r_var}");
     }
 
     function testRetByteActCharacter() {
        var r_val: Byte = retvalByteActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActCharacter_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActCharacter_val: Byte={r_val};");       
        assertEquals("{res.resRetByteActCharacter_val as Long}", "{r_val as Long}");
 
        var r_var: Byte = retvarByteActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActCharacter_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActCharacter_var: Byte={r_var};\n//");       
        assertEquals("{res.resRetByteActCharacter_var as Long}", "{r_var as Long}");
     }
 
@@ -87,22 +87,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalByteActInteger(): Byte { 1000000 as Integer }
     function testParamByteActInteger() {
        var r_val: String = paramByte(1000000 as Integer);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActInteger_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActInteger_val: Byte={r_val};");       
        assertEquals("{res.resParamByteActInteger_val as Long}", "{r_val}");
 
        var par: Integer = 1000000 as Integer;
        var r_var: String = paramByte(par);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActInteger_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActInteger_var: Byte={r_var};\n//");       
        assertEquals("{res.resParamByteActInteger_var as Long}", "{r_var}");
     }
 
     function testRetByteActInteger() {
        var r_val: Byte = retvalByteActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActInteger_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActInteger_val: Byte={r_val};");       
        assertEquals("{res.resRetByteActInteger_val as Long}", "{r_val as Long}");
 
        var r_var: Byte = retvarByteActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActInteger_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActInteger_var: Byte={r_var};\n//");       
        assertEquals("{res.resRetByteActInteger_var as Long}", "{r_var as Long}");
     }
 
@@ -110,22 +110,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalByteActLong(): Byte { 1000000000 as Long }
     function testParamByteActLong() {
        var r_val: String = paramByte(1000000000 as Long);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActLong_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActLong_val: Byte={r_val};");       
        assertEquals("{res.resParamByteActLong_val as Long}", "{r_val}");
 
        var par: Long = 1000000000 as Long;
        var r_var: String = paramByte(par);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActLong_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActLong_var: Byte={r_var};\n//");       
        assertEquals("{res.resParamByteActLong_var as Long}", "{r_var}");
     }
 
     function testRetByteActLong() {
        var r_val: Byte = retvalByteActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActLong_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActLong_val: Byte={r_val};");       
        assertEquals("{res.resRetByteActLong_val as Long}", "{r_val as Long}");
 
        var r_var: Byte = retvarByteActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActLong_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActLong_var: Byte={r_var};\n//");       
        assertEquals("{res.resRetByteActLong_var as Long}", "{r_var as Long}");
     }
 
@@ -133,22 +133,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalByteActFloat(): Byte { 10.5 as Float }
     function testParamByteActFloat() {
        var r_val: String = paramByte(10.5 as Float);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActFloat_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActFloat_val: Byte={r_val};");       
        assertEquals("{res.resParamByteActFloat_val as Long}", "{r_val}");
 
        var par: Float = 10.5 as Float;
        var r_var: String = paramByte(par);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActFloat_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActFloat_var: Byte={r_var};\n//");       
        assertEquals("{res.resParamByteActFloat_var as Long}", "{r_var}");
     }
 
     function testRetByteActFloat() {
        var r_val: Byte = retvalByteActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActFloat_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActFloat_val: Byte={r_val};");       
        assertEquals("{res.resRetByteActFloat_val as Long}", "{r_val as Long}");
 
        var r_var: Byte = retvarByteActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActFloat_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActFloat_var: Byte={r_var};\n//");       
        assertEquals("{res.resRetByteActFloat_var as Long}", "{r_var as Long}");
     }
 
@@ -156,22 +156,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalByteActDouble(): Byte { 1.25e4 as Double }
     function testParamByteActDouble() {
        var r_val: String = paramByte(1.25e4 as Double);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActDouble_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActDouble_val: Byte={r_val};");       
        assertEquals("{res.resParamByteActDouble_val as Long}", "{r_val}");
 
        var par: Double = 1.25e4 as Double;
        var r_var: String = paramByte(par);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActDouble_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActDouble_var: Byte={r_var};\n//");       
        assertEquals("{res.resParamByteActDouble_var as Long}", "{r_var}");
     }
 
     function testRetByteActDouble() {
        var r_val: Byte = retvalByteActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActDouble_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActDouble_val: Byte={r_val};");       
        assertEquals("{res.resRetByteActDouble_val as Long}", "{r_val as Long}");
 
        var r_var: Byte = retvarByteActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActDouble_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActDouble_var: Byte={r_var};\n//");       
        assertEquals("{res.resRetByteActDouble_var as Long}", "{r_var as Long}");
     }
 
@@ -179,22 +179,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalByteActNumber(): Byte { 100 as Number }
     function testParamByteActNumber() {
        var r_val: String = paramByte(100 as Number);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActNumber_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActNumber_val: Byte={r_val};");       
        assertEquals("{res.resParamByteActNumber_val as Long}", "{r_val}");
 
        var par: Number = 100 as Number;
        var r_var: String = paramByte(par);
-       if (gen)visage.lang.FX.print("\nvar resParamByteActNumber_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamByteActNumber_var: Byte={r_var};\n//");       
        assertEquals("{res.resParamByteActNumber_var as Long}", "{r_var}");
     }
 
     function testRetByteActNumber() {
        var r_val: Byte = retvalByteActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActNumber_val: Byte={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActNumber_val: Byte={r_val};");       
        assertEquals("{res.resRetByteActNumber_val as Long}", "{r_val as Long}");
 
        var r_var: Byte = retvarByteActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetByteActNumber_var: Byte={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetByteActNumber_var: Byte={r_var};\n//");       
        assertEquals("{res.resRetByteActNumber_var as Long}", "{r_var as Long}");
     }
 
@@ -203,22 +203,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalShortActByte(): Short { 120 as Byte }
     function testParamShortActByte() {
        var r_val: String = paramShort(120 as Byte);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActByte_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActByte_val: Short={r_val};");       
        assertEquals("{res.resParamShortActByte_val as Long}", "{r_val}");
 
        var par: Byte = 120 as Byte;
        var r_var: String = paramShort(par);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActByte_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActByte_var: Short={r_var};\n//");       
        assertEquals("{res.resParamShortActByte_var as Long}", "{r_var}");
     }
 
     function testRetShortActByte() {
        var r_val: Short = retvalShortActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActByte_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActByte_val: Short={r_val};");       
        assertEquals("{res.resRetShortActByte_val as Long}", "{r_val as Long}");
 
        var r_var: Short = retvarShortActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActByte_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActByte_var: Short={r_var};\n//");       
        assertEquals("{res.resRetShortActByte_var as Long}", "{r_var as Long}");
     }
 
@@ -226,22 +226,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalShortActShort(): Short { 30000 as Short }
     function testParamShortActShort() {
        var r_val: String = paramShort(30000 as Short);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActShort_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActShort_val: Short={r_val};");       
        assertEquals("{res.resParamShortActShort_val as Long}", "{r_val}");
 
        var par: Short = 30000 as Short;
        var r_var: String = paramShort(par);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActShort_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActShort_var: Short={r_var};\n//");       
        assertEquals("{res.resParamShortActShort_var as Long}", "{r_var}");
     }
 
     function testRetShortActShort() {
        var r_val: Short = retvalShortActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActShort_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActShort_val: Short={r_val};");       
        assertEquals("{res.resRetShortActShort_val as Long}", "{r_val as Long}");
 
        var r_var: Short = retvarShortActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActShort_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActShort_var: Short={r_var};\n//");       
        assertEquals("{res.resRetShortActShort_var as Long}", "{r_var as Long}");
     }
 
@@ -249,22 +249,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalShortActCharacter(): Short { 64 as Character }
     function testParamShortActCharacter() {
        //FAIL var r_val: String = paramShort(64 as Character);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamShortActCharacter_val: Short={r_val};");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamShortActCharacter_val: Short={r_val};");       
        ////FAIL assertEquals("{res.resParamShortActCharacter_val as Long}", "{r_val}");
 
        //FAIL var par: Character = 64 as Character;
        //FAIL var r_var: String = paramShort(par);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamShortActCharacter_var: Short={r_var};\n//");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamShortActCharacter_var: Short={r_var};\n//");       
        ////FAIL assertEquals("{res.resParamShortActCharacter_var as Long}", "{r_var}");
     }
 
     function testRetShortActCharacter() {
        var r_val: Short = retvalShortActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActCharacter_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActCharacter_val: Short={r_val};");       
        assertEquals("{res.resRetShortActCharacter_val as Long}", "{r_val as Long}");
 
        var r_var: Short = retvarShortActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActCharacter_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActCharacter_var: Short={r_var};\n//");       
        assertEquals("{res.resRetShortActCharacter_var as Long}", "{r_var as Long}");
     }
 
@@ -272,22 +272,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalShortActInteger(): Short { 1000000 as Integer }
     function testParamShortActInteger() {
        var r_val: String = paramShort(1000000 as Integer);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActInteger_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActInteger_val: Short={r_val};");       
        assertEquals("{res.resParamShortActInteger_val as Long}", "{r_val}");
 
        var par: Integer = 1000000 as Integer;
        var r_var: String = paramShort(par);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActInteger_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActInteger_var: Short={r_var};\n//");       
        assertEquals("{res.resParamShortActInteger_var as Long}", "{r_var}");
     }
 
     function testRetShortActInteger() {
        var r_val: Short = retvalShortActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActInteger_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActInteger_val: Short={r_val};");       
        assertEquals("{res.resRetShortActInteger_val as Long}", "{r_val as Long}");
 
        var r_var: Short = retvarShortActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActInteger_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActInteger_var: Short={r_var};\n//");       
        assertEquals("{res.resRetShortActInteger_var as Long}", "{r_var as Long}");
     }
 
@@ -295,22 +295,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalShortActLong(): Short { 1000000000 as Long }
     function testParamShortActLong() {
        var r_val: String = paramShort(1000000000 as Long);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActLong_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActLong_val: Short={r_val};");       
        assertEquals("{res.resParamShortActLong_val as Long}", "{r_val}");
 
        var par: Long = 1000000000 as Long;
        var r_var: String = paramShort(par);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActLong_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActLong_var: Short={r_var};\n//");       
        assertEquals("{res.resParamShortActLong_var as Long}", "{r_var}");
     }
 
     function testRetShortActLong() {
        var r_val: Short = retvalShortActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActLong_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActLong_val: Short={r_val};");       
        assertEquals("{res.resRetShortActLong_val as Long}", "{r_val as Long}");
 
        var r_var: Short = retvarShortActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActLong_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActLong_var: Short={r_var};\n//");       
        assertEquals("{res.resRetShortActLong_var as Long}", "{r_var as Long}");
     }
 
@@ -318,22 +318,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalShortActFloat(): Short { 10.5 as Float }
     function testParamShortActFloat() {
        var r_val: String = paramShort(10.5 as Float);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActFloat_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActFloat_val: Short={r_val};");       
        assertEquals("{res.resParamShortActFloat_val as Long}", "{r_val}");
 
        var par: Float = 10.5 as Float;
        var r_var: String = paramShort(par);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActFloat_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActFloat_var: Short={r_var};\n//");       
        assertEquals("{res.resParamShortActFloat_var as Long}", "{r_var}");
     }
 
     function testRetShortActFloat() {
        var r_val: Short = retvalShortActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActFloat_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActFloat_val: Short={r_val};");       
        assertEquals("{res.resRetShortActFloat_val as Long}", "{r_val as Long}");
 
        var r_var: Short = retvarShortActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActFloat_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActFloat_var: Short={r_var};\n//");       
        assertEquals("{res.resRetShortActFloat_var as Long}", "{r_var as Long}");
     }
 
@@ -341,22 +341,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalShortActDouble(): Short { 1.25e4 as Double }
     function testParamShortActDouble() {
        var r_val: String = paramShort(1.25e4 as Double);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActDouble_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActDouble_val: Short={r_val};");       
        assertEquals("{res.resParamShortActDouble_val as Long}", "{r_val}");
 
        var par: Double = 1.25e4 as Double;
        var r_var: String = paramShort(par);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActDouble_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActDouble_var: Short={r_var};\n//");       
        assertEquals("{res.resParamShortActDouble_var as Long}", "{r_var}");
     }
 
     function testRetShortActDouble() {
        var r_val: Short = retvalShortActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActDouble_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActDouble_val: Short={r_val};");       
        assertEquals("{res.resRetShortActDouble_val as Long}", "{r_val as Long}");
 
        var r_var: Short = retvarShortActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActDouble_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActDouble_var: Short={r_var};\n//");       
        assertEquals("{res.resRetShortActDouble_var as Long}", "{r_var as Long}");
     }
 
@@ -364,22 +364,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalShortActNumber(): Short { 100 as Number }
     function testParamShortActNumber() {
        var r_val: String = paramShort(100 as Number);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActNumber_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActNumber_val: Short={r_val};");       
        assertEquals("{res.resParamShortActNumber_val as Long}", "{r_val}");
 
        var par: Number = 100 as Number;
        var r_var: String = paramShort(par);
-       if (gen)visage.lang.FX.print("\nvar resParamShortActNumber_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamShortActNumber_var: Short={r_var};\n//");       
        assertEquals("{res.resParamShortActNumber_var as Long}", "{r_var}");
     }
 
     function testRetShortActNumber() {
        var r_val: Short = retvalShortActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActNumber_val: Short={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActNumber_val: Short={r_val};");       
        assertEquals("{res.resRetShortActNumber_val as Long}", "{r_val as Long}");
 
        var r_var: Short = retvarShortActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetShortActNumber_var: Short={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetShortActNumber_var: Short={r_var};\n//");       
        assertEquals("{res.resRetShortActNumber_var as Long}", "{r_var as Long}");
     }
 
@@ -388,22 +388,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalCharacterActByte(): Character { 120 as Byte }
     function testParamCharacterActByte() {
        //FAIL var r_val: String = paramCharacter(120 as Byte);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActByte_val: Character={r_val};");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActByte_val: Character={r_val};");       
        ////FAIL assertEquals("{res.resParamCharacterActByte_val as Long}", "{r_val}");
 
        //FAIL var par: Byte = 120 as Byte;
        //FAIL var r_var: String = paramCharacter(par);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActByte_var: Character={r_var};\n//");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActByte_var: Character={r_var};\n//");       
        ////FAIL assertEquals("{res.resParamCharacterActByte_var as Long}", "{r_var}");
     }
 
     function testRetCharacterActByte() {
        var r_val: Character = retvalCharacterActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActByte_val: Character={r_val as Integer};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActByte_val: Character={r_val as Integer};");       
        assertEquals("{res.resRetCharacterActByte_val as Long}", "{r_val as Long}");
 
        var r_var: Character = retvarCharacterActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActByte_var: Character={r_var as Integer};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActByte_var: Character={r_var as Integer};\n//");       
        assertEquals("{res.resRetCharacterActByte_var as Long}", "{r_var as Long}");
     }
 
@@ -411,22 +411,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalCharacterActShort(): Character { 30000 as Short }
     function testParamCharacterActShort() {
        //FAIL var r_val: String = paramCharacter(30000 as Short);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActShort_val: Character={r_val};");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActShort_val: Character={r_val};");       
        ////FAIL assertEquals("{res.resParamCharacterActShort_val as Long}", "{r_val}");
 
        //FAIL var par: Short = 30000 as Short;
        //FAIL var r_var: String = paramCharacter(par);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActShort_var: Character={r_var};\n//");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActShort_var: Character={r_var};\n//");       
        ////FAIL assertEquals("{res.resParamCharacterActShort_var as Long}", "{r_var}");
     }
 
     function testRetCharacterActShort() {
        var r_val: Character = retvalCharacterActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActShort_val: Character={r_val as Integer};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActShort_val: Character={r_val as Integer};");       
        assertEquals("{res.resRetCharacterActShort_val as Long}", "{r_val as Long}");
 
        var r_var: Character = retvarCharacterActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActShort_var: Character={r_var as Integer};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActShort_var: Character={r_var as Integer};\n//");       
        assertEquals("{res.resRetCharacterActShort_var as Long}", "{r_var as Long}");
     }
 
@@ -434,22 +434,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalCharacterActCharacter(): Character { 64 as Character }
     function testParamCharacterActCharacter() {
        var r_val: String = paramCharacter(64 as Character);
-       if (gen)visage.lang.FX.print("\nvar resParamCharacterActCharacter_val: Character={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamCharacterActCharacter_val: Character={r_val};");       
        assertEquals("{res.resParamCharacterActCharacter_val as Long}", "{r_val}");
 
        var par: Character = 64 as Character;
        var r_var: String = paramCharacter(par);
-       if (gen)visage.lang.FX.print("\nvar resParamCharacterActCharacter_var: Character={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamCharacterActCharacter_var: Character={r_var};\n//");       
        assertEquals("{res.resParamCharacterActCharacter_var as Long}", "{r_var}");
     }
 
     function testRetCharacterActCharacter() {
        var r_val: Character = retvalCharacterActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActCharacter_val: Character={r_val as Integer};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActCharacter_val: Character={r_val as Integer};");       
        assertEquals("{res.resRetCharacterActCharacter_val as Long}", "{r_val as Long}");
 
        var r_var: Character = retvarCharacterActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActCharacter_var: Character={r_var as Integer};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActCharacter_var: Character={r_var as Integer};\n//");       
        assertEquals("{res.resRetCharacterActCharacter_var as Long}", "{r_var as Long}");
     }
 
@@ -457,22 +457,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalCharacterActInteger(): Character { 1000000 as Integer }
     function testParamCharacterActInteger() {
        //FAIL var r_val: String = paramCharacter(1000000 as Integer);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActInteger_val: Character={r_val};");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActInteger_val: Character={r_val};");       
        ////FAIL assertEquals("{res.resParamCharacterActInteger_val as Long}", "{r_val}");
 
        //FAIL var par: Integer = 1000000 as Integer;
        //FAIL var r_var: String = paramCharacter(par);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActInteger_var: Character={r_var};\n//");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActInteger_var: Character={r_var};\n//");       
        ////FAIL assertEquals("{res.resParamCharacterActInteger_var as Long}", "{r_var}");
     }
 
     function testRetCharacterActInteger() {
        var r_val: Character = retvalCharacterActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActInteger_val: Character={r_val as Integer};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActInteger_val: Character={r_val as Integer};");       
        assertEquals("{res.resRetCharacterActInteger_val as Long}", "{r_val as Long}");
 
        var r_var: Character = retvarCharacterActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActInteger_var: Character={r_var as Integer};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActInteger_var: Character={r_var as Integer};\n//");       
        assertEquals("{res.resRetCharacterActInteger_var as Long}", "{r_var as Long}");
     }
 
@@ -480,22 +480,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalCharacterActLong(): Character { 1000000000 as Long }
     function testParamCharacterActLong() {
        //FAIL var r_val: String = paramCharacter(1000000000 as Long);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActLong_val: Character={r_val};");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActLong_val: Character={r_val};");       
        ////FAIL assertEquals("{res.resParamCharacterActLong_val as Long}", "{r_val}");
 
        //FAIL var par: Long = 1000000000 as Long;
        //FAIL var r_var: String = paramCharacter(par);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActLong_var: Character={r_var};\n//");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActLong_var: Character={r_var};\n//");       
        ////FAIL assertEquals("{res.resParamCharacterActLong_var as Long}", "{r_var}");
     }
 
     function testRetCharacterActLong() {
        var r_val: Character = retvalCharacterActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActLong_val: Character={r_val as Integer};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActLong_val: Character={r_val as Integer};");       
        assertEquals("{res.resRetCharacterActLong_val as Long}", "{r_val as Long}");
 
        var r_var: Character = retvarCharacterActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActLong_var: Character={r_var as Integer};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActLong_var: Character={r_var as Integer};\n//");       
        assertEquals("{res.resRetCharacterActLong_var as Long}", "{r_var as Long}");
     }
 
@@ -503,22 +503,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalCharacterActFloat(): Character { 10.5 as Float }
     function testParamCharacterActFloat() {
        //FAIL var r_val: String = paramCharacter(10.5 as Float);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActFloat_val: Character={r_val};");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActFloat_val: Character={r_val};");       
        ////FAIL assertEquals("{res.resParamCharacterActFloat_val as Long}", "{r_val}");
 
        //FAIL var par: Float = 10.5 as Float;
        //FAIL var r_var: String = paramCharacter(par);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActFloat_var: Character={r_var};\n//");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActFloat_var: Character={r_var};\n//");       
        ////FAIL assertEquals("{res.resParamCharacterActFloat_var as Long}", "{r_var}");
     }
 
     function testRetCharacterActFloat() {
        var r_val: Character = retvalCharacterActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActFloat_val: Character={r_val as Integer};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActFloat_val: Character={r_val as Integer};");       
        assertEquals("{res.resRetCharacterActFloat_val as Long}", "{r_val as Long}");
 
        var r_var: Character = retvarCharacterActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActFloat_var: Character={r_var as Integer};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActFloat_var: Character={r_var as Integer};\n//");       
        assertEquals("{res.resRetCharacterActFloat_var as Long}", "{r_var as Long}");
     }
 
@@ -526,22 +526,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalCharacterActDouble(): Character { 1.25e4 as Double }
     function testParamCharacterActDouble() {
        //FAIL var r_val: String = paramCharacter(1.25e4 as Double);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActDouble_val: Character={r_val};");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActDouble_val: Character={r_val};");       
        ////FAIL assertEquals("{res.resParamCharacterActDouble_val as Long}", "{r_val}");
 
        //FAIL var par: Double = 1.25e4 as Double;
        //FAIL var r_var: String = paramCharacter(par);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActDouble_var: Character={r_var};\n//");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActDouble_var: Character={r_var};\n//");       
        ////FAIL assertEquals("{res.resParamCharacterActDouble_var as Long}", "{r_var}");
     }
 
     function testRetCharacterActDouble() {
        var r_val: Character = retvalCharacterActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActDouble_val: Character={r_val as Integer};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActDouble_val: Character={r_val as Integer};");       
        assertEquals("{res.resRetCharacterActDouble_val as Long}", "{r_val as Long}");
 
        var r_var: Character = retvarCharacterActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActDouble_var: Character={r_var as Integer};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActDouble_var: Character={r_var as Integer};\n//");       
        assertEquals("{res.resRetCharacterActDouble_var as Long}", "{r_var as Long}");
     }
 
@@ -549,22 +549,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalCharacterActNumber(): Character { 100 as Number }
     function testParamCharacterActNumber() {
        //FAIL var r_val: String = paramCharacter(100 as Number);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActNumber_val: Character={r_val};");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActNumber_val: Character={r_val};");       
        ////FAIL assertEquals("{res.resParamCharacterActNumber_val as Long}", "{r_val}");
 
        //FAIL var par: Number = 100 as Number;
        //FAIL var r_var: String = paramCharacter(par);
-       //FAIL if (gen)visage.lang.FX.print("\nvar resParamCharacterActNumber_var: Character={r_var};\n//");       
+       //FAIL if (gen)visage.lang.Visage.print("\nvar resParamCharacterActNumber_var: Character={r_var};\n//");       
        ////FAIL assertEquals("{res.resParamCharacterActNumber_var as Long}", "{r_var}");
     }
 
     function testRetCharacterActNumber() {
        var r_val: Character = retvalCharacterActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActNumber_val: Character={r_val as Integer};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActNumber_val: Character={r_val as Integer};");       
        assertEquals("{res.resRetCharacterActNumber_val as Long}", "{r_val as Long}");
 
        var r_var: Character = retvarCharacterActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetCharacterActNumber_var: Character={r_var as Integer};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetCharacterActNumber_var: Character={r_var as Integer};\n//");       
        assertEquals("{res.resRetCharacterActNumber_var as Long}", "{r_var as Long}");
     }
 
@@ -573,22 +573,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalIntegerActByte(): Integer { 120 as Byte }
     function testParamIntegerActByte() {
        var r_val: String = paramInteger(120 as Byte);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActByte_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActByte_val: Integer={r_val};");       
        assertEquals("{res.resParamIntegerActByte_val as Long}", "{r_val}");
 
        var par: Byte = 120 as Byte;
        var r_var: String = paramInteger(par);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActByte_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActByte_var: Integer={r_var};\n//");       
        assertEquals("{res.resParamIntegerActByte_var as Long}", "{r_var}");
     }
 
     function testRetIntegerActByte() {
        var r_val: Integer = retvalIntegerActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActByte_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActByte_val: Integer={r_val};");       
        assertEquals("{res.resRetIntegerActByte_val as Long}", "{r_val as Long}");
 
        var r_var: Integer = retvarIntegerActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActByte_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActByte_var: Integer={r_var};\n//");       
        assertEquals("{res.resRetIntegerActByte_var as Long}", "{r_var as Long}");
     }
 
@@ -596,22 +596,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalIntegerActShort(): Integer { 30000 as Short }
     function testParamIntegerActShort() {
        var r_val: String = paramInteger(30000 as Short);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActShort_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActShort_val: Integer={r_val};");       
        assertEquals("{res.resParamIntegerActShort_val as Long}", "{r_val}");
 
        var par: Short = 30000 as Short;
        var r_var: String = paramInteger(par);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActShort_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActShort_var: Integer={r_var};\n//");       
        assertEquals("{res.resParamIntegerActShort_var as Long}", "{r_var}");
     }
 
     function testRetIntegerActShort() {
        var r_val: Integer = retvalIntegerActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActShort_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActShort_val: Integer={r_val};");       
        assertEquals("{res.resRetIntegerActShort_val as Long}", "{r_val as Long}");
 
        var r_var: Integer = retvarIntegerActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActShort_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActShort_var: Integer={r_var};\n//");       
        assertEquals("{res.resRetIntegerActShort_var as Long}", "{r_var as Long}");
     }
 
@@ -619,22 +619,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalIntegerActCharacter(): Integer { 64 as Character }
     function testParamIntegerActCharacter() {
        var r_val: String = paramInteger(64 as Character);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActCharacter_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActCharacter_val: Integer={r_val};");       
        assertEquals("{res.resParamIntegerActCharacter_val as Long}", "{r_val}");
 
        var par: Character = 64 as Character;
        var r_var: String = paramInteger(par);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActCharacter_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActCharacter_var: Integer={r_var};\n//");       
        assertEquals("{res.resParamIntegerActCharacter_var as Long}", "{r_var}");
     }
 
     function testRetIntegerActCharacter() {
        var r_val: Integer = retvalIntegerActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActCharacter_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActCharacter_val: Integer={r_val};");       
        assertEquals("{res.resRetIntegerActCharacter_val as Long}", "{r_val as Long}");
 
        var r_var: Integer = retvarIntegerActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActCharacter_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActCharacter_var: Integer={r_var};\n//");       
        assertEquals("{res.resRetIntegerActCharacter_var as Long}", "{r_var as Long}");
     }
 
@@ -642,22 +642,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalIntegerActInteger(): Integer { 1000000 as Integer }
     function testParamIntegerActInteger() {
        var r_val: String = paramInteger(1000000 as Integer);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActInteger_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActInteger_val: Integer={r_val};");       
        assertEquals("{res.resParamIntegerActInteger_val as Long}", "{r_val}");
 
        var par: Integer = 1000000 as Integer;
        var r_var: String = paramInteger(par);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActInteger_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActInteger_var: Integer={r_var};\n//");       
        assertEquals("{res.resParamIntegerActInteger_var as Long}", "{r_var}");
     }
 
     function testRetIntegerActInteger() {
        var r_val: Integer = retvalIntegerActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActInteger_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActInteger_val: Integer={r_val};");       
        assertEquals("{res.resRetIntegerActInteger_val as Long}", "{r_val as Long}");
 
        var r_var: Integer = retvarIntegerActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActInteger_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActInteger_var: Integer={r_var};\n//");       
        assertEquals("{res.resRetIntegerActInteger_var as Long}", "{r_var as Long}");
     }
 
@@ -665,22 +665,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalIntegerActLong(): Integer { 1000000000 as Long }
     function testParamIntegerActLong() {
        var r_val: String = paramInteger(1000000000 as Long);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActLong_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActLong_val: Integer={r_val};");       
        assertEquals("{res.resParamIntegerActLong_val as Long}", "{r_val}");
 
        var par: Long = 1000000000 as Long;
        var r_var: String = paramInteger(par);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActLong_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActLong_var: Integer={r_var};\n//");       
        assertEquals("{res.resParamIntegerActLong_var as Long}", "{r_var}");
     }
 
     function testRetIntegerActLong() {
        var r_val: Integer = retvalIntegerActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActLong_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActLong_val: Integer={r_val};");       
        assertEquals("{res.resRetIntegerActLong_val as Long}", "{r_val as Long}");
 
        var r_var: Integer = retvarIntegerActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActLong_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActLong_var: Integer={r_var};\n//");       
        assertEquals("{res.resRetIntegerActLong_var as Long}", "{r_var as Long}");
     }
 
@@ -688,22 +688,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalIntegerActFloat(): Integer { 10.5 as Float }
     function testParamIntegerActFloat() {
        var r_val: String = paramInteger(10.5 as Float);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActFloat_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActFloat_val: Integer={r_val};");       
        assertEquals("{res.resParamIntegerActFloat_val as Long}", "{r_val}");
 
        var par: Float = 10.5 as Float;
        var r_var: String = paramInteger(par);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActFloat_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActFloat_var: Integer={r_var};\n//");       
        assertEquals("{res.resParamIntegerActFloat_var as Long}", "{r_var}");
     }
 
     function testRetIntegerActFloat() {
        var r_val: Integer = retvalIntegerActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActFloat_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActFloat_val: Integer={r_val};");       
        assertEquals("{res.resRetIntegerActFloat_val as Long}", "{r_val as Long}");
 
        var r_var: Integer = retvarIntegerActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActFloat_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActFloat_var: Integer={r_var};\n//");       
        assertEquals("{res.resRetIntegerActFloat_var as Long}", "{r_var as Long}");
     }
 
@@ -711,22 +711,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalIntegerActDouble(): Integer { 1.25e4 as Double }
     function testParamIntegerActDouble() {
        var r_val: String = paramInteger(1.25e4 as Double);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActDouble_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActDouble_val: Integer={r_val};");       
        assertEquals("{res.resParamIntegerActDouble_val as Long}", "{r_val}");
 
        var par: Double = 1.25e4 as Double;
        var r_var: String = paramInteger(par);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActDouble_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActDouble_var: Integer={r_var};\n//");       
        assertEquals("{res.resParamIntegerActDouble_var as Long}", "{r_var}");
     }
 
     function testRetIntegerActDouble() {
        var r_val: Integer = retvalIntegerActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActDouble_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActDouble_val: Integer={r_val};");       
        assertEquals("{res.resRetIntegerActDouble_val as Long}", "{r_val as Long}");
 
        var r_var: Integer = retvarIntegerActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActDouble_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActDouble_var: Integer={r_var};\n//");       
        assertEquals("{res.resRetIntegerActDouble_var as Long}", "{r_var as Long}");
     }
 
@@ -734,22 +734,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalIntegerActNumber(): Integer { 100 as Number }
     function testParamIntegerActNumber() {
        var r_val: String = paramInteger(100 as Number);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActNumber_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActNumber_val: Integer={r_val};");       
        assertEquals("{res.resParamIntegerActNumber_val as Long}", "{r_val}");
 
        var par: Number = 100 as Number;
        var r_var: String = paramInteger(par);
-       if (gen)visage.lang.FX.print("\nvar resParamIntegerActNumber_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamIntegerActNumber_var: Integer={r_var};\n//");       
        assertEquals("{res.resParamIntegerActNumber_var as Long}", "{r_var}");
     }
 
     function testRetIntegerActNumber() {
        var r_val: Integer = retvalIntegerActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActNumber_val: Integer={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActNumber_val: Integer={r_val};");       
        assertEquals("{res.resRetIntegerActNumber_val as Long}", "{r_val as Long}");
 
        var r_var: Integer = retvarIntegerActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetIntegerActNumber_var: Integer={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetIntegerActNumber_var: Integer={r_var};\n//");       
        assertEquals("{res.resRetIntegerActNumber_var as Long}", "{r_var as Long}");
     }
 
@@ -758,22 +758,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalLongActByte(): Long { 120 as Byte }
     function testParamLongActByte() {
        var r_val: String = paramLong(120 as Byte);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActByte_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActByte_val: Long={r_val};");       
        assertEquals("{res.resParamLongActByte_val as Long}", "{r_val}");
 
        var par: Byte = 120 as Byte;
        var r_var: String = paramLong(par);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActByte_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActByte_var: Long={r_var};\n//");       
        assertEquals("{res.resParamLongActByte_var as Long}", "{r_var}");
     }
 
     function testRetLongActByte() {
        var r_val: Long = retvalLongActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActByte_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActByte_val: Long={r_val};");       
        assertEquals("{res.resRetLongActByte_val as Long}", "{r_val as Long}");
 
        var r_var: Long = retvarLongActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActByte_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActByte_var: Long={r_var};\n//");       
        assertEquals("{res.resRetLongActByte_var as Long}", "{r_var as Long}");
     }
 
@@ -781,22 +781,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalLongActShort(): Long { 30000 as Short }
     function testParamLongActShort() {
        var r_val: String = paramLong(30000 as Short);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActShort_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActShort_val: Long={r_val};");       
        assertEquals("{res.resParamLongActShort_val as Long}", "{r_val}");
 
        var par: Short = 30000 as Short;
        var r_var: String = paramLong(par);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActShort_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActShort_var: Long={r_var};\n//");       
        assertEquals("{res.resParamLongActShort_var as Long}", "{r_var}");
     }
 
     function testRetLongActShort() {
        var r_val: Long = retvalLongActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActShort_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActShort_val: Long={r_val};");       
        assertEquals("{res.resRetLongActShort_val as Long}", "{r_val as Long}");
 
        var r_var: Long = retvarLongActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActShort_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActShort_var: Long={r_var};\n//");       
        assertEquals("{res.resRetLongActShort_var as Long}", "{r_var as Long}");
     }
 
@@ -804,22 +804,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalLongActCharacter(): Long { 64 as Character }
     function testParamLongActCharacter() {
        var r_val: String = paramLong(64 as Character);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActCharacter_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActCharacter_val: Long={r_val};");       
        assertEquals("{res.resParamLongActCharacter_val as Long}", "{r_val}");
 
        var par: Character = 64 as Character;
        var r_var: String = paramLong(par);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActCharacter_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActCharacter_var: Long={r_var};\n//");       
        assertEquals("{res.resParamLongActCharacter_var as Long}", "{r_var}");
     }
 
     function testRetLongActCharacter() {
        var r_val: Long = retvalLongActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActCharacter_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActCharacter_val: Long={r_val};");       
        assertEquals("{res.resRetLongActCharacter_val as Long}", "{r_val as Long}");
 
        var r_var: Long = retvarLongActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActCharacter_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActCharacter_var: Long={r_var};\n//");       
        assertEquals("{res.resRetLongActCharacter_var as Long}", "{r_var as Long}");
     }
 
@@ -827,22 +827,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalLongActInteger(): Long { 1000000 as Integer }
     function testParamLongActInteger() {
        var r_val: String = paramLong(1000000 as Integer);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActInteger_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActInteger_val: Long={r_val};");       
        assertEquals("{res.resParamLongActInteger_val as Long}", "{r_val}");
 
        var par: Integer = 1000000 as Integer;
        var r_var: String = paramLong(par);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActInteger_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActInteger_var: Long={r_var};\n//");       
        assertEquals("{res.resParamLongActInteger_var as Long}", "{r_var}");
     }
 
     function testRetLongActInteger() {
        var r_val: Long = retvalLongActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActInteger_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActInteger_val: Long={r_val};");       
        assertEquals("{res.resRetLongActInteger_val as Long}", "{r_val as Long}");
 
        var r_var: Long = retvarLongActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActInteger_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActInteger_var: Long={r_var};\n//");       
        assertEquals("{res.resRetLongActInteger_var as Long}", "{r_var as Long}");
     }
 
@@ -850,22 +850,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalLongActLong(): Long { 1000000000 as Long }
     function testParamLongActLong() {
        var r_val: String = paramLong(1000000000 as Long);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActLong_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActLong_val: Long={r_val};");       
        assertEquals("{res.resParamLongActLong_val as Long}", "{r_val}");
 
        var par: Long = 1000000000 as Long;
        var r_var: String = paramLong(par);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActLong_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActLong_var: Long={r_var};\n//");       
        assertEquals("{res.resParamLongActLong_var as Long}", "{r_var}");
     }
 
     function testRetLongActLong() {
        var r_val: Long = retvalLongActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActLong_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActLong_val: Long={r_val};");       
        assertEquals("{res.resRetLongActLong_val as Long}", "{r_val as Long}");
 
        var r_var: Long = retvarLongActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActLong_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActLong_var: Long={r_var};\n//");       
        assertEquals("{res.resRetLongActLong_var as Long}", "{r_var as Long}");
     }
 
@@ -873,22 +873,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalLongActFloat(): Long { 10.5 as Float }
     function testParamLongActFloat() {
        var r_val: String = paramLong(10.5 as Float);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActFloat_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActFloat_val: Long={r_val};");       
        assertEquals("{res.resParamLongActFloat_val as Long}", "{r_val}");
 
        var par: Float = 10.5 as Float;
        var r_var: String = paramLong(par);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActFloat_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActFloat_var: Long={r_var};\n//");       
        assertEquals("{res.resParamLongActFloat_var as Long}", "{r_var}");
     }
 
     function testRetLongActFloat() {
        var r_val: Long = retvalLongActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActFloat_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActFloat_val: Long={r_val};");       
        assertEquals("{res.resRetLongActFloat_val as Long}", "{r_val as Long}");
 
        var r_var: Long = retvarLongActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActFloat_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActFloat_var: Long={r_var};\n//");       
        assertEquals("{res.resRetLongActFloat_var as Long}", "{r_var as Long}");
     }
 
@@ -896,22 +896,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalLongActDouble(): Long { 1.25e4 as Double }
     function testParamLongActDouble() {
        var r_val: String = paramLong(1.25e4 as Double);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActDouble_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActDouble_val: Long={r_val};");       
        assertEquals("{res.resParamLongActDouble_val as Long}", "{r_val}");
 
        var par: Double = 1.25e4 as Double;
        var r_var: String = paramLong(par);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActDouble_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActDouble_var: Long={r_var};\n//");       
        assertEquals("{res.resParamLongActDouble_var as Long}", "{r_var}");
     }
 
     function testRetLongActDouble() {
        var r_val: Long = retvalLongActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActDouble_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActDouble_val: Long={r_val};");       
        assertEquals("{res.resRetLongActDouble_val as Long}", "{r_val as Long}");
 
        var r_var: Long = retvarLongActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActDouble_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActDouble_var: Long={r_var};\n//");       
        assertEquals("{res.resRetLongActDouble_var as Long}", "{r_var as Long}");
     }
 
@@ -919,22 +919,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalLongActNumber(): Long { 100 as Number }
     function testParamLongActNumber() {
        var r_val: String = paramLong(100 as Number);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActNumber_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActNumber_val: Long={r_val};");       
        assertEquals("{res.resParamLongActNumber_val as Long}", "{r_val}");
 
        var par: Number = 100 as Number;
        var r_var: String = paramLong(par);
-       if (gen)visage.lang.FX.print("\nvar resParamLongActNumber_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamLongActNumber_var: Long={r_var};\n//");       
        assertEquals("{res.resParamLongActNumber_var as Long}", "{r_var}");
     }
 
     function testRetLongActNumber() {
        var r_val: Long = retvalLongActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActNumber_val: Long={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActNumber_val: Long={r_val};");       
        assertEquals("{res.resRetLongActNumber_val as Long}", "{r_val as Long}");
 
        var r_var: Long = retvarLongActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetLongActNumber_var: Long={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetLongActNumber_var: Long={r_var};\n//");       
        assertEquals("{res.resRetLongActNumber_var as Long}", "{r_var as Long}");
     }
 
@@ -943,22 +943,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalFloatActByte(): Float { 120 as Byte }
     function testParamFloatActByte() {
        var r_val: String = paramFloat(120 as Byte);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActByte_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActByte_val: Float={r_val};");       
        assertEquals("{res.resParamFloatActByte_val as Number}", "{r_val}");
 
        var par: Byte = 120 as Byte;
        var r_var: String = paramFloat(par);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActByte_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActByte_var: Float={r_var};\n//");       
        assertEquals("{res.resParamFloatActByte_var as Number}", "{r_var}");
     }
 
     function testRetFloatActByte() {
        var r_val: Float = retvalFloatActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActByte_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActByte_val: Float={r_val};");       
        assertEquals("{res.resRetFloatActByte_val as Number}", "{r_val as Number}");
 
        var r_var: Float = retvarFloatActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActByte_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActByte_var: Float={r_var};\n//");       
        assertEquals("{res.resRetFloatActByte_var as Number}", "{r_var as Number}");
     }
 
@@ -966,22 +966,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalFloatActShort(): Float { 30000 as Short }
     function testParamFloatActShort() {
        var r_val: String = paramFloat(30000 as Short);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActShort_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActShort_val: Float={r_val};");       
        assertEquals("{res.resParamFloatActShort_val as Number}", "{r_val}");
 
        var par: Short = 30000 as Short;
        var r_var: String = paramFloat(par);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActShort_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActShort_var: Float={r_var};\n//");       
        assertEquals("{res.resParamFloatActShort_var as Number}", "{r_var}");
     }
 
     function testRetFloatActShort() {
        var r_val: Float = retvalFloatActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActShort_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActShort_val: Float={r_val};");       
        assertEquals("{res.resRetFloatActShort_val as Number}", "{r_val as Number}");
 
        var r_var: Float = retvarFloatActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActShort_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActShort_var: Float={r_var};\n//");       
        assertEquals("{res.resRetFloatActShort_var as Number}", "{r_var as Number}");
     }
 
@@ -989,22 +989,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalFloatActCharacter(): Float { 64 as Character }
     function testParamFloatActCharacter() {
        var r_val: String = paramFloat(64 as Character);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActCharacter_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActCharacter_val: Float={r_val};");       
        assertEquals("{res.resParamFloatActCharacter_val as Number}", "{r_val}");
 
        var par: Character = 64 as Character;
        var r_var: String = paramFloat(par);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActCharacter_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActCharacter_var: Float={r_var};\n//");       
        assertEquals("{res.resParamFloatActCharacter_var as Number}", "{r_var}");
     }
 
     function testRetFloatActCharacter() {
        var r_val: Float = retvalFloatActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActCharacter_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActCharacter_val: Float={r_val};");       
        assertEquals("{res.resRetFloatActCharacter_val as Number}", "{r_val as Number}");
 
        var r_var: Float = retvarFloatActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActCharacter_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActCharacter_var: Float={r_var};\n//");       
        assertEquals("{res.resRetFloatActCharacter_var as Number}", "{r_var as Number}");
     }
 
@@ -1012,22 +1012,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalFloatActInteger(): Float { 1000000 as Integer }
     function testParamFloatActInteger() {
        var r_val: String = paramFloat(1000000 as Integer);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActInteger_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActInteger_val: Float={r_val};");       
        assertEquals("{res.resParamFloatActInteger_val as Number}", "{r_val}");
 
        var par: Integer = 1000000 as Integer;
        var r_var: String = paramFloat(par);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActInteger_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActInteger_var: Float={r_var};\n//");       
        assertEquals("{res.resParamFloatActInteger_var as Number}", "{r_var}");
     }
 
     function testRetFloatActInteger() {
        var r_val: Float = retvalFloatActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActInteger_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActInteger_val: Float={r_val};");       
        assertEquals("{res.resRetFloatActInteger_val as Number}", "{r_val as Number}");
 
        var r_var: Float = retvarFloatActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActInteger_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActInteger_var: Float={r_var};\n//");       
        assertEquals("{res.resRetFloatActInteger_var as Number}", "{r_var as Number}");
     }
 
@@ -1035,22 +1035,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalFloatActLong(): Float { 1000000000 as Long }
     function testParamFloatActLong() {
        var r_val: String = paramFloat(1000000000 as Long);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActLong_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActLong_val: Float={r_val};");       
        assertEquals("{res.resParamFloatActLong_val as Number}", "{r_val}");
 
        var par: Long = 1000000000 as Long;
        var r_var: String = paramFloat(par);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActLong_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActLong_var: Float={r_var};\n//");       
        assertEquals("{res.resParamFloatActLong_var as Number}", "{r_var}");
     }
 
     function testRetFloatActLong() {
        var r_val: Float = retvalFloatActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActLong_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActLong_val: Float={r_val};");       
        assertEquals("{res.resRetFloatActLong_val as Number}", "{r_val as Number}");
 
        var r_var: Float = retvarFloatActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActLong_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActLong_var: Float={r_var};\n//");       
        assertEquals("{res.resRetFloatActLong_var as Number}", "{r_var as Number}");
     }
 
@@ -1058,22 +1058,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalFloatActFloat(): Float { 10.5 as Float }
     function testParamFloatActFloat() {
        var r_val: String = paramFloat(10.5 as Float);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActFloat_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActFloat_val: Float={r_val};");       
        assertEquals("{res.resParamFloatActFloat_val as Number}", "{r_val}");
 
        var par: Float = 10.5 as Float;
        var r_var: String = paramFloat(par);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActFloat_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActFloat_var: Float={r_var};\n//");       
        assertEquals("{res.resParamFloatActFloat_var as Number}", "{r_var}");
     }
 
     function testRetFloatActFloat() {
        var r_val: Float = retvalFloatActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActFloat_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActFloat_val: Float={r_val};");       
        assertEquals("{res.resRetFloatActFloat_val as Number}", "{r_val as Number}");
 
        var r_var: Float = retvarFloatActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActFloat_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActFloat_var: Float={r_var};\n//");       
        assertEquals("{res.resRetFloatActFloat_var as Number}", "{r_var as Number}");
     }
 
@@ -1081,22 +1081,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalFloatActDouble(): Float { 1.25e4 as Double }
     function testParamFloatActDouble() {
        var r_val: String = paramFloat(1.25e4 as Double);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActDouble_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActDouble_val: Float={r_val};");       
        assertEquals("{res.resParamFloatActDouble_val as Number}", "{r_val}");
 
        var par: Double = 1.25e4 as Double;
        var r_var: String = paramFloat(par);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActDouble_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActDouble_var: Float={r_var};\n//");       
        assertEquals("{res.resParamFloatActDouble_var as Number}", "{r_var}");
     }
 
     function testRetFloatActDouble() {
        var r_val: Float = retvalFloatActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActDouble_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActDouble_val: Float={r_val};");       
        assertEquals("{res.resRetFloatActDouble_val as Number}", "{r_val as Number}");
 
        var r_var: Float = retvarFloatActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActDouble_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActDouble_var: Float={r_var};\n//");       
        assertEquals("{res.resRetFloatActDouble_var as Number}", "{r_var as Number}");
     }
 
@@ -1104,22 +1104,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalFloatActNumber(): Float { 100 as Number }
     function testParamFloatActNumber() {
        var r_val: String = paramFloat(100 as Number);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActNumber_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActNumber_val: Float={r_val};");       
        assertEquals("{res.resParamFloatActNumber_val as Number}", "{r_val}");
 
        var par: Number = 100 as Number;
        var r_var: String = paramFloat(par);
-       if (gen)visage.lang.FX.print("\nvar resParamFloatActNumber_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamFloatActNumber_var: Float={r_var};\n//");       
        assertEquals("{res.resParamFloatActNumber_var as Number}", "{r_var}");
     }
 
     function testRetFloatActNumber() {
        var r_val: Float = retvalFloatActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActNumber_val: Float={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActNumber_val: Float={r_val};");       
        assertEquals("{res.resRetFloatActNumber_val as Number}", "{r_val as Number}");
 
        var r_var: Float = retvarFloatActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetFloatActNumber_var: Float={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetFloatActNumber_var: Float={r_var};\n//");       
        assertEquals("{res.resRetFloatActNumber_var as Number}", "{r_var as Number}");
     }
 
@@ -1128,22 +1128,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalDoubleActByte(): Double { 120 as Byte }
     function testParamDoubleActByte() {
        var r_val: String = paramDouble(120 as Byte);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActByte_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActByte_val: Double={r_val};");       
        assertEquals("{res.resParamDoubleActByte_val as Number}", "{r_val}");
 
        var par: Byte = 120 as Byte;
        var r_var: String = paramDouble(par);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActByte_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActByte_var: Double={r_var};\n//");       
        assertEquals("{res.resParamDoubleActByte_var as Number}", "{r_var}");
     }
 
     function testRetDoubleActByte() {
        var r_val: Double = retvalDoubleActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActByte_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActByte_val: Double={r_val};");       
        assertEquals("{res.resRetDoubleActByte_val as Number}", "{r_val as Number}");
 
        var r_var: Double = retvarDoubleActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActByte_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActByte_var: Double={r_var};\n//");       
        assertEquals("{res.resRetDoubleActByte_var as Number}", "{r_var as Number}");
     }
 
@@ -1151,22 +1151,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalDoubleActShort(): Double { 30000 as Short }
     function testParamDoubleActShort() {
        var r_val: String = paramDouble(30000 as Short);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActShort_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActShort_val: Double={r_val};");       
        assertEquals("{res.resParamDoubleActShort_val as Number}", "{r_val}");
 
        var par: Short = 30000 as Short;
        var r_var: String = paramDouble(par);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActShort_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActShort_var: Double={r_var};\n//");       
        assertEquals("{res.resParamDoubleActShort_var as Number}", "{r_var}");
     }
 
     function testRetDoubleActShort() {
        var r_val: Double = retvalDoubleActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActShort_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActShort_val: Double={r_val};");       
        assertEquals("{res.resRetDoubleActShort_val as Number}", "{r_val as Number}");
 
        var r_var: Double = retvarDoubleActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActShort_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActShort_var: Double={r_var};\n//");       
        assertEquals("{res.resRetDoubleActShort_var as Number}", "{r_var as Number}");
     }
 
@@ -1174,22 +1174,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalDoubleActCharacter(): Double { 64 as Character }
     function testParamDoubleActCharacter() {
        var r_val: String = paramDouble(64 as Character);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActCharacter_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActCharacter_val: Double={r_val};");       
        assertEquals("{res.resParamDoubleActCharacter_val as Number}", "{r_val}");
 
        var par: Character = 64 as Character;
        var r_var: String = paramDouble(par);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActCharacter_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActCharacter_var: Double={r_var};\n//");       
        assertEquals("{res.resParamDoubleActCharacter_var as Number}", "{r_var}");
     }
 
     function testRetDoubleActCharacter() {
        var r_val: Double = retvalDoubleActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActCharacter_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActCharacter_val: Double={r_val};");       
        assertEquals("{res.resRetDoubleActCharacter_val as Number}", "{r_val as Number}");
 
        var r_var: Double = retvarDoubleActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActCharacter_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActCharacter_var: Double={r_var};\n//");       
        assertEquals("{res.resRetDoubleActCharacter_var as Number}", "{r_var as Number}");
     }
 
@@ -1197,22 +1197,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalDoubleActInteger(): Double { 1000000 as Integer }
     function testParamDoubleActInteger() {
        var r_val: String = paramDouble(1000000 as Integer);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActInteger_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActInteger_val: Double={r_val};");       
        assertEquals("{res.resParamDoubleActInteger_val as Number}", "{r_val}");
 
        var par: Integer = 1000000 as Integer;
        var r_var: String = paramDouble(par);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActInteger_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActInteger_var: Double={r_var};\n//");       
        assertEquals("{res.resParamDoubleActInteger_var as Number}", "{r_var}");
     }
 
     function testRetDoubleActInteger() {
        var r_val: Double = retvalDoubleActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActInteger_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActInteger_val: Double={r_val};");       
        assertEquals("{res.resRetDoubleActInteger_val as Number}", "{r_val as Number}");
 
        var r_var: Double = retvarDoubleActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActInteger_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActInteger_var: Double={r_var};\n//");       
        assertEquals("{res.resRetDoubleActInteger_var as Number}", "{r_var as Number}");
     }
 
@@ -1220,22 +1220,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalDoubleActLong(): Double { 1000000000 as Long }
     function testParamDoubleActLong() {
        var r_val: String = paramDouble(1000000000 as Long);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActLong_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActLong_val: Double={r_val};");       
        assertEquals("{res.resParamDoubleActLong_val as Number}", "{r_val}");
 
        var par: Long = 1000000000 as Long;
        var r_var: String = paramDouble(par);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActLong_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActLong_var: Double={r_var};\n//");       
        assertEquals("{res.resParamDoubleActLong_var as Number}", "{r_var}");
     }
 
     function testRetDoubleActLong() {
        var r_val: Double = retvalDoubleActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActLong_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActLong_val: Double={r_val};");       
        assertEquals("{res.resRetDoubleActLong_val as Number}", "{r_val as Number}");
 
        var r_var: Double = retvarDoubleActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActLong_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActLong_var: Double={r_var};\n//");       
        assertEquals("{res.resRetDoubleActLong_var as Number}", "{r_var as Number}");
     }
 
@@ -1243,22 +1243,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalDoubleActFloat(): Double { 10.5 as Float }
     function testParamDoubleActFloat() {
        var r_val: String = paramDouble(10.5 as Float);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActFloat_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActFloat_val: Double={r_val};");       
        assertEquals("{res.resParamDoubleActFloat_val as Number}", "{r_val}");
 
        var par: Float = 10.5 as Float;
        var r_var: String = paramDouble(par);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActFloat_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActFloat_var: Double={r_var};\n//");       
        assertEquals("{res.resParamDoubleActFloat_var as Number}", "{r_var}");
     }
 
     function testRetDoubleActFloat() {
        var r_val: Double = retvalDoubleActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActFloat_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActFloat_val: Double={r_val};");       
        assertEquals("{res.resRetDoubleActFloat_val as Number}", "{r_val as Number}");
 
        var r_var: Double = retvarDoubleActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActFloat_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActFloat_var: Double={r_var};\n//");       
        assertEquals("{res.resRetDoubleActFloat_var as Number}", "{r_var as Number}");
     }
 
@@ -1266,22 +1266,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalDoubleActDouble(): Double { 1.25e4 as Double }
     function testParamDoubleActDouble() {
        var r_val: String = paramDouble(1.25e4 as Double);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActDouble_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActDouble_val: Double={r_val};");       
        assertEquals("{res.resParamDoubleActDouble_val as Number}", "{r_val}");
 
        var par: Double = 1.25e4 as Double;
        var r_var: String = paramDouble(par);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActDouble_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActDouble_var: Double={r_var};\n//");       
        assertEquals("{res.resParamDoubleActDouble_var as Number}", "{r_var}");
     }
 
     function testRetDoubleActDouble() {
        var r_val: Double = retvalDoubleActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActDouble_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActDouble_val: Double={r_val};");       
        assertEquals("{res.resRetDoubleActDouble_val as Number}", "{r_val as Number}");
 
        var r_var: Double = retvarDoubleActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActDouble_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActDouble_var: Double={r_var};\n//");       
        assertEquals("{res.resRetDoubleActDouble_var as Number}", "{r_var as Number}");
     }
 
@@ -1289,22 +1289,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalDoubleActNumber(): Double { 100 as Number }
     function testParamDoubleActNumber() {
        var r_val: String = paramDouble(100 as Number);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActNumber_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActNumber_val: Double={r_val};");       
        assertEquals("{res.resParamDoubleActNumber_val as Number}", "{r_val}");
 
        var par: Number = 100 as Number;
        var r_var: String = paramDouble(par);
-       if (gen)visage.lang.FX.print("\nvar resParamDoubleActNumber_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamDoubleActNumber_var: Double={r_var};\n//");       
        assertEquals("{res.resParamDoubleActNumber_var as Number}", "{r_var}");
     }
 
     function testRetDoubleActNumber() {
        var r_val: Double = retvalDoubleActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActNumber_val: Double={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActNumber_val: Double={r_val};");       
        assertEquals("{res.resRetDoubleActNumber_val as Number}", "{r_val as Number}");
 
        var r_var: Double = retvarDoubleActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetDoubleActNumber_var: Double={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetDoubleActNumber_var: Double={r_var};\n//");       
        assertEquals("{res.resRetDoubleActNumber_var as Number}", "{r_var as Number}");
     }
 
@@ -1313,22 +1313,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalNumberActByte(): Number { 120 as Byte }
     function testParamNumberActByte() {
        var r_val: String = paramNumber(120 as Byte);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActByte_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActByte_val: Number={r_val};");       
        assertEquals("{res.resParamNumberActByte_val as Number}", "{r_val}");
 
        var par: Byte = 120 as Byte;
        var r_var: String = paramNumber(par);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActByte_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActByte_var: Number={r_var};\n//");       
        assertEquals("{res.resParamNumberActByte_var as Number}", "{r_var}");
     }
 
     function testRetNumberActByte() {
        var r_val: Number = retvalNumberActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActByte_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActByte_val: Number={r_val};");       
        assertEquals("{res.resRetNumberActByte_val as Number}", "{r_val as Number}");
 
        var r_var: Number = retvarNumberActByte();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActByte_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActByte_var: Number={r_var};\n//");       
        assertEquals("{res.resRetNumberActByte_var as Number}", "{r_var as Number}");
     }
 
@@ -1336,22 +1336,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalNumberActShort(): Number { 30000 as Short }
     function testParamNumberActShort() {
        var r_val: String = paramNumber(30000 as Short);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActShort_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActShort_val: Number={r_val};");       
        assertEquals("{res.resParamNumberActShort_val as Number}", "{r_val}");
 
        var par: Short = 30000 as Short;
        var r_var: String = paramNumber(par);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActShort_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActShort_var: Number={r_var};\n//");       
        assertEquals("{res.resParamNumberActShort_var as Number}", "{r_var}");
     }
 
     function testRetNumberActShort() {
        var r_val: Number = retvalNumberActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActShort_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActShort_val: Number={r_val};");       
        assertEquals("{res.resRetNumberActShort_val as Number}", "{r_val as Number}");
 
        var r_var: Number = retvarNumberActShort();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActShort_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActShort_var: Number={r_var};\n//");       
        assertEquals("{res.resRetNumberActShort_var as Number}", "{r_var as Number}");
     }
 
@@ -1359,22 +1359,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalNumberActCharacter(): Number { 64 as Character }
     function testParamNumberActCharacter() {
        var r_val: String = paramNumber(64 as Character);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActCharacter_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActCharacter_val: Number={r_val};");       
        assertEquals("{res.resParamNumberActCharacter_val as Number}", "{r_val}");
 
        var par: Character = 64 as Character;
        var r_var: String = paramNumber(par);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActCharacter_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActCharacter_var: Number={r_var};\n//");       
        assertEquals("{res.resParamNumberActCharacter_var as Number}", "{r_var}");
     }
 
     function testRetNumberActCharacter() {
        var r_val: Number = retvalNumberActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActCharacter_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActCharacter_val: Number={r_val};");       
        assertEquals("{res.resRetNumberActCharacter_val as Number}", "{r_val as Number}");
 
        var r_var: Number = retvarNumberActCharacter();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActCharacter_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActCharacter_var: Number={r_var};\n//");       
        assertEquals("{res.resRetNumberActCharacter_var as Number}", "{r_var as Number}");
     }
 
@@ -1382,22 +1382,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalNumberActInteger(): Number { 1000000 as Integer }
     function testParamNumberActInteger() {
        var r_val: String = paramNumber(1000000 as Integer);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActInteger_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActInteger_val: Number={r_val};");       
        assertEquals("{res.resParamNumberActInteger_val as Number}", "{r_val}");
 
        var par: Integer = 1000000 as Integer;
        var r_var: String = paramNumber(par);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActInteger_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActInteger_var: Number={r_var};\n//");       
        assertEquals("{res.resParamNumberActInteger_var as Number}", "{r_var}");
     }
 
     function testRetNumberActInteger() {
        var r_val: Number = retvalNumberActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActInteger_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActInteger_val: Number={r_val};");       
        assertEquals("{res.resRetNumberActInteger_val as Number}", "{r_val as Number}");
 
        var r_var: Number = retvarNumberActInteger();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActInteger_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActInteger_var: Number={r_var};\n//");       
        assertEquals("{res.resRetNumberActInteger_var as Number}", "{r_var as Number}");
     }
 
@@ -1405,22 +1405,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalNumberActLong(): Number { 1000000000 as Long }
     function testParamNumberActLong() {
        var r_val: String = paramNumber(1000000000 as Long);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActLong_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActLong_val: Number={r_val};");       
        assertEquals("{res.resParamNumberActLong_val as Number}", "{r_val}");
 
        var par: Long = 1000000000 as Long;
        var r_var: String = paramNumber(par);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActLong_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActLong_var: Number={r_var};\n//");       
        assertEquals("{res.resParamNumberActLong_var as Number}", "{r_var}");
     }
 
     function testRetNumberActLong() {
        var r_val: Number = retvalNumberActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActLong_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActLong_val: Number={r_val};");       
        assertEquals("{res.resRetNumberActLong_val as Number}", "{r_val as Number}");
 
        var r_var: Number = retvarNumberActLong();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActLong_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActLong_var: Number={r_var};\n//");       
        assertEquals("{res.resRetNumberActLong_var as Number}", "{r_var as Number}");
     }
 
@@ -1428,22 +1428,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalNumberActFloat(): Number { 10.5 as Float }
     function testParamNumberActFloat() {
        var r_val: String = paramNumber(10.5 as Float);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActFloat_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActFloat_val: Number={r_val};");       
        assertEquals("{res.resParamNumberActFloat_val as Number}", "{r_val}");
 
        var par: Float = 10.5 as Float;
        var r_var: String = paramNumber(par);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActFloat_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActFloat_var: Number={r_var};\n//");       
        assertEquals("{res.resParamNumberActFloat_var as Number}", "{r_var}");
     }
 
     function testRetNumberActFloat() {
        var r_val: Number = retvalNumberActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActFloat_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActFloat_val: Number={r_val};");       
        assertEquals("{res.resRetNumberActFloat_val as Number}", "{r_val as Number}");
 
        var r_var: Number = retvarNumberActFloat();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActFloat_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActFloat_var: Number={r_var};\n//");       
        assertEquals("{res.resRetNumberActFloat_var as Number}", "{r_var as Number}");
     }
 
@@ -1451,22 +1451,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalNumberActDouble(): Number { 1.25e4 as Double }
     function testParamNumberActDouble() {
        var r_val: String = paramNumber(1.25e4 as Double);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActDouble_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActDouble_val: Number={r_val};");       
        assertEquals("{res.resParamNumberActDouble_val as Number}", "{r_val}");
 
        var par: Double = 1.25e4 as Double;
        var r_var: String = paramNumber(par);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActDouble_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActDouble_var: Number={r_var};\n//");       
        assertEquals("{res.resParamNumberActDouble_var as Number}", "{r_var}");
     }
 
     function testRetNumberActDouble() {
        var r_val: Number = retvalNumberActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActDouble_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActDouble_val: Number={r_val};");       
        assertEquals("{res.resRetNumberActDouble_val as Number}", "{r_val as Number}");
 
        var r_var: Number = retvarNumberActDouble();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActDouble_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActDouble_var: Number={r_var};\n//");       
        assertEquals("{res.resRetNumberActDouble_var as Number}", "{r_var as Number}");
     }
 
@@ -1474,22 +1474,22 @@ var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];
     function retvalNumberActNumber(): Number { 100 as Number }
     function testParamNumberActNumber() {
        var r_val: String = paramNumber(100 as Number);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActNumber_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActNumber_val: Number={r_val};");       
        assertEquals("{res.resParamNumberActNumber_val as Number}", "{r_val}");
 
        var par: Number = 100 as Number;
        var r_var: String = paramNumber(par);
-       if (gen)visage.lang.FX.print("\nvar resParamNumberActNumber_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resParamNumberActNumber_var: Number={r_var};\n//");       
        assertEquals("{res.resParamNumberActNumber_var as Number}", "{r_var}");
     }
 
     function testRetNumberActNumber() {
        var r_val: Number = retvalNumberActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActNumber_val: Number={r_val};");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActNumber_val: Number={r_val};");       
        assertEquals("{res.resRetNumberActNumber_val as Number}", "{r_val as Number}");
 
        var r_var: Number = retvarNumberActNumber();
-       if (gen)visage.lang.FX.print("\nvar resRetNumberActNumber_var: Number={r_var};\n//");       
+       if (gen)visage.lang.Visage.print("\nvar resRetNumberActNumber_var: Number={r_var};\n//");       
        assertEquals("{res.resRetNumberActNumber_var as Number}", "{r_var as Number}");
     }
 

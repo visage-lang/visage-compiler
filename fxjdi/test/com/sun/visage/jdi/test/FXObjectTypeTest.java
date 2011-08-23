@@ -36,7 +36,7 @@ import junit.framework.Assert;
  * @author sundar
  */
 public class FXObjectTypeTest extends JavafxTestBase {
-    // any FX class will do..
+    // any Visage class will do..
     private static String targetClassName = "org.visage.jdi.test.target.HelloTarget";
 
     public FXObjectTypeTest() {

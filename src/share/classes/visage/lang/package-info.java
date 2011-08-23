@@ -27,8 +27,8 @@
  * <h2>Builtins</h2>
  * This class is automatically imported to all Visage Files
  * </p>
- * <h2>FX</h2>
- * The FX class contains number of static entry points
+ * <h2>Visage</h2>
+ * The Visage class contains number of static entry points
  * for a couple of different API sets provided by Visage.
  * <ul>
  * <li> Application Model
@@ -54,11 +54,11 @@
  * <p>Named Parameters come in the form of a Name, Value pair typically
  * from HTML, JAD or JNLP files. They can also be passed as a commandline
  * argument in the form of "name=value".</p>
- * <p>Use the {@link visage.lang.FX#getArgument(java.lang.String) getArgument()}
+ * <p>Use the {@link visage.lang.Visage#getArgument(java.lang.String) getArgument()}
  * api for Named parameters</p>
  * <li>Unnamed
  * <p>Unnamed Arguments are always passed on the commandline.
- * <p>Use the {@link visage.lang.FX#getArguments() FX.getArguments()}
+ * <p>Use the {@link visage.lang.Visage#getArguments() Visage.getArguments()}
  * api for Named parameters</p>
  * </ul>
  * These <b>cannot</b> be combined, if they are it will behave as space

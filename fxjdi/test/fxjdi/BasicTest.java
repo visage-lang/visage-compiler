@@ -36,9 +36,9 @@ public class BasicTest extends JdbBase {
 // var begin = "Foo.visage says Hello";
 // var msg1  = "Breakpoint 1";
 // var msg2  = "Breakpoint 2";
-// FX.println(begin);
-// FX.println(msg1);
-// FX.println(msg2);
+// Visage.println(begin);
+// Visage.println(msg1);
+// Visage.println(msg2);
 // @EndTest
 
     @Test(timeout=5000)

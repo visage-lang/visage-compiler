@@ -27,7 +27,7 @@ package org.visage.runtime;
 
 
 /**
- * All FX classes must extend FXObject; it acts as a marker interface, and also includes methods required for
+ * All Visage classes must extend FXObject; it acts as a marker interface, and also includes methods required for
  * object lifecyle.
  *
  * @author Brian Goetz

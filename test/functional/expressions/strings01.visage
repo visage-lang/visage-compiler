@@ -100,8 +100,8 @@ function removewhitespace( s:String):String {
 }
 TU.checkS(removewhitespace(poem),"Maryhadalittlelamb", "String.split method returns String array, not a String sequence");
 
-/* An oddity about FX is that literals, such as strings, are also objects */
-var literal_to_seq = "In FX literals are also objects".split(' ');
-TU.checkSs( literal_to_seq, [ "In", "FX", "literals", "are", "also", "objects" ], "Literals are objects");
+/* An oddity about Visage is that literals, such as strings, are also objects */
+var literal_to_seq = "In Visage literals are also objects".split(' ');
+TU.checkSs( literal_to_seq, [ "In", "Visage", "literals", "are", "also", "objects" ], "Literals are objects");
 
 TU.report();

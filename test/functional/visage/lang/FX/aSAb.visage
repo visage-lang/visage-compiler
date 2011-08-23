@@ -1,14 +1,14 @@
-import visage.lang.FX;
+import visage.lang.Visage;
 /*
- * FX.addShutdownMessage
+ * Visage.addShutdownMessage
  *
  * @test
  * @run
  */
 
 function shutdown() {
- println("Test FX.addShutdownAction");
+ println("Test Visage.addShutdownAction");
 }
 
-FX.addShutdownAction( shutdown )
+Visage.addShutdownAction( shutdown )
 

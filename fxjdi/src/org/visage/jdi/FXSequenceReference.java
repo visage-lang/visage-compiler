@@ -48,7 +48,7 @@ import java.util.List;
 
 
 /**
- * Represents an FX sequence (instanceof org.visage.runtime.sequence.Sequence).
+ * Represents an Visage sequence (instanceof org.visage.runtime.sequence.Sequence).
  * For now, this class provides an ArrayReference-like interface for Sequences - in the future
  * we'll add more operations such as sequence insert/delete/slice etc.
  *

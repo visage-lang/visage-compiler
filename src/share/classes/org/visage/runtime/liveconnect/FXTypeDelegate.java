@@ -52,7 +52,7 @@ public abstract class FXTypeDelegate implements InvocationDelegate {
         } else if (type instanceof FXLocal.ClassType) {
             FXLocal.ClassType classType = (FXLocal.ClassType) type;
             if (!classType.isJfxType()) {
-                // Return Java values as Java objects instead of FX Script wrappers
+                // Return Java values as Java objects instead of Visage Script wrappers
                 return ((FXLocal.ObjectValue) val).asObject();
             }
         }

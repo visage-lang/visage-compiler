@@ -21,8 +21,8 @@ function run() {
    aii.x = 88;
    println("x run: {isInitialized(aii.x)}");
    aii.s = "hi";
-   println("s run: {visage.lang.FX.isInitialized(aii.s)}");
+   println("s run: {visage.lang.Visage.isInitialized(aii.s)}");
    aii.o = new Object();
-   println("o run: {visage.lang.FX.isInitialized(aii.o)}");
+   println("o run: {visage.lang.Visage.isInitialized(aii.o)}");
    println("Done");
 }

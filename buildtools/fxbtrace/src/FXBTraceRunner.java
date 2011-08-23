@@ -68,7 +68,7 @@ import java.util.logging.Logger;
  * 
  * Files:
  *  a. visage/visage-compiler/buildtools/fxbtrace/btrace_scripts/*.java
- *     Various btrace script files that can be used to trace FX apps.
+ *     Various btrace script files that can be used to trace Visage apps.
  * 
  *  b. visage/visage-compiler/buildtools/fxbtrace/src/FXBTraceRunner.java
  *     This is simply a runner script takes care of compile the script, 

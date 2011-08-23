@@ -107,7 +107,7 @@ public class ClassReporter {
     }
     
     /*
-     * emit our FX code
+     * emit our Visage code
      */
     static void CreateSampleFx(File fxFile) {
         FileOutputStream fos = null;
@@ -115,7 +115,7 @@ public class ClassReporter {
         try {
             fos = new FileOutputStream(fxFile);
             ps = new PrintStream(fos);
-            ps.println("FX.println(\"Hello World\");");            
+            ps.println("Visage.println(\"Hello World\");");            
         } catch (IOException ioe) {
             Logger.getLogger(ClassReporter.class.getName()).log(Level.SEVERE, null, ioe);
         } finally {

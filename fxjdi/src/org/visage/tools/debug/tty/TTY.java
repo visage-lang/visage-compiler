@@ -36,7 +36,7 @@ import java.io.*;
 
 /**
  * This is a command line debugger for Visage programs. This class is same as
- * the main class of "jdb" tool except that this one uses FX-JDI launching
+ * the main class of "jdb" tool except that this one uses Visage-JDI launching
  * connector by default.
  *
  * @author sundar
@@ -909,7 +909,7 @@ public class TTY implements EventNotifier {
                 String address = argv[++i];
 
                 /*
-                 * -attach is shorthand for one of the FX-JDI implementation's
+                 * -attach is shorthand for one of the Visage-JDI implementation's
                  * attaching connectors. Use the shared memory attach if it's
                  * available; otherwise, use sockets. Build a connect
                  * specification string based on this decision.
@@ -936,7 +936,7 @@ public class TTY implements EventNotifier {
                 }
 
                 /*
-                 * -listen[any] is shorthand for one of the FX-JDI implementation's
+                 * -listen[any] is shorthand for one of the Visage-JDI implementation's
                  * listening connectors. Use the shared memory listen if it's
                  * available; otherwise, use sockets. Build a connect
                  * specification string based on this decision.

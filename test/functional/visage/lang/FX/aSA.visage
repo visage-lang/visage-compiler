@@ -1,6 +1,6 @@
-import visage.lang.FX;
+import visage.lang.Visage;
 /*
- * FX.addShutdownMessage cannot be null
+ * Visage.addShutdownMessage cannot be null
  *
  * @test
  * @run
@@ -9,7 +9,7 @@ import visage.lang.FX;
 var exceptionmessage:String = "java.lang.NullPointerException: Action function can not be null";
 
 try {
-    FX.addShutdownAction( null )
+    Visage.addShutdownAction( null )
     } catch ( npe:java.lang.NullPointerException ) {
       if(exceptionmessage.compareTo( npe.toString() ) != 0 )
              println(npe.toString());

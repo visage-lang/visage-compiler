@@ -729,7 +729,7 @@ public class DocEnv {
     }
     
     private String simpleName(TypeSymbol tsym) {
-        // print Void correctly as FX type
+        // print Void correctly as Visage type
         return tsym.type.tag == TypeTags.VOID ? "Void" : tsym.getSimpleName().toString();
     }
 

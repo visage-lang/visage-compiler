@@ -5,7 +5,7 @@
  * @run
  */
 
-import visage.lang.FX;
+import visage.lang.Visage;
 import visage.fxunit.*;
 
 class JAVAFX_LANG_TEST {
@@ -36,19 +36,19 @@ handles should be both empty and not contain handle0; should hit this case:
  */
 public function RemoveFromEmptyActionsTest()
 {
-  var handle0 = FX.addShutdownAction( action1 );
-  var ret = FX.removeShutdownAction(handle0);
-  ret = FX.removeShutdownAction(handle0);
+  var handle0 = Visage.addShutdownAction( action1 );
+  var ret = Visage.removeShutdownAction(handle0);
+  ret = Visage.removeShutdownAction(handle0);
 }
 /**
  * test using function variables action1, action 2
  */
 public function RemoveShutdownFVActionTest()
 {
-var handle4 =  FX.addShutdownAction( action1);
-var handle5 =  FX.addShutdownAction( action2);
-var handle6 =  FX.addShutdownAction( action2);
-var handle7 =  FX.addShutdownAction( action1);
+var handle4 =  Visage.addShutdownAction( action1);
+var handle5 =  Visage.addShutdownAction( action2);
+var handle6 =  Visage.addShutdownAction( action2);
+var handle7 =  Visage.addShutdownAction( action1);
 
 /**
   * attempt to add same action should return same handle 
@@ -60,32 +60,32 @@ assertEquals( handle4,handle7);
    * handle6 and handle7 should be same as handle5 and handle4, so nothign should be printed
    * without having to remove handle5 and handle4.
    */
-   var ret = FX.removeShutdownAction(handle6);
+   var ret = Visage.removeShutdownAction(handle6);
    /* check that remove was successful by checking return value */
      assertEquals(ret,true);
-   ret = FX.removeShutdownAction(handle7);
+   ret = Visage.removeShutdownAction(handle7);
    /* check that remove was successful by checking return value */
      assertEquals(ret,true);
 
   /**
     * In fact, these should have been removed already, so should return false
 	*/
-   ret = FX.removeShutdownAction(handle4);
+   ret = Visage.removeShutdownAction(handle4);
    /* check that remove was successful by checking return value */
      assertEquals(ret,false);
-   ret = FX.removeShutdownAction(handle5);
+   ret = Visage.removeShutdownAction(handle5);
    /* check that remove was successful by checking return value */
      assertEquals(ret,false);
 }
 
 public var action86 = function():Void { var message = "action86"; println(message); }
 public function RemoveShutdownActionNegTest()   {
-   var handle86 =  FX.addShutdownAction( action86);
-   var ret = FX.removeShutdownAction(handle86);
+   var handle86 =  Visage.addShutdownAction( action86);
+   var ret = Visage.removeShutdownAction(handle86);
    /**
      * Try to remove action added by invalide handle id
 	 */
-   ret = FX.removeShutdownAction(handle86+1);
+   ret = Visage.removeShutdownAction(handle86+1);
    /* check that remove was not successful by checking return value */
    assertEquals(ret,false);
 }
@@ -94,10 +94,10 @@ public function RemoveShutdownActionNegTest()   {
  * test using function names as variables
  */
 public function RemoveShutdownFActionTest()   {
-var handle10 =  FX.addShutdownAction( faction1);
-var handle20 =  FX.addShutdownAction( faction2);
-var handle30 =  FX.addShutdownAction( faction2);
-var handle40 =  FX.addShutdownAction( faction1);
+var handle10 =  Visage.addShutdownAction( faction1);
+var handle20 =  Visage.addShutdownAction( faction2);
+var handle30 =  Visage.addShutdownAction( faction2);
+var handle40 =  Visage.addShutdownAction( faction1);
 
 /**
   * attempt to add same action should return same handle
@@ -109,20 +109,20 @@ assertEquals( handle20,handle30);
    * handle4 and handle3 should be same as handle1 and handle2, so nothign should be printed
    * without having to remove handle1 and handle2.
    */
-  var  ret = FX.removeShutdownAction(handle30);
+  var  ret = Visage.removeShutdownAction(handle30);
    /* check that remove was successful by checking return value */
      assertEquals(ret,true);
-   ret = FX.removeShutdownAction(handle40);
+   ret = Visage.removeShutdownAction(handle40);
    /* check that remove was successful by checking return value */
      assertEquals(ret,true);
 
   /**
     * In fact, these should have been removed already, so should return false
 	*/
-   ret = FX.removeShutdownAction(handle10);
+   ret = Visage.removeShutdownAction(handle10);
    /* check that remove was successful by checking return value */
      assertEquals(ret,false);
-   ret = FX.removeShutdownAction(handle20);
+   ret = Visage.removeShutdownAction(handle20);
    /* check that remove was successful by checking return value */
      assertEquals(ret,false);
 }
@@ -134,15 +134,15 @@ public function RemoveShutdownPActionTest()
 {
 	var data:String[] = ["some data collected during run","some data collected during run","some data collected during run"];
    /* get handle to action added */
-   var handle1 =  FX.addShutdownAction(
+   var handle1 =  Visage.addShutdownAction(
 	     function(){ var message = "action3"; println(message); }
    );
 
-   var handle2 =  FX.addShutdownAction(
+   var handle2 =  Visage.addShutdownAction(
 	     function(){ var message = "action4"; println(message); }
    );
 
-   var handle3 =  FX.addShutdownAction(
+   var handle3 =  Visage.addShutdownAction(
 	     function(){ delete data; println("action5"); }
    );
 
@@ -151,19 +151,19 @@ public function RemoveShutdownPActionTest()
    * and should all have been added successfully, so can all be removed successfully.
    */
    /* remove action added by handle1 */
-   var ret = FX.removeShutdownAction(handle1);
+   var ret = Visage.removeShutdownAction(handle1);
    /* check that remove was successful by checking return value */
      assertEquals(ret,true);
    /* also, when run this should not produce the output of the shutdownaction */
 
    /* remove action added by handle2 */
-   ret = FX.removeShutdownAction(handle2);
+   ret = Visage.removeShutdownAction(handle2);
    /* check that remove was successful by checking return value */
      assertEquals(ret,true);
    /* also, when run this should not produce the output of the shutdownaction */
 
    /* remove action added by handle3 */
-   ret = FX.removeShutdownAction(handle3);
+   ret = Visage.removeShutdownAction(handle3);
    /* check that remove was successful by checking return value */
      assertEquals(ret,true);
    /* also, when run this should not produce the output of the shutdownaction */
@@ -171,7 +171,7 @@ public function RemoveShutdownPActionTest()
    /**
      * Try to remove action added by invalide handle id 
 	 */
-     ret = FX.removeShutdownAction(handle1+1);
+     ret = Visage.removeShutdownAction(handle1+1);
    /* check that remove was not successful by checking return value */
      assertEquals(ret,false);
 }

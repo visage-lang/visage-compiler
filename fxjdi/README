@@ -2,18 +2,18 @@ This directory contains JDI implementation for Visage.
 
 How to build/test fxjdi.jar?
 
-* make sure that you set JAVA_HOME pointing to JDK6. FX-JDI uses JDK 6
+* make sure that you set JAVA_HOME pointing to JDK6. Visage-JDI uses JDK 6
 JDI interface and so requires JDK 6 to build and run.
 
 * make sure that you build compiler repo (by running "ant" in parent dir.
 
 * run "ant jar" or "ant" (builds and tests fxjdi.jar) in this directory.
 
-How to run command line FX-JDI debugger?
+How to run command line Visage-JDI debugger?
 
 In addition to a JDI implementation, there is also a command line debugger
 like "jdb". This implementation is derived from jdb implementation except 
-that this one uses FX-JDI connectors by default.
+that this one uses Visage-JDI connectors by default.
 
 To run command line debugger on Mac OS, you can use
 
@@ -35,14 +35,14 @@ or to use Visage target programs:
         -classpath <path-of-visagert.jar> org.visage.runtime.Main \
         <visage-module-class>
 
-Notes on FX-JDI implementation:
+Notes on Visage-JDI implementation:
     
-* FX-JDI connectors are in org.visage.jdi.connect package.
+* Visage-JDI connectors are in org.visage.jdi.connect package.
 
 * org.visage.jdi, .event, .request packages have classes implementing
 interfaces of com.sun.jdi, com.sun.jdi.event, com.sun.jdi.request respectively.
 
-* FX-JDI implementing classes delegate to underlying platform JDI objects.
+* Visage-JDI implementing classes delegate to underlying platform JDI objects.
 The wrapping/unwrapping is primarily done in org.visage.jdi.FXWrapper
 and org.visage.jdi.FXVirtualMachine.
 
@@ -58,8 +58,8 @@ line debugger. This is currently used for testing - but it can be in futue.
 * Testing:
 
 The TestScaffold framework for platform JDI testing has been customized to test
-FX-JDI. For a Java example, please refer to org.visage.jdi.test.FramesTest.
-Each FX-JDI test uses launching connector with a target/debugger program.
+Visage-JDI. For a Java example, please refer to org.visage.jdi.test.FramesTest.
+Each Visage-JDI test uses launching connector with a target/debugger program.
 The target/debuggee sources are in org.visage.jdi.test.target package.
 For example, FramesTarget.java is the debuggee used by FramesTest.java. There
 are also Visage examples. HelloTarget.visage, SequenceTarget.visage are target Visage

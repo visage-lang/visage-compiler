@@ -23,7 +23,7 @@ import org.visage.runtime.PointerFactory;
 function runLater(ms: Number, f: function(): Void): Void {
 	var timer = new Timer(ms, ActionListener {
 		public function actionPerformed(e: ActionEvent) {
-			FX.deferAction(f);
+			Visage.deferAction(f);
 		}
 	});
 	timer.setRepeats(false);

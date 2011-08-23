@@ -160,14 +160,14 @@
  * 
  * public void expandFXObjects(boolean expandFXObjects);
  * 
- * Controls the display of FX objects.  By default, FX objects are displayed
- * as simple user oriented objects. expandFXObjects == true, displays FX Objects as
+ * Controls the display of Visage objects.  By default, Visage objects are displayed
+ * as simple user oriented objects. expandFXObjects == true, displays Visage Objects as
  * full java objects.
  * 
  * 
  * public void displayFXFlags(boolean displayFXFlags);
  * 
- * Controls the display of FX var flags.  By default displayFXFlags == true.
+ * Controls the display of Visage var flags.  By default displayFXFlags == true.
  * 
  *
  * public void displayStatics(boolean displayStatics)
@@ -213,7 +213,7 @@
  * public void includeClasses(Class... clazzes);
  * 
  * Only objects that are instances of the specified classes are included in the
- * graph.  Ex. if you only want to include FX objects, includeClasses(FXObject.class).
+ * graph.  Ex. if you only want to include Visage objects, includeClasses(FXObject.class).
  * 
  * 
  * public void excludeClasses(Class... clazzes);
@@ -326,7 +326,7 @@ public class FXDOTWriter {
     // True if collections should be expanded.
     private boolean expandCollections = false;
     
-    // True if FX Objects should be expanded.
+    // True if Visage Objects should be expanded.
     private boolean expandFXObjects = false;
     
     // True if static fields should be displayed.
@@ -341,7 +341,7 @@ public class FXDOTWriter {
     // True if inter dependencies should be shown.
     private boolean displayInterDependencies = true;
     
-    // True if FX Object flags should be shown.
+    // True if Visage Object flags should be shown.
     private boolean displayFXFlags = false;
     
 
@@ -510,7 +510,7 @@ public class FXDOTWriter {
         }
     }
     
-    // This class manages FX Object fields.
+    // This class manages Visage Object fields.
     class FXField {
         // Constants.
         final static String voffPrefix = "VOFF$";
@@ -632,7 +632,7 @@ public class FXDOTWriter {
                 // Display detail if under object limit and not excluded.
                 if (index < objectLimit && shouldDetail(object)) {
                     if (!expandFXObjects && object instanceof FXObject) {
-                        // Display as FX Object (implementation details hidden)
+                        // Display as Visage Object (implementation details hidden)
                         addFXObjectDetail(object, clazz, node);
                     } else if (!expandFXObjects && object instanceof Sequence) {
                         // Display sequence as an array of enties.
@@ -688,12 +688,12 @@ public class FXDOTWriter {
         this.expandCollections = expandCollections;
     }
 
-    // Control the switching of FX Objects from detail to expanded.
+    // Control the switching of Visage Objects from detail to expanded.
     public void expandFXObjects(boolean expandFXObjects) {
         this.expandFXObjects = expandFXObjects;
     }
     
-    // Control the display of FX var flags.
+    // Control the display of Visage var flags.
     public void displayFXFlags(boolean displayFXFlags) {
         this.displayFXFlags = displayFXFlags;
     }
@@ -909,8 +909,8 @@ public class FXDOTWriter {
         String className = getClassName(clazz);
         
         if (object instanceof FXObject) {
-            // Flag FX objects.
-            className += "(FX)";
+            // Flag Visage objects.
+            className += "(Visage)";
         } else if (object instanceof Class) {
             // Flag Class objects.
             className += "(Class)";
@@ -1030,13 +1030,13 @@ public class FXDOTWriter {
         }
     }
     
-    // Gather all the field information for a given FX object.
+    // Gather all the field information for a given Visage object.
     private FXField[] getFXFields(Object object, Class clazz) {
-        // Check to see if we've already processed the FX class.
+        // Check to see if we've already processed the Visage class.
         FXField[] fxFields = fxFieldCache.get(clazz);
         if (fxFields != null) return fxFields;
         
-        // Get the fields from the FX class
+        // Get the fields from the Visage class
         Field[] fields = getFields(clazz);
         Map<String, Field> fieldMap = new HashMap<String, Field>();
         List<FXField> fxFieldList = new ArrayList<FXField>();
@@ -1053,7 +1053,7 @@ public class FXDOTWriter {
             }
         }
         
-        // For each of the FX object fields.
+        // For each of the Visage object fields.
         for (Field field : fields) {
             // Get it's manged name.
             String name = field.getName();
@@ -1115,7 +1115,7 @@ public class FXDOTWriter {
         return null;
     }
 
-    // Add the detail information about an FX Object.
+    // Add the detail information about an Visage Object.
     private void addFXObjectDetail(Object object, Class clazz, Node node) {
         FXField[] fxFields = getFXFields(object, clazz);
 
@@ -1136,7 +1136,7 @@ public class FXDOTWriter {
                 addEdge(node, fxField.voff, getNode(value), -1);
             }
             
-            // Display FX var dependencies if present.
+            // Display Visage var dependencies if present.
             String bindees = fxField.bindees;
             if (bindees != null && (displayIntraDependencies || displayInterDependencies)) {
                 // Split on commas.
@@ -1176,7 +1176,7 @@ public class FXDOTWriter {
         }
     }
     
-    // Add the detail information about an FX sequence.
+    // Add the detail information about an Visage sequence.
     private void addSequenceDetail(Object object, Class clazz, Node node) {
         // Convert sequence to array and display as array.
         Sequence seq = (Sequence)object;

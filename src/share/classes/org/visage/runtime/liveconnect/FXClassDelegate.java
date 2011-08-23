@@ -375,7 +375,7 @@ public class FXClassDelegate extends FXTypeDelegate {
                     newArgs[i] = (FXValue) bridge.convert(arguments[i], chosenParameterTypes[i]);
                 }
             } else {
-                // FX reflection mechanism doesn't like null argument array
+                // Visage reflection mechanism doesn't like null argument array
                 newArgs = new FXValue[0];
             }
             Object ret = chosenInfo.invoke(target, newArgs);

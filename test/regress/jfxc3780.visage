@@ -1,5 +1,5 @@
 /**
- * JFXC-3780 : Compiled bind: bound function invocation selected on a immutable local variable of non-FX type gives symbol non found on attempt to make it a getter
+ * JFXC-3780 : Compiled bind: bound function invocation selected on a immutable local variable of non-Visage type gives symbol non found on attempt to make it a getter
  *
  * @test
  * @run

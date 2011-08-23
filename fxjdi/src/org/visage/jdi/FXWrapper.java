@@ -227,11 +227,11 @@ public class FXWrapper {
 
     /*
      * The fields are JDI Fields.
-     * Each field can be a user field of an FX class, an internal field of an FX class,
+     * Each field can be a user field of an Visage class, an internal field of an Visage class,
      * or a field of a Java class.
      */
     public static List<Field> wrapFields(FXVirtualMachine fxvm, List<Field> fields) {
-        // Create FXField wrappers for each field that is a valid FX field.
+        // Create FXField wrappers for each field that is a valid Visage field.
         if (fields == null) {
             return null;
         }
@@ -243,7 +243,7 @@ public class FXWrapper {
             String fldName = fld.name();
             int firstDollar = fldName.indexOf('$');
             // java names do not start with $.
-            // FX user names start with a $ but so do various internal names
+            // Visage user names start with a $ but so do various internal names
             // mixin vars are mangled with the mixin classname, et,   $MixinClassName$fieldName
             if (firstDollar != -1) {
                 if ((fldName.indexOf("_$",1)    != -1) ||

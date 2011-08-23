@@ -1,5 +1,5 @@
 /*
- * Regression test: JFXC-683: Use FX type name rather than Java type names in error messages
+ * Regression test: JFXC-683: Use Visage type name rather than Java type names in error messages
  *
  * @test/compile-error
  *

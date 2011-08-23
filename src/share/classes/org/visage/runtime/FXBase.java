@@ -28,13 +28,13 @@ import org.visage.runtime.sequence.Sequences;
 
 //
 
-// CODING/NAMING RESTRICTIONS - In a perfect world, all FX classes would inherit
+// CODING/NAMING RESTRICTIONS - In a perfect world, all Visage classes would inherit
 // from FXBase.  However, this is not the case.  It's also possible to inherit
 // from pure java classes. To accommodate this requirement, FXBase and FXObject
 // are under some strict coding conventions.
 //
-// When an FX class inherits from a java class, then all instance fields from
-// FXBase are cloned into the FX class, and accessor functions constructed for
+// When an Visage class inherits from a java class, then all instance fields from
+// FXBase are cloned into the Visage class, and accessor functions constructed for
 // them.  Therefore;
 //
 //   - All non-static fields defined in FXBase should have a '$' in the name.
@@ -65,8 +65,8 @@ import org.visage.runtime.sequence.Sequences;
 //       public MyClass getmyField$();
 //       public void setmyField$(final MyClass value);
 //
-// When an FX class inherits from a java class, all non-static methods are
-// cloned into the FX class, with bodies that call the FXBase static version of
+// When an Visage class inherits from a java class, all non-static methods are
+// cloned into the Visage class, with bodies that call the FXBase static version of
 // method, inserting 'this' as the first argument.  Therefore;
 //
 //   - All functionality in FXBase should be defined in static methods,
@@ -95,7 +95,7 @@ import org.visage.runtime.sequence.Sequences;
 //
 
 /**
- * Base class for most FX classes.  The exception being classes that inherit from Java classes.
+ * Base class for most Visage classes.  The exception being classes that inherit from Java classes.
  *
  * @author Jim Laskey
  * @author Robert Field

@@ -31,7 +31,7 @@ import org.visage.runtime.FXBase;
 
 /**
  * This script prints count$() value of all FXBase subclasses.
- * (note: count$() returns number of FX instance variables in a class).
+ * (note: count$() returns number of Visage instance variables in a class).
  *
  * @author A. Sundararajan
  */

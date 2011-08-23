@@ -3013,7 +3013,7 @@ however this is what we need */
                 return;
             }
             
-            // Var FX type.
+            // Var Visage type.
             Type type = var.asType();
             
             // Clone the var.
@@ -4518,7 +4518,7 @@ however this is what we need */
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             Name dummyParamName = names.fromString("dummy");
     
-            // call the FX version of the constructor in the superclass
+            // call the Visage version of the constructor in the superclass
             //    public Foo(boolean dummy) {
             //        super(dummy);
             //    }

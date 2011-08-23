@@ -246,7 +246,7 @@ public class Entry {
                         }
                     }
                 }
-                visage.lang.FX.exit(); // implicit exit after timeline is complete
+                visage.lang.Visage.exit(); // implicit exit after timeline is complete
             } catch (FXExit fxe) {
                 return; // trap FXExit exception from bubbling up
             }

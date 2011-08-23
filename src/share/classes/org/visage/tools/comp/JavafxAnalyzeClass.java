@@ -1504,7 +1504,7 @@ class JavafxAnalyzeClass {
     private boolean filterMethods(MethodSymbol meth) {
         Name name = meth.name;
         
-        // if this is a main method in an FX class then it is synthetic, ignore it
+        // if this is a main method in an Visage class then it is synthetic, ignore it
         if (name == defs.main_MethodName) {
             if (meth.type instanceof MethodType) {
                 MethodType mt = (MethodType)meth.type;

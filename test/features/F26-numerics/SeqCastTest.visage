@@ -22,1739 +22,1739 @@ public class SeqCastTest extends FXTestCase {
 
     var xByte: Byte[] = vByte;  
     function testByteSeqCastToByte() { 
-       if (gen) visage.lang.FX.println("\nvar resByteSeqCastToByte1:Byte[]=");
+       if (gen) visage.lang.Visage.println("\nvar resByteSeqCastToByte1:Byte[]=");
         xByte=vByte; 
        // xByte=[]; 
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resByteSeqCastToByte1, xByte);
     }    
 
     function testByteSeqUnionWithByte() { 
-       if (gen)visage.lang.FX.println("\nvar resByteSeqUnionWithByte1:Byte[]=");
+       if (gen)visage.lang.Visage.println("\nvar resByteSeqUnionWithByte1:Byte[]=");
         xByte=vByte;
        // xByte=[]; 
         assertEquals(res.resByteSeqUnionWithByte1, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithByte2:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithByte2:Byte[]=");
         xByte=[vByte, vByte];
        // xByte=[]; 
         assertEquals(res.resByteSeqUnionWithByte2, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithByte3:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithByte3:Byte[]=");
         xByte=[vByte, vByte];
        // xByte=[]; 
         assertEquals(res.resByteSeqUnionWithByte3, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testShortSeqCastToByte() { 
-       if (gen) visage.lang.FX.println("\nvar resShortSeqCastToByte1:Byte[]=");
+       if (gen) visage.lang.Visage.println("\nvar resShortSeqCastToByte1:Byte[]=");
         xByte=vShort; 
        // xByte=[]; 
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resShortSeqCastToByte1, xByte);
     }    
 
     function testShortSeqUnionWithByte() { 
-       if (gen)visage.lang.FX.println("\nvar resShortSeqUnionWithByte1:Byte[]=");
+       if (gen)visage.lang.Visage.println("\nvar resShortSeqUnionWithByte1:Byte[]=");
         xByte=vByte;
        // xByte=[]; 
         assertEquals(res.resShortSeqUnionWithByte1, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithByte2:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithByte2:Byte[]=");
         xByte=[vByte, vShort];
        // xByte=[]; 
         assertEquals(res.resShortSeqUnionWithByte2, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithByte3:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithByte3:Byte[]=");
         xByte=[vShort, vByte];
        // xByte=[]; 
         assertEquals(res.resShortSeqUnionWithByte3, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testCharacterSeqCastToByte() { 
-       if (gen) visage.lang.FX.println("\nvar resCharacterSeqCastToByte1:Byte[]=");
+       if (gen) visage.lang.Visage.println("\nvar resCharacterSeqCastToByte1:Byte[]=");
        //  xByte=vCharacter; 
         xByte=[]; 
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resCharacterSeqCastToByte1, xByte);
     }    
 
     function testCharacterSeqUnionWithByte() { 
-       if (gen)visage.lang.FX.println("\nvar resCharacterSeqUnionWithByte1:Byte[]=");
+       if (gen)visage.lang.Visage.println("\nvar resCharacterSeqUnionWithByte1:Byte[]=");
        //  xByte=vByte;
         xByte=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithByte1, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithByte2:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithByte2:Byte[]=");
        //  xByte=[vByte, vCharacter];
         xByte=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithByte2, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithByte3:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithByte3:Byte[]=");
        //  xByte=[vCharacter, , vByte];
         xByte=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithByte3, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testIntegerSeqCastToByte() { 
-       if (gen) visage.lang.FX.println("\nvar resIntegerSeqCastToByte1:Byte[]=");
+       if (gen) visage.lang.Visage.println("\nvar resIntegerSeqCastToByte1:Byte[]=");
         xByte=vInteger; 
        // xByte=[]; 
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resIntegerSeqCastToByte1, xByte);
     }    
 
     function testIntegerSeqUnionWithByte() { 
-       if (gen)visage.lang.FX.println("\nvar resIntegerSeqUnionWithByte1:Byte[]=");
+       if (gen)visage.lang.Visage.println("\nvar resIntegerSeqUnionWithByte1:Byte[]=");
         xByte=vByte;
        // xByte=[]; 
         assertEquals(res.resIntegerSeqUnionWithByte1, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithByte2:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithByte2:Byte[]=");
         xByte=[vByte, vInteger];
        // xByte=[]; 
         assertEquals(res.resIntegerSeqUnionWithByte2, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithByte3:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithByte3:Byte[]=");
         xByte=[vInteger, vByte];
        // xByte=[]; 
         assertEquals(res.resIntegerSeqUnionWithByte3, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testLongSeqCastToByte() { 
-       if (gen) visage.lang.FX.println("\nvar resLongSeqCastToByte1:Byte[]=");
+       if (gen) visage.lang.Visage.println("\nvar resLongSeqCastToByte1:Byte[]=");
         xByte=vLong; 
        // xByte=[]; 
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resLongSeqCastToByte1, xByte);
     }    
 
     function testLongSeqUnionWithByte() { 
-       if (gen)visage.lang.FX.println("\nvar resLongSeqUnionWithByte1:Byte[]=");
+       if (gen)visage.lang.Visage.println("\nvar resLongSeqUnionWithByte1:Byte[]=");
         xByte=vByte;
        // xByte=[]; 
         assertEquals(res.resLongSeqUnionWithByte1, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithByte2:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithByte2:Byte[]=");
         xByte=[vByte, vLong];
        // xByte=[]; 
         assertEquals(res.resLongSeqUnionWithByte2, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithByte3:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithByte3:Byte[]=");
         xByte=[vLong, vByte];
        // xByte=[]; 
         assertEquals(res.resLongSeqUnionWithByte3, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testFloatSeqCastToByte() { 
-       if (gen) visage.lang.FX.println("\nvar resFloatSeqCastToByte1:Byte[]=");
+       if (gen) visage.lang.Visage.println("\nvar resFloatSeqCastToByte1:Byte[]=");
         xByte=vFloat; 
        // xByte=[]; 
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resFloatSeqCastToByte1, xByte);
     }    
 
     function testFloatSeqUnionWithByte() { 
-       if (gen)visage.lang.FX.println("\nvar resFloatSeqUnionWithByte1:Byte[]=");
+       if (gen)visage.lang.Visage.println("\nvar resFloatSeqUnionWithByte1:Byte[]=");
         xByte=vByte;
        // xByte=[]; 
         assertEquals(res.resFloatSeqUnionWithByte1, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithByte2:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithByte2:Byte[]=");
         xByte=[vByte, vFloat];
        // xByte=[]; 
         assertEquals(res.resFloatSeqUnionWithByte2, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithByte3:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithByte3:Byte[]=");
         xByte=[vFloat, vByte];
        // xByte=[]; 
         assertEquals(res.resFloatSeqUnionWithByte3, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testDoubleSeqCastToByte() { 
-       if (gen) visage.lang.FX.println("\nvar resDoubleSeqCastToByte1:Byte[]=");
+       if (gen) visage.lang.Visage.println("\nvar resDoubleSeqCastToByte1:Byte[]=");
         xByte=vDouble; 
        // xByte=[]; 
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resDoubleSeqCastToByte1, xByte);
     }    
 
     function testDoubleSeqUnionWithByte() { 
-       if (gen)visage.lang.FX.println("\nvar resDoubleSeqUnionWithByte1:Byte[]=");
+       if (gen)visage.lang.Visage.println("\nvar resDoubleSeqUnionWithByte1:Byte[]=");
         xByte=vByte;
        // xByte=[]; 
         assertEquals(res.resDoubleSeqUnionWithByte1, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithByte2:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithByte2:Byte[]=");
         xByte=[vByte, vDouble];
        // xByte=[]; 
         assertEquals(res.resDoubleSeqUnionWithByte2, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithByte3:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithByte3:Byte[]=");
         xByte=[vDouble, vByte];
        // xByte=[]; 
         assertEquals(res.resDoubleSeqUnionWithByte3, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testNumberSeqCastToByte() { 
-       if (gen) visage.lang.FX.println("\nvar resNumberSeqCastToByte1:Byte[]=");
+       if (gen) visage.lang.Visage.println("\nvar resNumberSeqCastToByte1:Byte[]=");
         xByte=vNumber; 
        // xByte=[]; 
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resNumberSeqCastToByte1, xByte);
     }    
 
     function testNumberSeqUnionWithByte() { 
-       if (gen)visage.lang.FX.println("\nvar resNumberSeqUnionWithByte1:Byte[]=");
+       if (gen)visage.lang.Visage.println("\nvar resNumberSeqUnionWithByte1:Byte[]=");
         xByte=vByte;
        // xByte=[]; 
         assertEquals(res.resNumberSeqUnionWithByte1, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithByte2:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithByte2:Byte[]=");
         xByte=[vByte, vNumber];
        // xByte=[]; 
         assertEquals(res.resNumberSeqUnionWithByte2, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithByte3:Byte[]=");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithByte3:Byte[]=");
         xByte=[vNumber, vByte];
        // xByte=[]; 
         assertEquals(res.resNumberSeqUnionWithByte3, xByte);
-       if (gen)visage.lang.FX.println(xByte);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xByte);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     var xShort: Short[] = vShort;  
     function testByteSeqCastToShort() { 
-       if (gen) visage.lang.FX.println("\nvar resByteSeqCastToShort1:Short[]=");
+       if (gen) visage.lang.Visage.println("\nvar resByteSeqCastToShort1:Short[]=");
         xShort=vByte; 
        // xShort=[]; 
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resByteSeqCastToShort1, xShort);
     }    
 
     function testByteSeqUnionWithShort() { 
-       if (gen)visage.lang.FX.println("\nvar resByteSeqUnionWithShort1:Short[]=");
+       if (gen)visage.lang.Visage.println("\nvar resByteSeqUnionWithShort1:Short[]=");
         xShort=vShort;
        // xShort=[]; 
         assertEquals(res.resByteSeqUnionWithShort1, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithShort2:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithShort2:Short[]=");
         xShort=[vShort, vByte];
        // xShort=[]; 
         assertEquals(res.resByteSeqUnionWithShort2, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithShort3:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithShort3:Short[]=");
         xShort=[vByte, vShort];
        // xShort=[]; 
         assertEquals(res.resByteSeqUnionWithShort3, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testShortSeqCastToShort() { 
-       if (gen) visage.lang.FX.println("\nvar resShortSeqCastToShort1:Short[]=");
+       if (gen) visage.lang.Visage.println("\nvar resShortSeqCastToShort1:Short[]=");
         xShort=vShort; 
        // xShort=[]; 
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resShortSeqCastToShort1, xShort);
     }    
 
     function testShortSeqUnionWithShort() { 
-       if (gen)visage.lang.FX.println("\nvar resShortSeqUnionWithShort1:Short[]=");
+       if (gen)visage.lang.Visage.println("\nvar resShortSeqUnionWithShort1:Short[]=");
         xShort=vShort;
        // xShort=[]; 
         assertEquals(res.resShortSeqUnionWithShort1, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithShort2:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithShort2:Short[]=");
         xShort=[vShort, vShort];
        // xShort=[]; 
         assertEquals(res.resShortSeqUnionWithShort2, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithShort3:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithShort3:Short[]=");
         xShort=[vShort, vShort];
        // xShort=[]; 
         assertEquals(res.resShortSeqUnionWithShort3, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testCharacterSeqCastToShort() { 
-       if (gen) visage.lang.FX.println("\nvar resCharacterSeqCastToShort1:Short[]=");
+       if (gen) visage.lang.Visage.println("\nvar resCharacterSeqCastToShort1:Short[]=");
        //  xShort=vCharacter; 
         xShort=[]; 
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resCharacterSeqCastToShort1, xShort);
     }    
 
     function testCharacterSeqUnionWithShort() { 
-       if (gen)visage.lang.FX.println("\nvar resCharacterSeqUnionWithShort1:Short[]=");
+       if (gen)visage.lang.Visage.println("\nvar resCharacterSeqUnionWithShort1:Short[]=");
        //  xShort=vShort;
         xShort=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithShort1, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithShort2:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithShort2:Short[]=");
        //  xShort=[vShort, vCharacter];
         xShort=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithShort2, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithShort3:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithShort3:Short[]=");
        //  xShort=[vCharacter, vShort];
         xShort=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithShort3, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testIntegerSeqCastToShort() { 
-       if (gen) visage.lang.FX.println("\nvar resIntegerSeqCastToShort1:Short[]=");
+       if (gen) visage.lang.Visage.println("\nvar resIntegerSeqCastToShort1:Short[]=");
         xShort=vInteger; 
        // xShort=[]; 
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resIntegerSeqCastToShort1, xShort);
     }    
 
     function testIntegerSeqUnionWithShort() { 
-       if (gen)visage.lang.FX.println("\nvar resIntegerSeqUnionWithShort1:Short[]=");
+       if (gen)visage.lang.Visage.println("\nvar resIntegerSeqUnionWithShort1:Short[]=");
         xShort=vShort;
        // xShort=[]; 
         assertEquals(res.resIntegerSeqUnionWithShort1, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithShort2:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithShort2:Short[]=");
         xShort=[vShort, vInteger];
        // xShort=[]; 
         assertEquals(res.resIntegerSeqUnionWithShort2, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithShort3:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithShort3:Short[]=");
         xShort=[vInteger, vShort];
        // xShort=[]; 
         assertEquals(res.resIntegerSeqUnionWithShort3, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testLongSeqCastToShort() { 
-       if (gen) visage.lang.FX.println("\nvar resLongSeqCastToShort1:Short[]=");
+       if (gen) visage.lang.Visage.println("\nvar resLongSeqCastToShort1:Short[]=");
         xShort=vLong; 
        // xShort=[]; 
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resLongSeqCastToShort1, xShort);
     }    
 
     function testLongSeqUnionWithShort() { 
-       if (gen)visage.lang.FX.println("\nvar resLongSeqUnionWithShort1:Short[]=");
+       if (gen)visage.lang.Visage.println("\nvar resLongSeqUnionWithShort1:Short[]=");
         xShort=vShort;
        // xShort=[]; 
         assertEquals(res.resLongSeqUnionWithShort1, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithShort2:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithShort2:Short[]=");
         xShort=[vShort, vLong];
        // xShort=[]; 
         assertEquals(res.resLongSeqUnionWithShort2, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithShort3:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithShort3:Short[]=");
         xShort=[vLong, vShort];
        // xShort=[]; 
         assertEquals(res.resLongSeqUnionWithShort3, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testFloatSeqCastToShort() { 
-       if (gen) visage.lang.FX.println("\nvar resFloatSeqCastToShort1:Short[]=");
+       if (gen) visage.lang.Visage.println("\nvar resFloatSeqCastToShort1:Short[]=");
         xShort=vFloat; 
        // xShort=[]; 
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resFloatSeqCastToShort1, xShort);
     }    
 
     function testFloatSeqUnionWithShort() { 
-       if (gen)visage.lang.FX.println("\nvar resFloatSeqUnionWithShort1:Short[]=");
+       if (gen)visage.lang.Visage.println("\nvar resFloatSeqUnionWithShort1:Short[]=");
         xShort=vShort;
        // xShort=[]; 
         assertEquals(res.resFloatSeqUnionWithShort1, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithShort2:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithShort2:Short[]=");
         xShort=[vShort, vFloat];
        // xShort=[]; 
         assertEquals(res.resFloatSeqUnionWithShort2, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithShort3:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithShort3:Short[]=");
         xShort=[vFloat, vShort];
        // xShort=[]; 
         assertEquals(res.resFloatSeqUnionWithShort3, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testDoubleSeqCastToShort() { 
-       if (gen) visage.lang.FX.println("\nvar resDoubleSeqCastToShort1:Short[]=");
+       if (gen) visage.lang.Visage.println("\nvar resDoubleSeqCastToShort1:Short[]=");
         xShort=vDouble; 
        // xShort=[]; 
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resDoubleSeqCastToShort1, xShort);
     }    
 
     function testDoubleSeqUnionWithShort() { 
-       if (gen)visage.lang.FX.println("\nvar resDoubleSeqUnionWithShort1:Short[]=");
+       if (gen)visage.lang.Visage.println("\nvar resDoubleSeqUnionWithShort1:Short[]=");
         xShort=vShort;
        // xShort=[]; 
         assertEquals(res.resDoubleSeqUnionWithShort1, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithShort2:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithShort2:Short[]=");
         xShort=[vShort, vDouble];
        // xShort=[]; 
         assertEquals(res.resDoubleSeqUnionWithShort2, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithShort3:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithShort3:Short[]=");
         xShort=[vDouble, vShort];
        // xShort=[]; 
         assertEquals(res.resDoubleSeqUnionWithShort3, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testNumberSeqCastToShort() { 
-       if (gen) visage.lang.FX.println("\nvar resNumberSeqCastToShort1:Short[]=");
+       if (gen) visage.lang.Visage.println("\nvar resNumberSeqCastToShort1:Short[]=");
         xShort=vNumber; 
        // xShort=[]; 
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resNumberSeqCastToShort1, xShort);
     }    
 
     function testNumberSeqUnionWithShort() { 
-       if (gen)visage.lang.FX.println("\nvar resNumberSeqUnionWithShort1:Short[]=");
+       if (gen)visage.lang.Visage.println("\nvar resNumberSeqUnionWithShort1:Short[]=");
         xShort=vShort;
        // xShort=[]; 
         assertEquals(res.resNumberSeqUnionWithShort1, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithShort2:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithShort2:Short[]=");
         xShort=[vShort, vNumber];
        // xShort=[]; 
         assertEquals(res.resNumberSeqUnionWithShort2, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithShort3:Short[]=");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithShort3:Short[]=");
         xShort=[vNumber, vShort];
        // xShort=[]; 
         assertEquals(res.resNumberSeqUnionWithShort3, xShort);
-       if (gen)visage.lang.FX.println(xShort);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xShort);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     var xCharacter: Character[] = vCharacter;  
     function testByteSeqCastToCharacter() { 
-       if (gen) visage.lang.FX.println("\nvar resByteSeqCastToCharacter1:Character[]=");
+       if (gen) visage.lang.Visage.println("\nvar resByteSeqCastToCharacter1:Character[]=");
        //  xCharacter=vByte; 
         xCharacter=[]; 
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resByteSeqCastToCharacter1, xCharacter);
     }    
 
     function testByteSeqUnionWithCharacter() { 
-       if (gen)visage.lang.FX.println("\nvar resByteSeqUnionWithCharacter1:Character[]=");
+       if (gen)visage.lang.Visage.println("\nvar resByteSeqUnionWithCharacter1:Character[]=");
        //  xCharacter=vCharacter;
         xCharacter=[]; 
        //  assertEquals(res.resByteSeqUnionWithCharacter1, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithCharacter2:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithCharacter2:Character[]=");
        //  xCharacter=[vCharacter,  vByte];
         xCharacter=[]; 
        //  assertEquals(res.resByteSeqUnionWithCharacter2, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithCharacter3:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithCharacter3:Character[]=");
        //  xCharacter=[vByte, vCharacter];
         xCharacter=[]; 
        //  assertEquals(res.resByteSeqUnionWithCharacter3, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testShortSeqCastToCharacter() { 
-       if (gen) visage.lang.FX.println("\nvar resShortSeqCastToCharacter1:Character[]=");
+       if (gen) visage.lang.Visage.println("\nvar resShortSeqCastToCharacter1:Character[]=");
        //  xCharacter=vShort; 
         xCharacter=[]; 
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resShortSeqCastToCharacter1, xCharacter);
     }    
 
     function testShortSeqUnionWithCharacter() { 
-       if (gen)visage.lang.FX.println("\nvar resShortSeqUnionWithCharacter1:Character[]=");
+       if (gen)visage.lang.Visage.println("\nvar resShortSeqUnionWithCharacter1:Character[]=");
        //  xCharacter=vCharacter;
         xCharacter=[]; 
        //  assertEquals(res.resShortSeqUnionWithCharacter1, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithCharacter2:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithCharacter2:Character[]=");
        //  xCharacter=[vCharacter, vShort];
         xCharacter=[]; 
        //  assertEquals(res.resShortSeqUnionWithCharacter2, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithCharacter3:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithCharacter3:Character[]=");
        //  xCharacter=[vShort, vCharacter];
         xCharacter=[]; 
        //  assertEquals(res.resShortSeqUnionWithCharacter3, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testCharacterSeqCastToCharacter() { 
-       if (gen) visage.lang.FX.println("\nvar resCharacterSeqCastToCharacter1:Character[]=");
+       if (gen) visage.lang.Visage.println("\nvar resCharacterSeqCastToCharacter1:Character[]=");
        //  xCharacter=vCharacter; 
         xCharacter=[]; 
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resCharacterSeqCastToCharacter1, xCharacter);
     }    
 
     function testCharacterSeqUnionWithCharacter() { 
-       if (gen)visage.lang.FX.println("\nvar resCharacterSeqUnionWithCharacter1:Character[]=");
+       if (gen)visage.lang.Visage.println("\nvar resCharacterSeqUnionWithCharacter1:Character[]=");
        //  xCharacter=vCharacter;
         xCharacter=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithCharacter1, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithCharacter2:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithCharacter2:Character[]=");
        //  xCharacter=[vCharacter, vCharacter];
         xCharacter=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithCharacter2, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithCharacter3:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithCharacter3:Character[]=");
        //  xCharacter=[vCharacter, vCharacter];
         xCharacter=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithCharacter3, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testIntegerSeqCastToCharacter() { 
-       if (gen) visage.lang.FX.println("\nvar resIntegerSeqCastToCharacter1:Character[]=");
+       if (gen) visage.lang.Visage.println("\nvar resIntegerSeqCastToCharacter1:Character[]=");
        //  xCharacter=vInteger; 
         xCharacter=[]; 
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resIntegerSeqCastToCharacter1, xCharacter);
     }    
 
     function testIntegerSeqUnionWithCharacter() { 
-       if (gen)visage.lang.FX.println("\nvar resIntegerSeqUnionWithCharacter1:Character[]=");
+       if (gen)visage.lang.Visage.println("\nvar resIntegerSeqUnionWithCharacter1:Character[]=");
        //  xCharacter=vCharacter;
         xCharacter=[]; 
        //  assertEquals(res.resIntegerSeqUnionWithCharacter1, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithCharacter2:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithCharacter2:Character[]=");
        //  xCharacter=[vCharacter, vInteger];
         xCharacter=[]; 
        //  assertEquals(res.resIntegerSeqUnionWithCharacter2, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithCharacter3:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithCharacter3:Character[]=");
        //  xCharacter=[vInteger, vCharacter];
         xCharacter=[]; 
        //  assertEquals(res.resIntegerSeqUnionWithCharacter3, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testLongSeqCastToCharacter() { 
-       if (gen) visage.lang.FX.println("\nvar resLongSeqCastToCharacter1:Character[]=");
+       if (gen) visage.lang.Visage.println("\nvar resLongSeqCastToCharacter1:Character[]=");
        //  xCharacter=vLong; 
         xCharacter=[]; 
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resLongSeqCastToCharacter1, xCharacter);
     }    
 
     function testLongSeqUnionWithCharacter() { 
-       if (gen)visage.lang.FX.println("\nvar resLongSeqUnionWithCharacter1:Character[]=");
+       if (gen)visage.lang.Visage.println("\nvar resLongSeqUnionWithCharacter1:Character[]=");
        //  xCharacter=vCharacter;
         xCharacter=[]; 
        //  assertEquals(res.resLongSeqUnionWithCharacter1, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithCharacter2:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithCharacter2:Character[]=");
        //  xCharacter=[vCharacter, vLong];
         xCharacter=[]; 
        //  assertEquals(res.resLongSeqUnionWithCharacter2, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithCharacter3:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithCharacter3:Character[]=");
        //  xCharacter=[vLong, vCharacter];
         xCharacter=[]; 
        //  assertEquals(res.resLongSeqUnionWithCharacter3, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testFloatSeqCastToCharacter() { 
-       if (gen) visage.lang.FX.println("\nvar resFloatSeqCastToCharacter1:Character[]=");
+       if (gen) visage.lang.Visage.println("\nvar resFloatSeqCastToCharacter1:Character[]=");
        //  xCharacter=vFloat; 
         xCharacter=[]; 
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resFloatSeqCastToCharacter1, xCharacter);
     }    
 
     function testFloatSeqUnionWithCharacter() { 
-       if (gen)visage.lang.FX.println("\nvar resFloatSeqUnionWithCharacter1:Character[]=");
+       if (gen)visage.lang.Visage.println("\nvar resFloatSeqUnionWithCharacter1:Character[]=");
        //  xCharacter=vCharacter;
         xCharacter=[]; 
        //  assertEquals(res.resFloatSeqUnionWithCharacter1, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithCharacter2:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithCharacter2:Character[]=");
        //  xCharacter=[vCharacter, vFloat];
         xCharacter=[]; 
        //  assertEquals(res.resFloatSeqUnionWithCharacter2, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithCharacter3:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithCharacter3:Character[]=");
        //  xCharacter=[vFloat, vCharacter];
         xCharacter=[]; 
        //  assertEquals(res.resFloatSeqUnionWithCharacter3, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testDoubleSeqCastToCharacter() { 
-       if (gen) visage.lang.FX.println("\nvar resDoubleSeqCastToCharacter1:Character[]=");
+       if (gen) visage.lang.Visage.println("\nvar resDoubleSeqCastToCharacter1:Character[]=");
        //  xCharacter=vDouble; 
         xCharacter=[]; 
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resDoubleSeqCastToCharacter1, xCharacter);
     }    
 
     function testDoubleSeqUnionWithCharacter() { 
-       if (gen)visage.lang.FX.println("\nvar resDoubleSeqUnionWithCharacter1:Character[]=");
+       if (gen)visage.lang.Visage.println("\nvar resDoubleSeqUnionWithCharacter1:Character[]=");
        //  xCharacter=vCharacter;
         xCharacter=[]; 
        //  assertEquals(res.resDoubleSeqUnionWithCharacter1, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithCharacter2:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithCharacter2:Character[]=");
        //  xCharacter=[vCharacter, vDouble];
         xCharacter=[]; 
        //  assertEquals(res.resDoubleSeqUnionWithCharacter2, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithCharacter3:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithCharacter3:Character[]=");
        //  xCharacter=[vDouble, vCharacter];
         xCharacter=[]; 
        //  assertEquals(res.resDoubleSeqUnionWithCharacter3, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testNumberSeqCastToCharacter() { 
-       if (gen) visage.lang.FX.println("\nvar resNumberSeqCastToCharacter1:Character[]=");
+       if (gen) visage.lang.Visage.println("\nvar resNumberSeqCastToCharacter1:Character[]=");
        //  xCharacter=vNumber; 
         xCharacter=[]; 
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resNumberSeqCastToCharacter1, xCharacter);
     }    
 
     function testNumberSeqUnionWithCharacter() { 
-       if (gen)visage.lang.FX.println("\nvar resNumberSeqUnionWithCharacter1:Character[]=");
+       if (gen)visage.lang.Visage.println("\nvar resNumberSeqUnionWithCharacter1:Character[]=");
        //  xCharacter=vCharacter;
         xCharacter=[]; 
        //  assertEquals(res.resNumberSeqUnionWithCharacter1, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithCharacter2:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithCharacter2:Character[]=");
        //  xCharacter=[vCharacter, vNumber];
         xCharacter=[]; 
        //  assertEquals(res.resNumberSeqUnionWithCharacter2, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithCharacter3:Character[]=");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithCharacter3:Character[]=");
        //  xCharacter=[vNumber, vCharacter];
         xCharacter=[]; 
        //  assertEquals(res.resNumberSeqUnionWithCharacter3, xCharacter);
-       if (gen)visage.lang.FX.println(xCharacter);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xCharacter);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     var xInteger: Integer[] = vInteger;  
     function testByteSeqCastToInteger() { 
-       if (gen) visage.lang.FX.println("\nvar resByteSeqCastToInteger1:Integer[]=");
+       if (gen) visage.lang.Visage.println("\nvar resByteSeqCastToInteger1:Integer[]=");
         xInteger=vByte; 
        // xInteger=[]; 
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resByteSeqCastToInteger1, xInteger);
     }    
 
     function testByteSeqUnionWithInteger() { 
-       if (gen)visage.lang.FX.println("\nvar resByteSeqUnionWithInteger1:Integer[]=");
+       if (gen)visage.lang.Visage.println("\nvar resByteSeqUnionWithInteger1:Integer[]=");
         xInteger=vInteger;
        // xInteger=[]; 
         assertEquals(res.resByteSeqUnionWithInteger1, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithInteger2:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithInteger2:Integer[]=");
         xInteger=[vInteger, vByte];
        // xInteger=[]; 
         assertEquals(res.resByteSeqUnionWithInteger2, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithInteger3:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithInteger3:Integer[]=");
         xInteger=[vByte, vInteger];
        // xInteger=[]; 
         assertEquals(res.resByteSeqUnionWithInteger3, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testShortSeqCastToInteger() { 
-       if (gen) visage.lang.FX.println("\nvar resShortSeqCastToInteger1:Integer[]=");
+       if (gen) visage.lang.Visage.println("\nvar resShortSeqCastToInteger1:Integer[]=");
         xInteger=vShort; 
        // xInteger=[]; 
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resShortSeqCastToInteger1, xInteger);
     }    
 
     function testShortSeqUnionWithInteger() { 
-       if (gen)visage.lang.FX.println("\nvar resShortSeqUnionWithInteger1:Integer[]=");
+       if (gen)visage.lang.Visage.println("\nvar resShortSeqUnionWithInteger1:Integer[]=");
         xInteger=vInteger;
        // xInteger=[]; 
         assertEquals(res.resShortSeqUnionWithInteger1, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithInteger2:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithInteger2:Integer[]=");
         xInteger=[vInteger, vShort];
        // xInteger=[]; 
         assertEquals(res.resShortSeqUnionWithInteger2, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithInteger3:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithInteger3:Integer[]=");
         xInteger=[vShort, vInteger];
        // xInteger=[]; 
         assertEquals(res.resShortSeqUnionWithInteger3, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testCharacterSeqCastToInteger() { 
-       if (gen) visage.lang.FX.println("\nvar resCharacterSeqCastToInteger1:Integer[]=");
+       if (gen) visage.lang.Visage.println("\nvar resCharacterSeqCastToInteger1:Integer[]=");
        //  xInteger=vCharacter; 
         xInteger=[]; 
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resCharacterSeqCastToInteger1, xInteger);
     }    
 
     function testCharacterSeqUnionWithInteger() { 
-       if (gen)visage.lang.FX.println("\nvar resCharacterSeqUnionWithInteger1:Integer[]=");
+       if (gen)visage.lang.Visage.println("\nvar resCharacterSeqUnionWithInteger1:Integer[]=");
        //  xInteger=vInteger;
         xInteger=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithInteger1, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithInteger2:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithInteger2:Integer[]=");
        //  xInteger=[vInteger, vCharacter];
         xInteger=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithInteger2, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithInteger3:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithInteger3:Integer[]=");
        //  xInteger=[vCharacter, vInteger];
         xInteger=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithInteger3, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testIntegerSeqCastToInteger() { 
-       if (gen) visage.lang.FX.println("\nvar resIntegerSeqCastToInteger1:Integer[]=");
+       if (gen) visage.lang.Visage.println("\nvar resIntegerSeqCastToInteger1:Integer[]=");
         xInteger=vInteger; 
        // xInteger=[]; 
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resIntegerSeqCastToInteger1, xInteger);
     }    
 
     function testIntegerSeqUnionWithInteger() { 
-       if (gen)visage.lang.FX.println("\nvar resIntegerSeqUnionWithInteger1:Integer[]=");
+       if (gen)visage.lang.Visage.println("\nvar resIntegerSeqUnionWithInteger1:Integer[]=");
         xInteger=vInteger;
        // xInteger=[]; 
         assertEquals(res.resIntegerSeqUnionWithInteger1, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithInteger2:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithInteger2:Integer[]=");
         xInteger=[vInteger, vInteger];
        // xInteger=[]; 
         assertEquals(res.resIntegerSeqUnionWithInteger2, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithInteger3:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithInteger3:Integer[]=");
         xInteger=[vInteger, vInteger];
        // xInteger=[]; 
         assertEquals(res.resIntegerSeqUnionWithInteger3, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testLongSeqCastToInteger() { 
-       if (gen) visage.lang.FX.println("\nvar resLongSeqCastToInteger1:Integer[]=");
+       if (gen) visage.lang.Visage.println("\nvar resLongSeqCastToInteger1:Integer[]=");
         xInteger=vLong; 
        // xInteger=[]; 
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resLongSeqCastToInteger1, xInteger);
     }    
 
     function testLongSeqUnionWithInteger() { 
-       if (gen)visage.lang.FX.println("\nvar resLongSeqUnionWithInteger1:Integer[]=");
+       if (gen)visage.lang.Visage.println("\nvar resLongSeqUnionWithInteger1:Integer[]=");
         xInteger=vInteger;
        // xInteger=[]; 
         assertEquals(res.resLongSeqUnionWithInteger1, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithInteger2:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithInteger2:Integer[]=");
         xInteger=[vInteger, vLong];
        // xInteger=[]; 
         assertEquals(res.resLongSeqUnionWithInteger2, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithInteger3:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithInteger3:Integer[]=");
         xInteger=[vLong, vInteger];
        // xInteger=[]; 
         assertEquals(res.resLongSeqUnionWithInteger3, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testFloatSeqCastToInteger() { 
-       if (gen) visage.lang.FX.println("\nvar resFloatSeqCastToInteger1:Integer[]=");
+       if (gen) visage.lang.Visage.println("\nvar resFloatSeqCastToInteger1:Integer[]=");
         xInteger=vFloat; 
        // xInteger=[]; 
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resFloatSeqCastToInteger1, xInteger);
     }    
 
     function testFloatSeqUnionWithInteger() { 
-       if (gen)visage.lang.FX.println("\nvar resFloatSeqUnionWithInteger1:Integer[]=");
+       if (gen)visage.lang.Visage.println("\nvar resFloatSeqUnionWithInteger1:Integer[]=");
         xInteger=vInteger;
        // xInteger=[]; 
         assertEquals(res.resFloatSeqUnionWithInteger1, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithInteger2:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithInteger2:Integer[]=");
         xInteger=[vInteger, vFloat];
        // xInteger=[]; 
         assertEquals(res.resFloatSeqUnionWithInteger2, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithInteger3:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithInteger3:Integer[]=");
         xInteger=[vFloat, vInteger];
        // xInteger=[]; 
         assertEquals(res.resFloatSeqUnionWithInteger3, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testDoubleSeqCastToInteger() { 
-       if (gen) visage.lang.FX.println("\nvar resDoubleSeqCastToInteger1:Integer[]=");
+       if (gen) visage.lang.Visage.println("\nvar resDoubleSeqCastToInteger1:Integer[]=");
         xInteger=vDouble; 
        // xInteger=[]; 
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resDoubleSeqCastToInteger1, xInteger);
     }    
 
     function testDoubleSeqUnionWithInteger() { 
-       if (gen)visage.lang.FX.println("\nvar resDoubleSeqUnionWithInteger1:Integer[]=");
+       if (gen)visage.lang.Visage.println("\nvar resDoubleSeqUnionWithInteger1:Integer[]=");
         xInteger=vInteger;
        // xInteger=[]; 
         assertEquals(res.resDoubleSeqUnionWithInteger1, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithInteger2:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithInteger2:Integer[]=");
         xInteger=[vInteger, vDouble];
        // xInteger=[]; 
         assertEquals(res.resDoubleSeqUnionWithInteger2, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithInteger3:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithInteger3:Integer[]=");
         xInteger=[vDouble, vInteger];
        // xInteger=[]; 
         assertEquals(res.resDoubleSeqUnionWithInteger3, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testNumberSeqCastToInteger() { 
-       if (gen) visage.lang.FX.println("\nvar resNumberSeqCastToInteger1:Integer[]=");
+       if (gen) visage.lang.Visage.println("\nvar resNumberSeqCastToInteger1:Integer[]=");
         xInteger=vNumber; 
        // xInteger=[]; 
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resNumberSeqCastToInteger1, xInteger);
     }    
 
     function testNumberSeqUnionWithInteger() { 
-       if (gen)visage.lang.FX.println("\nvar resNumberSeqUnionWithInteger1:Integer[]=");
+       if (gen)visage.lang.Visage.println("\nvar resNumberSeqUnionWithInteger1:Integer[]=");
         xInteger=vInteger;
        // xInteger=[]; 
         assertEquals(res.resNumberSeqUnionWithInteger1, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithInteger2:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithInteger2:Integer[]=");
         xInteger=[vInteger, vNumber];
        // xInteger=[]; 
         assertEquals(res.resNumberSeqUnionWithInteger2, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithInteger3:Integer[]=");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithInteger3:Integer[]=");
         xInteger=[vNumber, vInteger];
        // xInteger=[]; 
         assertEquals(res.resNumberSeqUnionWithInteger3, xInteger);
-       if (gen)visage.lang.FX.println(xInteger);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xInteger);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     var xLong: Long[] = vLong;  
     function testByteSeqCastToLong() { 
-       if (gen) visage.lang.FX.println("\nvar resByteSeqCastToLong1:Long[]=");
+       if (gen) visage.lang.Visage.println("\nvar resByteSeqCastToLong1:Long[]=");
         xLong=vByte; 
        // xLong=[]; 
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resByteSeqCastToLong1, xLong);
     }    
 
     function testByteSeqUnionWithLong() { 
-       if (gen)visage.lang.FX.println("\nvar resByteSeqUnionWithLong1:Long[]=");
+       if (gen)visage.lang.Visage.println("\nvar resByteSeqUnionWithLong1:Long[]=");
         xLong=vLong;
        // xLong=[]; 
         assertEquals(res.resByteSeqUnionWithLong1, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithLong2:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithLong2:Long[]=");
         xLong=[vLong, vByte];
        // xLong=[]; 
         assertEquals(res.resByteSeqUnionWithLong2, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithLong3:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithLong3:Long[]=");
         xLong=[vByte, vLong];
        // xLong=[]; 
         assertEquals(res.resByteSeqUnionWithLong3, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testShortSeqCastToLong() { 
-       if (gen) visage.lang.FX.println("\nvar resShortSeqCastToLong1:Long[]=");
+       if (gen) visage.lang.Visage.println("\nvar resShortSeqCastToLong1:Long[]=");
         xLong=vShort; 
        // xLong=[]; 
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resShortSeqCastToLong1, xLong);
     }    
 
     function testShortSeqUnionWithLong() { 
-       if (gen)visage.lang.FX.println("\nvar resShortSeqUnionWithLong1:Long[]=");
+       if (gen)visage.lang.Visage.println("\nvar resShortSeqUnionWithLong1:Long[]=");
         xLong=vLong;
        // xLong=[]; 
         assertEquals(res.resShortSeqUnionWithLong1, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithLong2:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithLong2:Long[]=");
         xLong=[vLong, vShort];
        // xLong=[]; 
         assertEquals(res.resShortSeqUnionWithLong2, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithLong3:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithLong3:Long[]=");
         xLong=[vShort, vLong];
        // xLong=[]; 
         assertEquals(res.resShortSeqUnionWithLong3, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testCharacterSeqCastToLong() { 
-       if (gen) visage.lang.FX.println("\nvar resCharacterSeqCastToLong1:Long[]=");
+       if (gen) visage.lang.Visage.println("\nvar resCharacterSeqCastToLong1:Long[]=");
        //  xLong=vCharacter; 
         xLong=[]; 
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resCharacterSeqCastToLong1, xLong);
     }    
 
     function testCharacterSeqUnionWithLong() { 
-       if (gen)visage.lang.FX.println("\nvar resCharacterSeqUnionWithLong1:Long[]=");
+       if (gen)visage.lang.Visage.println("\nvar resCharacterSeqUnionWithLong1:Long[]=");
        //  xLong=vLong;
         xLong=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithLong1, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithLong2:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithLong2:Long[]=");
        //  xLong=[vLong, vCharacter];
         xLong=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithLong2, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithLong3:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithLong3:Long[]=");
        //  xLong=[vCharacter, vLong];
         xLong=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithLong3, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testIntegerSeqCastToLong() { 
-       if (gen) visage.lang.FX.println("\nvar resIntegerSeqCastToLong1:Long[]=");
+       if (gen) visage.lang.Visage.println("\nvar resIntegerSeqCastToLong1:Long[]=");
         xLong=vInteger; 
        // xLong=[]; 
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resIntegerSeqCastToLong1, xLong);
     }    
 
     function testIntegerSeqUnionWithLong() { 
-       if (gen)visage.lang.FX.println("\nvar resIntegerSeqUnionWithLong1:Long[]=");
+       if (gen)visage.lang.Visage.println("\nvar resIntegerSeqUnionWithLong1:Long[]=");
         xLong=vLong;
        // xLong=[]; 
         assertEquals(res.resIntegerSeqUnionWithLong1, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithLong2:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithLong2:Long[]=");
         xLong=[vLong, vInteger];
        // xLong=[]; 
         assertEquals(res.resIntegerSeqUnionWithLong2, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithLong3:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithLong3:Long[]=");
         xLong=[vInteger, vLong];
        // xLong=[]; 
         assertEquals(res.resIntegerSeqUnionWithLong3, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testLongSeqCastToLong() { 
-       if (gen) visage.lang.FX.println("\nvar resLongSeqCastToLong1:Long[]=");
+       if (gen) visage.lang.Visage.println("\nvar resLongSeqCastToLong1:Long[]=");
         xLong=vLong; 
        // xLong=[]; 
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resLongSeqCastToLong1, xLong);
     }    
 
     function testLongSeqUnionWithLong() { 
-       if (gen)visage.lang.FX.println("\nvar resLongSeqUnionWithLong1:Long[]=");
+       if (gen)visage.lang.Visage.println("\nvar resLongSeqUnionWithLong1:Long[]=");
         xLong=vLong;
        // xLong=[]; 
         assertEquals(res.resLongSeqUnionWithLong1, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithLong2:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithLong2:Long[]=");
         xLong=[vLong, vLong];
        // xLong=[]; 
         assertEquals(res.resLongSeqUnionWithLong2, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithLong3:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithLong3:Long[]=");
         xLong=[vLong, vLong];
        // xLong=[]; 
         assertEquals(res.resLongSeqUnionWithLong3, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testFloatSeqCastToLong() { 
-       if (gen) visage.lang.FX.println("\nvar resFloatSeqCastToLong1:Long[]=");
+       if (gen) visage.lang.Visage.println("\nvar resFloatSeqCastToLong1:Long[]=");
         xLong=vFloat; 
        // xLong=[]; 
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resFloatSeqCastToLong1, xLong);
     }    
 
     function testFloatSeqUnionWithLong() { 
-       if (gen)visage.lang.FX.println("\nvar resFloatSeqUnionWithLong1:Long[]=");
+       if (gen)visage.lang.Visage.println("\nvar resFloatSeqUnionWithLong1:Long[]=");
         xLong=vLong;
        // xLong=[]; 
         assertEquals(res.resFloatSeqUnionWithLong1, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithLong2:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithLong2:Long[]=");
         xLong=[vLong, vFloat];
        // xLong=[]; 
         assertEquals(res.resFloatSeqUnionWithLong2, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithLong3:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithLong3:Long[]=");
         xLong=[vFloat, vLong];
        // xLong=[]; 
         assertEquals(res.resFloatSeqUnionWithLong3, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testDoubleSeqCastToLong() { 
-       if (gen) visage.lang.FX.println("\nvar resDoubleSeqCastToLong1:Long[]=");
+       if (gen) visage.lang.Visage.println("\nvar resDoubleSeqCastToLong1:Long[]=");
         xLong=vDouble; 
        // xLong=[]; 
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resDoubleSeqCastToLong1, xLong);
     }    
 
     function testDoubleSeqUnionWithLong() { 
-       if (gen)visage.lang.FX.println("\nvar resDoubleSeqUnionWithLong1:Long[]=");
+       if (gen)visage.lang.Visage.println("\nvar resDoubleSeqUnionWithLong1:Long[]=");
         xLong=vLong;
        // xLong=[]; 
         assertEquals(res.resDoubleSeqUnionWithLong1, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithLong2:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithLong2:Long[]=");
         xLong=[vLong, vDouble];
        // xLong=[]; 
         assertEquals(res.resDoubleSeqUnionWithLong2, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithLong3:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithLong3:Long[]=");
         xLong=[vDouble, vLong];
        // xLong=[]; 
         assertEquals(res.resDoubleSeqUnionWithLong3, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testNumberSeqCastToLong() { 
-       if (gen) visage.lang.FX.println("\nvar resNumberSeqCastToLong1:Long[]=");
+       if (gen) visage.lang.Visage.println("\nvar resNumberSeqCastToLong1:Long[]=");
         xLong=vNumber; 
        // xLong=[]; 
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resNumberSeqCastToLong1, xLong);
     }    
 
     function testNumberSeqUnionWithLong() { 
-       if (gen)visage.lang.FX.println("\nvar resNumberSeqUnionWithLong1:Long[]=");
+       if (gen)visage.lang.Visage.println("\nvar resNumberSeqUnionWithLong1:Long[]=");
         xLong=vLong;
        // xLong=[]; 
         assertEquals(res.resNumberSeqUnionWithLong1, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithLong2:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithLong2:Long[]=");
         xLong=[vLong, vNumber];
        // xLong=[]; 
         assertEquals(res.resNumberSeqUnionWithLong2, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithLong3:Long[]=");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithLong3:Long[]=");
         xLong=[vNumber, vLong];
        // xLong=[]; 
         assertEquals(res.resNumberSeqUnionWithLong3, xLong);
-       if (gen)visage.lang.FX.println(xLong);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xLong);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     var xFloat: Float[] = vFloat;  
     function testByteSeqCastToFloat() { 
-       if (gen) visage.lang.FX.println("\nvar resByteSeqCastToFloat1:Float[]=");
+       if (gen) visage.lang.Visage.println("\nvar resByteSeqCastToFloat1:Float[]=");
         xFloat=vByte; 
        // xFloat=[]; 
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resByteSeqCastToFloat1, xFloat);
     }    
 
     function testByteSeqUnionWithFloat() { 
-       if (gen)visage.lang.FX.println("\nvar resByteSeqUnionWithFloat1:Float[]=");
+       if (gen)visage.lang.Visage.println("\nvar resByteSeqUnionWithFloat1:Float[]=");
         xFloat=vFloat;
        // xFloat=[]; 
         assertEquals(res.resByteSeqUnionWithFloat1, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithFloat2:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithFloat2:Float[]=");
         xFloat=[vFloat, vByte];
        // xFloat=[]; 
         assertEquals(res.resByteSeqUnionWithFloat2, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithFloat3:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithFloat3:Float[]=");
         xFloat=[vByte, vFloat];
        // xFloat=[]; 
         assertEquals(res.resByteSeqUnionWithFloat3, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testShortSeqCastToFloat() { 
-       if (gen) visage.lang.FX.println("\nvar resShortSeqCastToFloat1:Float[]=");
+       if (gen) visage.lang.Visage.println("\nvar resShortSeqCastToFloat1:Float[]=");
         xFloat=vShort; 
        // xFloat=[]; 
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resShortSeqCastToFloat1, xFloat);
     }    
 
     function testShortSeqUnionWithFloat() { 
-       if (gen)visage.lang.FX.println("\nvar resShortSeqUnionWithFloat1:Float[]=");
+       if (gen)visage.lang.Visage.println("\nvar resShortSeqUnionWithFloat1:Float[]=");
         xFloat=vFloat;
        // xFloat=[]; 
         assertEquals(res.resShortSeqUnionWithFloat1, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithFloat2:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithFloat2:Float[]=");
         xFloat=[vFloat, vShort];
        // xFloat=[]; 
         assertEquals(res.resShortSeqUnionWithFloat2, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithFloat3:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithFloat3:Float[]=");
         xFloat=[vShort, vFloat];
        // xFloat=[]; 
         assertEquals(res.resShortSeqUnionWithFloat3, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testCharacterSeqCastToFloat() { 
-       if (gen) visage.lang.FX.println("\nvar resCharacterSeqCastToFloat1:Float[]=");
+       if (gen) visage.lang.Visage.println("\nvar resCharacterSeqCastToFloat1:Float[]=");
        //  xFloat=vCharacter; 
         xFloat=[]; 
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resCharacterSeqCastToFloat1, xFloat);
     }    
 
     function testCharacterSeqUnionWithFloat() { 
-       if (gen)visage.lang.FX.println("\nvar resCharacterSeqUnionWithFloat1:Float[]=");
+       if (gen)visage.lang.Visage.println("\nvar resCharacterSeqUnionWithFloat1:Float[]=");
        //  xFloat=vFloat;
         xFloat=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithFloat1, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithFloat2:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithFloat2:Float[]=");
        //  xFloat=[vFloat, vCharacter];
         xFloat=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithFloat2, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithFloat3:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithFloat3:Float[]=");
        //  xFloat=[vCharacter, vFloat];
         xFloat=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithFloat3, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testIntegerSeqCastToFloat() { 
-       if (gen) visage.lang.FX.println("\nvar resIntegerSeqCastToFloat1:Float[]=");
+       if (gen) visage.lang.Visage.println("\nvar resIntegerSeqCastToFloat1:Float[]=");
         xFloat=vInteger; 
        // xFloat=[]; 
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resIntegerSeqCastToFloat1, xFloat);
     }    
 
     function testIntegerSeqUnionWithFloat() { 
-       if (gen)visage.lang.FX.println("\nvar resIntegerSeqUnionWithFloat1:Float[]=");
+       if (gen)visage.lang.Visage.println("\nvar resIntegerSeqUnionWithFloat1:Float[]=");
         xFloat=vFloat;
        // xFloat=[]; 
         assertEquals(res.resIntegerSeqUnionWithFloat1, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithFloat2:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithFloat2:Float[]=");
         xFloat=[vFloat, vInteger];
        // xFloat=[]; 
         assertEquals(res.resIntegerSeqUnionWithFloat2, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithFloat3:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithFloat3:Float[]=");
         xFloat=[vInteger, vFloat];
        // xFloat=[]; 
         assertEquals(res.resIntegerSeqUnionWithFloat3, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testLongSeqCastToFloat() { 
-       if (gen) visage.lang.FX.println("\nvar resLongSeqCastToFloat1:Float[]=");
+       if (gen) visage.lang.Visage.println("\nvar resLongSeqCastToFloat1:Float[]=");
         xFloat=vLong; 
        // xFloat=[]; 
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resLongSeqCastToFloat1, xFloat);
     }    
 
     function testLongSeqUnionWithFloat() { 
-       if (gen)visage.lang.FX.println("\nvar resLongSeqUnionWithFloat1:Float[]=");
+       if (gen)visage.lang.Visage.println("\nvar resLongSeqUnionWithFloat1:Float[]=");
         xFloat=vFloat;
        // xFloat=[]; 
         assertEquals(res.resLongSeqUnionWithFloat1, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithFloat2:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithFloat2:Float[]=");
         xFloat=[vFloat, vLong];
        // xFloat=[]; 
         assertEquals(res.resLongSeqUnionWithFloat2, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithFloat3:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithFloat3:Float[]=");
         xFloat=[vLong, vFloat];
        // xFloat=[]; 
         assertEquals(res.resLongSeqUnionWithFloat3, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testFloatSeqCastToFloat() { 
-       if (gen) visage.lang.FX.println("\nvar resFloatSeqCastToFloat1:Float[]=");
+       if (gen) visage.lang.Visage.println("\nvar resFloatSeqCastToFloat1:Float[]=");
         xFloat=vFloat; 
        // xFloat=[]; 
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resFloatSeqCastToFloat1, xFloat);
     }    
 
     function testFloatSeqUnionWithFloat() { 
-       if (gen)visage.lang.FX.println("\nvar resFloatSeqUnionWithFloat1:Float[]=");
+       if (gen)visage.lang.Visage.println("\nvar resFloatSeqUnionWithFloat1:Float[]=");
         xFloat=vFloat;
        // xFloat=[]; 
         assertEquals(res.resFloatSeqUnionWithFloat1, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithFloat2:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithFloat2:Float[]=");
         xFloat=[vFloat, vFloat];
        // xFloat=[]; 
         assertEquals(res.resFloatSeqUnionWithFloat2, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithFloat3:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithFloat3:Float[]=");
         xFloat=[vFloat, vFloat];
        // xFloat=[]; 
         assertEquals(res.resFloatSeqUnionWithFloat3, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testDoubleSeqCastToFloat() { 
-       if (gen) visage.lang.FX.println("\nvar resDoubleSeqCastToFloat1:Float[]=");
+       if (gen) visage.lang.Visage.println("\nvar resDoubleSeqCastToFloat1:Float[]=");
         xFloat=vDouble; 
        // xFloat=[]; 
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resDoubleSeqCastToFloat1, xFloat);
     }    
 
     function testDoubleSeqUnionWithFloat() { 
-       if (gen)visage.lang.FX.println("\nvar resDoubleSeqUnionWithFloat1:Float[]=");
+       if (gen)visage.lang.Visage.println("\nvar resDoubleSeqUnionWithFloat1:Float[]=");
         xFloat=vFloat;
        // xFloat=[]; 
         assertEquals(res.resDoubleSeqUnionWithFloat1, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithFloat2:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithFloat2:Float[]=");
         xFloat=[vFloat, vDouble];
        // xFloat=[]; 
         assertEquals(res.resDoubleSeqUnionWithFloat2, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithFloat3:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithFloat3:Float[]=");
         xFloat=[vDouble, vFloat];
        // xFloat=[]; 
         assertEquals(res.resDoubleSeqUnionWithFloat3, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testNumberSeqCastToFloat() { 
-       if (gen) visage.lang.FX.println("\nvar resNumberSeqCastToFloat1:Float[]=");
+       if (gen) visage.lang.Visage.println("\nvar resNumberSeqCastToFloat1:Float[]=");
         xFloat=vNumber; 
        // xFloat=[]; 
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resNumberSeqCastToFloat1, xFloat);
     }    
 
     function testNumberSeqUnionWithFloat() { 
-       if (gen)visage.lang.FX.println("\nvar resNumberSeqUnionWithFloat1:Float[]=");
+       if (gen)visage.lang.Visage.println("\nvar resNumberSeqUnionWithFloat1:Float[]=");
         xFloat=vFloat;
        // xFloat=[]; 
         assertEquals(res.resNumberSeqUnionWithFloat1, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithFloat2:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithFloat2:Float[]=");
         xFloat=[vFloat, vNumber];
        // xFloat=[]; 
         assertEquals(res.resNumberSeqUnionWithFloat2, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithFloat3:Float[]=");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithFloat3:Float[]=");
         xFloat=[vNumber, vFloat];
        // xFloat=[]; 
         assertEquals(res.resNumberSeqUnionWithFloat3, xFloat);
-       if (gen)visage.lang.FX.println(xFloat);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xFloat);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     var xDouble: Double[] = vDouble;  
     function testByteSeqCastToDouble() { 
-       if (gen) visage.lang.FX.println("\nvar resByteSeqCastToDouble1:Double[]=");
+       if (gen) visage.lang.Visage.println("\nvar resByteSeqCastToDouble1:Double[]=");
         xDouble=vByte; 
        // xDouble=[]; 
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resByteSeqCastToDouble1, xDouble);
     }    
 
     function testByteSeqUnionWithDouble() { 
-       if (gen)visage.lang.FX.println("\nvar resByteSeqUnionWithDouble1:Double[]=");
+       if (gen)visage.lang.Visage.println("\nvar resByteSeqUnionWithDouble1:Double[]=");
         xDouble=vDouble;
        // xDouble=[]; 
         assertEquals(res.resByteSeqUnionWithDouble1, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithDouble2:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithDouble2:Double[]=");
         xDouble=[vDouble, vByte];
        // xDouble=[]; 
         assertEquals(res.resByteSeqUnionWithDouble2, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithDouble3:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithDouble3:Double[]=");
         xDouble=[vByte, vDouble];
        // xDouble=[]; 
         assertEquals(res.resByteSeqUnionWithDouble3, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testShortSeqCastToDouble() { 
-       if (gen) visage.lang.FX.println("\nvar resShortSeqCastToDouble1:Double[]=");
+       if (gen) visage.lang.Visage.println("\nvar resShortSeqCastToDouble1:Double[]=");
         xDouble=vShort; 
        // xDouble=[]; 
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resShortSeqCastToDouble1, xDouble);
     }    
 
     function testShortSeqUnionWithDouble() { 
-       if (gen)visage.lang.FX.println("\nvar resShortSeqUnionWithDouble1:Double[]=");
+       if (gen)visage.lang.Visage.println("\nvar resShortSeqUnionWithDouble1:Double[]=");
         xDouble=vDouble;
        // xDouble=[]; 
         assertEquals(res.resShortSeqUnionWithDouble1, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithDouble2:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithDouble2:Double[]=");
         xDouble=[vDouble, vShort];
        // xDouble=[]; 
         assertEquals(res.resShortSeqUnionWithDouble2, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithDouble3:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithDouble3:Double[]=");
         xDouble=[vShort, vDouble];
        // xDouble=[]; 
         assertEquals(res.resShortSeqUnionWithDouble3, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testCharacterSeqCastToDouble() { 
-       if (gen) visage.lang.FX.println("\nvar resCharacterSeqCastToDouble1:Double[]=");
+       if (gen) visage.lang.Visage.println("\nvar resCharacterSeqCastToDouble1:Double[]=");
        //  xDouble=vCharacter; 
         xDouble=[]; 
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resCharacterSeqCastToDouble1, xDouble);
     }    
 
     function testCharacterSeqUnionWithDouble() { 
-       if (gen)visage.lang.FX.println("\nvar resCharacterSeqUnionWithDouble1:Double[]=");
+       if (gen)visage.lang.Visage.println("\nvar resCharacterSeqUnionWithDouble1:Double[]=");
        //  xDouble=vDouble;
         xDouble=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithDouble1, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithDouble2:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithDouble2:Double[]=");
        //  xDouble=[vDouble, vCharacter];
         xDouble=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithDouble2, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithDouble3:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithDouble3:Double[]=");
        //  xDouble=[vCharacter,  vDouble];
         xDouble=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithDouble3, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testIntegerSeqCastToDouble() { 
-       if (gen) visage.lang.FX.println("\nvar resIntegerSeqCastToDouble1:Double[]=");
+       if (gen) visage.lang.Visage.println("\nvar resIntegerSeqCastToDouble1:Double[]=");
         xDouble=vInteger; 
        // xDouble=[]; 
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resIntegerSeqCastToDouble1, xDouble);
     }    
 
     function testIntegerSeqUnionWithDouble() { 
-       if (gen)visage.lang.FX.println("\nvar resIntegerSeqUnionWithDouble1:Double[]=");
+       if (gen)visage.lang.Visage.println("\nvar resIntegerSeqUnionWithDouble1:Double[]=");
         xDouble=vDouble;
        // xDouble=[]; 
         assertEquals(res.resIntegerSeqUnionWithDouble1, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithDouble2:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithDouble2:Double[]=");
         xDouble=[vDouble, vInteger];
        // xDouble=[]; 
         assertEquals(res.resIntegerSeqUnionWithDouble2, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithDouble3:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithDouble3:Double[]=");
         xDouble=[vInteger, vDouble];
        // xDouble=[]; 
         assertEquals(res.resIntegerSeqUnionWithDouble3, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testLongSeqCastToDouble() { 
-       if (gen) visage.lang.FX.println("\nvar resLongSeqCastToDouble1:Double[]=");
+       if (gen) visage.lang.Visage.println("\nvar resLongSeqCastToDouble1:Double[]=");
         xDouble=vLong; 
        // xDouble=[]; 
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resLongSeqCastToDouble1, xDouble);
     }    
 
     function testLongSeqUnionWithDouble() { 
-       if (gen)visage.lang.FX.println("\nvar resLongSeqUnionWithDouble1:Double[]=");
+       if (gen)visage.lang.Visage.println("\nvar resLongSeqUnionWithDouble1:Double[]=");
         xDouble=vDouble;
        // xDouble=[]; 
         assertEquals(res.resLongSeqUnionWithDouble1, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithDouble2:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithDouble2:Double[]=");
         xDouble=[vDouble, vLong];
        // xDouble=[]; 
         assertEquals(res.resLongSeqUnionWithDouble2, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithDouble3:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithDouble3:Double[]=");
         xDouble=[vLong,vDouble];
        // xDouble=[]; 
         assertEquals(res.resLongSeqUnionWithDouble3, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testFloatSeqCastToDouble() { 
-       if (gen) visage.lang.FX.println("\nvar resFloatSeqCastToDouble1:Double[]=");
+       if (gen) visage.lang.Visage.println("\nvar resFloatSeqCastToDouble1:Double[]=");
         xDouble=vFloat; 
        // xDouble=[]; 
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resFloatSeqCastToDouble1, xDouble);
     }    
 
     function testFloatSeqUnionWithDouble() { 
-       if (gen)visage.lang.FX.println("\nvar resFloatSeqUnionWithDouble1:Double[]=");
+       if (gen)visage.lang.Visage.println("\nvar resFloatSeqUnionWithDouble1:Double[]=");
         xDouble=vDouble;
        // xDouble=[]; 
         assertEquals(res.resFloatSeqUnionWithDouble1, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithDouble2:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithDouble2:Double[]=");
         xDouble=[vDouble, vFloat];
        // xDouble=[]; 
         assertEquals(res.resFloatSeqUnionWithDouble2, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithDouble3:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithDouble3:Double[]=");
         xDouble=[vFloat, vDouble];
        // xDouble=[]; 
         assertEquals(res.resFloatSeqUnionWithDouble3, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testDoubleSeqCastToDouble() { 
-       if (gen) visage.lang.FX.println("\nvar resDoubleSeqCastToDouble1:Double[]=");
+       if (gen) visage.lang.Visage.println("\nvar resDoubleSeqCastToDouble1:Double[]=");
         xDouble=vDouble; 
        // xDouble=[]; 
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resDoubleSeqCastToDouble1, xDouble);
     }    
 
     function testDoubleSeqUnionWithDouble() { 
-       if (gen)visage.lang.FX.println("\nvar resDoubleSeqUnionWithDouble1:Double[]=");
+       if (gen)visage.lang.Visage.println("\nvar resDoubleSeqUnionWithDouble1:Double[]=");
         xDouble=vDouble;
        // xDouble=[]; 
         assertEquals(res.resDoubleSeqUnionWithDouble1, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithDouble2:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithDouble2:Double[]=");
         xDouble=[vDouble, vDouble];
        // xDouble=[]; 
         assertEquals(res.resDoubleSeqUnionWithDouble2, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithDouble3:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithDouble3:Double[]=");
         xDouble=[vDouble, vDouble];
        // xDouble=[]; 
         assertEquals(res.resDoubleSeqUnionWithDouble3, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testNumberSeqCastToDouble() { 
-       if (gen) visage.lang.FX.println("\nvar resNumberSeqCastToDouble1:Double[]=");
+       if (gen) visage.lang.Visage.println("\nvar resNumberSeqCastToDouble1:Double[]=");
         xDouble=vNumber; 
        // xDouble=[]; 
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resNumberSeqCastToDouble1, xDouble);
     }    
 
     function testNumberSeqUnionWithDouble() { 
-       if (gen)visage.lang.FX.println("\nvar resNumberSeqUnionWithDouble1:Double[]=");
+       if (gen)visage.lang.Visage.println("\nvar resNumberSeqUnionWithDouble1:Double[]=");
         xDouble=vDouble;
        // xDouble=[]; 
         assertEquals(res.resNumberSeqUnionWithDouble1, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithDouble2:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithDouble2:Double[]=");
         xDouble=[vDouble, vNumber];
        // xDouble=[]; 
         assertEquals(res.resNumberSeqUnionWithDouble2, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithDouble3:Double[]=");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithDouble3:Double[]=");
         xDouble=[vNumber, vDouble];
        // xDouble=[]; 
         assertEquals(res.resNumberSeqUnionWithDouble3, xDouble);
-       if (gen)visage.lang.FX.println(xDouble);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xDouble);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     var xNumber: Number[] = vNumber;  
     function testByteSeqCastToNumber() { 
-       if (gen) visage.lang.FX.println("\nvar resByteSeqCastToNumber1:Number[]=");
+       if (gen) visage.lang.Visage.println("\nvar resByteSeqCastToNumber1:Number[]=");
         xNumber=vByte; 
        // xNumber=[]; 
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resByteSeqCastToNumber1, xNumber);
     }    
 
     function testByteSeqUnionWithNumber() { 
-       if (gen)visage.lang.FX.println("\nvar resByteSeqUnionWithNumber1:Number[]=");
+       if (gen)visage.lang.Visage.println("\nvar resByteSeqUnionWithNumber1:Number[]=");
         xNumber=vNumber;
        // xNumber=[]; 
         assertEquals(res.resByteSeqUnionWithNumber1, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithNumber2:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithNumber2:Number[]=");
         xNumber=[vNumber, vByte];
        // xNumber=[]; 
         assertEquals(res.resByteSeqUnionWithNumber2, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resByteSeqUnionWithNumber3:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resByteSeqUnionWithNumber3:Number[]=");
         xNumber=[vByte, vNumber];
        // xNumber=[]; 
         assertEquals(res.resByteSeqUnionWithNumber3, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testShortSeqCastToNumber() { 
-       if (gen) visage.lang.FX.println("\nvar resShortSeqCastToNumber1:Number[]=");
+       if (gen) visage.lang.Visage.println("\nvar resShortSeqCastToNumber1:Number[]=");
         xNumber=vShort; 
        // xNumber=[]; 
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resShortSeqCastToNumber1, xNumber);
     }    
 
     function testShortSeqUnionWithNumber() { 
-       if (gen)visage.lang.FX.println("\nvar resShortSeqUnionWithNumber1:Number[]=");
+       if (gen)visage.lang.Visage.println("\nvar resShortSeqUnionWithNumber1:Number[]=");
         xNumber=vNumber;
        // xNumber=[]; 
         assertEquals(res.resShortSeqUnionWithNumber1, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithNumber2:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithNumber2:Number[]=");
         xNumber=[vNumber, vShort];
        // xNumber=[]; 
         assertEquals(res.resShortSeqUnionWithNumber2, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resShortSeqUnionWithNumber3:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resShortSeqUnionWithNumber3:Number[]=");
         xNumber=[vShort, vNumber];
        // xNumber=[]; 
         assertEquals(res.resShortSeqUnionWithNumber3, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testCharacterSeqCastToNumber() { 
-       if (gen) visage.lang.FX.println("\nvar resCharacterSeqCastToNumber1:Number[]=");
+       if (gen) visage.lang.Visage.println("\nvar resCharacterSeqCastToNumber1:Number[]=");
        //  xNumber=vCharacter; 
         xNumber=[]; 
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
        //  assertEquals(res.resCharacterSeqCastToNumber1, xNumber);
     }    
 
     function testCharacterSeqUnionWithNumber() { 
-       if (gen)visage.lang.FX.println("\nvar resCharacterSeqUnionWithNumber1:Number[]=");
+       if (gen)visage.lang.Visage.println("\nvar resCharacterSeqUnionWithNumber1:Number[]=");
        //  xNumber=vNumber;
         xNumber=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithNumber1, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithNumber2:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithNumber2:Number[]=");
        //  xNumber=[vNumber, vCharacter];
         xNumber=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithNumber2, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resCharacterSeqUnionWithNumber3:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resCharacterSeqUnionWithNumber3:Number[]=");
        //  xNumber=[vCharacter,  vNumber];
         xNumber=[]; 
        //  assertEquals(res.resCharacterSeqUnionWithNumber3, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testIntegerSeqCastToNumber() { 
-       if (gen) visage.lang.FX.println("\nvar resIntegerSeqCastToNumber1:Number[]=");
+       if (gen) visage.lang.Visage.println("\nvar resIntegerSeqCastToNumber1:Number[]=");
         xNumber=vInteger; 
        // xNumber=[]; 
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resIntegerSeqCastToNumber1, xNumber);
     }    
 
     function testIntegerSeqUnionWithNumber() { 
-       if (gen)visage.lang.FX.println("\nvar resIntegerSeqUnionWithNumber1:Number[]=");
+       if (gen)visage.lang.Visage.println("\nvar resIntegerSeqUnionWithNumber1:Number[]=");
         xNumber=vNumber;
        // xNumber=[]; 
         assertEquals(res.resIntegerSeqUnionWithNumber1, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithNumber2:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithNumber2:Number[]=");
         xNumber=[vNumber, vInteger];
        // xNumber=[]; 
         assertEquals(res.resIntegerSeqUnionWithNumber2, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resIntegerSeqUnionWithNumber3:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resIntegerSeqUnionWithNumber3:Number[]=");
         xNumber=[vInteger, vNumber];
        // xNumber=[]; 
         assertEquals(res.resIntegerSeqUnionWithNumber3, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testLongSeqCastToNumber() { 
-       if (gen) visage.lang.FX.println("\nvar resLongSeqCastToNumber1:Number[]=");
+       if (gen) visage.lang.Visage.println("\nvar resLongSeqCastToNumber1:Number[]=");
         xNumber=vLong; 
        // xNumber=[]; 
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resLongSeqCastToNumber1, xNumber);
     }    
 
     function testLongSeqUnionWithNumber() { 
-       if (gen)visage.lang.FX.println("\nvar resLongSeqUnionWithNumber1:Number[]=");
+       if (gen)visage.lang.Visage.println("\nvar resLongSeqUnionWithNumber1:Number[]=");
         xNumber=vNumber;
        // xNumber=[]; 
         assertEquals(res.resLongSeqUnionWithNumber1, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithNumber2:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithNumber2:Number[]=");
         xNumber=[vNumber, vLong];
        // xNumber=[]; 
         assertEquals(res.resLongSeqUnionWithNumber2, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resLongSeqUnionWithNumber3:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resLongSeqUnionWithNumber3:Number[]=");
         xNumber=[vLong,vNumber];
        // xNumber=[]; 
         assertEquals(res.resLongSeqUnionWithNumber3, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testFloatSeqCastToNumber() { 
-       if (gen) visage.lang.FX.println("\nvar resFloatSeqCastToNumber1:Number[]=");
+       if (gen) visage.lang.Visage.println("\nvar resFloatSeqCastToNumber1:Number[]=");
         xNumber=vFloat; 
        // xNumber=[]; 
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resFloatSeqCastToNumber1, xNumber);
     }    
 
     function testFloatSeqUnionWithNumber() { 
-       if (gen)visage.lang.FX.println("\nvar resFloatSeqUnionWithNumber1:Number[]=");
+       if (gen)visage.lang.Visage.println("\nvar resFloatSeqUnionWithNumber1:Number[]=");
         xNumber=vNumber;
        // xNumber=[]; 
         assertEquals(res.resFloatSeqUnionWithNumber1, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithNumber2:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithNumber2:Number[]=");
         xNumber=[vNumber, vFloat];
        // xNumber=[]; 
         assertEquals(res.resFloatSeqUnionWithNumber2, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resFloatSeqUnionWithNumber3:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resFloatSeqUnionWithNumber3:Number[]=");
         xNumber=[vFloat, vNumber];
        // xNumber=[]; 
         assertEquals(res.resFloatSeqUnionWithNumber3, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testDoubleSeqCastToNumber() { 
-       if (gen) visage.lang.FX.println("\nvar resDoubleSeqCastToNumber1:Number[]=");
+       if (gen) visage.lang.Visage.println("\nvar resDoubleSeqCastToNumber1:Number[]=");
         xNumber=vDouble; 
        // xNumber=[]; 
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resDoubleSeqCastToNumber1, xNumber);
     }    
 
     function testDoubleSeqUnionWithNumber() { 
-       if (gen)visage.lang.FX.println("\nvar resDoubleSeqUnionWithNumber1:Number[]=");
+       if (gen)visage.lang.Visage.println("\nvar resDoubleSeqUnionWithNumber1:Number[]=");
         xNumber=vNumber;
        // xNumber=[]; 
         assertEquals(res.resDoubleSeqUnionWithNumber1, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithNumber2:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithNumber2:Number[]=");
         xNumber=[vNumber, vDouble];
        // xNumber=[]; 
         assertEquals(res.resDoubleSeqUnionWithNumber2, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resDoubleSeqUnionWithNumber3:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resDoubleSeqUnionWithNumber3:Number[]=");
         xNumber=[vDouble, vNumber];
        // xNumber=[]; 
         assertEquals(res.resDoubleSeqUnionWithNumber3, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
     }    
     function testNumberSeqCastToNumber() { 
-       if (gen) visage.lang.FX.println("\nvar resNumberSeqCastToNumber1:Number[]=");
+       if (gen) visage.lang.Visage.println("\nvar resNumberSeqCastToNumber1:Number[]=");
         xNumber=vNumber; 
        // xNumber=[]; 
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
         assertEquals(res.resNumberSeqCastToNumber1, xNumber);
     }    
 
     function testNumberSeqUnionWithNumber() { 
-       if (gen)visage.lang.FX.println("\nvar resNumberSeqUnionWithNumber1:Number[]=");
+       if (gen)visage.lang.Visage.println("\nvar resNumberSeqUnionWithNumber1:Number[]=");
         xNumber=vNumber;
        // xNumber=[]; 
         assertEquals(res.resNumberSeqUnionWithNumber1, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithNumber2:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithNumber2:Number[]=");
         xNumber=[vNumber, vNumber];
        // xNumber=[]; 
         assertEquals(res.resNumberSeqUnionWithNumber2, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.println("; var resNumberSeqUnionWithNumber3:Number[]=");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.println("; var resNumberSeqUnionWithNumber3:Number[]=");
         xNumber=[vNumber, vNumber];
        // xNumber=[]; 
         assertEquals(res.resNumberSeqUnionWithNumber3, xNumber);
-       if (gen)visage.lang.FX.println(xNumber);
-       if (gen)visage.lang.FX.print("; //");
+       if (gen)visage.lang.Visage.println(xNumber);
+       if (gen)visage.lang.Visage.print("; //");
     }    
 
 var resByteSeqCastToByte1:Byte[]=

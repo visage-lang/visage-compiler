@@ -8,11 +8,11 @@
  */
 
 
-import visage.lang.FX;
+import visage.lang.Visage;
 import java.lang.Exception;
 
 /**
- * Example Visage showing the usage of FX.deferAction()
+ * Example Visage showing the usage of Visage.deferAction()
  *
  * Output from this script will be as follows:
  * {@code Starting Script}
@@ -29,7 +29,7 @@ java.lang.System.out.println("Starting Script");
  * Should throw an NPE here
  */
 try {
-    FX.deferAction(null);
+    Visage.deferAction(null);
 } catch (e: Exception) {
     java.lang.System.out.println("{e}");
 }
@@ -39,7 +39,7 @@ try {
  * Visage Runtime at a later time determined by the
  * implementation
  */
-FX.deferAction(function() : Void {
+Visage.deferAction(function() : Void {
     java.lang.System.out.println("Running Deferred Action");
 });
 
@@ -47,14 +47,14 @@ function action2(): Void {
     java.lang.System.out.println("Running Deferred Action2");
 }
 
-FX.deferAction(action2);
+Visage.deferAction(action2);
 
 /*
  * Nested DeferActions
  */
-FX.deferAction(function() : Void {
+Visage.deferAction(function() : Void {
     java.lang.System.out.println("Running Deferred Action with Nesting");
-    FX.deferAction(function() : Void {
+    Visage.deferAction(function() : Void {
         java.lang.System.out.println("Running Nested Deferred Action");
     });
 });

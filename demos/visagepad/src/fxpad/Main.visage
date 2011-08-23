@@ -48,7 +48,7 @@ function fileExists(urlStr:String):Boolean {
 }
 
 
-// start FX pad
+// start Visage pad
 function run(__ARGS__ : String[]) {
 
     var visagePad = JavaFXPad{ url: if(sizeof __ARGS__ > 0) __ARGS__[0] else null };

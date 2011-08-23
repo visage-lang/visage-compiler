@@ -78,7 +78,7 @@ public abstract class JavafxTranslationSupport {
     protected final JavafxDefs defs;
     protected final Log log;
     protected final JavafxTreeMaker fxmake;
-    protected final TreeMaker make; // translation should yield a Java AST, use fxmake when building FX trees
+    protected final TreeMaker make; // translation should yield a Java AST, use fxmake when building Visage trees
     protected final Name.Table names;
     protected final JavafxResolve rs;
     protected final JavafxSymtab syms;

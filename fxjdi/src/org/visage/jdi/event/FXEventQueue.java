@@ -41,7 +41,7 @@ import java.util.ArrayList;
 public class FXEventQueue extends FXMirror implements EventQueue {
 
     // Note that this class is not used for the internal EventQueue - 
-    // that is not exposed in the FX-JDI layer
+    // that is not exposed in the Visage-JDI layer
 
 
     // In normal operation, events are not controlled, ie, they are delivered
@@ -54,9 +54,9 @@ public class FXEventQueue extends FXMirror implements EventQueue {
     private volatile boolean eventControl = false;
 
     // This flag determines if the calls to change eventControl should be ignored or not.
-    // The idea is that these calls are in FX-JDI, but by default they are disabled, thus
+    // The idea is that these calls are in Visage-JDI, but by default they are disabled, thus
     // there is no event control.  The debugger can set this flag to true to allow the
-    // calls in FX-JDI to turn event control on / off.
+    // calls in Visage-JDI to turn event control on / off.
     private volatile boolean allowEventControl = false;
 
     // If allowEventControl is true, this is the list of Events to pass.  EventSets containing

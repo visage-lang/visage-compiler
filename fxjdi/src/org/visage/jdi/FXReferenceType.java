@@ -112,7 +112,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
 
     // return null if there is no field or the name is ambigous. 
     public FXField fieldByName(String name) {
-        // There could be both an FX field $xxx and a java field xxx
+        // There could be both an Visage field $xxx and a java field xxx
         Field javaField = underlying().fieldByName(name);
         Field fxField = underlying().fieldByName("$" + name);
         if (javaField == null) {

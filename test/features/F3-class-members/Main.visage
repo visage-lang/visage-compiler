@@ -1,5 +1,5 @@
 /* Feature test #3 -- attributes and functions
- * Demonstrates FX class with attributes and functions, and binding to attributes
+ * Demonstrates Visage class with attributes and functions, and binding to attributes
  * @test
  * @run
  */

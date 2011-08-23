@@ -43,22 +43,22 @@ public class FxHighlighter extends SyntaxHighlighterBase {
     private static final Map<IElementType, TextAttributesKey> keys;
 
     private static final TextAttributesKey FX_KEYWORD
-            = TextAttributesKey.createTextAttributesKey("FX.KEYWORD", HighlighterColors.JAVA_KEYWORD.getDefaultAttributes());
+            = TextAttributesKey.createTextAttributesKey("Visage.KEYWORD", HighlighterColors.JAVA_KEYWORD.getDefaultAttributes());
 
     private static final TextAttributesKey FX_STRING
-            = TextAttributesKey.createTextAttributesKey("FX.STRING", HighlighterColors.JAVA_STRING.getDefaultAttributes());
+            = TextAttributesKey.createTextAttributesKey("Visage.STRING", HighlighterColors.JAVA_STRING.getDefaultAttributes());
 
     private static final TextAttributesKey FX_NUMERIC
-            = TextAttributesKey.createTextAttributesKey("FX.NUMERIC", HighlighterColors.JAVA_NUMBER.getDefaultAttributes());
+            = TextAttributesKey.createTextAttributesKey("Visage.NUMERIC", HighlighterColors.JAVA_NUMBER.getDefaultAttributes());
 
     private static final TextAttributesKey FX_BAD_CHARACTER
-            = TextAttributesKey.createTextAttributesKey("FX.BADCHARACTER", HighlighterColors.BAD_CHARACTER.getDefaultAttributes());
+            = TextAttributesKey.createTextAttributesKey("Visage.BADCHARACTER", HighlighterColors.BAD_CHARACTER.getDefaultAttributes());
 
     private static final TextAttributesKey FX_LINE_COMMENT
-            = TextAttributesKey.createTextAttributesKey("FX.LINE_COMMENT", HighlighterColors.JAVA_LINE_COMMENT.getDefaultAttributes());
+            = TextAttributesKey.createTextAttributesKey("Visage.LINE_COMMENT", HighlighterColors.JAVA_LINE_COMMENT.getDefaultAttributes());
 
     private static final TextAttributesKey FX_BLOCK_COMMENT
-            = TextAttributesKey.createTextAttributesKey("FX.BLOCK_COMMENT", HighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes());
+            = TextAttributesKey.createTextAttributesKey("Visage.BLOCK_COMMENT", HighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes());
 
     static {
         keys = new HashMap<IElementType, TextAttributesKey>();

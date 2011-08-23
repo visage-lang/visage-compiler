@@ -13,7 +13,7 @@ was cloned.
     cd $BTRACE_HOME/make
     ant
 
-4) compile all FX BTrace scripts using ant makefile in this dir using
+4) compile all Visage BTrace scripts using ant makefile in this dir using
 
   ant  -Dbtrace.home=$BTRACE_HOME
 
@@ -58,5 +58,5 @@ prints message on every invalidate/get/set/be/on-replace! (heavy
 
 * InstVarCount.java
 
-Prints FX instance variable count (FXBase.count$()) for each FX class.
+Prints Visage instance variable count (FXBase.count$()) for each Visage class.
 

@@ -70,14 +70,14 @@ input: java.lang.Double 8989.7978515625,    cast as Long:      8989
 input: java.lang.Double 8989.7978515625,    cast as Float:     8989.798
 input: java.lang.Double 8989.7978515625,    cast as Double:    8989.7978515625
 input: java.lang.Double 8989.7978515625,    cast as Number:    8989.798
-input: FX Number 89.6,    cast as Character (then cast to Integer): 89
-input: FX Number 89.6,    cast as Byte:      89
-input: FX Number 89.6,    cast as Short:     89
-input: FX Number 89.6,    cast as Integer:   89
-input: FX Number 89.6,    cast as Long:      89
-input: FX Number 89.6,    cast as Float:     89.6
-input: FX Number 89.6,    cast as Double:    89.5999984741211
-input: FX Number 89.6,    cast as Number:    89.6
+input: Visage Number 89.6,    cast as Character (then cast to Integer): 89
+input: Visage Number 89.6,    cast as Byte:      89
+input: Visage Number 89.6,    cast as Short:     89
+input: Visage Number 89.6,    cast as Integer:   89
+input: Visage Number 89.6,    cast as Long:      89
+input: Visage Number 89.6,    cast as Float:     89.6
+input: Visage Number 89.6,    cast as Double:    89.5999984741211
+input: Visage Number 89.6,    cast as Number:    89.6
 input: java.util.concurrent.atomic.AtomicInteger 31416,    cast as Character (then cast to Integer): 31416
 input: java.util.concurrent.atomic.AtomicInteger 31416,    cast as Byte:      -72
 input: java.util.concurrent.atomic.AtomicInteger 31416,    cast as Short:     31416

@@ -2,7 +2,7 @@ package fxpad.gui;
 
 import javax.swing.*;
 import visage.util.Sequences;
-import visage.lang.FX;
+import visage.lang.Visage;
 import visage.ext.swing.*;
 
 function indexOfJMenuInJMenuBar(item: JMenu, menubar: JMenuBar): Integer {
@@ -84,7 +84,7 @@ public class RootPane extends Component, Container {
      * @param component the {@code Component} to remove
      */
     override function remove(component: Component): Void {
-        if (FX.isSameObject(content, component)) {
+        if (Visage.isSameObject(content, component)) {
              content = null;
         }        
     }

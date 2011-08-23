@@ -1,8 +1,8 @@
-import visage.lang.FX;
+import visage.lang.Visage;
 /*
- * FX.addShutdownMessage
+ * Visage.addShutdownMessage
  *
  * @test/fail
  */
 
-FX.addShutdownAction( 0 )
+Visage.addShutdownAction( 0 )

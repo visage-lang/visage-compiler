@@ -986,7 +986,7 @@ public class Debugger {
                     String address = argv[++i];
 
                     /*
-                     * -attach is shorthand for FX-JDI implementation's attaching
+                     * -attach is shorthand for Visage-JDI implementation's attaching
                      * connectors. Use the shared memory attach if it's available;
                      * otherwise, use sockets. Build a connect specification string
                      * based on this decision.
@@ -1013,7 +1013,7 @@ public class Debugger {
                     }
 
                     /*
-                     * -listen[any] is shorthand for one of the FX-JDI implementation's
+                     * -listen[any] is shorthand for one of the Visage-JDI implementation's
                      * listening connectors. Use the shared memory listen if it's
                      * available; otherwise, use sockets. Build a connect
                      * specification string based on this decision.

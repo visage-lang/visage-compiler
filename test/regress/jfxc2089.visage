@@ -5,12 +5,12 @@
  */
 
 
-import visage.lang.FX;
+import visage.lang.Visage;
 
 /**
- * Example Visage showing the usage of FX.addShutdownAction() with an
- * explicit FX.exit() call.
- * The exit occurs when the script when FX.exit is called.
+ * Example Visage showing the usage of Visage.addShutdownAction() with an
+ * explicit Visage.exit() call.
+ * The exit occurs when the script when Visage.exit is called.
  *
  * Output from this script will be as follows:
  * jfxc2089 Script
@@ -36,7 +36,7 @@ var runAtExit1 = function() : Void {
 }
 var runAtExit2 = function() : Void {
     println("Running Exit Action2");
-    FX.exit();
+    Visage.exit();
     println("Should not reach this - Exit Action2");
 }
 
@@ -44,15 +44,15 @@ var runAtExit2 = function() : Void {
  * Add the runAtExit function to the stack for the Shutdown Actions
  * this stack will be executed when the Visage exits.
  */
-var ra1 = FX.addShutdownAction(runAtExit1);
-var ra2 = FX.addShutdownAction(runAtExit2);
+var ra1 = Visage.addShutdownAction(runAtExit1);
+var ra2 = Visage.addShutdownAction(runAtExit2);
 
 println("Exiting Script");
 /*
- * Script will now call FX.exit();
+ * Script will now call Visage.exit();
  */
-FX.exit();
+Visage.exit();
 /*
- * FX.exit() should not return here
+ * Visage.exit() should not return here
  */
 println("Should not reach here");

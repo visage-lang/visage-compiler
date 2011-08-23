@@ -59,7 +59,7 @@ function doDouble(val: Double) {
 }  
 
 function doNumber(val: Number) {
-    foo("FX Number {val}", val);
+    foo("Visage Number {val}", val);
 }
 
 function doAtomicInteger(val: java.util.concurrent.atomic.AtomicInteger) {

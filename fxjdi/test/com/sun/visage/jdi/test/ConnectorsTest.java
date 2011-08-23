@@ -38,7 +38,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- * Checks for FX-JDI connector classes and FXBootstrap.
+ * Checks for Visage-JDI connector classes and FXBootstrap.
  *
  * @author sundar
  */
@@ -68,7 +68,7 @@ public class ConnectorsTest {
         Assert.assertEquals("org.visage.jdi.connect.FXSocketListeningConnector", conn5.name());
         Assert.assertEquals(true, conn5 instanceof ListeningConnector);
 
-        // Conditionally adding FX shared mem connectors - because underlying platform shared
+        // Conditionally adding Visage shared mem connectors - because underlying platform shared
         // memory connectors are not available on all platforms
         if (FXSharedMemoryAttachingConnector.isAvailable()) {
             FXSharedMemoryAttachingConnector conn6 = new FXSharedMemoryAttachingConnector();

@@ -7,12 +7,12 @@
  */
 
 
-import visage.lang.FX;
+import visage.lang.Visage;
 
 /**
- * Example Visage showing the usage of FX.addShutdownAction() with an
- * explicit FX.exit() call.
- * The exit occurs when the script when FX.exit is called.
+ * Example Visage showing the usage of Visage.addShutdownAction() with an
+ * explicit Visage.exit() call.
+ * The exit occurs when the script when Visage.exit is called.
  *
  * Output from this script will be as follows:
  * {@code Starting Script}
@@ -27,10 +27,10 @@ java.lang.System.out.println("Starting Script");
 
 java.lang.System.out.println("Exiting Script");
 /*
- * Script will now call FX.exit();
+ * Script will now call Visage.exit();
  */
-FX.exit();
+Visage.exit();
 /*
- * FX.exit() should not return here
+ * Visage.exit() should not return here
  */
 java.lang.System.out.println("Should not reach here");

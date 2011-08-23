@@ -5,12 +5,12 @@
  */
 
 
-import visage.lang.FX;
+import visage.lang.Visage;
 
 /**
- * Example Visage showing the usage of FX.addShutdownAction() with an
- * explicit FX.exit() call.
- * The exit occurs when the script when FX.exit is called.
+ * Example Visage showing the usage of Visage.addShutdownAction() with an
+ * explicit Visage.exit() call.
+ * The exit occurs when the script when Visage.exit is called.
  *
  * Output from this script will be as follows:
  * jfxc2088 Script
@@ -39,7 +39,7 @@ var runAtExit1 = function() : Void {
     println("Running Exit Action1");
 }
 var runAtExit2 = function() : Void {
-    FX.exit();
+    Visage.exit();
     println("Running Exit Action2");
 }
 var runAtExit3 = function() : Void {
@@ -60,35 +60,35 @@ var runTest = function() : Void {
  * Add the runAtExit function to the stack for the Shutdown Actions
  * this stack will be executed when the Visage exits.
  */
-var ra1 = FX.addShutdownAction(runAtExit1);
-FX.removeShutdownAction(ra1);
+var ra1 = Visage.addShutdownAction(runAtExit1);
+Visage.removeShutdownAction(ra1);
 
-var ra2 = FX.addShutdownAction(runAtExit2);
-var ra3 = FX.addShutdownAction(runAtExit3);
-var ra4 = FX.addShutdownAction(runAtExit4);
-var ra5 = FX.addShutdownAction(runAtExit5);
+var ra2 = Visage.addShutdownAction(runAtExit2);
+var ra3 = Visage.addShutdownAction(runAtExit3);
+var ra4 = Visage.addShutdownAction(runAtExit4);
+var ra5 = Visage.addShutdownAction(runAtExit5);
 
-FX.removeShutdownAction(ra3);
-ra3 = FX.addShutdownAction(runAtExit3);
+Visage.removeShutdownAction(ra3);
+ra3 = Visage.addShutdownAction(runAtExit3);
 
-FX.removeShutdownAction(ra5);
-ra5 = FX.addShutdownAction(runAtExit5);
+Visage.removeShutdownAction(ra5);
+ra5 = Visage.addShutdownAction(runAtExit5);
 
-var rt = FX.addShutdownAction(runTest);
-FX.removeShutdownAction(rt);
-rt = FX.addShutdownAction(runTest);
-ra3 = FX.addShutdownAction(runAtExit3);
-if(FX.addShutdownAction(runAtExit3) == ra3) {
+var rt = Visage.addShutdownAction(runTest);
+Visage.removeShutdownAction(rt);
+rt = Visage.addShutdownAction(runTest);
+ra3 = Visage.addShutdownAction(runAtExit3);
+if(Visage.addShutdownAction(runAtExit3) == ra3) {
     println("Correctly Failed to Add Exit3");
 }
 
 
 println("Exiting Script");
 /*
- * Script will now call FX.exit();
+ * Script will now call Visage.exit();
  */
-FX.exit();
+Visage.exit();
 /*
- * FX.exit() should not return here
+ * Visage.exit() should not return here
  */
 println("Should not reach here");

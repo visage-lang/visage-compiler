@@ -90,7 +90,7 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
     /* The tag of this node -- one of the constants declared above.
      */
     public int getTag() {
-        throw new RuntimeException("bad call to getTag() - class: " + getClass() + ", FX tag: " + getFXTag());
+        throw new RuntimeException("bad call to getTag() - class: " + getClass() + ", Visage tag: " + getFXTag());
     }
 
     /* The tag of this node -- one of the constants declared above.
@@ -200,15 +200,15 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
      */
     
     public Kind getKind() {
-        throw new UnsupportedOperationException("Use getJavaFXKind() not getKind() - class: " + getClass() + ", FX tag: " + getFXTag());
+        throw new UnsupportedOperationException("Use getJavaFXKind() not getKind() - class: " + getClass() + ", Visage tag: " + getFXTag());
     }
 
     public void accept(Visitor v) {
-        throw new UnsupportedOperationException("We don't use visitors from JCTree - class: " + getClass() + ", FX tag: " + getFXTag());
+        throw new UnsupportedOperationException("We don't use visitors from JCTree - class: " + getClass() + ", Visage tag: " + getFXTag());
     }
 
     public <R,D> R accept(TreeVisitor<R,D> v, D d) {
-        throw new UnsupportedOperationException("We don't use visitors from JCTree - class: " + getClass() + ", FX tag: " + getFXTag());
+        throw new UnsupportedOperationException("We don't use visitors from JCTree - class: " + getClass() + ", Visage tag: " + getFXTag());
     }
 
 }

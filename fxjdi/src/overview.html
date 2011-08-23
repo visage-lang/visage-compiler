@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>FX-JDI additions/extensions to JDI</title>
+    <title>Visage-JDI additions/extensions to JDI</title>
 <!--
  
 Copyright (c) 1998, 2010, Oracle and/or its affiliates. All rights reserved.
@@ -28,19 +28,19 @@ questions.
 -->
 </head>
 <body bgcolor="white">
-This documentation describes the extensions and additions that have been made to the Java Debug Interface (JDI) in order to allow debugging of Visage programs.   These extensions and additions are called FX-JDI.
+This documentation describes the extensions and additions that have been made to the Java Debug Interface (JDI) in order to allow debugging of Visage programs.   These extensions and additions are called Visage-JDI.
 <p>
-FX-JDI is implemented as a set of classes that wrap the normal JDI implementation classes.  These FX-JDI classes implement the JDI interfaces so that debuggers will in general just access the methods defined in the JDI interfaces.  Debuggers will only need to access these FX-JDI implementation classes directly in order to use the new classes and methods that have been added and thus are not in the JDI interfaces.
+Visage-JDI is implemented as a set of classes that wrap the normal JDI implementation classes.  These Visage-JDI classes implement the JDI interfaces so that debuggers will in general just access the methods defined in the JDI interfaces.  Debuggers will only need to access these Visage-JDI implementation classes directly in order to use the new classes and methods that have been added and thus are not in the JDI interfaces.
 <p>  
-<b>FX-JDI is experimental and subject to change in future releases.</b>
+<b>Visage-JDI is experimental and subject to change in future releases.</b>
 <p>
-The FX-JDI classes are included in the file fxjdi.jar. In order for a client to use FX-JDI, fxjdi.jar must be on the client's classpath.  The client should first get a {@link com.sun.jdi.VirtualMachineManager} object:
+The Visage-JDI classes are included in the file fxjdi.jar. In order for a client to use Visage-JDI, fxjdi.jar must be on the client's classpath.  The client should first get a {@link com.sun.jdi.VirtualMachineManager} object:
 <p><CODE><blockquote>
      com.sun.jdi.VirtualMachineManager vmm = org.visage.jdi.FXBootstrap.virtualMachineManager();
 </CODE></blockquote>
 <p>
 This gives the client a Visage enabled VirtualMachineManager (org.visage.jdi.FXVirtualMachineManager).  
-The client can then get one of the following FX-JDI connectors from the VirtualMachineManager:
+The client can then get one of the following Visage-JDI connectors from the VirtualMachineManager:
 <blockquote>
 <li>org.visage.jdi.connect.FXLaunchingConnector (this is the default connector)</li>
 <li>org.visage.jdi.connect.FXProcessAttachingConnector</li>
@@ -53,7 +53,7 @@ The client can then get one of the following FX-JDI connectors from the VirtualM
 <p>
 The connector object can be used to obtain an {@link org.visage.jdi.FXVirtualMachine} as described in the JDI documentation.
 <p>
-This javadoc shows the classes and methods that FX-JDI adds to JDI, as well as the enhancements to existing JDI methods.
+This javadoc shows the classes and methods that Visage-JDI adds to JDI, as well as the enhancements to existing JDI methods.
 Due to limitations of javadoc, the existing unmodified methods in these classes are also shown.   These methods have no javadoc comments, and behave as described in the JDI spec.
 
 </body>

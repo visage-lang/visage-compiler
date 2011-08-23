@@ -2590,7 +2590,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             Type inductionType = types.boxedTypeOrType(clause.inductionVarSym.type);
             Type bodyType = forExpr.bodyExpr.type;
 
-            // Translate the part created in the FX AST
+            // Translate the part created in the Visage AST
             JCExpression makePart = toJava.translateToExpression(forExpr.bodyExpr, bodyType);
             BlockExprJCBlockExpression jcb = (BlockExprJCBlockExpression) makePart;
 

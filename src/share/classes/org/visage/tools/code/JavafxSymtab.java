@@ -212,7 +212,7 @@ public class JavafxSymtab extends Symtab {
         visage_VoidType = voidType;
 
         visage_AutoImportRuntimeType = enterClass("visage.lang.Builtins");
-        visage_FXRuntimeType = enterClass("visage.lang.FX");
+        visage_FXRuntimeType = enterClass("visage.lang.Visage");
         unreachableType = new Type(TypeTags.VOID, null);
         unreachableType.tsym = new TypeSymbol(0, names.fromString("<unreachable>"), Type.noType, rootPackage);
         visage_java_lang_VoidType = types.boxedClass(voidType).type;

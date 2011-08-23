@@ -33,14 +33,14 @@ import org.visage.runtime.FXObject;
 import org.visage.runtime.sequence.Sequence;
 
 /**
- * FX, analogous to java.lang.System, is a place to store static utility methods.  
+ * Visage, analogous to java.lang.System, is a place to store static utility methods.  
  *
  * @author Brian Goetz
  * @author Saul Wold
  * 
  * @profile common
  */
-public class FX {
+public class Visage {
 
     /**
      * Compare two Visage Objects
@@ -90,7 +90,7 @@ public class FX {
      * <p>
      * 1. Runtime platform associated property. 
      *    Those properties have an equivalent in current java runtime 
-     *    environment (SE/ME). The FX.getProperty() method retrieves
+     *    environment (SE/ME). The Visage.getProperty() method retrieves
      *    those properties by mapping specified key with runtime platform key.<br>
      *    If there is a security manager, property access permission is checked. This may result in a SecurityException.  
      * </p><p>
@@ -173,11 +173,11 @@ public class FX {
      * {@code addShutdownAction()} function will be exectued at this time
      * in LIFO ordering.
      * </p><p>
-     * A second call to {@code FX.exit()} once {@code FX.exit()} has 
+     * A second call to {@code Visage.exit()} once {@code Visage.exit()} has 
      * started will result a {@code IllegalStateException} to be thrown,
-     * this can occur if a {@code Timeline} calls {@code FX.exit()} while
-     * FX.exit is started.
-     * If a call to {@code FX.exit()} occurs in a Shutdown Action, that
+     * this can occur if a {@code Timeline} calls {@code Visage.exit()} while
+     * Visage.exit is started.
+     * If a call to {@code Visage.exit()} occurs in a Shutdown Action, that
      * action's function will simply exit without completing the rest of
      * its operation and the next Shutdown Action, if any, will run.
      * </p><p>
@@ -190,7 +190,7 @@ public class FX {
      */
     public static void exit() {
         if (exitData.called) {
-            throw new IllegalStateException("Can not call FX.exit() twice");
+            throw new IllegalStateException("Can not call Visage.exit() twice");
         } else {
             exitData.called = true;
         }
@@ -219,14 +219,14 @@ public class FX {
     }
 
     /**
-     * Adds an action to the queue to be executed at {@code FX.exit()} time
+     * Adds an action to the queue to be executed at {@code Visage.exit()} time
      * This action will be added to the queue as a push stack, meaning that
      * they will be excuted in FILO ordering. Duplicate actions are
      * not allowed and will cause the orignal Handle to be returned with
      * no reordering.
      * 
      * @param  action of type {@code function():Void} that will be executed
-     * at {@code FX.exit()} time. Only one copy of an action can be in 
+     * at {@code Visage.exit()} time. Only one copy of an action can be in 
      * the queue, an attempt to add the same action a second time will
      * return the previous Handle without any reodering.
      * @return Handle used to remove the action if needed.
@@ -310,7 +310,7 @@ public class FX {
      * </p><p> 
      * This can be used as follows:
      * </p><p> 
-     * var applet = FX.getArgument("visage.applet") as java.applet.Applet;
+     * var applet = Visage.getArgument("visage.applet") as java.applet.Applet;
      * </p><p> 
      * Once the applet is obtained, there are 4 suggested ways to use it
      * <ol><li>

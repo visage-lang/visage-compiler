@@ -20,7 +20,7 @@ import java.awt.event.*;
 function runLater(ms: Number, f: function(): Void): Void {
     var timer = new Timer(ms, ActionListener {
         public override function actionPerformed(e: ActionEvent) {
-            FX.deferAction(f);
+            Visage.deferAction(f);
         }
     });
     timer.setRepeats(false);

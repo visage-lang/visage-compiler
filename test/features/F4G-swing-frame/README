@@ -5,5 +5,5 @@ Demonstrated:
 
 Restrictions:
  - No interaction (other than exit-on-close)
- - Does not use FX class library
+ - Does not use Visage class library
 

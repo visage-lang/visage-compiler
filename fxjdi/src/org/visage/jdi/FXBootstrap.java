@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 /**
- * This is the FX-JDI wrapper class that implements the com.sun.jdi.Bootstrap interface.
+ * This is the Visage-JDI wrapper class that implements the com.sun.jdi.Bootstrap interface.
  * 
  * @author sundar
  */
@@ -53,7 +53,7 @@ public class FXBootstrap {
     /**
      * Get a VirtualMachineManager whose default launching connector is an instance of
      * org.visage.jdi.connect.FXLaunchingConnector.  This VirtualMachineManager will be aware
-     * of all the connectors in FX-JDI as well as the connectors in the normal JDI implementation.
+     * of all the connectors in Visage-JDI as well as the connectors in the normal JDI implementation.
      *
      * @return a VirtualMachineManager
      */
@@ -146,7 +146,7 @@ public class FXBootstrap {
                 throw new Error("no Connectors loaded");
             }
 
-            // default is FX-JDI launching connector
+            // default is Visage-JDI launching connector
             boolean found = false;
             List<LaunchingConnector> launchers = launchingConnectors();
             for (LaunchingConnector lc : launchers) {

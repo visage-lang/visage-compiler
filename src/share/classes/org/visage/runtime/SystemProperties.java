@@ -100,13 +100,13 @@ public class  SystemProperties {
     }
     /**
      * Registers a statically allocated System Properties table 
-     * Once registered properties listed in the table are availabe for inquiry through FX.getProperty().
+     * Once registered properties listed in the table are availabe for inquiry through Visage.getProperty().
      * Table is defined as a String array with Visage property name followed by property value or property mapping identifier
      * depending on whether the table contains Visage specific properties or not.
      * Note that Visage property names have "visage" stripped out to optimize table lookup.
      * The following identifiers are available:
      * </p>
-     * 1. Underlying runtime platform property name. When listed, FX.getProperty() will invoke System.getProperty()
+     * 1. Underlying runtime platform property name. When listed, Visage.getProperty() will invoke System.getProperty()
      *    method to retrieve property value.
      *    example:
      *    {"version", "java.version"}
@@ -119,7 +119,7 @@ public class  SystemProperties {
      *    {"hw.radio", "none"} 
      * </p>     
      * 3. Empty string. When listed, the meaning there is no association between the property and underlying runtime 
-     *    platform nor the property is Visage specific. FX.getProperty() invoked on that property returns null.
+     *    platform nor the property is Visage specific. Visage.getProperty() invoked on that property returns null.
      *    example:
      *    {"supports.mixing", "none"} 
      * @param table System Properties table

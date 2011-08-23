@@ -50,7 +50,7 @@ public class FXSequenceDelegate extends FXTypeDelegate {
                             Result[] result) throws Exception {
         FXValue val = getField0(fieldName, (FXSequenceValue) receiver, isStatic, objectIsApplet);
         if (val != null) {
-            // NOTE: we always unbox values because FX sequences
+            // NOTE: we always unbox values because Visage sequences
             // conceptually contain primitives and not boxing objects
             result[0] = new Result(unbox(val), false);
         }

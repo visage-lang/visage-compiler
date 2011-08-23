@@ -391,12 +391,12 @@ public class Utils {
     }
 
     /*
-     * emit our FX code
+     * emit our Visage code
      */
     static String emitVersionFx(boolean fullversion) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-        pw.print("java.lang.System.out.print(FX.getProperty(\"");
+        pw.print("java.lang.System.out.print(Visage.getProperty(\"");
         pw.print((fullversion) ? "visage.runtime.version" : "visage.version");
         pw.println("\"));");
         pw.println("java.lang.System.out.flush();");
@@ -404,7 +404,7 @@ public class Utils {
     }
 
     /*
-     * Create and compile an FX file, to get the version string.
+     * Create and compile an Visage file, to get the version string.
      * Note: we could use the ScriptEngine, however we would like to make
      * sure the launchers (visage and visagec) works!.
      */
@@ -434,7 +434,7 @@ public class Utils {
     }
 
     /*
-     * emit our FX code to print out the arguments, if it is
+     * emit our Visage code to print out the arguments, if it is
      * javaw launcher then we write to a file.
      */
     private static String emitArgsTestFx(File outFile) {
@@ -447,7 +447,7 @@ public class Utils {
             pw.println("java.lang.System.setOut(ps);");
         }
         pw.println("for (i in args) {");
-        pw.println("FX.println(i);");
+        pw.println("Visage.println(i);");
         pw.println("}");
         if (outFile != null) {
             pw.println("ps.close();");
@@ -489,9 +489,9 @@ public class Utils {
                     outFile.getName() + "\");");
             pw.println("java.lang.System.setOut(ps);");
         }
-        pw.println("FX.println(\"SYSTEM-PROPERTIES-START\");");
-        pw.println("FX.println(java.lang.System.getProperties());");
-        pw.println("FX.println(\"SYSTEM-PROPERTIES-END\");");
+        pw.println("Visage.println(\"SYSTEM-PROPERTIES-START\");");
+        pw.println("Visage.println(java.lang.System.getProperties());");
+        pw.println("Visage.println(\"SYSTEM-PROPERTIES-END\");");
         if (outFile != null) {
             pw.println("ps.close();");
         }
@@ -581,7 +581,7 @@ public class Utils {
         cmdsList.add(filename + ".visage");
         List<String> fxcList = doExec(cmdsList);
         if (fxcList == null) {
-            throw new RuntimeException("FX compilation failed " + filename + ".java");
+            throw new RuntimeException("Visage compilation failed " + filename + ".java");
         }
         String jarArgs[] = {
             (debug) ? "cvfe" : "cfe",
@@ -623,7 +623,7 @@ public class Utils {
             cmdsList.add(filename + ".visage");
             List<String> fxcList = doExec(cmdsList);
             if (fxcList == null) {
-                throw new RuntimeException("FX compilation failed " + filename + ".java");
+                throw new RuntimeException("Visage compilation failed " + filename + ".java");
             }
         } else {
             File javaFile = new File(workingDir, filename + ".java");

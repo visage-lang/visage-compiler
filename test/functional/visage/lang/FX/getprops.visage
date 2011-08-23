@@ -2,7 +2,7 @@
  * @test
  * @run
  */
-import visage.lang.FX;
+import visage.lang.Visage;
 
 var CompilerProperties:String[] = ["compiler.err.visage.applied.to.instance.var",
 "compiler.err.visage.bad.character",
@@ -113,7 +113,7 @@ var CompilerProperties:String[] = ["compiler.err.visage.applied.to.instance.var"
 
 var propcount = 0;
 for (cp in CompilerProperties) {
-  var v = FX.getProperty(cp);
+  var v = Visage.getProperty(cp);
   propcount++;
   if( v != null) { println("{cp} = {v}");
   }

@@ -5,7 +5,7 @@
  * @run
  */
 import visage.fxunit.*;
-import visage.lang.FX;
+import visage.lang.Visage;
 
 public class NumOverload1 extends FXTestCase {
 

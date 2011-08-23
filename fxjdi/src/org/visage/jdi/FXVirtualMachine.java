@@ -376,7 +376,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     /**
      * JDI addition: Return the thread upon which invokeMethods are performed to get/set fields
      *
-     * @return the thread upon which invokeMethods are performed by FX-JDI to get/set fields 
+     * @return the thread upon which invokeMethods are performed by Visage-JDI to get/set fields 
      * that have getters/setters
      */
     public FXThreadReference uiThread() {
