@@ -427,7 +427,7 @@ public class ScriptShell implements DiagnosticListener<JavaFileObject> {
     private void initScriptEngine() {
         // load init.visage file from resource
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        InputStream sysIn = cl.getResourceAsStream("com/sun/tools/script/shell/init.visage");
+        InputStream sysIn = cl.getResourceAsStream("org/visage/tools/script/shell/init.visage");
         if (sysIn != null) {
             evaluateStream(sysIn, "<system-init>", null);
         }

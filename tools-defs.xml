@@ -15,11 +15,6 @@
         <fileset dir="${import.asm.lib}" includes="**/asm-util-3.1.jar" />
     </path>
 
-    <path id="scenegraph.class.path">
-<!--        <fileset file="${jfx.sdk.scenario.jar}"/>  disable until we find a way to move it to the public site. -->
-            <fileset file="${base.dir}/lib/visage-anim.jar"/>
-    </path>
-
     <path id="junit.class.path">
         <fileset file="${import.junit.jar}"/>
     </path>

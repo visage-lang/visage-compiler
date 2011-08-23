@@ -277,7 +277,6 @@
     <target name="tool-paths">
         <!-- Define actual properties for the known paths so they can be used in the properties file -->
         <property name="ant.class.path" refid="ant.class.path"/>
-        <property name="scenegraph.class.path" refid="scenegraph.class.path"/>
         <property name="junit.class.path" refid="junit.class.path"/>
         <property name="findbugs.class.path" refid="findbugs.class.path"/>
         <property name="saxon.class.path" refid="saxon.class.path"/>
