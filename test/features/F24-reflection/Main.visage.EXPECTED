@@ -1,6 +1,6 @@
-clsSquare=class Main.Square jfx-class:true mixin:false
+clsSquare=class Main.Square visage-class:true mixin:false
 Sq.super: [class MyRect]
-clsSimple=class Main.Simple jfx-class:true mixin:false
+clsSimple=class Main.Simple visage-class:true mixin:false
 Simpl.super: [class Main.Square]
 Simpl.super (inherited also):
   class Main.Simple
@@ -10,7 +10,7 @@ Simpl.super (inherited also):
   class MyShape
   class java.lang.Object
   class org.visage.runtime.FXBase
-clsString=class java.lang.String jfx-class:false mixin:false
+clsString=class java.lang.String visage-class:false mixin:false
 String .super (direct only):
   class java.io.Serializable
   class java.lang.CharSequence

@@ -35,7 +35,7 @@ import javax.tools.JavaFileObject;
 /** 
  * Javadoc uses an extended class reader that records package.html entries.
  * Note this is the "low-level" class reader, that reads JVM-style symbols.
- * The "jfx-level" class reader is a JavafxClassReader that <i>delegates</i>
+ * The "visage-level" class reader is a JavafxClassReader that <i>delegates</i>
  * to a JavafxdocClassReader.  This may be fragile, given that (unlike visagec)
  * we only have set of Symbols and Types, but it seems to work - for now.
  */

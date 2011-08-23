@@ -37,14 +37,14 @@
 
         The contract between the top repository and sub repositories:
 
-           jfx-init         - Initialize anything for a build
-           jfx-clean        - Clean yourself
-           jfx-sdk          - Build and add your files to ${jfx.sdk.dir}
-           jfx-sdk-clean    - Delete the files you added to ${jfx.sdk.dir}
-           jfx-deploy       - Build and add your files to ${jfx.deployed.dir}
-           jfx-deploy-clean - Delete the files you added to ${jfx.deployed.dir}
-           jfx-test         - Run your smoke tests on ${jfx.sdk.dir}
-           jfx-sdk-docs     - Generate and deliver sdk docs
+           visage-init         - Initialize anything for a build
+           visage-clean        - Clean yourself
+           visage-sdk          - Build and add your files to ${visage.sdk.dir}
+           visage-sdk-clean    - Delete the files you added to ${visage.sdk.dir}
+           visage-deploy       - Build and add your files to ${visage.deployed.dir}
+           visage-deploy-clean - Delete the files you added to ${visage.deployed.dir}
+           visage-test         - Run your smoke tests on ${visage.sdk.dir}
+           visage-sdk-docs     - Generate and deliver sdk docs
     
          Refer to the comments in this file with the pattern
              "NOTE: (newcomponent)"
@@ -58,32 +58,32 @@
         <attribute name="target"/>
         <sequential>
             <tstamp>
-                <format property="jfx.@{component}.@{target}.start.clock"
+                <format property="visage.@{component}.@{target}.start.clock"
                         pattern="HH:mm:ss"/>
             </tstamp>
             <tstamp>
-                <format property="jfx.@{component}.@{target}.start.time"
+                <format property="visage.@{component}.@{target}.start.time"
                         pattern="MM/dd/yyyy HH:mm:ss"/>
             </tstamp>
             <echo level="info"
                   message="################################################"/>
             <echo level="info"
-                  message="# cd @{component} ; ant @{target} -> Start  Time: ${jfx.@{component}.@{target}.start.time}"/>
+                  message="# cd @{component} ; ant @{target} -> Start  Time: ${visage.@{component}.@{target}.start.time}"/>
             <!-- RUN separate ant file -->
             <ant antfile="${basedir}/@{component}/build.xml"
                  target="@{target}" inheritAll="false"/>
             <tstamp>
-                <format property="jfx.@{component}.@{target}.finish.time"
+                <format property="visage.@{component}.@{target}.finish.time"
                         pattern="MM/dd/yyyy HH:mm:ss"/>
             </tstamp>
             <tstamp>
-                <format property="jfx.@{component}.@{target}.finish.clock"
+                <format property="visage.@{component}.@{target}.finish.clock"
                         pattern="HH:mm:ss"/>
             </tstamp>
             <echo level="info"
-                  message="# cd @{component} ; ant @{target} -> Finish Time: ${jfx.@{component}.@{target}.finish.time}"/>
+                  message="# cd @{component} ; ant @{target} -> Finish Time: ${visage.@{component}.@{target}.finish.time}"/>
             <echo level="info"
-                  message="# Timing: ${jfx.@{component}.@{target}.start.clock} -> ${jfx.@{component}.@{target}.finish.clock} (@{component} @{target})"/>
+                  message="# Timing: ${visage.@{component}.@{target}.start.clock} -> ${visage.@{component}.@{target}.finish.clock} (@{component} @{target})"/>
             <echo level="info"
                   message="################################################"/>
         </sequential>
@@ -123,24 +123,24 @@
     <macrodef name="do-setup-and-import-component">
         <attribute name="component"/>
         <sequential>
-            <condition property="jfx.@{component}.repo.exists">
-                <available file="${jfx.root.dir}/@{component}/.hg" type="dir"/>
+            <condition property="visage.@{component}.repo.exists">
+                <available file="${visage.root.dir}/@{component}/.hg" type="dir"/>
             </condition>
-            <condition property="jfx.@{component}.exists">
-                <available file="${jfx.root.dir}/@{component}/build.xml" type="file"/>
+            <condition property="visage.@{component}.exists">
+                <available file="${visage.root.dir}/@{component}/build.xml" type="file"/>
             </condition>
-            <mkdir dir="${jfx.build.dir}/xml_generated"/>
-            <copy file="${jfx.root.build.src.dir}/build-component-template.xml"
-                  tofile="${jfx.build.dir}/xml_generated/build-@{component}.xml"/>
-            <replace file="${jfx.build.dir}/xml_generated/build-@{component}.xml"
+            <mkdir dir="${visage.build.dir}/xml_generated"/>
+            <copy file="${visage.root.build.src.dir}/build-component-template.xml"
+                  tofile="${visage.build.dir}/xml_generated/build-@{component}.xml"/>
+            <replace file="${visage.build.dir}/xml_generated/build-@{component}.xml"
                      token="@COMPONENT@" value="@{component}"/>
-            <import file="${jfx.build.dir}/xml_generated/build-@{component}.xml"/>
+            <import file="${visage.build.dir}/xml_generated/build-@{component}.xml"/>
         </sequential>
     </macrodef>
 
     <!-- See what components we have and if it is a complete forest -->
-    <condition property="jfx.root.repo.exists">
-        <available file="${jfx.root.dir}/.hg" type="dir"/>
+    <condition property="visage.root.repo.exists">
+        <available file="${visage.root.dir}/.hg" type="dir"/>
     </condition>
     
     <!-- This defines all targets and properties for a component -->
@@ -163,15 +163,15 @@
 
     <!-- Special case of mobile emulator repository, which does not follow
          the normal repository conventions, but should exist for this
-         jfx forest to be considered a full source forest.  -->
-    <condition property="jfx.mobile.emulator.exists">
-        <available file="${jfx.mobile.emulator.dir}/.hg" type="dir"/>
+         visage forest to be considered a full source forest.  -->
+    <condition property="visage.mobile.emulator.exists">
+        <available file="${visage.mobile.emulator.dir}/.hg" type="dir"/>
     </condition>
 
     <!-- Only windows needs the mobile emulator sources. -->
-    <condition property="jfx.mobile.emulator.exists.or.is.not.needed">
+    <condition property="visage.mobile.emulator.exists.or.is.not.needed">
         <or>
-            <isset property="jfx.mobile.emulator.exists"/>
+            <isset property="visage.mobile.emulator.exists"/>
             <not>
                 <or>
                     <isset property="isWindows"/>
@@ -184,23 +184,23 @@
     <!-- Do we have a full forest (determines if cached files used) -->
     <!--   NOTE: (newcomponent) Add line here for a new component. -->
     <!--         Please keep in alphabetical order. -->
-    <condition property="jfx.full.forest">
+    <condition property="visage.full.forest">
         <and>
-            <isset property="jfx.apps.exists"/>
-            <isset property="jfx.deploy.exists"/>
-            <isset property="jfx.docs.exists"/>
-            <isset property="jfx.fxdloader.exists"/>
-            <isset property="jfx.jogl.exists"/>
-            <isset property="jfx.media.exists"/>
-            <isset property="jfx.mobile.exists"/>
-            <isset property="jfx.mobile.emulator.exists.or.is.not.needed"/>
-            <isset property="jfx.visage-compiler.exists"/>
-            <isset property="jfx.runtime.exists"/>
-            <isset property="jfx.samples.exists"/>
-            <isset property="jfx.tests.exists"/>
-            <isset property="jfx.tools.exists"/>
-            <isset property="jfx.tv.exists"/>
-            <isset property="jfx.webservices.exists"/>
+            <isset property="visage.apps.exists"/>
+            <isset property="visage.deploy.exists"/>
+            <isset property="visage.docs.exists"/>
+            <isset property="visage.fxdloader.exists"/>
+            <isset property="visage.jogl.exists"/>
+            <isset property="visage.media.exists"/>
+            <isset property="visage.mobile.exists"/>
+            <isset property="visage.mobile.emulator.exists.or.is.not.needed"/>
+            <isset property="visage.visage-compiler.exists"/>
+            <isset property="visage.runtime.exists"/>
+            <isset property="visage.samples.exists"/>
+            <isset property="visage.tests.exists"/>
+            <isset property="visage.tools.exists"/>
+            <isset property="visage.tv.exists"/>
+            <isset property="visage.webservices.exists"/>
         </and>
     </condition>
 
@@ -270,9 +270,9 @@
                      tools-tip,
                      tv-tip,
                      webservices-tip">
-        <echoproperties destfile="${jfx.repository.data}">
+        <echoproperties destfile="${visage.repository.data}">
             <propertyset>
-                <propertyref prefix="jfx.repository.tip."/>
+                <propertyref prefix="visage.repository.tip."/>
             </propertyset>
         </echoproperties>
     </target>
@@ -295,38 +295,38 @@
 
     <!-- Targets for root. -->
     <target name="root-tip"
-            unless="jfx.repository.tip.root" 
-            if="jfx.root.repo.exists">
-        <do-tip component="." property="jfx.repository.tip.root"/>
+            unless="visage.repository.tip.root" 
+            if="visage.root.repo.exists">
+        <do-tip component="." property="visage.repository.tip.root"/>
     </target>
 
     <!-- Targets to do the contract targets on all sub repositories or components. -->
     <target name="do-all-clean">
-        <do-all-components target="jfx-clean"/>
+        <do-all-components target="visage-clean"/>
     </target>
     <target name="do-all-clean-sdk">
-        <do-all-components target="jfx-clean-sdk"/>
+        <do-all-components target="visage-clean-sdk"/>
     </target>
     <target name="do-all-clean-deploy">
-        <do-all-components target="jfx-clean-deploy"/>
+        <do-all-components target="visage-clean-deploy"/>
     </target>
     <target name="do-all-sdk">
-        <do-all-components target="jfx-sdk"/>
+        <do-all-components target="visage-sdk"/>
     </target>
     <target name="do-all-test">
-        <do-all-components target="jfx-test"/>
+        <do-all-components target="visage-test"/>
     </target>
     <target name="do-all-deploy">
-        <do-all-components target="jfx-deploy"/>
+        <do-all-components target="visage-deploy"/>
     </target>
     <target name="do-all-sdk-docs">
-        <do-all-components target="jfx-sdk-docs"/>
+        <do-all-components target="visage-sdk-docs"/>
     </target>
     <target name="do-all-samples">
-        <do-all-components target="jfx-samples"/>
+        <do-all-components target="visage-samples"/>
     </target>
     <target name="do-all-full-test">
-        <do-all-components target="jfx-full-test"/>
+        <do-all-components target="visage-full-test"/>
     </target>
 
 </project>

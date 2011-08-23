@@ -41,17 +41,17 @@
 
     <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
-    <condition property="jfx.build.needs.gcc.compiler">
+    <condition property="visage.build.needs.gcc.compiler">
         <or>
-            <available file="${jfx.root.dir}/media" type="dir"/>
-            <available file="${jfx.root.dir}/runtime" type="dir"/>
+            <available file="${visage.root.dir}/media" type="dir"/>
+            <available file="${visage.root.dir}/runtime" type="dir"/>
         </or>
     </condition>
 
-    <condition property="jfx.build.needs.make.utility">
+    <condition property="visage.build.needs.make.utility">
         <or>
-            <available file="${jfx.root.dir}/media" type="dir"/>
-            <available file="${jfx.root.dir}/runtime" type="dir"/>
+            <available file="${visage.root.dir}/media" type="dir"/>
+            <available file="${visage.root.dir}/runtime" type="dir"/>
         </or>
     </condition>
 
@@ -100,14 +100,14 @@
     <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
     <target name="needs-gcc"
-            if="jfx.build.needs.gcc.compiler"
-            unless="jfx.skip.platform.checks">
+            if="visage.build.needs.gcc.compiler"
+            unless="visage.skip.platform.checks">
         <do-gcc dir="." options="--version"/>
     </target>
 
     <target name="needs-make"
-            if="jfx.build.needs.make.utility"
-            unless="jfx.skip.platform.checks">
+            if="visage.build.needs.make.utility"
+            unless="visage.skip.platform.checks">
         <do-make dir="." target="-version"/>
     </target>
 

@@ -312,7 +312,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_KINDNAME_FUNCTION = "kindname.function";
 
     
-    // jfx-compiler messages
+    // visage-compiler messages
     public static final String MESSAGE_JAVAFX_GENERALERROR = "visage.generalerror"; 
     public static final String MESSAGE_JAVAFX_GENERALWARNING = "visage.generalwarning";
     public static final String MESSAGE_JAVAFX_RANGE_START_INT_OR_NUMBER = "visage.range.start.int.or.number"; 

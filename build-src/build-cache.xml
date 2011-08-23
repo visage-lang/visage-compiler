@@ -47,50 +47,50 @@
     <!-- Populate the caches/sdk directory. -->
     <target name="update-cached-sdk"
             depends="clean-cached-sdk"
-            if="hudson.jfx.host.available">
+            if="hudson.visage.host.available">
         <do-get-previous-bundle name="sdk"
-            url="${hudson.jfx.sdk.url}" dir="${jfx.cached.sdk.dir}"/>
+            url="${hudson.visage.sdk.url}" dir="${visage.cached.sdk.dir}"/>
     </target>
     
     <!-- Populate the caches/deployed directory. -->
     <target name="update-cached-deployed"
             depends="clean-cached-deployed"
-            if="hudson.jfx.host.available">
+            if="hudson.visage.host.available">
         <do-get-previous-bundle name="deployed"
-            url="${hudson.jfx.deployed.url}" dir="${jfx.cached.deployed.dir}"/>
+            url="${hudson.visage.deployed.url}" dir="${visage.cached.deployed.dir}"/>
     </target>
 
    <!-- Populate the caches/xmldocs directory. -->
     <target name="update-cached-xmldocs"
             depends="clean-cached-xmldocs"
-            if="hudson.jfx.host.available">
+            if="hudson.visage.host.available">
         <do-get-previous-bundle name="xmldocs"
-            url="${hudson.jfx.xmldocs.url}" dir="${jfx.cached.xmldocs.dir}"/>
+            url="${hudson.visage.xmldocs.url}" dir="${visage.cached.xmldocs.dir}"/>
     </target>
 
     <!-- Clean out any caches/sdk files. -->
     <target name="clean-cached-sdk">
-        <delete dir="${jfx.cached.sdk.dir}"/>
+        <delete dir="${visage.cached.sdk.dir}"/>
     </target>
 
     <!-- Clean out any caches/deployed files. -->
     <target name="clean-cached-deployed">
-        <delete dir="${jfx.cached.deployed.dir}"/>
+        <delete dir="${visage.cached.deployed.dir}"/>
     </target>
 
     <!-- Clean out any caches/xmldocs files. -->
     <target name="clean-cached-xmldocs">
-        <delete dir="${jfx.cached.xmldocs.dir}"/>
+        <delete dir="${visage.cached.xmldocs.dir}"/>
     </target>
 
     <!-- Set cached.sdk.needed if we need caches/sdk. -->
     <condition property="cached.sdk.needed">
         <and>
             <not>
-                <isset property="jfx.full.forest"/>
+                <isset property="visage.full.forest"/>
             </not>
             <not>
-                <available file="${jfx.cached.sdk.dir}/${jfx.sdk.location.of.jmc.jar}" type="file"/>
+                <available file="${visage.cached.sdk.dir}/${visage.sdk.location.of.jmc.jar}" type="file"/>
             </not>
         </and>
     </condition>
@@ -99,10 +99,10 @@
     <condition property="cached.deployed.needed">
         <and>
             <not>
-                <isset property="jfx.full.forest"/>
+                <isset property="visage.full.forest"/>
             </not>
             <not>
-                <available file="${jfx.cached.deployed.dir}/${jfx.deployed.location.of.jmc.jar}" type="file"/>
+                <available file="${visage.cached.deployed.dir}/${visage.deployed.location.of.jmc.jar}" type="file"/>
             </not>
         </and>
     </condition>
@@ -111,22 +111,22 @@
     <condition property="cached.xmldocs.needed">
         <and>
             <not>
-                <isset property="jfx.full.forest"/>
+                <isset property="visage.full.forest"/>
             </not>
             <not>
-                <available file="${jfx.cached.xmldocs.dir}" type="dir"/>
+                <available file="${visage.cached.xmldocs.dir}" type="dir"/>
             </not>
         </and>
     </condition>
 
     <!-- See if hudson available. -->
     <target name="-check-hudson">
-        <condition property="hudson.jfx.host.available">
+        <condition property="hudson.visage.host.available">
             <and>
                 <not>
-                    <isset property="jfx.open.only"/>
+                    <isset property="visage.open.only"/>
                 </not>
-                <isreachable host="${hudson.jfx.host}" timeout="10"/>
+                <isreachable host="${hudson.visage.host}" timeout="10"/>
             </and>
         </condition>
     </target>

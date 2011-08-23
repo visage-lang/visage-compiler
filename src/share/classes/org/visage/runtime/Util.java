@@ -60,10 +60,10 @@ public class Util {
     }
 
     /** 
-     * The following are used to in jfx casts of object to a primitive type,
+     * The following are used to in visage casts of object to a primitive type,
      * eg:    function(pp) { pp as Float}
      * If the Object passed in is not a Number or Character, then a ClassCastException will
-     * occur, which is ok because it isn't legal in jfx to cast a non numeric
+     * occur, which is ok because it isn't legal in visage to cast a non numeric
      * to a numeric.
      */
     static public char objectToChar(Object p1) {

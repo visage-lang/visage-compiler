@@ -41,55 +41,55 @@
    </description>
 
    <!-- The jar_import host or master location of these files. -->
-   <property name="jfx.jar_import.host" value="jfx.sfbay.sun.com"/>
-   <property name="jfx.jar_import.url" value="http://${jfx.jar_import.host}/closed_import"/>
-   <property name="jfx.global.jar_import.zip" value="${jfx.root.dir}/../jar_import.zip"/>
+   <property name="visage.jar_import.host" value="visage.sfbay.sun.com"/>
+   <property name="visage.jar_import.url" value="http://${visage.jar_import.host}/closed_import"/>
+   <property name="visage.global.jar_import.zip" value="${visage.root.dir}/../jar_import.zip"/>
 
    <!-- URL and destination names for all jar_import files. -->
-   <property name="jfx.rt15.url" value="${jfx.jar_import.url}/rt15.jar"/>
-   <property name="jfx.rt15.jar" location="${jfx.jar_import.dir}/rt15.jar"/>
-   <property name="jfx.script-api.url" value="${jfx.jar_import.url}/script-api.jar"/>
-   <property name="jfx.script-api.jar" location="${jfx.jar_import.dir}/script-api.jar"/>
-   <property name="jfx.plugin_exports.url" value="${jfx.jar_import.url}/plugin_exports.jar"/>
-   <property name="jfx.plugin_exports.jar" location="${jfx.jar_import.dir}/plugin_exports.jar"/>
-   <property name="jfx.jnlp.url" value="${jfx.jar_import.url}/jnlp.jar"/>
-   <property name="jfx.jnlp.jar" location="${jfx.jar_import.dir}/jnlp.jar"/>
-   <property name="jfx.amble-fonts.url" value="${jfx.jar_import.url}/amble-fonts.jar"/>
-   <property name="jfx.amble-fonts.jar" location="${jfx.jar_import.dir}/amble-fonts.jar"/>
+   <property name="visage.rt15.url" value="${visage.jar_import.url}/rt15.jar"/>
+   <property name="visage.rt15.jar" location="${visage.jar_import.dir}/rt15.jar"/>
+   <property name="visage.script-api.url" value="${visage.jar_import.url}/script-api.jar"/>
+   <property name="visage.script-api.jar" location="${visage.jar_import.dir}/script-api.jar"/>
+   <property name="visage.plugin_exports.url" value="${visage.jar_import.url}/plugin_exports.jar"/>
+   <property name="visage.plugin_exports.jar" location="${visage.jar_import.dir}/plugin_exports.jar"/>
+   <property name="visage.jnlp.url" value="${visage.jar_import.url}/jnlp.jar"/>
+   <property name="visage.jnlp.jar" location="${visage.jar_import.dir}/jnlp.jar"/>
+   <property name="visage.amble-fonts.url" value="${visage.jar_import.url}/amble-fonts.jar"/>
+   <property name="visage.amble-fonts.jar" location="${visage.jar_import.dir}/amble-fonts.jar"/>
 
    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
    <!-- Macrodefs -->
-   <macrodef name="jfx-jar-importer-set-exists">
+   <macrodef name="visage-jar-importer-set-exists">
        <sequential>
-           <condition property="jfx.rt15.jar.exists">
-               <available file="${jfx.rt15.jar}" type="file"/>
+           <condition property="visage.rt15.jar.exists">
+               <available file="${visage.rt15.jar}" type="file"/>
            </condition>
-           <condition property="jfx.jnlp.jar.exists">
-               <available file="${jfx.jnlp.jar}" type="file"/>
+           <condition property="visage.jnlp.jar.exists">
+               <available file="${visage.jnlp.jar}" type="file"/>
            </condition>
-           <condition property="jfx.plugin_exports.jar.exists">
-               <available file="${jfx.plugin_exports.jar}" type="file"/>
+           <condition property="visage.plugin_exports.jar.exists">
+               <available file="${visage.plugin_exports.jar}" type="file"/>
            </condition>
-           <condition property="jfx.script-api.jar.exists">
-               <available file="${jfx.script-api.jar}" type="file"/>
+           <condition property="visage.script-api.jar.exists">
+               <available file="${visage.script-api.jar}" type="file"/>
            </condition>
-           <condition property="jfx.amble-fonts.jar.exists">
-               <available file="${jfx.amble-fonts.jar}" type="file"/>
+           <condition property="visage.amble-fonts.jar.exists">
+               <available file="${visage.amble-fonts.jar}" type="file"/>
            </condition>
            <!-- Do all jar_import files exist. -->
-           <condition property="jfx.all.jar_import.exists">
+           <condition property="visage.all.jar_import.exists">
                <and>
-                   <isset property="jfx.rt15.jar.exists"/>
-                   <isset property="jfx.jnlp.jar.exists"/>
-                   <isset property="jfx.script-api.jar.exists"/>
-                   <isset property="jfx.plugin_exports.jar.exists"/>
-                   <isset property="jfx.amble-fonts.jar.exists"/>
+                   <isset property="visage.rt15.jar.exists"/>
+                   <isset property="visage.jnlp.jar.exists"/>
+                   <isset property="visage.script-api.jar.exists"/>
+                   <isset property="visage.plugin_exports.jar.exists"/>
+                   <isset property="visage.amble-fonts.jar.exists"/>
                </and>
            </condition>
        </sequential>
    </macrodef>
 
-   <macrodef name="jfx-jar-importer">
+   <macrodef name="visage-jar-importer">
        <attribute name="url"/>
        <attribute name="file"/>
        <sequential>
@@ -104,73 +104,73 @@
    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
    <!-- Set exists properties. -->
-   <jfx-jar-importer-set-exists/>
+   <visage-jar-importer-set-exists/>
 
    <!-- Does the global jar_import.zip file exist, and should we use it. -->
    <condition property="use.global.jar_import.zip">
        <and>
-           <available file="${jfx.global.jar_import.zip}" type="file"/>
+           <available file="${visage.global.jar_import.zip}" type="file"/>
            <not>
-               <isset property="jfx.all.jar_import.exists"/>
+               <isset property="visage.all.jar_import.exists"/>
            </not>
        </and>
    </condition>
 
    <!-- We need to re-set these properties after exploding any jar_import.zip. -->
    <target name="-set-exists">
-       <jfx-jar-importer-set-exists/>
+       <visage-jar-importer-set-exists/>
    </target>
 
    <!-- Explode global jar_import.zip if needed and we have one. -->
    <target name="-check-for-global-zip-jar-import"
            if="use.global.jar_import.zip"
-           unless="jfx.all.jar_import.exists">
-       <do-unzip-bundle zip="${jfx.global.jar_import.zip}"
-                        dir="${jfx.jar_import.dir}"/>
+           unless="visage.all.jar_import.exists">
+       <do-unzip-bundle zip="${visage.global.jar_import.zip}"
+                        dir="${visage.jar_import.dir}"/>
    </target>
 
    <!-- Get and explode jar_import.zip from hudson if needed, should, and can. -->
    <target name="-check-for-hudson-zip-jar-import"
            if="use.hudson.jar_import.zip"
-           unless="jfx.all.jar_import.exists">
+           unless="visage.all.jar_import.exists">
        <do-get-previous-bundle name="jar_import"
-           url="${hudson.jfx.jar_import.url}" dir="${jfx.jar_import.dir}"/>
+           url="${hudson.visage.jar_import.url}" dir="${visage.jar_import.dir}"/>
    </target>
 
    <!-- Check each individual file and download each separately. -->
    <target name="-check-rt15"
-           unless="jfx.rt15.jar.exists"
+           unless="visage.rt15.jar.exists"
            if="use.jar_import.host">
-       <mkdir dir="${jfx.jar_import.dir}"/>
-       <jfx-jar-importer url="${jfx.rt15.url}" file="${jfx.rt15.jar}"/>
+       <mkdir dir="${visage.jar_import.dir}"/>
+       <visage-jar-importer url="${visage.rt15.url}" file="${visage.rt15.jar}"/>
    </target>
    <target name="-check-script-api"
-           unless="jfx.script-api.jar.exists"
+           unless="visage.script-api.jar.exists"
            if="use.jar_import.host">
-       <mkdir dir="${jfx.jar_import.dir}"/>
-       <jfx-jar-importer url="${jfx.script-api.url}" file="${jfx.script-api.jar}"/>
+       <mkdir dir="${visage.jar_import.dir}"/>
+       <visage-jar-importer url="${visage.script-api.url}" file="${visage.script-api.jar}"/>
    </target>
    <target name="-check-plugin-exports"
-           unless="jfx.plugin_exports.jar.exists"
+           unless="visage.plugin_exports.jar.exists"
            if="use.jar_import.host">
-       <mkdir dir="${jfx.jar_import.dir}"/>
-       <jfx-jar-importer url="${jfx.plugin_exports.url}" file="${jfx.plugin_exports.jar}"/>
+       <mkdir dir="${visage.jar_import.dir}"/>
+       <visage-jar-importer url="${visage.plugin_exports.url}" file="${visage.plugin_exports.jar}"/>
    </target>
    <target name="-check-jnlp"
-           unless="jfx.jnlp.jar.exists"
+           unless="visage.jnlp.jar.exists"
            if="use.jar_import.host">
-       <mkdir dir="${jfx.jar_import.dir}"/>
-       <jfx-jar-importer url="${jfx.jnlp.url}" file="${jfx.jnlp.jar}"/>
+       <mkdir dir="${visage.jar_import.dir}"/>
+       <visage-jar-importer url="${visage.jnlp.url}" file="${visage.jnlp.jar}"/>
    </target>
    <target name="-check-amble-fonts"
-           unless="jfx.amble-fonts.jar.exists"
+           unless="visage.amble-fonts.jar.exists"
            if="use.jar_import.host">
-       <mkdir dir="${jfx.jar_import.dir}"/>
-       <jfx-jar-importer url="${jfx.amble-fonts.url}" file="${jfx.amble-fonts.jar}"/>
+       <mkdir dir="${visage.jar_import.dir}"/>
+       <visage-jar-importer url="${visage.amble-fonts.url}" file="${visage.amble-fonts.jar}"/>
    </target>
 
    <!-- Warning when items missing in jar_import -->
-   <target name="-jar_import-report" unless="jfx.all.jar_import.exists">
+   <target name="-jar_import-report" unless="visage.all.jar_import.exists">
        <echo message="WARNING: Some or all of the jar_import files are not available."/>
    </target>
 
@@ -182,39 +182,39 @@
                     -check-jnlp,
                     -check-amble-fonts,
                     -jar_import-report"
-           unless="jfx.all.jar_import.exists">
+           unless="visage.all.jar_import.exists">
    </target>
 
    <!-- Make sure we have all the jar_import files. -->
    <target name="all-jar_imports"
            depends="-check-for-global-zip-jar-import,-set-exists"
-           unless="jfx.all.jar_import.exists">
+           unless="visage.all.jar_import.exists">
                <!-- If we reached here, we need something still. -->
        <condition property="use.hudson.jar_import.zip">
            <and>
                <not>
-                   <isset property="jfx.open.only"/>
+                   <isset property="visage.open.only"/>
                </not>
                <not>
-                   <isset property="jfx.all.jar_import.exists"/>
+                   <isset property="visage.all.jar_import.exists"/>
                </not>
-               <isreachable host="${hudson.jfx.host}" timeout="10"/>
+               <isreachable host="${hudson.visage.host}" timeout="10"/>
            </and>
        </condition>
        <!-- Try hudson server. -->
        <antcall target="-check-for-hudson-zip-jar-import"/>
        <!-- Reset exists properties. -->
-       <jfx-jar-importer-set-exists/>
+       <visage-jar-importer-set-exists/>
        <!-- See if jar_import host should be used. -->
        <condition property="use.jar_import.host">
            <and>
                <not>
-                   <isset property="jfx.open.only"/>
+                   <isset property="visage.open.only"/>
                </not>
                <not>
-                   <isset property="jfx.all.jar_import.exists"/>
+                   <isset property="visage.all.jar_import.exists"/>
                </not>
-               <isreachable host="${jfx.jar_import.host}" timeout="10"/>
+               <isreachable host="${visage.jar_import.host}" timeout="10"/>
            </and>
        </condition>
        <!-- Last attempt, or final check on each jar_import file. -->
@@ -222,7 +222,7 @@
    </target>
 
    <target name="clean-jar_import">
-       <delete dir="${jfx.jar_import.dir}"/>
+       <delete dir="${visage.jar_import.dir}"/>
    </target>
 
    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->

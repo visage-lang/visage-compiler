@@ -3035,7 +3035,7 @@ public abstract class JavafxAbstractTranslation
                         id(loopName));
 
             if (1 < count) {
-                // final short[] jfx$0map = GETMAP$X();
+                // final short[] visage$0map = GETMAP$X();
                 JCExpression getmapExpr = Call(null, varGetMapName(classSym)); //static method in toplevel class - no need for receiver
                 JCVariableDecl mapVar = TmpVar("map", syms.visage_ShortArray, getmapExpr);
                 addPreface(mapVar);
@@ -3124,31 +3124,31 @@ public abstract class JavafxAbstractTranslation
                 // (or is anonymous, or has an outer class argument)
                 //
                 //   {
-                //       final X jfx$0objlit = new X(true);
-                //       final short[] jfx$0map = GETMAP$X();
+                //       final X visage$0objlit = new X(true);
+                //       final short[] visage$0map = GETMAP$X();
                 //
-                //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
-                //           if (!isInitialized(jfx$0initloop) {
-                //               switch (jfx$0map[jfx$0initloop]) {
-                //                   1: jfx$0objlit.set$a(0); break;
-                //                   2: jfx$0objlit.set$b(0); break;
+                //       for (int visage$0initloop = 0; i < X.$VAR_COUNT; i++) {
+                //           if (!isInitialized(visage$0initloop) {
+                //               switch (visage$0map[visage$0initloop]) {
+                //                   1: visage$0objlit.set$a(0); break;
+                //                   2: visage$0objlit.set$b(0); break;
                 //                   ...
-                //                   n: jfx$0objlit.set$z(0); break;
-                //                   default: jfx$0objlit.applyDefaults$(jfx$0initloop);
+                //                   n: visage$0objlit.set$z(0); break;
+                //                   default: visage$0objlit.applyDefaults$(visage$0initloop);
                 //               }
                 //           }
                 //       }
                 //
-                //       jfx$0objlit.complete$();
-                //       jfx$0objlit
+                //       visage$0objlit.complete$();
+                //       visage$0objlit
                 //   }
 
                 // Use the Visage constructor by adding a marker argument. The "true" in:
                 //       ... new X(true);
                 newClassArgs = newClassArgs.append(True());
 
-                // Create the new instance, placing it in a temporary variable "jfx$0objlit"
-                //       final X jfx$0objlit = new X(true);
+                // Create the new instance, placing it in a temporary variable "visage$0objlit"
+                //       final X visage$0objlit = new X(true);
                 addPreface(Var(
                         type,
                         tmpVarName,
@@ -3165,8 +3165,8 @@ public abstract class JavafxAbstractTranslation
 
                 // Apply defaults to the instance variables
                 //
-                //       final short[] jfx$0map = GETMAP$X();
-                //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
+                //       final short[] visage$0map = GETMAP$X();
+                //       for (int visage$0initloop = 0; i < X.$VAR_COUNT; i++) {
                 //           ...
                 //       }
                 if (varSyms.nonEmpty()) {
@@ -3176,11 +3176,11 @@ public abstract class JavafxAbstractTranslation
                 }
 
                 // Call complete$ to do user's init and postinit blocks
-                //       jfx$0objlit.complete$();
+                //       visage$0objlit.complete$();
                 makeInitSupportCall(defs.complete_FXObjectMethodName, tmpVarName);
 
                 // Return the instance from the block expressions
-                //       jfx$0objlit
+                //       visage$0objlit
                 instExpression = id(tmpVarName);
 
             } else {

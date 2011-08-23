@@ -63,10 +63,10 @@
     <!-- Populates the import.dir area with freely available files. -->
 
     <!-- A global import.zip made available to populate the import area. -->
-    <property name="global.import.zip" location="${jfx.root.dir}/../import.zip"/>
+    <property name="global.import.zip" location="${visage.root.dir}/../import.zip"/>
 
     <!-- The location of the import area in the current build area. -->
-    <property name="local.import.dir" location="${jfx.root.dir}/import"/>
+    <property name="local.import.dir" location="${visage.root.dir}/import"/>
 
     <!-- A report file or log of the items inside the import area. -->
     <property name="import.report" value="${local.import.dir}/Report.txt"/>
@@ -76,7 +76,7 @@
         <isset property="import.dir"/>
     </condition>
 
-    <import file="${jfx.root.build.src.dir}/build-os-arch.xml"/>
+    <import file="${visage.root.build.src.dir}/build-os-arch.xml"/>
 
     <!-- Set import.dir to local area if it is not set. -->
     <condition property="import.dir" value="${local.import.dir}">
@@ -489,17 +489,17 @@ Description: ${import.@{item}.description}
         <condition property="use.hudson.zip">
             <and>
                 <not>
-                    <isset property="jfx.open.only"/>
+                    <isset property="visage.open.only"/>
                 </not>
                 <isset property="local.import.dir.empty"/>
-                <isreachable host="${hudson.jfx.host}" timeout="10"/>
+                <isreachable host="${hudson.visage.host}" timeout="10"/>
             </and>
         </condition>
         <antcall target="use-hudson-zip-import"/>
     </target>
     <target name="use-hudson-zip-import" if="use.hudson.zip">
         <do-get-previous-bundle name="import"
-            url="${hudson.jfx.import.url}" dir="${local.import.dir}"/>
+            url="${hudson.visage.import.url}" dir="${local.import.dir}"/>
     </target>
 
     <!-- Import everything that is generic. (same for all platforms) -->
@@ -714,13 +714,13 @@ Description: ${import.@{item}.description}
 
     <import-set-properties description="Crossroots"
 	                       item="crossroots.lge-broadcom-mips-libs"
-	                       url="http://jfx.sfbay.sun.com/tv/toolroots"
+	                       url="http://visage.sfbay.sun.com/tv/toolroots"
 	                       basename="lge-broadcom-mips-libs"
                            platform="" version="1.0" includes=""/>
 
     <import-set-properties description="Crossroots"
 	                       item="crossroots.intel-ce3100-x86-libs"
-	                       url="http://jfx.sfbay.sun.com/tv/toolroots"
+	                       url="http://visage.sfbay.sun.com/tv/toolroots"
 	                       basename="intel-ce3100-x86-libs-13.5"
                            platform="" version="13.5" includes=""/>
 
@@ -745,13 +745,13 @@ Description: ${import.@{item}.description}
 
     <import-set-properties description="Crosstools"
                            item="crosstools.lge-broadcom-mips-uclibc"
-                           url="http://jfx.sfbay.sun.com/tv/toolchains"
+                           url="http://visage.sfbay.sun.com/tv/toolchains"
                            basename="lge-broadcom-mips-uclibc"
                            platform="" version="1.0" includes=""/>
 
     <import-set-properties description="Crosstools"
                            item="crosstools.intel-ce3100-x86-glibc"
-                           url="http://jfx.sfbay.sun.com/tv/toolchains"
+                           url="http://visage.sfbay.sun.com/tv/toolchains"
                            basename="intel-ce3100-x86-glibc-13.5"
                            platform="" version="13.5" includes=""/>
 

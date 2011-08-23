@@ -69,7 +69,7 @@
     </macrodef>
 
     <tstamp>
-        <format property="jfx.built.today"
+        <format property="visage.built.today"
                 pattern="yyyy/MM/dd HH:mm:ss"/>
     </tstamp>
 
@@ -100,33 +100,33 @@
 
     <find-default-val property="hudson.current.build.id"
                   var="BUILD_ID"
-                  dvalue="${jfx.built.today} (non-hudson build)"/>
+                  dvalue="${visage.built.today} (non-hudson build)"/>
 
     <!-- The job.name looks like "somename/label=linux-i586" so extract the "somename" -->
     <dirname property="hudson.current.job.name.tmp" file="${hudson.current.job.name}"/>
     <basename property="hudson.current.job.basename" file="${hudson.current.job.name.tmp}"/>
 
-    <property name="jfx.build.number"
+    <property name="visage.build.number"
               value="${hudson.current.build.number}"/>
-    <property name="jfx.build.id"
+    <property name="visage.build.id"
               value="${hudson.current.build.id}"/>
-    <property name="jfx.job.name"
+    <property name="visage.job.name"
               value="${hudson.current.job.name}"/>
     
-    <property name="jfx.timestamp.product"
-              value="Product: ${jfx.product.name}-${jfx.release.version}${jfx.release.milestone}"/>
-    <property name="jfx.timestamp.platform"
+    <property name="visage.timestamp.product"
+              value="Product: ${visage.product.name}-${visage.release.version}${visage.release.milestone}"/>
+    <property name="visage.timestamp.platform"
               value="Platform: ${platform}"/>
-    <property name="jfx.timestamp.build.number"
-              value="Build-Number: ${jfx.build.number}"/>
-    <property name="jfx.timestamp.build.id"
-              value="Build-ID: ${jfx.build.id}"/>
-    <property name="jfx.timestamp.string"
-              value="${jfx.timestamp.product}${line.separator}${jfx.timestamp.platform}${line.separator}${jfx.timestamp.build.number}${line.separator}${jfx.timestamp.build.id}"/>
+    <property name="visage.timestamp.build.number"
+              value="Build-Number: ${visage.build.number}"/>
+    <property name="visage.timestamp.build.id"
+              value="Build-ID: ${visage.build.id}"/>
+    <property name="visage.timestamp.string"
+              value="${visage.timestamp.product}${line.separator}${visage.timestamp.platform}${line.separator}${visage.timestamp.build.number}${line.separator}${visage.timestamp.build.id}"/>
 
     <!-- Get the hudson properties. -->
 
-    <property file="${jfx.root.dir}/hudson.properties"/>
+    <property file="${visage.root.dir}/hudson.properties"/>
 
     <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
     <!-- Macrodefs -->
@@ -191,13 +191,13 @@
         <print-env name="LD_LIBRARY_PATH64"/>
     </target>
     
-    <property name="jfx.ant.version.needed" value="1.7.1"/>
+    <property name="visage.ant.version.needed" value="1.7.1"/>
     
     <target name="-check-ant">
-        <fail message="You need at least ant version ${jfx.ant.version.needed}">
+        <fail message="You need at least ant version ${visage.ant.version.needed}">
             <condition>
                 <not>
-                    <antversion atleast="${jfx.ant.version.needed}"/>
+                    <antversion atleast="${visage.ant.version.needed}"/>
                 </not>
             </condition>
         </fail>

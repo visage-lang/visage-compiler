@@ -37,153 +37,153 @@
     </description>
 
     <!-- The files to put into zip bundles. -->
-    <fileset dir="${jfx.sdk.dir}"
+    <fileset dir="${visage.sdk.dir}"
              includes="**"
-             id="jfx.sdk.all.files"/>
-    <fileset dir="${jfx.docs.dir}"
+             id="visage.sdk.all.files"/>
+    <fileset dir="${visage.docs.dir}"
              includes="**"
-             id="jfx.docs.all.files"/>
-    <fileset dir="${jfx.xml.docs.dir}"
+             id="visage.docs.all.files"/>
+    <fileset dir="${visage.xml.docs.dir}"
              includes="**"
-             id="jfx.xml.docs.all.files"/>
-    <fileset dir="${jfx.samples.dir}"
+             id="visage.xml.docs.all.files"/>
+    <fileset dir="${visage.samples.dir}"
              includes="**"
-             id="jfx.samples.all.files"/>
-    <fileset dir="${jfx.deployed.dir}"
+             id="visage.samples.all.files"/>
+    <fileset dir="${visage.deployed.dir}"
              includes="**"
-             id="jfx.deployed.all.files"/>
-    <fileset dir="${jfx.rtdeployed.dir}"
+             id="visage.deployed.all.files"/>
+    <fileset dir="${visage.rtdeployed.dir}"
              includes="**"
-             id="jfx.rtdeployed.all.files"/>
+             id="visage.rtdeployed.all.files"/>
     <fileset dir="${import.dir}"
              includes="**"
-             id="jfx.import.all.files"/>
-    <fileset dir="${jfx.jar_import.dir}"
+             id="visage.import.all.files"/>
+    <fileset dir="${visage.jar_import.dir}"
              includes="**"
-             id="jfx.jar_import.all.files"/>
+             id="visage.jar_import.all.files"/>
 
     <!-- Target to create destination directory for zip bundles. -->
     <target name="-create-bundles-dir">
-        <mkdir dir="${jfx.bundles.dir}"/>
+        <mkdir dir="${visage.bundles.dir}"/>
     </target>
 
     <!-- The sdk zip bundle -->
     <target name="check-sdk-zip">
-        <uptodate property="jfx.sdk.is.unchanged"
-                  targetfile="${jfx.sdk.zip}">
-            <srcfiles refid="jfx.sdk.all.files"/>
+        <uptodate property="visage.sdk.is.unchanged"
+                  targetfile="${visage.sdk.zip}">
+            <srcfiles refid="visage.sdk.all.files"/>
         </uptodate>
     </target>
     <target name="zip-sdk"
-            unless="jfx.sdk.is.unchanged"
+            unless="visage.sdk.is.unchanged"
             depends="-create-bundles-dir, check-sdk-zip">
-        <zip file="${jfx.sdk.zip}" >
-            <fileset refid="jfx.sdk.all.files" />
+        <zip file="${visage.sdk.zip}" >
+            <fileset refid="visage.sdk.all.files" />
         </zip>
     </target>
 
     <!-- The xml docs zip bundle -->
     <target name="check-xml-docs-zip">
-        <uptodate property="jfx.xml.docs.is.unchanged"
-                  targetfile="${jfx.xml.docs.zip}">
-            <srcfiles refid="jfx.xml.docs.all.files"/>
+        <uptodate property="visage.xml.docs.is.unchanged"
+                  targetfile="${visage.xml.docs.zip}">
+            <srcfiles refid="visage.xml.docs.all.files"/>
         </uptodate>
     </target>
     <target name="zip-xml-docs"
-            unless="jfx.xml.docs.is.unchanged"
+            unless="visage.xml.docs.is.unchanged"
             depends="-create-bundles-dir, check-xml-docs-zip">
-        <zip file="${jfx.xml.docs.zip}" >
-            <fileset refid="jfx.xml.docs.all.files" />
+        <zip file="${visage.xml.docs.zip}" >
+            <fileset refid="visage.xml.docs.all.files" />
         </zip>
     </target>
 
     <!-- The docs zip bundle -->
     <target name="check-docs-zip">
-        <uptodate property="jfx.docs.is.unchanged"
-                  targetfile="${jfx.docs.zip}">
-            <srcfiles refid="jfx.docs.all.files"/>
+        <uptodate property="visage.docs.is.unchanged"
+                  targetfile="${visage.docs.zip}">
+            <srcfiles refid="visage.docs.all.files"/>
         </uptodate>
     </target>
     <target name="zip-docs"
-            unless="jfx.docs.is.unchanged"
+            unless="visage.docs.is.unchanged"
             depends="-create-bundles-dir, check-docs-zip">
-        <zip file="${jfx.docs.zip}" >
-            <fileset refid="jfx.docs.all.files" />
+        <zip file="${visage.docs.zip}" >
+            <fileset refid="visage.docs.all.files" />
         </zip>
     </target>
 
     <!-- The samples zip bundle -->
     <target name="check-samples-zip">
-        <uptodate property="jfx.samples.is.unchanged"
-                  targetfile="${jfx.samples.zip}">
-            <srcfiles refid="jfx.samples.all.files"/>
+        <uptodate property="visage.samples.is.unchanged"
+                  targetfile="${visage.samples.zip}">
+            <srcfiles refid="visage.samples.all.files"/>
         </uptodate>
     </target>
     <target name="zip-samples"
-            unless="jfx.samples.is.unchanged"
+            unless="visage.samples.is.unchanged"
             depends="-create-bundles-dir, check-samples-zip">
-        <zip file="${jfx.samples.zip}" >
-            <fileset refid="jfx.samples.all.files" />
+        <zip file="${visage.samples.zip}" >
+            <fileset refid="visage.samples.all.files" />
         </zip>
     </target>
 
     <!-- The deployed zip bundle -->
     <target name="check-deployed-zip">
-        <uptodate property="jfx.deployed.is.unchanged"
-                  targetfile="${jfx.deployed.zip}">
-            <srcfiles refid="jfx.deployed.all.files"/>
+        <uptodate property="visage.deployed.is.unchanged"
+                  targetfile="${visage.deployed.zip}">
+            <srcfiles refid="visage.deployed.all.files"/>
         </uptodate>
     </target>
     <target name="zip-deployed"
-            unless="jfx.deployed.is.unchanged"
+            unless="visage.deployed.is.unchanged"
             depends="-create-bundles-dir, check-deployed-zip">
-        <zip file="${jfx.deployed.zip}" >
-            <fileset refid="jfx.deployed.all.files" />
+        <zip file="${visage.deployed.zip}" >
+            <fileset refid="visage.deployed.all.files" />
         </zip>
     </target>
 
     <!-- The rt-deployed zip bundle -->
     <target name="check-rtdeployed-zip">
-        <uptodate property="jfx.rtdeployed.is.unchanged"
-                  targetfile="${jfx.rtdeployed.zip}">
-            <srcfiles refid="jfx.rtdeployed.all.files"/>
+        <uptodate property="visage.rtdeployed.is.unchanged"
+                  targetfile="${visage.rtdeployed.zip}">
+            <srcfiles refid="visage.rtdeployed.all.files"/>
         </uptodate>
     </target>
     <target name="zip-rtdeployed"
-            unless="jfx.rtdeployed.is.unchanged"
+            unless="visage.rtdeployed.is.unchanged"
             depends="-create-bundles-dir, check-rtdeployed-zip">
-        <zip file="${jfx.rtdeployed.zip}" >
-            <fileset refid="jfx.rtdeployed.all.files" />
+        <zip file="${visage.rtdeployed.zip}" >
+            <fileset refid="visage.rtdeployed.all.files" />
         </zip>
     </target>
 
     <!-- The jar_import zip bundle -->
     <target name="check-jar_import-zip">
-        <uptodate property="jfx.jar_import.is.unchanged"
-                  targetfile="${jfx.jar_import.zip}">
-            <srcfiles refid="jfx.jar_import.all.files"/>
+        <uptodate property="visage.jar_import.is.unchanged"
+                  targetfile="${visage.jar_import.zip}">
+            <srcfiles refid="visage.jar_import.all.files"/>
         </uptodate>
     </target>
     <target name="zip-jar_import"
-            unless="jfx.jar_import.is.unchanged"
+            unless="visage.jar_import.is.unchanged"
             depends="-create-bundles-dir, check-jar_import-zip">
-        <zip file="${jfx.jar_import.zip}" >
-            <fileset refid="jfx.jar_import.all.files" />
+        <zip file="${visage.jar_import.zip}" >
+            <fileset refid="visage.jar_import.all.files" />
         </zip>
     </target>
 
     <!-- The import zip bundle -->
     <target name="check-import-zip">
-        <uptodate property="jfx.import.is.unchanged"
-                  targetfile="${jfx.import.zip}">
-            <srcfiles refid="jfx.import.all.files"/>
+        <uptodate property="visage.import.is.unchanged"
+                  targetfile="${visage.import.zip}">
+            <srcfiles refid="visage.import.all.files"/>
         </uptodate>
     </target>
     <target name="zip-import"
-            unless="jfx.import.is.unchanged"
+            unless="visage.import.is.unchanged"
             depends="-create-bundles-dir,check-import-zip">
-        <zip file="${jfx.import.zip}" >
-            <fileset refid="jfx.import.all.files" />
+        <zip file="${visage.import.zip}" >
+            <fileset refid="visage.import.all.files" />
         </zip>
     </target>
 

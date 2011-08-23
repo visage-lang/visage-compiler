@@ -34,16 +34,16 @@
 
     </description>
 
-    <property name="jfx.sdk.inventory.ok"
-              value="${jfx.sdk.inventory.dir}/ok.log"/>
-    <property name="jfx.sdk.inventory.missing"
-              value="${jfx.sdk.inventory.dir}/missing.log"/>
-    <property name="jfx.deployed.inventory.ok"
-              value="${jfx.deployed.inventory.dir}/ok.log"/>
-    <property name="jfx.rtdeployed.inventory.ok"
-              value="${jfx.rtdeployed.inventory.dir}/ok.log"/>
-    <property name="jfx.deployed.inventory.missing"
-              value="${jfx.deployed.inventory.dir}/missing.log"/>
+    <property name="visage.sdk.inventory.ok"
+              value="${visage.sdk.inventory.dir}/ok.log"/>
+    <property name="visage.sdk.inventory.missing"
+              value="${visage.sdk.inventory.dir}/missing.log"/>
+    <property name="visage.deployed.inventory.ok"
+              value="${visage.deployed.inventory.dir}/ok.log"/>
+    <property name="visage.rtdeployed.inventory.ok"
+              value="${visage.rtdeployed.inventory.dir}/ok.log"/>
+    <property name="visage.deployed.inventory.missing"
+              value="${visage.deployed.inventory.dir}/missing.log"/>
 
     <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
     <!-- Macrodefs -->
@@ -54,20 +54,20 @@
         <attribute name="subdir"/>
         <attribute name="file"/>
         <sequential>
-            <condition property="jfx.@{category}.inventory.error" value="true">
+            <condition property="visage.@{category}.inventory.error" value="true">
                 <not>
                     <available file="@{topdir}/@{subdir}/@{file}" type="file"/>
                 </not>
             </condition>
-            <condition property="jfx.@{category}.inventory.@{file}"
-                       value="${jfx.@{category}.inventory.ok}"
-                       else="${jfx.@{category}.inventory.missing}">
+            <condition property="visage.@{category}.inventory.@{file}"
+                       value="${visage.@{category}.inventory.ok}"
+                       else="${visage.@{category}.inventory.missing}">
                 <available file="@{topdir}/@{subdir}/@{file}" type="file"/>
             </condition>
-            <echo append="true" file="${jfx.@{category}.inventory.@{file}}"
+            <echo append="true" file="${visage.@{category}.inventory.@{file}}"
                   message="@{subdir}/@{file}${line.separator}"/>
-            <checksum file="${jfx.@{category}.inventory.@{file}}"
-                      property="jfx.@{category}.inventory.checksum.@{file}"/>
+            <checksum file="${visage.@{category}.inventory.@{file}}"
+                      property="visage.@{category}.inventory.checksum.@{file}"/>
         </sequential>
     </macrodef>
 
@@ -76,7 +76,7 @@
         <attribute name="file"/>
         <sequential>
             <inventory-check category="deployed"
-                             topdir="${jfx.deployed.dir}"
+                             topdir="${visage.deployed.dir}"
                              subdir="@{dir}"
                              file="@{file}"/>
         </sequential>
@@ -86,7 +86,7 @@
         <attribute name="file"/>
         <sequential>
             <inventory-check category="rtdeployed"
-                             topdir="${jfx.rtdeployed.dir}"
+                             topdir="${visage.rtdeployed.dir}"
                              subdir="."
                              file="@{file}"/>
         </sequential>
@@ -97,7 +97,7 @@
         <attribute name="file"/>
         <sequential>
             <inventory-check category="sdk"
-                             topdir="${jfx.sdk.dir}"
+                             topdir="${visage.sdk.dir}"
                              subdir="@{dir}"
                              file="@{file}"/>
         </sequential>
@@ -106,8 +106,8 @@
     <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
     <target name="-inventory-deployed-init">
-        <delete dir="${jfx.deployed.inventory.dir}"/>
-        <mkdir dir="${jfx.deployed.inventory.dir}"/>
+        <delete dir="${visage.deployed.inventory.dir}"/>
+        <mkdir dir="${visage.deployed.inventory.dir}"/>
     </target>
 
     <target name="-inventory-deployed-generic">
@@ -194,21 +194,21 @@
         <inventory-deployed-check dir="./desktop" file="jmc-natives-linux-i586.jar"/>
     </target>
 
-    <target name="-inventory-deployed-check-missing" if="jfx.deployed.inventory.error">
+    <target name="-inventory-deployed-check-missing" if="visage.deployed.inventory.error">
         <echo message="WARNING: Missing deployed files:"/>
         <concat>
-            <file file="${jfx.deployed.inventory.missing}"/>
+            <file file="${visage.deployed.inventory.missing}"/>
         </concat>
         <fail message="ERROR: Missing deployed files.">
             <condition>
-                <isset property="jfx.deployed.inventory.error"/>
+                <isset property="visage.deployed.inventory.error"/>
             </condition>
         </fail>
     </target>
 
     <target name="-inventory-rtdeployed-init">
-        <delete dir="${jfx.rtdeployed.inventory.dir}"/>
-        <mkdir dir="${jfx.rtdeployed.inventory.dir}"/>
+        <delete dir="${visage.rtdeployed.inventory.dir}"/>
+        <mkdir dir="${visage.rtdeployed.inventory.dir}"/>
     </target>
 
     <target name="-inventory-rtdeployed-generic">
@@ -261,21 +261,21 @@
         <inventory-rtdeployed-check file="visage-rt-natives-linux-i586.jar.gz"/>
     </target>
 
-    <target name="-inventory-rtdeployed-check-missing" if="jfx.rtdeployed.inventory.error">
+    <target name="-inventory-rtdeployed-check-missing" if="visage.rtdeployed.inventory.error">
         <echo message="WARNING: Missing rt-deployed files:"/>
         <concat>
-            <file file="${jfx.rtdeployed.inventory.missing}"/>
+            <file file="${visage.rtdeployed.inventory.missing}"/>
         </concat>
         <fail message="ERROR: Missing deployed files.">
             <condition>
-                <isset property="jfx.rtdeployed.inventory.error"/>
+                <isset property="visage.rtdeployed.inventory.error"/>
             </condition>
         </fail>
     </target>
 
     <target name="-inventory-sdk-init">
-        <delete dir="${jfx.sdk.inventory.dir}"/>
-        <mkdir dir="${jfx.sdk.inventory.dir}"/>
+        <delete dir="${visage.sdk.inventory.dir}"/>
+        <mkdir dir="${visage.sdk.inventory.dir}"/>
     </target>
 
     <target name="-inventory-sdk-generic">
@@ -453,14 +453,14 @@
         <inventory-sdk-check dir="./emulator/mobile/bin" file="preverify"/>
     </target>
 
-    <target name="-inventory-sdk-check-missing" if="jfx.sdk.inventory.error">
+    <target name="-inventory-sdk-check-missing" if="visage.sdk.inventory.error">
         <echo message="WARNING: Missing sdk files:"/>
         <concat>
-            <file file="${jfx.sdk.inventory.missing}"/>
+            <file file="${visage.sdk.inventory.missing}"/>
         </concat>
         <fail message="ERROR: Missing sdk files.">
             <condition>
-                <isset property="jfx.sdk.inventory.error"/>
+                <isset property="visage.sdk.inventory.error"/>
             </condition>
         </fail>
     </target>
@@ -494,9 +494,9 @@
             depends="-inventory-sdk-init,
                      -inventory-sdk,
                      -inventory-sdk-check-missing">
-        <echoproperties destfile="${jfx.sdk.inventory.data}">
+        <echoproperties destfile="${visage.sdk.inventory.data}">
             <propertyset>
-                <propertyref prefix="jfx.sdk.inventory.checksum."/>
+                <propertyref prefix="visage.sdk.inventory.checksum."/>
             </propertyset>
         </echoproperties>
     </target>
@@ -505,9 +505,9 @@
             depends="-inventory-deployed-init,
                      -inventory-deployed,
                      -inventory-deployed-check-missing">
-        <echoproperties destfile="${jfx.deployed.inventory.data}">
+        <echoproperties destfile="${visage.deployed.inventory.data}">
             <propertyset>
-                <propertyref prefix="jfx.deployed.inventory.checksum."/>
+                <propertyref prefix="visage.deployed.inventory.checksum."/>
             </propertyset>
         </echoproperties>
     </target>
@@ -516,9 +516,9 @@
             depends="-inventory-rtdeployed-init,
                      -inventory-rtdeployed,
                      -inventory-rtdeployed-check-missing">
-        <echoproperties destfile="${jfx.rtdeployed.inventory.data}">
+        <echoproperties destfile="${visage.rtdeployed.inventory.data}">
             <propertyset>
-                <propertyref prefix="jfx.rtdeployed.inventory.checksum."/>
+                <propertyref prefix="visage.rtdeployed.inventory.checksum."/>
             </propertyset>
         </echoproperties>
     </target>

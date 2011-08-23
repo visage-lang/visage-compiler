@@ -1068,7 +1068,7 @@ syncClass[ListBuffer<JFXTree> mems]
 // --------------
 // Class members.
 // Parses all constructs that can be a member of a class and returns
-// the JAva FX AST that represents it.
+// the Visage AST that represents it.
 //
 classMember[ListBuffer<JFXTree> mems]
 

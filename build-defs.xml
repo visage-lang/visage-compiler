@@ -38,40 +38,40 @@
    
     <!-- This file determines root of the source tree for project -->
     
-    <dirname property="jfx.root.dir" file="${ant.file.build-defs}"/>
-    <property name="jfx.root.build.src.dir" location="${jfx.root.dir}/build-src"/>
+    <dirname property="visage.root.dir" file="${ant.file.build-defs}"/>
+    <property name="visage.root.build.src.dir" location="${visage.root.dir}/build-src"/>
 
     <!-- Include any hg properties in case this is a source bundle build. -->
 
-    <property file="${jfx.root.dir}/hg.properties"/>
+    <property file="${visage.root.dir}/hg.properties"/>
 
     <!-- Get platform, or, and arch properties and targets -->
     
-    <import file="${jfx.root.build.src.dir}/build-os-arch.xml"/>
+    <import file="${visage.root.build.src.dir}/build-os-arch.xml"/>
 
     <!-- Default property values for build defs -->
     
-    <property file="${jfx.root.dir}/build.properties"/>
+    <property file="${visage.root.dir}/build.properties"/>
 
     <!-- Local overrides for build defs -->
     
-    <property file="${jfx.root.dir}/build.local.properties"/>
+    <property file="${visage.root.dir}/build.local.properties"/>
 
     <!-- Get properties defined from the environment -->
 
-    <import file="${jfx.root.build.src.dir}/build-environment.xml"/>
+    <import file="${visage.root.build.src.dir}/build-environment.xml"/>
 
     <!-- Get importer properties and targets -->
 
-    <import file="${jfx.root.build.src.dir}/build-importer.xml"/>
+    <import file="${visage.root.build.src.dir}/build-importer.xml"/>
 
     <!-- Get jars -->
 
-    <import file="${jfx.root.build.src.dir}/build-jar-importer.xml"/>
+    <import file="${visage.root.build.src.dir}/build-jar-importer.xml"/>
   
     <!-- Get platform properties and targets -->
     
-    <import file="${jfx.root.build.src.dir}/build-${os_name}-defs.xml"/>
+    <import file="${visage.root.build.src.dir}/build-${os_name}-defs.xml"/>
 
     <!-- Macrodefs for generic things to be shared by everyone -->
     
@@ -273,9 +273,9 @@
         <echo>Property=Value</echo>
         <echo>--------------</echo>
         <property name="isAny" value="true"/>
-        <print-property property="jfx.root.dir"      />
-        <print-property property="jfx.sdk.dir"       />
-        <print-property property="jfx.deployed.dir"  />
+        <print-property property="visage.root.dir"      />
+        <print-property property="visage.sdk.dir"       />
+        <print-property property="visage.deployed.dir"  />
         <print-property property="platform.home"     />
         <print-property property="platform6u10.home" />
         <print-property property="dxsdk.path"        />

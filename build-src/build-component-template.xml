@@ -36,46 +36,46 @@
     
     <!-- @COMPONENT@ -->
     <target name="@COMPONENT@-clone"
-            unless="jfx.@COMPONENT@.repo.exists">
+            unless="visage.@COMPONENT@.repo.exists">
         <do-clone component="@COMPONENT@"/>
     </target>
     <target name="@COMPONENT@-tip"
-            unless="jfx.repository.tip.@COMPONENT@"
-            if="jfx.@COMPONENT@.repo.exists">
-        <do-tip component="@COMPONENT@" property="jfx.repository.tip.@COMPONENT@"/>
+            unless="visage.repository.tip.@COMPONENT@"
+            if="visage.@COMPONENT@.repo.exists">
+        <do-tip component="@COMPONENT@" property="visage.repository.tip.@COMPONENT@"/>
     </target>
-    <target name="@COMPONENT@-jfx-clean" if="jfx.@COMPONENT@.exists">
-        <do-component target="jfx-clean" component="@COMPONENT@"/>
+    <target name="@COMPONENT@-visage-clean" if="visage.@COMPONENT@.exists">
+        <do-component target="visage-clean" component="@COMPONENT@"/>
     </target>
-    <target name="@COMPONENT@-jfx-clean-sdk" if="jfx.@COMPONENT@.exists">
-        <do-component target="jfx-clean-sdk" component="@COMPONENT@"/>
+    <target name="@COMPONENT@-visage-clean-sdk" if="visage.@COMPONENT@.exists">
+        <do-component target="visage-clean-sdk" component="@COMPONENT@"/>
     </target>
-    <target name="@COMPONENT@-jfx-clean-deploy" if="jfx.@COMPONENT@.exists">
-        <do-component target="jfx-clean-deploy" component="@COMPONENT@"/>
+    <target name="@COMPONENT@-visage-clean-deploy" if="visage.@COMPONENT@.exists">
+        <do-component target="visage-clean-deploy" component="@COMPONENT@"/>
     </target>
-    <target name="@COMPONENT@-jfx-sdk" if="jfx.@COMPONENT@.exists">
-        <do-component target="jfx-sdk" component="@COMPONENT@"/>
+    <target name="@COMPONENT@-visage-sdk" if="visage.@COMPONENT@.exists">
+        <do-component target="visage-sdk" component="@COMPONENT@"/>
     </target>
-    <target name="@COMPONENT@-jfx-test" if="jfx.@COMPONENT@.exists">
-        <do-component target="jfx-test" component="@COMPONENT@"/>
+    <target name="@COMPONENT@-visage-test" if="visage.@COMPONENT@.exists">
+        <do-component target="visage-test" component="@COMPONENT@"/>
     </target>
-    <target name="@COMPONENT@-jfx-deploy" if="jfx.@COMPONENT@.exists">
-        <do-component target="jfx-deploy" component="@COMPONENT@"/>
+    <target name="@COMPONENT@-visage-deploy" if="visage.@COMPONENT@.exists">
+        <do-component target="visage-deploy" component="@COMPONENT@"/>
     </target>
-    <target name="@COMPONENT@-jfx-sdk-docs" if="jfx.@COMPONENT@.exists">
-        <do-component target="jfx-sdk-docs" component="@COMPONENT@"/>
+    <target name="@COMPONENT@-visage-sdk-docs" if="visage.@COMPONENT@.exists">
+        <do-component target="visage-sdk-docs" component="@COMPONENT@"/>
     </target>
-    <target name="@COMPONENT@-jfx-samples" if="jfx.@COMPONENT@.exists">
-        <do-component target="jfx-samples" component="@COMPONENT@"/>
+    <target name="@COMPONENT@-visage-samples" if="visage.@COMPONENT@.exists">
+        <do-component target="visage-samples" component="@COMPONENT@"/>
     </target>
-    <target name="@COMPONENT@-jfx-full-test" if="jfx.@COMPONENT@.exists">
-        <do-component target="jfx-full-test" component="@COMPONENT@"/>
+    <target name="@COMPONENT@-visage-full-test" if="visage.@COMPONENT@.exists">
+        <do-component target="visage-full-test" component="@COMPONENT@"/>
     </target>
 
     <!-- Special targets unique to a single component, not all
          components have to implement this target. -->
-    <target name="@COMPONENT@-jfx-sign-jars" if="jfx.@COMPONENT@.exists">
-        <do-component target="jfx-sign-jars" component="@COMPONENT@"/>
+    <target name="@COMPONENT@-visage-sign-jars" if="visage.@COMPONENT@.exists">
+        <do-component target="visage-sign-jars" component="@COMPONENT@"/>
     </target>
 
 </project>

@@ -33,7 +33,7 @@ Apply Visage javac Patches
 From the command-line (patch must be available):
 
         $ cd langtools/src/share/classes
-        $ patch -p0 < ../../../../javac-for-jfx.patch
+        $ patch -p0 < ../../../../javac-for-visage.patch
 
                                 -- OR --
 

@@ -1,5 +1,5 @@
 /**
- * JFXC-3761 : Compiled bind: cannot find symbol jfx$2pse ; caused by ref to a script level var inside a for inClause
+ * JFXC-3761 : Compiled bind: cannot find symbol visage$2pse ; caused by ref to a script level var inside a for inClause
  *
  * @test
  */

@@ -937,7 +937,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
      */
 
     protected String getSyntheticPrefix() {
-        return "jfx$";
+        return "visage$";
     }
 
     private void fillClassesWithOuters(JFXScript tree) {

@@ -46,11 +46,11 @@
     <import file="${build.defs}"/>
 
     <!-- 
-        If the jfx.build.number is not set to a real value, then we are building outside hudson.  Use
+        If the visage.build.number is not set to a real value, then we are building outside hudson.  Use
         userName-date instead.
     -->
-    <condition property="build.number.string" value="${user.name}-${date.stamp}" else="${jfx.build.number}">
-       <matches string="${jfx.build.number}" pattern="^0*$"/>
+    <condition property="build.number.string" value="${user.name}-${date.stamp}" else="${visage.build.number}">
+       <matches string="${visage.build.number}" pattern="^0*$"/>
     </condition>
 
     <property name="visagedoc.dir" value="${basedir}/visagedoc"/>
@@ -73,15 +73,15 @@
 
     <!-- Here are targets required by the upper level build.xml.   -->
 
-    <target name="jfx-clean"     depends="clean"/>
-    <target name="jfx-clean-sdk" depends="init,-do-jfx-clean-sdk"/>
-    <target name="jfx-clean-deploy" depends="init,-do-jfx-clean-deploy"/>
-    <target name="jfx-sdk"       depends="init,-do-jfx-sdk"/>
-    <target name="jfx-test"      depends="smoketest"/>
-    <target name="jfx-full-test"/>
-    <target name="jfx-samples"/>
-    <target name="jfx-deploy"    depends="init,-do-jfx-deploy"/>
-    <target name="jfx-sdk-docs"  depends="init,-do-jfx-sdk-docs"/>
+    <target name="visage-clean"     depends="clean"/>
+    <target name="visage-clean-sdk" depends="init,-do-visage-clean-sdk"/>
+    <target name="visage-clean-deploy" depends="init,-do-visage-clean-deploy"/>
+    <target name="visage-sdk"       depends="init,-do-visage-sdk"/>
+    <target name="visage-test"      depends="smoketest"/>
+    <target name="visage-full-test"/>
+    <target name="visage-samples"/>
+    <target name="visage-deploy"    depends="init,-do-visage-deploy"/>
+    <target name="visage-sdk-docs"  depends="init,-do-visage-sdk-docs"/>
 
     <!-- Here are popular targets for building in this dir -->
     <target name="help"       depends="-do-help" description="Show help on targets"/>
@@ -175,30 +175,30 @@
 
     <target name="-do-test"  depends="init,compile-test,-pre-test-run,-do-test-run,test-report,-post-test-run,-test-browse"/>
     <!--
-       We don't build docs as part of the jfx-sdk target; the api docs that go into the SDK 
+       We don't build docs as part of the visage-sdk target; the api docs that go into the SDK 
        are built by a process outside this repo.
     -->
-    <target name="-do-jfx-sdk" depends="binaries,source-zip">
-        <copy todir="${jfx.sdk.dir}">
+    <target name="-do-visage-sdk" depends="binaries,source-zip">
+        <copy todir="${visage.sdk.dir}">
           <fileset dir="${dist.dir}" includes="${dist.contents}"/>
         </copy>
-        <chmod dir="${jfx.sdk.dir}" perm="a+x" type="both" includes="${dist.executables}"/>
+        <chmod dir="${visage.sdk.dir}" perm="a+x" type="both" includes="${dist.executables}"/>
     </target>
 
-    <target name="-do-jfx-clean-sdk">
+    <target name="-do-visage-clean-sdk">
          <delete includeemptydirs="true">
-            <fileset dir="${jfx.sdk.dir}" includes="${dist.contents}"/>
+            <fileset dir="${visage.sdk.dir}" includes="${dist.contents}"/>
           </delete>
     </target>
 
-    <target name="-do-jfx-deploy" depends="binaries">
-        <copy todir="${jfx.deployed.dir}">
+    <target name="-do-visage-deploy" depends="binaries">
+        <copy todir="${visage.deployed.dir}">
           <fileset dir="${dist.dir}/lib" includes="${deployed.contents}"/>
         </copy>
     </target>
 
-    <target name="-do-jfx-sdk-docs" depends="docs">
-        <copy todir="${jfx.sdk.api.docs.dir}">
+    <target name="-do-visage-sdk-docs" depends="docs">
+        <copy todir="${visage.sdk.api.docs.dir}">
             <fileset dir="${basedir}/javadoc-files">
                 <include name="draft.*"/>
                 <include name="*.css"/>
@@ -206,16 +206,16 @@
                 <include name="*.png"/>
             </fileset>
         </copy>
-        <mkdir dir="${jfx.xml.docs.dir}"/>
+        <mkdir dir="${visage.xml.docs.dir}"/>
         <copy file="${build.dir}/docs/javacode.xml"
-              tofile="${jfx.xml.docs.dir}/visage-compiler_javacode.xml"/>
+              tofile="${visage.xml.docs.dir}/visage-compiler_javacode.xml"/>
         <copy file="build/docs/fxcode.xml"
-              tofile="${jfx.xml.docs.dir}/visage-compiler_fxcode.xml"/>
+              tofile="${visage.xml.docs.dir}/visage-compiler_fxcode.xml"/>
     </target>
 
-    <target name="-do-jfx-clean-deploy">
+    <target name="-do-visage-clean-deploy">
          <delete includeemptydirs="true">
-            <fileset dir="${jfx.deployed.dir}" includes="${deployed.contents}"/>
+            <fileset dir="${visage.deployed.dir}" includes="${deployed.contents}"/>
           </delete>
     </target>
 
@@ -381,7 +381,7 @@
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4l.file}" />
-            <jvmarg value="-Xmx${jfx.antlr.max.memory}"/>
+            <jvmarg value="-Xmx${visage.antlr.max.memory}"/>
         </java>
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
 	    <arg value="-Xconversiontimeout" />
@@ -390,7 +390,7 @@
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4p.file}" />
-            <jvmarg value="-Xmx${jfx.antlr.max.memory}"/>
+            <jvmarg value="-Xmx${visage.antlr.max.memory}"/>
         </java>
         <property name="parserv4.uptodate" value="true" />
     </target>
@@ -403,7 +403,7 @@
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4l.file}" />
-            <jvmarg value="-Xmx${jfx.antlr.max.memory}"/>
+            <jvmarg value="-Xmx${visage.antlr.max.memory}"/>
         </java>
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
 	    <arg value="-Xconversiontimeout" />
@@ -412,7 +412,7 @@
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4p.file}" />
-            <jvmarg value="-Xmx${jfx.antlr.max.memory}"/>
+            <jvmarg value="-Xmx${visage.antlr.max.memory}"/>
         </java>
     </target>
 
@@ -434,7 +434,7 @@
             <arg value="-o" />
             <arg value="${syntax.diagrams.dir}" />            
             <arg value="-verbose"/>
-            <jvmarg value="-Xmx${jfx.antlr.max.memory}"/>
+            <jvmarg value="-Xmx${visage.antlr.max.memory}"/>
         </java>
         <delete dir="${antlr.src.dir}/output"></delete>
 
@@ -579,7 +579,7 @@
             </classpath>
             <jvmarg value="-Xbootclasspath/p:${bootjars}"/>
             <jvmarg value="-Djava.awt.headless=true"/>
-            <jvmarg value="-Xmx${jfx.javadoc.max.memory}"/>
+            <jvmarg value="-Xmx${visage.javadoc.max.memory}"/>
             <arg value="-o"/> <arg value="build/docs/fxcode.xml"/>
             <arg value="-nohtml"/>
             <arg value="-sourcepath"/> <arg value="${srcpathprop}"/>
@@ -603,7 +603,7 @@
             </classpath>
             <jvmarg value="-Xbootclasspath/p:${bootjars}"/>
             <jvmarg value="-Djava.awt.headless=true"/>
-            <jvmarg value="-Xmx${jfx.javadoc.max.memory}"/>
+            <jvmarg value="-Xmx${visage.javadoc.max.memory}"/>
             <arg line="${visagedoc.packages}"/>
         </java>
         
@@ -750,7 +750,7 @@
         <java classname="org.visage.tools.jaranalyzer.JarAnalyzer">
             <arg value="${dist.visagert.jar}" />
             <arg value="${build.staticsizes.dir}" />
-            <arg value="http://visage.org/hudson/job/visage-compiler/${jfx.build.number}/artifact/build/staticsizes" />
+            <arg value="http://visage.org/hudson/job/visage-compiler/${visage.build.number}/artifact/build/staticsizes" />
             <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
             </classpath>
@@ -766,7 +766,7 @@
         <java classname="org.visage.tools.classreporter.ClassReporter">
             <arg value="-dist.dir=${dist.dir}" />
             <arg value="-build.dir=${build.ldclassreport.dir}" />
-            <arg value="-reference.url=http://visage.org/hudson/job/visage-compiler/${jfx.build.number}/changes" />
+            <arg value="-reference.url=http://visage.org/hudson/job/visage-compiler/${visage.build.number}/changes" />
             <classpath>
                 <pathelement location="${build.buildtools.dir}" />
             </classpath>

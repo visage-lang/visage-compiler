@@ -41,37 +41,37 @@
 
     <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
     <!-- Only certain repositories trigger a need for native compilation tools. -->
-    <condition property="jfx.build.needs.visual.studio">
+    <condition property="visage.build.needs.visual.studio">
         <or>
-            <available file="${jfx.root.dir}/jogl" type="dir"/>
-            <available file="${jfx.root.dir}/media" type="dir"/>
-            <available file="${jfx.root.dir}/runtime" type="dir"/>
+            <available file="${visage.root.dir}/jogl" type="dir"/>
+            <available file="${visage.root.dir}/media" type="dir"/>
+            <available file="${visage.root.dir}/runtime" type="dir"/>
         </or>
     </condition>
 
-    <condition property="jfx.build.needs.gplusplus.compiler">
-        <available file="${jfx.root.dir}/tools" type="dir"/>
+    <condition property="visage.build.needs.gplusplus.compiler">
+        <available file="${visage.root.dir}/tools" type="dir"/>
     </condition>
 
-    <condition property="jfx.build.needs.make.utility">
+    <condition property="visage.build.needs.make.utility">
         <or>
-            <available file="${jfx.root.dir}/runtime" type="dir"/>
-            <available file="${jfx.root.dir}/tools" type="dir"/>
+            <available file="${visage.root.dir}/runtime" type="dir"/>
+            <available file="${visage.root.dir}/tools" type="dir"/>
         </or>
     </condition>
 
     <property name="vs.property.generator"
-              location="${jfx.root.build.src.dir}/genVSproperties.bat"/>
+              location="${visage.root.build.src.dir}/genVSproperties.bat"/>
     <condition property="run.vs.property.generator">
         <and>
             <available file="${vs.property.generator}" type="file"/>
-            <isset property="jfx.build.needs.visual.studio"/>
+            <isset property="visage.build.needs.visual.studio"/>
         </and>
     </condition>
 
     <!-- Our properties for the Visual Studio env variable values. -->
     <property name="vs.properties"
-              location="${jfx.build.dir}/vs.properties"/>
+              location="${visage.build.dir}/vs.properties"/>
 
     <!-- Location of windows cmd utility. -->
     <property name="cmd.utility" location="${systemroot.path}/System32/cmd.exe"/>
@@ -220,8 +220,8 @@
     <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
     <target name="needs-cl"
-            if="jfx.build.needs.visual.studio"
-            unless="jfx.skip.platform.checks">
+            if="visage.build.needs.visual.studio"
+            unless="visage.skip.platform.checks">
         <property file="${vs.properties}"/>
         <property name="cl.utility" location="${windows.vs.MSVCDIR}/bin/cl.exe"/>
         <echo message="Using ${cl.utility}."/>
@@ -230,8 +230,8 @@
     </target>
 
     <target name="needs-devenv"
-            if="jfx.build.needs.visual.studio"
-            unless="jfx.skip.platform.checks">
+            if="visage.build.needs.visual.studio"
+            unless="visage.skip.platform.checks">
         <property file="${vs.properties}"/>
         <property name="devenv.utility" location="${windows.vs.DEVENVCMD}"/>
         <echo message="Using ${devenv.utility}."/>
@@ -239,16 +239,16 @@
     </target>
 
     <target name="needs-gplusplus"
-            if="jfx.build.needs.gplusplus.compiler"
-            unless="jfx.skip.platform.checks">
+            if="visage.build.needs.gplusplus.compiler"
+            unless="visage.skip.platform.checks">
         <get-cygwin-path/>
         <echo message="Using ${gplusplus.utility}."/>
         <do-file-check file="${gplusplus.utility}"/>
     </target>
 
     <target name="needs-make"
-            if="jfx.build.needs.make.utility"
-            unless="jfx.skip.platform.checks">
+            if="visage.build.needs.make.utility"
+            unless="visage.skip.platform.checks">
         <get-cygwin-path/>
         <echo message="Using ${make.utility}."/>
         <do-file-check file="${make.utility}"/>
@@ -259,7 +259,7 @@
     <target name="needs-vs-properties"
             if="run.vs.property.generator">
         <echo message="Using ${vs.property.generator} to get VS properties."/>
-        <mkdir dir="${jfx.build.dir}"/>
+        <mkdir dir="${visage.build.dir}"/>
         <exec dir="." executable="cmd" output="${vs.properties}">
             <arg value="/q"/>
             <arg value="/c"/>

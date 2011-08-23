@@ -43,69 +43,69 @@
         <attribute name="description"/>
         <sequential>
             <propertyfile file="@{file}" comment=" Invoice for @{description} ">
-                <entry  key="jfx.product.name" value="${jfx.product.name}"/>
-                <entry  key="jfx.build.date" type="date" value="now"/>
-                <entry  key="jfx.release.milestone" value="${jfx.release.milestone}"/>
-                <entry  key="jfx.release.name" value="${jfx.release.name}"/>
-                <entry  key="jfx.release.milestone" value="${jfx.release.milestone}"/>
-                <entry  key="jfx.release.version" value="${jfx.release.version}"/>
-                <entry  key="jfx.build.number" value="${jfx.build.number}"/>
-                <entry  key="jfx.build.id" value="${jfx.build.id}"/>
-                <entry  key="jfx.job.name" value="${jfx.job.name}"/>
-                <entry  key="jfx.release.build.user" value="${user.name}"/>
+                <entry  key="visage.product.name" value="${visage.product.name}"/>
+                <entry  key="visage.build.date" type="date" value="now"/>
+                <entry  key="visage.release.milestone" value="${visage.release.milestone}"/>
+                <entry  key="visage.release.name" value="${visage.release.name}"/>
+                <entry  key="visage.release.milestone" value="${visage.release.milestone}"/>
+                <entry  key="visage.release.version" value="${visage.release.version}"/>
+                <entry  key="visage.build.number" value="${visage.build.number}"/>
+                <entry  key="visage.build.id" value="${visage.build.id}"/>
+                <entry  key="visage.job.name" value="${visage.job.name}"/>
+                <entry  key="visage.release.build.user" value="${user.name}"/>
             </propertyfile>
         </sequential>
     </macrodef>
 
     <target name="-init-sdk-invoice">
-        <delete file="${jfx.sdk.invoice}"/>
+        <delete file="${visage.sdk.invoice}"/>
     </target>
 
     <target name="-init-deployed-invoice">
-        <delete file="${jfx.deployed.invoice}"/>
+        <delete file="${visage.deployed.invoice}"/>
     </target>
 
     <target name="-init-rtdeployed-invoice">
-        <delete file="${jfx.rtdeployed.invoice}"/>
+        <delete file="${visage.rtdeployed.invoice}"/>
     </target>
 
     <target name="add-sdk-invoice" depends="-init-sdk-invoice, tip-all-components">
-        <delete file="${jfx.sdk.invoice}.header"/>
+        <delete file="${visage.sdk.invoice}.header"/>
         <do-invoice-header
-            file="${jfx.sdk.invoice}.header"
-            description="${jfx.sdk.invoice.description}"/>
-        <concat destfile="${jfx.sdk.invoice}">
-            <fileset file="${jfx.sdk.invoice}.header"/>
-            <fileset file="${jfx.repository.data}"/>
-            <fileset file="${jfx.sdk.inventory.data}"/>
+            file="${visage.sdk.invoice}.header"
+            description="${visage.sdk.invoice.description}"/>
+        <concat destfile="${visage.sdk.invoice}">
+            <fileset file="${visage.sdk.invoice}.header"/>
+            <fileset file="${visage.repository.data}"/>
+            <fileset file="${visage.sdk.inventory.data}"/>
         </concat>
-        <delete file="${jfx.sdk.invoice}.header"/>
+        <delete file="${visage.sdk.invoice}.header"/>
     </target>
 
     <target name="add-deployed-invoice" depends="-init-deployed-invoice, tip-all-components">
-        <delete file="${jfx.deployed.invoice}.header"/>
+        <delete file="${visage.deployed.invoice}.header"/>
         <do-invoice-header
-            file="${jfx.deployed.invoice}.header"
-            description="${jfx.deployed.invoice.description}"/>
-        <concat destfile="${jfx.deployed.invoice}">
-            <fileset file="${jfx.deployed.invoice}.header"/>
-            <fileset file="${jfx.repository.data}"/>
-            <fileset file="${jfx.deployed.inventory.data}"/>
+            file="${visage.deployed.invoice}.header"
+            description="${visage.deployed.invoice.description}"/>
+        <concat destfile="${visage.deployed.invoice}">
+            <fileset file="${visage.deployed.invoice}.header"/>
+            <fileset file="${visage.repository.data}"/>
+            <fileset file="${visage.deployed.inventory.data}"/>
         </concat>
-        <delete file="${jfx.deployed.invoice}.header"/>
+        <delete file="${visage.deployed.invoice}.header"/>
     </target>
 
     <target name="add-rtdeployed-invoice" depends="-init-rtdeployed-invoice, tip-all-components">
-        <delete file="${jfx.rtdeployed.invoice}.header"/>
+        <delete file="${visage.rtdeployed.invoice}.header"/>
         <do-invoice-header
-            file="${jfx.rtdeployed.invoice}.header"
-            description="${jfx.rtdeployed.invoice.description}"/>
-        <concat destfile="${jfx.rtdeployed.invoice}">
-            <fileset file="${jfx.rtdeployed.invoice}.header"/>
-            <fileset file="${jfx.repository.data}"/>
-            <fileset file="${jfx.rtdeployed.inventory.data}"/>
+            file="${visage.rtdeployed.invoice}.header"
+            description="${visage.rtdeployed.invoice.description}"/>
+        <concat destfile="${visage.rtdeployed.invoice}">
+            <fileset file="${visage.rtdeployed.invoice}.header"/>
+            <fileset file="${visage.repository.data}"/>
+            <fileset file="${visage.rtdeployed.inventory.data}"/>
         </concat>
-        <delete file="${jfx.rtdeployed.invoice}.header"/>
+        <delete file="${visage.rtdeployed.invoice}.header"/>
     </target>
 
     <target name="invoices" depends="add-sdk-invoice, add-deployed-invoice, add-rtdeployed-invoice"/>

@@ -1912,7 +1912,7 @@ changeset:   4126:f3baf4ca6d6c
 branch:      trunk
 user:        bothner
 date:        Wed Nov 05 20:25:02 2008 -0800
-summary:     [svn r4570] Add a jfx-specific re-implementation of MethodSymbol.overrides.
+summary:     [svn r4570] Add a visage-specific re-implementation of MethodSymbol.overrides.
 
 changeset:   4125:47c5e9dbd34a
 branch:      trunk
@@ -25264,7 +25264,7 @@ changeset:   234:4c28a6f8646f
 branch:      trunk
 user:        bothner
 date:        Tue Sep 18 16:30:38 2007 -0700
-summary:     [svn r292] Check javac.jar and javac-for-jfx.patch for latest javac SVN.
+summary:     [svn r292] Check javac.jar and javac-for-visage.patch for latest javac SVN.
 
 changeset:   233:66c065566718
 branch:      trunk
@@ -25384,7 +25384,7 @@ changeset:   214:7235286c8627
 branch:      trunk
 user:        lubomirlitchev
 date:        Thu Sep 13 21:10:58 2007 -0700
-summary:     [svn r271] Specified location for downloading javac sources to which the javac-for-jfx.patch - 2.
+summary:     [svn r271] Specified location for downloading javac sources to which the javac-for-visage.patch - 2.
 
 changeset:   213:29c6cf080d21
 branch:      trunk
@@ -25402,7 +25402,7 @@ changeset:   211:74ae567c7fdd
 branch:      trunk
 user:        lubomirlitchev
 date:        Thu Sep 13 17:24:33 2007 -0700
-summary:     [svn r268] Specified location for downloading javac sources to which the javac-for-jfx.patch.
+summary:     [svn r268] Specified location for downloading javac sources to which the javac-for-visage.patch.
 
 changeset:   210:1db4f6b653e6
 branch:      trunk
