@@ -1,5 +1,5 @@
 /**
- * JFXC-3971 : Compiler crashes when compiling fx source with bi-directional binds on sliders, checkboxes
+ * JFXC-3971 : Compiler crashes when compiling visage source with bi-directional binds on sliders, checkboxes
  *
  * @compilefirst jfxc3971sub.visage
  * @test

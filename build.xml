@@ -287,7 +287,7 @@
         <property name="cobertura.class.path" refid="cobertura.class.path"/>
     </target>
 
-    <target name="single-fx-test-check" if="test.visage.includes">
+    <target name="single-visage-test-check" if="test.visage.includes">
         <property name="test.class" value="framework.FXCompilerTest"/>
         <property name="test.includes" value="**/FXCompilerTest.java"/>
         <property name="javac.includes" value="**/FXCompilerTest.java"/>
@@ -295,7 +295,7 @@
     </target>
 
 
-    <target name="-pre-init" depends="check-ant,check-jdk-1.5,tool-paths,single-fx-test-check">
+    <target name="-pre-init" depends="check-ant,check-jdk-1.5,tool-paths,single-visage-test-check">
         <fail unless="has-jdk-1.5">You need JDK 1.5 or higher to build Visage.</fail>
         <echo message="JDK version ${java.version}"/>
         <echo message="Ant version ${ant.version}"/>
@@ -502,7 +502,7 @@
     </target>
     
     <target name="-post-compile">
-        <!-- compiles the fx files in the compiler workspace. These are the runtime
+        <!-- compiles the visage files in the compiler workspace. These are the runtime
              files shipped with the compiler (not related to the Visage Runtime
              project). -->
 
@@ -570,8 +570,8 @@
             </doclet>
          </javadoc>
          
-        <!-- generate fx class docs -->
-        <echo message="generating fx docs for ${visagedoc.packages}"/>
+        <!-- generate visage class docs -->
+        <echo message="generating visage docs for ${visagedoc.packages}"/>
         <java  fork="true" failonerror="true" classname="org.visage.tools.visagedoc.Main">
             <classpath location="${dist.visagedoc.jar}"/>
             <classpath>
@@ -1249,7 +1249,7 @@
         <mkdir dir="${build.test.classes.dir}"/>
     </target>
 <!--
-    The .java files in test/src/regress_java_src are used by the corresponding fx tests under test/regress/
+    The .java files in test/src/regress_java_src are used by the corresponding visage tests under test/regress/
     These .java files are always compiled. They have no package so javac puts the .class files in
     build/test/classes.  But when ant (I guess) is checking to see what needs to be compiled, it looks for the
     .class files in build/test/classes/regress_java_src.  It doesn't find them there so it always recompiles them.
@@ -1308,7 +1308,7 @@
      The default for this selector is "**/*Test.java" which means to run all
      the *Test.java files.  Do 'find test -name \*Test.java to see them.
 
-   - One of these .java files is FXCompilerTest.java.  It runs all the fx tests
+   - One of these .java files is FXCompilerTest.java.  It runs all the visage tests
      in the subdirs of test/ - features/, regress/. etc.  Which tests it runs are 
      controlled by:
      - test.visage.list:   A list of tests to run.  
@@ -1525,7 +1525,7 @@
         <move todir="." overwrite="false" >
           <fileset dir="." />
           <mapper type="glob"
-                  from="*.fx"
+                  from="*.visage"
                   to="*.visage" />
         </move>
     </target>

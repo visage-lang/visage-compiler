@@ -8,7 +8,7 @@ import java.lang.System;
 var enableBindingOverhaul;
 
 def fs = for (k in [1..5]) if (k < 3) [k, k] else [];
-System.out.println("fx: {for (f in fs) " {f}"}.");
+System.out.println("visage: {for (f in fs) " {f}"}.");
 
 def fsb = bind for (k in [1..5]) if (k < 3) [k, k] else []; 
 

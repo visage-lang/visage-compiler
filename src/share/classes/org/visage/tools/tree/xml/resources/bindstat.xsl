@@ -24,7 +24,7 @@
 <xsl:transform
      xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
      xmlns:c="http://xml.apache.org/xalan/java/org.visage.tools.tree.xml.Compiler"
-     xmlns:fx="http://visage.org">
+     xmlns:visage="http://visage.org">
 
     <xsl:import href="analyze.xsl"/>    
     <xsl:strip-space elements="*"/>
@@ -49,13 +49,13 @@
 
     <xsl:template match="/">
       <xsl:call-template name="init-globals"/>
-      <xsl:apply-templates select="fx:visage-script"/>
+      <xsl:apply-templates select="visage:visage-script"/>
     </xsl:template>
 
-    <xsl:template match="fx:visage-script">
+    <xsl:template match="visage:visage-script">
 <!-- output the source file name and write down global variable values as properties -->
-        <xsl:apply-templates select="fx:file"/>
-        <xsl:apply-templates select="fx:defs"/>
+        <xsl:apply-templates select="visage:file"/>
+        <xsl:apply-templates select="visage:defs"/>
 count.of.eager.binds=<xsl:value-of select="c:getGlobal('eager-binds')"/>
 count.of.lazy.binds=<xsl:value-of select="c:getGlobal('lazy-binds')"/>
 count.of.on.replaces=<xsl:value-of select="c:getGlobal('on-replaces')"/>
@@ -68,7 +68,7 @@ count.of.object.literal.lazy.binds=<xsl:value-of select="c:getGlobal('object-lit
 count.of.object.literals.with.binds=<xsl:value-of select="c:getGlobal('object-literals-with-binds')"/>
     </xsl:template>
 
-    <xsl:template match="fx:file">
+    <xsl:template match="visage:file">
         <xsl:text># compiled from </xsl:text> <xsl:value-of select="."/>
     </xsl:template>
     
@@ -78,7 +78,7 @@ count.of.object.literals.with.binds=<xsl:value-of select="c:getGlobal('object-li
         <xsl:param name="varOnReplaces"/>
         <xsl:param name="varOnInvalidates"/>
 
-        <xsl:for-each select="fx:bind-status">
+        <xsl:for-each select="visage:bind-status">
              <xsl:choose>
                  <xsl:when test=". = 'bind' or . = 'bind-with-inverse'">
                      <xsl:if test="not(c:putGlobal($varEagerBinds, c:getGlobal($varEagerBinds) + 1))"/>
@@ -89,20 +89,20 @@ count.of.object.literals.with.binds=<xsl:value-of select="c:getGlobal('object-li
              </xsl:choose>
         </xsl:for-each>
 
-        <xsl:apply-templates select="fx:init-value/*"/>
+        <xsl:apply-templates select="visage:init-value/*"/>
 
-        <xsl:if test="fx:on-replace">
+        <xsl:if test="visage:on-replace">
             <xsl:if test="not(c:putGlobal($varOnReplaces, c:getGlobal($varOnReplaces) + 1))"/>
-            <xsl:apply-templates select="fx:on-replace"/>
+            <xsl:apply-templates select="visage:on-replace"/>
         </xsl:if>
 
-        <xsl:if test="fx:on-invalidate">
+        <xsl:if test="visage:on-invalidate">
             <xsl:if test="not(c:putGlobal($varOnInvalidates, c:getGlobal($varOnInvalidates) + 1))"/>
-            <xsl:apply-templates select="fx:on-invalidate"/>
+            <xsl:apply-templates select="visage:on-invalidate"/>
         </xsl:if>
     </xsl:template>
 
-    <xsl:template match="fx:class/fx:members/fx:var|fx:class/fx:members/fx:def">
+    <xsl:template match="visage:class/visage:members/visage:var|visage:class/visage:members/visage:def">
         <xsl:call-template name="handle-var">
             <xsl:with-param name="varEagerBinds" select="'eager-binds'"/>
             <xsl:with-param name="varLazyBinds" select="'lazy-binds'"/>
@@ -111,7 +111,7 @@ count.of.object.literals.with.binds=<xsl:value-of select="c:getGlobal('object-li
         </xsl:call-template>
     </xsl:template>
 
-    <xsl:template match="fx:visage-script/fx:defs/fx:var|fx:visage-script/fx:defs/fx:def">
+    <xsl:template match="visage:visage-script/visage:defs/visage:var|visage:visage-script/visage:defs/visage:def">
         <xsl:call-template name="handle-var">
             <xsl:with-param name="varEagerBinds" select="'eager-binds'"/>
             <xsl:with-param name="varLazyBinds" select="'lazy-binds'"/>
@@ -121,7 +121,7 @@ count.of.object.literals.with.binds=<xsl:value-of select="c:getGlobal('object-li
     </xsl:template>
 
     <!-- a local var or def -->
-    <xsl:template match="fx:var|fx:def">
+    <xsl:template match="visage:var|visage:def">
         <xsl:call-template name="handle-var">
             <xsl:with-param name="varEagerBinds" select="'local-eager-binds'"/>
             <xsl:with-param name="varLazyBinds" select="'local-lazy-binds'"/>
@@ -130,8 +130,8 @@ count.of.object.literals.with.binds=<xsl:value-of select="c:getGlobal('object-li
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:object-literal-init">
-        <xsl:for-each select="fx:bind-status">
+    <xsl:template match="visage:object-literal-init">
+        <xsl:for-each select="visage:bind-status">
              <xsl:choose>
                  <xsl:when test=". = 'bind' or . = 'bind-with-inverse'">
                      <xsl:if test="not(c:putGlobal('object-literal-eager-binds', c:getGlobal('object-literal-eager-binds') + 1))"/>
@@ -141,12 +141,12 @@ count.of.object.literals.with.binds=<xsl:value-of select="c:getGlobal('object-li
                  </xsl:when>
              </xsl:choose>
         </xsl:for-each>
-        <xsl:apply-templates select="fx:expr/*"/>
+        <xsl:apply-templates select="visage:expr/*"/>
     </xsl:template>
   
-    <xsl:template match="fx:object-literal"> 
+    <xsl:template match="visage:object-literal"> 
         <!-- check if we have atleast one initialization with bind expr -->
-        <xsl:if test="fx:defs/fx:object-literal-init/fx:bind-status != 'unbound'">
+        <xsl:if test="visage:defs/visage:object-literal-init/visage:bind-status != 'unbound'">
             <xsl:if test="not(c:putGlobal('object-literals-with-binds', c:getGlobal('object-literals-with-binds') + 1))"/>
         </xsl:if>
         <xsl:apply-imports/>

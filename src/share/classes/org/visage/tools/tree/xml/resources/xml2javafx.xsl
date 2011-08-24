@@ -28,7 +28,7 @@
 <xsl:transform version="1.0"
                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                xmlns:c="http://xml.apache.org/xalan/java/org.visage.tools.tree.xml.Compiler"
-               xmlns:fx="http://visage.org">
+               xmlns:visage="http://visage.org">
     
     <xsl:strip-space elements="*"/>
     <xsl:output method="text"/>
@@ -101,23 +101,23 @@
     <xsl:template match="@*|node()"/>
 
     <xsl:template match="/">
-      <xsl:apply-templates select="fx:visage-script"/>
+      <xsl:apply-templates select="visage:visage-script"/>
     </xsl:template>
 
-    <xsl:template match="fx:visage-script">
+    <xsl:template match="visage:visage-script">
         <xsl:call-template name="init-tabs"/>
-        <xsl:apply-templates select="fx:file"/>
-        <xsl:apply-templates select="fx:package"/>
-        <xsl:apply-templates select="fx:defs"/>
+        <xsl:apply-templates select="visage:file"/>
+        <xsl:apply-templates select="visage:package"/>
+        <xsl:apply-templates select="visage:defs"/>
     </xsl:template>
 
-    <xsl:template match="fx:file">
+    <xsl:template match="visage:file">
         <xsl:text>// compiled from </xsl:text>
         <xsl:value-of select="."/>
         <xsl:call-template name="println"/>
     </xsl:template>
     
-    <xsl:template match="fx:package">
+    <xsl:template match="visage:package">
         <xsl:text>package </xsl:text> 
         <xsl:apply-templates/>
         <xsl:text>;</xsl:text>
@@ -125,20 +125,20 @@
         <xsl:call-template name="println"/>
     </xsl:template>
    
-    <xsl:template match="fx:defs">
+    <xsl:template match="visage:defs">
         <xsl:for-each select="*">
             <xsl:apply-templates select="."/>
             <xsl:call-template name="println"/>
         </xsl:for-each>
     </xsl:template>
     
-    <xsl:template match="fx:import">
+    <xsl:template match="visage:import">
         <xsl:text>import </xsl:text>
         <xsl:apply-templates/>
         <xsl:text>;</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:bind-status">
+    <xsl:template match="visage:bind-status">
         <xsl:choose>
             <xsl:when test=". = 'bind'">
                 <xsl:text> bind </xsl:text>
@@ -158,7 +158,7 @@
         </xsl:choose>
     </xsl:template>
     
-    <xsl:template match="fx:bind-status" mode="suffix">
+    <xsl:template match="visage:bind-status" mode="suffix">
         <xsl:choose>
             <xsl:when test=". = 'bind-with-inverse'">
                 <xsl:text> with inverse</xsl:text>
@@ -171,118 +171,118 @@
     
     <xsl:template name="print-param">
         <!-- name of the param -->
-        <xsl:if test="fx:name">
-            <xsl:value-of select="fx:name"/>
+        <xsl:if test="visage:name">
+            <xsl:value-of select="visage:name"/>
         </xsl:if>
         
         <!-- print type -->
-        <xsl:if test="fx:type">
-            <xsl:apply-templates select="fx:type/*"/>
+        <xsl:if test="visage:type">
+            <xsl:apply-templates select="visage:type/*"/>
         </xsl:if>
     </xsl:template>
     
     <xsl:template name="print-var" >
-        <xsl:apply-templates select="fx:modifiers"/>
+        <xsl:apply-templates select="visage:modifiers"/>
         <xsl:choose>
-            <xsl:when test="name(.) = 'fx:var'">
+            <xsl:when test="name(.) = 'visage:var'">
                 <xsl:text>var </xsl:text>
             </xsl:when>
-            <xsl:when test="name(.) = 'fx:def'">
+            <xsl:when test="name(.) = 'visage:def'">
                 <xsl:text>def </xsl:text>
             </xsl:when>
         </xsl:choose>
             
         
         <!-- name of the variable/attribute -->
-        <xsl:if test="fx:name">
-            <xsl:value-of select="fx:name"/>
+        <xsl:if test="visage:name">
+            <xsl:value-of select="visage:name"/>
         </xsl:if>
         
         <!-- print type -->
-        <xsl:if test="fx:type">
-            <xsl:apply-templates select="fx:type/*"/>
+        <xsl:if test="visage:type">
+            <xsl:apply-templates select="visage:type/*"/>
         </xsl:if>
         
         <!-- optional initializer -->
-        <xsl:if test="fx:init-value">
+        <xsl:if test="visage:init-value">
             <xsl:text> = </xsl:text>
-            <xsl:apply-templates select="fx:bind-status"/>
-            <xsl:apply-templates select="fx:init-value/*"/>
-            <xsl:apply-templates select="fx:bind-status" mode="suffix"/>
+            <xsl:apply-templates select="visage:bind-status"/>
+            <xsl:apply-templates select="visage:init-value/*"/>
+            <xsl:apply-templates select="visage:bind-status" mode="suffix"/>
         </xsl:if>
         
-        <xsl:apply-templates select="fx:on-replace"/>
-        <xsl:apply-templates select="fx:on-invalidate"/>
+        <xsl:apply-templates select="visage:on-replace"/>
+        <xsl:apply-templates select="visage:on-invalidate"/>
     </xsl:template>
     
-    <xsl:template match="fx:var">
+    <xsl:template match="visage:var">
         <xsl:call-template name="print-var"/>
         <xsl:text>;</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:def">
+    <xsl:template match="visage:def">
         <xsl:call-template name="print-var"/>
         <xsl:text>;</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:empty">
+    <xsl:template match="visage:empty">
         <xsl:text>;</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:while">
+    <xsl:template match="visage:while">
         <xsl:text>while (</xsl:text>
-        <xsl:apply-templates select="fx:test/*"/>
+        <xsl:apply-templates select="visage:test/*"/>
         <xsl:text>) </xsl:text>
-        <xsl:apply-templates select="fx:stmt/*"/>
+        <xsl:apply-templates select="visage:stmt/*"/>
     </xsl:template>
    
-    <xsl:template match="fx:try">
+    <xsl:template match="visage:try">
         <xsl:text>try </xsl:text>
-        <xsl:apply-templates select="fx:block"/>
-        <xsl:apply-templates select="fx:catches/fx:catch"/>
-        <xsl:if test="fx:finally">
+        <xsl:apply-templates select="visage:block"/>
+        <xsl:apply-templates select="visage:catches/visage:catch"/>
+        <xsl:if test="visage:finally">
             <xsl:text> finally </xsl:text>
-            <xsl:apply-templates select="fx:finally/fx:block"/>
+            <xsl:apply-templates select="visage:finally/visage:block"/>
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="fx:catch">
+    <xsl:template match="visage:catch">
         <xsl:text> catch (</xsl:text>
-        <xsl:for-each select="fx:var">
+        <xsl:for-each select="visage:var">
             <xsl:call-template name="print-param"/>
         </xsl:for-each>
         <xsl:text>) </xsl:text>
-        <xsl:apply-templates select="fx:block"/>
+        <xsl:apply-templates select="visage:block"/>
     </xsl:template>
     
-    <xsl:template match="fx:if">
+    <xsl:template match="visage:if">
         <xsl:text>if (</xsl:text>
-        <xsl:apply-templates select="fx:test/*"/>
+        <xsl:apply-templates select="visage:test/*"/>
         <xsl:text>) </xsl:text>
-        <xsl:apply-templates select="fx:then/*"/>
-        <xsl:if test="fx:else">
+        <xsl:apply-templates select="visage:then/*"/>
+        <xsl:if test="visage:else">
             <xsl:text> else </xsl:text>
-            <xsl:apply-templates select="fx:else/*"/>
+            <xsl:apply-templates select="visage:else/*"/>
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="fx:break">
+    <xsl:template match="visage:break">
         <xsl:text>break</xsl:text>
-        <xsl:if test="fx:label">
+        <xsl:if test="visage:label">
             <xsl:text> </xsl:text>
-            <xsl:value-of select="fx:label"/>
+            <xsl:value-of select="visage:label"/>
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="fx:continue">
+    <xsl:template match="visage:continue">
         <xsl:text>continue</xsl:text>
-        <xsl:if test="fx:label">
+        <xsl:if test="visage:label">
             <xsl:text> </xsl:text>
-            <xsl:value-of select="fx:label"/>
+            <xsl:value-of select="visage:label"/>
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="fx:return">
+    <xsl:template match="visage:return">
         <xsl:text>return</xsl:text>
         <xsl:if test="*">
             <xsl:text> </xsl:text>
@@ -290,22 +290,22 @@
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="fx:throw">
+    <xsl:template match="visage:throw">
         <xsl:text>throw</xsl:text>
         <xsl:text> </xsl:text>
         <xsl:apply-templates select="*"/>
     </xsl:template>
     
-    <xsl:template match="fx:invoke">
-        <xsl:apply-templates select="fx:method/*"/>
+    <xsl:template match="visage:invoke">
+        <xsl:apply-templates select="visage:method/*"/>
         <xsl:text>(</xsl:text>
         <xsl:call-template name="print-comma-list">
-            <xsl:with-param name="parent" select="fx:args"/>
+            <xsl:with-param name="parent" select="visage:args"/>
         </xsl:call-template>
         <xsl:text>)</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:paren">
+    <xsl:template match="visage:paren">
         <xsl:text>(</xsl:text>
         <xsl:apply-templates select="*[1]"/>
         <xsl:text>)</xsl:text>
@@ -313,86 +313,86 @@
     
     <xsl:template name="print-binary-expr">
         <xsl:param name="operator"/>
-        <xsl:apply-templates select="fx:left/*"/>
+        <xsl:apply-templates select="visage:left/*"/>
         <xsl:value-of select="$operator"/>
-        <xsl:apply-templates select="fx:right/*"/>
+        <xsl:apply-templates select="visage:right/*"/>
     </xsl:template>
     
-    <xsl:template match="fx:assignment">
+    <xsl:template match="visage:assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> = </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
     <!-- compound assignments -->
-    <xsl:template match="fx:multiply-assignment">
+    <xsl:template match="visage:multiply-assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> *= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:divide-assignment">
+    <xsl:template match="visage:divide-assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> /= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:remainder-assignment">
+    <xsl:template match="visage:remainder-assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> %= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:plus-assignment">
+    <xsl:template match="visage:plus-assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> += </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:minus-assignment">
+    <xsl:template match="visage:minus-assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> -= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:left-shift-assignment">
+    <xsl:template match="visage:left-shift-assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &lt;&lt;= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:right-shift-assignment">
+    <xsl:template match="visage:right-shift-assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &gt;&gt;= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:unsigned-right-shift-assignment">
+    <xsl:template match="visage:unsigned-right-shift-assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &gt;&gt;&gt;= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:and-assignment">
+    <xsl:template match="visage:and-assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &amp;= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:xor-assignment">
+    <xsl:template match="visage:xor-assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> ^= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:or-assignment">
+    <xsl:template match="visage:or-assignment">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> |= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
     <!-- unary operators -->
-    <xsl:template match="fx:sizeof">
+    <xsl:template match="visage:sizeof">
         <xsl:text>sizeof </xsl:text>
         <xsl:apply-templates/>
         <xsl:text></xsl:text>
@@ -404,208 +404,208 @@
         <xsl:apply-templates select="*[1]"/>
     </xsl:template>
     
-    <xsl:template match="fx:postfix-increment">
+    <xsl:template match="visage:postfix-increment">
         <xsl:apply-templates select="*[1]"/>
         <xsl:text>++</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:prefix-increment">
+    <xsl:template match="visage:prefix-increment">
         <xsl:call-template name="print-unary-expr">
             <xsl:with-param name="operator">++</xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:postfix-decrement">
+    <xsl:template match="visage:postfix-decrement">
         <xsl:apply-templates select="*[1]"/>
         <xsl:text>--</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:prefix-decrement">
+    <xsl:template match="visage:prefix-decrement">
         <xsl:call-template name="print-unary-expr">
             <xsl:with-param name="operator">--</xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:unary-plus">
+    <xsl:template match="visage:unary-plus">
         <xsl:call-template name="print-unary-expr">
             <xsl:with-param name="operator">+</xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:unary-minus">
+    <xsl:template match="visage:unary-minus">
         <xsl:call-template name="print-unary-expr">
             <xsl:with-param name="operator">-</xsl:with-param>
         </xsl:call-template>
     </xsl:template>
 
-    <xsl:template match="fx:logical-complement">
+    <xsl:template match="visage:logical-complement">
         <xsl:call-template name="print-unary-expr">
             <xsl:with-param name="operator">not </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
 
     <!-- binary operators -->
-    <xsl:template match="fx:multiply">
+    <xsl:template match="visage:multiply">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> * </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:divide">
+    <xsl:template match="visage:divide">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> / </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:remainder">
+    <xsl:template match="visage:remainder">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> mod </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:plus">
+    <xsl:template match="visage:plus">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> + </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:minus">
+    <xsl:template match="visage:minus">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> - </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:left-shift">
+    <xsl:template match="visage:left-shift">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &lt;&lt; </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:right-shift">
+    <xsl:template match="visage:right-shift">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &gt;&gt; </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:unsigned-right-shift">
+    <xsl:template match="visage:unsigned-right-shift">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &gt;&gt;&gt; </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:less-than">
+    <xsl:template match="visage:less-than">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &lt; </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:greater-than">
+    <xsl:template match="visage:greater-than">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &gt; </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:less-than-equal">
+    <xsl:template match="visage:less-than-equal">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &lt;= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:greater-than-equal">
+    <xsl:template match="visage:greater-than-equal">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &gt;= </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:equal-to">
+    <xsl:template match="visage:equal-to">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> == </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:not-equal-to">
+    <xsl:template match="visage:not-equal-to">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> != </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:and">
+    <xsl:template match="visage:and">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> &amp; </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:xor">
+    <xsl:template match="visage:xor">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> ^ </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:or">
+    <xsl:template match="visage:or">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> | </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:conditional-and">
+    <xsl:template match="visage:conditional-and">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> and </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="fx:conditional-or">
+    <xsl:template match="visage:conditional-or">
         <xsl:call-template name="print-binary-expr">
             <xsl:with-param name="operator"> or </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
 
-    <xsl:template match="fx:cast">
+    <xsl:template match="visage:cast">
         <xsl:text>(</xsl:text>
-        <xsl:apply-templates select="fx:expr/*"/>
+        <xsl:apply-templates select="visage:expr/*"/>
         <xsl:text> as </xsl:text>
-        <xsl:apply-templates select="fx:type/*" mode="no-colon"/>
+        <xsl:apply-templates select="visage:type/*" mode="no-colon"/>
         <xsl:text>)</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:instanceof">
-        <xsl:apply-templates select="fx:expr/*"/>
+    <xsl:template match="visage:instanceof">
+        <xsl:apply-templates select="visage:expr/*"/>
         <xsl:text> instanceof </xsl:text>
-        <xsl:apply-templates select="fx:type/*"/>
+        <xsl:apply-templates select="visage:type/*"/>
     </xsl:template>
     
-    <xsl:template match="fx:select">
-        <xsl:apply-templates select="fx:expr/*"/>
+    <xsl:template match="visage:select">
+        <xsl:apply-templates select="visage:expr/*"/>
         <xsl:text>.</xsl:text>
-        <xsl:value-of select="fx:member"/>
+        <xsl:value-of select="visage:member"/>
     </xsl:template>
     
-    <xsl:template match="fx:ident">
+    <xsl:template match="visage:ident">
         <xsl:value-of select="."/>
     </xsl:template>
     
     <!-- literals -->
     
-    <xsl:template match="fx:int-literal">
+    <xsl:template match="visage:int-literal">
         <xsl:value-of select="."/>
     </xsl:template>
 
-    <xsl:template match="fx:long-literal">
+    <xsl:template match="visage:long-literal">
         <xsl:value-of select="."/>
     </xsl:template>
     
-    <xsl:template match="fx:float-literal">
+    <xsl:template match="visage:float-literal">
         <xsl:value-of select="."/>
     </xsl:template>
     
-    <xsl:template match="fx:double-literal">
+    <xsl:template match="visage:double-literal">
         <xsl:value-of select="."/>
     </xsl:template>
     
-    <xsl:template match="fx:true">
+    <xsl:template match="visage:true">
         <xsl:text>true</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:false">
+    <xsl:template match="visage:false">
         <xsl:text>false</xsl:text>
     </xsl:template>
     
@@ -628,7 +628,7 @@
         </xsl:choose>
     </xsl:template>
     
-    <xsl:template match="fx:string-literal">
+    <xsl:template match="visage:string-literal">
         <xsl:text>"</xsl:text>
         <xsl:value-of select="."/>
         <!--
@@ -639,13 +639,13 @@
         <xsl:text>"</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:null">
+    <xsl:template match="visage:null">
         <xsl:text>null</xsl:text>
     </xsl:template>
     
     <!-- modifiers -->
-    <xsl:template match="fx:modifiers">
-        <xsl:for-each select="fx:li">
+    <xsl:template match="visage:modifiers">
+        <xsl:for-each select="visage:li">
             <xsl:variable name="flag">
                 <xsl:value-of select="."/>
             </xsl:variable>
@@ -674,38 +674,38 @@
         </xsl:for-each>
     </xsl:template>
     
-    <xsl:template match="fx:value">
+    <xsl:template match="visage:value">
         <xsl:call-template name="align"/>
         <xsl:apply-templates/>
         <xsl:call-template name="println"/>
     </xsl:template>
     
     <!-- treat file-level blocks as special, don't include braces around -->
-    <xsl:template match="fx:visage-script/fx:defs/fx:block">
+    <xsl:template match="visage:visage-script/visage:defs/visage:block">
         <xsl:call-template name="print-stmts">
-        <xsl:with-param name="parent" select="fx:stmts"/>
+        <xsl:with-param name="parent" select="visage:stmts"/>
         </xsl:call-template>
-        <xsl:apply-templates select="fx:value"/>
+        <xsl:apply-templates select="visage:value"/>
     </xsl:template>
 
-    <xsl:template match="fx:block">
+    <xsl:template match="visage:block">
         <xsl:text>{</xsl:text>
         <xsl:call-template name="println"/>
         <xsl:call-template name="indent"/>
         <xsl:call-template name="print-stmts">
-            <xsl:with-param name="parent" select="fx:stmts"/>
+            <xsl:with-param name="parent" select="visage:stmts"/>
         </xsl:call-template>
-        <xsl:apply-templates select="fx:value"/>
+        <xsl:apply-templates select="visage:value"/>
         <xsl:call-template name="undent"/>
         <xsl:call-template name="align"/>
         <xsl:text>}</xsl:text>
     </xsl:template>
     
     <xsl:template name="print-super-types">
-        <xsl:if test="fx:extends">
+        <xsl:if test="visage:extends">
             <xsl:text> extends </xsl:text>
             <xsl:call-template name="print-comma-list">
-                <xsl:with-param name="parent" select="fx:extends"/>
+                <xsl:with-param name="parent" select="visage:extends"/>
             </xsl:call-template>
             <xsl:text> </xsl:text>
         </xsl:if>
@@ -722,7 +722,7 @@
         <xsl:call-template name="println"/>
         <xsl:call-template name="indent"/>
         <xsl:call-template name="print-stmts">
-            <xsl:with-param name="parent" select="fx:members"/>
+            <xsl:with-param name="parent" select="visage:members"/>
             <xsl:with-param name="semicolon" select="false"/>
         </xsl:call-template>
         <xsl:call-template name="undent"/>
@@ -732,12 +732,12 @@
         <xsl:text>}</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:class">
+    <xsl:template match="visage:class">
         <xsl:call-template name="println"/>
         <xsl:call-template name="align"/>
-        <xsl:apply-templates select="fx:modifiers"/>
+        <xsl:apply-templates select="visage:modifiers"/>
         <xsl:text>class </xsl:text>
-        <xsl:value-of select="fx:name"/>
+        <xsl:value-of select="visage:name"/>
         
         <xsl:call-template name="print-super-types"/>
         
@@ -746,62 +746,62 @@
         <xsl:call-template name="print-class-body"/>
     </xsl:template>
     
-    <xsl:template match="fx:for">
+    <xsl:template match="visage:for">
         <xsl:text>for (</xsl:text>
-        <xsl:for-each select="fx:in/*">
+        <xsl:for-each select="visage:in/*">
             <xsl:if test="not(position() = 1)">
                 <xsl:text>, </xsl:text>
             </xsl:if>
-            <xsl:value-of select="fx:var/fx:name"/>
-            <xsl:apply-templates select="fx:var/fx:type/*"/>
+            <xsl:value-of select="visage:var/visage:name"/>
+            <xsl:apply-templates select="visage:var/visage:type/*"/>
             <xsl:text> in </xsl:text>
-            <xsl:apply-templates select="fx:seq/*"/>
-            <xsl:if test="fx:where">
+            <xsl:apply-templates select="visage:seq/*"/>
+            <xsl:if test="visage:where">
                 <xsl:text> where </xsl:text>
-                <xsl:apply-templates select="fx:where/*"/>
+                <xsl:apply-templates select="visage:where/*"/>
             </xsl:if>
         </xsl:for-each>
         <xsl:text>) </xsl:text>
-        <xsl:apply-templates select="fx:body/*"/>
+        <xsl:apply-templates select="visage:body/*"/>
     </xsl:template>
     
-    <xsl:template match="fx:indexof">
+    <xsl:template match="visage:indexof">
         <xsl:text>indexof </xsl:text>
         <xsl:apply-templates/>
     </xsl:template>
     
-    <xsl:template match="fx:init">
+    <xsl:template match="visage:init">
         <xsl:call-template name="println"/>
         <xsl:call-template name="align"/>
         <xsl:text>init </xsl:text>
         <xsl:apply-templates/>
     </xsl:template>
 
-    <xsl:template match="fx:postinit">
+    <xsl:template match="visage:postinit">
         <xsl:call-template name="println"/>
         <xsl:call-template name="align"/>
         <xsl:text>postinit </xsl:text>
         <xsl:apply-templates/>
     </xsl:template>
 
-    <xsl:template match="fx:new">
+    <xsl:template match="visage:new">
         <xsl:text>new </xsl:text>
-        <xsl:apply-templates select="fx:class/*"/>
+        <xsl:apply-templates select="visage:class/*"/>
         <xsl:text>(</xsl:text>
             <xsl:call-template name="print-comma-list">
-                <xsl:with-param name="parent" select="fx:args"/>
+                <xsl:with-param name="parent" select="visage:args"/>
             </xsl:call-template>
         <xsl:text>)</xsl:text>
     </xsl:template>
             
     <xsl:template name="object-literal-begin"/>
     <xsl:template name="object-literal-end"/>
-    <xsl:template match="fx:object-literal">
-        <xsl:apply-templates select="fx:class/*"/>
+    <xsl:template match="visage:object-literal">
+        <xsl:apply-templates select="visage:class/*"/>
         <xsl:text> {</xsl:text>
         <xsl:call-template name="object-literal-begin"/>
         <xsl:call-template name="indent"/>
-        <xsl:for-each select="fx:defs/*">
+        <xsl:for-each select="visage:defs/*">
             <xsl:call-template name="println"/>
             <xsl:call-template name="align"/>
             <xsl:apply-templates select="."/>
@@ -815,49 +815,49 @@
         <xsl:call-template name="align"/>
     </xsl:template>
     
-    <xsl:template match="fx:object-literal-init">
-        <xsl:value-of select="fx:name"/>
+    <xsl:template match="visage:object-literal-init">
+        <xsl:value-of select="visage:name"/>
         <xsl:text> : </xsl:text>
-        <xsl:apply-templates select="fx:bind-status"/>
-        <xsl:apply-templates select="fx:expr/*"/>
-        <xsl:apply-templates select="fx:bind-status" mode="suffix"/>
+        <xsl:apply-templates select="visage:bind-status"/>
+        <xsl:apply-templates select="visage:expr/*"/>
+        <xsl:apply-templates select="visage:bind-status" mode="suffix"/>
     </xsl:template>
    
-   <xsl:template match="fx:override-var">
+   <xsl:template match="visage:override-var">
         <xsl:text>override var </xsl:text>
-        <xsl:value-of select="./fx:name"/>
-        <xsl:apply-templates select="fx:expr/*"/>
+        <xsl:value-of select="./visage:name"/>
+        <xsl:apply-templates select="visage:expr/*"/>
         <xsl:text> </xsl:text>
-        <xsl:apply-templates select="fx:on-replace"/>
-        <xsl:apply-templates select="fx:on-invalidate"/>
+        <xsl:apply-templates select="visage:on-replace"/>
+        <xsl:apply-templates select="visage:on-invalidate"/>
     </xsl:template>
 
     <xsl:template name="handle-on-replace-clause">
-        <xsl:if test="fx:old-value">
+        <xsl:if test="visage:old-value">
             <xsl:text>  </xsl:text>
-            <xsl:value-of select="fx:old-value/fx:var/fx:name"/>
+            <xsl:value-of select="visage:old-value/visage:var/visage:name"/>
         </xsl:if>
-        <xsl:if test="fx:first-index">
+        <xsl:if test="visage:first-index">
             <xsl:text> [ </xsl:text>
-            <xsl:value-of select="fx:first-index/fx:var/fx:name"/>
-            <xsl:if test="fx:last-index">
+            <xsl:value-of select="visage:first-index/visage:var/visage:name"/>
+            <xsl:if test="visage:last-index">
                 <xsl:text> .. </xsl:text>
-                <xsl:value-of select="fx:last-index/fx:var/fx:name"/>
+                <xsl:value-of select="visage:last-index/visage:var/visage:name"/>
             </xsl:if>
             <xsl:text> ] </xsl:text>
         </xsl:if>
-        <xsl:if test="fx:new-elements">
-            <xsl:value-of select="fx:new-elements/fx:var/fx:name"/>
+        <xsl:if test="visage:new-elements">
+            <xsl:value-of select="visage:new-elements/visage:var/visage:name"/>
         </xsl:if>
-        <xsl:apply-templates select="fx:block"/>
+        <xsl:apply-templates select="visage:block"/>
     </xsl:template>
 
-    <xsl:template match="fx:on-replace">
+    <xsl:template match="visage:on-replace">
         <xsl:text> on replace </xsl:text>
         <xsl:call-template name="handle-on-replace-clause"/>
     </xsl:template>
 
-    <xsl:template match="fx:on-invalidate">
+    <xsl:template match="visage:on-invalidate">
         <xsl:text> on invalidate </xsl:text>
         <xsl:call-template name="handle-on-replace-clause"/>
     </xsl:template>
@@ -868,7 +868,7 @@
     <xsl:template name="print-function-body">
         <!-- print the comma separated parameters -->
         <xsl:text>(</xsl:text>
-        <xsl:for-each select="fx:params/*">
+        <xsl:for-each select="visage:params/*">
             <xsl:call-template name="print-param"/>
             <xsl:if test="not(position()=last())">
                 <xsl:text>, </xsl:text>
@@ -877,22 +877,22 @@
         <xsl:text>)</xsl:text>
         
         <!-- return type, if any -->
-        <xsl:if test="fx:return-type">
-            <xsl:apply-templates select="fx:return-type/*"/> 
+        <xsl:if test="visage:return-type">
+            <xsl:apply-templates select="visage:return-type/*"/> 
         </xsl:if>
         
         <xsl:choose>
             <!-- print the code block, if any -->
-            <xsl:when test="fx:block">
+            <xsl:when test="visage:block">
                 <xsl:text> </xsl:text>
                 <xsl:text>{</xsl:text>
                 <xsl:call-template name="function-body-begin"/>
                 <xsl:call-template name="println"/>
                 <xsl:call-template name="indent"/>
                 <xsl:call-template name="print-stmts">
-                    <xsl:with-param name="parent" select="fx:block/fx:stmts"/>
+                    <xsl:with-param name="parent" select="visage:block/visage:stmts"/>
                 </xsl:call-template>
-                <xsl:apply-templates select="fx:block/fx:value"/>
+                <xsl:apply-templates select="visage:block/visage:value"/>
                 <xsl:call-template name="undent"/>
                 <xsl:call-template name="align"/>
                 <xsl:call-template name="function-body-end"/>
@@ -905,12 +905,12 @@
         </xsl:choose>
     </xsl:template>
     
-    <xsl:template match="fx:function">
-        <xsl:variable name="name" select="fx:name"/>
+    <xsl:template match="visage:function">
+        <xsl:variable name="name" select="visage:name"/>
         <xsl:call-template name="println"/>
         <xsl:call-template name="align"/>
             
-        <xsl:apply-templates select="fx:modifiers"/>
+        <xsl:apply-templates select="visage:modifiers"/>
         
         <xsl:text>function </xsl:text>
         <!-- method name -->
@@ -919,7 +919,7 @@
         <xsl:call-template name="print-function-body"/>
     </xsl:template>
     
-    <xsl:template match="fx:anon-function">
+    <xsl:template match="visage:anon-function">
         <xsl:call-template name="println"/>
         <xsl:call-template name="align"/>
         
@@ -927,78 +927,78 @@
         <xsl:call-template name="print-function-body"/>
     </xsl:template>
     
-    <xsl:template match="fx:seq-delete">
+    <xsl:template match="visage:seq-delete">
         <xsl:text>delete </xsl:text>
-        <xsl:if test="fx:elem">
-            <xsl:apply-templates select="fx:elem/*"/>
+        <xsl:if test="visage:elem">
+            <xsl:apply-templates select="visage:elem/*"/>
             <xsl:text> from </xsl:text>
         </xsl:if>
-        <xsl:apply-templates select="fx:seq/*"/>
+        <xsl:apply-templates select="visage:seq/*"/>
     </xsl:template>
     
-    <xsl:template match="fx:seq-empty">
+    <xsl:template match="visage:seq-empty">
         <xsl:text>[]</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:seq-explicit">
+    <xsl:template match="visage:seq-explicit">
         <xsl:text>[</xsl:text>
         <xsl:call-template name="print-comma-list">
-            <xsl:with-param name="parent" select="fx:items"/>
+            <xsl:with-param name="parent" select="visage:items"/>
         </xsl:call-template>
         <xsl:text>]</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:seq-indexed">
-        <xsl:apply-templates select="fx:seq/*"/>
+    <xsl:template match="visage:seq-indexed">
+        <xsl:apply-templates select="visage:seq/*"/>
         <xsl:text>[</xsl:text>
-        <xsl:apply-templates select="fx:index/*"/>
+        <xsl:apply-templates select="visage:index/*"/>
         <xsl:text>]</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:seq-slice">
-        <xsl:apply-templates select="fx:seq/*"/>
+    <xsl:template match="visage:seq-slice">
+        <xsl:apply-templates select="visage:seq/*"/>
         <xsl:text>[</xsl:text>
-        <xsl:apply-templates select="fx:first/*"/>
+        <xsl:apply-templates select="visage:first/*"/>
         <xsl:text>..</xsl:text>
-        <xsl:if test="fx:slice-end-kind = 'exclusive'">
+        <xsl:if test="visage:slice-end-kind = 'exclusive'">
             <xsl:text>&lt;</xsl:text>
         </xsl:if>
-        <xsl:apply-templates select="fx:last/*"/>
+        <xsl:apply-templates select="visage:last/*"/>
         <xsl:text>]</xsl:text>
     </xsl:template>
     
-    <xsl:template match="fx:seq-insert">
+    <xsl:template match="visage:seq-insert">
         <xsl:text>insert </xsl:text>
-        <xsl:apply-templates select="fx:elem/*"/>
+        <xsl:apply-templates select="visage:elem/*"/>
         <xsl:text> into </xsl:text>
-        <xsl:apply-templates select="fx:seq/*"/>
+        <xsl:apply-templates select="visage:seq/*"/>
     </xsl:template>
     
-    <xsl:template match="fx:seq-range">
+    <xsl:template match="visage:seq-range">
         <xsl:text>[</xsl:text>
-        <xsl:apply-templates select="fx:lower/*"/>
+        <xsl:apply-templates select="visage:lower/*"/>
         <xsl:text>..</xsl:text>
-        <xsl:if test="fx:exclusive = 'true'">
+        <xsl:if test="visage:exclusive = 'true'">
             <xsl:text> &lt;</xsl:text>
         </xsl:if>
-        <xsl:apply-templates select="fx:upper/*"/>
-        <xsl:if test="fx:step">
+        <xsl:apply-templates select="visage:upper/*"/>
+        <xsl:if test="visage:step">
             <xsl:text> step </xsl:text>
-            <xsl:apply-templates select="fx:step/*"/>
+            <xsl:apply-templates select="visage:step/*"/>
         </xsl:if>
         <xsl:text>]</xsl:text>
     </xsl:template>
 
-    <xsl:template match="fx:invalidate">
+    <xsl:template match="visage:invalidate">
         <xsl:text>invalidate </xsl:text>
-        <xsl:apply-templates select="fx:var/*"/>
+        <xsl:apply-templates select="visage:var/*"/>
     </xsl:template>
     
-    <xsl:template match="fx:string-expr">
+    <xsl:template match="visage:string-expr">
         <xsl:text>"</xsl:text>
-        <xsl:for-each select="fx:part">
+        <xsl:for-each select="visage:part">
             <xsl:choose>
-                <xsl:when test="fx:string-literal">
+                <xsl:when test="visage:string-literal">
                     <xsl:value-of select="."/>
                     <!--
                     <xsl:call-template name="print-quoted-string">
@@ -1008,11 +1008,11 @@
                 </xsl:when>
                 <xsl:otherwise>
                     <xsl:text>{</xsl:text>
-                    <xsl:if test="not(fx:format = '')">
-                        <xsl:value-of select="fx:format"/>
+                    <xsl:if test="not(visage:format = '')">
+                        <xsl:value-of select="visage:format"/>
                         <xsl:text> </xsl:text>
                     </xsl:if>
-                    <xsl:apply-templates select="fx:expr/*"/>
+                    <xsl:apply-templates select="visage:expr/*"/>
                     <xsl:text>}</xsl:text>
                 </xsl:otherwise>
             </xsl:choose>
@@ -1021,69 +1021,69 @@
     </xsl:template>
     
     <!-- types -->
-    <xsl:template match="fx:type-any">
+    <xsl:template match="visage:type-any">
         <xsl:text> : *</xsl:text>
-        <xsl:apply-templates select="fx:cardinality"/>
+        <xsl:apply-templates select="visage:cardinality"/>
     </xsl:template>
     
-    <xsl:template match="fx:type-class">
+    <xsl:template match="visage:type-class">
         <xsl:text> : </xsl:text>
-        <xsl:apply-templates select="fx:class/*" mode="no-colon"/>
-        <xsl:apply-templates select="fx:cardinality"/>
+        <xsl:apply-templates select="visage:class/*" mode="no-colon"/>
+        <xsl:apply-templates select="visage:cardinality"/>
     </xsl:template>
     
-    <xsl:template match="fx:type-functional">
+    <xsl:template match="visage:type-functional">
         <xsl:text> : function (</xsl:text>
-        <xsl:for-each select="fx:params/*">
+        <xsl:for-each select="visage:params/*">
             <xsl:apply-templates select="."/>
             <xsl:if test="not(position()=last())">
                 <xsl:text>, </xsl:text>
             </xsl:if>
         </xsl:for-each>
         <xsl:text>)</xsl:text>
-        <xsl:apply-templates select="fx:return-type/*"/>
-        <xsl:apply-templates select="fx:cardinality"/>
+        <xsl:apply-templates select="visage:return-type/*"/>
+        <xsl:apply-templates select="visage:cardinality"/>
     </xsl:template>
 
-    <xsl:template match="fx:type-array">
+    <xsl:template match="visage:type-array">
         <xsl:text> : nativearray of </xsl:text>
         <xsl:apply-templates select="*" mode="no-colon"/>
     </xsl:template>
     
-    <xsl:template match="fx:type-any" mode="no-colon">
+    <xsl:template match="visage:type-any" mode="no-colon">
         <xsl:text> *</xsl:text>
-        <xsl:apply-templates select="fx:cardinality"/>
+        <xsl:apply-templates select="visage:cardinality"/>
     </xsl:template>
     
-    <xsl:template match="fx:type-class" mode="no-colon">
+    <xsl:template match="visage:type-class" mode="no-colon">
         <xsl:text> </xsl:text>
-        <xsl:apply-templates select="fx:class/*"/>
-        <xsl:apply-templates select="fx:cardinality"/>
+        <xsl:apply-templates select="visage:class/*"/>
+        <xsl:apply-templates select="visage:cardinality"/>
     </xsl:template>
     
-    <xsl:template match="fx:type-functional" mode="no-colon">
+    <xsl:template match="visage:type-functional" mode="no-colon">
         <xsl:text> function (</xsl:text>
-        <xsl:for-each select="fx:params/*">
+        <xsl:for-each select="visage:params/*">
             <xsl:apply-templates select="."/>
             <xsl:if test="not(position()=last())">
                 <xsl:text>, </xsl:text>
             </xsl:if>
         </xsl:for-each>
         <xsl:text>)</xsl:text>
-        <xsl:apply-templates select="fx:return-type/*"/>
-        <xsl:apply-templates select="fx:cardinality"/>
+        <xsl:apply-templates select="visage:return-type/*"/>
+        <xsl:apply-templates select="visage:cardinality"/>
     </xsl:template>
 
-    <xsl:template match="fx:type-array" mode="no-colon">
+    <xsl:template match="visage:type-array" mode="no-colon">
         <xsl:text> nativearray of</xsl:text>
         <xsl:apply-templates select="*" mode="no-colon"/>
     </xsl:template>
 
-    <xsl:template match="fx:type-unknown">
-        <xsl:apply-templates select="fx:cardinality"/>
+    <xsl:template match="visage:type-unknown">
+        <xsl:apply-templates select="visage:cardinality"/>
     </xsl:template>
     
-    <xsl:template match="fx:cardinality">
+    <xsl:template match="visage:cardinality">
         <xsl:choose>
             <xsl:when test=". = 'singleton'"/>
             <xsl:when test=". = 'unknown'"/>
@@ -1093,38 +1093,38 @@
         </xsl:choose>
     </xsl:template>
     
-    <xsl:template match="fx:time-literal">
+    <xsl:template match="visage:time-literal">
         <xsl:value-of select="."/>
         <xsl:text>ms</xsl:text>
     </xsl:template>
 
-    <xsl:template match="fx:interpolate-value">
-       <xsl:if test="fx:attribute">
-           <xsl:for-each select="fx:attribute/*">
+    <xsl:template match="visage:interpolate-value">
+       <xsl:if test="visage:attribute">
+           <xsl:for-each select="visage:attribute/*">
                <xsl:apply-templates select="."/>
            </xsl:for-each>
        </xsl:if>
        <xsl:text> =&gt; </xsl:text>
-       <xsl:for-each select="fx:value/*">
+       <xsl:for-each select="visage:value/*">
            <xsl:apply-templates select="."/>
        </xsl:for-each>
-       <xsl:if test="fx:interpolation">
+       <xsl:if test="visage:interpolation">
            <xsl:text> tween </xsl:text>
-           <xsl:apply-templates select="fx:interpolation/*"/>
+           <xsl:apply-templates select="visage:interpolation/*"/>
        </xsl:if>
     </xsl:template>
     
-    <xsl:template match="fx:keyframe-literal">
+    <xsl:template match="visage:keyframe-literal">
         <xsl:text>at (</xsl:text>
-        <xsl:apply-templates select="fx:start-dur/*"/>
+        <xsl:apply-templates select="visage:start-dur/*"/>
         <xsl:text>) {</xsl:text>
         <xsl:call-template name="println"/>
-        <xsl:for-each select="fx:interpolation-values/*">
+        <xsl:for-each select="visage:interpolation-values/*">
             <xsl:apply-templates select="."/>
             <xsl:text>;</xsl:text>
             <xsl:call-template name="println"/>
         </xsl:for-each>
-        <xsl:if test="fx:trigger">
+        <xsl:if test="visage:trigger">
             <xsl:text> trigger </xsl:text>
             <xsl:apply-templates select="./*"/>
         </xsl:if> 

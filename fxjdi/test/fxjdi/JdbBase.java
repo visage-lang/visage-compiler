@@ -333,8 +333,8 @@ public class JdbBase extends Debugger {
      * This method will read the source file for debuggee sources, see example
      * below, where filename is "Foo.visage" in the first example
      * // @BeginTest Foo.visage
-     * // your fx script or java code
-     * // more fx script or java code
+     * // your visage script or java code
+     * // more visage script or java code
      * // @EndTest
      *
      * // @BeginTest Bar.visage

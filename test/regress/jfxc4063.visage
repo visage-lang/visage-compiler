@@ -23,7 +23,7 @@ def cntxt = FXLocal.getContext();
 function run() {
 
     def c = A{t1:sq}; // This is allowed.
-    // So should be able to create same object using fx reflection theoretically?
+    // So should be able to create same object using visage reflection theoretically?
 
     def cls = cntxt.findClass(A.class.getName());
     def obj = cls.allocate();

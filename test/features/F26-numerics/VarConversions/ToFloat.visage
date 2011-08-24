@@ -11,7 +11,7 @@
 import visage.fxunit.FXTestCase;
 
 /* --------------------------------------------------------------
- *            This block could live in a common fx file
+ *            This block could live in a common visage file
  *            if (at)compilefirst worked with (at)test/fxunit
  * -------------------------------------------------------------- */
 public def bb : Byte = 127;

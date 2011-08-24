@@ -1,5 +1,5 @@
 /**
- * Regression test JFXC-1169 : Compiler crashes on a Bind to a fx class instance creation with incorrect const args
+ * Regression test JFXC-1169 : Compiler crashes on a Bind to a visage class instance creation with incorrect const args
  *
  * @test/fail
  */

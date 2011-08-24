@@ -1,5 +1,5 @@
 /**
- * regression test:  Not able to extend generified java class in fx.
+ * regression test:  Not able to extend generified java class in visage.
  * @test
  */
 

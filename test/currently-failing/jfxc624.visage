@@ -6,7 +6,7 @@
  "The fact that "extends java.lang.Object" activates the bug suggests
   that it is related to different handling between plain classes and
   compound classes."
- * If this is simplified to use compound classes,ie., extend an fx class,
+ * If this is simplified to use compound classes,ie., extend an visage class,
  * it degenerates to jfxc1253 test case.
  */
 

@@ -16,7 +16,7 @@ public class JAVAFX_LANG_TEST {
 	*   arguments or if this application was not invoked from the
 	*   command line.
 	*
-	* Does not seem fxunit test can take arguments, so this is plain fx style test
+	* Does not seem fxunit test can take arguments, so this is plain visage style test
 	*/
 	function check(i1:Integer, i2:Integer,msg:String) {	if(i1 !=i2) 		println("FAILED {msg}: {i1} != {i2}");}
 	function check(s1:String[], s2:String[],msg:String) {	if(s1 !=s2) 	println("FAILED {msg}: {s1} != {s2}");}

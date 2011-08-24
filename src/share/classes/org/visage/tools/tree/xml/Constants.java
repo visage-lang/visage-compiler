@@ -42,7 +42,7 @@ public final class Constants {
 
     // XML namespace URI used for AST XML elements
     public static final String JFXASTXML_NS = "http://visage.org";
-    public static final String JFXASTXML_PREFIX = "fx:";
+    public static final String JFXASTXML_PREFIX = "visage:";
 
     // doc comments
     public static final String DOC_COMMENT = "doc-comment";

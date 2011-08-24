@@ -24,7 +24,7 @@ Or you can use "./bin/fxbtracec" to compile a specific BTrace script file like:
 
     ./bin/fxbtracec btrace_scripts/InvalidationTracer.java
 
-5) ./bin/fxbtrace <compiled-btrace-script.class> <your-fx-main-class> <args>
+5) ./bin/fxbtrace <compiled-btrace-script.class> <your-visage-main-class> <args>
 
 For example,
 

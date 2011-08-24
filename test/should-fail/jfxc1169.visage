@@ -1,5 +1,5 @@
 /**
- * Regress test for JFXC-1169 - Compiler crashes on a Bind to a fx class instance creation with disallowed constructor args
+ * Regress test for JFXC-1169 - Compiler crashes on a Bind to a visage class instance creation with disallowed constructor args
  *
  * @test/compile-error
  */

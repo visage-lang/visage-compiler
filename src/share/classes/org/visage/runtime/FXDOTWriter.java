@@ -185,14 +185,14 @@
  * public void displayIntraDependencies(boolean displayIntraDependencies);
  *
  * Controls whether intra dependencies should be shown.  By default
- * displayIntraDependencies == true.  In order to display dependencies the fx class
+ * displayIntraDependencies == true.  In order to display dependencies the visage class
  * needs to be built with -XDannobindees.
  * 
  * 
  * public void displayInterDependencies(boolean displayInterDependencies);
  * 
  * Controls whether intra dependencies should be shown.  By default
- * displayIntraDependencies == true.  In order to display dependencies the fx class
+ * displayIntraDependencies == true.  In order to display dependencies the visage class
  * needs to be built with -XDannobindees.
  * 
  * 
@@ -287,7 +287,7 @@ public class FXDOTWriter {
     // Cache of field information.
     Map<Class, Field[]> fieldCache = new HashMap<Class, Field[]>();
         
-    // Cache of fx field information.
+    // Cache of visage field information.
     Map<Class, FXField[]> fxFieldCache = new HashMap<Class, FXField[]>();
         
     // Graph properties.
@@ -1079,7 +1079,7 @@ public class FXDOTWriter {
             }
         }
         
-        // Prepare to collect the fx field information.
+        // Prepare to collect the visage field information.
         int count = fxFieldList.size();
         fxFields = new FXField[count];
         for (int index = 0; index < count; index++) {
@@ -1104,7 +1104,7 @@ public class FXDOTWriter {
         return fxFields;
     }
     
-    // Find a match for a given fx field.
+    // Find a match for a given visage field.
     private FXField findField(FXField[] fxFields, String varName) {
         for (FXField fxField : fxFields) {
             if (varName.equals(fxField.varName)) {

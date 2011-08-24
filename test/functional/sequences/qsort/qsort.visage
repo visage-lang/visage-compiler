@@ -10,7 +10,7 @@ import java.lang.Exception;
 /**
  * Port of qsort.java, a javac test.
  * For comparision, compile qsort.java and run (take a second to sort 3000+ items), while this
- * fx form take a minute or more to sort just 1000.
+ * visage form take a minute or more to sort just 1000.
  *  The partition() function is very slow.
  * This FAILS for smaller sequences
  */

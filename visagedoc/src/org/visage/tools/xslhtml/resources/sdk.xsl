@@ -128,7 +128,7 @@
         <xsl:apply-templates select="modifiers"/>
         <xsl:text> </xsl:text>
         
-        <!-- fx -->
+        <!-- visage -->
         <xsl:if test="not(../@language='java')">
             <b><xsl:value-of select="@name"/></b>
             <xsl:apply-templates select="parameters" mode="signature"/>

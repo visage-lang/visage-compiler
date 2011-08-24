@@ -76,7 +76,7 @@ changeset:   4432:9ab89609f4bd
 branch:      trunk
 user:        mauriziocima
 date:        Fri Jan 16 08:34:35 2009 -0800
-summary:     [svn r4919] test test/regress/jfxc2651.fx:  forgot to add @run
+summary:     [svn r4919] test test/regress/jfxc2651.visage:  forgot to add @run
 
 changeset:   4431:0610f1769cd9
 branch:      trunk
@@ -154,7 +154,7 @@ changeset:   4419:28bbeea92d64
 branch:      trunk
 user:        JimHolmlund
 date:        Mon Jan 12 10:54:33 2009 -0800
-summary:     [svn r4902] test jfxc2621.fx: Remove unprintables
+summary:     [svn r4902] test jfxc2621.visage: Remove unprintables
 
 changeset:   4418:5cbc21d61dce
 branch:      trunk
@@ -520,7 +520,7 @@ changeset:   4358:296de105e9a4
 branch:      trunk
 user:        JimHolmlund
 date:        Sun Dec 21 01:23:54 2008 -0800
-summary:     [svn r4825] Fix JFXC-2548: FAILED regress/jfxc1066.fx
+summary:     [svn r4825] Fix JFXC-2548: FAILED regress/jfxc1066.visage
 
 changeset:   4357:faaa5ecee03c
 branch:      trunk
@@ -532,7 +532,7 @@ changeset:   4356:d0dd5e844030
 branch:      trunk
 user:        rfield
 date:        Sat Dec 20 17:24:37 2008 -0800
-summary:     [svn r4823] Tweak  JFXC-2557 : Number->Float:  FAILED operators/Operators3.fx
+summary:     [svn r4823] Tweak  JFXC-2557 : Number->Float:  FAILED operators/Operators3.visage
 
 changeset:   4355:5aa61f182819
 branch:      trunk
@@ -550,13 +550,13 @@ changeset:   4353:5a70b81e6e7f
 branch:      trunk
 user:        rfield
 date:        Fri Dec 19 20:49:50 2008 -0800
-summary:     [svn r4820] Fixed JFXC-2549 : Number->Float: FAILED regress/jfxc2542dbl.fx
+summary:     [svn r4820] Fixed JFXC-2549 : Number->Float: FAILED regress/jfxc2542dbl.visage
 
 changeset:   4352:a03bb5960a70
 branch:      trunk
 user:        rfield
 date:        Fri Dec 19 20:37:56 2008 -0800
-summary:     [svn r4819] Fixed JFXC-2547 : Number->Float: FAILED F7-multiple-module/Main.fx
+summary:     [svn r4819] Fixed JFXC-2547 : Number->Float: FAILED F7-multiple-module/Main.visage
 
 changeset:   4351:253356acc0db
 branch:      trunk
@@ -592,7 +592,7 @@ changeset:   4346:4c4adf86331a
 branch:      trunk
 user:        briangoetz
 date:        Fri Dec 19 09:07:08 2008 -0800
-summary:     [svn r4813] Fix bugs in test JFXC1392range.fx; add additional tests for exclusive as well as non-exclusive ranges.
+summary:     [svn r4813] Fix bugs in test JFXC1392range.visage; add additional tests for exclusive as well as non-exclusive ranges.
 
 changeset:   4345:f1ab2008368e
 branch:      trunk
@@ -676,7 +676,7 @@ changeset:   4332:d70c03b814f0
 branch:      trunk
 user:        rfield
 date:        Thu Dec 18 19:40:47 2008 -0800
-summary:     [svn r4799] Fixed JFXC-2413 : Number->Float: jfxc1100.fx fails in translation - no such method method bind(boolean,org.visage.runtime.location.ObjectLocation<jav a.lang.Float>) in FloatVariable
+summary:     [svn r4799] Fixed JFXC-2413 : Number->Float: jfxc1100.visage fails in translation - no such method method bind(boolean,org.visage.runtime.location.ObjectLocation<jav a.lang.Float>) in FloatVariable
 
 changeset:   4331:1814c622c6c6
 branch:      trunk
@@ -694,7 +694,7 @@ changeset:   4329:78d8a31829f1
 branch:      trunk
 user:        rfield
 date:        Thu Dec 18 17:15:51 2008 -0800
-summary:     [svn r4796] Fixed JFXC-2515 : Number->Float: regress test jfxc2269.fx fails in translation "mul(float) in visage.lang.Duration cannot be applied to (double)"
+summary:     [svn r4796] Fixed JFXC-2515 : Number->Float: regress test jfxc2269.visage fails in translation "mul(float) in visage.lang.Duration cannot be applied to (double)"
 
 changeset:   4328:00f631976dbe
 branch:      trunk
@@ -2290,7 +2290,7 @@ changeset:   4063:20210f1661b4
 branch:      trunk
 user:        bothner
 date:        Wed Oct 22 14:36:12 2008 -0700
-summary:     [svn r4483] Supports tests that use a mix of .java and .fx files, where the
+summary:     [svn r4483] Supports tests that use a mix of .java and .visage files, where the
 
 changeset:   4062:a92aba39ecab
 branch:      trunk
@@ -2782,13 +2782,13 @@ changeset:   3981:0a8750e8709b
 branch:      trunk
 user:        baechul
 date:        Fri Oct 10 08:43:26 2008 -0700
-summary:     [svn r4377] A test update for regress/jfxc1143,fx
+summary:     [svn r4377] A test update for regress/jfxc1143,visage
 
 changeset:   3980:abda24c10da1
 branch:      trunk
 user:        baechul
 date:        Fri Oct 10 01:13:34 2008 -0700
-summary:     [svn r4376] regress/jfxc1143.fx test update. Thread.sleep() is problematic in the timeline tests and shouldn't be used. The test was updated to avoid Thread.sleep().
+summary:     [svn r4376] regress/jfxc1143.visage test update. Thread.sleep() is problematic in the timeline tests and shouldn't be used. The test was updated to avoid Thread.sleep().
 
 changeset:   3979:9b634f6b9a56
 branch:      trunk
@@ -3034,7 +3034,7 @@ changeset:   3939:87c7755ae10e
 branch:      trunk
 user:        joshy
 date:        Mon Oct 06 13:24:10 2008 -0700
-summary:     [svn r4328] refactored api docs generation slightly to save .java and .fx docs in .xml files for later use
+summary:     [svn r4328] refactored api docs generation slightly to save .java and .visage docs in .xml files for later use
 
 changeset:   3938:632273970ed5
 branch:      trunk
@@ -3274,7 +3274,7 @@ changeset:   3899:c772d10debb6
 branch:      trunk
 user:        sgw
 date:        Thu Oct 02 23:43:36 2008 -0700
-summary:     [svn r4280] Update deferAction.fx Test to remove ordering issue
+summary:     [svn r4280] Update deferAction.visage Test to remove ordering issue
 
 changeset:   3898:6f884c54c199
 branch:      trunk
@@ -3568,7 +3568,7 @@ changeset:   3850:e3f78d4f70a5
 branch:      trunk
 user:        bothner
 date:        Tue Sep 30 00:09:35 2008 -0700
-summary:     [svn r4230] Don't try to @run jfxc2093.fx, since JApplet requires an AWT "head".
+summary:     [svn r4230] Don't try to @run jfxc2093.visage, since JApplet requires an AWT "head".
 
 changeset:   3849:c2ad4e7b1e2d
 branch:      trunk
@@ -4900,7 +4900,7 @@ changeset:   3628:ce08f2bd6969
 branch:      trunk
 user:        dstrupl
 date:        Tue Sep 09 03:14:32 2008 -0700
-summary:     [svn r4007] Make the AllTrees.fx test class non-public to allow for the loose expressions bellow.
+summary:     [svn r4007] Make the AllTrees.visage test class non-public to allow for the loose expressions bellow.
 
 changeset:   3627:c7253da97880
 branch:      trunk
@@ -4942,7 +4942,7 @@ changeset:   3621:bde62276e883
 branch:      trunk
 user:        nenik
 date:        Mon Sep 08 02:35:24 2008 -0700
-summary:     [svn r4000] JFXC-1309: parse the .fx source files explicitely by the fx compiler.
+summary:     [svn r4000] JFXC-1309: parse the .visage source files explicitely by the visage compiler.
 
 changeset:   3620:d952268381fe
 branch:      trunk
@@ -5104,7 +5104,7 @@ changeset:   3594:676176a28d1d
 branch:      trunk
 user:        rfield
 date:        Thu Sep 04 14:34:53 2008 -0700
-summary:     [svn r3973] They are now passing again, move the Interpolator_TS304_0*.fx
+summary:     [svn r3973] They are now passing again, move the Interpolator_TS304_0*.visage
 
 changeset:   3593:8f1ce10dee0d
 branch:      trunk
@@ -6010,7 +6010,7 @@ changeset:   3443:8fc3957d1037
 branch:      trunk
 user:        mauriziocima
 date:        Wed Aug 20 02:24:35 2008 -0700
-summary:     [svn r3820] Fixed JFXC-1001 : Not able to extend generified java class in fx.
+summary:     [svn r3820] Fixed JFXC-1001 : Not able to extend generified java class in visage.
 
 changeset:   3442:969344c8d4f1
 branch:      trunk
@@ -8194,7 +8194,7 @@ changeset:   3079:df69fb27a6be
 branch:      trunk
 user:        rbair
 date:        Fri Jul 18 12:16:22 2008 -0700
-summary:     [svn r3411] removed compile-runtime-fx and moved the body to -post-compile. The use of the name "runtime" is confusing because it conotes the visage runtime project -- but that is not what is being compiled. This target really just compiles the fx files in the compiler. The "runtime" libraries have been split in two -- some of them are shipped with the compiler while the rest are shipped with the "runtime" project. Also, calling compile-runtime-fx manually just fails, so there is no good reason for it to be separate. Might as well bundle that target into the -post-compile target and simplify the build script somewhat.
+summary:     [svn r3411] removed compile-runtime-visage and moved the body to -post-compile. The use of the name "runtime" is confusing because it conotes the visage runtime project -- but that is not what is being compiled. This target really just compiles the visage files in the compiler. The "runtime" libraries have been split in two -- some of them are shipped with the compiler while the rest are shipped with the "runtime" project. Also, calling compile-runtime-visage manually just fails, so there is no good reason for it to be separate. Might as well bundle that target into the -post-compile target and simplify the build script somewhat.
 
 changeset:   3078:bf95e1b106f0
 branch:      trunk
@@ -8476,7 +8476,7 @@ changeset:   3032:2e83fda933ee
 branch:      trunk
 user:        shan_man
 date:        Wed Jul 16 13:11:56 2008 -0700
-summary:     [svn r3348] Made jfxc467.fx independent of runtime and moved to compiler test area
+summary:     [svn r3348] Made jfxc467.visage independent of runtime and moved to compiler test area
 
 changeset:   3031:e339ad4d0b50
 branch:      trunk
@@ -10168,7 +10168,7 @@ changeset:   2750:31cb05558a8a
 branch:      trunk
 user:        tball
 date:        Mon Jun 16 17:18:09 2008 -0700
-summary:     [svn r2950] JFXC-1309:  fixed symbol completion with .fx source files.
+summary:     [svn r2950] JFXC-1309:  fixed symbol completion with .visage source files.
 
 changeset:   2749:2f215776d7e3
 branch:      trunk
@@ -11002,7 +11002,7 @@ changeset:   2611:1c03a4a6a95c
 branch:      trunk
 user:        zhiqun
 date:        Thu May 29 12:59:32 2008 -0700
-summary:     [svn r2801] update regression test jfxc1066.fx
+summary:     [svn r2801] update regression test jfxc1066.visage
 
 changeset:   2610:0b3d44d9a3dd
 branch:      trunk
@@ -11314,7 +11314,7 @@ changeset:   2559:c3cfa9dce702
 branch:      trunk
 user:        tball
 date:        Thu May 22 21:02:23 2008 -0700
-summary:     [svn r2746] moved RemoteImage.fx so the "no UI" build works
+summary:     [svn r2746] moved RemoteImage.visage so the "no UI" build works
 
 changeset:   2558:134f50c43d6b
 branch:      trunk
@@ -11590,7 +11590,7 @@ changeset:   2513:945fe3491e8f
 branch:      trunk
 user:        janvalenta
 date:        Wed May 07 07:48:45 2008 -0700
-summary:     [svn r2698] JFXC-750 (Empty .fx file causes "Error in syntactic analysis:"): Fixed also for files with comments only.
+summary:     [svn r2698] JFXC-750 (Empty .visage file causes "Error in syntactic analysis:"): Fixed also for files with comments only.
 
 changeset:   2512:c55f2336967f
 branch:      trunk
@@ -11860,7 +11860,7 @@ changeset:   2468:5fa9d757c04c
 branch:      trunk
 user:        briangoetz
 date:        Thu Apr 24 15:10:06 2008 -0700
-summary:     [svn r2646] Resurrect and clean up XxxAsyncOperation classes; currently RemoteImage.fx is the only working entry point.
+summary:     [svn r2646] Resurrect and clean up XxxAsyncOperation classes; currently RemoteImage.visage is the only working entry point.
 
 changeset:   2467:d911669296b9
 branch:      trunk
@@ -13396,13 +13396,13 @@ changeset:   2212:32f5121c4a9c
 branch:      trunk
 user:        zhiqun
 date:        Wed Apr 02 22:24:15 2008 -0700
-summary:     [svn r2379] JFXC-657: Be able to compile an empty fx file
+summary:     [svn r2379] JFXC-657: Be able to compile an empty visage file
 
 changeset:   2211:b0b3b72b02f8
 branch:      trunk
 user:        tball
 date:        Wed Apr 02 20:44:17 2008 -0700
-summary:     [svn r2378] Fixed typo from previous commit to Node.fx.
+summary:     [svn r2378] Fixed typo from previous commit to Node.visage.
 
 changeset:   2210:296ac4373508
 branch:      trunk
@@ -14974,7 +14974,7 @@ changeset:   1949:5bf9d1d556b1
 branch:      trunk
 user:        ssides
 date:        Mon Mar 10 21:29:57 2008 -0700
-summary:     [svn r2112] updated TestUtils.fx
+summary:     [svn r2112] updated TestUtils.visage
 
 changeset:   1948:592ce86e816a
 branch:      trunk
@@ -15016,7 +15016,7 @@ changeset:   1942:0df7980dd9ef
 branch:      trunk
 user:        ssides
 date:        Mon Mar 10 15:51:55 2008 -0700
-summary:     [svn r2105] update func01 to use ..\TestUtils.fx and count test results
+summary:     [svn r2105] update func01 to use ..\TestUtils.visage and count test results
 
 changeset:   1941:8ad370f3d7d9
 branch:      trunk
@@ -15610,7 +15610,7 @@ changeset:   1843:74020ab30e64
 branch:      trunk
 user:        alexsch
 date:        Fri Feb 29 00:27:46 2008 -0800
-summary:     [svn r2004] use MemoryClassLoader to load fx classes
+summary:     [svn r2004] use MemoryClassLoader to load visage classes
 
 changeset:   1842:5f83eaa29036
 branch:      trunk
@@ -15754,7 +15754,7 @@ changeset:   1819:b5e55f87e22b
 branch:      trunk
 user:        alexsch
 date:        Thu Feb 28 01:42:17 2008 -0800
-summary:     [svn r1979] select an appropriate frame and tab after another frame closingAssortieProject.fx
+summary:     [svn r1979] select an appropriate frame and tab after another frame closingAssortieProject.visage
 
 changeset:   1818:9037b94b9c5a
 branch:      trunk
@@ -15856,7 +15856,7 @@ changeset:   1802:1d873fd7b7fb
 branch:      trunk
 user:        alexsch
 date:        Wed Feb 27 05:57:55 2008 -0800
-summary:     [svn r1962] add functionality  to execute fx file from String
+summary:     [svn r1962] add functionality  to execute visage file from String
 
 changeset:   1801:36446d66b282
 branch:      trunk
@@ -16402,7 +16402,7 @@ changeset:   1711:3e362f3798c1
 branch:      trunk
 user:        rfield
 date:        Thu Feb 21 17:33:01 2008 -0800
-summary:     [svn r1867] Regression test for JFXC-741 : internal JFrame is not being set when it is supposed to be based on declaration in Frame.fx
+summary:     [svn r1867] Regression test for JFXC-741 : internal JFrame is not being set when it is supposed to be based on declaration in Frame.visage
 
 changeset:   1710:127d03917af1
 branch:      trunk
@@ -16444,7 +16444,7 @@ changeset:   1704:629317f6b626
 branch:      trunk
 user:        rfield
 date:        Thu Feb 21 15:55:40 2008 -0800
-summary:     [svn r1860] Fix JFXC-741 : internal JFrame is not being set when it is supposed to be based on declaration in Frame.fx
+summary:     [svn r1860] Fix JFXC-741 : internal JFrame is not being set when it is supposed to be based on declaration in Frame.visage
 
 changeset:   1703:79aa75bcbc10
 branch:      trunk
@@ -16492,7 +16492,7 @@ changeset:   1696:5a970ba147b2
 branch:      trunk
 user:        briangoetz
 date:        Thu Feb 21 11:42:26 2008 -0800
-summary:     [svn r1852] Move jfxc151.fx back to test/regress
+summary:     [svn r1852] Move jfxc151.visage back to test/regress
 
 changeset:   1695:6092053753de
 branch:      trunk
@@ -18652,7 +18652,7 @@ changeset:   1336:cea1bad47ab3
 branch:      trunk
 user:        briangoetz
 date:        Thu Jan 17 11:20:17 2008 -0800
-summary:     [svn r1418] Don't run orphan test if user has specified test.fx.includes, because this could confuse the user into thinking it found a test when it didn't.
+summary:     [svn r1418] Don't run orphan test if user has specified test.visage.includes, because this could confuse the user into thinking it found a test when it didn't.
 
 changeset:   1335:417e306403fd
 branch:      trunk
@@ -18754,7 +18754,7 @@ changeset:   1319:bdff6cfb4f8b
 branch:      trunk
 user:        jimclarke
 date:        Wed Jan 16 09:35:49 2008 -0800
-summary:     [svn r1401] Add PathLength to support Paths in Shape.fx
+summary:     [svn r1401] Add PathLength to support Paths in Shape.visage
 
 changeset:   1318:259f1d637056
 branch:      trunk
@@ -18928,7 +18928,7 @@ changeset:   1290:e5fda65d96e2
 branch:      trunk
 user:        chrisoliver
 date:        Sat Jan 12 11:58:06 2008 -0800
-summary:     [svn r1365] port of svg to fx translator which generates code compatible with the compiler and current runtime
+summary:     [svn r1365] port of svg to visage translator which generates code compatible with the compiler and current runtime
 
 changeset:   1289:c0286cf4befa
 branch:      trunk
@@ -19084,7 +19084,7 @@ changeset:   1264:da9c643cb404
 branch:      trunk
 user:        tball
 date:        Mon Jan 07 16:37:23 2008 -0800
-summary:     [svn r1335] Rewrote jfxc475.fx to avoid instantiating class that required AWT.
+summary:     [svn r1335] Rewrote jfxc475.visage to avoid instantiating class that required AWT.
 
 changeset:   1263:e6a81b818405
 branch:      trunk
@@ -19180,7 +19180,7 @@ changeset:   1248:2625e8c087fe
 branch:      trunk
 user:        jimclarke
 date:        Sat Jan 05 09:36:47 2008 -0800
-summary:     [svn r1319] Had to explicity assign alignments and textPosition as the default assignment in fx set everything to CENTER, issue JXFC-498
+summary:     [svn r1319] Had to explicity assign alignments and textPosition as the default assignment in visage set everything to CENTER, issue JXFC-498
 
 changeset:   1247:36c9a2b4d260
 branch:      trunk
@@ -19288,7 +19288,7 @@ changeset:   1230:56fd0f792686
 branch:      trunk
 user:        rfield
 date:        Thu Jan 03 18:48:01 2008 -0800
-summary:     [svn r1301] Fix JFXC-489  : 'parser analysis failure in bindbugs.fx'
+summary:     [svn r1301] Fix JFXC-489  : 'parser analysis failure in bindbugs.visage'
 
 changeset:   1229:7d87991dd98a
 branch:      trunk
@@ -19996,7 +19996,7 @@ changeset:   1112:af3c4027f55a
 branch:      trunk
 user:        lubomirlitchev
 date:        Sun Dec 16 18:04:34 2007 -0800
-summary:     [svn r1177] Added an init block, so the onTransformChanged defined in Transformable.fx is not shadowed by onTransformChanged defined in Node.fx.
+summary:     [svn r1177] Added an init block, so the onTransformChanged defined in Transformable.visage is not shadowed by onTransformChanged defined in Node.visage.
 
 changeset:   1111:818d7ae95a52
 branch:      trunk
@@ -20344,7 +20344,7 @@ changeset:   1054:012006b368d1
 branch:      trunk
 user:        jimclarke
 date:        Sat Dec 08 09:19:36 2007 -0800
-summary:     [svn r1119] Change attribute from fx to Visage to match FXMouseListener
+summary:     [svn r1119] Change attribute from visage to Visage to match FXMouseListener
 
 changeset:   1053:bc084b55e0e0
 branch:      trunk
@@ -20368,13 +20368,13 @@ changeset:   1050:862b604a2da6
 branch:      trunk
 user:        lubomirlitchev
 date:        Fri Dec 07 20:17:23 2007 -0800
-summary:     [svn r1115] Fixed JFXC-301 -- cannot cast "this" in Rect.fx to super class SizeableCanvasElement.
+summary:     [svn r1115] Fixed JFXC-301 -- cannot cast "this" in Rect.visage to super class SizeableCanvasElement.
 
 changeset:   1049:b626957a642f
 branch:      trunk
 user:        lubomirlitchev
 date:        Fri Dec 07 20:16:39 2007 -0800
-summary:     [svn r1114] Fixed JFXC-301 -- cannot cast "this" in Rect.fx to super class SizeableCanvasElement.
+summary:     [svn r1114] Fixed JFXC-301 -- cannot cast "this" in Rect.visage to super class SizeableCanvasElement.
 
 changeset:   1048:4afb51cab4b3
 branch:      trunk
@@ -20914,7 +20914,7 @@ changeset:   959:51b14d8cac98
 branch:      trunk
 user:        lubomirlitchev
 date:        Mon Dec 03 10:28:57 2007 -0800
-summary:     [svn r1020] Fixed 384 -- NPE in Compiler InternalFrame.fx Desktoppane.fx.
+summary:     [svn r1020] Fixed 384 -- NPE in Compiler InternalFrame.visage Desktoppane.visage.
 
 changeset:   958:7772a90c5a59
 branch:      trunk
@@ -20944,7 +20944,7 @@ changeset:   954:058c277faf9f
 branch:      trunk
 user:        rfield
 date:        Sun Dec 02 16:16:49 2007 -0800
-summary:     [svn r1015] Regression test for JFXC-250 : Non Visage Primitive types ('AssertionError on InternalWindow.fx')
+summary:     [svn r1015] Regression test for JFXC-250 : Non Visage Primitive types ('AssertionError on InternalWindow.visage')
 
 changeset:   953:0d55f9f98352
 branch:      trunk
@@ -21052,7 +21052,7 @@ changeset:   936:0f2ee9658a5f
 branch:      trunk
 user:        jimclarke
 date:        Sat Dec 01 14:48:02 2007 -0800
-summary:     [svn r997] JXFC-301 seems to be fixed for Rext.fx
+summary:     [svn r997] JXFC-301 seems to be fixed for Rext.visage
 
 changeset:   935:0d15fcbfceb6
 branch:      trunk
@@ -21340,19 +21340,19 @@ changeset:   888:b2d2cd7ffe33
 branch:      trunk
 user:        lubomirlitchev
 date:        Tue Nov 27 23:08:37 2007 -0800
-summary:     [svn r949] Fixed JFXC-306 -- Cannot locate super class interface Transformable from Gradient.fx.
+summary:     [svn r949] Fixed JFXC-306 -- Cannot locate super class interface Transformable from Gradient.visage.
 
 changeset:   887:db42d723ee2d
 branch:      trunk
 user:        lubomirlitchev
 date:        Tue Nov 27 22:49:29 2007 -0800
-summary:     [svn r948] Fixed JFXC-306 -- Cannot locate super class interface Transformable from Gradient.fx.
+summary:     [svn r948] Fixed JFXC-306 -- Cannot locate super class interface Transformable from Gradient.visage.
 
 changeset:   886:a7e9ca73b67e
 branch:      trunk
 user:        lubomirlitchev
 date:        Tue Nov 27 22:48:19 2007 -0800
-summary:     [svn r947] Fixed JFXC-306 -- Cannot locate super class interface Transformable from Gradient.fx.
+summary:     [svn r947] Fixed JFXC-306 -- Cannot locate super class interface Transformable from Gradient.visage.
 
 changeset:   885:d0c4c57925b1
 branch:      trunk
@@ -21712,7 +21712,7 @@ changeset:   826:7249cd29d6ac
 branch:      trunk
 user:        tball
 date:        Sat Nov 24 23:42:26 2007 -0800
-summary:     [svn r887] Added Text.fx from interpreter, fixed copyrights.
+summary:     [svn r887] Added Text.visage from interpreter, fixed copyrights.
 
 changeset:   825:9bf1e2c052e0
 branch:      trunk
@@ -21766,7 +21766,7 @@ changeset:   817:3e08a8a92402
 branch:      trunk
 user:        tball
 date:        Sat Nov 24 17:27:11 2007 -0800
-summary:     [svn r878] Ported Group.fx from interpreter.
+summary:     [svn r878] Ported Group.visage from interpreter.
 
 changeset:   816:a5b844686a9f
 branch:      trunk
@@ -22090,7 +22090,7 @@ changeset:   763:1ab76ae1f322
 branch:      trunk
 user:        tball
 date:        Mon Nov 19 15:07:11 2007 -0800
-summary:     [svn r824] Added Canvas.fx.
+summary:     [svn r824] Added Canvas.visage.
 
 changeset:   762:0fb9c4b1c80e
 branch:      trunk
@@ -22438,7 +22438,7 @@ changeset:   705:005941dc5745
 branch:      trunk
 user:        lubomirlitchev
 date:        Thu Nov 15 10:40:43 2007 -0800
-summary:     [svn r766] Fixed JFXC-234 -- Re-enable the jfxc175a.fx test. This test is intended to verify correct resolution of enclosing method locals var references from ObjLiterals.
+summary:     [svn r766] Fixed JFXC-234 -- Re-enable the jfxc175a.visage test. This test is intended to verify correct resolution of enclosing method locals var references from ObjLiterals.
 
 changeset:   704:feca9bb62f91
 branch:      trunk
@@ -22744,13 +22744,13 @@ changeset:   654:9d2a2a20967d
 branch:      trunk
 user:        tball
 date:        Tue Nov 13 07:51:40 2007 -0800
-summary:     [svn r715] JFXC-227: Moved Frame.fx to src/sandbox, as the visible attribute can't be committed out without the compiler throwing a different exception.
+summary:     [svn r715] JFXC-227: Moved Frame.visage to src/sandbox, as the visible attribute can't be committed out without the compiler throwing a different exception.
 
 changeset:   653:0ac4e322f6fa
 branch:      trunk
 user:        tball
 date:        Tue Nov 13 07:00:07 2007 -0800
-summary:     [svn r714] JFXC-227: Frame.fx, minus its critical visible attribute
+summary:     [svn r714] JFXC-227: Frame.visage, minus its critical visible attribute
 
 changeset:   652:7fffa31fd3a2
 branch:      trunk
@@ -23266,7 +23266,7 @@ changeset:   567:1b993be45830
 branch:      trunk
 user:        lubomirlitchev
 date:        Thu Nov 01 23:12:44 2007 -0700
-summary:     [svn r628] Partial fix for JFXC-175. Test is the Widget,fx. Uncommented the fixed parts. Checking to follow.
+summary:     [svn r628] Partial fix for JFXC-175. Test is the Widget,visage. Uncommented the fixed parts. Checking to follow.
 
 changeset:   566:c0872bf20c7b
 branch:      trunk
@@ -23392,7 +23392,7 @@ changeset:   546:0bee821a4329
 branch:      trunk
 user:        lubomirlitchev
 date:        Wed Oct 31 11:09:18 2007 -0700
-summary:     [svn r607] Added support for referring to outer class members. Fixed and eabled regress testcase jfxc147.fx.
+summary:     [svn r607] Added support for referring to outer class members. Fixed and eabled regress testcase jfxc147.visage.
 
 changeset:   545:ca476c099374
 branch:      trunk
@@ -24616,7 +24616,7 @@ changeset:   342:2eed8c840371
 branch:      trunk
 user:        jimclarke
 date:        Fri Oct 05 09:31:35 2007 -0700
-summary:     [svn r401] Modify scandir to map .fx to .class, instead of .fx to .java
+summary:     [svn r401] Modify scandir to map .visage to .class, instead of .visage to .java
 
 changeset:   341:be91b8ff0296
 branch:      trunk
@@ -24802,7 +24802,7 @@ changeset:   311:e31a905b056c
 branch:      trunk
 user:        rfield
 date:        Tue Oct 02 21:14:58 2007 -0700
-summary:     [svn r370] Remove the annoying warning on every test run caused by regress\newJavaInstance.fx
+summary:     [svn r370] Remove the annoying warning on every test run caused by regress\newJavaInstance.visage
 
 changeset:   310:7bc6bb8a405c
 branch:      trunk
@@ -25024,7 +25024,7 @@ changeset:   274:706f7b680311
 branch:      trunk
 user:        briangoetz
 date:        Wed Sep 26 16:25:52 2007 -0700
-summary:     [svn r333] Fix typo $Crap in .fx example classes.
+summary:     [svn r333] Fix typo $Crap in .visage example classes.
 
 changeset:   273:c01b90f21a7a
 branch:      trunk
@@ -25654,7 +25654,7 @@ changeset:   169:674b1894aaf4
 branch:      trunk
 user:        rfield
 date:        Tue Aug 28 16:13:10 2007 -0700
-summary:     [svn r192] Add expected output for func.fx and newInstance.fx
+summary:     [svn r192] Add expected output for func.visage and newInstance.visage
 
 changeset:   168:bf4143302596
 branch:      trunk
@@ -25684,7 +25684,7 @@ changeset:   164:d1f115ee7173
 branch:      trunk
 user:        tball
 date:        Tue Aug 28 13:39:44 2007 -0700
-summary:     [svn r186] Exclude .fx files from build jar (like .java files), added cobertura to bootstrap.xml's clean target, set Subversion's ignore property for the build, dist, and tools directories.
+summary:     [svn r186] Exclude .visage files from build jar (like .java files), added cobertura to bootstrap.xml's clean target, set Subversion's ignore property for the build, dist, and tools directories.
 
 changeset:   163:84e64133f7f6
 branch:      trunk
@@ -26068,7 +26068,7 @@ changeset:   100:3378601ce49f
 branch:      trunk
 user:        lubomirlitchev
 date:        Thu Aug 16 11:21:59 2007 -0700
-summary:     [svn r117] Disabled initialization code. It exposes error in JavafxTypeMorpher and breaks the bind.fx test. The code:
+summary:     [svn r117] Disabled initialization code. It exposes error in JavafxTypeMorpher and breaks the bind.visage test. The code:
 
 changeset:   99:be69b31baf37
 branch:      trunk
@@ -26134,7 +26134,7 @@ changeset:   89:65c6b4f1fb67
 branch:      trunk
 user:        briangoetz
 date:        Wed Aug 15 15:52:22 2007 -0700
-summary:     [svn r106] Extend FXCompilerTest framework to actually RUN the tests, writing out contents of standard out and standard error to test/build/.../testName.fx.{ERROR,OUTPUT}, and failing if anything is written to std err.
+summary:     [svn r106] Extend FXCompilerTest framework to actually RUN the tests, writing out contents of standard out and standard error to test/build/.../testName.visage.{ERROR,OUTPUT}, and failing if anything is written to std err.
 
 changeset:   88:ef1ad57f21b2
 branch:      trunk
@@ -26200,7 +26200,7 @@ changeset:   78:054a2eb1daf4
 branch:      trunk
 user:        tball
 date:        Tue Aug 14 15:16:28 2007 -0700
-summary:     [svn r95] Added javax.tools.Tool programmatic interface, framework that tests compilation of .fx files (doesn't test execution yet).
+summary:     [svn r95] Added javax.tools.Tool programmatic interface, framework that tests compilation of .visage files (doesn't test execution yet).
 
 changeset:   77:766aea7be185
 branch:      trunk
@@ -26236,13 +26236,13 @@ changeset:   72:7ab16a81aae5
 branch:      trunk
 user:        rfield
 date:        Tue Aug 14 08:39:39 2007 -0700
-summary:     [svn r89] Fix Issue 18 by updating M3.fx to current syntax and addressing Location initialization for attributes without initializing expressions.
+summary:     [svn r89] Fix Issue 18 by updating M3.visage to current syntax and addressing Location initialization for attributes without initializing expressions.
 
 changeset:   71:ea7feddc5110
 branch:      trunk
 user:        tball
 date:        Mon Aug 13 16:59:27 2007 -0700
-summary:     [svn r88] Added javax.tools.Tool programmatic interface, framework that tests compilation of .fx files (doesn't test execution yet).
+summary:     [svn r88] Added javax.tools.Tool programmatic interface, framework that tests compilation of .visage files (doesn't test execution yet).
 
 changeset:   70:f25a54869acc
 branch:      trunk

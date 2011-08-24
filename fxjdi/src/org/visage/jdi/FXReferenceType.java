@@ -144,7 +144,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
     private ReferenceType scriptType ;
 
     public int getFlagWord(Field field) {
-        // could this be a java field inherited by an fx class??
+        // could this be a java field inherited by an visage class??
         if (!isJavaFXType()) {
             return 0;
         }

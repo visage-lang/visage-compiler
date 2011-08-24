@@ -25,7 +25,7 @@
      xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
      xmlns:c="http://xml.apache.org/xalan/java/org.visage.tools.tree.xml.Compiler"
      xmlns:fxt="http://xml.apache.org/xalan/java/org.visage.tools.code.JavafxTypes"
-     xmlns:fx="http://visage.org">
+     xmlns:visage="http://visage.org">
 
     <xsl:import href="analyze.xsl"/>    
     <xsl:strip-space elements="*"/>
@@ -49,13 +49,13 @@
 
     <xsl:template match="/">
       <xsl:call-template name="init-globals"/>
-      <xsl:apply-templates select="fx:visage-script"/>
+      <xsl:apply-templates select="visage:visage-script"/>
     </xsl:template>
 
-    <xsl:template match="fx:visage-script">
+    <xsl:template match="visage:visage-script">
 <!-- output the source file name and write down global variable values as properties -->
-        <xsl:apply-templates select="fx:file"/>
-        <xsl:apply-templates select="fx:defs"/>
+        <xsl:apply-templates select="visage:file"/>
+        <xsl:apply-templates select="visage:defs"/>
 count.of.non.sequence.binds=<xsl:value-of select="c:getGlobal('numNonSeqBinds')"/>
 count.of.non.sequence.binds.with.on.replace=<xsl:value-of select="c:getGlobal('numNonSeqBindsWithOnReplace')"/>
 count.of.non.sequence.binds.with.on.invalidate=<xsl:value-of select="c:getGlobal('numNonSeqBindsWithOnInvalidate')"/>
@@ -68,12 +68,12 @@ count.of.bound.range.sequences=<xsl:value-of select="c:getGlobal('numBindSeqRang
 count.of.bound.for.expressions=<xsl:value-of select="c:getGlobal('numBindFor')"/>
     </xsl:template>
 
-    <xsl:template match="fx:file">
+    <xsl:template match="visage:file">
         <xsl:text># compiled from </xsl:text> <xsl:value-of select="."/>
     </xsl:template>
 
      <xsl:template name="handle-var" >
-        <xsl:for-each select="fx:bind-status">
+        <xsl:for-each select="visage:bind-status">
              <xsl:choose>
                  <xsl:when test=". != 'unbound'">
                      <xsl:if test="not(c:evalScript('inBind.push(true)'))"/>
@@ -87,19 +87,19 @@ count.of.bound.for.expressions=<xsl:value-of select="c:getGlobal('numBindFor')"/
             <xsl:choose>
             <xsl:when test="fxt:isSequence(c:types(), c:type(@typeref))">
                 <xsl:if test="not(c:putGlobal('numSeqBinds', c:getGlobal('numSeqBinds') + 1))"/>
-                <xsl:if test="fx:on-replace">
+                <xsl:if test="visage:on-replace">
                     <xsl:if test="not(c:putGlobal('numSeqBindsWithOnReplace', c:getGlobal('numSeqBindsWithOnReplace') + 1))"/>
                 </xsl:if>
-                <xsl:if test="fx:on-invalidate">
+                <xsl:if test="visage:on-invalidate">
                     <xsl:if test="not(c:putGlobal('numSeqBindsWithOnInvalidate', c:getGlobal('numSeqBindsWithOnInvalidate') + 1))"/>
                 </xsl:if>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:if test="not(c:putGlobal('numNonSeqBinds', c:getGlobal('numNonSeqBinds') + 1))"/>
-                <xsl:if test="fx:on-replace">
+                <xsl:if test="visage:on-replace">
                     <xsl:if test="not(c:putGlobal('numNonSeqBindsWithOnReplace', c:getGlobal('numNonSeqBindsWithOnReplace') + 1))"/>
                 </xsl:if>
-                <xsl:if test="fx:on-invalidate">
+                <xsl:if test="visage:on-invalidate">
                     <xsl:if test="not(c:putGlobal('numNonSeqBindsWithOnInvalidate', c:getGlobal('numNonSeqBindsWithOnInvalidate') + 1))"/>
                 </xsl:if>
              </xsl:otherwise>
@@ -109,21 +109,21 @@ count.of.bound.for.expressions=<xsl:value-of select="c:getGlobal('numBindFor')"/
         <xsl:if test="not(c:evalScript('inBind.pop()'))"/>
     </xsl:template>
 
-    <xsl:template match="fx:class/fx:members/fx:var|fx:class/fx:members/fx:def">
+    <xsl:template match="visage:class/visage:members/visage:var|visage:class/visage:members/visage:def">
         <xsl:call-template name="handle-var"/>
     </xsl:template>
 
-    <xsl:template match="fx:visage-script/fx:defs/fx:var|fx:visage-script/fx:defs/fx:def">
+    <xsl:template match="visage:visage-script/visage:defs/visage:var|visage:visage-script/visage:defs/visage:def">
         <xsl:call-template name="handle-var"/>
     </xsl:template>
 
     <!-- a local var or def -->
-    <xsl:template match="fx:var|fx:def">
+    <xsl:template match="visage:var|visage:def">
         <xsl:call-template name="handle-var"/>
     </xsl:template>
     
-    <xsl:template match="fx:object-literal-init">
-        <xsl:for-each select="fx:bind-status">
+    <xsl:template match="visage:object-literal-init">
+        <xsl:for-each select="visage:bind-status">
              <xsl:choose>
                  <xsl:when test=". != 'unbound'">
                      <xsl:if test="not(c:evalScript('inBind.push(true)'))"/>
@@ -133,7 +133,7 @@ count.of.bound.for.expressions=<xsl:value-of select="c:getGlobal('numBindFor')"/
                  </xsl:otherwise>
              </xsl:choose>
         </xsl:for-each>
-        <xsl:apply-templates select="fx:expr/*"/>
+        <xsl:apply-templates select="visage:expr/*"/>
         <xsl:if test="c:evalScript('inBind.peek()')">
             <xsl:choose>
             <xsl:when test="fxt:isSequence(c:types(), c:type(@typeref))">
@@ -147,28 +147,28 @@ count.of.bound.for.expressions=<xsl:value-of select="c:getGlobal('numBindFor')"/
         <xsl:if test="not(c:evalScript('inBind.pop()'))"/>
     </xsl:template>
 
-    <xsl:template match="fx:seq-explicit">
+    <xsl:template match="visage:seq-explicit">
         <xsl:if test="c:evalScript('inBind.peek()')">
             <xsl:if test="not(c:putGlobal('numBindSeqExplicit', c:getGlobal('numBindSeqExplicit') + 1))"/>
         </xsl:if>
         <xsl:apply-imports/>
     </xsl:template>
    
-    <xsl:template match="fx:seq-slice">
+    <xsl:template match="visage:seq-slice">
         <xsl:if test="c:evalScript('inBind.peek()')">
             <xsl:if test="not(c:putGlobal('numBindSeqSlice', c:getGlobal('numBindSeqSlice') + 1))"/>
         </xsl:if>
         <xsl:apply-imports/>
     </xsl:template>
 
-    <xsl:template match="fx:seq-range">
+    <xsl:template match="visage:seq-range">
         <xsl:if test="c:evalScript('inBind.peek()')">
             <xsl:if test="not(c:putGlobal('numBindSeqRange', c:getGlobal('numBindSeqRange') + 1))"/>
         </xsl:if>
         <xsl:apply-imports/>
     </xsl:template>
 
-    <xsl:template match="fx:for">
+    <xsl:template match="visage:for">
         <xsl:if test="c:evalScript('inBind.peek()')">
             <xsl:if test="not(c:putGlobal('numBindFor', c:getGlobal('numBindFor') + 1))"/>
         </xsl:if>

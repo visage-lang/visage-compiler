@@ -2,7 +2,7 @@
  * @test
  * @run
  *
- * Example of one of the differnt behaviours of fx evaluation.
+ * Example of one of the differnt behaviours of visage evaluation.
  * With '}' not semicolon is required, so the block expression below
  * amounts to 7 expressions, the last of which evaluates to 'x' and that
  * is the value of the expression that is assigned to st.

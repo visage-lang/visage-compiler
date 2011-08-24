@@ -31,7 +31,7 @@ public class TestUtils  {
    public function checkNs(n1s:Number[], n2s:Number[], msg:String) { if(n1s==n2s){pass++; }else {fail++;print("FAILED: {msg} : {n1s} != {n2s}");} }
    public function checkB(b:Boolean,msg:String) { if(b){pass++;} else{fail++;print("FAILED: {msg}");}}
    public function checknotB(b:Boolean,msg:String) { if(b){fail++;print("FAILED: {msg}");}else{pass++;} }
-   /* output report of tests. This output itself should be place in an fx.EXPECTED file */
+   /* output report of tests. This output itself should be place in an visage.EXPECTED file */
    public function report() {
 	System.out.println("========= results ================");
 	System.out.println("Tests:      {pass+fail+GFT}");

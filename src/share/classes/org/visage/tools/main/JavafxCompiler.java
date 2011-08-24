@@ -576,7 +576,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
     }
 
-    /** Emit pretty=printed fx source corresponding to an input file.
+    /** Emit pretty=printed visage source corresponding to an input file.
      */
     void printJavafxSource(String opt, JFXScript cu, CharSequence content) {
         String dump = options.get(opt);

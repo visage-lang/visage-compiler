@@ -67,7 +67,7 @@ public class FXObjectReference extends FXValue implements ObjectReference {
 
     public int getFlagWord(Field field) {
         FXReferenceType clazz = (FXReferenceType)referenceType();
-        // could this be a java field inherited by an fx class??
+        // could this be a java field inherited by an visage class??
         if (!clazz.isJavaFXType()) {
             return 0;
         }

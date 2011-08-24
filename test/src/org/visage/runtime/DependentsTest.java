@@ -229,8 +229,8 @@ public class DependentsTest extends JavaFXTestCase {
             @Override
             public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (deleter[0] == 0) {
-                   for (FXBase fx : dependents) {
-                       srcObj.removeDependent$(0, fx);
+                   for (FXBase visage : dependents) {
+                       srcObj.removeDependent$(0, visage);
                    }
                 }
                 return true;
@@ -240,8 +240,8 @@ public class DependentsTest extends JavaFXTestCase {
             @Override
             public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (deleter[0] == 1) {
-                   for (FXBase fx : dependents) {
-                       srcObj.removeDependent$(0, fx);
+                   for (FXBase visage : dependents) {
+                       srcObj.removeDependent$(0, visage);
                    }
                 }
                 return true;
@@ -251,8 +251,8 @@ public class DependentsTest extends JavaFXTestCase {
             @Override
             public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (deleter[0] == 2) {
-                   for (FXBase fx : dependents) {
-                       srcObj.removeDependent$(0, fx);
+                   for (FXBase visage : dependents) {
+                       srcObj.removeDependent$(0, visage);
                    }
                 }
                 return true;
@@ -376,8 +376,8 @@ public class DependentsTest extends JavaFXTestCase {
             @Override
             public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (switcher[0] == 0) {
-                   for (FXBase fx : dependents) {
-                       fx.switchDependence$(src1, 0, src2, 0, 0);
+                   for (FXBase visage : dependents) {
+                       visage.switchDependence$(src1, 0, src2, 0, 0);
                    }
                 }
                 return true;
@@ -387,8 +387,8 @@ public class DependentsTest extends JavaFXTestCase {
             @Override
             public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (switcher[0] == 1) {
-                   for (FXBase fx : dependents) {
-                       fx.switchDependence$(src1, 0, src2, 0, 0);
+                   for (FXBase visage : dependents) {
+                       visage.switchDependence$(src1, 0, src2, 0, 0);
                    }
                 }
                 return true;
@@ -398,8 +398,8 @@ public class DependentsTest extends JavaFXTestCase {
             @Override
             public boolean update$(FXObject srcObj, int depNum, int startPos, int endPos, int newLength, int phase) {
                 if (switcher[0] == 2) {
-                   for (FXBase fx : dependents) {
-                       fx.switchDependence$(src1, 0, src2, 0, 0);
+                   for (FXBase visage : dependents) {
+                       visage.switchDependence$(src1, 0, src2, 0, 0);
                    }
                 }
                 return true;
