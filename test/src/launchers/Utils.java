@@ -134,7 +134,7 @@ public class Utils {
 
     static void deleteAllFiles() {
         deleteJavaFiles();
-        deleteFxFiles();
+        deleteVisageFiles();
         deleteClassFiles();
         deleteJarFiles();
     }
@@ -143,7 +143,7 @@ public class Utils {
         deleteFiles(JAVA_FILTER);
     }
 
-    static void deleteFxFiles() {
+    static void deleteVisageFiles() {
         deleteFiles(VISAGE_FILTER);
     }
 
@@ -295,14 +295,14 @@ public class Utils {
 
     static boolean checkExec(List<String> cmds, String... expectedArgs) 
             throws IOException {
-        if (!verifyArguments(getArgumentsFromFx(cmds), expectedArgs)) {
+        if (!verifyArguments(getArgumentsFromVisage(cmds), expectedArgs)) {
             return false;
         }
         if (!verifyArguments(getArgumentsFromJava(cmds), expectedArgs)) {
             return false;
         }
         if (isWindows) {
-            if (!verifyArguments(getArgumentsFromJavawFx(cmds), expectedArgs)) {
+            if (!verifyArguments(getArgumentsFromJavawVisage(cmds), expectedArgs)) {
                 return false;
             }
             if (!verifyArguments(getArgumentsFromJavawJava(cmds), expectedArgs)) {
@@ -393,7 +393,7 @@ public class Utils {
     /*
      * emit our Visage code
      */
-    static String emitVersionFx(boolean fullversion) {
+    static String emitVersionVisage(boolean fullversion) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         pw.print("java.lang.System.out.print(Visage.getProperty(\"");
@@ -413,7 +413,7 @@ public class Utils {
         FileWriter fw = new FileWriter(new File(workingDir, filename + ".visage"));
         PrintWriter pw = new PrintWriter(fw);
         try {
-            pw.println(emitVersionFx(isFullVersion));
+            pw.println(emitVersionVisage(isFullVersion));
         } finally {
             if (pw != null) {
                 pw.close();
@@ -437,7 +437,7 @@ public class Utils {
      * emit our Visage code to print out the arguments, if it is
      * javaw launcher then we write to a file.
      */
-    private static String emitArgsTestFx(File outFile) {
+    private static String emitArgsTestVisage(File outFile) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         pw.println("public function run(args: String[]) : Void {");
@@ -504,7 +504,7 @@ public class Utils {
      * usage args = "-jar", "jar-file", "app-args....."
      */
     private static List<String> getArgumentsFromLauncher(List<String> cmdsList,
-            boolean useFx, boolean usevisagew) throws IOException {
+            boolean useVisage, boolean usevisagew) throws IOException {
         File testOutput = null ;
         if (usevisagew) {
             testOutput = new File(workingDir, "output.log");
@@ -515,8 +515,8 @@ public class Utils {
                 }
             }
         }
-        if (useFx) {
-            createFxJar(new File(workingDir, cmdsList.get(1)), testOutput);
+        if (useVisage) {
+            createVisageJar(new File(workingDir, cmdsList.get(1)), testOutput);
         } else {
             createJavaJar(new File(workingDir, cmdsList.get(1)), testOutput);
         }
@@ -532,7 +532,7 @@ public class Utils {
         return doExec(execList, testOutput, false);
     }
 
-    private static List<String> getArgumentsFromFx(List<String> cmdsList)
+    private static List<String> getArgumentsFromVisage(List<String> cmdsList)
             throws IOException {
         return getArgumentsFromLauncher(cmdsList, true, false);
     }
@@ -542,7 +542,7 @@ public class Utils {
         return getArgumentsFromLauncher(cmdsList, false, false);
     }
 
-    private static List<String> getArgumentsFromJavawFx(List<String> cmdsList)
+    private static List<String> getArgumentsFromJavawVisage(List<String> cmdsList)
             throws IOException {
         return getArgumentsFromLauncher(cmdsList, true, true);
     }
@@ -552,7 +552,7 @@ public class Utils {
         return getArgumentsFromLauncher(cmdsList, false, true);
     }
 
-    private static void createFxJar(File jarFilename, File testOutput) throws IOException {
+    private static void createVisageJar(File jarFilename, File testOutput) throws IOException {
         createJar(true, jarFilename, testOutput);
     }
     
@@ -560,7 +560,7 @@ public class Utils {
         createJar(false, jarFilename, testOutput);
     }
 
-    static void createFxJar(File jarFilename, String testSrc) throws IOException {
+    static void createVisageJar(File jarFilename, String testSrc) throws IOException {
         String filename = null;
         String jarfilename = jarFilename.getName();
         if (!jarfilename.endsWith(".jar")) {
@@ -601,7 +601,7 @@ public class Utils {
         deleteClassFiles();
     }
     
-    private static void createJar(boolean isFx, File jarFilename, File testOutput) throws IOException {
+    private static void createJar(boolean isVisage, File jarFilename, File testOutput) throws IOException {
         String filename = null;
         String jarfilename = jarFilename.getName();
         if (!jarfilename.endsWith(".jar")) {
@@ -613,10 +613,10 @@ public class Utils {
         // delete any stray files lying around
         deleteAllFiles();
 
-        if (isFx) {
+        if (isVisage) {
             PrintStream ps = new PrintStream(new FileOutputStream(
                     new File(workingDir, filename + ".visage")));
-            ps.println(emitArgsTestFx(testOutput));
+            ps.println(emitArgsTestVisage(testOutput));
             ps.close();
             ArrayList<String> cmdsList = new ArrayList<String>();
             cmdsList.add(visagecExe.toString());

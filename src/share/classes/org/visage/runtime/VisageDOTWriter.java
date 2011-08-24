@@ -1159,9 +1159,9 @@ public class VisageDOTWriter {
                         // Only if the selector is set.
                         if (selector != null) {
                             // Get the fields for the selector object.
-                            VisageField[] selectorFxFields = getVisageFields(selector, selector.getClass());
+                            VisageField[] selectorVisageFields = getVisageFields(selector, selector.getClass());
                             // Get the selctor field.
-                            VisageField selectorField =  findField(selectorFxFields, pair[1]);
+                            VisageField selectorField =  findField(selectorVisageFields, pair[1]);
                             // Add the inter dependency edge (dashed black line).
                             addEdge(getNode(selector), selectorField.voff, node, visageField.voff, INTEREDGESTYLE);
                         }

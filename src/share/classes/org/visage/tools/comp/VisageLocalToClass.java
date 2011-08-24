@@ -584,7 +584,7 @@ public class VisageLocalToClass {
                 vc.varsAsMembers().append(doit));
         cdecl.sym = classSymbol;
         cdecl.type = classSymbol.type;
-        types.addFxClass(classSymbol, cdecl);
+        types.addVisageClass(classSymbol, cdecl);
         cdecl.setDifferentiatedExtendingImplementingMixing(List.<VisageExpression>nil(), List.<VisageExpression>nil(), List.<VisageExpression>nil());
 
         VisageIdent classId = visagemake.Ident(className);

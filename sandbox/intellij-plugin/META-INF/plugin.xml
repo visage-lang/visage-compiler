@@ -30,25 +30,25 @@
     <idea-version since-build="3000"/>
     <application-components>
         <component>
-            <implementation-class>org.visage.ideaplugin.FxPlugin</implementation-class>
+            <implementation-class>org.visage.ideaplugin.VisagePlugin</implementation-class>
         </component>
         <component>
-            <implementation-class>org.visage.ideaplugin.project.FxSdkType</implementation-class>
+            <implementation-class>org.visage.ideaplugin.project.VisageSdkType</implementation-class>
         </component>
         <component>
-            <implementation-class>org.visage.ideaplugin.run.FxRunConfigurationType</implementation-class>
+            <implementation-class>org.visage.ideaplugin.run.VisageRunConfigurationType</implementation-class>
         </component>
     </application-components>
 
     <project-components>
         <component>
-            <implementation-class>org.visage.ideaplugin.snippets.FxSnippetsWindow</implementation-class>
+            <implementation-class>org.visage.ideaplugin.snippets.VisageSnippetsWindow</implementation-class>
         </component>
     </project-components>
 
     <actions>
         <action id="visage.NewClass"
-                class="org.visage.ideaplugin.NewFxClassAction"
+                class="org.visage.ideaplugin.NewVisageClassAction"
                 text="Visage Class"
                 description="Creates new Visage Class">
             <add-to-group group-id="NewGroup" anchor="first" />

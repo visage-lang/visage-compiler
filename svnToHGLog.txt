@@ -6736,7 +6736,7 @@ changeset:   3322:258b9d4440a0
 branch:      trunk
 user:        davedavedave
 date:        Tue Aug 05 06:40:56 2008 -0700
-summary:     [svn r3697] IntelliJ plugin: FxTokens class checks for tokens in v3Parser, FxAnnotator added
+summary:     [svn r3697] IntelliJ plugin: VisageTokens class checks for tokens in v3Parser, VisageAnnotator added
 
 changeset:   3321:ebc140e87669
 branch:      trunk
@@ -6802,7 +6802,7 @@ changeset:   3311:5d485e7eb4cd
 branch:      trunk
 user:        davedavedave
 date:        Mon Aug 04 09:17:27 2008 -0700
-summary:     [svn r3686] FxParser updated to new grammar
+summary:     [svn r3686] VisageParser updated to new grammar
 
 changeset:   3310:d7373d76b720
 branch:      trunk
@@ -10408,7 +10408,7 @@ changeset:   2710:a8a9444504ba
 branch:      trunk
 user:        davedavedave
 date:        Tue Jun 10 07:16:59 2008 -0700
-summary:     [svn r2903] FxCompiler - exception handling code is reduced
+summary:     [svn r2903] VisageCompiler - exception handling code is reduced
 
 changeset:   2709:af8aedf8a69d
 branch:      trunk
@@ -10504,7 +10504,7 @@ changeset:   2694:5e239b2799b5
 branch:      trunk
 user:        davedavedave
 date:        Mon Jun 09 02:47:25 2008 -0700
-summary:     [svn r2885] FxSnippetsWindow added
+summary:     [svn r2885] VisageSnippetsWindow added
 
 changeset:   2693:73c819e1e881
 branch:      trunk
@@ -10750,7 +10750,7 @@ changeset:   2653:7768b06dcceb
 branch:      trunk
 user:        davedavedave
 date:        Tue Jun 03 05:44:46 2008 -0700
-summary:     [svn r2844] Initial FxPositionManager added
+summary:     [svn r2844] Initial VisagePositionManager added
 
 changeset:   2652:813336bd509d
 branch:      trunk
@@ -11026,7 +11026,7 @@ changeset:   2607:c8a3da3685e2
 branch:      trunk
 user:        davedavedave
 date:        Thu May 29 05:13:56 2008 -0700
-summary:     [svn r2797] FxCompiler uses visagec.jar from SDK
+summary:     [svn r2797] VisageCompiler uses visagec.jar from SDK
 
 changeset:   2606:6c3c6e57f5c4
 branch:      trunk
@@ -11308,7 +11308,7 @@ changeset:   2560:0e6adf55fa34
 branch:      trunk
 user:        davedavedave
 date:        Fri May 23 08:48:19 2008 -0700
-summary:     [svn r2747] Visage SDK added (FxSdkType class)
+summary:     [svn r2747] Visage SDK added (VisageSdkType class)
 
 changeset:   2559:c3cfa9dce702
 branch:      trunk
@@ -19294,7 +19294,7 @@ changeset:   1229:7d87991dd98a
 branch:      trunk
 user:        bothner
 date:        Thu Jan 03 16:14:53 2008 -0800
-summary:     [svn r1300] Move visageClasses, isVisageClass, addFxClass, clearCaches from
+summary:     [svn r1300] Move visageClasses, isVisageClass, addVisageClass, clearCaches from
 
 changeset:   1228:03e62b1b95f9
 branch:      trunk

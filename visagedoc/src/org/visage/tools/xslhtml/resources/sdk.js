@@ -58,7 +58,7 @@ window.addEvent('domready', function(){
 function attachSliders() {
 	sliders = $$('.long-desc').map(function(target) {
 		//window.alert("found function");
-		return new Fx.Slide(target, {
+		return new Visage.Slide(target, {
 			duration: 'short'
 		}).hide();
 	});

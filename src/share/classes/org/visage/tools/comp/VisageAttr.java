@@ -3004,7 +3004,7 @@ public class VisageAttr implements VisageVisitor {
 
             result = tree.type = c.type;
 
-            types.addFxClass(c, tree);
+            types.addVisageClass(c, tree);
         }
         result = syms.voidType;
     }

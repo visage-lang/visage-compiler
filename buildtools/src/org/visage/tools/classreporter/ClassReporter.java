@@ -109,7 +109,7 @@ public class ClassReporter {
     /*
      * emit our Visage code
      */
-    static void CreateSampleFx(File visageFile) {
+    static void CreateSampleVisage(File visageFile) {
         FileOutputStream fos = null;
         PrintStream ps = null;
         try {
@@ -147,7 +147,7 @@ public class ClassReporter {
         List<String> output = null;
         if (jarfilename == null) {
             File visageFile = new File(builddir, visageclassname + ".visage");
-            CreateSampleFx(visageFile);
+            CreateSampleVisage(visageFile);
             output = doExec(getExe("visage").getAbsolutePath(), "-cp",
                 builddir, "-verbose:class", visageclassname  );
         } else {

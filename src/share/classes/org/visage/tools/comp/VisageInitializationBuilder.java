@@ -217,7 +217,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
         boolean isScriptClass = cDecl.isScriptClass();
         boolean isAnonClass = isAnonClass(analysis.getCurrentClassSymbol());
         boolean needsGetMap = isAnonClass && cDecl.getObjInitSyms() != null;
-        boolean hasFxSuper = visageSuperClassSym != null;
+        boolean hasVisageSuper = visageSuperClassSym != null;
         
         // Have to populate the var map for anon classes.
         LiteralInitVarMap varMap = null;
@@ -282,7 +282,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
                 javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, false, false, null, initMap);
             }
 
-            if (!hasFxSuper) {
+            if (!hasVisageSuper) {
                 // Has a non-Visage super, so we can't use VisageBase, therefore we need
                 // to clone the necessary vars and methods.
                 // This code must be after all methods have been added to cDefinitions,

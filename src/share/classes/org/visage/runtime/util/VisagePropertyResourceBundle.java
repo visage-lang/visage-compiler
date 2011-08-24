@@ -445,11 +445,11 @@ class VisagePropertyResourceBundle extends ResourceBundle {
         return new InputStreamReader(bis, charset);
     }
 
-    private static class FxEchoBackResourceBundle extends ResourceBundle {
+    private static class VisageEchoBackResourceBundle extends ResourceBundle {
 	private static final Set<String> keyset = new HashSet<String>();
-	static final FxEchoBackResourceBundle INSTANCE = new FxEchoBackResourceBundle();
+	static final VisageEchoBackResourceBundle INSTANCE = new VisageEchoBackResourceBundle();
 
-	private FxEchoBackResourceBundle() {
+	private VisageEchoBackResourceBundle() {
 	}
 
 	@Override
@@ -503,7 +503,7 @@ class VisagePropertyResourceBundle extends ResourceBundle {
             			ClassLoader classLoader, boolean reloadFlag)
                 throws IllegalAccessException, InstantiationException, IOException {
             if (locale.equals(ROOTLOCALE)) {
-                return FxEchoBackResourceBundle.INSTANCE;
+                return VisageEchoBackResourceBundle.INSTANCE;
             }
 
             String bundleName = toBundleName(baseName, locale);

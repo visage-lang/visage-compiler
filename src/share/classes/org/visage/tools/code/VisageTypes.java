@@ -373,7 +373,7 @@ public class VisageTypes extends Types {
         return (t instanceof FunctionType);
     }
     
-    public void addFxClass(ClassSymbol csym, VisageClassDeclaration cdecl) {
+    public void addVisageClass(ClassSymbol csym, VisageClassDeclaration cdecl) {
         if (visageClasses == null) {
             visageClasses = new HashMap<ClassSymbol, VisageClassDeclaration>();
         }
@@ -381,7 +381,7 @@ public class VisageTypes extends Types {
         visageClasses.put(csym, cdecl);
     }
     
-    public VisageClassDeclaration getFxClass (ClassSymbol csym) {
+    public VisageClassDeclaration getVisageClass (ClassSymbol csym) {
        return visageClasses.get(csym);
     }
     

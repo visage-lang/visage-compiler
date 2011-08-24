@@ -71,7 +71,7 @@ public class PropsTest extends TestCase {
 
         String testSrc = Utils.emitPropsTestJava(TESTNAME, null);
         //System.out.println("testSrc" + testSrc);
-        Utils.createFxJar(new File(Utils.workingDir, TESTNAME + ".jar"), testSrc);
+        Utils.createVisageJar(new File(Utils.workingDir, TESTNAME + ".jar"), testSrc);
         ArrayList<String> cmdsList = new ArrayList<String>();
         List<String> output = null;
 

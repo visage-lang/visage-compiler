@@ -382,7 +382,7 @@ public class VisageEnter extends VisageTreeScanner {
         // Recursively enter all member classes.
         classEnter(tree.getMembers(), localEnv);
 
-        types.addFxClass(c, tree);
+        types.addVisageClass(c, tree);
         result = c.type;
     }
 

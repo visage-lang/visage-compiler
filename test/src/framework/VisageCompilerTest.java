@@ -131,7 +131,7 @@ public class VisageCompilerTest extends TestSuite {
     private static void handleOneTest(File testFile,  List<Test> tests, Set<String> orphanFiles) throws Exception {
         String name = testFile.getParentFile().getName() + "/" + testFile.getName();
         assert name.lastIndexOf(".visage") > 0 : "not a Visage: " + name;
-        boolean isTest = false, isNotTest = false, isFxUnit = false,
+        boolean isTest = false, isNotTest = false, isVisageUnit = false,
             shouldRun = false, compileFailure = false, runFailure = false, checkCompilerMsg = false,
             noCompare = false, ignoreStdError = false;
         Scanner scanner = null;
@@ -173,7 +173,7 @@ public class VisageCompilerTest extends TestSuite {
                 }
                 else if (token.equals("@test/visageunit")) {
                     isTest = true;
-                    isFxUnit = true;
+                    isVisageUnit = true;
                 }
                 else if (token.equals("@subtest"))
                     isNotTest = true;
@@ -214,7 +214,7 @@ public class VisageCompilerTest extends TestSuite {
         if (isTest && compileFailure)
             shouldRun = runFailure = false;
         if (isTest) {
-            if (isFxUnit)
+            if (isVisageUnit)
                 tests.add(VisageUnitTestWrapper.makeSuite(testFile, name));
             else {
                 Map<String, String> options = new HashMap<String, String>();

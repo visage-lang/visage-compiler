@@ -86,7 +86,7 @@ public class ClasspathTest extends TestCase {
                 "import visage.util.VisageEvaluator;\n" +
                 "VisageEvaluator.eval(\"println(\\\"Hello World\\\")\");";
 
-        Utils.createFxJar(new File(Utils.workingDir, TESTNAME + ".jar"), testSrc);
+        Utils.createVisageJar(new File(Utils.workingDir, TESTNAME + ".jar"), testSrc);
         ArrayList<String> cmdsList = new ArrayList<String>();
         List<String> output = null;
 

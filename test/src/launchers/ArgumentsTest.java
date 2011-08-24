@@ -103,7 +103,7 @@ public class ArgumentsTest  extends TestCase {
         FileWriter fw = new FileWriter(new File(Utils.workingDir, filename + ".visage"));
         PrintWriter pw = new PrintWriter(fw);
         try {
-            pw.println(Utils.emitVersionFx(false));
+            pw.println(Utils.emitVersionVisage(false));
         } finally {
             if (pw != null) pw.close();
             if (fw != null) fw.close();

@@ -1,5 +1,5 @@
 /**
- * VSGC-3843 :  compiled-bind: compiler crashes while compiling FxTester.
+ * VSGC-3843 :  compiled-bind: compiler crashes while compiling VisageTester.
  *
  * @test
  */

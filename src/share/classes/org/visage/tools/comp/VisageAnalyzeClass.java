@@ -974,7 +974,7 @@ class VisageAnalyzeClass {
         this.syms = syms;
         this.reader = reader;
         this.diagPos = diagPos;
-        this.currentClassDecl = types.getFxClass(currentClassSym);
+        this.currentClassDecl = types.getVisageClass(currentClassSym);
         this.currentClassSym = currentClassSym;
         this.translatedAttrInfo = translatedAttrInfo;
         this.translatedOverrideAttrInfo = translatedOverrideAttrInfo;

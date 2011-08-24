@@ -1,0 +1,37 @@
+/*
+ *
+ * @subtest
+**/
+public class VisagePriorityQueue extends VisageQueue,java.io.Serializable{ //Visage Class extending another Visage Class and Java interface
+	var myPQueue:java.lang.Object[]=bind myQueue with inverse ;
+	public var comparatorUsed:VisageComparator;
+	var qsize :Integer = bind sizeof myQueue;
+	var highestPriorityIndx :Integer;
+	public function getIndexByHighestPriority():Integer{
+		var priority = myPQueue[0] ; 
+		var retIndx =0;
+		var indx =0;
+		for(val in myPQueue){
+		    var intVal = val;
+		    if(comparatorUsed==null){ //If comparator not provided,use IntegerComparator by default
+			comparatorUsed=VisageComparator.IntegerComparator{};
+		    }
+		    if(comparatorUsed.compare(intVal,priority)<=0 ) {
+			priority = intVal;retIndx=indx;
+		    }
+		    indx++;
+		} 
+		return retIndx;
+	}	
+	override function poll(){
+		var retVal= myPQueue[getIndexByHighestPriority()];	 
+		delete myPQueue[getIndexByHighestPriority()];
+		return retVal;
+	}
+	override function peek(){
+		return myPQueue[getIndexByHighestPriority()] ;			
+	}
+	override function put(item) {
+	      insert item into myPQueue;
+	}
+}
