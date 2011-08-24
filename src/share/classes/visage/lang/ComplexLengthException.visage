@@ -30,7 +30,7 @@ package visage.lang;
 /**
  * @author Stephen Chin <steveonjava@gmail.com>
  */
-public class ComplexLengthException extends VException {
+public class ComplexLengthException extends VisageException {
     public var lengths:Length[];
     public var operation:String;
 

@@ -36,7 +36,7 @@ import java.lang.Throwable;
  * <p>
  * For example:
  * <blockquote><pre>
- * VException {
+ * VisageException {
  *     message: "Fatal error caused by IOException"
  *     cause: e
  * }
@@ -48,7 +48,7 @@ import java.lang.Throwable;
  *
  * @author Stephen Chin <steveonjava@gmail.com>
  */
-public class VException extends RuntimeException {
+public class VisageException extends RuntimeException {
 
     /**
      * The message for this exception.

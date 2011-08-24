@@ -32,7 +32,7 @@ package visage.lang;
  *
  * @author Stephen Chin <steveonjava@gmail.com>
  */
-public class UnconvertableLengthException extends VException {
+public class UnconvertableLengthException extends VisageException {
     public-init var allowed:LengthUnit[];
     public-init var disallowed:LengthUnit[];
     public-init var length:Length;
