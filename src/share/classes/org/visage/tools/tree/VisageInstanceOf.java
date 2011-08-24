@@ -44,7 +44,7 @@ public class VisageInstanceOf extends VisageExpression implements InstanceOfTree
         v.visitInstanceOf(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.INSTANCE_OF;
     }
 

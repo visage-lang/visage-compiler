@@ -769,7 +769,7 @@ public class VisageDecompose implements VisageVisitor {
        VisageClassDeclaration dcdel = decompose(tree.getClassBody());
        List<VisageExpression> dargs = decomposeComponents(tree.getArgs());
 
-       VisageInstanciate res = fxmake.at(tree.pos).Instanciate(tree.getJavaFXKind(), klassExpr, dcdel, dargs, dparts, tree.getLocalvars());
+       VisageInstanciate res = fxmake.at(tree.pos).Instanciate(tree.getVisageKind(), klassExpr, dcdel, dargs, dparts, tree.getLocalvars());
        res.sym = tree.sym;
        res.constructor = tree.constructor;
        res.varDefinedByThis = tree.varDefinedByThis;

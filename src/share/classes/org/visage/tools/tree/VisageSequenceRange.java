@@ -70,7 +70,7 @@ public class VisageSequenceRange extends VisageAbstractSequenceCreator implement
         return VisageTag.SEQUENCE_RANGE;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.SEQUENCE_RANGE;
     }
 

@@ -57,7 +57,7 @@ public class VisageSelect extends VisageExpression implements MemberSelectTree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.MEMBER_SELECT;
     }
 

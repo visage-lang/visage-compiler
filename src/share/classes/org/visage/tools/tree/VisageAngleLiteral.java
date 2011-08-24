@@ -60,7 +60,7 @@ public class VisageAngleLiteral extends VisageExpression implements AngleLiteral
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ANGLE_LITERAL;
     }
 

@@ -51,7 +51,7 @@ public class VisageInvalidate extends VisageExpression implements VariableInvali
         return VisageTag.INVALIDATE;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.VARIABLE_INVALIDATE;
     }
 

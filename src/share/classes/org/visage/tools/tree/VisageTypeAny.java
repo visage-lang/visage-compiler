@@ -52,7 +52,7 @@ public class VisageTypeAny extends VisageType implements TypeAnyTree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return Tree.VisageKind.TYPE_ANY;
     }
 }

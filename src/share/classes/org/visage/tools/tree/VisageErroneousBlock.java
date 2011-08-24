@@ -66,7 +66,7 @@ public class VisageErroneousBlock extends VisageBlock {
     }
     
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ERRONEOUS;
     }
 }

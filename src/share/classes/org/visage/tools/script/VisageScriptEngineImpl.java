@@ -50,12 +50,12 @@ public class VisageScriptEngineImpl extends AbstractScriptEngine
     WeakHashMap<Bindings, VisageScriptContext> contextMap =
             new WeakHashMap<Bindings, VisageScriptContext>();
 
-    VisageScriptContext getJavaFXScriptContext(ScriptContext ctx) {
+    VisageScriptContext getVisageScriptContext(ScriptContext ctx) {
         Bindings bindings = ctx.getBindings(ScriptContext.ENGINE_SCOPE);
-        return getJavaFXScriptContext(bindings);
+        return getVisageScriptContext(bindings);
     }
 
-    VisageScriptContext getJavaFXScriptContext(Bindings bindings) {
+    VisageScriptContext getVisageScriptContext(Bindings bindings) {
         VisageScriptContext scontext = contextMap.get(bindings);
         if (scontext == null) {
             scontext = new VisageScriptContext(Thread.currentThread().getContextClassLoader());
@@ -77,7 +77,7 @@ public class VisageScriptEngineImpl extends AbstractScriptEngine
         }
 
         public Object eval(ScriptContext ctx) throws ScriptException {
-            VisageScriptContext scontext = getJavaFXScriptContext(ctx);
+            VisageScriptContext scontext = getVisageScriptContext(ctx);
             try {
                 // FIXME - set to false if using (unimplemented) "synchronized"
                 // implementation of ScriptContext and ScriptBindings.
@@ -222,7 +222,7 @@ public class VisageScriptEngineImpl extends AbstractScriptEngine
         String sourcePath = getSourcePath(ctx);
         String classPath = getClassPath(ctx);
         String script = str;
-        VisageScriptContext scontext = getJavaFXScriptContext(ctx);
+        VisageScriptContext scontext = getVisageScriptContext(ctx);
         boolean copyVars = true;
         // JSR-223 requirement - but unsure if it's a good idea.
         // ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);	
@@ -329,7 +329,7 @@ public class VisageScriptEngineImpl extends AbstractScriptEngine
     public Object invokeFunction(String name, Object... args) throws ScriptException, NoSuchMethodException {
         if (name == null)
             throw new ScriptException("method name not specified");
-        VisageScriptContext scontext = getJavaFXScriptContext(getContext());
+        VisageScriptContext scontext = getVisageScriptContext(getContext());
         Name nname = scontext.compiler.names.fromString(name);
         for (Scope.Entry e = scontext.compiler.namedImportScope.lookup(nname);
              e.sym != null; e = e.next()) {

@@ -51,7 +51,7 @@ public class VisageKeyFrameLiteral extends VisageExpression implements KeyFrameL
         return trigger;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.KEYFRAME_LITERAL;
     }
 

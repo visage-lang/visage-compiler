@@ -67,7 +67,7 @@ public class PropsTest extends TestCase {
         return false;
     }
 
-    public void testJavaFxProperties() throws IOException {
+    public void testVisageProperties() throws IOException {
 
         String testSrc = Utils.emitPropsTestJava(TESTNAME, null);
         //System.out.println("testSrc" + testSrc);

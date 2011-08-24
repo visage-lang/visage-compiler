@@ -130,7 +130,7 @@ public class FramesTest extends TestScaffold {
 
         // not Visage frames
         for (StackFrame fr : mainThread.frames()) {
-            Assert.assertEquals(false, ((VisageStackFrame)fr).isJavaFXFrame());
+            Assert.assertEquals(false, ((VisageStackFrame)fr).isVisageFrame());
         }
 
 

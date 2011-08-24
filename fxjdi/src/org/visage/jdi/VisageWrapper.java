@@ -286,7 +286,7 @@ public class VisageWrapper {
         List<Method> result = new ArrayList<Method>(20);
         for (Method mth : methods) {
             VisageMethod fxm = fxvm.method(mth);
-            if (!fxm.isJavaFXInternalMethod()) {
+            if (!fxm.isVisageInternalMethod()) {
                 result.add(fxm);
             }
         }

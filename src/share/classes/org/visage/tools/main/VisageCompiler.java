@@ -97,7 +97,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
                 versionRB = ResourceBundle.getBundle(versionRBName);
             } catch (MissingResourceException e) {
                 // HACK: MESSAGE_VERSION_RESOURCE_MISSING is currently defined in visagecompiler.properties
-                return Main.getJavafxLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC
+                return Main.getVisageLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC
                         + MsgSym.MESSAGE_VERSION_RESOURCE_MISSING, System.getProperty("java.version"));
 //                return Log.getLocalizedString(MsgSym.MESSAGE_VERSION_RESOURCE_MISSING, System.getProperty("java.version"));
             }
@@ -106,7 +106,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
             return versionRB.getString(key);
         }catch (MissingResourceException e) {
             // HACK: MESSAGE_VERSION_UNKNOWN is currently defined in visagecompiler.properties
-            return Main.getJavafxLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC
+            return Main.getVisageLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC
                     + MsgSym.MESSAGE_VERSION_UNKNOWN, System.getProperty("java.version"));
 //            return Log.getLocalizedString(MsgSym.MESSAGE_VERSION_UNKNOWN, System.getProperty("java.version"));
         }
@@ -515,7 +515,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
 
         tree.sourcefile = filename;
 
-        printJavafxSource("dumpvisage", tree, content);
+        printVisageSource("dumpvisage", tree, content);
 
         if (content != null && taskListener != null) {
             VisageTaskEvent e = new VisageTaskEvent(TaskEvent.Kind.PARSE, tree);
@@ -578,7 +578,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
 
     /** Emit pretty=printed visage source corresponding to an input file.
      */
-    void printJavafxSource(String opt, VisageScript cu, CharSequence content) {
+    void printVisageSource(String opt, VisageScript cu, CharSequence content) {
         String dump = options.get(opt);
         BufferedWriter out = null;
         if (dump != null) {
@@ -699,7 +699,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
             // Translate VisageTrees into Javac trees.
             List<VisageScript> cus = stopIfError(parseFiles(sourceFileObjects));
 
-//             stopIfError(buildJavafxModule(cus, sourceFileObjects));
+//             stopIfError(buildVisageModule(cus, sourceFileObjects));
 
             if (namedImportScope != null)
                 cus.head.namedImportScope = namedImportScope;
@@ -961,7 +961,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
         try {
             attr.attribClass(env.tree.pos(), env.tree instanceof VisageClassDeclaration ? (VisageClassDeclaration)env.tree : null,
                 env.enclClass.sym);
-            printJavafxSource("dumpattr", env.toplevel, null);
+            printVisageSource("dumpattr", env.toplevel, null);
         }
         finally {
             log.useSource(prev);
@@ -992,16 +992,16 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
                 Log.printLines(log.noticeWriter, "[decompose " + env.enclClass.sym + "]");
 
             boundFill.fill(env);
-            printJavafxSource("dumpfill", env.toplevel, null);
+            printVisageSource("dumpfill", env.toplevel, null);
 
             // VisageLocalToClass needs var analysis info
             varUsageAnalysis.analyzeVarUse(env);
 
             localToClass.inflateAsNeeded(env);
-            printJavafxSource("dumpinflate", env.toplevel, null);
+            printVisageSource("dumpinflate", env.toplevel, null);
             
             decomposeBindExpressions.decompose(env);
-            printJavafxSource("dumpdecompose", env.toplevel, null);
+            printVisageSource("dumpdecompose", env.toplevel, null);
 
         } catch (RuntimeException ex) {
             if (env.where != null) {
@@ -1070,7 +1070,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
                                   env.toplevel.sourcefile);
         try {
             convertTypes.lower(env);
-            printJavafxSource("dumplower", env.toplevel, null);
+            printVisageSource("dumplower", env.toplevel, null);
         }
         finally {
             log.useSource(prev);

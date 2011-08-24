@@ -1,5 +1,5 @@
 /**
- * JFXC-3348 : An exception has occurred in the OpenJavafx compiler: java.lang.AssertionError: isSubtype 12
+ * JFXC-3348 : An exception has occurred in the Visage compiler: java.lang.AssertionError: isSubtype 12
  *
  * @test
  * @run

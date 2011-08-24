@@ -73,7 +73,7 @@ public class VisageErroneousForExpressionInClause extends VisageForExpressionInC
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ERRONEOUS;
     }
 }

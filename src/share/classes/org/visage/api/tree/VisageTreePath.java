@@ -84,7 +84,7 @@ public class VisageTreePath implements Iterable<Tree> {
      * Creates a TreePath for a child node.
      */
     public VisageTreePath(VisageTreePath p, Tree t) {
-        if (t.getJavaFXKind() == Tree.VisageKind.COMPILATION_UNIT) {
+        if (t.getVisageKind() == Tree.VisageKind.COMPILATION_UNIT) {
             compilationUnit = (UnitTree) t;
             parent = null;
         }

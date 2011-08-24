@@ -62,7 +62,7 @@ public class VisageErroneousOnReplace extends VisageOnReplace {
     }
     
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ERRONEOUS;
     }
 

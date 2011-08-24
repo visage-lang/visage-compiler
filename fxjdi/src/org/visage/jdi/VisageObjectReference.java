@@ -68,7 +68,7 @@ public class VisageObjectReference extends VisageValue implements ObjectReferenc
     public int getFlagWord(Field field) {
         VisageReferenceType clazz = (VisageReferenceType)referenceType();
         // could this be a java field inherited by an visage class??
-        if (!clazz.isJavaFXType()) {
+        if (!clazz.isVisageType()) {
             return 0;
         }
         Field jdiField = VisageWrapper.unwrap(field); 
@@ -132,7 +132,7 @@ public class VisageObjectReference extends VisageValue implements ObjectReferenc
         virtualMachine().setLastFieldAccessException(null);
         Field jdiField = VisageWrapper.unwrap(field);
         VisageReferenceType wrappedClass = (VisageReferenceType)referenceType();
-        if (!wrappedClass.isJavaFXType()) {
+        if (!wrappedClass.isVisageType()) {
             return VisageWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
         }
 
@@ -197,7 +197,7 @@ public class VisageObjectReference extends VisageValue implements ObjectReferenc
         // Create the above Maps and lists
         for (Field wrappedField : wrappedFields) {
             Field unwrapped = VisageWrapper.unwrap(wrappedField);
-            if (wrappedClass.isJavaFXType()) {
+            if (wrappedClass.isVisageType()) {
                 List<Method> mth = unwrappedClass.methodsByName("get" + unwrapped.name());
                 if (mth.size() == 0) {
                     // No getter
@@ -266,7 +266,7 @@ public class VisageObjectReference extends VisageValue implements ObjectReferenc
         Field jdiField = VisageWrapper.unwrap(field);
         Value jdiValue = VisageWrapper.unwrap(value);
         VisageReferenceType clazz = (VisageReferenceType)referenceType();
-        if (!clazz.isJavaFXType()) {
+        if (!clazz.isVisageType()) {
             underlying().setValue(jdiField, jdiValue);
             return;
         }

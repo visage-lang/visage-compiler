@@ -60,7 +60,7 @@ public class VisageLengthLiteral extends VisageExpression implements LengthLiter
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.LENGTH_LITERAL;
     }
 

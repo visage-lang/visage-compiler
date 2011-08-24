@@ -82,7 +82,7 @@ public class VisageVarRef extends VisageExpression {
         return VisageTag.VAR_REF;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

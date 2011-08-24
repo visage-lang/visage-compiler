@@ -49,7 +49,7 @@ public class ArgumentsTest  extends TestCase {
         Utils.reset();
     }
 
-    public void testJavaFxToolsHelp() throws IOException {
+    public void testVisageToolsHelp() throws IOException {
         ArrayList<String> cmdsList = new ArrayList<String>();
         List<String> output = null;
 
@@ -152,7 +152,7 @@ public class ArgumentsTest  extends TestCase {
 
 
 
-    public void testJavaFxArgumentsPassing() throws IOException {
+    public void testVisageArgumentsPassing() throws IOException {
         ArrayList<String> cmdsList = new ArrayList<String>();
         List<String> output = null;
 
@@ -288,7 +288,7 @@ public class ArgumentsTest  extends TestCase {
     }
 
     static final String XDWARNONUSE_STR = "Foo.visage:1: warning: [warnonuse] Package ersatz.dummy has been used.";
-    public void testJavaFxcXDArgs() throws IOException {
+    public void testVisagecXDArgs() throws IOException {
         ArrayList<String> cmdsList = new ArrayList<String>();
         List<String> output = null;
         cmdsList.add(Utils.visagecExe.toString());

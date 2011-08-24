@@ -6,7 +6,7 @@
  * @run
  */
 
-package def STAGE_CLASS_PARAM = "MainJavaFXScript";
+package def STAGE_CLASS_PARAM = "MainVisageClass";
 
 public class jfxc3802Applet extends jfxc3802AppletBase {
     init {

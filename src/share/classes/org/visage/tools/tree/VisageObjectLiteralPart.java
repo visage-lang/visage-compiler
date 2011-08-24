@@ -80,7 +80,7 @@ public class VisageObjectLiteralPart extends VisageExpression implements ObjectL
         return VisageTag.OBJECT_LITERAL_PART;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.OBJECT_LITERAL_PART;
     }
 

@@ -74,7 +74,7 @@ public class VisageTypeFunctional extends VisageType implements TypeFunctionalTr
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return Tree.VisageKind.TYPE_FUNCTIONAL;
     }
 }

@@ -555,7 +555,7 @@ public interface Tree {
      *
      * @return the kind of this tree.
      */
-    VisageKind getJavaFXKind();
+    VisageKind getVisageKind();
 
     /**
      * Was this tree expected, but missing, and filled-in by the parser

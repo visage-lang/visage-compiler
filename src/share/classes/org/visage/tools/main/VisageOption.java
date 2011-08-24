@@ -202,7 +202,7 @@ public interface VisageOption {
 	    String s = "  " + helpSynopsis();
 	    out.print(s);
 	    for (int j = s.length(); j < 29; j++) out.print(" ");
-	    Log.printLines(out, Main.getJavafxLocalizedString(descrKey));
+	    Log.printLines(out, Main.getVisageLocalizedString(descrKey));
 	}
         
         @Override
@@ -210,7 +210,7 @@ public interface VisageOption {
 	    return name +
 		(argsNameKey == null ? "" :
 		 ((hasSuffix ? "" : " ") +
-		  Main.getJavafxLocalizedString(argsNameKey)));
+		  Main.getVisageLocalizedString(argsNameKey)));
 	}       
     }
 }

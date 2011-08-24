@@ -40,7 +40,7 @@ public class VisageSkip extends VisageExpression implements EmptyStatementTree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.EMPTY_STATEMENT;
     }
 

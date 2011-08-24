@@ -251,7 +251,7 @@ public abstract class VisageAbstractTranslation
                 }
 
                 final Type inType = inExpr.type;
-                if (inType == syms.botType || inExpr.getJavaFXKind() == VisageKind.NULL_LITERAL) {
+                if (inType == syms.botType || inExpr.getVisageKind() == VisageKind.NULL_LITERAL) {
                     return DefaultValue(outType);
                 }
 
@@ -1275,7 +1275,7 @@ public abstract class VisageAbstractTranslation
                case CONDEXPR:
                    return possiblyNull(((VisageIfExpression)expr).getTrueExpression()) || possiblyNull(((VisageIfExpression)expr).getFalseExpression());
                case LITERAL:
-                   return expr.getJavaFXKind() == VisageKind.NULL_LITERAL;
+                   return expr.getVisageKind() == VisageKind.NULL_LITERAL;
                case PARENS:
                    return possiblyNull(((VisageParens)expr).getExpression());
                case SELECT:
@@ -3577,7 +3577,7 @@ public abstract class VisageAbstractTranslation
             UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType, items.length(), false);
             addPreface(builder.makeBuilderVar());
             for (VisageExpression item : items) {
-                if (item.getJavaFXKind() != VisageKind.NULL_LITERAL) {
+                if (item.getVisageKind() != VisageKind.NULL_LITERAL) {
                     // Insert all non-null elements
                     addPreface(builder.addElement(item));
                 }

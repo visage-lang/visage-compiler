@@ -80,7 +80,7 @@ public class VisageFunctionValue extends VisageExpression implements FunctionVal
         return VisageTag.FUNCTIONEXPRESSION;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.FUNCTION_VALUE;
     }
 

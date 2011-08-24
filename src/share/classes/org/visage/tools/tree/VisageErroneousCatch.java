@@ -64,7 +64,7 @@ public class VisageErroneousCatch extends VisageCatch {
     }
     
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ERRONEOUS;
     }
   

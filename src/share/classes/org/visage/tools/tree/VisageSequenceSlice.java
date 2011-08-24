@@ -69,7 +69,7 @@ public class VisageSequenceSlice extends VisageExpression implements SequenceSli
         return VisageTag.SEQUENCE_SLICE;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.SEQUENCE_SLICE;
     }
 

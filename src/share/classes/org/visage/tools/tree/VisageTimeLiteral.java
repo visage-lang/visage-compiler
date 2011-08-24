@@ -53,7 +53,7 @@ public class VisageTimeLiteral extends VisageExpression implements TimeLiteralTr
         v.visitTimeLiteral(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.TIME_LITERAL;
     }
 

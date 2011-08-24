@@ -1,5 +1,5 @@
 /*
-* Regression test:  An exception has occurred in the OpenJavafx compiler
+* Regression test:  An exception has occurred in the Visage compiler
 *
 * @compilearg -sourcepath
 * @compilearg test/should-fail

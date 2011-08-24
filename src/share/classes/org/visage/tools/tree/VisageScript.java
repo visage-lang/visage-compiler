@@ -90,7 +90,7 @@ public class VisageScript extends VisageTree implements UnitTree {
         v.visitScript(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.COMPILATION_UNIT;
     }
 

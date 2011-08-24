@@ -129,7 +129,7 @@ public class VisageVarInit extends VisageExpression implements VariableTree {
         return false;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.VARIABLE;
     }
 

@@ -114,7 +114,7 @@ public class VisageInstanciate extends VisageExpression implements InstantiateTr
         return VisageTag.OBJECT_LITERAL;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return fxKind;
     }
 

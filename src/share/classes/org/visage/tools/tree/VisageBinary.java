@@ -53,7 +53,7 @@ public class VisageBinary extends VisageExpression implements BinaryTree {
         v.visitBinary(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageTreeInfo.tagToKind(getFXTag());
     }
 

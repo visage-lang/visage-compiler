@@ -56,7 +56,7 @@ public class VisageSequenceDelete extends VisageExpression implements SequenceDe
         return VisageTag.DELETE;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.SEQUENCE_DELETE;
     }
 

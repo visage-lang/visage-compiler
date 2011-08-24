@@ -97,7 +97,7 @@ public class VisageOnReplace extends VisageTree implements OnReplaceTree {
         return saveVar;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ON_REPLACE;
     }
 

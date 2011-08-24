@@ -48,7 +48,7 @@ public class VisageTry extends VisageExpression implements TryTree {
         v.visitTry(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.TRY;
     }
 

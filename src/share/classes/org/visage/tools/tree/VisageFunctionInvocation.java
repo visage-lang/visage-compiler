@@ -53,7 +53,7 @@ public class VisageFunctionInvocation extends VisageExpression implements Functi
         v.visitFunctionInvocation(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.METHOD_INVOCATION;
     }
 

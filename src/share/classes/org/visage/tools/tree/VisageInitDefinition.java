@@ -54,7 +54,7 @@ public class VisageInitDefinition extends VisageTree implements InitDefinitionTr
         return VisageTag.INIT_DEF;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.INIT_DEFINITION;
     }
 

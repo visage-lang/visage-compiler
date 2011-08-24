@@ -63,7 +63,7 @@ public class VisageTypeClass extends VisageType implements TypeClassTree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.TYPE_CLASS;
     }
 

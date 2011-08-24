@@ -109,7 +109,7 @@ public class VisageForExpressionInClause extends VisageTree implements ForExpres
         return VisageTag.FOR_EXPRESSION_IN_CLAUSE;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.FOR_EXPRESSION_IN_CLAUSE;
     }
 

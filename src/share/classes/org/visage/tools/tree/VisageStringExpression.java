@@ -62,7 +62,7 @@ public class VisageStringExpression extends VisageExpression implements StringEx
         return VisageTag.STRING_EXPRESSION;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.STRING_EXPRESSION;
     }
 

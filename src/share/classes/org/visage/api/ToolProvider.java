@@ -47,7 +47,7 @@ public class ToolProvider {
      * @return the compiler instance or {@code null} if no compiler
      *         is included as part of the application classpath
      */
-    public static VisageCompiler getJavafxCompiler() {
+    public static VisageCompiler getVisageCompiler() {
         try {
             URL[] urls = new URL[] {
                 getPath("org.visage.tools.api.VisagecTool"),
@@ -67,7 +67,7 @@ public class ToolProvider {
      * @return the script engine instance or {@code null} if no script engine
      *         is included as part of the application classpath
      */
-    public static VisageScriptEngine getJavaFXScriptEngine() {
+    public static VisageScriptEngine getVisageScriptEngine() {
         try {
             URL[] urls = new URL[] {
                 getPath("org.visage.tools.script.VisageScriptEngineImpl"),

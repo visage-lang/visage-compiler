@@ -61,7 +61,7 @@ public class HelloTest extends VisageTestBase {
         }
 
         Assert.assertEquals(true, mainThread.frame(0) instanceof VisageStackFrame);
-        Assert.assertEquals(true, ((VisageStackFrame)mainThread.frame(0)).isJavaFXFrame());
+        Assert.assertEquals(true, ((VisageStackFrame)mainThread.frame(0)).isVisageFrame());
 
         /*
          * resume until end

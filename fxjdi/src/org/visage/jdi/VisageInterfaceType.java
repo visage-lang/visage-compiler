@@ -60,7 +60,7 @@ public class VisageInterfaceType extends VisageReferenceType implements Interfac
      *
      * @return <code>true</code> if this is a Visage type; false otherwise.
      */
-    public boolean isJavaFXType() {
+    public boolean isVisageType() {
         if (!isIsFxTypeSet) {
             isIsFxTypeSet = true;
             VisageVirtualMachine fxvm = virtualMachine();

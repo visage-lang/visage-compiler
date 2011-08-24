@@ -74,7 +74,7 @@ public class VisageErroneousAngleLiteral extends VisageAngleLiteral  {
     }
     
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ERRONEOUS;
     }
     

@@ -94,7 +94,7 @@ public class JFXC3284Test {
             VisageTreePath path = trees.getPath(unit, tree);
             Assert.assertNotNull(path);
 
-            VisageKind kind = tree.getJavaFXKind();
+            VisageKind kind = tree.getVisageKind();
             Assert.assertEquals(kind, VisageKind.RETURN);
 
             return null;

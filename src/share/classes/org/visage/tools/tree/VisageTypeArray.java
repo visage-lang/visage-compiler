@@ -63,7 +63,7 @@ public class VisageTypeArray extends VisageType implements TypeArrayTree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return Tree.VisageKind.TYPE_FUNCTIONAL;
     }
 }

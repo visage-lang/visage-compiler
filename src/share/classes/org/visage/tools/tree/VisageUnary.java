@@ -67,7 +67,7 @@ public class VisageUnary extends VisageExpression implements UnaryTree, Tree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         switch (getFXTag()) {
             case SIZEOF:
                 return VisageKind.SIZEOF;

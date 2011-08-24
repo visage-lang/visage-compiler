@@ -658,7 +658,7 @@ changeset:   4335:29bedb2f71d1
 branch:      trunk
 user:        bothner
 date:        Thu Dec 18 22:10:48 2008 -0800
-summary:     [svn r4802] Add LONG_LITERAL, and fix typo in VisageLiteral.getJavaFXKind.
+summary:     [svn r4802] Add LONG_LITERAL, and fix typo in VisageLiteral.getVisageKind.
 
 changeset:   4334:de05f622a4f7
 branch:      trunk
@@ -14182,7 +14182,7 @@ changeset:   2081:43100af59813
 branch:      trunk
 user:        tball
 date:        Fri Mar 21 12:16:41 2008 -0700
-summary:     [svn r2246] JFXC-143:  put isolation classloader into ToolProvider.getJavafxCompiler(); overwrote TreeMaker.TopLevel() to avoid assertion that failed for visagec trees.
+summary:     [svn r2246] JFXC-143:  put isolation classloader into ToolProvider.getVisageCompiler(); overwrote TreeMaker.TopLevel() to avoid assertion that failed for visagec trees.
 
 changeset:   2080:885f3614d2bd
 branch:      trunk

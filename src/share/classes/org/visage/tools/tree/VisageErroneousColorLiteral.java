@@ -74,7 +74,7 @@ public class VisageErroneousColorLiteral extends VisageColorLiteral  {
     }
     
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ERRONEOUS;
     }
     

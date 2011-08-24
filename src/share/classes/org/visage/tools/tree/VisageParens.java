@@ -42,7 +42,7 @@ public class VisageParens extends VisageExpression implements ParenthesizedTree 
         v.visitParens(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.PARENTHESIZED;
     }
 

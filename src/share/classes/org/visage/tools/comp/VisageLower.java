@@ -1325,7 +1325,7 @@ public class VisageLower implements VisageVisitor {
         }
 
         // Construct the new instanciate
-        VisageInstanciate res = m.at(tree.pos).Instanciate(tree.getJavaFXKind(),
+        VisageInstanciate res = m.at(tree.pos).Instanciate(tree.getVisageKind(),
                 tree.getIdentifier(),
                 lowCdecl,
                 lowerExprs(tree.getArgs()),

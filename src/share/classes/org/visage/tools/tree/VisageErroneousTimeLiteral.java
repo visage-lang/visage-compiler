@@ -70,7 +70,7 @@ public class VisageErroneousTimeLiteral extends VisageTimeLiteral  {
     }
     
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ERRONEOUS;
     }
     

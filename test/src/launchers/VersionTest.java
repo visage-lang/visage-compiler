@@ -57,7 +57,7 @@ public class VersionTest extends TestCase {
     /*
      * test the runtime version string
      */
-    public void testJavaFxProperties() throws ScriptException, IOException {
+    public void testVisageProperties() throws ScriptException, IOException {
         // verify the strings are conformant.
         assertTrue(versionProp.matches("^" + VERSION_PATTERN_TAIL));
         assertTrue(fullversionProp.matches("^" + VERSION_PATTERN_TAIL));
@@ -72,14 +72,14 @@ public class VersionTest extends TestCase {
     /*
      * test for visage, using exact match
      */
-    public void testJavaFxVersion() {
+    public void testVisageVersion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
         cmdsList.add(Utils.visageExe.toString());
         cmdsList.add("-version");
         assertTrue(Utils.checkExec(cmdsList, "visage " + versionProp, false));
     }
 
-    public void testJavaFxFullversion() {
+    public void testVisageFullversion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
         cmdsList.add(Utils.visageExe.toString());
         cmdsList.add("-fullversion");
@@ -90,14 +90,14 @@ public class VersionTest extends TestCase {
     /*
      * test for visagec, using regex pattern
      */
-    public void testJavaFxcVersion() {
+    public void testVisagecVersion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
         cmdsList.add(Utils.visagecExe.toString());
         cmdsList.add("-version");
         assertTrue(Utils.checkExec(cmdsList, "^visagec " + VERSION_PATTERN_TAIL, true));
     }
 
-    public void testJavaFxcFullversion() {
+    public void testVisagecFullversion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
         cmdsList.add(Utils.visagecExe.toString());
         cmdsList.add("-fullversion");
@@ -108,7 +108,7 @@ public class VersionTest extends TestCase {
     /*
      * test for visagedocm using regex pattern
      */
-    public void testJavaFxDocVersion() {
+    public void testVisageDocVersion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
         cmdsList.add(Utils.visagedocExe.toString());
         cmdsList.add("-version");
@@ -116,7 +116,7 @@ public class VersionTest extends TestCase {
                 VERSION_PATTERN_TAIL, true));
     }
 
-    public void testJavaFxDocFullversion() {
+    public void testVisageDocFullversion() {
         ArrayList<String> cmdsList = new ArrayList<String>();
         cmdsList.add(Utils.visagedocExe.toString());
         cmdsList.add("-fullversion");

@@ -52,7 +52,7 @@ public class VisageTypeUnknown extends VisageType implements TypeUnknownTree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return Tree.VisageKind.TYPE_UNKNOWN;
     }
 }

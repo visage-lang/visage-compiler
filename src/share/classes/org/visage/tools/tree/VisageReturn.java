@@ -46,7 +46,7 @@ public class VisageReturn extends VisageExpression implements ReturnTree {
         v.visitReturn(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.RETURN;
     }
 

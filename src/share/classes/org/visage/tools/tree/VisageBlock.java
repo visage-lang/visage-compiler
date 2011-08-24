@@ -103,7 +103,7 @@ public class VisageBlock extends VisageExpression implements BlockExpressionTree
         v.visitBlockExpression(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.BLOCK_EXPRESSION;
     }
 }

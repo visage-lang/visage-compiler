@@ -133,11 +133,11 @@ public class JFXC2054Test {
 
     private static Element getClassElement(UnitTree cut) {
         for (Tree tt : cut.getTypeDecls()) {
-            VisageKind kk = tt.getJavaFXKind();
+            VisageKind kk = tt.getVisageKind();
             if (kk == VisageKind.CLASS_DECLARATION) {
                 VisageClassDeclaration cd = (VisageClassDeclaration) tt;
                 for (Tree jct : cd.getMembers()) {
-                    VisageKind k = jct.getJavaFXKind();
+                    VisageKind k = jct.getVisageKind();
                     if (k == VisageKind.CLASS_DECLARATION) {
                         VisagecTrees trees = VisagecTrees.instance(task);
                         VisageTreePath root = new VisageTreePath(cut);

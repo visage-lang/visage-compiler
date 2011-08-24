@@ -52,7 +52,7 @@ public class VisageIndexof extends VisageExpression implements IndexofTree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.INDEXOF;
     }
 

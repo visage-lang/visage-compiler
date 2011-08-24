@@ -44,7 +44,7 @@ public class VisageWhileLoop extends VisageExpression implements WhileLoopTree {
         v.visitWhileLoop(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.WHILE_LOOP;
     }
 

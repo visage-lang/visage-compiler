@@ -154,7 +154,7 @@ public abstract class VisageTree extends JCTree implements SyntheticTree, Tree, 
      *
      * @return the kind of this tree.
      */
-    public abstract VisageKind getJavaFXKind();
+    public abstract VisageKind getVisageKind();
     
     @SuppressWarnings("unchecked")
     public static <T> java.util.List<T> convertList(Class<T> klass, com.sun.tools.mjavac.util.List<?> list) {
@@ -200,7 +200,7 @@ public abstract class VisageTree extends JCTree implements SyntheticTree, Tree, 
      */
     
     public Kind getKind() {
-        throw new UnsupportedOperationException("Use getJavaFXKind() not getKind() - class: " + getClass() + ", Visage tag: " + getFXTag());
+        throw new UnsupportedOperationException("Use getVisageKind() not getKind() - class: " + getClass() + ", Visage tag: " + getFXTag());
     }
 
     public void accept(Visitor v) {

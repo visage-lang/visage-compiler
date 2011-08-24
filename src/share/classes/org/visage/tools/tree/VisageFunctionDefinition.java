@@ -102,7 +102,7 @@ public class VisageFunctionDefinition extends VisageExpression implements Functi
         return VisageTag.FUNCTION_DEF;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.FUNCTION_DEFINITION;
     }
 

@@ -243,29 +243,29 @@ public class VisageCheck {
      *  @param req        The type that was required.
      */
     Type typeError(DiagnosticPosition pos, Object problem, Type found, Type req) {
-        String foundAsJavaFXType = types.toJavaFXString(found);
-        String requiredAsJavaFXType = types.toJavaFXString(req);
-	log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, problem, foundAsJavaFXType, requiredAsJavaFXType);
+        String foundAsVisageType = types.toVisageString(found);
+        String requiredAsVisageType = types.toVisageString(req);
+	log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, problem, foundAsVisageType, requiredAsVisageType);
 	return syms.errType;
     }
 
     Type typeError(DiagnosticPosition pos, Object problem, Object found, Object req) {
-        Object requiredAsJavaFXType = req;
+        Object requiredAsVisageType = req;
         if (req instanceof Type) {
-            requiredAsJavaFXType = types.toJavaFXString((Type) requiredAsJavaFXType);
+            requiredAsVisageType = types.toVisageString((Type) requiredAsVisageType);
         }
-        Object foundAsJavaFXType = found;
-        if (foundAsJavaFXType instanceof Type) {
-            foundAsJavaFXType = types.toJavaFXString((Type) foundAsJavaFXType);
+        Object foundAsVisageType = found;
+        if (foundAsVisageType instanceof Type) {
+            foundAsVisageType = types.toVisageString((Type) foundAsVisageType);
         }
-        log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, problem, foundAsJavaFXType, requiredAsJavaFXType);
+        log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, problem, foundAsVisageType, requiredAsVisageType);
         return syms.errType;
     }
 
     Type typeError(DiagnosticPosition pos, String problem, Type found, Type req, Object explanation) {
-        String foundAsJavaFXType = types.toJavaFXString(found);
-        String requiredAsJavaFXType = types.toJavaFXString(req);
-	log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ_1, problem, foundAsJavaFXType, requiredAsJavaFXType, explanation);
+        String foundAsVisageType = types.toVisageString(found);
+        String requiredAsVisageType = types.toVisageString(req);
+	log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ_1, problem, foundAsVisageType, requiredAsVisageType, explanation);
 	return syms.errType;
     }
 
@@ -276,15 +276,15 @@ public class VisageCheck {
      *  @param found      The type that was found.
      */
     Type typeTagError(DiagnosticPosition pos, Object required, Object found) {
-        Object requiredAsJavaFXType = required;
+        Object requiredAsVisageType = required;
         if (required instanceof Type) {
-            requiredAsJavaFXType = types.toJavaFXString((Type) requiredAsJavaFXType);
+            requiredAsVisageType = types.toVisageString((Type) requiredAsVisageType);
         }
-        Object foundAsJavaFXType = found;
-        if (foundAsJavaFXType instanceof Type) {
-            foundAsJavaFXType = types.toJavaFXString((Type) foundAsJavaFXType);
+        Object foundAsVisageType = found;
+        if (foundAsVisageType instanceof Type) {
+            foundAsVisageType = types.toVisageString((Type) foundAsVisageType);
         }
-	log.error(pos, MsgSym.MESSAGE_TYPE_FOUND_REQ, foundAsJavaFXType, requiredAsJavaFXType);
+	log.error(pos, MsgSym.MESSAGE_TYPE_FOUND_REQ, foundAsVisageType, requiredAsVisageType);
 	return syms.errType;
     }
 
@@ -436,7 +436,7 @@ public class VisageCheck {
         }
         if (types.isSequence(found)) {
             if (pSequenceness == Sequenceness.DISALLOWED && ! types.isSameType(req, syms.objectType)) {
-                log.error(pos, MsgSym.MESSAGE_VISAGE_BAD_SEQUENCE, types.toJavaFXString(req));
+                log.error(pos, MsgSym.MESSAGE_VISAGE_BAD_SEQUENCE, types.toVisageString(req));
                 return syms.errType;
             }
         }
@@ -465,13 +465,13 @@ public class VisageCheck {
             }
             if (reqElem.tag <= LONG && foundElem.tag >= FLOAT && foundElem.tag <= DOUBLE && giveWarnings) {
                 // FUTURE/FIXME: return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
-                String foundAsJavaFXType = types.toJavaFXString(foundUnboxed);
-                String requiredAsJavaFXType = types.toJavaFXString(reqUnboxed);
+                String foundAsVisageType = types.toVisageString(foundUnboxed);
+                String requiredAsVisageType = types.toVisageString(reqUnboxed);
                 log.warning(pos,
                         MsgSym.MESSAGE_PROB_FOUND_REQ,
                         JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
-                        foundAsJavaFXType,
-                        requiredAsJavaFXType);
+                        foundAsVisageType,
+                        requiredAsVisageType);
             }
             return realFound;
        }
@@ -490,10 +490,10 @@ public class VisageCheck {
                 return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
             }
             if (giveWarnings) {
-                String foundAsJavaFXType = types.toJavaFXString(found);
-                String requiredAsJavaFXType = types.toJavaFXString(req);
+                String foundAsVisageType = types.toVisageString(found);
+                String requiredAsVisageType = types.toVisageString(req);
                 log.warning(pos.getStartPosition(), MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
-                        foundAsJavaFXType, requiredAsJavaFXType);
+                        foundAsVisageType, requiredAsVisageType);
             }
             return realFound;
         }
@@ -794,8 +794,8 @@ public class VisageCheck {
                 if (pt != null && bindStatus.isBidiBind() && !types.isSameType(pt, initSym.type)) {
                     log.error(init.pos(), 
                               MsgSym.MESSAGE_VISAGE_WRONG_TYPE_FOR_BIDI_BIND,
-                              types.toJavaFXString(initSym.type),
-                              types.toJavaFXString(pt));
+                              types.toVisageString(initSym.type),
+                              types.toVisageString(pt));
                 }
                 checkAssignable(init.pos(), (VisageVarSymbol) initSym, base, site, env, WriteKind.INIT_BIND);
             } else {
@@ -853,8 +853,8 @@ public class VisageCheck {
 
         if (!isOk) {
             log.error(pos, MsgSym.MESSAGE_VISAGE_INVALID_SELECT_FOR_SUPER,
-                    types.toJavaFXString(t),
-                    types.toJavaFXString(csym.type));
+                    types.toVisageString(t),
+                    types.toVisageString(csym.type));
         }
     }
 

@@ -105,7 +105,7 @@ public abstract class VisageAbstractVar extends VisageExpression implements Vari
         return visitor.visitVariable(this, data);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.VARIABLE;
     }
 

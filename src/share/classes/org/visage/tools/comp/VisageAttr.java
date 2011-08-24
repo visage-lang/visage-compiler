@@ -923,7 +923,7 @@ public class VisageAttr implements VisageVisitor {
                 log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_DEF_MUST_HAVE_INIT, v);
             }            
             if (tree.getInitializer() != null) {
-                if (tree.getInitializer().getJavaFXKind() == VisageKind.INSTANTIATE_OBJECT_LITERAL &&
+                if (tree.getInitializer().getVisageKind() == VisageKind.INSTANTIATE_OBJECT_LITERAL &&
                     (tree.getModifiers().flags & VisageFlags.IS_DEF) != 0)                        
                     v.flags_field |= VisageFlags.OBJ_LIT_INIT;
                 // Attribute initializer in a new environment.
@@ -1521,7 +1521,7 @@ public class VisageAttr implements VisageVisitor {
         Type clazztype = attribType(clazz, env);
 
         /* MAYBE FUTURE, e.g. if we support the syntax 'new ARRAY_TYPE (COUNT)':
-        if (tree.getJavaFXKind() == VisageKind.INSTANTIATE_NEW &&
+        if (tree.getVisageKind() == VisageKind.INSTANTIATE_NEW &&
                 clazztype.tag == ARRAY) {
             if (tree.getArgs().size() != 1)
                 log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_NEW_ARRAY_MUST_HAVE_SINGLE_ARG);
@@ -2743,8 +2743,8 @@ public class VisageAttr implements VisageVisitor {
                     if (!types.isCastable(left, right, Warner.noWarnings) &&
                             !types.isCastable(right, left, Warner.noWarnings)) {
                         log.error(tree.pos(), MsgSym.MESSAGE_INCOMPARABLE_TYPES,
-                            types.toJavaFXString(left),
-                            types.toJavaFXString(right));
+                            types.toVisageString(left),
+                            types.toVisageString(right));
                     }
                 }
 

@@ -56,7 +56,7 @@ public class VisagePostInitDefinition extends VisageTree implements InitDefiniti
         return VisageTag.POSTINIT_DEF;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.POSTINIT_DEFINITION;
     }
 

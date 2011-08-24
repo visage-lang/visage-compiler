@@ -48,7 +48,7 @@ public class VisageContinue extends VisageExpression implements ContinueTree {
         v.visitContinue(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.CONTINUE;
     }
 

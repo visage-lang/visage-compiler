@@ -239,7 +239,7 @@ public class VisageTreeCopier implements VisageVisitor {
         List<VisageExpression> args = copy(tree.getArgs());
         List<VisageObjectLiteralPart> parts = copy(tree.getParts());
         List<VisageVar> localVars = copy(tree.getLocalvars());
-        result = maker.at(tree.pos).Instanciate(tree.getJavaFXKind(), clazz, def, args, parts, localVars);
+        result = maker.at(tree.pos).Instanciate(tree.getVisageKind(), clazz, def, args, parts, localVars);
     }
 
     public void visitObjectLiteralPart(VisageObjectLiteralPart tree) {

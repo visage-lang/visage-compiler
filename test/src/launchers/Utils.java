@@ -92,16 +92,16 @@ public class Utils {
             Utils.javaExe = Utils.getJavaExe();
         }
         if (visageExe == null) {
-            visageExe = getJavaFxDistExe("visage");
+            visageExe = getVisageDistExe("visage");
         }
          if (visagewExe == null) {
-            visagewExe = getJavaFxDistExe("visagew");
+            visagewExe = getVisageDistExe("visagew");
         }
         if (visagecExe == null) {
-            visagecExe = getJavaFxDistExe("visagec");
+            visagecExe = getVisageDistExe("visagec");
         }
         if (visagedocExe == null) {
-            visagedocExe = getJavaFxDistExe("visagedoc");
+            visagedocExe = getVisageDistExe("visagedoc");
         }
         if (engine == null) {
             ScriptEngineManager manager = new ScriptEngineManager();
@@ -237,7 +237,7 @@ public class Utils {
      * use .exe extension the method will take care of
      * it.
      */
-    static File getJavaFxDistExe(String exename) throws IOException {
+    static File getVisageDistExe(String exename) throws IOException {
         File exe = new File(new File(getDistDir(), "bin"),
                 (isWindows) ? exename + ".exe" : exename);
         if (!exe.exists()) {

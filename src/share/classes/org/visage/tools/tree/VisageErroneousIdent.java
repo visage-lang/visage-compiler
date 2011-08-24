@@ -66,7 +66,7 @@ public class VisageErroneousIdent extends VisageIdent {
     }
     
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ERRONEOUS;
     }
     

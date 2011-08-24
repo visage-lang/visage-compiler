@@ -53,7 +53,7 @@ public class VisageIfExpression extends VisageExpression implements ConditionalE
         v.visitIfExpression(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.CONDITIONAL_EXPRESSION;
     }
 

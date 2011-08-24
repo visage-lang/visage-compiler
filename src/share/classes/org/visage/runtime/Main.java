@@ -38,7 +38,7 @@ import java.util.jar.Manifest;
  * @author A. Sundararajan
  */
 public class Main {
-    private static final String MAIN_CLASS_PREFIX = "MainJavaFXScript=";
+    private static final String MAIN_CLASS_PREFIX = "MainVisageClass=";
 
     private static String getErrorMessage(String key, Object... args) {
         return LauncherHelper.getLocalizedMessage("visage.launcher.err.main." + key, args);

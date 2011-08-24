@@ -28,15 +28,15 @@ package org.visage.api.tree;
  *
  * @author Tom Ball
  */
-public class SimpleJavaFXTreeVisitor <R,P> implements VisageTreeVisitor<R,P> {
+public class SimpleVisageTreeVisitor <R,P> implements VisageTreeVisitor<R,P> {
 
     protected final R DEFAULT_VALUE;
 
-    protected SimpleJavaFXTreeVisitor() {
+    protected SimpleVisageTreeVisitor() {
         DEFAULT_VALUE = null;
     }
 
-    protected SimpleJavaFXTreeVisitor(R defaultValue) {
+    protected SimpleVisageTreeVisitor(R defaultValue) {
         DEFAULT_VALUE = defaultValue;
     }
 

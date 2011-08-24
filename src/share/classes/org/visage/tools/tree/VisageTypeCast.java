@@ -47,7 +47,7 @@ public class VisageTypeCast extends VisageExpression implements TypeCastTree {
         v.visitTypeCast(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.TYPE_CAST;
     }
 

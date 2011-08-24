@@ -146,7 +146,7 @@ public class VisageThreadReference extends VisageObjectReference implements Thre
             for (StackFrame fr : frames) {
                 VisageStackFrame fxfr = (VisageStackFrame) fr;
                 // don't add Visage synthetic frames
-                if (fxfr.location().method().isJavaFXInternalMethod()) {
+                if (fxfr.location().method().isVisageInternalMethod()) {
                     continue;
                 } else {
                     filteredFrames.add(fxfr);

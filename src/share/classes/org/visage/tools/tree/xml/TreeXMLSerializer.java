@@ -136,11 +136,11 @@ final class TreeXMLSerializer implements VisageVisitor {
         startElement(DEFINITIONS);
         emitTreeList(script.defs);
         if (visageEntryMethod != null) {
-            insideJavafxEntryMethod = true;
+            insideVisageEntryMethod = true;
             try {
                 emitTree(visageEntryMethod.getBodyExpression());
             } finally {
-                insideJavafxEntryMethod = false;
+                insideVisageEntryMethod = false;
             }
         }
         endElement(DEFINITIONS);
@@ -241,7 +241,7 @@ final class TreeXMLSerializer implements VisageVisitor {
     }
     
     public void visitAssignop(VisageAssignOp assignOp) {
-        final String tagName = enumToName(assignOp.getJavaFXKind());
+        final String tagName = enumToName(assignOp.getVisageKind());
         startElement(tagName, assignOp);
         emitTree(LEFT, assignOp.getVariable());
         emitTree(RIGHT, assignOp.getExpression());
@@ -249,15 +249,15 @@ final class TreeXMLSerializer implements VisageVisitor {
     }
 
     public void visitUnary(VisageUnary unary) {
-        VisageKind kind = unary.getJavaFXKind();
-        final String tagName = (kind == null) ? SIZEOF : enumToName(unary.getJavaFXKind());
+        VisageKind kind = unary.getVisageKind();
+        final String tagName = (kind == null) ? SIZEOF : enumToName(unary.getVisageKind());
         startElement(tagName, unary);
         emitTree(unary.getExpression());
         endElement(tagName);
     }
     
     public void visitBinary(VisageBinary binary) {
-        final String tagName = enumToName(binary.getJavaFXKind());
+        final String tagName = enumToName(binary.getVisageKind());
         startElement(tagName, binary);
         emitTree(LEFT, binary.getLeftOperand());
         emitTree(RIGHT, binary.getRightOperand());
@@ -299,7 +299,7 @@ final class TreeXMLSerializer implements VisageVisitor {
 
     public void visitLiteral(VisageLiteral literal) {
         String tagName;
-        VisageKind kind = literal.getJavaFXKind();
+        VisageKind kind = literal.getVisageKind();
         switch (kind) {
             case INT_LITERAL:
                 tagName = INT_LITERAL;
@@ -537,7 +537,7 @@ final class TreeXMLSerializer implements VisageVisitor {
         String tagName = VAR;
         if (mods != null) {
             // ignore static variables inside "run" method
-            if (insideJavafxEntryMethod && (mods.flags & Flags.STATIC) != 0) {
+            if (insideVisageEntryMethod && (mods.flags & Flags.STATIC) != 0) {
                 return;
             }
             if ((mods.flags & VisageFlags.IS_DEF) != 0) {
@@ -804,7 +804,7 @@ final class TreeXMLSerializer implements VisageVisitor {
     private Map<JCTree, Integer> endPositions;
     private String visageEntryMethodName;
     private VisageFunctionDefinition visageEntryMethod;
-    private boolean insideJavafxEntryMethod;
+    private boolean insideVisageEntryMethod;
     private String sourceFileName;
 
     private Symbol getSymbolField(VisageTree jcTree) {

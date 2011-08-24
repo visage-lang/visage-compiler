@@ -56,7 +56,7 @@ public class VisageSequenceIndexed extends VisageExpression implements SequenceI
         return VisageTag.SEQUENCE_INDEXED;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.SEQUENCE_INDEXED;
     }
 

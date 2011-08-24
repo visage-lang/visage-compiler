@@ -47,7 +47,7 @@ public class VisageCatch extends VisageTree implements CatchTree {
         v.visitCatch(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.CATCH;
     }
 

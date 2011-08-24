@@ -98,7 +98,7 @@ public class VisageClassType extends VisageReferenceType implements ClassType {
         virtualMachine().setLastFieldAccessException(null);
         Field jdiField = VisageWrapper.unwrap(field);
         Value jdiValue = VisageWrapper.unwrap(value);
-        if (!isJavaFXType()) {
+        if (!isVisageType()) {
             underlying().setValue(jdiField, jdiValue);
             return;
         }
@@ -160,7 +160,7 @@ public class VisageClassType extends VisageReferenceType implements ClassType {
      * @return <code>true</code> if this is a Visage class; false otherwise.
      */
     @Override
-    public boolean isJavaFXType() {
+    public boolean isVisageType() {
         if (!isIsFxTypeSet) {
             isIsFxTypeSet = true;
             VisageVirtualMachine fxvm = virtualMachine();

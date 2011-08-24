@@ -50,7 +50,7 @@ public class VisageAssignOp extends VisageExpression implements CompoundAssignme
         v.visitAssignop(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageTreeInfo.tagToKind(getFXTag());
     }
 

@@ -44,8 +44,8 @@ public class VisageStackFrame extends VisageMirror implements StackFrame {
     }
 
     // Is this frame executing Visage code?
-    public boolean isJavaFXFrame() {
-        return location().declaringType().isJavaFXType();
+    public boolean isVisageFrame() {
+        return location().declaringType().isVisageType();
     }
 
     public List<Value> getArgumentValues() {
@@ -53,7 +53,7 @@ public class VisageStackFrame extends VisageMirror implements StackFrame {
     }
 
     public VisageValue getValue(LocalVariable var) {
-        if (isJavaFXSyntheticLocalVar(var.name())) {
+        if (isVisageSyntheticLocalVar(var.name())) {
             throw new IllegalArgumentException("invalid var: " + var.name());
         }
         return VisageWrapper.wrap(virtualMachine(), underlying().getValue(VisageWrapper.unwrap(var)));
@@ -64,7 +64,7 @@ public class VisageStackFrame extends VisageMirror implements StackFrame {
         List<LocalVariable> unwrappedLocalVariables = new ArrayList<LocalVariable>();
         for (LocalVariable var : vars) {
             LocalVariable unwrapped = VisageWrapper.unwrap(var);
-            if (isJavaFXSyntheticLocalVar(unwrapped.name())) {
+            if (isVisageSyntheticLocalVar(unwrapped.name())) {
                 throw new IllegalArgumentException("invalid var: " + var.name());
             }
             unwrappedLocalVariables.add(unwrapped);
@@ -83,7 +83,7 @@ public class VisageStackFrame extends VisageMirror implements StackFrame {
     }
 
     public void setValue(LocalVariable var, Value value) throws InvalidTypeException, ClassNotLoadedException {
-        if (isJavaFXSyntheticLocalVar(var.name())) {
+        if (isVisageSyntheticLocalVar(var.name())) {
             throw new IllegalArgumentException("invalid var: " + var.name());
         }
         underlying().setValue(VisageWrapper.unwrap(var), VisageWrapper.unwrap(value));
@@ -98,7 +98,7 @@ public class VisageStackFrame extends VisageMirror implements StackFrame {
     }
 
     public VisageLocalVariable visibleVariableByName(String name) throws AbsentInformationException {
-        if (isJavaFXSyntheticLocalVar(name)) {
+        if (isVisageSyntheticLocalVar(name)) {
             return null;
         } else {
             return VisageWrapper.wrap(virtualMachine(), underlying().visibleVariableByName(name));
@@ -109,7 +109,7 @@ public class VisageStackFrame extends VisageMirror implements StackFrame {
         List<LocalVariable> locals = underlying().visibleVariables();
         List<LocalVariable> result = new ArrayList<LocalVariable>();
         for (LocalVariable var : locals) {
-            if (! isJavaFXSyntheticLocalVar(var.name())) {
+            if (! isVisageSyntheticLocalVar(var.name())) {
                 result.add(VisageWrapper.wrap(virtualMachine(), var));
             }
         }
@@ -121,8 +121,8 @@ public class VisageStackFrame extends VisageMirror implements StackFrame {
         return (StackFrame) super.underlying();
     }
 
-    public boolean isJavaFXSyntheticLocalVar(String name) {
+    public boolean isVisageSyntheticLocalVar(String name) {
         // FIXME: can we have a better test for Visage synthetic local var?
-        return isJavaFXFrame() && name.indexOf('$') != -1;
+        return isVisageFrame() && name.indexOf('$') != -1;
     }
 }

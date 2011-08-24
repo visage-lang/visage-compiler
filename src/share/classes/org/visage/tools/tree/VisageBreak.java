@@ -47,7 +47,7 @@ public class VisageBreak extends VisageExpression implements BreakTree {
         v.visitBreak(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.BREAK;
     }
 

@@ -53,7 +53,7 @@ public class VisageIdent extends VisageExpression implements IdentifierTree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.IDENTIFIER;
     }
 

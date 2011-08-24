@@ -45,7 +45,7 @@ public class VisageThrow extends VisageExpression implements ThrowTree {
         v.visitThrow(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.THROW;
     }
 

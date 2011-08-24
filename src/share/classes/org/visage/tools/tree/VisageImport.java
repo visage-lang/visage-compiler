@@ -47,7 +47,7 @@ public class VisageImport extends VisageTree implements ImportTree {
         return qualid;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.IMPORT;
     }
 

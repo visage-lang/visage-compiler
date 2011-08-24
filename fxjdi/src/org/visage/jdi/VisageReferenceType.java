@@ -145,7 +145,7 @@ public class VisageReferenceType extends VisageType implements ReferenceType {
 
     public int getFlagWord(Field field) {
         // could this be a java field inherited by an visage class??
-        if (!isJavaFXType()) {
+        if (!isVisageType()) {
             return 0;
         }
         if (scriptType == null) {
@@ -195,7 +195,7 @@ public class VisageReferenceType extends VisageType implements ReferenceType {
         // Create the above Maps and lists
         for (Field wrappedField : wrappedFields) {
             Field unwrapped = VisageWrapper.unwrap(wrappedField);
-            if (isJavaFXType()) {
+            if (isVisageType()) {
                 List<Method> mth = underlying().methodsByName("get" + unwrapped.name());
                 if (mth.size() == 0) {
                     // No getter
@@ -268,7 +268,7 @@ public class VisageReferenceType extends VisageType implements ReferenceType {
      *
      * @return <code>true</code> if this is a Visage class; false otherwise.
      */
-    public boolean isJavaFXType() {
+    public boolean isVisageType() {
         return false;
     }
 
@@ -293,7 +293,7 @@ public class VisageReferenceType extends VisageType implements ReferenceType {
         }
 
         isUserClassSet = true;
-        if (!isJavaFXType()) {
+        if (!isVisageType()) {
             return null;
         }
         
@@ -343,7 +343,7 @@ public class VisageReferenceType extends VisageType implements ReferenceType {
         }
 
         isTopClassSet = true;
-        if (!isJavaFXType()) {
+        if (!isVisageType()) {
             return null;
         }
         if (!(this instanceof VisageClassType)) {
@@ -389,7 +389,7 @@ public class VisageReferenceType extends VisageType implements ReferenceType {
     public Value getValue(Field field) {
         virtualMachine().setLastFieldAccessException(null);
         Field jdiField = VisageWrapper.unwrap(field);
-        if (!isJavaFXType()) {
+        if (!isVisageType()) {
             return VisageWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
         }
 
@@ -452,7 +452,7 @@ public class VisageReferenceType extends VisageType implements ReferenceType {
         // Create the above Maps and lists
         for (Field wrappedField : wrappedFields) {
             Field unwrapped = VisageWrapper.unwrap(wrappedField);
-            if (isJavaFXType()) {
+            if (isVisageType()) {
                 List<Method> mth = underlying().methodsByName("get" + unwrapped.name());
                 if (mth.size() == 0) {
                     // No getter

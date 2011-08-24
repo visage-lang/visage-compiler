@@ -56,7 +56,7 @@ public class VisageColorLiteral extends VisageExpression implements ColorLiteral
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.COLOR_LITERAL;
     }
 

@@ -67,7 +67,7 @@ public class VisageForExpression extends VisageExpression implements ForExpressi
         return VisageTag.FOR_EXPRESSION;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return fxKind;
     }
 

@@ -212,7 +212,7 @@ public class VisagedocTool extends org.visage.tools.main.VisageCompiler {
                 if (!dir.endsWith(File.separator))
                     dir = dir + File.separator;
                 for (int j = 0; j < filenames.length; j++) {
-                    if (isValidJavaFXSourceFile(filenames[j])) {
+                    if (isValidVisageSourceFile(filenames[j])) {
                         String fn = dir + filenames[j];
                         // messager.notice("main.Loading_source_file", fn);
                             trees.append(parse(fn));
@@ -268,7 +268,7 @@ public class VisagedocTool extends org.visage.tools.main.VisageCompiler {
             if (filenames != null) {
                 for (String filename : filenames) {
                     if (!addedPackage
-                            && (isValidJavaFXSourceFile(filename) ||
+                            && (isValidVisageSourceFile(filename) ||
                                 isValidClassFile(filename))
                             && !packages.contains(packageName)) {
                         packages.append(packageName);
@@ -301,7 +301,7 @@ public class VisagedocTool extends org.visage.tools.main.VisageCompiler {
      * @return true if given file name is a valid Java source file name
      * and false otherwise.
      */
-    private static boolean isValidJavaFXSourceFile(String file) {
+    private static boolean isValidVisageSourceFile(String file) {
         if (!file.endsWith(".visage")) return false;
         String clazzName = file.substring(0, file.length() - ".visage".length());
         return isValidClassName(clazzName);

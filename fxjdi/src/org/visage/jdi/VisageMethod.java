@@ -96,13 +96,13 @@ public class VisageMethod extends VisageTypeComponent implements Method {
         return underlying().isVarArgs();
     }
 
-    public boolean isJavaFXMethod() {
-        return declaringType().isJavaFXType();
+    public boolean isVisageMethod() {
+        return declaringType().isVisageType();
     }
 
-    public boolean isJavaFXInternalMethod() {
+    public boolean isVisageInternalMethod() {
         return declaringType().isInternalJavaType() ||
-            (isJavaFXMethod() && isInternalMethod());
+            (isVisageMethod() && isInternalMethod());
     }
 
     public VisageLocation location() {

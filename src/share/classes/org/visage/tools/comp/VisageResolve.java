@@ -2216,7 +2216,7 @@ public class VisageResolve {
                         kindname = JCDiagnostic.fragment(MsgSym.KINDNAME_CONSTRUCTOR);
                         idname = site.tsym.name.toString();
                     }
-                    args = "(" + types.toJavaFXString(argtypes) + ")";
+                    args = "(" + types.toVisageString(argtypes) + ")";
                     if (typeargtypes != null && typeargtypes.nonEmpty())
                         typeargs = "<" + Type.toString(typeargtypes) + ">";
                 }
@@ -2224,7 +2224,7 @@ public class VisageResolve {
                     String wrongSymStr;
                     if (wrongSym instanceof MethodSymbol)
                         wrongSymStr =
-                                types.toJavaFXString((MethodSymbol) wrongSym.asMemberOf(site, types),
+                                types.toVisageString((MethodSymbol) wrongSym.asMemberOf(site, types),
                                     ((MethodSymbol) wrongSym).params);
                     else
                         wrongSymStr = wrongSym.toString();
@@ -2233,7 +2233,7 @@ public class VisageResolve {
                               wrongSymStr,
                               types.location(wrongSym, site),
                               typeargs,
-                              types.toJavaFXString(argtypes),
+                              types.toVisageString(argtypes),
                               explanation);
                 } else if (site.tsym.name.len != 0) {
                     if (site.tsym.kind == PCK && !site.tsym.exists())
@@ -2241,7 +2241,7 @@ public class VisageResolve {
                     else
                         log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE_LOCATION,
                                   kindname, idname, args, typeargs,
-                                  typeKindName(site), types.toJavaFXString(site));
+                                  typeKindName(site), types.toVisageString(site));
                 } else {
                     log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE, kindname, idname, args, typeargs);
                 }

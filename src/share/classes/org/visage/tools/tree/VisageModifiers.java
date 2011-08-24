@@ -44,7 +44,7 @@ public class VisageModifiers extends VisageTree implements ModifiersTree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.MODIFIERS;
     }
 

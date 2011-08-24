@@ -96,7 +96,7 @@ public class VisageBackendLog extends Log {
         } else {
             fxLog.note(MsgSym.MESSAGE_VISAGE_NOTE_INTERNAL_ERROR, crashFileName);
         }
-        Log.printLines(crashFileWriter, Main.getJavafxLocalizedString(
+        Log.printLines(crashFileWriter, Main.getVisageLocalizedString(
                                     "compiler.note." + MsgSym.MESSAGE_VISAGE_NOTE_INTERNAL_ERROR1,
                                     VisageCompiler.fullVersion(), 
                                     System.getProperty("java.vm.version"),

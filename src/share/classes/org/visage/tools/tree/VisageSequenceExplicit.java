@@ -68,7 +68,7 @@ public class VisageSequenceExplicit extends VisageAbstractSequenceCreator implem
         return VisageTag.SEQUENCE_EXPLICIT;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.SEQUENCE_EXPLICIT;
     }
 

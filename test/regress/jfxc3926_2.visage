@@ -1,5 +1,5 @@
 /**
- * JFXC-3926 :  Exception in OpenJavafx compiler fails to build swat samples and applications.
+ * JFXC-3926 :  Exception in Visage compiler fails to build swat samples and applications.
  *
  * @test
  * @run

@@ -49,7 +49,7 @@ public class VisageLiteral extends VisageExpression implements LiteralTree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         switch (typetag) {
             case TypeTags.INT:
             case TypeTags.SHORT:

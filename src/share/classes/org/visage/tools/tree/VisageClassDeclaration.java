@@ -177,7 +177,7 @@ public class VisageClassDeclaration extends VisageExpression implements ClassDec
         v.visitClassDeclaration(this);
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.CLASS_DECLARATION;
     }
 

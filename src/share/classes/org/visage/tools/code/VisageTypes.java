@@ -494,15 +494,15 @@ public class VisageTypes extends Types {
                 isSameType(type, syms.visage_DoubleType));
     }
 
-    public List<String> toJavaFXString(List<Type> ts) {
+    public List<String> toVisageString(List<Type> ts) {
         List<String> buf = List.nil();
         for (Type t : ts) {
-            buf = buf.prepend(toJavaFXString(t));
+            buf = buf.prepend(toVisageString(t));
         }
         return buf.reverse();
     }
 
-    public String toJavaFXString(Type type) {
+    public String toVisageString(Type type) {
         StringBuilder buffer = new StringBuilder();
         typePrinter.visit(type, buffer);
         return buffer.toString();
@@ -580,7 +580,7 @@ public class VisageTypes extends Types {
         }
     };
 
-    public String toJavaFXString(MethodSymbol sym, List<VarSymbol> params) {
+    public String toVisageString(MethodSymbol sym, List<VarSymbol> params) {
         StringBuilder buffer = new StringBuilder();
         if ((sym.flags() & BLOCK) != 0)
             buffer.append(sym.owner.name);
@@ -600,7 +600,7 @@ public class VisageTypes extends Types {
                         params = params.tail;
                     }
                     buffer.append(":");
-                    buffer.append(toJavaFXString(l.head));
+                    buffer.append(toVisageString(l.head));
                 }
                 buffer.append(')');
             }

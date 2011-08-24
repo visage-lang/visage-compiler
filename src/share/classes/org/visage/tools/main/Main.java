@@ -709,7 +709,7 @@ public class Main {
     /** Print a message reporting an internal exception.
      */
     void bugMessage(Throwable ex) {
-        Log.printLines(out, getJavafxLocalizedString(MsgSym.MESSAGE_VISAGE_MSG_BUG,
+        Log.printLines(out, getVisageLocalizedString(MsgSym.MESSAGE_VISAGE_MSG_BUG,
                                                VisageCompiler.fullVersion()));
         ex.printStackTrace(out);
     }
@@ -758,7 +758,7 @@ public class Main {
     /** Find a localized string in the resource bundle.
      *  @param key     The key for the localized string.
      */
-    public static String getJavafxLocalizedString(String key, Object... args) { // FIXME sb private
+    public static String getVisageLocalizedString(String key, Object... args) { // FIXME sb private
         try {
             Messages fxmessages = new Messages(visageBundleName);
             return fxmessages.getLocalizedString(key, args);

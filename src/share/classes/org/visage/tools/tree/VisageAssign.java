@@ -45,7 +45,7 @@ public class VisageAssign extends VisageExpression implements AssignmentTree {
     }
 
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ASSIGNMENT;
     }
 

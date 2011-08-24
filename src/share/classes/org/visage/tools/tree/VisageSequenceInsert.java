@@ -69,7 +69,7 @@ public class VisageSequenceInsert extends VisageExpression implements SequenceIn
         return VisageTag.INSERT;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.SEQUENCE_INSERT;
     }
 

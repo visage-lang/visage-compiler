@@ -66,7 +66,7 @@ public class VisageErroneousType extends VisageTypeUnknown {
     }
     
     @Override
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.ERRONEOUS;
     }
 }

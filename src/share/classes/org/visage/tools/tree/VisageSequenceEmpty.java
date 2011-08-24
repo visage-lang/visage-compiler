@@ -44,7 +44,7 @@ public class VisageSequenceEmpty extends VisageAbstractSequenceCreator implement
         return VisageTag.SEQUENCE_EMPTY;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.SEQUENCE_EMPTY;
     }
 

@@ -58,7 +58,7 @@ public class VisageInterpolateValue extends VisageExpression implements Interpol
         return value;
     }
 
-    public VisageKind getJavaFXKind() {
+    public VisageKind getVisageKind() {
         return VisageKind.INTERPOLATE_VALUE;
     }
 

@@ -13,7 +13,7 @@ from http://jdk6.dev.java.net/plugin2/ will discuss this topic. The
 following is an overview:
 
 A Visage Stage can be embedded in an applet using the
-org.visage.runtime.adapter.Applet class. The "MainJavaFXScript"
+org.visage.runtime.adapter.Applet class. The "MainVisageClass"
 applet parameter indicates the Visage class to be run and which will
 provide the Stage instance that is embedded in the applet. For
 example,
@@ -44,7 +44,7 @@ example,
   Test.html:
 
     <applet id="app" archive="..." code="org.visage.runtime.adapter.Applet" ...>
-        <param name="MainJavaFXScript" value="Test">
+        <param name="MainVisageClass" value="Test">
     </applet>
 
 This applet is referred to via the name "app" in the example above and
