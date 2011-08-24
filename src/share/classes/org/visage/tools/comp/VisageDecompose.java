@@ -1138,7 +1138,7 @@ public class VisageDecompose implements VisageVisitor {
             body.value.type = cdecl.type;  //TODO: probably need to go deeper
 
             // Add VisageForPart as implemented interface -- VisageForPart<T>
-            Type intfc = types.applySimpleGenericType(types.erasure(syms.visage_FXForPartInterfaceType), inductionType);
+            Type intfc = types.applySimpleGenericType(types.erasure(syms.visage_ForPartInterfaceType), inductionType);
             cdecl.setDifferentiatedExtendingImplementingMixing(
                     List.<VisageExpression>nil(),
                     List.<VisageExpression>of(fxmake.Type(intfc)),  // implement interface

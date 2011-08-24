@@ -1162,12 +1162,12 @@ class VisageAnalyzeClass {
     //
     // Returns true if specified class is the VisageBase class.
     //
-    public boolean isFXBase(Symbol sym) { return sym == syms.visage_FXBaseType.tsym; }
+    public boolean isFXBase(Symbol sym) { return sym == syms.visage_BaseType.tsym; }
 
     //
     // Returns true if specified class is the VisageObject class.
     //
-    public boolean isFXObject(Symbol sym) { return sym == syms.visage_FXObjectType.tsym; }
+    public boolean isFXObject(Symbol sym) { return sym == syms.visage_ObjectType.tsym; }
 
     //
     // Returns true if specified class is either the VisageBase or the VisageObject class.

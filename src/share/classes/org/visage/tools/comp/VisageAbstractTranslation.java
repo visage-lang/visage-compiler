@@ -1606,7 +1606,7 @@ public abstract class VisageAbstractTranslation
                     targs.append(Call(defs.VisageConstant_make, translateExpr(arg, formal)));
 
                     // pass VisageConstant.VOFF$value as offset value
-                    targs.append(Select(makeType(syms.visage_FXConstantType), defs.varOFF$valueName));
+                    targs.append(Select(makeType(syms.visage_ConstantType), defs.varOFF$valueName));
                 }
             } else {
                 boolean handlingVarargs = false;
@@ -1821,7 +1821,7 @@ public abstract class VisageAbstractTranslation
             }
             if (isBound) {
                 for (VisageVar fxVar : tree.getParams()) {
-                    params.append(Param(syms.visage_FXObjectType,
+                    params.append(Param(syms.visage_ObjectType,
                             boundFunctionObjectParamName(fxVar.name)));
                     params.append(Param(syms.visage_IntegerType,
                             boundFunctionVarNumParamName(fxVar.name)));

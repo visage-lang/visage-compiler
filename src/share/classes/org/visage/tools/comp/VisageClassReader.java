@@ -516,9 +516,9 @@ public class VisageClassReader extends ClassReader {
                      it = it.tail) {
                     Type itype = it.head;
                     checkForIntfSymbol(itype.tsym);
-                    if (((ClassSymbol) itype.tsym).flatname == defs.cFXObjectName) {
+                    if (((ClassSymbol) itype.tsym).flatname == defs.cObjectName) {
                         csym.flags_field |= VisageFlags.VISAGE_CLASS;
-                    } else if (((ClassSymbol) itype.tsym).flatname == defs.cFXMixinName) {
+                    } else if (((ClassSymbol) itype.tsym).flatname == defs.cMixinName) {
                         csym.flags_field |= VisageFlags.MIXIN | VisageFlags.VISAGE_CLASS;
                     } else if ((csym.fullname.len + defs.mixinClassSuffixName.len ==
                              ((ClassSymbol) itype.tsym).fullname.len) &&
@@ -540,9 +540,9 @@ public class VisageClassReader extends ClassReader {
                  it = it.tail) {
                     Type itype = it.head;
                     checkForIntfSymbol(itype.tsym);
-                    if (((ClassSymbol) itype.tsym).flatname == defs.cFXObjectName) {
+                    if (((ClassSymbol) itype.tsym).flatname == defs.cObjectName) {
                         csym.flags_field |= VisageFlags.VISAGE_CLASS;
-                    } else if (((ClassSymbol) itype.tsym).flatname == defs.cFXMixinName) {
+                    } else if (((ClassSymbol) itype.tsym).flatname == defs.cMixinName) {
                         csym.flags_field |= VisageFlags.MIXIN | VisageFlags.VISAGE_CLASS;
                     } else {
                         itype = translateType(itype);

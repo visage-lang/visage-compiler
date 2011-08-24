@@ -274,7 +274,7 @@ public class VisageTranslateBind extends VisageAbstractTranslation implements Vi
                         // pass VisageConstant wrapper for argument expression
                         targs.append(Call(defs.VisageConstant_make, translateExpr(arg, arg.type)));
                         // pass VisageConstant.VOFF$value as offset value
-                        targs.append(Select(makeType(syms.visage_FXConstantType), defs.varOFF$valueName));
+                        targs.append(Select(makeType(syms.visage_ConstantType), defs.varOFF$valueName));
                     } else {
                         TODO("non-Ident and non-immutable in bound call");
                     }
@@ -2609,7 +2609,7 @@ public class VisageTranslateBind extends VisageAbstractTranslation implements Vi
 
             Type helperType = clause.boundHelper.type;
             JCVariableDecl indexParam = Var(syms.intType, names.fromString(defs.dollarIndexNamePrefix()), null);
-            Type partType = types.applySimpleGenericType(syms.visage_FXForPartInterfaceType, inductionType);
+            Type partType = types.applySimpleGenericType(syms.visage_ForPartInterfaceType, inductionType);
             JCMethodDecl makeDecl = Method(Flags.PUBLIC,
                                         partType,
                                         names.fromString(VisageDefs.makeForPart_AttributeMethodPrefix),

@@ -343,7 +343,7 @@ public class VisageTranslateInvBind extends VisageAbstractTranslation implements
                 receiver = id(selectorSym);
             } else {
                 JCVariableDecl selector =
-                        TmpVar(syms.visage_FXObjectType,
+                        TmpVar(syms.visage_ObjectType,
                         Getter(selectorSym));
                 addSetterPreface(selector);
                 receiver = id(selector);

@@ -252,7 +252,7 @@ public class VisageBoundFiller extends VisageTreeScanner {
                 ident.type = returnVar.type;
                 ident.sym = returnVar.sym;
                 ListBuffer<VisageExpression> pointerMakeArgs = ListBuffer.lb();
-                pointerMakeArgs.append(fxmake.VarRef(ident, VisageVarRef.RefKind.INST).setType(syms.visage_FXObjectType));
+                pointerMakeArgs.append(fxmake.VarRef(ident, VisageVarRef.RefKind.INST).setType(syms.visage_ObjectType));
                 pointerMakeArgs.append(fxmake.VarRef(ident, VisageVarRef.RefKind.VARNUM).setType(syms.intType));
 
                 // call Pointer.make($$bound$result$)

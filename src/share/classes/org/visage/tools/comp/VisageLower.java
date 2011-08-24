@@ -445,7 +445,7 @@ public class VisageLower implements VisageVisitor {
         if (pointer_Make || builtins_Func) {
                 VisageExpression varExpr = lowerExpr(tree.args.head);
                 ListBuffer<VisageExpression> syntheticArgs = ListBuffer.lb();
-                syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, VisageVarRef.RefKind.INST).setType(syms.visage_FXObjectType));
+                syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, VisageVarRef.RefKind.INST).setType(syms.visage_ObjectType));
                 
                 if (varExpr.getFXTag() == VisageTag.IDENT && ((VisageIdent)varExpr).getName().equals(names._this)) {
                     syntheticArgs.append(m.at(tree.pos).LiteralInteger("-1", 10).setType(syms.intType));

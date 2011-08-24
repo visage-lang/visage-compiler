@@ -185,7 +185,7 @@ public class VisagePreTranslationSupport {
             ct.setEnclosingType(owner1.type);
         }
 
-        ct.supertype_field = syms.visage_FXBaseType;
+        ct.supertype_field = syms.visage_BaseType;
 
         return classSym;
     }
@@ -347,7 +347,7 @@ public class VisagePreTranslationSupport {
                 Flags.PUBLIC | Flags.STATIC | VisageFlags.FUNC_IS_BUILTINS_SYNTH,
                 name,
                 new Type.MethodType(
-                    List.of(syms.visage_FXObjectType, syms.intType),
+                    List.of(syms.visage_ObjectType, syms.intType),
                     syms.booleanType,
                     List.<Type>nil(),
                     syms.methodClass),
@@ -359,7 +359,7 @@ public class VisagePreTranslationSupport {
                 Flags.PUBLIC | Flags.STATIC | VisageFlags.FUNC_POINTER_MAKE,
                 defs.Pointer_make.methodName,
                 new Type.MethodType(
-                    List.of(syms.visage_FXObjectType, syms.intType, types.erasure(syms.classType)),
+                    List.of(syms.visage_ObjectType, syms.intType, types.erasure(syms.classType)),
                     syms.visage_PointerType,
                     List.<Type>nil(),
                     syms.methodClass),

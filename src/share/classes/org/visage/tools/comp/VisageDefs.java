@@ -133,10 +133,10 @@ public class VisageDefs {
     public static final String cObjectArraySequence = sequence_PackageString + ".ObjectArraySequence";
 
     // in runtime package -- public
-    public static final String cFXBase = runtime_PackageString + ".VisageBase";
-    public static final String cFXObject = runtime_PackageString + ".VisageObject";
+    public static final String cBase = runtime_PackageString + ".VisageBase";
+    public static final String cObject = runtime_PackageString + ".VisageObject";
     public static final String cErrorHandler = runtime_PackageString + ".ErrorHandler";
-    public static final String cFXMixin = runtime_PackageString + ".VisageMixin";
+    public static final String cMixin = runtime_PackageString + ".VisageMixin";
     public static final String cTypeInfo = runtime_PackageString + ".TypeInfo";
     public static final String cNonLocalReturnException = runtime_PackageString + ".NonLocalReturnException";
     public static final String cNonLocalBreakException = runtime_PackageString + ".NonLocalBreakException";
@@ -144,11 +144,11 @@ public class VisageDefs {
     // in runtime package
     private static final String cUtil = runtime_PackageString + ".Util";
     private static final String cChecks = runtime_PackageString + ".Checks";
-    private static final String cFXConstant = runtime_PackageString + ".VisageConstant";
+    private static final String cConstant = runtime_PackageString + ".VisageConstant";
     private static final String cPointer = runtime_PackageString + ".Pointer";
     // in runtime.util package
     private static final String cStringLocalization = runtimeUtil_PackageString + ".StringLocalization";
-    private static final String cFXFormatter = runtimeUtil_PackageString + ".VisageFormatter";
+    private static final String cFormatter = runtimeUtil_PackageString + ".VisageFormatter";
     // in java.lang package
     private static final String cMath = javaLang_PackageString + ".Math";
     private static final String cString = javaLang_PackageString + ".String";
@@ -269,8 +269,8 @@ public class VisageDefs {
     /**
      * Classes as Name
      */
-    final Name cFXObjectName;
-    final Name cFXMixinName;
+    final Name cObjectName;
+    final Name cMixinName;
     final Name cJavaLangThreadName;
 
     /**
@@ -644,8 +644,8 @@ public class VisageDefs {
         gt_ColorMethodName = names.fromString("gt");
         negate_ColorMethodName = names.fromString("negate");
 
-        cFXObjectName = names.fromString(cFXObject);
-        cFXMixinName = names.fromString(cFXMixin);
+        cObjectName = names.fromString(cObject);
+        cMixinName = names.fromString(cMixin);
         mixinClassSuffixName = names.fromString(mixinClassSuffix);
         lengthSuffixName = names.fromString("$length");
         deprecatedInterfaceSuffixName = names.fromString(deprecatedInterfaceSuffix);
@@ -879,12 +879,12 @@ public class VisageDefs {
 
         ErrorHandler_bindException = new RuntimeMethod(names, cErrorHandler, "bindException");
 
-        VisageBase_switchDependence = new RuntimeMethod(names, cFXBase, "switchDependence$");
-        VisageBase_removeDependent = new RuntimeMethod(names, cFXBase, "removeDependent$");
-        VisageBase_addDependent = new RuntimeMethod(names, cFXBase, "addDependent$");
-        VisageBase_makeInitMap = new RuntimeMethod(names, cFXBase, "makeInitMap$");
+        VisageBase_switchDependence = new RuntimeMethod(names, cBase, "switchDependence$");
+        VisageBase_removeDependent = new RuntimeMethod(names, cBase, "removeDependent$");
+        VisageBase_addDependent = new RuntimeMethod(names, cBase, "addDependent$");
+        VisageBase_makeInitMap = new RuntimeMethod(names, cBase, "makeInitMap$");
 
-        VisageConstant_make = new RuntimeMethod(names, cFXConstant, "make");
+        VisageConstant_make = new RuntimeMethod(names, cConstant, "make");
 
         Pointer_make = new RuntimeMethod(names, cPointer, "make");
         Pointer_switchDependence = new RuntimeMethod(names, cPointer, "switchDependence");
@@ -895,7 +895,7 @@ public class VisageDefs {
         Color_valueOf = new RuntimeMethod(names, cColor, "valueOf");
 
         StringLocalization_getLocalizedString = new RuntimeMethod(names, cStringLocalization, "getLocalizedString");
-        VisageFormatter_sprintf = new RuntimeMethod(names, cFXFormatter, "sprintf");
+        VisageFormatter_sprintf = new RuntimeMethod(names, cFormatter, "sprintf");
         String_format = new RuntimeMethod(names, cString, "format");
 
         accessorPrefixes = new Name[] {

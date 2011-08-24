@@ -411,7 +411,7 @@ public class VisageMemberEnter extends VisageTreeScanner implements VisageVisito
         importNamed(syms.visage_LengthType.tsym, scope);
         importNamed(syms.visage_AngleType.tsym, scope);
         importNamed(syms.visage_ColorType.tsym, scope);
-        importNamed(syms.visage_FXRuntimeType.tsym, scope);
+        importNamed(syms.visage_RuntimeType.tsym, scope);
     }
 
     /* ********************************************************************
@@ -843,7 +843,7 @@ public class VisageMemberEnter extends VisageTreeScanner implements VisageVisito
                 if (c.fullname == names.java_lang_Object) {
                     supertype = Type.noType;
                 } else {
-                    supertype = syms.visage_FXBaseType;
+                    supertype = syms.visage_BaseType;
                 }
             }
             ct.supertype_field = supertype;

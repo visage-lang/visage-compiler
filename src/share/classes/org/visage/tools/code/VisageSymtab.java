@@ -78,7 +78,7 @@ public class VisageSymtab extends Symtab {
     public final Type visage_AnyType;
     public final Type visage_UnspecifiedType;
     public final Type visage_AutoImportRuntimeType;
-    public final Type visage_FXRuntimeType;
+    public final Type visage_RuntimeType;
     public final Type visage_VoidType;
     public final Type visage_java_lang_VoidType;
     public final Type visage_SequenceType;
@@ -91,19 +91,19 @@ public class VisageSymtab extends Symtab {
     public final Type visage_ObjectArray;
     static public final int MAX_FIXED_PARAM_LENGTH = 8;
     public final Type[] visage_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
-    public final Type visage_FXObjectType;
-    public final Type visage_FXMixinType;
-    public final Type visage_FXBaseType;
+    public final Type visage_ObjectType;
+    public final Type visage_MixinType;
+    public final Type visage_BaseType;
     public final Type visage_SequencesType;
     public final Type visage_KeyValueType;
     public final Type visage_KeyFrameType;
     public final Type visage_KeyValueTargetType;
     public final Type visage_PointerType;
-    public final Type visage_FXConstantType;
+    public final Type visage_ConstantType;
     public final Type visage_BoundForOverSequenceType;
     public final Type visage_BoundForOverNullableSingletonType;
     public final Type visage_BoundForOverSingletonType;
-    public final Type visage_FXForPartInterfaceType;
+    public final Type visage_ForPartInterfaceType;
     public final Type visage_NonLocalReturnExceptionType;
     public final Type visage_NonLocalBreakExceptionType;
     public final Type visage_NonLocalContinueExceptionType;
@@ -212,7 +212,7 @@ public class VisageSymtab extends Symtab {
         visage_VoidType = voidType;
 
         visage_AutoImportRuntimeType = enterClass("visage.lang.Builtins");
-        visage_FXRuntimeType = enterClass("visage.lang.Visage");
+        visage_RuntimeType = enterClass("visage.lang.Visage");
         unreachableType = new Type(TypeTags.VOID, null);
         unreachableType.tsym = new TypeSymbol(0, names.fromString("<unreachable>"), Type.noType, rootPackage);
         visage_java_lang_VoidType = types.boxedClass(voidType).type;
@@ -229,11 +229,11 @@ public class VisageSymtab extends Symtab {
         visage_KeyFrameType = enterClass("visage.animation.KeyFrame");
         visage_KeyValueTargetType = enterClass("visage.animation.KeyValueTarget");
         visage_PointerType = enterClass("org.visage.runtime.Pointer");
-        visage_FXConstantType = enterClass("org.visage.runtime.VisageConstant");
+        visage_ConstantType = enterClass("org.visage.runtime.VisageConstant");
         visage_BoundForOverSequenceType = enterClass(VisageDefs.cBoundForOverSequence);
         visage_BoundForOverNullableSingletonType = enterClass(VisageDefs.cBoundForOverNullableSingleton);
         visage_BoundForOverSingletonType = enterClass(VisageDefs.cBoundForOverSingleton);
-        visage_FXForPartInterfaceType = enterClass(VisageDefs.cBoundForPartI);
+        visage_ForPartInterfaceType = enterClass(VisageDefs.cBoundForPartI);
         visage_NonLocalReturnExceptionType = enterClass(VisageDefs.cNonLocalReturnException);
         visage_NonLocalBreakExceptionType = enterClass(VisageDefs.cNonLocalBreakException);
         visage_NonLocalContinueExceptionType = enterClass(VisageDefs.cNonLocalContinueException);
@@ -267,9 +267,9 @@ public class VisageSymtab extends Symtab {
 
         runMethodName = names.fromString(VisageDefs.internalRunFunctionString);
 
-        visage_FXObjectType = enterClass(VisageDefs.cFXObject);
-        visage_FXMixinType = enterClass(VisageDefs.cFXMixin);
-        visage_FXBaseType = enterClass(VisageDefs.cFXBase);
+        visage_ObjectType = enterClass(VisageDefs.cObject);
+        visage_MixinType = enterClass(VisageDefs.cMixin);
+        visage_BaseType = enterClass(VisageDefs.cBase);
         
         enterOperators();
     }

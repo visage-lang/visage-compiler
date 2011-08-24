@@ -2439,7 +2439,7 @@ public class VisageAttr implements VisageVisitor {
 
         if (msym!=null && msym.owner!=null && msym.owner.type!=null &&
                 (msym.owner.type.tsym == syms.visage_AutoImportRuntimeType.tsym ||
-                 msym.owner.type.tsym == syms.visage_FXRuntimeType.tsym) &&
+                 msym.owner.type.tsym == syms.visage_RuntimeType.tsym) &&
                 (methName == defs.isInitialized_MethodName ||
                 methName == defs.isReadOnly_MethodName)) {
             msym.flags_field |= VisageFlags.FUNC_IS_BUILTINS_SYNTH;

@@ -395,10 +395,10 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
         ListBuffer<JCExpression> implementing = ListBuffer.lb();
             
         if (cDecl.isMixinClass()) {
-            implementing.append(makeIdentifier(diagPos, cFXObject));
-            implementing.append(makeIdentifier(diagPos, cFXMixin));
+            implementing.append(makeIdentifier(diagPos, cObject));
+            implementing.append(makeIdentifier(diagPos, cMixin));
         } else {
-            implementing.append(makeIdentifier(diagPos, cFXObject));
+            implementing.append(makeIdentifier(diagPos, cObject));
         }
 
         for (VisageExpression intf : cDecl.getImplementing()) {
@@ -541,7 +541,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
         }
 
         JCIdent updateInstanceArg() {
-            return makeMethodArg(defs.updateInstance_ArgName, syms.visage_FXObjectType);
+            return makeMethodArg(defs.updateInstance_ArgName, syms.visage_ObjectType);
         }
 
         JCIdent objArg() {
@@ -3079,7 +3079,7 @@ however this is what we need */
             // Method return type.
             Type returnType = method.getReturnType();
             // Basic call to supporting VisageBase method.
-            JCExpression fxBaseCall = Call(makeType(syms.visage_FXBaseType), method.name, callArgs);
+            JCExpression fxBaseCall = Call(makeType(syms.visage_BaseType), method.name, callArgs);
            
             // Exec or return based on return type.
             if (returnType == syms.voidType) {
@@ -3098,8 +3098,8 @@ however this is what we need */
         //
         public void cloneFXBase(HashSet<String> excludes) {
             // Retrieve VisageBase and VisageObject.
-            ClassSymbol fxBaseSym = (ClassSymbol)syms.visage_FXBaseType.tsym;
-            ClassSymbol fxObjectSym = (ClassSymbol)syms.visage_FXObjectType.tsym;
+            ClassSymbol fxBaseSym = (ClassSymbol)syms.visage_BaseType.tsym;
+            ClassSymbol fxObjectSym = (ClassSymbol)syms.visage_ObjectType.tsym;
             Entry e;
 
             // Clone the vars in VisageBase.
@@ -4408,7 +4408,7 @@ however this is what we need */
             if (toMixinClass) {
                 selector = makeType(cSym.type, false);
             } else if (toFXBase) {
-                selector = makeType(syms.visage_FXBaseType, false);
+                selector = makeType(syms.visage_BaseType, false);
             } else {
                 selector = id(names._super);
             }
@@ -4720,8 +4720,8 @@ however this is what we need */
                     classMods,
                     scriptName,
                     List.<JCTypeParameter>nil(),
-                    makeType(syms.visage_FXBaseType),
-                    List.of(makeType(syms.visage_FXObjectType)),
+                    makeType(syms.visage_BaseType),
+                    List.of(makeType(syms.visage_ObjectType)),
                     definitions);
             script.sym = scriptClassSymbol;
         
