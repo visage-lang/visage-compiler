@@ -6,11 +6,10 @@
 ^import/
 ^tools/
 ^dist/
-^nbproject/private/
+nbproject/private/
 ^visagedoc/build/
-^fxjdi/build/
-^fxjdi/dist/
-^fxjdi/nbproject/private/
+^visagejdi/build/
+^visagejdi/dist/
 ^doc/langspec/langref.xsl
 ^doc/reference/langref.xsl
 ^webrev/
@@ -25,5 +24,4 @@
 ^.*\.DS_Store$
 ^artifacts/.*$
 \.dep\.inc$
-visagedoc/nbproject/private
-demos/visagepad/nbproject/private
+^junit.*\.properties$
