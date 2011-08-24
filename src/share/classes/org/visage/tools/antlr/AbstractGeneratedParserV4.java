@@ -1010,7 +1010,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // DiagnosticPostion interface of the errorNode, which is created
         // by the getErrorMessage call.
         //
-        log.error(errorNode, MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
+        log.error(errorNode, MsgSym.MESSAGE_VISAGE_GENERALERROR, msg);
     }
 
     /**
@@ -1033,7 +1033,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // And record the information using the Visage error sink and the
         // DiagnosticPostion interface of the supplied node.
         //
-        log.error(node, MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
+        log.error(node, MsgSym.MESSAGE_VISAGE_GENERALERROR, msg);
     }
 
     /**
@@ -1393,7 +1393,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // OK, having got here, we must require a SEMI and it is missing
         // so issue the error.
         //
-        log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_SEMI_REQUIRED);
+        log.error(semiPos(), MsgSym.MESSAGE_VISAGE_SEMI_REQUIRED);
                  
     }
     

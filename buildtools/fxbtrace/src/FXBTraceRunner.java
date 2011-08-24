@@ -51,7 +51,7 @@ import java.util.logging.Logger;
  * In order to the following environment variables or properties must be set,
  * this is to facilitate testing of arbitrary SDK and test specimens.
  *   a. BUILD_DIR   or build.dir     : clean location for the build files
- *   b. JAVAFX_HOME or visage.home : location of visage sdk
+ *   b. VISAGE_HOME or visage.home : location of visage sdk
  *   c. BTRACE_HOME or btrace.home : location of btrace distro
  *   d. BASE_DIR    or base.dir    : location of the fxbtrace directory
  * 
@@ -85,16 +85,16 @@ public class FXBTraceRunner {
     // Paths we need
     static final String BUILD_DIR   = System.getProperty("build.dir",
             System.getenv("BUILD_DIR"));
-    static final String JAVAFX_HOME = System.getProperty("visage.home", 
-            System.getenv("JAVAFX_HOME"));
+    static final String VISAGE_HOME = System.getProperty("visage.home", 
+            System.getenv("VISAGE_HOME"));
     static final String BTRACE_HOME = System.getProperty("btrace.home", 
             System.getenv("BTRACE_HOME"));
     static final String BASE_DIR    = System.getProperty("base.dir", 
             System.getenv("BASE_DIR"));
    
-    static final String FXBTRACERUNNER_NAME = "FXTrackerRunner"; 
+    static final String VISAGEBTRACERUNNER_NAME = "FXTrackerRunner"; 
     static final String BTRACE_CLIENT_JAR = BTRACE_HOME + "/build/btrace-client.jar";
-    static final String JAVAFXRT_JAR = JAVAFX_HOME + "/lib/shared/visagert.jar";
+    static final String VISAGERT_JAR = VISAGE_HOME + "/lib/shared/visagert.jar";
     static final String BTRACE_COMPILER = "com.sun.btrace.compiler.Compiler";
     static final String BTRACE_AGENT_OPT = "-javaagent:" + BTRACE_HOME +
                 "/build/btrace-agent.jar=unsafe=true,script=";
@@ -103,7 +103,7 @@ public class FXBTraceRunner {
     static String TOOLS_JAR = null;
     static String BTRACE_COMPILE_CP = null;
     static String JAVA_EXE = null;
-    static String JAVAFX_EXE = null ;
+    static String VISAGE_EXE = null ;
    
     static final String SDK_DIR = "sdk";
     static final String JPSMARKER="JPSMARKER=";
@@ -146,8 +146,8 @@ public class FXBTraceRunner {
             logger.severe("BTRACE_HOME is null");
             mustExit = true;
         }
-        if (JAVAFX_HOME == null) {
-            logger.severe("JAVAFX_HOME is null");
+        if (VISAGE_HOME == null) {
+            logger.severe("VISAGE_HOME is null");
             mustExit = true;
         }
         if (BASE_DIR == null) {
@@ -196,7 +196,7 @@ public class FXBTraceRunner {
         JAVA_EXE = getExe("java").getAbsolutePath();
         TOOLS_JAR = JAVA_HOME + "/lib/tools.jar";
         BTRACE_COMPILE_CP = BTRACE_CLIENT_JAR + File.pathSeparator + TOOLS_JAR;
-        JAVAFX_EXE = getExe("visage").getAbsolutePath();
+        VISAGE_EXE = getExe("visage").getAbsolutePath();
     }
     
     static String getMainClassFromJar(String jarfilename) {
@@ -243,7 +243,7 @@ public class FXBTraceRunner {
         cmdsList.add(BTRACE_COMPILER);
         cmdsList.add("-unsafe");
         cmdsList.add("-classpath");
-        cmdsList.add(JAVAFXRT_JAR);
+        cmdsList.add(VISAGERT_JAR);
         cmdsList.add(btraceScript + ".java");
         doExec(cmdsList);
         
@@ -259,11 +259,11 @@ public class FXBTraceRunner {
 
         // run the fxbtrace script and application
         cmdsList.clear();
-        cmdsList.add(JAVAFX_EXE);
-        cmdsList.add("-D" + FXBTRACERUNNER_NAME + ".interval=" + interval);
-        String vmProps = System.getProperty(FXBTRACERUNNER_NAME + ".vmoptions");
+        cmdsList.add(VISAGE_EXE);
+        cmdsList.add("-D" + VISAGEBTRACERUNNER_NAME + ".interval=" + interval);
+        String vmProps = System.getProperty(VISAGEBTRACERUNNER_NAME + ".vmoptions");
         // ant could pass the property itself if undefined, ignore it.
-        if (vmProps != null && !vmProps.contains(FXBTRACERUNNER_NAME + ".vmoptions")) {
+        if (vmProps != null && !vmProps.contains(VISAGEBTRACERUNNER_NAME + ".vmoptions")) {
             String vmOpts[] = vmProps.split(",\\s");
             for (String x : vmOpts) {
                 cmdsList.add(x);
@@ -279,7 +279,7 @@ public class FXBTraceRunner {
    
     static void killTestApplication() {
         List<String> cmdsList = new ArrayList<String>();
-        String appId = getAppPid(FXBTRACERUNNER_NAME);
+        String appId = getAppPid(VISAGEBTRACERUNNER_NAME);
         cmdsList.clear();
 
         if (isWindows) {
@@ -430,7 +430,7 @@ public class FXBTraceRunner {
         if (outFile != null) return outFile;
         outFile = getExe(JAVA_HOME, exename);
         if (outFile != null) return outFile;
-        outFile = getExe(JAVAFX_HOME, exename);
+        outFile = getExe(VISAGE_HOME, exename);
         if (outFile != null) return outFile;        
 
         throw new RuntimeException("Error: could not find " + exename);

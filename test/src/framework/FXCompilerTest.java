@@ -44,18 +44,18 @@ public class FXCompilerTest extends TestSuite {
     public static final String OPTIONS_IGNORE_STD_ERROR = "ignore-std-error";
     public static final String OPTIONS_COMPARE = "compare";
 
-    // A list of test directories under which to look for the TEST_FX_INCLUDES patterns
-    private static final String TEST_FX_ROOTS = "test.visage.roots";
+    // A list of test directories under which to look for the TEST_VISAGE_INCLUDES patterns
+    private static final String TEST_VISAGE_ROOTS = "test.visage.roots";
 
-    // A pattern of tests to include under the TEST_FX_ROOTS
-    private static final String TEST_FX_INCLUDES = "test.visage.includes";
+    // A pattern of tests to include under the TEST_VISAGE_ROOTS
+    private static final String TEST_VISAGE_INCLUDES = "test.visage.includes";
 
     // Alternatively, a list of tests to run, eg
     //   "test/regress/jfxc1043.visage test/regress/jfxc1053.visage"
-    private static final String TEST_FX_LIST = "test.visage.list";
+    private static final String TEST_VISAGE_LIST = "test.visage.list";
 
     // And a list of tests to skip
-    private static final String TEST_FX_EXCLUDE_LIST = "test.visage.exclude.list";
+    private static final String TEST_VISAGE_EXCLUDE_LIST = "test.visage.exclude.list";
 
     /**
      * Creates a test suite for this directory's .visage source files.  This
@@ -70,16 +70,16 @@ public class FXCompilerTest extends TestSuite {
         Set<String> orphans = new TreeSet<String>();
 
 
-        String testList = System.getProperty(TEST_FX_LIST);
-        String excludeList = System.getProperty(TEST_FX_EXCLUDE_LIST);
+        String testList = System.getProperty(TEST_VISAGE_LIST);
+        String excludeList = System.getProperty(TEST_VISAGE_EXCLUDE_LIST);
         if (excludeList == null) {
             excludeList = "";
         }
         if (testList == null || testList.length() == 0) {
-            // Run the tests under the test roots dir, selected by the TEST_FX_INCLUDES patterns
-            String testRootsString = System.getProperty(TEST_FX_ROOTS);
+            // Run the tests under the test roots dir, selected by the TEST_VISAGE_INCLUDES patterns
+            String testRootsString = System.getProperty(TEST_VISAGE_ROOTS);
             if (testRootsString == null || testRootsString.length() == 0) {
-                throw new Exception("Error: " + TEST_FX_ROOTS + " must be set");
+                throw new Exception("Error: " + TEST_VISAGE_ROOTS + " must be set");
             }
             String testRoots[] = testRootsString.split(" ");
             for (String root : testRoots) {
@@ -87,7 +87,7 @@ public class FXCompilerTest extends TestSuite {
                 findTests(dir, tests, orphans, excludeList);
             }
         } else {
-            // TEST_FX_LIST contains a blank speparated list of test file names.
+            // TEST_VISAGE_LIST contains a blank speparated list of test file names.
             String strArray[] = testList.split(" ");
             for (String ss : strArray) {
                 if (excludeList.indexOf(ss) == -1) {
@@ -103,14 +103,14 @@ public class FXCompilerTest extends TestSuite {
 
     public FXCompilerTest(List<Test> tests, Set<String> orphans) {
         super();
-        if (System.getProperty(TEST_FX_INCLUDES) == null)
+        if (System.getProperty(TEST_VISAGE_INCLUDES) == null)
             addTest(new OrphanTestFinder(orphans));
         for (Test t : tests)
             addTest(t);
     }
 
     private static void findTests(File dir, List<Test> tests, Set<String> orphanFiles, String excludeList) throws Exception {
-        String pattern = System.getProperty(TEST_FX_INCLUDES);
+        String pattern = System.getProperty(TEST_VISAGE_INCLUDES);
         DirectoryScanner ds = new DirectoryScanner();
         ds.setIncludes(new String[]{(pattern == null ? "**/*.visage" : pattern)});
         ds.setBasedir(dir);

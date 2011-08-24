@@ -267,7 +267,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
             Object fn = ctx.getAttribute(ScriptEngine.FILENAME, scope);
             return fn.toString();
         } else {
-            return "___FX_SCRIPT___.visage";
+            return "___VISAGE_SCRIPT___.visage";
         }
     }
 

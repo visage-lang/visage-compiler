@@ -618,7 +618,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             JavafxClassSymbol owner = (JavafxClassSymbol) enclScope.owner;
             Name defaultVar = owner.getDefaultVar();
             if (defaultVar != null) {
-                log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_MULTIPLE_DEFAULT_VARS, defaultVar, tree.name);
+                log.error(tree.pos, MsgSym.MESSAGE_VISAGE_MULTIPLE_DEFAULT_VARS, defaultVar, tree.name);
             }
             owner.setDefaultVar(tree.name);
         }

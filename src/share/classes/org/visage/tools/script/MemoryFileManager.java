@@ -177,14 +177,14 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 	String binaryName;
         
 	public String getBinaryName() {
-	    return binaryName.equals("__FX_SCRIPT__.visage") ? "__FX_SCRIPT__" : binaryName;
+	    return binaryName.equals("__VISAGE_SCRIPT__.visage") ? "__VISAGE_SCRIPT__" : binaryName;
 	}
 
         StringInputBuffer(String name, String code) {
             super(toURI(name), Kind.SOURCE);
             this.code = code;
 	    binaryName = name;
-            isFXSourceFile = name.endsWith(JavafxFileManager.FX_SOURCE_SUFFIX);
+            isFXSourceFile = name.endsWith(JavafxFileManager.VISAGE_SOURCE_SUFFIX);
         }
         
         @Override

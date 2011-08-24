@@ -47,7 +47,7 @@ public class FXSequenceType extends FXInterfaceType {
 
     public FXSequenceType(FXVirtualMachine fxvm, InterfaceType underlying) {
         super(fxvm, underlying);
-        if (! underlying.name().equals(FXVirtualMachine.FX_SEQUENCE_TYPE_NAME)) {
+        if (! underlying.name().equals(FXVirtualMachine.VISAGE_SEQUENCE_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }
     }

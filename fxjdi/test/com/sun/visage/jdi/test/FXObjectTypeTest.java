@@ -58,7 +58,7 @@ public class FXObjectTypeTest extends JavafxTestBase {
         resumeTo(targetClassName, fxRunMethodName(), fxRunMethodSignature());
 
         // look for FXObject type
-        ReferenceType rt = vm().classesByName(FXVirtualMachine.FX_OBJECT_TYPE_NAME).get(0);
+        ReferenceType rt = vm().classesByName(FXVirtualMachine.VISAGE_OBJECT_TYPE_NAME).get(0);
         // it has to be FXObjectType
         Assert.assertEquals(true, rt instanceof FXObjectType);
         // check few methods of FXObjectType

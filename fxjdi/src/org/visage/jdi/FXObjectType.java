@@ -41,7 +41,7 @@ public class FXObjectType extends FXInterfaceType {
 
     public FXObjectType(FXVirtualMachine fxvm, InterfaceType underlying) {
         super(fxvm, underlying);
-        if (! underlying.name().equals(FXVirtualMachine.FX_OBJECT_TYPE_NAME)) {
+        if (! underlying.name().equals(FXVirtualMachine.VISAGE_OBJECT_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }
         count$Method = underlying.methodsByName("count$").get(0);

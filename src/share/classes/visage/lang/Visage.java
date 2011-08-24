@@ -159,7 +159,7 @@ public class Visage {
  
     /*
      * This static will be unique to each applet, when we move
-     * to the FXME/Embedded this will need to be tied the AMS
+     * to the VISAGEME/Embedded this will need to be tied the AMS
      * TODO: for Mobile Guys
      */
     private static FXSystemActionData exitData = new FXSystemActionData();

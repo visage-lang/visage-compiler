@@ -1,13 +1,13 @@
 #! /bin/sh
 
-if [ -z "$JAVAFX_HOME" ] ; then
+if [ -z "$VISAGE_HOME" ] ; then
   PRG="$0"
   progname=`basename "$0"`
-  JAVAFX_HOME=`dirname "$PRG"`/../../../dist/
+  VISAGE_HOME=`dirname "$PRG"`/../../../dist/
 fi
 
 if [ -f "${BTRACE_HOME}/build/btrace-agent.jar" ] ; then
-    ${JAVAFX_HOME}/bin/visage -javaagent:${BTRACE_HOME}/build/btrace-agent.jar=dumpClasses=false,debug=false,unsafe=true,probeDescPath=.,noServer=true,script=$1 $2 $3 $4 $5 $6 $7 $8 $9
+    ${VISAGE_HOME}/bin/visage -javaagent:${BTRACE_HOME}/build/btrace-agent.jar=dumpClasses=false,debug=false,unsafe=true,probeDescPath=.,noServer=true,script=$1 $2 $3 $4 $5 $6 $7 $8 $9
 else
     echo "Please set BTRACE_HOME before running this script"
 fi

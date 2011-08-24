@@ -366,7 +366,7 @@ public class JavafxTypes extends Types {
         if (! (sym instanceof JavafxClassSymbol))
             return false;
         sym.complete();
-        return (sym.flags_field & JavafxFlags.FX_CLASS) != 0;
+        return (sym.flags_field & JavafxFlags.VISAGE_CLASS) != 0;
     }
 
     public boolean isJFXFunction(Type t) {
@@ -377,7 +377,7 @@ public class JavafxTypes extends Types {
         if (fxClasses == null) {
             fxClasses = new HashMap<ClassSymbol, JFXClassDeclaration>();
         }
-        csym.flags_field |= JavafxFlags.FX_CLASS;
+        csym.flags_field |= JavafxFlags.VISAGE_CLASS;
         fxClasses.put(csym, cdecl);
     }
     

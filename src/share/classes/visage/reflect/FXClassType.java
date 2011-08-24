@@ -35,8 +35,8 @@ public abstract class FXClassType extends FXType implements FXMember {
     String name;
     FXContext context;
     protected int modifiers;
-    protected static final int FX_MIXIN = 1;
-    protected static final int FX_CLASS = 2;
+    protected static final int VISAGE_MIXIN = 1;
+    protected static final int VISAGE_CLASS = 2;
 
     public static final String SEQUENCE_CLASSNAME =
             "org.visage.runtime.sequence.Sequence";
@@ -83,12 +83,12 @@ public abstract class FXClassType extends FXType implements FXMember {
     public abstract List<FXClassType> getSuperClasses(boolean all);
     
     public boolean isMixin() {
-        return (modifiers & FX_MIXIN) != 0;
+        return (modifiers & VISAGE_MIXIN) != 0;
     }
 
     @Override
     public boolean isJfxType() {
-        return (modifiers & FX_CLASS) != 0;
+        return (modifiers & VISAGE_CLASS) != 0;
     }
 
     public boolean isAssignableFrom(FXClassType cls) {

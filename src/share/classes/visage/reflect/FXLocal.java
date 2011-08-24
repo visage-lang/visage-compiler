@@ -190,15 +190,15 @@ public class FXLocal {
                 Class[] interfaces = cls.getInterfaces();
                 for (int i = 0;  i < interfaces.length;  i++ ) {
                     String iname = interfaces[i].getName();
-                    if (iname.equals(FXOBJECT_NAME)) {
-                        modifiers |= FXClassType.FX_CLASS;
-                    } else if (iname.equals(FXMIXIN_NAME)) {
-                        modifiers |= FXClassType.FX_MIXIN;
+                    if (iname.equals(VISAGEOBJECT_NAME)) {
+                        modifiers |= FXClassType.VISAGE_CLASS;
+                    } else if (iname.equals(VISAGEMIXIN_NAME)) {
+                        modifiers |= FXClassType.VISAGE_MIXIN;
                     } 
                 }
                 
                 Class clsInterface = null;
-                if ((modifiers & FXClassType.FX_MIXIN) != 0) {
+                if ((modifiers & FXClassType.VISAGE_MIXIN) != 0) {
                     String cname = cls.getName();
                     
                     if (cname.endsWith(MIXIN_SUFFIX)) {
@@ -307,7 +307,7 @@ public class FXLocal {
             for (int i = 0;  i < interfaces.length;  i++) {
                 Class iface = interfaces[i];
                 String iname = iface.getName();
-                if (iname.equals(Context.FXOBJECT_NAME) || iname.equals(Context.FXMIXIN_NAME))
+                if (iname.equals(Context.VISAGEOBJECT_NAME) || iname.equals(Context.VISAGEMIXIN_NAME))
                     continue;
                 ClassType cl = (ClassType) context.makeClassRef(iface);
                 if (result.insert(cl) && all)

@@ -52,7 +52,7 @@ int Util::createProcess(const std::string& cmd) {
     memset (&start, 0, sizeof (start));
     start.cb = sizeof (start);
 
-    bool ldebug = getenv("_JAVAFX_LAUNCHER_DEBUG") != NULL;
+    bool ldebug = getenv("_VISAGE_LAUNCHER_DEBUG") != NULL;
     #ifdef DEBUG
     ldebug = true;
     #endif

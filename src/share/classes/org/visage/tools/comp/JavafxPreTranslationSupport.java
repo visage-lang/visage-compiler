@@ -170,7 +170,7 @@ public class JavafxPreTranslationSupport {
         classSym.completer = null;
         if (classSym.owner instanceof MethodSymbol &&
             (classSym.owner.flags() & JavafxFlags.BOUND) != 0L) {
-            classSym.flags_field |= JavafxFlags.FX_BOUND_FUNCTION_CLASS;
+            classSym.flags_field |= JavafxFlags.VISAGE_BOUND_FUNCTION_CLASS;
         }
         classSym.sourcefile = sourceFile(owner);
         classSym.members_field = new Scope(classSym);

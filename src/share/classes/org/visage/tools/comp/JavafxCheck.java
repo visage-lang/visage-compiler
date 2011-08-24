@@ -204,7 +204,7 @@ public class JavafxCheck {
      *  @param sym        The deprecated symbol.
      */
      void warnWarnOnUsePackage(DiagnosticPosition pos, Symbol sym) {
-         warnOnUsePackageHandler.report(pos, MsgSym.MESSAGE_JAVAFX_WARN_ON_USE_PACKAGE, sym);
+         warnOnUsePackageHandler.report(pos, MsgSym.MESSAGE_VISAGE_WARN_ON_USE_PACKAGE, sym);
      }
 
     /** Warn about unchecked operation.
@@ -436,7 +436,7 @@ public class JavafxCheck {
         }
         if (types.isSequence(found)) {
             if (pSequenceness == Sequenceness.DISALLOWED && ! types.isSameType(req, syms.objectType)) {
-                log.error(pos, MsgSym.MESSAGE_JAVAFX_BAD_SEQUENCE, types.toJavaFXString(req));
+                log.error(pos, MsgSym.MESSAGE_VISAGE_BAD_SEQUENCE, types.toJavaFXString(req));
                 return syms.errType;
             }
         }
@@ -669,9 +669,9 @@ public class JavafxCheck {
                isAssignableAsBlankFinal(v, env)))) {
             log.error(pos, MsgSym.MESSAGE_CANNOT_ASSIGN_VAL_TO_FINAL_VAR, v);
         } else if ((v.flags() & JavafxFlags.IS_DEF) != 0L) {
-            log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF, v);
+            log.error(pos, MsgSym.MESSAGE_VISAGE_CANNOT_ASSIGN_TO_DEF, v);
         } else if ((v.flags() & Flags.PARAMETER) != 0L) {
-            log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER, v);
+            log.error(pos, MsgSym.MESSAGE_VISAGE_CANNOT_ASSIGN_TO_PARAMETER, v);
         } else {
             // now check access permissions for write/init
             switch (writeKind) {
@@ -686,17 +686,17 @@ public class JavafxCheck {
                 String msg;
                 switch (writeKind) {
                     case INIT_BIND:
-                        msg = MsgSym.MESSAGE_JAVAFX_REPORT_BIND_ACCESS;
+                        msg = MsgSym.MESSAGE_VISAGE_REPORT_BIND_ACCESS;
                         break;
                     case INIT_NON_BIND:
-                        msg = MsgSym.MESSAGE_JAVAFX_REPORT_INIT_ACCESS;
+                        msg = MsgSym.MESSAGE_VISAGE_REPORT_INIT_ACCESS;
                         break;
                     case VAR_QUERY:
-                        msg = MsgSym.MESSAGE_JAVAFX_REPORT_VAR_QUERY_ACCESS;
+                        msg = MsgSym.MESSAGE_VISAGE_REPORT_VAR_QUERY_ACCESS;
                         break;
                     case ASSIGN:
                     default:
-                        msg = MsgSym.MESSAGE_JAVAFX_REPORT_WRITE_ACCESS;
+                        msg = MsgSym.MESSAGE_VISAGE_REPORT_WRITE_ACCESS;
                         break;
                 }
                 log.error(pos, msg, v,
@@ -753,13 +753,13 @@ public class JavafxCheck {
         }
         else if (types.isArray(tree.getInitializer().type)) {
             if (tree.isBound()) {
-                log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_BIND);
+                log.warning(tree.pos(), MsgSym.MESSAGE_VISAGE_UNSUPPORTED_TYPE_IN_BIND);
             }
             if (tree.getOnInvalidate() != null || tree.getOnReplace() != null) {
                 DiagnosticPosition pos = tree.getOnReplace() != null ?
                     tree.getOnReplace().pos() :
                     tree.getOnInvalidate().pos();
-                log.warning(pos, MsgSym.MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_TRIGGER);
+                log.warning(pos, MsgSym.MESSAGE_VISAGE_UNSUPPORTED_TYPE_IN_TRIGGER);
             }
         }
     }
@@ -793,13 +793,13 @@ public class JavafxCheck {
             if (initSym instanceof VarSymbol) {
                 if (pt != null && bindStatus.isBidiBind() && !types.isSameType(pt, initSym.type)) {
                     log.error(init.pos(), 
-                              MsgSym.MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND,
+                              MsgSym.MESSAGE_VISAGE_WRONG_TYPE_FOR_BIDI_BIND,
                               types.toJavaFXString(initSym.type),
                               types.toJavaFXString(pt));
                 }
                 checkAssignable(init.pos(), (JavafxVarSymbol) initSym, base, site, env, WriteKind.INIT_BIND);
             } else {
-                log.error(init.pos(), MsgSym.MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND);
+                log.error(init.pos(), MsgSym.MESSAGE_VISAGE_EXPR_UNSUPPORTED_FOR_BIDI_BIND);
             }
         }
     }
@@ -820,7 +820,7 @@ public class JavafxCheck {
         if (!types.isSequence(t) && t.tag != ARRAY && !t.isErroneous())
             return typeTagError(pos,
                         messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC +
-                        MsgSym.MESSAGE_JAVAFX_SEQ_OR_ARRAY),
+                        MsgSym.MESSAGE_VISAGE_SEQ_OR_ARRAY),
                         t);
         else
             return t;
@@ -852,7 +852,7 @@ public class JavafxCheck {
         }
 
         if (!isOk) {
-            log.error(pos, MsgSym.MESSAGE_JAVAFX_INVALID_SELECT_FOR_SUPER,
+            log.error(pos, MsgSym.MESSAGE_VISAGE_INVALID_SELECT_FOR_SUPER,
                     types.toJavaFXString(t),
                     types.toJavaFXString(csym.type));
         }
@@ -965,7 +965,7 @@ public class JavafxCheck {
     boolean checkDisjointWarn(DiagnosticPosition pos, long flags, long set1, long set2) {
         if ((flags & set1) != 0 && (flags & set2) != 0) {
             log.warning(pos,
-		      MsgSym.MESSAGE_JAVAFX_REDUNDANT_ACCESS_MODIFIERS,
+		      MsgSym.MESSAGE_VISAGE_REDUNDANT_ACCESS_MODIFIERS,
 		      JavafxTreeInfo.flagNames(JavafxTreeInfo.firstFlag(flags & set1)),
 		      JavafxTreeInfo.flagNames(JavafxTreeInfo.firstFlag(flags & set2)));
             return false;
@@ -984,7 +984,7 @@ public class JavafxCheck {
      */
     long checkFlags(DiagnosticPosition pos, long flags, Symbol sym, JFXTree tree) {
         long mask;
-        String msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON;
+        String msg = MsgSym.MESSAGE_VISAGE_MOD_NOT_ALLOWED_ON;
         String thing;
         boolean isScriptLevel = (flags & STATIC) != 0;
         switch (sym.kind) {
@@ -994,22 +994,22 @@ public class JavafxCheck {
                 thing = isDef? "def" : "var";
                 if (!vsym.isMember()) {
                     mask = JavafxLocalVarFlags;
-                    msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_LOCAL;
+                    msg = MsgSym.MESSAGE_VISAGE_MOD_NOT_ALLOWED_ON_LOCAL;
                 } else if (isDef) {
                     mask = JavafxMemberDefFlags;
-                    msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON;
+                    msg = MsgSym.MESSAGE_VISAGE_MOD_NOT_ALLOWED_ON;
                 } else if (isScriptLevel) {
                     mask = JavafxScriptVarFlags;
-                    msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_SCRIPT;
+                    msg = MsgSym.MESSAGE_VISAGE_MOD_NOT_ALLOWED_ON_SCRIPT;
                 } else {
                     mask = JavafxInstanceVarFlags;
-                    msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_INSTANCE;
+                    msg = MsgSym.MESSAGE_VISAGE_MOD_NOT_ALLOWED_ON_INSTANCE;
                 }
                 break;
             case MTH:
                 if (isScriptLevel) {
                     mask = JavafxScriptFunctionFlags;
-                    msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_SCRIPT;
+                    msg = MsgSym.MESSAGE_VISAGE_MOD_NOT_ALLOWED_ON_SCRIPT;
                 } else {
                     mask = JavafxFunctionFlags;
                 }
@@ -1395,14 +1395,14 @@ public class JavafxCheck {
 
         // Error if bound function overrides non-bound.
         if ((other.flags() & BOUND) == 0 && (m.flags() & BOUND) != 0) {
-            log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), MsgSym.MESSAGE_JAVAFX_BOUND_OVERRIDE_METH,
+            log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), MsgSym.MESSAGE_VISAGE_BOUND_OVERRIDE_METH,
                     cannotOverride(m, other));
             return;
         }
 
         // Error if non-bound function overrides bound.
         if ((other.flags() & BOUND) != 0 && (m.flags() & BOUND) == 0) {
-            log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), MsgSym.MESSAGE_JAVAFX_NON_BOUND_OVERRIDE_METH,
+            log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), MsgSym.MESSAGE_VISAGE_NON_BOUND_OVERRIDE_METH,
                     cannotOverride(m, other));
             return;
         }
@@ -1584,7 +1584,7 @@ public class JavafxCheck {
         Symbol sym = firstIncompatibility(t1, t2, site);
         if (sym != null) {
             if (sym.kind == VAR) {
-                log.error(pos, MsgSym.MESSAGE_JAVAFX_TYPES_INCOMPATIBLE_VARS,
+                log.error(pos, MsgSym.MESSAGE_VISAGE_TYPES_INCOMPATIBLE_VARS,
                     t1, t2, sym.name);
             }
             else {
@@ -1737,11 +1737,11 @@ public class JavafxCheck {
         boolean declaredOverride = (m.flags() & OVERRIDE) != 0;
         if (doesOverride) {
             if (!declaredOverride && (m.flags() & (Flags.SYNTHETIC|Flags.STATIC)) == 0) {
-                log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE, m);
+                log.warning(tree.pos(), MsgSym.MESSAGE_VISAGE_SHOULD_BE_DECLARED_OVERRIDE, m);
             }
         } else {
             if (declaredOverride) {
-                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, rs.kindName(m), m);
+                log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_DECLARED_OVERRIDE_DOES_NOT, rs.kindName(m), m);
             }
         }
     }
@@ -1791,14 +1791,14 @@ public class JavafxCheck {
                         // which is visible outside the script or which is in the same script
                         if (!types.isJFXClass(eSym.owner)) {
                             log.error(diagPos, (vsym.flags_field & JavafxFlags.IS_DEF) == 0L?
-                                   MsgSym.MESSAGE_JAVAFX_VAR_OVERRIDES_JAVA_MEMBER :
-                                   MsgSym.MESSAGE_JAVAFX_DEF_OVERRIDES_JAVA_MEMBER,
+                                   MsgSym.MESSAGE_VISAGE_VAR_OVERRIDES_JAVA_MEMBER :
+                                   MsgSym.MESSAGE_VISAGE_DEF_OVERRIDES_JAVA_MEMBER,
                                 eSym,
                                 eSym.owner);
                         } else if (overrides) {
                             log.error(diagPos, (vsym.flags_field & JavafxFlags.IS_DEF) == 0L?
-                                   MsgSym.MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER :
-                                   MsgSym.MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER,
+                                   MsgSym.MESSAGE_VISAGE_VAR_OVERRIDES_MEMBER :
+                                   MsgSym.MESSAGE_VISAGE_DEF_OVERRIDES_MEMBER,
                                 eSym,
                                 eSym.owner);
                         }
@@ -2006,7 +2006,7 @@ public class JavafxCheck {
             // Get the first extra for error position.
             JFXExpression extra = extending.get(1);
             log.error(extra.pos(),
-                MsgSym.MESSAGE_JAVAFX_ONLY_ONE_BASE_CLASS_ALLOWED);
+                MsgSym.MESSAGE_VISAGE_ONLY_ONE_BASE_CLASS_ALLOWED);
         }
     }
     
@@ -2016,7 +2016,7 @@ public class JavafxCheck {
      **/
     void checkPureMixinClass(DiagnosticPosition pos, ClassSymbol c) {
         if ((c.flags() & ABSTRACT) != 0) {
-            log.error(pos, MsgSym.MESSAGE_JAVAFX_PURE_MIXIN);
+            log.error(pos, MsgSym.MESSAGE_VISAGE_PURE_MIXIN);
         }
     }
 
@@ -2032,7 +2032,7 @@ public class JavafxCheck {
             // Get the first extra for error position.
             JFXExpression extra = extending.get(0);
             log.error(extra.pos(),
-                MsgSym.MESSAGE_JAVAFX_ONLY_MIXINS_AND_INTERFACES);
+                MsgSym.MESSAGE_VISAGE_ONLY_MIXINS_AND_INTERFACES);
         }
     }
 
@@ -2104,7 +2104,7 @@ public class JavafxCheck {
         if (its.contains(it)) {
             // If class is a mixin.
             if ((it.tsym.flags_field & JavafxFlags.MIXIN) != 0)
-	              log.error(pos, MsgSym.MESSAGE_JAVAFX_REPEATED_MIXIN);
+	              log.error(pos, MsgSym.MESSAGE_VISAGE_REPEATED_MIXIN);
             else
 	              log.error(pos, MsgSym.MESSAGE_REPEATED_INTERFACE);
         } else {
@@ -2304,7 +2304,7 @@ public class JavafxCheck {
     if ((stepValue > 0 && lowerValue > upperValue)
             || (stepValue < 0 && lowerValue < upperValue)
             || (isExclusive && lowerValue == upperValue)) {
-        log.warning(pos, MsgSym.MESSAGE_JAVAFX_RANGE_LITERAL_EMPTY);
+        log.warning(pos, MsgSym.MESSAGE_VISAGE_RANGE_LITERAL_EMPTY);
             }
     }
         
@@ -2326,8 +2326,8 @@ public class JavafxCheck {
             protected void reportForwardReference(DiagnosticPosition pos, boolean selfReference, Symbol s, boolean potential) {
                 JCDiagnostic description =
                         diags.fragment(selfReference ?
-                            MsgSym.MESSAGE_JAVAFX_SELF_REFERENCE :
-                            MsgSym.MESSAGE_JAVAFX_FORWARD_REFERENCE);
+                            MsgSym.MESSAGE_VISAGE_SELF_REFERENCE :
+                            MsgSym.MESSAGE_VISAGE_FORWARD_REFERENCE);
                 if (potential) {
                     log.warning(pos,
                             MsgSym.MESSAGE_MAYBE_FORWARD_REF,

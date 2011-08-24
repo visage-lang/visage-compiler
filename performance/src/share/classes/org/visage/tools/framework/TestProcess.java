@@ -41,8 +41,8 @@ public class TestProcess {
     static final boolean debug = Boolean.getBoolean(Runner.RUNNER_NAME + ".debug");
     static final Logger logger = Logger.getLogger(TestProcess.class.getName());
     static final String APP_NAME = System.getProperty("app.name");
-    static final String JAVAFX_HOME = System.getProperty("visage.home",
-            System.getenv("JAVAFX_HOME"));
+    static final String VISAGE_HOME = System.getProperty("visage.home",
+            System.getenv("VISAGE_HOME"));
     static final String APP_CLASSPATH =
             new File(System.getProperty("app.classpath", 
             System.getenv("APP_CLASSPATH"))).getAbsolutePath();
@@ -54,7 +54,7 @@ public class TestProcess {
     
     static final String JAVA_HOME;
     static final String JAVA_EXE;
-    static final String JAVAFX_EXE;
+    static final String VISAGE_EXE;
     static final String JMAP_EXE;
    
     
@@ -79,7 +79,7 @@ public class TestProcess {
         }
         JAVA_HOME = javaHome.getAbsolutePath();
         JAVA_EXE = TestProcess.getExe("java").getAbsolutePath();
-        JAVAFX_EXE = TestProcess.getExe("visage").getAbsolutePath();
+        VISAGE_EXE = TestProcess.getExe("visage").getAbsolutePath();
         JMAP_EXE = TestProcess.getExe("jmap").getAbsolutePath();
     }
     
@@ -198,7 +198,7 @@ public class TestProcess {
         if (outFile != null) return outFile;
         outFile = getExe(JAVA_HOME, exename);
         if (outFile != null) return outFile;
-        outFile = getExe(JAVAFX_HOME, exename);
+        outFile = getExe(VISAGE_HOME, exename);
         if (outFile != null) return outFile;        
 
         throw new RuntimeException("Error: could not find " + exename);

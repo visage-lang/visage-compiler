@@ -53,7 +53,7 @@ public class FXSequencesType extends FXClassType {
 
     public FXSequencesType(FXVirtualMachine fxvm, ClassType underlying) {
         super(fxvm, underlying);
-        if (!underlying.name().equals(FXVirtualMachine.FX_SEQUENCES_TYPE_NAME)) {
+        if (!underlying.name().equals(FXVirtualMachine.VISAGE_SEQUENCES_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }
     }

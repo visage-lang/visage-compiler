@@ -42,33 +42,33 @@ import java.util.Map;
 public class FxHighlighter extends SyntaxHighlighterBase {
     private static final Map<IElementType, TextAttributesKey> keys;
 
-    private static final TextAttributesKey FX_KEYWORD
+    private static final TextAttributesKey VISAGE_KEYWORD
             = TextAttributesKey.createTextAttributesKey("Visage.KEYWORD", HighlighterColors.JAVA_KEYWORD.getDefaultAttributes());
 
-    private static final TextAttributesKey FX_STRING
+    private static final TextAttributesKey VISAGE_STRING
             = TextAttributesKey.createTextAttributesKey("Visage.STRING", HighlighterColors.JAVA_STRING.getDefaultAttributes());
 
-    private static final TextAttributesKey FX_NUMERIC
+    private static final TextAttributesKey VISAGE_NUMERIC
             = TextAttributesKey.createTextAttributesKey("Visage.NUMERIC", HighlighterColors.JAVA_NUMBER.getDefaultAttributes());
 
-    private static final TextAttributesKey FX_BAD_CHARACTER
+    private static final TextAttributesKey VISAGE_BAD_CHARACTER
             = TextAttributesKey.createTextAttributesKey("Visage.BADCHARACTER", HighlighterColors.BAD_CHARACTER.getDefaultAttributes());
 
-    private static final TextAttributesKey FX_LINE_COMMENT
+    private static final TextAttributesKey VISAGE_LINE_COMMENT
             = TextAttributesKey.createTextAttributesKey("Visage.LINE_COMMENT", HighlighterColors.JAVA_LINE_COMMENT.getDefaultAttributes());
 
-    private static final TextAttributesKey FX_BLOCK_COMMENT
+    private static final TextAttributesKey VISAGE_BLOCK_COMMENT
             = TextAttributesKey.createTextAttributesKey("Visage.BLOCK_COMMENT", HighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes());
 
     static {
         keys = new HashMap<IElementType, TextAttributesKey>();
 
-        fillMap(keys, FxTokens.KEYWORDS, FX_KEYWORD);
-        fillMap(keys, FxTokens.STRING_LITERALS, FX_STRING);
-        fillMap(keys, FxTokens.NUMERIC_LITERALS, FX_NUMERIC);
-        keys.put(TokenType.BAD_CHARACTER, FX_BAD_CHARACTER);
-        keys.put(FxTokens.COMMENT.elementType, FX_BLOCK_COMMENT);
-        keys.put(FxTokens.LINE_COMMENT.elementType, FX_LINE_COMMENT);
+        fillMap(keys, FxTokens.KEYWORDS, VISAGE_KEYWORD);
+        fillMap(keys, FxTokens.STRING_LITERALS, VISAGE_STRING);
+        fillMap(keys, FxTokens.NUMERIC_LITERALS, VISAGE_NUMERIC);
+        keys.put(TokenType.BAD_CHARACTER, VISAGE_BAD_CHARACTER);
+        keys.put(FxTokens.COMMENT.elementType, VISAGE_BLOCK_COMMENT);
+        keys.put(FxTokens.LINE_COMMENT.elementType, VISAGE_LINE_COMMENT);
     }
 
     @NotNull

@@ -208,7 +208,7 @@ public class JavafxOptimizationStatistics {
     }
     
     private void show(String label, int value) {
-        log.note(MsgSym.MESSAGE_JAVAFX_OPTIMIZATION_STATISTIC, label, value);
+        log.note(MsgSym.MESSAGE_VISAGE_OPTIMIZATION_STATISTIC, label, value);
     }
     
     private void printInstanceVariableData() {
@@ -291,7 +291,7 @@ public class JavafxOptimizationStatistics {
             printWriter.printf("\n%5d  %s", (int) pair.getValue(), name);
         }
         printWriter.close();
-        log.note(MsgSym.MESSAGE_JAVAFX_OPTIMIZATION_STATISTIC, "Translators", stringWriter.toString());
+        log.note(MsgSym.MESSAGE_VISAGE_OPTIMIZATION_STATISTIC, "Translators", stringWriter.toString());
     }
 
     private void printDecompose() {
@@ -307,7 +307,7 @@ public class JavafxOptimizationStatistics {
                     dd.synthVars, dd.shreds, dd.count, ((double)dd.synthVars)/dd.count, ((double)dd.shreds)/dd.count, dd.name());
         }
         printWriter.close();
-        log.note(MsgSym.MESSAGE_JAVAFX_OPTIMIZATION_STATISTIC, "Decompose", stringWriter.toString());
+        log.note(MsgSym.MESSAGE_VISAGE_OPTIMIZATION_STATISTIC, "Decompose", stringWriter.toString());
     }
 
     public void printData(String which) {

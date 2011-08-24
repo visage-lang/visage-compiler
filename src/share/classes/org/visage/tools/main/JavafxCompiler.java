@@ -760,7 +760,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             }
             catch (RuntimeException ex) {
                 if (env.where != null)
-                    log.note(env.where, MsgSym.MESSAGE_JAVAFX_INTERNAL_ERROR,
+                    log.note(env.where, MsgSym.MESSAGE_VISAGE_INTERNAL_ERROR,
                              JavafxCompiler.fullVersion());
                 throw ex;
             }
@@ -1005,7 +1005,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
         } catch (RuntimeException ex) {
             if (env.where != null) {
-                log.note(env.where, MsgSym.MESSAGE_JAVAFX_INTERNAL_ERROR,
+                log.note(env.where, MsgSym.MESSAGE_VISAGE_INTERNAL_ERROR,
                         JavafxCompiler.fullVersion());
             }
             throw ex;

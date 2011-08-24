@@ -37,24 +37,24 @@ public class JavafxFlags {
     private static final long LAST_JAVA_FLAG = PROPRIETARY;
 
     // Explicit (parser set) modifier flags
-    private static final long FIRST_FX_MOD_FLAG        = LAST_JAVA_FLAG << 1;
-    public static final long BOUND                     = FIRST_FX_MOD_FLAG << 0;  // bound function
-    public static final long DEFAULT                   = FIRST_FX_MOD_FLAG << 1;  // default var
-    public static final long OVERRIDE                  = FIRST_FX_MOD_FLAG << 2;  // overridden function
-    public static final long IS_DEF                    = FIRST_FX_MOD_FLAG << 3;  // 'def' variable
-    public static final long PUBLIC_READ               = FIRST_FX_MOD_FLAG << 4;  // public-read var
-    public static final long PUBLIC_INIT               = FIRST_FX_MOD_FLAG << 5;  // public-init var
-    public static final long PACKAGE_ACCESS            = FIRST_FX_MOD_FLAG << 6;  // explicit 'package' access
-    public static final long MIXIN                     = FIRST_FX_MOD_FLAG << 7;  // this is a mixin class
+    private static final long FIRST_VISAGE_MOD_FLAG        = LAST_JAVA_FLAG << 1;
+    public static final long BOUND                     = FIRST_VISAGE_MOD_FLAG << 0;  // bound function
+    public static final long DEFAULT                   = FIRST_VISAGE_MOD_FLAG << 1;  // default var
+    public static final long OVERRIDE                  = FIRST_VISAGE_MOD_FLAG << 2;  // overridden function
+    public static final long IS_DEF                    = FIRST_VISAGE_MOD_FLAG << 3;  // 'def' variable
+    public static final long PUBLIC_READ               = FIRST_VISAGE_MOD_FLAG << 4;  // public-read var
+    public static final long PUBLIC_INIT               = FIRST_VISAGE_MOD_FLAG << 5;  // public-init var
+    public static final long PACKAGE_ACCESS            = FIRST_VISAGE_MOD_FLAG << 6;  // explicit 'package' access
+    public static final long MIXIN                     = FIRST_VISAGE_MOD_FLAG << 7;  // this is a mixin class
 
     // a couple of synthetic modifier flags
-    public static final long SCRIPT_PRIVATE            = FIRST_FX_MOD_FLAG << 8;  // implicily set flag if public/protected/package are not
-    public static final long SCRIPT_LEVEL_SYNTH_STATIC = FIRST_FX_MOD_FLAG << 9;  // STATIC bit has been set implicitly
-    public static final long OBJ_LIT_INIT              = FIRST_FX_MOD_FLAG << 10;
-    private static final long LAST_FX_MOD_FLAG         = OBJ_LIT_INIT;
+    public static final long SCRIPT_PRIVATE            = FIRST_VISAGE_MOD_FLAG << 8;  // implicily set flag if public/protected/package are not
+    public static final long SCRIPT_LEVEL_SYNTH_STATIC = FIRST_VISAGE_MOD_FLAG << 9;  // STATIC bit has been set implicitly
+    public static final long OBJ_LIT_INIT              = FIRST_VISAGE_MOD_FLAG << 10;
+    private static final long LAST_VISAGE_MOD_FLAG         = OBJ_LIT_INIT;
 
     // Flags on vars to inform translation
-    private static final long FIRST_VARMARK_FLAG       = LAST_FX_MOD_FLAG << 1;
+    private static final long FIRST_VARMARK_FLAG       = LAST_VISAGE_MOD_FLAG << 1;
     public static final long VARMARK_BARE_SYNTH        = FIRST_VARMARK_FLAG << 0; // synthetic that should only have field and invalidate generated for it (no accessors)
     private static final long LAST_VARMARK_FLAG        = VARMARK_BARE_SYNTH;
 
@@ -77,16 +77,16 @@ public class JavafxFlags {
     // This last shift + the last for modifiers + the last on marks must be <= 25 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags
-    private static final long FIRST_FX_FUNC_FLAG    = LAST_FX_MOD_FLAG << 1;
-    public static final long FUNC_IS_BUILTINS_SYNTH    = FIRST_FX_FUNC_FLAG << 1;  // This is a synthetic builtin function (isInitialized or isBound)
-    public static final long FUNC_POINTER_MAKE      = FIRST_FX_FUNC_FLAG << 2;  // This is the special Pointer.make() function
-    public static final long FUNC_SYNTH_LOCAL_DOIT  = FIRST_FX_FUNC_FLAG << 3;  // Synthetic function holding a local context
+    private static final long FIRST_VISAGE_FUNC_FLAG    = LAST_VISAGE_MOD_FLAG << 1;
+    public static final long FUNC_IS_BUILTINS_SYNTH    = FIRST_VISAGE_FUNC_FLAG << 1;  // This is a synthetic builtin function (isInitialized or isBound)
+    public static final long FUNC_POINTER_MAKE      = FIRST_VISAGE_FUNC_FLAG << 2;  // This is the special Pointer.make() function
+    public static final long FUNC_SYNTH_LOCAL_DOIT  = FIRST_VISAGE_FUNC_FLAG << 3;  // Synthetic function holding a local context
     
     // Class flags -- reuse same bits as VARUSE* flags
-    private static final long FIRST_FX_CLASS_FLAG    = LAST_FX_MOD_FLAG << 1;
-    public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // Visage class
-    public static final long CLASS_HAS_INIT_BLOCK    = FIRST_FX_CLASS_FLAG << 2;  // there is an init block on the class
-    public static final long FX_BOUND_FUNCTION_CLASS = FIRST_FX_CLASS_FLAG << 3;  // This is a local class that implements bound functions
+    private static final long FIRST_VISAGE_CLASS_FLAG    = LAST_VISAGE_MOD_FLAG << 1;
+    public static final long VISAGE_CLASS                = FIRST_VISAGE_CLASS_FLAG << 1;  // Visage class
+    public static final long CLASS_HAS_INIT_BLOCK    = FIRST_VISAGE_CLASS_FLAG << 2;  // there is an init block on the class
+    public static final long VISAGE_BOUND_FUNCTION_CLASS = FIRST_VISAGE_CLASS_FLAG << 3;  // This is a local class that implements bound functions
 
     public static final long JavafxAccessFlags = PUBLIC | PROTECTED | PRIVATE | SCRIPT_PRIVATE;
     public static final long JavafxExplicitAccessFlags = PUBLIC | PROTECTED | PRIVATE | PACKAGE_ACCESS;

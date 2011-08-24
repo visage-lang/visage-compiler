@@ -279,7 +279,7 @@ STRING_LITERAL
                                         
                             // Report the error
                             //
-                            log.error(sPos, MsgSym.MESSAGE_JAVAFX_UNTERMINATED_STRING);
+                            log.error(sPos, MsgSym.MESSAGE_VISAGE_UNTERMINATED_STRING);
                                         
                             // Always use a defined string as the value
                             //
@@ -320,7 +320,7 @@ STRING_LITERAL
                             
                             // Report the error
                             //
-                            log.error(sPos, MsgSym.MESSAGE_JAVAFX_UNTERMINATED_STRING);
+                            log.error(sPos, MsgSym.MESSAGE_VISAGE_UNTERMINATED_STRING);
                             
                             // Always use a defined string as the value
                             //
@@ -389,7 +389,7 @@ RBRACE_QUOTE_STRING_LITERAL
                             ('\n'|'\r'|EOF) // Badly formed string
                             
                             {
-                                log.error(eStringStart, MsgSym.MESSAGE_JAVAFX_UNTERMINATED_STRING);
+                                log.error(eStringStart, MsgSym.MESSAGE_VISAGE_UNTERMINATED_STRING);
                                 input.rewind();
                                 setText(getText() + "\"");
                             }
@@ -412,7 +412,7 @@ RBRACE_QUOTE_STRING_LITERAL
                     | { input.mark(); }
                         ('\n'|'\r'|EOF) // Badly formed string
                         {
-                            log.error(eStringStart, MsgSym.MESSAGE_JAVAFX_UNTERMINATED_STRING);
+                            log.error(eStringStart, MsgSym.MESSAGE_VISAGE_UNTERMINATED_STRING);
                             input.rewind();
                             setText(getText() + "'");
                         }
@@ -481,7 +481,7 @@ DoubleQuoteBody
             | '\\' .
             | '}'
                 {
-                    log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_UNESCAPED_RBRACE);
+                    log.error(getCharIndex()-1, MsgSym.MESSAGE_VISAGE_UNESCAPED_RBRACE);
                 }
             
          )*  
@@ -496,7 +496,7 @@ SingleQuoteBody
             | '\\' .
             | '}'
                 {
-                    log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_UNESCAPED_RBRACE);
+                    log.error(getCharIndex()-1, MsgSym.MESSAGE_VISAGE_UNESCAPED_RBRACE);
                 }
         )*  
     ;
@@ -712,7 +712,7 @@ FLOATING_POINT_LITERAL
                             {
                                 // Error - malformed hex constant
                                 //
-                                log.error(sPos, MsgSym.MESSAGE_JAVAFX_HEX_MALFORMED);
+                                log.error(sPos, MsgSym.MESSAGE_VISAGE_HEX_MALFORMED);
                                 setText("0");
                             }
                             else
@@ -741,7 +741,7 @@ FLOATING_POINT_LITERAL
                                     { 
                                         // Error - malformed hex constant
                                         //
-                                        log.error(sPos, MsgSym.MESSAGE_JAVAFX_HEX_FLOAT);
+                                        log.error(sPos, MsgSym.MESSAGE_VISAGE_HEX_FLOAT);
                                         setText("0");
                                     }
                             |
@@ -751,7 +751,7 @@ FLOATING_POINT_LITERAL
                     |   // If no digits follow 0x then it is an error
                         //
                         {
-                            log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_HEX_MISSING);
+                            log.error(getCharIndex()-1, MsgSym.MESSAGE_VISAGE_HEX_MISSING);
                             setText("0");
                         }
                         
@@ -782,7 +782,7 @@ FLOATING_POINT_LITERAL
                         
                         if  (rangeError)
                         {
-                            log.error(sPos, MsgSym.MESSAGE_JAVAFX_OCTAL_MALFORMED);
+                            log.error(sPos, MsgSym.MESSAGE_VISAGE_OCTAL_MALFORMED);
                             setText("0");
                         }
                         else
@@ -804,7 +804,7 @@ FLOATING_POINT_LITERAL
                             '.' Digits? 
                             
                                 { 
-                                    log.error(sPos, MsgSym.MESSAGE_JAVAFX_OCTAL_FLOAT);
+                                    log.error(sPos, MsgSym.MESSAGE_VISAGE_OCTAL_FLOAT);
                                     setText("0");
                                 }
                         |
@@ -1023,7 +1023,7 @@ Exponent
                     // used in numeric literals (e.g. '5em')
                     //
                     ~('m'|'x'|'0'..'9') {
-                        log.error(getCharIndex()-2, MsgSym.MESSAGE_JAVAFX_EXPONENT_MALFORMED);
+                        log.error(getCharIndex()-2, MsgSym.MESSAGE_VISAGE_EXPONENT_MALFORMED);
                         setText("0.0");
                     }
             )
@@ -1056,7 +1056,7 @@ COLOR_LITERAL
             {
                 // Error - malformed hex constant
                 //
-                log.error(sPos, MsgSym.MESSAGE_JAVAFX_COLOR_WRONG_CHARACTERS);
+                log.error(sPos, MsgSym.MESSAGE_VISAGE_COLOR_WRONG_CHARACTERS);
                 setText("#000");
             }
             else
@@ -1070,7 +1070,7 @@ COLOR_LITERAL
         |   // If no digits follow # then it is an error
             //
             {
-                log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_COLOR_MISSING);
+                log.error(getCharIndex()-1, MsgSym.MESSAGE_VISAGE_COLOR_MISSING);
                 setText("#000");
             }
     ;
@@ -1181,11 +1181,11 @@ INVALIDC
             
                 // Something very strange happened
                 //
-                log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_BAD_CHARACTER, "<unknown>");
+                log.error(getCharIndex()-1, MsgSym.MESSAGE_VISAGE_BAD_CHARACTER, "<unknown>");
                 
             } else {
             
-                log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_BAD_CHARACTER, getCharErrorDisplay( disp.charAt(0) ) );
+                log.error(getCharIndex()-1, MsgSym.MESSAGE_VISAGE_BAD_CHARACTER, getCharErrorDisplay( disp.charAt(0) ) );
             }
         }
     ;

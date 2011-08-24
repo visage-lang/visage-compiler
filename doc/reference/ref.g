@@ -752,7 +752,7 @@ assignOp
 	| PERCENTEQ
 		{ 
 			$op = JavafxTag.MOD_ASG;
-			log.warning(pos($PERCENTEQ), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The operator \%= will not be supported in the Visage 1.0 release" );
+			log.warning(pos($PERCENTEQ), MsgSym.MESSAGE_VISAGE_GENERALWARNING, "The operator \%= will not be supported in the Visage 1.0 release" );
 		}
 	;
 	
@@ -919,7 +919,7 @@ multOps
 			
 		{
 			$multOp = JavafxTag.MOD;
-			log.warning(pos($PERCENT), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The remainder operator \% will be replaced by mod" );
+			log.warning(pos($PERCENT), MsgSym.MESSAGE_VISAGE_GENERALWARNING, "The remainder operator \% will be replaced by mod" );
 		}	
              
 	| MOD		{ $multOp = JavafxTag.MOD;	}

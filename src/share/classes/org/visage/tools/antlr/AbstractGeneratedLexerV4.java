@@ -278,7 +278,7 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
         
         // Record the error for later output or capture by development tools
         //
-        log.error(getCharIndex(), MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
+        log.error(getCharIndex(), MsgSym.MESSAGE_VISAGE_GENERALERROR, msg);
     }
     
     protected boolean checkIntLiteralRange(String text, int pos, int radix, boolean negative) {
@@ -298,7 +298,7 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
        
             // Number form was too outrageous even for the converter
             //
-            log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Long", checkText);
+            log.error(pos, MsgSym.MESSAGE_VISAGE_LITERAL_OUT_OF_RANGE, "Long", checkText);
 
             return false;
         }
@@ -326,7 +326,7 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
               || length == 8 && dividerLoc == 7;
 
         if (!valid) {
-            log.error(pos, MsgSym.MESSAGE_JAVAFX_COLOR_WRONG_FORMAT, text);
+            log.error(pos, MsgSym.MESSAGE_VISAGE_COLOR_WRONG_FORMAT, text);
         }
         return valid;
     }

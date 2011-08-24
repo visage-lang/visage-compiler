@@ -247,7 +247,7 @@ public abstract class JavafxTranslationSupport {
     }
     
     protected boolean isBoundFuncClass(ClassSymbol sym) {
-        return (sym.flags_field & JavafxFlags.FX_BOUND_FUNCTION_CLASS) != 0L;
+        return (sym.flags_field & JavafxFlags.VISAGE_BOUND_FUNCTION_CLASS) != 0L;
     }
 
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, String str) {

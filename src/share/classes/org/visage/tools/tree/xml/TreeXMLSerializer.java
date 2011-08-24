@@ -949,7 +949,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
 
     private void startElement(String element, Attributes attrs) {
         try {
-            handler.startElement(JFXASTXML_NS, element, JFXASTXML_PREFIX + element, attrs);
+            handler.startElement(VISAGEASTXML_NS, element, VISAGEASTXML_PREFIX + element, attrs);
         } catch (Exception exp) {
             throw wrapException(exp);
         }
@@ -957,7 +957,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
 
     private void endElement(String element) {
         try {
-            handler.endElement(JFXASTXML_NS, element, JFXASTXML_PREFIX + element);
+            handler.endElement(VISAGEASTXML_NS, element, VISAGEASTXML_PREFIX + element);
         } catch (Exception exp) {
             throw wrapException(exp);
         }

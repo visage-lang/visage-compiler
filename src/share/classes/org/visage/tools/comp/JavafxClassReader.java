@@ -517,16 +517,16 @@ public class JavafxClassReader extends ClassReader {
                     Type itype = it.head;
                     checkForIntfSymbol(itype.tsym);
                     if (((ClassSymbol) itype.tsym).flatname == defs.cFXObjectName) {
-                        csym.flags_field |= JavafxFlags.FX_CLASS;
+                        csym.flags_field |= JavafxFlags.VISAGE_CLASS;
                     } else if (((ClassSymbol) itype.tsym).flatname == defs.cFXMixinName) {
-                        csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
+                        csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.VISAGE_CLASS;
                     } else if ((csym.fullname.len + defs.mixinClassSuffixName.len ==
                              ((ClassSymbol) itype.tsym).fullname.len) &&
                             ((ClassSymbol) itype.tsym).fullname.startsWith(csym.fullname) &&
                             itype.tsym.name.endsWith(defs.mixinClassSuffixName)) {
                         iface = itype;
                         iface.tsym.complete();
-                        csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
+                        csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.VISAGE_CLASS;
                     } else {
                         itype = translateType(itype);
                         interfaces.append(itype);
@@ -541,9 +541,9 @@ public class JavafxClassReader extends ClassReader {
                     Type itype = it.head;
                     checkForIntfSymbol(itype.tsym);
                     if (((ClassSymbol) itype.tsym).flatname == defs.cFXObjectName) {
-                        csym.flags_field |= JavafxFlags.FX_CLASS;
+                        csym.flags_field |= JavafxFlags.VISAGE_CLASS;
                     } else if (((ClassSymbol) itype.tsym).flatname == defs.cFXMixinName) {
-                        csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
+                        csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.VISAGE_CLASS;
                     } else {
                         itype = translateType(itype);
                         interfaces.append(itype);
@@ -561,7 +561,7 @@ public class JavafxClassReader extends ClassReader {
                     continue;
                 symlist = symlist.prepend(e.sym);
             }
-            boolean isFXClass = (csym.flags_field & JavafxFlags.FX_CLASS) != 0;
+            boolean isFXClass = (csym.flags_field & JavafxFlags.VISAGE_CLASS) != 0;
             boolean isMixinClass = (csym.flags_field & JavafxFlags.MIXIN) != 0;
             
             JavafxVarSymbol scriptAccessSymbol = isFXClass ? fxmake.ScriptAccessSymbol(csym) : null;

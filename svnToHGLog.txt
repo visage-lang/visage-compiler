@@ -18616,7 +18616,7 @@ changeset:   1342:465a112e4f11
 branch:      trunk
 user:        tball
 date:        Thu Jan 17 13:23:53 2008 -0800
-summary:     [svn r1424] Fixed JFX_OP_LAST in tag table.
+summary:     [svn r1424] Fixed VISAGE_OP_LAST in tag table.
 
 changeset:   1341:a5116a907590
 branch:      trunk
@@ -18844,7 +18844,7 @@ changeset:   1304:0b83380a5d43
 branch:      trunk
 user:        tball
 date:        Tue Jan 15 08:07:42 2008 -0800
-summary:     [svn r1380] use filter token for scene graph name, changed HOME references to JFX_HOME
+summary:     [svn r1380] use filter token for scene graph name, changed HOME references to VISAGE_HOME
 
 changeset:   1303:1fde41227710
 branch:      trunk
@@ -20110,7 +20110,7 @@ changeset:   1093:50cb6c63428c
 branch:      trunk
 user:        alexsch
 date:        Fri Dec 14 06:56:19 2007 -0800
-summary:     [svn r1158] Change _JAVAFX_LIBS variable to _JAVAFXC_HOME for the visagec.bat file
+summary:     [svn r1158] Change _VISAGE_LIBS variable to _VISAGEC_HOME for the visagec.bat file
 
 changeset:   1092:bf7cb9ee85cc
 branch:      trunk

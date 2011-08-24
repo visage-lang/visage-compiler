@@ -49,11 +49,11 @@ public abstract class FXContext {
     }
 
     public static final String MIXIN_SUFFIX = "$Mixin";
-    public static final String FXOBJECT_NAME =
+    public static final String VISAGEOBJECT_NAME =
             "org.visage.runtime.FXObject";
-    public static final String FXMIXIN_NAME =
+    public static final String VISAGEMIXIN_NAME =
             "org.visage.runtime.FXMixin";
-    public static final String FXBASE_NAME =
+    public static final String VISAGEBASE_NAME =
             "org.visage.runtime.FXBase";
     
     /** Get the {@code FXClassType} for the class with the given name. */

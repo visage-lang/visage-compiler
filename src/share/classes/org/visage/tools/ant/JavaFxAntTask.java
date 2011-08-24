@@ -52,7 +52,7 @@ public class JavaFxAntTask extends Javac {
     private static final String FAIL_MSG
             = "Visage compile failed; see the compiler error output for details.";
 
-    public static final String FX_ENTRY_POINT = "org.visage.tools.Main";
+    public static final String VISAGE_ENTRY_POINT = "org.visage.tools.Main";
 
     public JavaFxAntTask() {
         super();
@@ -174,7 +174,7 @@ public class JavaFxAntTask extends Javac {
                             return super.loadClass(n, r);
                         }
                     };
-                    Class c = Class.forName(FX_ENTRY_POINT, true, loader);
+                    Class c = Class.forName(VISAGE_ENTRY_POINT, true, loader);
                     Object compiler = c.newInstance();
                     Method compile = c.getMethod("compile", String[].class);
                     Object[] args = cmd.getArguments();
@@ -217,7 +217,7 @@ public class JavaFxAntTask extends Javac {
                 String cp = "-Xbootclasspath/p:" +
                         ((JavaFxAntTask) getJavac()).compilerClassPath.toString();
                 cmd.createArgument().setValue(cp);
-                cmd.createArgument().setValue(FX_ENTRY_POINT);
+                cmd.createArgument().setValue(VISAGE_ENTRY_POINT);
             }
             String profile = ((JavaFxAntTask) getJavac()).profile;
             if (profile != null) {

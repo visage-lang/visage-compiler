@@ -38,29 +38,29 @@ import javax.swing.*;
 public class FxFileType extends LanguageFileType {
 
     public FxFileType() {
-        super(FxPlugin.FX_LANGUAGE);
+        super(FxPlugin.VISAGE_LANGUAGE);
     }
 
     @NotNull
     @NonNls
     public String getName() {
-        return FxPlugin.FX_LANGUAGE_NAME;
+        return FxPlugin.VISAGE_LANGUAGE_NAME;
     }
 
     @NotNull
     public String getDescription() {
-        return FxPlugin.FX_LANGUAGE_NAME;
+        return FxPlugin.VISAGE_LANGUAGE_NAME;
     }
 
     @NotNull
     @NonNls
     public String getDefaultExtension() {
-        return FxPlugin.FX_FILE_EXTENSION;
+        return FxPlugin.VISAGE_FILE_EXTENSION;
     }
 
     @Nullable
     public Icon getIcon() {
-        return FxPlugin.FX_ICON;
+        return FxPlugin.VISAGE_ICON;
     }
 
     public boolean isJVMDebuggingSupported () {

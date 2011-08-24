@@ -217,7 +217,7 @@ public class FxSnippetsWindow implements ProjectComponent {
 		PeerFactory pf = PeerFactory.getInstance();
 		Content content = pf.getContentFactory().createContent(pane, null, false);
 		window.getContentManager().addContent(content);
-		window.setIcon(FxPlugin.FX_ICON);
+		window.setIcon(FxPlugin.VISAGE_ICON);
     }
 
     public void projectClosed () {

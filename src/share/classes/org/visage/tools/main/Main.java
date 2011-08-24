@@ -572,7 +572,7 @@ public class Main {
                        List<JavaFileObject> fileObjects)
     {
         try {
-            String envArgs = System.getenv("JAVAFXC_OPTIONS");
+            String envArgs = System.getenv("VISAGEC_OPTIONS");
             if (envArgs != null && !envArgs.equals("")) {
                 String[] moreArgs = envArgs.split(" ");
                 String[] modifiedArgs = new String[args.length + moreArgs.length];
@@ -709,7 +709,7 @@ public class Main {
     /** Print a message reporting an internal exception.
      */
     void bugMessage(Throwable ex) {
-        Log.printLines(out, getJavafxLocalizedString(MsgSym.MESSAGE_JAVAFX_MSG_BUG,
+        Log.printLines(out, getJavafxLocalizedString(MsgSym.MESSAGE_VISAGE_MSG_BUG,
                                                JavafxCompiler.fullVersion()));
         ex.printStackTrace(out);
     }

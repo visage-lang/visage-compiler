@@ -45,7 +45,7 @@ import org.jetbrains.annotations.NotNull;
 public class NewFxClassAction extends CreateElementActionBase {
 
     public NewFxClassAction() {
-        super("Visage Class", "Creates Visage Class", FxPlugin.FX_ICON);
+        super("Visage Class", "Creates Visage Class", FxPlugin.VISAGE_ICON);
     }
 
     @NotNull
@@ -65,7 +65,7 @@ public class NewFxClassAction extends CreateElementActionBase {
     protected PsiElement[] create(String newName, PsiDirectory directory) throws Exception {
         // Eventually, get this from a template
         final PsiManager psiManager = PsiManager.getInstance(directory.getProject());
-        final PsiFile file = psiManager.getElementFactory().createFileFromText(newName + '.' + FxPlugin.FX_FILE_EXTENSION, "");
+        final PsiFile file = psiManager.getElementFactory().createFileFromText(newName + '.' + FxPlugin.VISAGE_FILE_EXTENSION, "");
         CodeStyleManager.getInstance(psiManager).reformat(file);
         return new PsiElement[]{(PsiFile) directory.add(file)};
     }

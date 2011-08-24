@@ -52,7 +52,7 @@ public enum FxAstNodes {
 
     FxAstNodes(int tokenValue) {
         this.tokenValue = tokenValue;
-        this.elementType = new FxElementType(name(), FxPlugin.FX_LANGUAGE, tokenValue);
+        this.elementType = new FxElementType(name(), FxPlugin.VISAGE_LANGUAGE, tokenValue);
     }
 
     public IElementType asElementType() {

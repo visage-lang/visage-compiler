@@ -165,7 +165,7 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     }
     
     public boolean isBoundFuncClass() {
-        return (sym.flags_field & JavafxFlags.FX_BOUND_FUNCTION_CLASS) != 0L;
+        return (sym.flags_field & JavafxFlags.VISAGE_BOUND_FUNCTION_CLASS) != 0L;
     }
 
     @Override

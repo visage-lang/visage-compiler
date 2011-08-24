@@ -162,7 +162,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     @Override
     public void visitAssignop(JFXAssignOp tree) {
         if (bindStatus != JavafxBindStatus.UNBOUND) {
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "compound assignment");
+            log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT, "compound assignment");
         }
         super.visitAssignop(tree);
     }
@@ -170,7 +170,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     @Override
     public void visitAssign(JFXAssign tree) {
         if (bindStatus != JavafxBindStatus.UNBOUND) {
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "=");
+            log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT, "=");
         }
         super.visitAssign(tree);
     }
@@ -182,11 +182,11 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
             switch (tree.getFXTag()) {
                 case PREINC:
                 case POSTINC:
-                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "++");
+                    log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT, "++");
                     break;
                 case PREDEC:
                 case POSTDEC:
-                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "--");
+                    log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT, "--");
                     break;
             }
         }
@@ -205,8 +205,8 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
         if (bindStatus != JavafxBindStatus.UNBOUND) {
             log.error(tree.pos(),
-                    MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT,
-                    diags.fragment(MsgSym.MESSAGE_JAVAFX_KEYFRAME_LIT));
+                    MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT,
+                    diags.fragment(MsgSym.MESSAGE_VISAGE_KEYFRAME_LIT));
         }
         super.visitKeyFrameLiteral(tree);
     }
@@ -215,8 +215,8 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     public void visitTry(JFXTry tree) {
         if (bindStatus != JavafxBindStatus.UNBOUND) {
             log.error(tree.pos(),
-                    MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT,
-                    diags.fragment(MsgSym.MESSAGE_JAVAFX_TRY_CATCH));
+                    MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT,
+                    diags.fragment(MsgSym.MESSAGE_VISAGE_TRY_CATCH));
         }
         super.visitTry(tree);
     }
@@ -227,7 +227,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
         if (bindStatus != JavafxBindStatus.UNBOUND) {
             for (List<JFXExpression> l = tree.stats; l.nonEmpty(); l = l.tail) {
                 if (l.head.getFXTag() != JavafxTag.VAR_DEF) {
-                    log.error(l.head.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, l.head.toString());
+                    log.error(l.head.pos(), MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT, l.head.toString());
                 }
             }
         }

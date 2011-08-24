@@ -104,8 +104,8 @@ void Configuration::init() {
     visagecmd  = buf;
     visagecmd.erase (0,visagecmd.rfind("\\visage") + 1);
 
-    // set fxargs if given directly in _FX_ARGS
-    s = getenv("_FX_ARGS");
+    // set fxargs if given directly in _VISAGE_ARGS
+    s = getenv("_VISAGE_ARGS");
     fxargs = (s != NULL)? s : "";
 }
 

@@ -271,7 +271,7 @@ public enum JavafxTag {
     /** xor operator
      */
     XOR,
-    JFX_OP_FIRST,
+    VISAGE_OP_FIRST,
     
     /** sizeof operator
      */
@@ -309,7 +309,7 @@ public enum JavafxTag {
      */
     KEYFRAME_LITERAL,
 
-    JFX_OP_LAST;
+    VISAGE_OP_LAST;
     
     public boolean isIncDec() {
         return (PREINC.ordinal() <= ordinal() && ordinal() <= POSTDEC.ordinal());

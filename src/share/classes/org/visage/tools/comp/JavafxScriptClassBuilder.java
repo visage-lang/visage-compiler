@@ -148,7 +148,7 @@ public class JavafxScriptClassBuilder {
             }
             default: {
                 // bad arguments
-                log.error(runFunc.pos(), MsgSym.MESSAGE_JAVAFX_RUN_FUNCTION_PARAM);
+                log.error(runFunc.pos(), MsgSym.MESSAGE_VISAGE_RUN_FUNCTION_PARAM);
                 fval.funParams = makeRunFunctionArgs(defaultRunArgName);
             }
         }
@@ -168,7 +168,7 @@ public class JavafxScriptClassBuilder {
         }
 
         if (scriptingMode && module.pid != null)
-            log.error(module.pos(), MsgSym.MESSAGE_JAVAFX_PACKAGE_IN_SCRIPT_EVAL_MODE);
+            log.error(module.pos(), MsgSym.MESSAGE_VISAGE_PACKAGE_IN_SCRIPT_EVAL_MODE);
 
         // check for references to pseudo variables and if found, declare them
         class PseudoIdentScanner extends JavafxTreeScanner {
@@ -240,7 +240,7 @@ public class JavafxScriptClassBuilder {
                             checkAndNormalizeUserRunFunction(decl);
                             userRunFunction = decl;
                         } else {
-                            log.error(decl.pos(), MsgSym.MESSAGE_JAVAFX_RUN_FUNCTION_SINGLE);
+                            log.error(decl.pos(), MsgSym.MESSAGE_VISAGE_RUN_FUNCTION_SINGLE);
                         }
                     }
                     if ((decl.getModifiers().flags & EXTERNALIZING_FLAGS) != 0) {
@@ -331,9 +331,9 @@ public class JavafxScriptClassBuilder {
                     // loose expressions, if allowed, get added to the statements/value
                     if (isLibrary && !looseExpressionsSeen) {
                         JCDiagnostic reason = externalAccessFound ?
-                            diags.fragment(MsgSym.MESSAGE_JAVAFX_LOOSE_IN_LIB) :
-                            diags.fragment(MsgSym.MESSAGE_JAVAFX_LOOSE_IN_RUN);
-                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_LOOSE_EXPRESSIONS, reason);
+                            diags.fragment(MsgSym.MESSAGE_VISAGE_LOOSE_IN_LIB) :
+                            diags.fragment(MsgSym.MESSAGE_VISAGE_LOOSE_IN_RUN);
+                        log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_LOOSE_EXPRESSIONS, reason);
                     }
                     looseExpressionsSeen = true;
                     value = (JFXExpression) tree;
@@ -675,7 +675,7 @@ public class JavafxScriptClassBuilder {
         }
         
         if (reservedTopLevelNamesSet.contains(name)) {
-            log.error(pos, MsgSym.MESSAGE_JAVAFX_RESERVED_TOP_LEVEL_SCRIPT_MEMBER, name.toString());
+            log.error(pos, MsgSym.MESSAGE_VISAGE_RESERVED_TOP_LEVEL_SCRIPT_MEMBER, name.toString());
         }
     }
     

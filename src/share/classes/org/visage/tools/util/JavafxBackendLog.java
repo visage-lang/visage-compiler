@@ -92,12 +92,12 @@ public class JavafxBackendLog extends Log {
     private void writeToCrashFile(String extra) {
         Log fxLog = Log.instance(fxContext);
         if (crashFileName == null) {
-            fxLog.note(MsgSym.MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR2);
+            fxLog.note(MsgSym.MESSAGE_VISAGE_NOTE_INTERNAL_ERROR2);
         } else {
-            fxLog.note(MsgSym.MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR, crashFileName);
+            fxLog.note(MsgSym.MESSAGE_VISAGE_NOTE_INTERNAL_ERROR, crashFileName);
         }
         Log.printLines(crashFileWriter, Main.getJavafxLocalizedString(
-                                    "compiler.note." + MsgSym.MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR1,
+                                    "compiler.note." + MsgSym.MESSAGE_VISAGE_NOTE_INTERNAL_ERROR1,
                                     JavafxCompiler.fullVersion(), 
                                     System.getProperty("java.vm.version"),
                                     System.getProperty("java.runtime.version"),

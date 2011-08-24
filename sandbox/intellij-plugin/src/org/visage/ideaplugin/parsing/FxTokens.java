@@ -199,7 +199,7 @@ public enum FxTokens {
 
     FxTokens(int value) {
         tokenValue = value;
-        elementType = new FxElementType(name(), FxPlugin.FX_LANGUAGE, value);
+        elementType = new FxElementType(name(), FxPlugin.VISAGE_LANGUAGE, value);
     }
 
     public IElementType asElementType() {

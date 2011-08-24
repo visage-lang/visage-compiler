@@ -165,7 +165,7 @@ public class RecognizedOptions {
         XJCOV,
         XD,
         DUMPJAVA,
-        DUMPFX,
+        DUMPVISAGE,
         SOURCEFILE);
 
     static Set<OptionName> javacFileManagerOptions = EnumSet.of(
@@ -415,7 +415,7 @@ public class RecognizedOptions {
 		return super.process(options, option, operand);
 	    }
 	},
-	new JavafxOption.FXOption(PLATFORM,	MsgSym.MESSAGE_JAVAFX_OPT_ARG_NAME,	MsgSym.MESSAGE_JAVAFX_OPT_PLATFORM) {
+	new JavafxOption.FXOption(PLATFORM,	MsgSym.MESSAGE_VISAGE_OPT_ARG_NAME,	MsgSym.MESSAGE_VISAGE_OPT_PLATFORM) {
 	},
 	new Option(VERSION,					MsgSym.MESSAGE_OPT_VERSION) {
         @Override
@@ -582,7 +582,7 @@ public class RecognizedOptions {
 
         // Javafxc-specific options
         new HiddenOption(DUMPJAVA),
-        new HiddenOption(DUMPFX),
+        new HiddenOption(DUMPVISAGE),
         
         /*
 	 * TODO: With apt, the matches method accepts anything if

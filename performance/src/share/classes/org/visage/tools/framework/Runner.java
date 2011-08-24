@@ -92,7 +92,7 @@ public class Runner {
    
     static void doRun() {
         List<String> cmdsList = new ArrayList<String>();
-        cmdsList.add(TestProcess.JAVAFX_EXE);
+        cmdsList.add(TestProcess.VISAGE_EXE);
         cmdsList.add("-D" + TestProcess.JPSMARKER);
         String vmProps = System.getProperty(RUNNER_NAME + ".vmoptions");
         // ant could pass the property itself if undefined, ignore it.

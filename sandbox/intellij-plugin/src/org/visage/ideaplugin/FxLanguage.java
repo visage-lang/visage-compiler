@@ -50,7 +50,7 @@ public class FxLanguage extends Language {
     private PairedBraceMatcher braceMatcher;
 
     public FxLanguage() {
-        super(FxPlugin.FX_LANGUAGE_NAME, "text/plain");
+        super(FxPlugin.VISAGE_LANGUAGE_NAME, "text/plain");
     }
 
     @NotNull

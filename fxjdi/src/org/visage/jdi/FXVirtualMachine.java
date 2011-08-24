@@ -393,51 +393,51 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     // Visage types
-    public static final String FX_ENTRY_TYPE_NAME = "org.visage.runtime.Entry";
+    public static final String VISAGE_ENTRY_TYPE_NAME = "org.visage.runtime.Entry";
     private FXClassType fxEntryType;
     public synchronized FXClassType fxEntryType() {
         if (fxEntryType == null) {
-            List<ReferenceType> refTypes = classesByName(FX_ENTRY_TYPE_NAME);
+            List<ReferenceType> refTypes = classesByName(VISAGE_ENTRY_TYPE_NAME);
             fxEntryType = refTypes.isEmpty() ? null : (FXClassType) refTypes.get(0);
         }
         return fxEntryType;
     }
 
-    public static final String FX_OBJECT_TYPE_NAME = "org.visage.runtime.FXObject";
+    public static final String VISAGE_OBJECT_TYPE_NAME = "org.visage.runtime.FXObject";
     private FXObjectType fxObjectType;
     public synchronized FXObjectType fxObjectType() {
         if (fxObjectType == null) {
-            List<ReferenceType> refTypes = classesByName(FX_OBJECT_TYPE_NAME);
+            List<ReferenceType> refTypes = classesByName(VISAGE_OBJECT_TYPE_NAME);
             fxObjectType = refTypes.isEmpty() ? null : (FXObjectType) refTypes.get(0);
         }
         return fxObjectType;
     }
 
-    public static final String FX_MIXIN_TYPE_NAME = "org.visage.runtime.FXMixin";
+    public static final String VISAGE_MIXIN_TYPE_NAME = "org.visage.runtime.FXMixin";
     private FXInterfaceType fxMixinType;
     public synchronized FXReferenceType fxMixinType() {
         if (fxMixinType == null) {
-            List<ReferenceType> refTypes = classesByName(FX_MIXIN_TYPE_NAME);
+            List<ReferenceType> refTypes = classesByName(VISAGE_MIXIN_TYPE_NAME);
             fxMixinType = refTypes.isEmpty()? null : (FXInterfaceType) refTypes.get(0);
         }
         return fxMixinType;
     }
 
-    public static final String FX_SEQUENCE_TYPE_NAME = "org.visage.runtime.sequence.Sequence";
+    public static final String VISAGE_SEQUENCE_TYPE_NAME = "org.visage.runtime.sequence.Sequence";
     private FXSequenceType fxSequenceType;
     public synchronized FXSequenceType fxSequenceType() {
         if (fxSequenceType == null) {
-            List<ReferenceType> refTypes = classesByName(FX_SEQUENCE_TYPE_NAME);
+            List<ReferenceType> refTypes = classesByName(VISAGE_SEQUENCE_TYPE_NAME);
             fxSequenceType = refTypes.isEmpty() ? null : (FXSequenceType) refTypes.get(0);
         }
         return fxSequenceType;
     }
 
-    public static final String FX_SEQUENCES_TYPE_NAME = "org.visage.runtime.sequence.Sequences";
+    public static final String VISAGE_SEQUENCES_TYPE_NAME = "org.visage.runtime.sequence.Sequences";
     private FXSequencesType fxSequencesType;
     public synchronized FXSequencesType fxSequencesType() {
         if (fxSequencesType == null) {
-            List<ReferenceType> refTypes = classesByName(FX_SEQUENCES_TYPE_NAME);
+            List<ReferenceType> refTypes = classesByName(VISAGE_SEQUENCES_TYPE_NAME);
             if (refTypes.isEmpty()) {
                 // ensure that the debuggee has loaded and initialized Sequences type
                 fxSequencesType = (FXSequencesType) classType(initSequencesType());
@@ -552,7 +552,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         synchronized (refTypesCache) {
             if (! refTypesCache.containsKey(ct)) {
                 String name = ct.name();
-                if (name.equals(FX_SEQUENCES_TYPE_NAME)) {
+                if (name.equals(VISAGE_SEQUENCES_TYPE_NAME)) {
                     refTypesCache.put(ct, new FXSequencesType(this, ct));
                 } else {
                     refTypesCache.put(ct, new FXClassType(this, ct));
@@ -566,9 +566,9 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         synchronized (refTypesCache) {
             if (! refTypesCache.containsKey(it)) {
                 String name = it.name();
-                if (name.equals(FX_OBJECT_TYPE_NAME)) {
+                if (name.equals(VISAGE_OBJECT_TYPE_NAME)) {
                    refTypesCache.put(it, new FXObjectType(this, it));
-                } else if (name.equals(FX_SEQUENCE_TYPE_NAME)) {
+                } else if (name.equals(VISAGE_SEQUENCE_TYPE_NAME)) {
                    refTypesCache.put(it, new FXSequenceType(this, it));
                 } else {
                    refTypesCache.put(it, new FXInterfaceType(this, it));
@@ -767,10 +767,10 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         Method forName = classType.concreteMethodByName("forName",
                 "(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;");
 
-        // Class.forName(FX_SEQUENCES_TYPE_NAME, true, Entry.class.getClassLoader());
+        // Class.forName(VISAGE_SEQUENCES_TYPE_NAME, true, Entry.class.getClassLoader());
         try {
             List<Value> args = new ArrayList<Value>(3);
-            args.add(vm.mirrorOf(FX_SEQUENCES_TYPE_NAME));
+            args.add(vm.mirrorOf(VISAGE_SEQUENCES_TYPE_NAME));
             args.add(vm.mirrorOf(true));
             args.add(FXWrapper.unwrap(fxEntryType().classLoader()));
             ClassObjectReference retVal = (ClassObjectReference)classType.invokeMethod(

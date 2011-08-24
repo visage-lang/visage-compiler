@@ -53,7 +53,7 @@ import org.visage.runtime.util.backport.ResourceBundleEnumeration;
 class FXPropertyResourceBundle extends ResourceBundle {
 
     private static final String CHARTAG = "@charset \"";
-    private static final List<String> FORMAT_FXPROPERTIES
+    private static final List<String> FORMAT_VISAGEPROPERTIES
             = Collections.unmodifiableList(Arrays.asList("visage.properties"));
     private ConcurrentMap<String, Object> lookup;
     private static Logger logger = null;
@@ -487,7 +487,7 @@ class FXPropertyResourceBundle extends ResourceBundle {
                 throw new NullPointerException();
             }
  
-            return FXPropertyResourceBundle.FORMAT_FXPROPERTIES;
+            return FXPropertyResourceBundle.FORMAT_VISAGEPROPERTIES;
         }
 
         @Override

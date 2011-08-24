@@ -45,7 +45,7 @@ import java.util.EnumSet;
  */
 public final class FxSdkType extends SdkType implements ApplicationComponent {
 
-    public static final String JAVAFX_EXEC = SystemInfo.isWindows ? "visage.bat" : "visage";
+    public static final String VISAGE_EXEC = SystemInfo.isWindows ? "visage.bat" : "visage";
     public static final String JAVA_SDK_PROPERTY_NAME = "java-sdk";
 
     public FxSdkType () {
@@ -70,7 +70,7 @@ public final class FxSdkType extends SdkType implements ApplicationComponent {
         File bin = new File (home, "bin");
         if (! bin.exists ())
             return false;
-        File visage = new File (bin, JAVAFX_EXEC);
+        File visage = new File (bin, VISAGE_EXEC);
         return visage.exists ();
     }
 
@@ -166,7 +166,7 @@ public final class FxSdkType extends SdkType implements ApplicationComponent {
 
     @Nullable
     public String getVMExecutablePath (Sdk sdk) {
-        return getBinPath (sdk) + File.separator + JAVAFX_EXEC;
+        return getBinPath (sdk) + File.separator + VISAGE_EXEC;
     }
 
     @Nullable
@@ -195,11 +195,11 @@ public final class FxSdkType extends SdkType implements ApplicationComponent {
     }
 
     public Icon getIcon () {
-        return FxPlugin.FX_ICON;
+        return FxPlugin.VISAGE_ICON;
     }
 
     public Icon getIconForAddAction () {
-        return FxPlugin.FX_ICON;
+        return FxPlugin.VISAGE_ICON;
     }
 
     @NonNls @NotNull

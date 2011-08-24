@@ -49,8 +49,8 @@ import java.util.logging.Logger;
 public class Utils {
     static final Logger logger = Logger.getLogger(Utils.class.getName());
     private static String buildId = null;
-    private static final String JAVAFX_HOME = System.getProperty("visage.home",
-            System.getenv("JAVAFX_HOME"));
+    private static final String VISAGE_HOME = System.getProperty("visage.home",
+            System.getenv("VISAGE_HOME"));
     private static final String HUDSON_URL = System.getenv("HUDSON_URL");
     private static final String HUDSON_JOB = System.getenv("JOB_NAME");
     private static final String HUDSON_BLD = System.getenv("BUILD_NUMBER");
@@ -128,7 +128,7 @@ public class Utils {
         FileReader rdr = null;
         BufferedReader br = null;
         try {
-            rdr = new FileReader(new File(JAVAFX_HOME, "timestamp"));
+            rdr = new FileReader(new File(VISAGE_HOME, "timestamp"));
             br = new BufferedReader(rdr);
             String line = br.readLine();
             while (line != null) {

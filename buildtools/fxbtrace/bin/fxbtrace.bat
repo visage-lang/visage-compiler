@@ -1,10 +1,10 @@
 @echo off
 
-if "%JAVAFX_HOME%"=="" goto noJavafxHome
+if "%VISAGE_HOME%"=="" goto noJavafxHome
 
 if not exist "%BTRACE_HOME%\build\btrace-agent.jar" goto noBTraceHome
 
-%JAVAFX_HOME%\bin\visage -javaagent:%BTRACE_HOME%\build\btrace-agent.jar=dumpClasses=false,debug=false,unsafe=true,probeDescPath=.,noServer=true,script=%1 %2 %3 %4 %5 %6 %7 %8 %9
+%VISAGE_HOME%\bin\visage -javaagent:%BTRACE_HOME%\build\btrace-agent.jar=dumpClasses=false,debug=false,unsafe=true,probeDescPath=.,noServer=true,script=%1 %2 %3 %4 %5 %6 %7 %8 %9
 goto end
 
 :noBTraceHome
@@ -12,5 +12,5 @@ goto end
   goto end
 
 :noJavafxHome
-  echo Please set JAVAFX_HOME before running this script
+  echo Please set VISAGE_HOME before running this script
 :end

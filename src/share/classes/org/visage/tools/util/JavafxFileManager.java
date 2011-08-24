@@ -52,7 +52,7 @@ public class JavafxFileManager extends JavacFileManager {
      * The Visage source file extension.
      * @see javax.tools.JavaFileObject.Kind.SOURCE
      */
-    public static final String FX_SOURCE_SUFFIX = ".visage";
+    public static final String VISAGE_SOURCE_SUFFIX = ".visage";
 
     /**
      * Register a Context.Factory to create a JavafxFileManager.
@@ -73,7 +73,7 @@ public class JavafxFileManager extends JavacFileManager {
     protected JavaFileObject.Kind getKind(String extension) {
         if (extension.equals(JavaFileObject.Kind.CLASS.extension))
             return JavaFileObject.Kind.CLASS;
-        else if (extension.equals(FX_SOURCE_SUFFIX))
+        else if (extension.equals(VISAGE_SOURCE_SUFFIX))
             return JavaFileObject.Kind.SOURCE;
         else if (extension.equals(JavaFileObject.Kind.HTML.extension))
             return JavaFileObject.Kind.HTML;
@@ -167,7 +167,7 @@ public class JavafxFileManager extends JavacFileManager {
     private static String externalizeFileName(CharSequence name, JavaFileObject.Kind kind) {
         String basename = name.toString().replace('.', File.separatorChar);
         String suffix = kind == JavaFileObject.Kind.SOURCE ? 
-            FX_SOURCE_SUFFIX : kind.extension;
+            VISAGE_SOURCE_SUFFIX : kind.extension;
         return basename + suffix;
     }
 
@@ -353,7 +353,7 @@ public class JavafxFileManager extends JavacFileManager {
         
         DelegateJavaFileObject(JavaFileObject jfo) {
             delegate = jfo;
-            isFXSourceFile = jfo.getName().endsWith(FX_SOURCE_SUFFIX);
+            isFXSourceFile = jfo.getName().endsWith(VISAGE_SOURCE_SUFFIX);
         }
 
         @Override

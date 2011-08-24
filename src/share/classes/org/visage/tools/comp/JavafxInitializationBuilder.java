@@ -484,7 +484,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             this.definitions = definitions;
             this.scriptClassSymbol = fxmake.ScriptSymbol(getCurrentClassSymbol());
             this.scriptName = this.scriptClassSymbol.name;
-            this.isBoundFuncClass = (getCurrentOwner().flags() & JavafxFlags.FX_BOUND_FUNCTION_CLASS) != 0L;
+            this.isBoundFuncClass = (getCurrentOwner().flags() & JavafxFlags.VISAGE_BOUND_FUNCTION_CLASS) != 0L;
         }
         
         //

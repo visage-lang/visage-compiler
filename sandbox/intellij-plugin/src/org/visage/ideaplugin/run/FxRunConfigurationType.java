@@ -52,7 +52,7 @@ public class FxRunConfigurationType implements ConfigurationType {
     }
 
     public Icon getIcon () {
-        return FxPlugin.FX_ICON;
+        return FxPlugin.VISAGE_ICON;
     }
 
     public ConfigurationFactory[] getConfigurationFactories () {

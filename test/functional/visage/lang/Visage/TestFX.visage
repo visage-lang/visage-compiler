@@ -8,7 +8,7 @@
 import visage.lang.Visage;
 import visage.fxunit.*;
 
-class JAVAFX_LANG_TEST {
+class VISAGE_LANG_TEST {
 var data:String = "";
 /** covered   public static boolean isSameObject(java.lang.Object, java.lang.Object);   */
 /** covered   public static boolean isInitialized(java.lang.Object);   */
@@ -180,28 +180,28 @@ public function RemoveShutdownPActionTest()
 public class TestFX extends FXTestCase  {
 
     function testRemoveFromEmptyActions() {
-      var jlt = JAVAFX_LANG_TEST {}
+      var jlt = VISAGE_LANG_TEST {}
       jlt.RemoveFromEmptyActionsTest()
     }
 
 	function testRemoveShutdownFVAction()  {
-      var jlt = JAVAFX_LANG_TEST {}
+      var jlt = VISAGE_LANG_TEST {}
       jlt.RemoveShutdownFVActionTest();
 	}
 
 /* jfxc3048
 	function testRemoveShutdownFAction()  {
-      var jlt = JAVAFX_LANG_TEST {}
+      var jlt = VISAGE_LANG_TEST {}
       jlt.RemoveShutdownFActionTest();
 	}
 */
 	function testRemoveShutdownPAction()  {
-      var jlt = JAVAFX_LANG_TEST {}
+      var jlt = VISAGE_LANG_TEST {}
       jlt.RemoveShutdownPActionTest();
 	}
 
 	function testRemoveShutdownActionNeg()  {
-      var jlt = JAVAFX_LANG_TEST {}
+      var jlt = VISAGE_LANG_TEST {}
       jlt.RemoveShutdownActionNegTest();
 	}
 }

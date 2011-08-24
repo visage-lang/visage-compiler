@@ -47,11 +47,11 @@ import javax.swing.*;
  */
 public class FxPlugin implements ApplicationComponent {
     
-    public static final Language FX_LANGUAGE = new FxLanguage();
-    public static final LanguageFileType FX_FILE_TYPE = new FxFileType();
-    public static final String FX_FILE_EXTENSION = "visage";
-    public static final String FX_LANGUAGE_NAME = "Visage";
-    public static final Icon FX_ICON = IconLoader.getIcon("/icons/visage.png");
+    public static final Language VISAGE_LANGUAGE = new FxLanguage();
+    public static final LanguageFileType VISAGE_FILE_TYPE = new FxFileType();
+    public static final String VISAGE_FILE_EXTENSION = "visage";
+    public static final String VISAGE_LANGUAGE_NAME = "Visage";
+    public static final Icon VISAGE_ICON = IconLoader.getIcon("/icons/visage.png");
 
     public FxPlugin() {
     }
@@ -59,13 +59,13 @@ public class FxPlugin implements ApplicationComponent {
     public void initComponent() {
         ApplicationManager.getApplication().runWriteAction(new Runnable() {
             public void run() {
-                FileTypeManager.getInstance().registerFileType(FX_FILE_TYPE, FX_FILE_EXTENSION);
+                FileTypeManager.getInstance().registerFileType(VISAGE_FILE_TYPE, VISAGE_FILE_EXTENSION);
 
                 ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
                     public void projectOpened(Project project) {
                         CompilerManager compilerManager = CompilerManager.getInstance(project);
                         compilerManager.addCompiler(new FxCompiler());
-                        compilerManager.addCompilableFileType(FX_FILE_TYPE);
+                        compilerManager.addCompilableFileType(VISAGE_FILE_TYPE);
 
                         DebuggerManager.getInstance (project).registerPositionManagerFactory (new Function<DebugProcess, PositionManager>() {
                             public PositionManager fun (DebugProcess debugProcess) {

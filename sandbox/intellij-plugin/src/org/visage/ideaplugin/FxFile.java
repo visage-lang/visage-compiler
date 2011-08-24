@@ -35,11 +35,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public class FxFile extends PsiFileBase {
     public FxFile(FileViewProvider fileViewProvider) {
-        super(fileViewProvider, FxPlugin.FX_LANGUAGE);
+        super(fileViewProvider, FxPlugin.VISAGE_LANGUAGE);
     }
 
     @NotNull
     public FileType getFileType() {
-        return FxPlugin.FX_FILE_TYPE;
+        return FxPlugin.VISAGE_FILE_TYPE;
     }
 }

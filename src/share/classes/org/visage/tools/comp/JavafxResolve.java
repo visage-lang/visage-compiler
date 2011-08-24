@@ -2016,7 +2016,7 @@ public class JavafxResolve {
         case TYP: return JCDiagnostic.fragment(MsgSym.KINDNAME_CLASS);
         case VAR: return JCDiagnostic.fragment(MsgSym.KINDNAME_VARIABLE);
         case VAL: return JCDiagnostic.fragment(MsgSym.KINDNAME_VALUE);
-        case MTH: return diags.fragment(MsgSym.MESSAGE_JAVAFX_KINDNAME_FUNCTION);
+        case MTH: return diags.fragment(MsgSym.MESSAGE_VISAGE_KINDNAME_FUNCTION);
         default : return JCDiagnostic.fragment(MsgSym.KINDNAME,
                                                Integer.toString(kind)); //debug
         }
@@ -2047,7 +2047,7 @@ public class JavafxResolve {
         case CONSTRUCTOR:
         case STATIC_INIT:
         case INSTANCE_INIT:
-            return diags.fragment(MsgSym.MESSAGE_JAVAFX_KINDNAME_FUNCTION);
+            return diags.fragment(MsgSym.MESSAGE_VISAGE_KINDNAME_FUNCTION);
 
         default:
             if (sym.kind == VAL)
@@ -2098,7 +2098,7 @@ public class JavafxResolve {
         case ABSENT_VAR:
             return JCDiagnostic.fragment(MsgSym.KINDNAME_VARIABLE);
         case WRONG_MTHS: case WRONG_MTH: case ABSENT_MTH:
-            return diags.fragment(MsgSym.MESSAGE_JAVAFX_KINDNAME_FUNCTION);
+            return diags.fragment(MsgSym.MESSAGE_VISAGE_KINDNAME_FUNCTION);
         case ABSENT_TYP:
             return JCDiagnostic.fragment(MsgSym.KINDNAME_CLASS);
         default:
@@ -2200,7 +2200,7 @@ public class JavafxResolve {
         void report(Log log, DiagnosticPosition pos, Type site, Name name,
                     List<Type> argtypes, List<Type> typeargtypes) {
             if (name == null) {
-                log.error(pos, MsgSym.MESSAGE_JAVAFX_NO_DEFAULT_DECLARED, site);
+                log.error(pos, MsgSym.MESSAGE_VISAGE_NO_DEFAULT_DECLARED, site);
             } else if (name != name.table.error) {
                 JCDiagnostic kindname = absentKindName(kind);
                 String idname = name.toString();

@@ -58,7 +58,7 @@ public class JavafxTreeInfo {
      protected JavafxTreeInfo(Context context) {
 	Name.Table names = Name.Table.instance(context);
         int base = JavafxTag.NEG.ordinal();
-        opname = new Name[JavafxTag.JFX_OP_LAST.ordinal() - base + 1];
+        opname = new Name[JavafxTag.VISAGE_OP_LAST.ordinal() - base + 1];
 	opname[JavafxTag.NEG    .ordinal() - base] = names.hyphen;
 	opname[JavafxTag.NOT    .ordinal() - base] = names.fromString("!");
 	opname[JavafxTag.PREINC .ordinal() - base] = names.fromString("++");

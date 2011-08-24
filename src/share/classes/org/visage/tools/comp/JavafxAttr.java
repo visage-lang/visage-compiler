@@ -484,13 +484,13 @@ public class JavafxAttr implements JavafxVisitor {
 		    //we need to switch log source as the var def could be
 		    //in another source w.r.t. the current one
 		    log.useSource(sym.outermostClass().sourcefile);
-		    log.note(var, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL, sym.name);
+		    log.note(var, MsgSym.MESSAGE_VISAGE_TYPE_INFER_CYCLE_VAR_DECL, sym.name);
 		}
 		finally {
 		    log.useSource(prevSource);
 		}
 	    }
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
+            log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_TYPE_INFER_CYCLE_VAR_REF, sym.name);
             sym.type = syms.errType;
         }
         else if (sym.type instanceof MethodType &&
@@ -502,13 +502,13 @@ public class JavafxAttr implements JavafxVisitor {
 		    //we need to switch log source as the func def could be
 		    //in another source w.r.t. the current one
 		    log.useSource(sym.outermostClass().sourcefile);
-		    log.note(fun, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL, sym.name);
+		    log.note(fun, MsgSym.MESSAGE_VISAGE_TYPE_INFER_CYCLE_FUN_DECL, sym.name);
 		}
 		finally {
 		    log.useSource(prevSource);
 		}
 	    }
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
+            log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_TYPE_INFER_CYCLE_VAR_REF, sym.name);
             if (pt instanceof MethodType)
                 ((MethodType)pt).restype = syms.errType;
             sym.type = syms.errType;
@@ -851,7 +851,7 @@ public class JavafxAttr implements JavafxVisitor {
 
         Symbol lhsSym = JavafxTreeInfo.symbol(tree.lhs);
         if (lhsSym == null) {
-            log.error(tree, MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
+            log.error(tree, MsgSym.MESSAGE_VISAGE_INVALID_ASSIGNMENT);
             return;
         }
 
@@ -920,7 +920,7 @@ public class JavafxAttr implements JavafxVisitor {
 
             Type initType;
             if (tree.getInitializer() == null && (tree.getModifiers().flags & JavafxFlags.IS_DEF) != 0) {
-                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DEF_MUST_HAVE_INIT, v);
+                log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_DEF_MUST_HAVE_INIT, v);
             }            
             if (tree.getInitializer() != null) {
                 if (tree.getInitializer().getJavaFXKind() == JavaFXKind.INSTANTIATE_OBJECT_LITERAL &&
@@ -986,7 +986,7 @@ public class JavafxAttr implements JavafxVisitor {
         long flags = tree.getModifiers().flags;
         Symbol sym = tree.sym;
         if (sym == null) {
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_VAR_NOT_SUPPORTED_HERE, (flags & JavafxFlags.IS_DEF) == 0 ? "var" : "def", tree.getName());
+            log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_VAR_NOT_SUPPORTED_HERE, (flags & JavafxFlags.IS_DEF) == 0 ? "var" : "def", tree.getName());
             return;
         }
 
@@ -1057,7 +1057,7 @@ public class JavafxAttr implements JavafxVisitor {
     private void warnOnStaticUse(DiagnosticPosition pos, JFXModifiers mods, Symbol sym) {
         // temporary warning for the use of 'static'
         if ((mods.flags & (STATIC | SCRIPT_LEVEL_SYNTH_STATIC)) == STATIC) {
-            log.warning(pos, MsgSym.MESSAGE_JAVAFX_STATIC_DEPRECATED, sym);
+            log.warning(pos, MsgSym.MESSAGE_VISAGE_STATIC_DEPRECATED, sym);
         }
     }
 
@@ -1081,7 +1081,7 @@ public class JavafxAttr implements JavafxVisitor {
                 !types.isSameType(declType, jfxType)) {
             chk.typeError(tree.getJFXType().pos(),
                     messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC + 
-                    MsgSym.MESSAGE_JAVAFX_TYPED_OVERRIDE),
+                    MsgSym.MESSAGE_VISAGE_TYPED_OVERRIDE),
                     jfxType,
                     declType);
         }
@@ -1095,7 +1095,7 @@ public class JavafxAttr implements JavafxVisitor {
         chk.checkBoundArrayVar(tree);
 
         if (types.isSameType(env.enclClass.type, v.owner.type)) {
-            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_OWN,tree.getId().getName());
+            log.error(tree.getId().pos(), MsgSym.MESSAGE_VISAGE_CANNOT_OVERRIDE_OWN,tree.getId().getName());
         }
 
         // The info.lint field in the envs stored in enter.typeEnvs is deliberately uninitialized,
@@ -1112,9 +1112,9 @@ public class JavafxAttr implements JavafxVisitor {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
 
         if ((v.flags() & JavafxFlags.IS_DEF) != 0L) {
-            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEF,tree.getId().getName());
+            log.error(tree.getId().pos(), MsgSym.MESSAGE_VISAGE_CANNOT_OVERRIDE_DEF,tree.getId().getName());
         } else if (!rs.isAccessibleForWrite(env, env.enclClass.type, v)) {
-            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE,tree.getId().getName());
+            log.error(tree.getId().pos(), MsgSym.MESSAGE_VISAGE_CANNOT_OVERRIDE,tree.getId().getName());
         }
 
         //TODO: (below)
@@ -1171,7 +1171,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
             else {
                 //we couldn't find the overridden var
-                log.error(id.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, rs.kindName(VAR), tree.getName());
+                log.error(id.pos(), MsgSym.MESSAGE_VISAGE_DECLARED_OVERRIDE_DOES_NOT, rs.kindName(VAR), tree.getName());
             }
         }
 
@@ -1198,13 +1198,13 @@ public class JavafxAttr implements JavafxVisitor {
         if (idSym.kind < ERRONEOUS) {
             // Must reference an attribute
             if (idSym.kind != VAR) {
-                log.error(id.pos(), MsgSym.MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE,id.getName());
+                log.error(id.pos(), MsgSym.MESSAGE_VISAGE_MUST_BE_AN_ATTRIBUTE,id.getName());
             } else if (localEnv.outer.tree.getFXTag() != JavafxTag.CLASS_DEF) {
-                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_CLASS_VAR_FROM_FUNCTION, idSym.name, idSym.owner);
+                log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_CANNOT_OVERRIDE_CLASS_VAR_FROM_FUNCTION, idSym.name, idSym.owner);
             } else {
                 JavafxVarSymbol v = (JavafxVarSymbol) idSym;
                 if (v.isOverridenIn(env.enclClass.sym)) {
-                    log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_DUPLICATE_VAR_OVERRIDE, idSym.name, idSym.owner);
+                    log.error(tree.getId().pos(), MsgSym.MESSAGE_VISAGE_DUPLICATE_VAR_OVERRIDE, idSym.name, idSym.owner);
                 }
                 else {
                     v.addOverridingClass(env.enclClass.sym);
@@ -1300,7 +1300,7 @@ public class JavafxAttr implements JavafxVisitor {
             // if exprtype implements Iterable<T>, T is the element type of the for-each
             else if (types.asSuper(exprType, syms.iterableType.tsym) != null) {
                 if (clause.isBound()) {
-                    log.error(clause.getSequenceExpression().pos(), MsgSym.MESSAGE_JAVAFX_FOR_OVER_ITERABLE_DISALLOWED_IN_BIND);
+                    log.error(clause.getSequenceExpression().pos(), MsgSym.MESSAGE_VISAGE_FOR_OVER_ITERABLE_DISALLOWED_IN_BIND);
                 }
                 Type base = types.asSuper(exprType, syms.iterableType.tsym);
                 List<Type> iterableParams = base.allparams();
@@ -1315,7 +1315,7 @@ public class JavafxAttr implements JavafxVisitor {
                 elemtype = types.elemtype(exprType);
             }
             else {
-                log.warning(expr, MsgSym.MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE);
+                log.warning(expr, MsgSym.MESSAGE_VISAGE_ITERATING_NON_SEQUENCE);
                 elemtype = exprType;
             }
 
@@ -1377,7 +1377,7 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitIndexof(JFXIndexof tree) {
         for (int n = forClauses == null ? 0 : forClauses.size(); ; ) {
             if (--n < 0) {
-                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_INDEXOF_NOT_FOUND,tree.fname.getName());
+                 log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_INDEXOF_NOT_FOUND,tree.fname.getName());
                  break;
             }
             JFXForExpressionInClause clause = forClauses.get(n);
@@ -1464,7 +1464,7 @@ public class JavafxAttr implements JavafxVisitor {
             if (valueType == syms.voidType &&
                     !tree.isVoidValueAllowed) {
                 //void value not allowed in a block that has non-void return
-                log.warning(tree.value.pos(), MsgSym.MESSAGE_JAVAFX_VOID_BLOCK_VALUE_NOT_ALLOWED);
+                log.warning(tree.value.pos(), MsgSym.MESSAGE_VISAGE_VOID_BLOCK_VALUE_NOT_ALLOWED);
                 owntype = tree.type;
             }
             else {
@@ -1524,7 +1524,7 @@ public class JavafxAttr implements JavafxVisitor {
         if (tree.getJavaFXKind() == JavaFXKind.INSTANTIATE_NEW &&
                 clazztype.tag == ARRAY) {
             if (tree.getArgs().size() != 1)
-                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NEW_ARRAY_MUST_HAVE_SINGLE_ARG);
+                log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_NEW_ARRAY_MUST_HAVE_SINGLE_ARG);
             else
                 attribExpr(tree.getArgs().head, env, syms.visage_IntegerType);
             result = check(tree, clazztype, VAL, pkind, pt, pSequenceness);
@@ -1532,7 +1532,7 @@ public class JavafxAttr implements JavafxVisitor {
             return;
         }
         If so, add to MsgSym.java this definition:
-        public static final String MESSAGE_JAVAFX_NEW_ARRAY_MUST_HAVE_SINGLE_ARG = "visage.new.array.must.have.single.arg";
+        public static final String MESSAGE_VISAGE_NEW_ARRAY_MUST_HAVE_SINGLE_ARG = "visage.new.array.must.have.single.arg";
         and in visagecompiler.properties map that to:
         Allocating a native array requires a single length parameter.
         */
@@ -1558,7 +1558,7 @@ public class JavafxAttr implements JavafxVisitor {
                 (flags & (ABSTRACT | INTERFACE | JavafxFlags.MIXIN)) != 0) {
                 if ((flags & (JavafxFlags.MIXIN)) != 0) {
                     // JFXC-2815 - new expressions should report an error when trying to instantiate a mixin class.
-                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_MIXIN_CANNOT_BE_INSTANTIATED,
+                    log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_MIXIN_CANNOT_BE_INSTANTIATED,
                               clazztype.tsym);
                 } else {
                     log.error(tree.pos(), MsgSym.MESSAGE_ABSTRACT_CANNOT_BE_INSTANTIATED,
@@ -1574,7 +1574,7 @@ public class JavafxAttr implements JavafxVisitor {
                 // Error recovery: pretend no arguments were supplied.
                 argtypes = List.nil();
             } else if (types.isJFXClass(clazztype.tsym) && tree.getArgs().nonEmpty()) {
-                log.error(tree.getArgs().head.pos(), MsgSym.MESSAGE_NEW_FX_CLASS_NO_ARGS);
+                log.error(tree.getArgs().head.pos(), MsgSym.MESSAGE_NEW_VISAGE_CLASS_NO_ARGS);
             }
 
             // Resolve the called constructor under the assumption
@@ -1606,7 +1606,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
 
             if (((ClassSymbol) clazztype.tsym).fullname == defs.cJavaLangThreadName) {
-                log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_EXPLICIT_THREAD);
+                log.warning(tree.pos(), MsgSym.MESSAGE_VISAGE_EXPLICIT_THREAD);
             }
 
             if (cdef != null) {
@@ -1677,13 +1677,13 @@ public class JavafxAttr implements JavafxVisitor {
 
             Scope.Entry oldEntry = partsScope.lookup(memberSym.name);
             if (oldEntry.sym != null) {
-                log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_ALREADY_DEFINED_OBJECT_LITERAL, memberSym);
+                log.error(localPt.pos(), MsgSym.MESSAGE_VISAGE_ALREADY_DEFINED_OBJECT_LITERAL, memberSym);
             }
             partsScope.enter(memberSym);
 
             Type memberType = memberSym.type;
             if (!(memberSym instanceof JavafxVarSymbol) ) {
-                log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
+                log.error(localPt.pos(), MsgSym.MESSAGE_VISAGE_INVALID_ASSIGNMENT);
                 memberType = Type.noType;
             }
             Scope initScope = new Scope(new MethodSymbol(BLOCK, memberSym.name, null, env.enclClass.sym));
@@ -1698,13 +1698,13 @@ public class JavafxAttr implements JavafxVisitor {
                 attribExpr(part.getExpression(), initEnv, memberType);
                 if (types.isArray(part.getExpression().type) &&
                     part.isBound()) {
-                    log.warning(part.pos(), MsgSym.MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_BIND);
+                    log.warning(part.pos(), MsgSym.MESSAGE_VISAGE_UNSUPPORTED_TYPE_IN_BIND);
                 }
             }
             if (memberSym instanceof JavafxVarSymbol) {
                 JavafxVarSymbol v = (JavafxVarSymbol) memberSym;
                 if (v.isStatic()) {
-                    log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INIT_STATIC_OBJECT_LITERAL, memberSym);
+                    log.error(localPt.pos(), MsgSym.MESSAGE_VISAGE_CANNOT_INIT_STATIC_OBJECT_LITERAL, memberSym);
                 }
                 WriteKind kind = part.isExplicitlyBound() ? WriteKind.INIT_BIND : WriteKind.INIT_NON_BIND;                
                 chk.checkAssignable(part.pos(), v, part, clazz.type, localEnv, kind);
@@ -1885,7 +1885,7 @@ public class JavafxAttr implements JavafxVisitor {
                     if (pvar.getJFXType() instanceof JFXTypeUnknown) {
                         Type t = searchSupersForParamType (owner, m.name, paramCount, paramNum);
                         if (t == Type.noType)
-                            log.warning(pvar.pos(), MsgSym.MESSAGE_JAVAFX_AMBIGUOUS_PARAM_TYPE_FROM_SUPER);
+                            log.warning(pvar.pos(), MsgSym.MESSAGE_VISAGE_AMBIGUOUS_PARAM_TYPE_FROM_SUPER);
                         else if (t != null)
                             type = t;
                     }
@@ -1909,7 +1909,7 @@ public class JavafxAttr implements JavafxVisitor {
                 // But this is pretty close, in practice.
                 Type t = searchSupersForParamType (owner, m.name, paramCount, -1);
                 if (t == Type.noType)
-                    log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_AMBIGUOUS_RETURN_TYPE_FROM_SUPER);
+                    log.warning(tree.pos(), MsgSym.MESSAGE_VISAGE_AMBIGUOUS_RETURN_TYPE_FROM_SUPER);
                 else if (t != null)
                     returnType = t;
             }
@@ -1983,7 +1983,7 @@ public class JavafxAttr implements JavafxVisitor {
                         chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.PERMITTED, false);
                 }
                 if (tree.isBound() && returnType == syms.visage_VoidType) {
-                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_BOUND_FUNCTION_MUST_NOT_BE_VOID);
+                    log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_BOUND_FUNCTION_MUST_NOT_BE_VOID);
                 }                
             }
             localEnv.info.scope.leave();
@@ -1997,7 +1997,7 @@ public class JavafxAttr implements JavafxVisitor {
                 chk.checkOverride(tree, m);
             } else {
                 if ((m.flags() & JavafxFlags.OVERRIDE) != 0) {
-                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, rs.kindName(m), m);
+                    log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_DECLARED_OVERRIDE_DOES_NOT, rs.kindName(m), m);
                 }
             }
         }
@@ -2270,7 +2270,7 @@ public class JavafxAttr implements JavafxVisitor {
             tree.returnType = m.type.getReturnType();
             JFXBlock enclBlock = env.enclFunction.operation.bodyExpression;
             if (tree.returnType == null)
-                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE);
+                log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_CANNOT_INFER_RETURN_TYPE);
             else if (tree.returnType.tag == VOID) {
                 if (tree.expr != null) {
                     log.error(tree.pos(),
@@ -2353,7 +2353,7 @@ public class JavafxAttr implements JavafxVisitor {
             // Compute the result type.
             Type restype = mtype.getReturnType();
             if (restype == syms.unknownType) {
-                log.error(tree.meth.pos(), MsgSym.MESSAGE_JAVAFX_FUNC_TYPE_INFER_CYCLE, methName);
+                log.error(tree.meth.pos(), MsgSym.MESSAGE_VISAGE_FUNC_TYPE_INFER_CYCLE, methName);
                 restype = syms.objectType;
             }
             // as a special case, array.clone() has a result that is
@@ -2392,7 +2392,7 @@ public class JavafxAttr implements JavafxVisitor {
                     ! rs.argumentsAcceptable(argtypes, mtype.getParameterTypes(),
                         true, false, Warner.noWarnings))
                     log.error(tree,
-                              MsgSym.MESSAGE_JAVAFX_CANNOT_APPLY_FUNCTION,
+                              MsgSym.MESSAGE_VISAGE_CANNOT_APPLY_FUNCTION,
                               mtype.getParameterTypes(), argtypes);
                 // Check that value of resulting type is admissible in the
                 // current context.  Also, capture the return type
@@ -2400,7 +2400,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
             else {
                 log.error(tree,
-                        MsgSym.MESSAGE_JAVAFX_NOT_A_FUNC,
+                        MsgSym.MESSAGE_VISAGE_NOT_A_FUNC,
                         mtype, typeargtypes, Type.toString(argtypes));
                 tree.type = pt;
                 result = pt;
@@ -2414,7 +2414,7 @@ public class JavafxAttr implements JavafxVisitor {
         if (msym != null && msym.owner instanceof ClassSymbol &&
                 ((ClassSymbol) msym.owner).fullname == defs.cJavaLangThreadName &&
                 msym.name == defs.start_ThreadMethodName) {
-            log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_EXPLICIT_THREAD);
+            log.warning(tree.pos(), MsgSym.MESSAGE_VISAGE_EXPLICIT_THREAD);
         }
 
         if (msym!=null && msym.owner!=null && msym.owner.type!=null &&
@@ -2431,7 +2431,7 @@ public class JavafxAttr implements JavafxVisitor {
                             (arg.getFXTag() != JavafxTag.IDENT && arg.getFXTag() != JavafxTag.SELECT) ||
                             asym.owner == null ||
                             (asym.owner.kind != TYP && !asym.isLocal())) {
-                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_APPLIED_TO_INSTANCE_VAR, methName);
+                        log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_APPLIED_TO_INSTANCE_VAR, methName);
                     }
                 }
             }
@@ -2453,7 +2453,7 @@ public class JavafxAttr implements JavafxVisitor {
                             (asym.flags() & JavafxFlags.IS_DEF) != 0 ||
                             asym.owner == null ||
                             asym.owner.kind != TYP) {
-                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_APPLIED_TO_INSTANCE_VAR, methName);
+                        log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_APPLIED_TO_INSTANCE_VAR, methName);
                     } else {
                         // check that we have write access
                         // unless it is a public-init or public-read var, that was already handled 
@@ -2576,15 +2576,15 @@ public class JavafxAttr implements JavafxVisitor {
         if (isIncDec) {
             Symbol argSym = JavafxTreeInfo.symbol(tree.arg);
             if (argSym == null) {
-                log.error(tree, MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
+                log.error(tree, MsgSym.MESSAGE_VISAGE_INVALID_ASSIGNMENT);
                 return;
             }
             if ((argSym.flags() & JavafxFlags.IS_DEF) != 0L) {
-                log.error(tree, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF, argSym);
+                log.error(tree, MsgSym.MESSAGE_VISAGE_CANNOT_ASSIGN_TO_DEF, argSym);
                 return;
             }
             if ((argSym.flags() & Flags.PARAMETER) != 0L) {
-                log.error(tree, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER, argSym);
+                log.error(tree, MsgSym.MESSAGE_VISAGE_CANNOT_ASSIGN_TO_PARAMETER, argSym);
                 return;
             }
         }
@@ -2755,7 +2755,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         if (tree.getFXTag() == JavafxTag.PLUS && owntype == syms.stringType) {
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_STRING_CONCATENATION, expressionToString(tree));
+            log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_STRING_CONCATENATION, expressionToString(tree));
         }
     }
     //where
@@ -2790,7 +2790,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
             else {
                 if (isPrimitiveOrBoxed(expected, FLOAT) && !fitsInFloat) {
-                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Number", tree.value.toString());
+                    log.error(tree, MsgSym.MESSAGE_VISAGE_LITERAL_OUT_OF_RANGE, "Number", tree.value.toString());
                 }
                 tree.typetag = TypeTags.FLOAT;
                 tree.value = Float.valueOf((float) dvalue);
@@ -2801,14 +2801,14 @@ public class JavafxAttr implements JavafxVisitor {
             long lvalue = ((Number) tree.value).longValue();
             if (isPrimitiveOrBoxed(expected, BYTE)) {
                 if (lvalue != (byte) lvalue) {
-                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Byte", tree.value.toString());
+                    log.error(tree, MsgSym.MESSAGE_VISAGE_LITERAL_OUT_OF_RANGE, "Byte", tree.value.toString());
                 }
                 tree.typetag = TypeTags.BYTE;
                 tree.value = Byte.valueOf((byte) lvalue);
             }
             else if (isPrimitiveOrBoxed(expected, SHORT)) {
                 if (lvalue != (short) lvalue) {
-                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Short", tree.value.toString());
+                    log.error(tree, MsgSym.MESSAGE_VISAGE_LITERAL_OUT_OF_RANGE, "Short", tree.value.toString());
                 }
                 tree.typetag = TypeTags.SHORT;
                 tree.value = Short.valueOf((short) lvalue);
@@ -2826,7 +2826,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
             else if (isPrimitiveOrBoxed(expected, INT) || tree.typetag == TypeTags.INT) {
                 if (tree.typetag == TypeTags.LONG) {
-                    log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Integer", tree.value.toString());
+                    log.error(tree, MsgSym.MESSAGE_VISAGE_LITERAL_OUT_OF_RANGE, "Integer", tree.value.toString());
                 }
                 tree.typetag = TypeTags.INT;
                 if (! (tree.value instanceof Integer))
@@ -3063,13 +3063,13 @@ public class JavafxAttr implements JavafxVisitor {
                         ((ClassType)visageClassSymbol.type).supertype_field = supType;
                     }
                     else {
-                        log.error(superClass.pos(), MsgSym.MESSAGE_JAVAFX_BASE_JAVA_CLASS_NON_PAPAR_CTOR, supType.tsym.name);
+                        log.error(superClass.pos(), MsgSym.MESSAGE_VISAGE_BASE_JAVA_CLASS_NON_PAPAR_CTOR, supType.tsym.name);
 
                     }
                 }
                 else {
                     // We are already extending one Java class. No more than one is allowed. Report an error.
-                    log.error(superClass.pos(), MsgSym.MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED, supType.tsym.name);
+                    log.error(superClass.pos(), MsgSym.MESSAGE_VISAGE_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED, supType.tsym.name);
                 }
             }
         }
@@ -3123,19 +3123,19 @@ public class JavafxAttr implements JavafxVisitor {
         if (lowerType != syms.visage_IntegerType) {
             allInt = false;
             if (lowerType != syms.visage_FloatType && lowerType != syms.visage_DoubleType) {
-                log.error(tree.getLower().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_START_INT_OR_NUMBER);
+                log.error(tree.getLower().pos(), MsgSym.MESSAGE_VISAGE_RANGE_START_INT_OR_NUMBER);
             }
         }
         if (upperType != syms.visage_IntegerType) {
             allInt = false;
             if (upperType != syms.visage_FloatType && upperType != syms.visage_DoubleType) {
-                log.error(tree.getLower().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_END_INT_OR_NUMBER);
+                log.error(tree.getLower().pos(), MsgSym.MESSAGE_VISAGE_RANGE_END_INT_OR_NUMBER);
             }
         }
         if (stepType != syms.visage_IntegerType) {
             allInt = false;
             if (stepType != syms.visage_FloatType && stepType != syms.visage_DoubleType) {
-                log.error(tree.getStepOrNull().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_STEP_INT_OR_NUMBER);
+                log.error(tree.getStepOrNull().pos(), MsgSym.MESSAGE_VISAGE_RANGE_STEP_INT_OR_NUMBER);
             }
         }
 		if (tree.getLower().getFXTag() == JavafxTag.LITERAL && tree.getUpper().getFXTag() == JavafxTag.LITERAL
@@ -3302,7 +3302,7 @@ public class JavafxAttr implements JavafxVisitor {
         Cardinality cardinality = tree.getCardinality();
         if (cardinality != Cardinality.SINGLETON &&
                 type == syms.voidType) {
-            log.error(tree, MsgSym.MESSAGE_JAVAFX_VOID_SEQUENCE_NOT_ALLOWED);
+            log.error(tree, MsgSym.MESSAGE_VISAGE_VOID_SEQUENCE_NOT_ALLOWED);
             cardinality = Cardinality.SINGLETON;
         }
         type = sequenceType(type, cardinality);
@@ -3845,8 +3845,8 @@ public class JavafxAttr implements JavafxVisitor {
                     if (m.overrides(e.sym, origin, types, false)) {
                         //if other has an uninferred return type we should report an error
                         if (e.sym.type.asMethodType().restype == syms.visage_UnspecifiedType) {
-                            log.note(tree, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL, e.sym.name);
-                            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, e.sym.name);
+                            log.note(tree, MsgSym.MESSAGE_VISAGE_TYPE_INFER_CYCLE_FUN_DECL, e.sym.name);
+                            log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_TYPE_INFER_CYCLE_VAR_REF, e.sym.name);
                             //set a dummy return type for other so that visagec is happy
                             ((MethodType)e.sym.type).restype = syms.errType;
                             break;
@@ -4038,7 +4038,7 @@ public class JavafxAttr implements JavafxVisitor {
         for (JFXExpression e:tree.values) {
             Type keyValueType = attribExpr(e, localEnv);
             if (keyValueType.tag != ERROR && !types.isSameType(keyValueType, syms.visage_KeyValueType)) {
-                log.error(e, MsgSym.MESSAGE_JAVAFX_KEYVALUE_REQUIRED);
+                log.error(e, MsgSym.MESSAGE_VISAGE_KEYVALUE_REQUIRED);
             }
         }
         result = check(tree, syms.visage_KeyFrameType, VAL, pkind, pt, pSequenceness);

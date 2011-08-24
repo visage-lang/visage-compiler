@@ -49,7 +49,7 @@ public class JdbBase extends Debugger {
     private final PrintStream  psout;
     private boolean isFx = true;
     private String mainclass = null;
-    static final String FX_MAIN = "org.visage.runtime.Main";
+    static final String VISAGE_MAIN = "org.visage.runtime.Main";
 
     public JdbBase() {
         super("-classpath " + testWorkDirectory() +
@@ -124,7 +124,7 @@ public class JdbBase extends Debugger {
     }
 
     public void fxrun(String... args) {
-        StringBuffer sb = new StringBuffer(FX_MAIN);
+        StringBuffer sb = new StringBuffer(VISAGE_MAIN);
         sb.append(" " + mainclass);
         if (args != null && args.length > 0) {
             for (String x : args) {
@@ -178,7 +178,7 @@ public class JdbBase extends Debugger {
             return pathname.getName().endsWith(".jar");
         }
     };
-    static final FileFilter FX_FILTER = new FileFilter() {
+    static final FileFilter VISAGE_FILTER = new FileFilter() {
         public boolean accept(File pathname) {
             return pathname.getName().endsWith(".visage");
         }
@@ -202,7 +202,7 @@ public class JdbBase extends Debugger {
     }
 
     static void deleteFxFiles() {
-        deleteFiles(FX_FILTER);
+        deleteFiles(VISAGE_FILTER);
     }
 
     static void deleteClassFiles() {

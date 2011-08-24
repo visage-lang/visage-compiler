@@ -75,7 +75,7 @@ public class Utils {
         }
     };
 
-    static final FileFilter FX_FILTER = new FileFilter() {
+    static final FileFilter VISAGE_FILTER = new FileFilter() {
         public boolean accept(File pathname) {
             return pathname.getName().endsWith(".visage");
         }
@@ -144,7 +144,7 @@ public class Utils {
     }
 
     static void deleteFxFiles() {
-        deleteFiles(FX_FILTER);
+        deleteFiles(VISAGE_FILTER);
     }
 
     static void deleteClassFiles() {

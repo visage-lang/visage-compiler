@@ -590,7 +590,7 @@ importId
                         // us there was a missing qualifer
                         //
                         inError = true;     // Signal that this is malformed
-                        log.error(pos($DOTDOT)+1, MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
+                        log.error(pos($DOTDOT)+1, MsgSym.MESSAGE_VISAGE_INCOMPLETE_QUAL);
                     }
             )
                 (
@@ -605,7 +605,7 @@ importId
                             // it is not singular - which one should it insert? However
                             // future improvements may make this happen, so code for it anyway
                             //
-                            log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
+                            log.error(semiPos(), MsgSym.MESSAGE_VISAGE_INCOMPLETE_QUAL);
                         }
                         
                         $pid = F.at($n2.pos).Select($pid, $n2.value, false);
@@ -622,7 +622,7 @@ importId
                         if  (haveStar) {
                         
                             inError = true;     // Signal that this is malformed
-                            log.error(part, MsgSym.MESSAGE_JAVAFX_IMPORT_BAD_NAME);
+                            log.error(part, MsgSym.MESSAGE_VISAGE_IMPORT_BAD_NAME);
                         }
                     }
 
@@ -656,7 +656,7 @@ importId
                             starBit = names.asterisk;
                             JFXExpression part = F.at(starP).Ident(starBit);
                             endPos(part);
-                            log.error(part, MsgSym.MESSAGE_JAVAFX_IMPORT_BAD_STAR);
+                            log.error(part, MsgSym.MESSAGE_VISAGE_IMPORT_BAD_STAR);
                             
                         }
                         
@@ -675,7 +675,7 @@ importId
                         if  (haveStar) {
                         
                             inError = true;     // Signal that this is malformed
-                            log.error(part, MsgSym.MESSAGE_JAVAFX_IMPORT_BAD_STAR);
+                            log.error(part, MsgSym.MESSAGE_VISAGE_IMPORT_BAD_STAR);
                         }
                         
                         
@@ -696,7 +696,7 @@ importId
                         endPos(part);
                         $pid = F.at(pos($DOT)).Select($pid, missing, false);
                         endPos($pid);
-                        log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
+                        log.error(semiPos(), MsgSym.MESSAGE_VISAGE_INCOMPLETE_QUAL);
                     }
                     
                 )
@@ -805,7 +805,7 @@ modifierFlag
     | PRIVATE           { 
                             JFXErroneous err = F.at(pos($PRIVATE)).Erroneous();
                             endPos(err);
-                            log.error(err, MsgSym.MESSAGE_JAVAFX_NOT_SUPPORTED_PRIVATE); 
+                            log.error(err, MsgSym.MESSAGE_VISAGE_NOT_SUPPORTED_PRIVATE); 
                         }
     | STATIC            { $flag = Flags.STATIC;                 }
     ;
@@ -1056,7 +1056,7 @@ syncClass[ListBuffer<JFXTree> mems]
         
         // Tell the script author where we think there is a screwed up expression
         //
-        log.error(errNode, MsgSym.MESSAGE_JAVAFX_GARBLED_DECLARATION);
+        log.error(errNode, MsgSym.MESSAGE_VISAGE_GARBLED_DECLARATION);
     }
 }
     :   // Deliberately match nothing, causing this rule always to be 
@@ -1166,7 +1166,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
                             // First, lets report the error as the user needs to know about it
                             // Issue an error - can't have anonymous functions
                             //
-                            log.error(pos(), MsgSym.MESSAGE_JAVAFX_FUNC_UNNAMED);
+                            log.error(pos(), MsgSym.MESSAGE_VISAGE_FUNC_UNNAMED);
                         }
                         // Accumulate a node in case of error
                         //          
@@ -1186,7 +1186,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
                             // First, lets report the error as the user needs to know about it
                             // Issue an error - can't have anonymous functions
                             //
-                            log.error(pos(), MsgSym.MESSAGE_JAVAFX_FUNC_UNNAMED);
+                            log.error(pos(), MsgSym.MESSAGE_VISAGE_FUNC_UNNAMED);
                         }
                         // Accumulate a node in case of error
                         //          
@@ -1477,7 +1477,7 @@ variableDeclaration [ JFXModifiers mods, int pos ]
                     
                     // Send out the error
                     //
-                    log.error(bValue, MsgSym.MESSAGE_JAVAFX_BAD_DEF, $name.text);
+                    log.error(bValue, MsgSym.MESSAGE_VISAGE_BAD_DEF, $name.text);
                 }
               
               }
@@ -1487,7 +1487,7 @@ variableDeclaration [ JFXModifiers mods, int pos ]
                 {
                     onReplaceValue = $onReplaceClause.value;
                     if (seenOnReplace) {
-                       log.error(onReplaceValue.pos(), MsgSym.MESSAGE_JAVAFX_DUPLICATE_TRIGGER_DEF);
+                       log.error(onReplaceValue.pos(), MsgSym.MESSAGE_VISAGE_DUPLICATE_TRIGGER_DEF);
                     }
                     else {
                         seenOnReplace = true;
@@ -1500,7 +1500,7 @@ variableDeclaration [ JFXModifiers mods, int pos ]
                 {
                     onInvalidateValue = $onInvalidateClause.value;
                     if (seenOnInvalidate) {
-                       log.error(onInvalidateValue.pos(), MsgSym.MESSAGE_JAVAFX_DUPLICATE_TRIGGER_DEF);
+                       log.error(onInvalidateValue.pos(), MsgSym.MESSAGE_VISAGE_DUPLICATE_TRIGGER_DEF);
                     }
                     else {
                         seenOnInvalidate = true;
@@ -1907,7 +1907,7 @@ syncBlock[JFXExpression returnType, ListBuffer<JFXExpression> stats]
                 
         // Tell the script author where we think there is a screwed up expression
         //
-        log.error(errNode, MsgSym.MESSAGE_JAVAFX_GARBLED_EXPRESSION);
+        log.error(errNode, MsgSym.MESSAGE_VISAGE_GARBLED_EXPRESSION);
     }
 }
     :   // Deliberately match nothing, causing this rule always to be 
@@ -2241,7 +2241,7 @@ variableLabel
                         $pos = pos($ATTRIBUTE); 
                         JFXErroneous err = F.at($pos).Erroneous();
                         endPos(err);
-                        log.error(err, MsgSym.MESSAGE_JAVAFX_NOT_SUPPORTED_ATTRIBUTE); 
+                        log.error(err, MsgSym.MESSAGE_VISAGE_NOT_SUPPORTED_ATTRIBUTE); 
                     } 
     ;
 // Catch an error. We create an erroneous node for anything that was at the start 
@@ -2738,7 +2738,7 @@ tryStatement
                     
                             // Can only have one finally clause, so log an error
                             //
-                            log.error($f1.value, MsgSym.MESSAGE_JAVAFX_FINALLY_TOOMANY);
+                            log.error($f1.value, MsgSym.MESSAGE_VISAGE_FINALLY_TOOMANY);
                         }
                         finallyCount++; 
                     }
@@ -2754,7 +2754,7 @@ tryStatement
                             // the same error for each catch clause that is out of order.
                             //
                             showSequenceErr = false;
-                            log.error($f1.value, MsgSym.MESSAGE_JAVAFX_FINALLY_NOTLAST);
+                            log.error($f1.value, MsgSym.MESSAGE_VISAGE_FINALLY_NOTLAST);
                         }
                         // Accumulate the catch clauses
                         //
@@ -2777,7 +2777,7 @@ tryStatement
                 //
                 $value = F.at(pos($TRY)).Erroneous(errNodes.elems);
                 endPos($value);
-                log.error($value, MsgSym.MESSAGE_JAVAFX_BAD_TRY);
+                log.error($value, MsgSym.MESSAGE_VISAGE_BAD_TRY);
                 
             } else {
             
@@ -2801,7 +2801,7 @@ tryStatement
                 errNodes.append($fe.value);
                 $value = F.at(rPos).Erroneous(errNodes.elems);
                 endPos($value);
-                log.error($value, MsgSym.MESSAGE_JAVAFX_ORPHANED_FINALLY);
+                log.error($value, MsgSym.MESSAGE_VISAGE_ORPHANED_FINALLY);
             }
             
     |   ce=catchClause
@@ -2812,7 +2812,7 @@ tryStatement
                 errNodes.append($ce.value);
                 $value = F.at(rPos).Erroneous(errNodes.elems);
                 endPos($value);
-                log.error($value, MsgSym.MESSAGE_JAVAFX_ORPHANED_CATCH);
+                log.error($value, MsgSym.MESSAGE_VISAGE_ORPHANED_CATCH);
             }
 
     ;
@@ -3296,7 +3296,7 @@ ifExpression
             
             // Tell the script author (and the IDE) about their issue
             //
-            log.error($value, MsgSym.MESSAGE_JAVAFX_ORPHANED_ELSE);
+            log.error($value, MsgSym.MESSAGE_VISAGE_ORPHANED_ELSE);
         }
     
     ;
@@ -3514,7 +3514,7 @@ assignOp
             //
             JFXErroneous err = F.at(pos($PERCENTEQ)).Erroneous();
             endPos(err);
-            log.error(err, MsgSym.MESSAGE_JAVAFX_BAD_PERCENT);
+            log.error(err, MsgSym.MESSAGE_VISAGE_BAD_PERCENT);
             
             // Erroneous operator
             //
@@ -3768,7 +3768,7 @@ relOps
             JFXErroneous err = F.at(pos($LTGT)).Erroneous();
             endPos(err);
             $relOp = JavafxTag.NE;
-            log.error(err, MsgSym.MESSAGE_JAVAFX_NOT_NE);
+            log.error(err, MsgSym.MESSAGE_VISAGE_NOT_NE);
         }   
                     
     | NOTEQ  { $relOp = JavafxTag.NE;   }
@@ -3938,7 +3938,7 @@ multOps
             JFXErroneous err = F.at(pos($PERCENT)).Erroneous();
             endPos(err);
             $multOp = JavafxTag.MOD;
-            log.error(err, MsgSym.MESSAGE_JAVAFX_BAD_PERCENT);
+            log.error(err, MsgSym.MESSAGE_VISAGE_BAD_PERCENT);
         }   
              
     | MOD       { $multOp = JavafxTag.MOD;  }
@@ -5451,7 +5451,7 @@ bracketExpression
                                         //
                                         if (input.LA(-1) != RBRACE)
                                         {
-                                            log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_MANDATORY_COMMA);
+                                            log.error(semiPos(), MsgSym.MESSAGE_VISAGE_MANDATORY_COMMA);
                                         }
                                   }
                             )
@@ -5544,7 +5544,7 @@ expressionList
         }
         
         (
-            (COMMA | { log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_MANDATORY_COMMA);} )  
+            (COMMA | { log.error(semiPos(), MsgSym.MESSAGE_VISAGE_MANDATORY_COMMA);} )  
             e2=expression
             
             {
@@ -6027,7 +6027,7 @@ typeName
                 //
                 JFXErroneous err = F.at(pos($LT)).Erroneous();
                 endPos(err);
-                log.error(err, MsgSym.MESSAGE_JAVAFX_GENERICS_UNSUPPORTED);
+                log.error(err, MsgSym.MESSAGE_VISAGE_GENERICS_UNSUPPORTED);
                 
                 // Ensure that the IDE plugin does not fall over
                 //
@@ -6297,7 +6297,7 @@ qualname
                     |   {
                             $value = F.at(pos($DOT)).Select($value, Name.fromString(names, "<missing>"), false);
                             endPos($value);
-                            log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
+                            log.error(semiPos(), MsgSym.MESSAGE_VISAGE_INCOMPLETE_QUAL);
                         }
                 )
             )*  
@@ -6794,7 +6794,7 @@ requiredSemi
       // though we don't worry about it syntactically.
       //
       {
-          log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_SEMI_REQUIRED);
+          log.error(semiPos(), MsgSym.MESSAGE_VISAGE_SEMI_REQUIRED);
       }
     
     | (SEMI)=>SEMI      // This is what we want 

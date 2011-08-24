@@ -79,7 +79,7 @@ public class FxCompiler implements TranslatingCompiler {
     }
 
     public boolean isCompilableFile(VirtualFile virtualFile, CompileContext compileContext) {
-        return FxPlugin.FX_FILE_TYPE.equals(virtualFile.getFileType());
+        return FxPlugin.VISAGE_FILE_TYPE.equals(virtualFile.getFileType());
     }
 
     public ExitStatus compile(final CompileContext compileContext, VirtualFile[] virtualFiles) {
@@ -258,7 +258,7 @@ public class FxCompiler implements TranslatingCompiler {
 
     @NotNull
     public String getDescription() {
-        return FxPlugin.FX_LANGUAGE_NAME;
+        return FxPlugin.VISAGE_LANGUAGE_NAME;
     }
 
     public boolean validateConfiguration(CompileScope compileScope) {
