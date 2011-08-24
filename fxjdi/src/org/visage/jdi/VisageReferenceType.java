@@ -287,7 +287,7 @@ public class VisageReferenceType extends VisageType implements ReferenceType {
      *
      * @return the Visage user class associated with this reference type if there is one, else null.
      */
-    public VisageClassType javaFXUserClass() {
+    public VisageClassType visageUserClass() {
         if (isUserClassSet) {
             return userClass;
         }

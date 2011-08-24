@@ -62,7 +62,7 @@ public class UserClassTest extends JavafxTestBase {
 
     void printUser(StackFrame frame, int count) {
         ReferenceType rt = frame.location().declaringType();
-        ClassType userClass = ((VisageReferenceType)rt).javaFXUserClass();
+        ClassType userClass = ((VisageReferenceType)rt).visageUserClass();
         // The ObjLit class has an inconsistend suffixe, eg sometimes $ObjLit$4 and sometimes $ObjLit$1
         //        writeActual("userClass " + count + " = " + rt.name() + ", " + 
         writeActual("userClass " + count + " = " + "<tbd>" + ", " + 
