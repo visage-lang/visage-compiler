@@ -9,5 +9,5 @@ public def jj: String[] = [
     "graphic","graphicHPos","graphicVPos","graphicTextGap" 
 ]; 
 
-public mixin class jfx3704m { 
+public mixin class jfxc3704m { 
 } 

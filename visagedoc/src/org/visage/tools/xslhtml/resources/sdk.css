@@ -54,7 +54,7 @@ html, body { padding: 0px; margin: 0px; height: 100%; }
 #classes-toc .content li 		{ padding: .3em .3em .3em 2em; }
 #classes-toc .content a 		{ text-decoration: none; color: #0c60af; }
 #classes-toc .content a:hover 	{ text-decoration: underline; color: #098cec; }
-#classes-toc .selected-class 	{ background: #fff url(images/JFX_highlight_dot.png) no-repeat 8px 50%; }
+#classes-toc .selected-class 	{ background: #fff url(images/Visage_highlight_dot.png) no-repeat 8px 50%; }
 
 #copyright 	{ padding: .5em; margin: 0px; font-weight: normal; color: white; background-color: #323232; font-style: normal; }
  

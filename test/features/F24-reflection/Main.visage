@@ -30,13 +30,13 @@ class Simple extends Square {
 //function run( ) {
 var clsSquare = context.findClass("Main.Square");
 var clsMyRect = context.findClass("MyRect");
-System.out.println("clsSquare={clsSquare} visage-class:{clsSquare.isJfxType()} mixin:{clsSquare.isMixin()}");
+System.out.println("clsSquare={clsSquare} visage-class:{clsSquare.isVisageType()} mixin:{clsSquare.isMixin()}");
 System.out.println("Sq.super: {clsSquare.getSuperClasses(false)}");
 
 var smpl = Simple {};
 var smplRef = context.mirrorOf(smpl);
 var clsSimple = smplRef.getType();
-System.out.println("clsSimple={clsSimple} visage-class:{clsSimple.isJfxType()} mixin:{clsSimple.isMixin()}");
+System.out.println("clsSimple={clsSimple} visage-class:{clsSimple.isVisageType()} mixin:{clsSimple.isMixin()}");
 System.out.println("Simpl.super: {clsSimple.getSuperClasses(false)}");
 System.out.println("Simpl.super (inherited also):");
 
@@ -53,7 +53,7 @@ function listSupers(theClass: visage.reflect.VisageClassType, flag: Boolean) {
 listSupers(clsSimple, true);
 
 var clsString = context.findClass("java.lang.String");
-System.out.println("clsString={clsString} visage-class:{clsString.isJfxType()} mixin:{clsString.isMixin()}");
+System.out.println("clsString={clsString} visage-class:{clsString.isVisageType()} mixin:{clsString.isMixin()}");
 
 System.out.println("String .super (direct only):");
 listSupers(clsString, false);

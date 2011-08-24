@@ -362,14 +362,14 @@ public class VisageTypes extends Types {
         return (sym.flags_field & VisageFlags.MIXIN) != 0;
     }
 
-    public boolean isJFXClass(Symbol sym) {
+    public boolean isVisageClass(Symbol sym) {
         if (! (sym instanceof VisageClassSymbol))
             return false;
         sym.complete();
         return (sym.flags_field & VisageFlags.VISAGE_CLASS) != 0;
     }
 
-    public boolean isJFXFunction(Type t) {
+    public boolean isVisageFunction(Type t) {
         return (t instanceof FunctionType);
     }
     
@@ -659,7 +659,7 @@ public class VisageTypes extends Types {
             public Type visitClassType(ClassType t, Boolean preserveWildcards) {
                 List<Type> args2 = visit(t.getTypeArguments(), true);
                 Type encl2 = visit(t.getEnclosingType(), false);
-                if (!isJFXFunction(t) &&
+                if (!isVisageFunction(t) &&
                         (!isSameTypes(args2, t.getTypeArguments()) ||
                         !isSameType(encl2, t.getEnclosingType()))) {
                     t = new ClassType(encl2, args2, t.tsym);

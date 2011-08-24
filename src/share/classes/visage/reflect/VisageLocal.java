@@ -650,7 +650,7 @@ public class VisageLocal {
             Context context = getReflectionContext();
             try {
                 Object instance;
-                if (isJfxType()) {
+                if (isVisageType()) {
                     // Note that Java5-style varargs are not supported on CDC.
                     Class[] types = { Boolean.TYPE };
                     Constructor cons = cls.getDeclaredConstructor(types);
@@ -787,8 +787,8 @@ public class VisageLocal {
             if (cls == null)
                 cls = owner.refClass;
             String get, set;
-            boolean isJfx = owner.isJfxType();
-            if (isJfx) {
+            boolean isVisage = owner.isVisageType();
+            if (isVisage) {
                 get = "get$";
                 set = "set$";
             } else {
@@ -797,7 +797,7 @@ public class VisageLocal {
             }
             Method g = ClassType.getMethodOrNull(cls, get + name);
             String xname = name;
-            if (g == null && isJfx) {
+            if (g == null && isVisage) {
                 xname = cls.getSimpleName() + "$" + name;
                 g = ClassType.getMethodOrNull(cls, get + xname);
             }
@@ -900,7 +900,7 @@ public class VisageLocal {
                 return;
             flags |= ACCESS_FLAGS_SET;
             checkGetterSetter();
-            if (! getDeclaringClass().isJfxType()
+            if (! getDeclaringClass().isVisageType()
                     || ! PlatformUtils.checkAccessAnnotations(this)) {
                 int mods = getter != null ? getter.getModifiers()
                         : fld.getModifiers();

@@ -584,10 +584,10 @@ public class VisageDefs {
      * Context set-up
      */
 
-    public static final Context.Key<VisageDefs> jfxDefsKey = new Context.Key<VisageDefs>();
+    public static final Context.Key<VisageDefs> visageDefsKey = new Context.Key<VisageDefs>();
 
     public static VisageDefs instance(Context context) {
-        VisageDefs instance = context.get(jfxDefsKey);
+        VisageDefs instance = context.get(visageDefsKey);
         if (instance == null) {
             instance = new VisageDefs(context);
         }
@@ -595,7 +595,7 @@ public class VisageDefs {
     }
 
     protected VisageDefs(Context context) {
-        context.put(jfxDefsKey, this);
+        context.put(visageDefsKey, this);
 
         final Name.Table names = Name.Table.instance(context);
 

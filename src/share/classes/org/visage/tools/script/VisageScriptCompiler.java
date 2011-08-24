@@ -107,7 +107,7 @@ public class VisageScriptCompiler {
         else {
             // Re-use names etc from previous calls to initCompilerContext.
             context.put(Name.Table.namesKey, names);
-            context.put(VisageDefs.jfxDefsKey, defs);
+            context.put(VisageDefs.visageDefsKey, defs);
             VisageSymtab.preRegister(context, syms);
             VisageTypes.preRegister(context, types);
         }

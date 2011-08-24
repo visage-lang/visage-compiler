@@ -864,7 +864,7 @@ public abstract class VisageAbstractTranslation
         }
 
         void addBindee(VisageVarSymbol sym) {
-            if (types.isJFXClass(sym.owner)) {
+            if (types.isVisageClass(sym.owner)) {
                 bindees.append(sym);
             }
         }
@@ -874,7 +874,7 @@ public abstract class VisageAbstractTranslation
         }
 
         void addInterClassBindee(VisageVarSymbol instanceSym, Symbol referencedSym) {
-            if (types.isJFXClass(instanceSym.owner) && types.isJFXClass(referencedSym.owner)) {
+            if (types.isVisageClass(instanceSym.owner) && types.isVisageClass(referencedSym.owner)) {
                 interClass.append(new DependentPair( instanceSym,  referencedSym));
             }
         }
@@ -3269,7 +3269,7 @@ public abstract class VisageAbstractTranslation
         }
 
         protected ExpressionResult doit() {
-            return buildInstance(tree.type, tree.getClassBody(), types.isJFXClass(idSym));
+            return buildInstance(tree.type, tree.getClassBody(), types.isVisageClass(idSym));
         }
     }
 

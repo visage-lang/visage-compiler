@@ -1217,8 +1217,8 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
                                        lineMap);
     }
     
-    public boolean isJFXClass() {
-        return env.isJFXSymbol(tsym);
+    public boolean isVisageClass() {
+        return env.isVisageSymbol(tsym);
     }
 
     public boolean isMixin() {

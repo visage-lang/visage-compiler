@@ -1309,7 +1309,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * 
      * @return
      */
-    protected List noJFXTrees() {
+    protected List noVisageTrees() {
         return List.<VisageTree>nil();
     }
     

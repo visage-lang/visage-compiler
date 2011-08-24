@@ -1,5 +1,5 @@
 /**
- * jfx2217: On assignment, object literal init, or initial value, convert (non-literal) nullable value
+ * jfxc2217: On assignment, object literal init, or initial value, convert (non-literal) nullable value
  *
  * @test
  * @run

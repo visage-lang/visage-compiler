@@ -44,14 +44,14 @@ public class VisageVar extends VisageAbstractVar implements VariableTree {
     }
 
     protected VisageVar(Name name,
-            VisageType jfxtype,
+            VisageType visagetype,
             VisageModifiers mods,
             VisageExpression init,
             VisageBindStatus bindStat,
             VisageOnReplace onReplace,
             VisageOnReplace onInvalidate,
             VisageVarSymbol sym) {
-        super(name, jfxtype, mods, init, bindStat, onReplace, onInvalidate, sym);
+        super(name, visagetype, mods, init, bindStat, onReplace, onInvalidate, sym);
     }
 
     /**

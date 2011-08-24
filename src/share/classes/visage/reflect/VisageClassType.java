@@ -87,7 +87,7 @@ public abstract class VisageClassType extends VisageType implements VisageMember
     }
 
     @Override
-    public boolean isJfxType() {
+    public boolean isVisageType() {
         return (modifiers & VISAGE_CLASS) != 0;
     }
 

@@ -55,7 +55,7 @@ public abstract class VisageType {
         return new VisageSequenceType(this);
     }
     
-    public boolean isJfxType() {
+    public boolean isVisageType() {
         return true;
     }
 

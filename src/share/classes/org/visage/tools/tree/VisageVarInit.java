@@ -96,8 +96,8 @@ public class VisageVarInit extends VisageExpression implements VariableTree {
         }
     }
 
-    public VisageType getJFXType() {
-        return var.getJFXType();
+    public VisageType getVisageType() {
+        return var.getVisageType();
     }
 
     public OnReplaceTree getOnReplaceTree() {

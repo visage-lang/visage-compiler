@@ -879,7 +879,7 @@ public class VisageAttr implements VisageVisitor {
 
         if (tree.rhs != null && tree.lhs.getFXTag() == VisageTag.IDENT) {
             VisageVar lhsVar = varSymToTree.get(lhsSym);
-            if (lhsVar != null && (lhsVar.getJFXType() instanceof VisageTypeUnknown)) {
+            if (lhsVar != null && (lhsVar.getVisageType() instanceof VisageTypeUnknown)) {
                 if (lhsVar.type == null ||
                         lhsVar.type == syms.visage_AnyType ||
                         lhsVar.type == syms.visage_UnspecifiedType) {
@@ -887,7 +887,7 @@ public class VisageAttr implements VisageVisitor {
                             tree.rhs.type != null &&
                             lhsVar.type != tree.rhs.type) {
                         tree.type = tree.lhs.type = lhsVar.type = lhsSym.type = types.normalize(tree.rhs.type);
-                        lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(fxmake.Type(lhsSym.type), lhsVar.getJFXType().getCardinality()));
+                        lhsVar.setVisageType(fxmake.at(tree.pos()).TypeClass(fxmake.Type(lhsSym.type), lhsVar.getVisageType().getCardinality()));
                 }
             }
         }
@@ -910,8 +910,8 @@ public class VisageAttr implements VisageVisitor {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
 
         try {
-            Type declType = attribType(tree.getJFXType(), env);
-            declType = chk.checkNonVoid(tree.getJFXType(), declType);
+            Type declType = attribType(tree.getVisageType(), env);
+            declType = chk.checkNonVoid(tree.getVisageType(), declType);
             if (declType != syms.visage_UnspecifiedType) {
                 result = tree.type = v.type = declType;
             }
@@ -1076,17 +1076,17 @@ public class VisageAttr implements VisageVisitor {
 
         // Need to check that the override did not specify a different type
         // w.r.t. the one that comes from overridden variable
-        Type jfxType = attribType(tree.getJFXType(), env);
-        if (jfxType != syms.visage_UnspecifiedType &&
-                !types.isSameType(declType, jfxType)) {
-            chk.typeError(tree.getJFXType().pos(),
+        Type visageType = attribType(tree.getVisageType(), env);
+        if (visageType != syms.visage_UnspecifiedType &&
+                !types.isSameType(declType, visageType)) {
+            chk.typeError(tree.getVisageType().pos(),
                     messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC + 
                     MsgSym.MESSAGE_VISAGE_TYPED_OVERRIDE),
-                    jfxType,
+                    visageType,
                     declType);
         }
-        else if (jfxType == syms.visage_UnspecifiedType) {
-            tree.setJFXType(fxmake.at(tree.pos).TypeClass(fxmake.at(tree.pos).Type(declType),
+        else if (visageType == syms.visage_UnspecifiedType) {
+            tree.setVisageType(fxmake.at(tree.pos).TypeClass(fxmake.at(tree.pos).Type(declType),
                     types.isSequence(declType) ?
                         Cardinality.ANY :
                         Cardinality.SINGLETON));
@@ -1286,7 +1286,7 @@ public class VisageAttr implements VisageVisitor {
             //
             if  (var == null || var instanceof VisageErroneousVar) continue;
 
-            Type declType = attribType(var.getJFXType(), forExprEnv);
+            Type declType = attribType(var.getVisageType(), forExprEnv);
             attribVar(var, forExprEnv);
             VisageExpression expr = (VisageExpression)clause.getSequenceExpression();
             Type exprType = types.upperBound(attribExpr(expr, forExprEnv));
@@ -1573,7 +1573,7 @@ public class VisageAttr implements VisageVisitor {
 
                 // Error recovery: pretend no arguments were supplied.
                 argtypes = List.nil();
-            } else if (types.isJFXClass(clazztype.tsym) && tree.getArgs().nonEmpty()) {
+            } else if (types.isVisageClass(clazztype.tsym) && tree.getArgs().nonEmpty()) {
                 log.error(tree.getArgs().head.pos(), MsgSym.MESSAGE_NEW_VISAGE_CLASS_NO_ARGS);
             }
 
@@ -1585,7 +1585,7 @@ public class VisageAttr implements VisageVisitor {
                         cdef.getMembers().nonEmpty();
                 localEnv.info.varArgs = false;
 
-                if (! types.isJFXClass(clazztype.tsym))
+                if (! types.isVisageClass(clazztype.tsym))
                     tree.constructor = rs.resolveConstructor(
                         tree.pos(), localEnv, clazztype, argtypes, null);
                 /**
@@ -1867,8 +1867,8 @@ public class VisageAttr implements VisageVisitor {
                 // make sense of a partially completed function definition
                 //
                 if  (       pvar == null                                    // Not even present
-                        ||  pvar.getJFXType() == null                       // There, but can't do anythign about typing it
-                        ||  pvar.getJFXType() instanceof VisageErroneousType   // There, but flagged as an erroneous type for some  syntactic reason
+                        ||  pvar.getVisageType() == null                       // There, but can't do anythign about typing it
+                        ||  pvar.getVisageType() instanceof VisageErroneousType   // There, but flagged as an erroneous type for some  syntactic reason
                     ) 
                         continue;   // Hence, we can't do anythign with this parameter definitionm skip it
 
@@ -1882,7 +1882,7 @@ public class VisageAttr implements VisageVisitor {
                 else {
 
                     type = syms.objectType;
-                    if (pvar.getJFXType() instanceof VisageTypeUnknown) {
+                    if (pvar.getVisageType() instanceof VisageTypeUnknown) {
                         Type t = searchSupersForParamType (owner, m.name, paramCount, paramNum);
                         if (t == Type.noType)
                             log.warning(pvar.pos(), MsgSym.MESSAGE_VISAGE_AMBIGUOUS_PARAM_TYPE_FROM_SUPER);
@@ -1897,8 +1897,8 @@ public class VisageAttr implements VisageVisitor {
             }
 
             returnType = syms.unknownType;
-            if (opVal.getJFXReturnType().getFXTag() != VisageTag.TYPEUNKNOWN)
-                returnType = attribType(tree.getJFXReturnType(), localEnv);
+            if (opVal.getVisageReturnType().getFXTag() != VisageTag.TYPEUNKNOWN)
+                returnType = attribType(tree.getVisageReturnType(), localEnv);
             else if (mtype != null) {
                 Type mrtype = mtype.getReturnType();
                 if (mrtype != null && mrtype.tag != TypeTags.NONE)
@@ -2532,12 +2532,12 @@ public class VisageAttr implements VisageVisitor {
 
         if (lhsSym != null && tree.rhs != null) {
             VisageVar lhsVar = varSymToTree.get(lhsSym);
-            if (lhsVar != null && (lhsVar.getJFXType() instanceof VisageTypeUnknown)) {
+            if (lhsVar != null && (lhsVar.getVisageType() instanceof VisageTypeUnknown)) {
                 if ((lhsVar.type == null || lhsVar.type == syms.visage_AnyType)) {
                     if (tree.rhs.type != null && lhsVar.type != tree.rhs.type) {
                         lhsVar.type = lhsSym.type = tree.rhs.type;
                         VisageExpression jcExpr = fxmake.at(tree.pos()).Ident(lhsSym);
-                        lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(jcExpr, lhsVar.getJFXType().getCardinality()));
+                        lhsVar.setVisageType(fxmake.at(tree.pos()).TypeClass(jcExpr, lhsVar.getVisageType().getCardinality()));
                     }
                 }
             }
@@ -2648,9 +2648,9 @@ public class VisageAttr implements VisageVisitor {
 
         if (var != null) {
             var.setType(newType);
-            VisageType jfxType = fxmake.at(tree.pos()).TypeClass(jcExpression, Cardinality.SINGLETON);
-            jfxType.type = newType;
-            var.setJFXType(jfxType);
+            VisageType visageType = fxmake.at(tree.pos()).TypeClass(jcExpression, Cardinality.SINGLETON);
+            visageType.type = newType;
+            var.setVisageType(visageType);
             var.sym.type = newType;
         }
 
@@ -3033,7 +3033,7 @@ public class VisageAttr implements VisageVisitor {
                 log.error(superClass.pos(), MsgSym.MESSAGE_ENUM_TYPES_NOT_EXTENSIBLE);
             }
             if (!supType.isInterface() &&
-                    !types.isJFXClass(supType.tsym) &&
+                    !types.isVisageClass(supType.tsym) &&
                     !types.isMixin(supType.tsym) &&
                     !supType.isPrimitive() &&
                     visageClassSymbol.type instanceof ClassType) {
@@ -3908,7 +3908,7 @@ public class VisageAttr implements VisageVisitor {
                 }
 
                 if (setReturnType != null) {
-                    VisageType oldType = tree.operation.getJFXReturnType();
+                    VisageType oldType = tree.operation.getVisageReturnType();
                     tree.operation.rettype = fxmake.TypeClass(fxmake.Type(setReturnType), oldType.getCardinality());
                     if (mt instanceof MethodType) {
                         ((MethodType)mt).restype = setReturnType;

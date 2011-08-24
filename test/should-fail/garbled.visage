@@ -4,7 +4,7 @@
  * @test/compile-error
  */
 
-package jfx1;
+package visage1;
 
 
 class A {

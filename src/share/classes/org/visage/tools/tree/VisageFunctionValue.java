@@ -51,7 +51,7 @@ public class VisageFunctionValue extends VisageExpression implements FunctionVal
         }
     }
 
-    public VisageType getJFXReturnType() {
+    public VisageType getVisageReturnType() {
         return rettype;
     }
 

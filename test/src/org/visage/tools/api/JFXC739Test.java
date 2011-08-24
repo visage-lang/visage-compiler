@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
 public class JFXC739Test {
 
     @Test
-    public void testJFXClassDeclarationPos() throws Exception {
+    public void testVisageClassDeclarationPos() throws Exception {
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         try {            
             Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());

@@ -81,7 +81,7 @@ public class VisageFunctionDefinition extends VisageExpression implements Functi
         return name;
     }
 
-    public VisageType getJFXReturnType() {
+    public VisageType getVisageReturnType() {
         return operation.rettype;
     }
 

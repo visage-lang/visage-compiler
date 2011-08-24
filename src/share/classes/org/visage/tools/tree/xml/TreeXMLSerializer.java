@@ -414,7 +414,7 @@ final class TreeXMLSerializer implements VisageVisitor {
                 emitElement(NAME, name.toString());
             }
             emitModifiers(funcDef.getModifiers());
-            emitTree(RETURN_TYPE, funcDef.getJFXReturnType());
+            emitTree(RETURN_TYPE, funcDef.getVisageReturnType());
             emitTreeList(PARAMETERS, funcDef.getParams());
             emitTree(funcDef.getBodyExpression());
             endElement(FUNCTION);
@@ -550,7 +550,7 @@ final class TreeXMLSerializer implements VisageVisitor {
             emitElement(NAME, name.toString());
         }
         emitModifiers(mods);
-        emitTree(TYPE, var.getJFXType());
+        emitTree(TYPE, var.getVisageType());
         emitElement(BIND_STATUS, bindStatusToString(var.getBindStatus()));
         emitTree(INITIAL_VALUE, var.getInitializer());
         VisageOnReplace onReplace = var.getOnReplace();

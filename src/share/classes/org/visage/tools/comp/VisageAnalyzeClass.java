@@ -614,7 +614,7 @@ class VisageAnalyzeClass {
         }
 
         // Returns the tree for the visage var.
-        public VisageVar jfxVar() { return var; }
+        public VisageVar visageVar() { return var; }
 
         @Override
         public boolean hasSafeInitializer() {
@@ -1100,19 +1100,19 @@ class VisageAnalyzeClass {
     //
     static class TranslatedFuncInfo extends FuncInfo {
         // Visage definition of the function.
-        private final VisageFunctionDefinition jfxFuncDef;
+        private final VisageFunctionDefinition visageFuncDef;
         
         // Java translation of the function.
         private final List<JCTree> jcFuncDef;
         
-        TranslatedFuncInfo(VisageFunctionDefinition jfxFuncDef, List<JCTree> jcFuncDef) {
-            super(jfxFuncDef, jfxFuncDef.sym);
-            this.jfxFuncDef = jfxFuncDef;
+        TranslatedFuncInfo(VisageFunctionDefinition visageFuncDef, List<JCTree> jcFuncDef) {
+            super(visageFuncDef, visageFuncDef.sym);
+            this.visageFuncDef = visageFuncDef;
             this.jcFuncDef = jcFuncDef;
         }
 
         // Return the visage definition of the function.
-        public VisageFunctionDefinition jfxFunction() { return jfxFuncDef; }
+        public VisageFunctionDefinition visageFunction() { return visageFuncDef; }
 
         // Return the java translation of the function.
         public List<JCTree> jcFunction() { return jcFuncDef; }
@@ -1428,7 +1428,7 @@ class VisageAnalyzeClass {
     
     private void analyzeClass(Symbol sym, boolean isImmediateSuper, boolean needsCloning) {
         // Ignore pure java interfaces, classes we've visited before and non-visage classes.
-        if (!isInterface(sym) && !addedBaseClasses.contains(sym) && types.isJFXClass(sym)) {
+        if (!isInterface(sym) && !addedBaseClasses.contains(sym) && types.isVisageClass(sym)) {
             // Get the current class symbol and add it to the visited map.
             ClassSymbol cSym = (ClassSymbol)sym;
             addedBaseClasses.add(cSym);

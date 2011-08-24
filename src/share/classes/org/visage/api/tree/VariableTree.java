@@ -46,7 +46,7 @@ public interface VariableTree extends ExpressionTree {
     Name getName();
     Tree getType();
     ExpressionTree getInitializer();
-    VisageType getJFXType();
+    VisageType getVisageType();
     OnReplaceTree getOnReplaceTree();
     OnReplaceTree getOnInvalidateTree();
     VisageBindStatus getBindStatus();

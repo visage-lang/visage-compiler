@@ -223,9 +223,9 @@ public class VisageScriptEngineTest {
             "t.hello(1); // invalid parameter  8\n";
 
         DiagnosticCollector<JavaFileObject> diags = new DiagnosticCollector<JavaFileObject>();
-        VisageScriptEngine jfxEngine = (VisageScriptEngine)engine;
+        VisageScriptEngine visageEngine = (VisageScriptEngine)engine;
         try {
-            jfxEngine.eval(script, diags);
+            visageEngine.eval(script, diags);
             fail("script should have thrown ScriptException due to bad code");
         } catch (ScriptException e) {
             List<Diagnostic<? extends JavaFileObject>> errorList = diags.getDiagnostics();
@@ -253,9 +253,9 @@ public class VisageScriptEngineTest {
         bindings.put("who", "world");
 
         DiagnosticCollector<JavaFileObject> diags = new DiagnosticCollector<JavaFileObject>();
-        VisageScriptEngine jfxEngine = (VisageScriptEngine)engine;
+        VisageScriptEngine visageEngine = (VisageScriptEngine)engine;
         try {
-            jfxEngine.eval(script, bindings, diags);
+            visageEngine.eval(script, bindings, diags);
             fail("script should have thrown ScriptException due to bad code");
         } catch (ScriptException e) {
             List<Diagnostic<? extends JavaFileObject>> errorList = diags.getDiagnostics();

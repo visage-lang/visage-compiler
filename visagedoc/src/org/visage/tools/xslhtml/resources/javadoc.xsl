@@ -809,7 +809,7 @@
                     <xsl:apply-templates select="docComment/firstSentenceTags"/>
                     <xsl:if test="$inline-descriptions='true'">
                         <xsl:if test="docComment/extraNotes[@multipleSentences='true']">
-                            <a href="#" class="long-desc-open"><img src="../images/JFX_arrow_right.png"/></a>
+                            <a href="#" class="long-desc-open"><img src="../images/Visage_arrow_right.png"/></a>
                             <div class="long-desc">
                                 <xsl:call-template name="var-full-description"/>
                                 &#160;
@@ -980,7 +980,7 @@
                     and return values, even if there is only a one sentence description.
                     <xsl:if test="docComment/extraNotes[@multipleSentences='true']">
                     -->
-                        <a href="#" class="long-desc-open"><img src="../images/JFX_arrow_right.png"/></a>
+                        <a href="#" class="long-desc-open"><img src="../images/Visage_arrow_right.png"/></a>
                         <div class="long-desc">
                             <xsl:call-template name="method-like-full-description"/>
                             &#160;

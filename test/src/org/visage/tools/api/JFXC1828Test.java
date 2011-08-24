@@ -44,7 +44,7 @@ import org.junit.Test;
 public class JFXC1828Test {
 
     @Test
-    public void testJFXTreesGetElement() throws Exception {
+    public void testVisageTreesGetElement() throws Exception {
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         try {            
             Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());

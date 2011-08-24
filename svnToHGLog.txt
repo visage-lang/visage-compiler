@@ -8782,7 +8782,7 @@ changeset:   2981:27aab37c340e
 branch:      trunk
 user:        bothner
 date:        Wed Jul 09 16:57:29 2008 -0700
-summary:     [svn r3280] Temporary hacks until jfxpad is fixed.
+summary:     [svn r3280] Temporary hacks until visagepad is fixed.
 
 changeset:   2980:45e165b058c1
 branch:      trunk
@@ -12046,7 +12046,7 @@ changeset:   2437:bfdabdf1415a
 branch:      trunk
 user:        bothner
 date:        Sat Apr 19 17:08:24 2008 -0700
-summary:     [svn r2610] New method - ClassRef.isJfxType.
+summary:     [svn r2610] New method - ClassRef.isVisageType.
 
 changeset:   2436:2f108a050e6c
 branch:      trunk
@@ -19294,7 +19294,7 @@ changeset:   1229:7d87991dd98a
 branch:      trunk
 user:        bothner
 date:        Thu Jan 03 16:14:53 2008 -0800
-summary:     [svn r1300] Move fxClasses, isJFXClass, addFxClass, clearCaches from
+summary:     [svn r1300] Move fxClasses, isVisageClass, addFxClass, clearCaches from
 
 changeset:   1228:03e62b1b95f9
 branch:      trunk
@@ -19948,7 +19948,7 @@ changeset:   1120:7c83fe7084dc
 branch:      trunk
 user:        bothner
 date:        Mon Dec 17 17:35:29 2007 -0800
-summary:     [svn r1185] Do resolve constructor for VisageInstanciate, if ! isJFXClass.
+summary:     [svn r1185] Do resolve constructor for VisageInstanciate, if ! isVisageClass.
 
 changeset:   1119:f51c47bfb703
 branch:      trunk

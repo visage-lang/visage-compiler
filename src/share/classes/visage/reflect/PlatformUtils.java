@@ -79,13 +79,13 @@ class PlatformUtils {
     }
 
     static int checkPublic(VisageLocal.ClassType ctype) {
-        if (ctype.isJfxType())
+        if (ctype.isVisageType())
             return -1;
         return getAnnotation(ctype, Public.class) != null ? 1 : 0;
     }
 
     static int checkPackage(VisageLocal.ClassType ctype) {
-        if (! ctype.isJfxType())
+        if (! ctype.isVisageType())
             return -1;
         return getAnnotation(ctype, Package.class) != null ? 1 : 0;
     }
@@ -95,7 +95,7 @@ class PlatformUtils {
     }
 
     static int checkAccess(VisageLocal.VarMember vmem, Class ann) {
-        if (! vmem.getDeclaringClass().isJfxType())
+        if (! vmem.getDeclaringClass().isVisageType())
            return -1;
        return getAnnotation(vmem, ann) != null ? 1 : 0;
     }
@@ -119,7 +119,7 @@ class PlatformUtils {
     }
 
     static int checkAccess(VisageLocal.FunctionMember fmem, Class ann) {
-        if (! fmem.getDeclaringClass().isJfxType())
+        if (! fmem.getDeclaringClass().isVisageType())
            return -1;
        return fmem.method.getAnnotation(ann) != null ? 1 : 0;
     }

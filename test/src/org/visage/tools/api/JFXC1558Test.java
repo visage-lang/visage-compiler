@@ -54,7 +54,7 @@ public class JFXC1558Test {
     int finishEvents;
 
     @Test
-    public void testJFXTaskEvent() throws Exception {
+    public void testVisageTaskEvent() throws Exception {
         startEvents = 0;
         finishEvents = 0;
         ClassLoader orig = Thread.currentThread().getContextClassLoader();

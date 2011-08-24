@@ -1,5 +1,5 @@
 /**
- * jfx2218:On cast, convert nullable String/Duration value
+ * jfxc2218:On cast, convert nullable String/Duration value
  * @test
  * @run
  */

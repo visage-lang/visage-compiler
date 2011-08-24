@@ -50,7 +50,7 @@ public class JFXC1138Test {
     Map<String,Tree> testTrees = new HashMap<String, Tree>();
 
     @Test
-    public void testJFXTreesGetElement() throws Exception {
+    public void testVisageTreesGetElement() throws Exception {
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         try {            
             Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());

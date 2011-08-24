@@ -424,7 +424,7 @@ public class VisageLower implements VisageVisitor {
         try {
             enclFunc = tree;
             VisageBlock body  = (VisageBlock)lowerExpr(tree.getBodyExpression(), tree.type != null ? tree.type.getReturnType() : Type.noType);
-            VisageFunctionDefinition res = m.at(tree.pos).FunctionDefinition(tree.mods, tree.name, tree.getJFXReturnType(), tree.getParams(), body);
+            VisageFunctionDefinition res = m.at(tree.pos).FunctionDefinition(tree.mods, tree.name, tree.getVisageReturnType(), tree.getParams(), body);
             res.operation.definition = res;
             res.sym = tree.sym;
             result = res.setType(tree.type);
@@ -622,7 +622,7 @@ public class VisageLower implements VisageVisitor {
         VisageExpression init = lowerExpr(tree.getInitializer(), tree.getId().sym.type);
         VisageOnReplace onReplace = lowerDecl(tree.getOnReplace());
         VisageOnReplace onInvalidate = lowerDecl(tree.getOnInvalidate());
-        VisageOverrideClassVar res = m.at(tree.pos).OverrideClassVar(tree.name, tree.getJFXType(), tree.mods, tree.getId(), init, tree.getBindStatus(), onReplace, onInvalidate);
+        VisageOverrideClassVar res = m.at(tree.pos).OverrideClassVar(tree.name, tree.getVisageType(), tree.mods, tree.getId(), init, tree.getBindStatus(), onReplace, onInvalidate);
         res.sym = tree.sym;
         result = res.setType(tree.type);
     }
@@ -851,7 +851,7 @@ public class VisageLower implements VisageVisitor {
         VisageExpression init = lowerExpr(tree.getInitializer(), tree.type);
         VisageOnReplace onReplace = lowerDecl(tree.getOnReplace());
         VisageOnReplace onInvalidate = lowerDecl(tree.getOnInvalidate());
-        VisageVar res = m.at(tree.pos).Var(tree.name, tree.getJFXType(), tree.mods, init, tree.getBindStatus(), onReplace, onInvalidate);
+        VisageVar res = m.at(tree.pos).Var(tree.name, tree.getVisageType(), tree.mods, init, tree.getBindStatus(), onReplace, onInvalidate);
         res.sym = tree.sym;
         result = res.setType(tree.type);
         VisageVarInit vsi = tree.getVarInit();

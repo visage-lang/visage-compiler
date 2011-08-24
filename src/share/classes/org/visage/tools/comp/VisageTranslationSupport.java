@@ -158,7 +158,7 @@ public abstract class VisageTranslationSupport {
     protected boolean isValueFromJava(final VisageExpression expr) {
         // The value could come from Java if it is a variable, or a function result.
         Symbol sym = expressionSymbol(expr);
-        if (sym != null && !types.isJFXClass(sym.owner)) {
+        if (sym != null && !types.isVisageClass(sym.owner)) {
             return true;
         }
 
@@ -642,7 +642,7 @@ public abstract class VisageTranslationSupport {
 
     private Name prefixedAttributeName(Symbol sym, String prefix) {
         Symbol owner = sym.owner;
-        if (!types.isJFXClass(owner)) {
+        if (!types.isVisageClass(owner)) {
             return sym.name;
         }
         VisageVarSymbol vsym = (VisageVarSymbol) sym; //TODO: make parameter a VisageVarSymbol

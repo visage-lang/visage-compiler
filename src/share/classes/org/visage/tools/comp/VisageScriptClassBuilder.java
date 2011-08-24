@@ -133,7 +133,7 @@ public class VisageScriptClassBuilder {
                 break;
             }
             case 1: {
-                VisageType paramType = params.head.getJFXType();
+                VisageType paramType = params.head.getVisageType();
                 if (paramType.getCardinality() == Cardinality.ANY &&
                         paramType instanceof VisageTypeClass) {
                     VisageExpression cnExp = ((VisageTypeClass) paramType).getClassName();
@@ -160,7 +160,7 @@ public class VisageScriptClassBuilder {
     }
 
 
-    public VisageClassDeclaration preProcessJfxTopLevel(VisageScript module) {
+    public VisageClassDeclaration preProcessVisageTopLevel(VisageScript module) {
         Name moduleClassName = scriptName(module);
         
         if (debugBadPositions) {

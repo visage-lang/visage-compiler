@@ -51,7 +51,7 @@ public abstract class VisageTypeDelegate implements InvocationDelegate {
             return ((VisagePrimitiveValue) val).asObject();
         } else if (type instanceof VisageLocal.ClassType) {
             VisageLocal.ClassType classType = (VisageLocal.ClassType) type;
-            if (!classType.isJfxType()) {
+            if (!classType.isVisageType()) {
                 // Return Java values as Java objects instead of Visage Script wrappers
                 return ((VisageLocal.ObjectValue) val).asObject();
             }

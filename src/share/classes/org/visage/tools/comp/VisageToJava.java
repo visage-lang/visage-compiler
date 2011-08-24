@@ -53,7 +53,7 @@ import static org.visage.tools.comp.VisageAbstractTranslation.Yield.*;
  * @author Lubo Litchev
  */
 public class VisageToJava extends VisageAbstractTranslation {
-    protected static final Context.Key<VisageToJava> jfxToJavaKey =
+    protected static final Context.Key<VisageToJava> visageToJavaKey =
         new Context.Key<VisageToJava>();
 
     /*
@@ -94,7 +94,7 @@ public class VisageToJava extends VisageAbstractTranslation {
      */
  
     public static VisageToJava instance(Context context) {
-        VisageToJava instance = context.get(jfxToJavaKey);
+        VisageToJava instance = context.get(visageToJavaKey);
         if (instance == null)
             instance = new VisageToJava(context);
         return instance;
@@ -103,7 +103,7 @@ public class VisageToJava extends VisageAbstractTranslation {
     protected VisageToJava(Context context) {
         super(context, null);
 
-        context.put(jfxToJavaKey, this);
+        context.put(visageToJavaKey, this);
 
         this.initBuilder = VisageInitializationBuilder.instance(context);
         this.translateBind = VisageTranslateBind.instance(context);
@@ -370,7 +370,7 @@ public class VisageToJava extends VisageAbstractTranslation {
             prependToStatements = prevPrependToStatements;
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
 
-            VisageClassModel model = initBuilder.createJFXClassModel(tree, 
+            VisageClassModel model = initBuilder.createVisageClassModel(tree, 
                     attrInfo.toList(),
                     overrideInfo.toList(),
                     funcInfo.toList(),

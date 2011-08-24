@@ -212,7 +212,7 @@ public class VisageTreeCopier implements VisageVisitor {
     public void visitFunctionDefinition(VisageFunctionDefinition tree) {
         VisageModifiers mods = copy(tree.mods);
         Name name = tree.getName();
-        VisageType restype = copy(tree.getJFXReturnType());
+        VisageType restype = copy(tree.getVisageReturnType());
         List<VisageVar> params = copy(tree.getParams());
         VisageBlock bodyExpression = copy(tree.getBodyExpression());
         result = maker.at(tree.pos).FunctionDefinition(mods, name, restype, params, bodyExpression);
@@ -285,7 +285,7 @@ public class VisageTreeCopier implements VisageVisitor {
 
     public void visitVar(VisageVar tree) {
         Name name = tree.name;
-        VisageType type = copy(tree.getJFXType());
+        VisageType type = copy(tree.getVisageType());
         VisageModifiers mods = copy(tree.getModifiers());
         VisageExpression init = copy(tree.getInitializer());
         VisageOnReplace onReplace = copy(tree.getOnReplace());
@@ -404,11 +404,11 @@ public class VisageTreeCopier implements VisageVisitor {
         Name name = tree.getName();
         VisageModifiers mods = copy(tree.getModifiers());
         VisageIdent expr = copy(tree.getId());
-        VisageType jfxtype = copy(tree.getJFXType());
+        VisageType visagetype = copy(tree.getVisageType());
         VisageExpression initializer = copy(tree.getInitializer());
         VisageOnReplace onReplace = copy(tree.getOnReplace());
         VisageOnReplace onInvalidate = copy(tree.getOnInvalidate());
-        result = maker.at(tree.pos).OverrideClassVar(name, jfxtype, mods, expr, initializer, tree.getBindStatus(), onReplace, onInvalidate);
+        result = maker.at(tree.pos).OverrideClassVar(name, visagetype, mods, expr, initializer, tree.getBindStatus(), onReplace, onInvalidate);
     }
 
     public void visitInterpolateValue(VisageInterpolateValue tree) {

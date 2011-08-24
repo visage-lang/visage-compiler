@@ -661,7 +661,7 @@ public class VisageCheck {
     void checkAssignable(DiagnosticPosition pos, VisageVarSymbol v, VisageTree base, Type site, VisageEnv<VisageAttrContext> env, WriteKind writeKind) {
         //TODO: for attributes they are always final -- this should really be checked in VisageClassReader
         //TODO: rebutal, actual we should just use a different final
-        if ((v.flags() & FINAL) != 0 && !types.isJFXClass(v.owner) &&
+        if ((v.flags() & FINAL) != 0 && !types.isVisageClass(v.owner) &&
             ((v.flags() & HASINIT) != 0
              ||
              !((base == null ||
@@ -1789,7 +1789,7 @@ public class VisageCheck {
                     if (isNotScriptPrivate || isPublicRead || isScriptScope) {
                         // We have a name clash, the variable name is the name of a member
                         // which is visible outside the script or which is in the same script
-                        if (!types.isJFXClass(eSym.owner)) {
+                        if (!types.isVisageClass(eSym.owner)) {
                             log.error(diagPos, (vsym.flags_field & VisageFlags.IS_DEF) == 0L?
                                    MsgSym.MESSAGE_VISAGE_VAR_OVERRIDES_JAVA_MEMBER :
                                    MsgSym.MESSAGE_VISAGE_DEF_OVERRIDES_JAVA_MEMBER,

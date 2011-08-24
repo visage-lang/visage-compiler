@@ -403,7 +403,7 @@ public class XMLDoclet {
         if (cls.simpleTypeName().equals("package-info")) {
             return;
         }
-        boolean fxClass = isJFXClass(cls);
+        boolean fxClass = isVisageClass(cls);
         String classType = 
                 cls.isAnnotationType() ? "annotation" :
                 cls.isEnum() ? "enum" :
@@ -829,7 +829,7 @@ public class XMLDoclet {
         ClassDoc cls = doc.containingClass();
         ClassDoc scls = cls.superclass();
         MethodDoc meth = findDeclaredMethod(scls, doc);
-        if (meth == null && isJFXClass(cls)) {
+        if (meth == null && isVisageClass(cls)) {
             for (ClassDoc intf : cls.interfaces()) {
                 meth = findDeclaredMethod(intf, doc);
                 if (meth != null)
@@ -882,8 +882,8 @@ public class XMLDoclet {
         return msgRB.getString(key);
     }
     
-    private static boolean isJFXClass(ClassDoc clsDoc) {
-        return probe(clsDoc, "isJFXClass");
+    private static boolean isVisageClass(ClassDoc clsDoc) {
+        return probe(clsDoc, "isVisageClass");
     }
 
     private static boolean isMixin(ClassDoc clsDoc) {

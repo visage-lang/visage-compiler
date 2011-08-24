@@ -135,7 +135,7 @@ public class VisageDelegate implements InvocationDelegate {
 
         try {
             VisageClassType clazz = context.findClass(name);
-            if (clazz != null && clazz.isJfxType()) {
+            if (clazz != null && clazz.isVisageType()) {
                 return clazz;
             }
         } catch (Throwable t) {
@@ -186,7 +186,7 @@ public class VisageDelegate implements InvocationDelegate {
             // for other values as well but we prefer not to due to the cost
             VisageObjectValue fxObj = context.mirrorOf(obj);
             VisageClassType fxClass = fxObj.getClassType();
-            if (fxClass.isJfxType()) {
+            if (fxClass.isVisageType()) {
                 // Upgrade the receiver to an VisageObjectValue
                 box[0] = fxObj;
                 return getClassDelegate(fxClass);

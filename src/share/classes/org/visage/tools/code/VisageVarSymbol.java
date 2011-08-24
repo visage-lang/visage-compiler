@@ -101,7 +101,7 @@ public class VisageVarSymbol extends VarSymbol {
     }
 
     public boolean isFXMember() {
-        return isMember() && types.isJFXClass(owner);
+        return isMember() && types.isVisageClass(owner);
     }
 
     public boolean isSequence() {

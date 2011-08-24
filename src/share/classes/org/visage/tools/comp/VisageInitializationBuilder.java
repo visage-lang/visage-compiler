@@ -181,7 +181,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
      *
      * Return all this as a VisageClassModel for use in translation.
      * */
-   VisageClassModel createJFXClassModel(VisageClassDeclaration cDecl,
+   VisageClassModel createVisageClassModel(VisageClassDeclaration cDecl,
            List<TranslatedVarInfo> translatedAttrInfo,
            List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo,
            List<TranslatedFuncInfo> translatedFuncInfo,
@@ -633,7 +633,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
         //
         public boolean useSimpleInit(VarInfo varInfo) {
             if (!varInfo.useAccessors() && varInfo instanceof TranslatedVarInfo) {
-                VisageVar var = ((TranslatedVarInfo)varInfo).jfxVar();
+                VisageVar var = ((TranslatedVarInfo)varInfo).visageVar();
                 return var.isLiteralInit();
             }
             
@@ -645,7 +645,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
         //
         public JCExpression getSimpleInit(VarInfo varInfo) {
             if (useSimpleInit(varInfo)) {
-                VisageVar var = ((TranslatedVarInfo)varInfo).jfxVar();
+                VisageVar var = ((TranslatedVarInfo)varInfo).visageVar();
                 if (var.getInitializer().type.tag == TypeTags.BOT) {
                     return DefaultValue(var.type);
                 }

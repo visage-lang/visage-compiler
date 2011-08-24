@@ -1180,8 +1180,8 @@ public class VisagePretty implements VisageVisitor {
                 }
             }
             print(tree.getName());
-            if (tree.getJFXType() != null && tree.getJFXType().getFXTag() != VisageTag.TYPEANY) {
-                printTypeSpecifier(tree.getJFXType());
+            if (tree.getVisageType() != null && tree.getVisageType().getFXTag() != VisageTag.TYPEANY) {
+                printTypeSpecifier(tree.getVisageType());
             }
             if (variableScope != SCOPE_PARAMS) {
                 if (tree.getInitializer() != null) {

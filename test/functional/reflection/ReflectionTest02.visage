@@ -95,7 +95,7 @@ function inspectClass( context: VisageLocal.Context, clzName:String, fxov: Visag
                 }
 
 		println("  Mixin class: {clsTestClass.isMixin() }");
-		println("  Visage Type: {clsTestClass.isJfxType()}");
+		println("  Visage Type: {clsTestClass.isVisageType()}");
 		for( clz in clsTestClass.getSuperClasses(true) ) {
                   if (not clz.getName().equals("net.sourceforge.cobertura.coveragedata.HasBeenInstrumented")) {
                       if (not clz.equals(clsTestClass)) {

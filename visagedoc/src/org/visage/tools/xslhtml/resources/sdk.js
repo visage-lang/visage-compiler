@@ -77,9 +77,9 @@ function attachDescOpen() {
                         // level docs "images" directory is at ".."
                         var imageDirPrefix = (im.get('src').indexOf('../') == 0)? '../' : '';
                         if(im.get('rel') == 'open') {
-                            im.set('src', imageDirPrefix + 'images/JFX_arrow_right.png').set('rel','close');
+                            im.set('src', imageDirPrefix + 'images/Visage_arrow_right.png').set('rel','close');
                         } else {
-                            im.set('src', imageDirPrefix + 'images/JFX_arrow_down.png').set('rel','open');
+                            im.set('src', imageDirPrefix + 'images/Visage_arrow_down.png').set('rel','open');
                         }
                        
 			e = new Event(e);

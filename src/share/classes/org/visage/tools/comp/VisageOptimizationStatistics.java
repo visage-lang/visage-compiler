@@ -98,10 +98,10 @@ public class VisageOptimizationStatistics {
     /**
      * Context set-up
      */
-    protected static final Context.Key<VisageOptimizationStatistics> jfxOptStatKey = new Context.Key<VisageOptimizationStatistics>();
+    protected static final Context.Key<VisageOptimizationStatistics> visageOptStatKey = new Context.Key<VisageOptimizationStatistics>();
 
     public static VisageOptimizationStatistics instance(Context context) {
-        VisageOptimizationStatistics instance = context.get(jfxOptStatKey);
+        VisageOptimizationStatistics instance = context.get(visageOptStatKey);
         if (instance == null) {
             instance = new VisageOptimizationStatistics(context);
         }
@@ -109,7 +109,7 @@ public class VisageOptimizationStatistics {
     }
 
     protected VisageOptimizationStatistics(Context context) {
-        context.put(jfxOptStatKey, this);
+        context.put(visageOptStatKey, this);
 
         log = Log.instance(context);
 

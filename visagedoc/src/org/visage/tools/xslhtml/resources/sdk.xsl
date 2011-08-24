@@ -66,20 +66,20 @@
     <xsl:template name="extra-var-column-data">
         <td class="canread">
             <xsl:choose>
-                <xsl:when test="modifiers/public"><img src="{$root-path}/images/JFX_highlight_dot.png"/></xsl:when>
-                <xsl:when test="modifiers/public-init"><img src="{$root-path}/images/JFX_highlight_dot.png"/></xsl:when>
-                <xsl:when test="modifiers/public-read"><img src="{$root-path}/images/JFX_highlight_dot.png"/></xsl:when>
+                <xsl:when test="modifiers/public"><img src="{$root-path}/images/Visage_highlight_dot.png"/></xsl:when>
+                <xsl:when test="modifiers/public-init"><img src="{$root-path}/images/Visage_highlight_dot.png"/></xsl:when>
+                <xsl:when test="modifiers/public-read"><img src="{$root-path}/images/Visage_highlight_dot.png"/></xsl:when>
                 <xsl:when test="modifiers/protected">subclass</xsl:when>
             </xsl:choose>
         </td>
         <td class="caninit">
             <xsl:choose>
-                <xsl:when test="modifiers/public-init"><img src="{$root-path}/images/JFX_highlight_dot.png"/></xsl:when>
+                <xsl:when test="modifiers/public-init"><img src="{$root-path}/images/Visage_highlight_dot.png"/></xsl:when>
                 <xsl:when test="modifiers/public">
                     <xsl:choose>
                         <xsl:when test="modifiers/read-only"></xsl:when>
                         <xsl:otherwise>
-                            <img src="{$root-path}/images/JFX_highlight_dot.png"/>
+                            <img src="{$root-path}/images/Visage_highlight_dot.png"/>
                         </xsl:otherwise>
                     </xsl:choose>
                 </xsl:when>
@@ -97,7 +97,7 @@
                     <xsl:choose>
                         <xsl:when test="modifiers/read-only"></xsl:when>
                         <xsl:otherwise>
-                            <img src="{$root-path}/images/JFX_highlight_dot.png"/>
+                            <img src="{$root-path}/images/Visage_highlight_dot.png"/>
                         </xsl:otherwise>
                     </xsl:choose>
                 </xsl:when>
@@ -255,7 +255,7 @@
                                     <xsl:apply-templates select="docComment/firstSentenceTags"/>
                                     <xsl:if test="$inline-descriptions='true'">
                                         <xsl:if test="docComment/inlineTags | docComment/seeTags | docComment/needsReview">
-                                            <a href="#" class="long-desc-open"><img src="images/JFX_arrow_right.png"/></a>
+                                            <a href="#" class="long-desc-open"><img src="images/Visage_arrow_right.png"/></a>
                                             <div class="long-desc">
                                                 <!-- the rest of the docs -->
                                                 <!-- see comments below for mode "packages-overview" mode -->

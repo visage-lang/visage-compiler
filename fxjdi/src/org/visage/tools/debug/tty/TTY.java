@@ -55,7 +55,7 @@ public class TTY implements EventNotifier {
     /**
      * The name of this tool.
      */
-    private static final String progname = "jfxdb";
+    private static final String progname = "visagedb";
 
     public boolean shouldRemoveListener() {
         return false;

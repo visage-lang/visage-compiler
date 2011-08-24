@@ -727,7 +727,7 @@ public class VisageDecompose implements VisageVisitor {
         varOwner = null;
         VisageModifiers mods = tree.mods;
         Name name = tree.getName();
-        VisageType restype = tree.getJFXReturnType();
+        VisageType restype = tree.getVisageReturnType();
         List<VisageVar> params = decompose(tree.getParams());
         VisageBlock bodyExpression = decompose(tree.getBodyExpression());
         VisageFunctionDefinition res = fxmake.at(tree.pos).FunctionDefinition(mods, name, restype, params, bodyExpression);
@@ -861,7 +861,7 @@ public class VisageDecompose implements VisageVisitor {
 
         VisageVar res = fxmake.at(tree.pos).Var(
                     tree.name,
-                    tree.getJFXType(),
+                    tree.getVisageType(),
                     tree.getModifiers(),
                     (ptrVar != null)? id(ptrVar) : initExpr,
                     tree.getBindStatus(),
@@ -1219,7 +1219,7 @@ public class VisageDecompose implements VisageVisitor {
                             prevBindStatus;
         VisageExpression initializer = shredUnlessIdent(tree.getInitializer());
         VisageOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getName(),
-                tree.getJFXType(),
+                tree.getVisageType(),
                 tree.getModifiers(),
                 tree.getId(),
                 initializer,

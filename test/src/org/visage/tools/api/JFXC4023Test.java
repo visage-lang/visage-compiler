@@ -67,8 +67,8 @@ public class JFXC4023Test {
 
         @Override
         public Void visitVariable(VariableTree node, Object p) {
-            if (node.getJFXType() instanceof VisageTypeClass) {
-                VisageTypeClass tc = (VisageTypeClass)node.getJFXType();
+            if (node.getVisageType() instanceof VisageTypeClass) {
+                VisageTypeClass tc = (VisageTypeClass)node.getVisageType();
                 assertTrue(!tc.getClassName().toString().equals(node.getName().toString()));
             }
             return null;

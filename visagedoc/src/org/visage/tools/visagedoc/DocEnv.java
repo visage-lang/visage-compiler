@@ -686,9 +686,9 @@ public class DocEnv {
         return encoding;
     }
     
-    protected boolean isJFXSymbol(Symbol sym) {
+    protected boolean isVisageSymbol(Symbol sym) {
         ClassSymbol cls = sym instanceof ClassSymbol ? (ClassSymbol)sym : sym.enclClass();
-        return types.isJFXClass(cls);
+        return types.isVisageClass(cls);
     }
 
     protected boolean isMixin(ClassSymbol tsym) {

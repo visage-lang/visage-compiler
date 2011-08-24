@@ -68,7 +68,7 @@ import java.util.StringTokenizer;
 
 /**
  * This class is programmable equivalent of TTY.java (which is the main class of
- * the command line tool "jfxdb").
+ * the command line tool "visagedb").
  *
  * @author sundar
  */

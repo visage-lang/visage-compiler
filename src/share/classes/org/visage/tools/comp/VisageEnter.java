@@ -277,7 +277,7 @@ public class VisageEnter extends VisageTreeScanner {
         VisageEnv<VisageAttrContext> localEnv = topLevelEnv(tree);
 
         VisageClassDeclaration moduleClass =
-                visageModuleBuilder.preProcessJfxTopLevel(tree);
+                visageModuleBuilder.preProcessVisageTopLevel(tree);
 
         // Save environment of package-info.java file.
         if (isPkgInfo) {

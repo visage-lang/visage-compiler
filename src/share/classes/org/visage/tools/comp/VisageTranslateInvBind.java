@@ -43,7 +43,7 @@ import com.sun.tools.mjavac.util.Name;
  */
 public class VisageTranslateInvBind extends VisageAbstractTranslation implements VisageVisitor {
 
-    protected static final Context.Key<VisageTranslateInvBind> jfxBoundInvTranslation =
+    protected static final Context.Key<VisageTranslateInvBind> visageBoundInvTranslation =
         new Context.Key<VisageTranslateInvBind>();
 
 
@@ -54,7 +54,7 @@ public class VisageTranslateInvBind extends VisageAbstractTranslation implements
     private VisageExpression boundExpression;
 
     public static VisageTranslateInvBind instance(Context context) {
-        VisageTranslateInvBind instance = context.get(jfxBoundInvTranslation);
+        VisageTranslateInvBind instance = context.get(visageBoundInvTranslation);
         if (instance == null) {
             VisageToJava toJava = VisageToJava.instance(context);
             instance = new VisageTranslateInvBind(context, toJava);
@@ -65,7 +65,7 @@ public class VisageTranslateInvBind extends VisageAbstractTranslation implements
     public VisageTranslateInvBind(Context context, VisageToJava toJava) {
         super(context, toJava);
 
-        context.put(jfxBoundInvTranslation, this);
+        context.put(visageBoundInvTranslation, this);
     }
 
     ExpressionResult translate(VisageExpression expr, Type type, Symbol symbol) {

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="performance" default="run" basedir=".">
-    <property name="jfxdir" location="${basedir}/.."/>
+    <property name="visagedir" location="${basedir}/.."/>
     <property name="builddir" location="${basedir}/../build/performance"/>
     <property name="visage.home" location="${basedir}/../dist"/>
     <property name="srcdir"   location="${basedir}/src"/>
     <property name="bm.srcdir" location="${basedir}/benchmarks"/>
     <property name="bm.builddir" location="${builddir}/benchmarks"/>
     <property name="bm.outdir" location="${builddir}/output"/>
-    <property name="ant.jar" location="${jfxdir}/import/ant-1.7.1/apache-ant-1.7.1/lib/ant.jar"/>
+    <property name="ant.jar" location="${visagedir}/import/ant-1.7.1/apache-ant-1.7.1/lib/ant.jar"/>
     <property name="visagec.jar" location="${visage.home}/lib/shared/visagec.jar"/>
     <property name="javac.source" value="1.5"/>
     <property name="javac.target" value="1.5"/>

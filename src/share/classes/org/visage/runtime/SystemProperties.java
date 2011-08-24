@@ -31,11 +31,11 @@ public class  SystemProperties {
     * Visage System Properties table.
     * First column represents visage property name with "visage" prefix stripped off.
     * Second column represents underlying runtime platform equivalent. 
-    * "jfx_specific" value in the runtime platform equivalent field indicates the property is Visage specific.
+    * "visage_specific" value in the runtime platform equivalent field indicates the property is Visage specific.
     * Empty string in   the runtime platform equivalent field indicates thete is no equivalent property for given platform.
     */
     private static String[] sysprop_table = {
-        /*"visage.*/"application.codebase", "jfx_specific",
+        /*"visage.*/"application.codebase", "visage_specific",
     };
 
 
@@ -44,12 +44,12 @@ public class  SystemProperties {
      * First column represents visage environment specific property name with "visage" prefix stripped off.
      * Second column represents value of the property 
     */
-    private static String[] jfxprop_table = {
+    private static String[] visageprop_table = {
         /*"visage.*/"application.codebase", "",
     };
 
     private static Hashtable sysprop_list = new Hashtable();  
-    private static Hashtable jfxprop_list = new Hashtable();
+    private static Hashtable visageprop_list = new Hashtable();
 
     private static final String versionResourceName =
             "/org/visage/runtime/resources/version.properties";
@@ -57,7 +57,7 @@ public class  SystemProperties {
 
     static {
         addProperties (sysprop_table, false);
-        addProperties (jfxprop_table, true);
+        addProperties (visageprop_table, true);
         setVersions();
     }
 
@@ -123,16 +123,16 @@ public class  SystemProperties {
      *    example:
      *    {"supports.mixing", "none"} 
      * @param table System Properties table
-     * @param jfx_specific Indicates the table contains Visage specific properties
+     * @param visage_specific Indicates the table contains Visage specific properties
      */      
-    public static void addProperties (String[] table, boolean jfx_specific) {
+    public static void addProperties (String[] table, boolean visage_specific) {
         if (table == null)
             return;
 
         Hashtable props;
                             
-        if (jfx_specific) {
-            props = jfxprop_list;
+        if (visage_specific) {
+            props = visageprop_list;
         } else {
             props = sysprop_list;
         }
@@ -162,8 +162,8 @@ public class  SystemProperties {
 
                 
         // Now check if the property is Visage specific and has no association with Runtime Environment
-        if (found.equals("jfx_specific")) {
-            props = jfxprop_list;
+        if (found.equals("visage_specific")) {
+            props = visageprop_list;
             return (String)props.get(key);
         } else {
             return System.getProperty(found);
@@ -195,8 +195,8 @@ public class  SystemProperties {
         props.remove(key);
 
         // Remove the prop from the Visage specific properties table if applicable
-        if (value.equals("jfx_specific")) {
-           props = jfxprop_list;                
+        if (value.equals("visage_specific")) {
+           props = visageprop_list;                
             props.remove(key);
         }
     }
@@ -221,12 +221,12 @@ public class  SystemProperties {
            String k = (String)props.get(key);
 	   // Add new property to the list
            if (k == null) {
-               props.put(key, "jfx_specific");
-               props = jfxprop_list;
+               props.put(key, "visage_specific");
+               props = visageprop_list;
                props.put(key, value);
-	   } else if (k.equals("jfx_specific")) {
+	   } else if (k.equals("visage_specific")) {
                // Change existing property value
-               props = jfxprop_list;
+               props = visageprop_list;
                props.put(key, value);
                if (codebase.equals(prefix+key))
 		   codebase_value = value;

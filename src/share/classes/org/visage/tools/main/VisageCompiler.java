@@ -279,7 +279,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
     protected final VisageSyntacticAnalysis syntacticAnalysis;
     protected final VisageDecompose decomposeBindExpressions;
     protected final VisageVarUsageAnalysis varUsageAnalysis;
-    protected final VisageToJava jfxToJava;
+    protected final VisageToJava visageToJava;
 
     /**
      * Flag set if any implicit source files read.
@@ -310,7 +310,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
         syntacticAnalysis = VisageSyntacticAnalysis.instance(context);
         decomposeBindExpressions = VisageDecompose.instance(context);
         varUsageAnalysis = VisageVarUsageAnalysis.instance(context);
-        jfxToJava = VisageToJava.instance(context);
+        visageToJava = VisageToJava.instance(context);
         prepForBackEnd = VisagePrepForBackEnd.instance(context);
 
         // Add the visage message resource bundle
@@ -719,21 +719,21 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
         }
     }
 
-    public List<VisageEnv<VisageAttrContext>> jfxToJava(List<VisageEnv<VisageAttrContext>> envs) {
+    public List<VisageEnv<VisageAttrContext>> visageToJava(List<VisageEnv<VisageAttrContext>> envs) {
         ListBuffer<VisageEnv<VisageAttrContext>> results = lb();
         for (List<VisageEnv<VisageAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
-            jfxToJava(l.head, results);
+            visageToJava(l.head, results);
         }
         return stopIfError(results);
     }
 
-    public List<VisageEnv<VisageAttrContext>> jfxToJava(VisageEnv<VisageAttrContext> env) {
+    public List<VisageEnv<VisageAttrContext>> visageToJava(VisageEnv<VisageAttrContext> env) {
         ListBuffer<VisageEnv<VisageAttrContext>> results = lb();
-        jfxToJava(env, results);
+        visageToJava(env, results);
         return stopIfError(results);
     }
 
-    protected void jfxToJava(final VisageEnv<VisageAttrContext> env, ListBuffer<VisageEnv<VisageAttrContext>> results) {
+    protected void visageToJava(final VisageEnv<VisageAttrContext> env, ListBuffer<VisageEnv<VisageAttrContext>> results) {
         try {
             if (errorCount() > 0)
                 return;
@@ -751,7 +751,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
                                                 env.toplevel.sourcefile);
             try {
                 make.at(Position.FIRSTPOS);
-                jfxToJava.toJava(env);
+                visageToJava.toJava(env);
 
                 if (errorCount() > 0)
                     return;
@@ -788,16 +788,16 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(todo)))))), results);
+                backEnd(prepForBackEnd(visageToJava(varAnalysis(decomposeBinds(lower(attribute(todo)))))), results);
                 break;
 
             case SIMPLE:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(todo)))))), results);
+                backEnd(prepForBackEnd(visageToJava(varAnalysis(decomposeBinds(lower(attribute(todo)))))), results);
                 break;
 
             case BY_FILE: {
                 ListBuffer<VisageEnv<VisageAttrContext>> envbuff = ListBuffer.lb();
-                for (List<VisageEnv<VisageAttrContext>> list : groupByFile(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(todo)))))).values())
+                for (List<VisageEnv<VisageAttrContext>> list : groupByFile(visageToJava(varAnalysis(decomposeBinds(lower(attribute(todo)))))).values())
                     envbuff.appendList(prepForBackEnd(list));
                 backEnd(envbuff.toList(), results);
                 break;
@@ -808,7 +808,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
                     envbuff.append(attribute(todo.next()));
                 }
 
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(stopIfError(envbuff)))))), results);
+                backEnd(prepForBackEnd(visageToJava(varAnalysis(decomposeBinds(lower(stopIfError(envbuff)))))), results);
                 break;
             }
             default:
@@ -915,7 +915,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
      * Check for errors -- called by VisageTaskImpl.
      */
     public void errorCheck() throws IOException {
-        backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(todo)))))), null);
+        backEnd(prepForBackEnd(visageToJava(varAnalysis(decomposeBinds(lower(attribute(todo)))))), null);
     }
 
     /**

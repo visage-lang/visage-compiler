@@ -49,7 +49,7 @@ import com.sun.tools.mjavac.util.Name;
  */
 public class VisageTranslateBind extends VisageAbstractTranslation implements VisageVisitor {
 
-    protected static final Context.Key<VisageTranslateBind> jfxBoundTranslation =
+    protected static final Context.Key<VisageTranslateBind> visageBoundTranslation =
         new Context.Key<VisageTranslateBind>();
     private VisageToJava toJava;
 
@@ -62,7 +62,7 @@ public class VisageTranslateBind extends VisageAbstractTranslation implements Vi
     private DependencyGraphWriter depGraphWriter;
 
     public static VisageTranslateBind instance(Context context) {
-        VisageTranslateBind instance = context.get(jfxBoundTranslation);
+        VisageTranslateBind instance = context.get(visageBoundTranslation);
         if (instance == null) {
             VisageToJava toJava = VisageToJava.instance(context);
             instance = new VisageTranslateBind(context, toJava);
@@ -74,7 +74,7 @@ public class VisageTranslateBind extends VisageAbstractTranslation implements Vi
         super(context, toJava);
         this.toJava = toJava;
 
-        context.put(jfxBoundTranslation, this);
+        context.put(visageBoundTranslation, this);
         this.depGraphWriter = DependencyGraphWriter.instance(context);
     }
 
@@ -240,7 +240,7 @@ public class VisageTranslateBind extends VisageAbstractTranslation implements Vi
             // If the function has a sequence arg or if this is a Function.invoke or
             // if this is a Java call, we avoid conditional reevaluation. (i.e., force
             // re-evaluation always)
-            boolean isJavaCall = (msym != null) && !types.isJFXClass(msym.owner);
+            boolean isJavaCall = (msym != null) && !types.isVisageClass(msym.owner);
             conditionallyReevaluate = ! (hasSequenceArg  || useInvoke || isJavaCall);
 
             // If the receiver changes, then we have to call the function again

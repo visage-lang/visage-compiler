@@ -36,7 +36,7 @@ import com.sun.tools.mjavac.util.Name;
  */
 public abstract class VisageAbstractVar extends VisageExpression implements VariableTree {
     public final Name name;
-    private VisageType jfxtype;
+    private VisageType visagetype;
     public final VisageModifiers mods;
     private final VisageExpression init;
     private final VisageOnReplace[] triggers;
@@ -45,7 +45,7 @@ public abstract class VisageAbstractVar extends VisageExpression implements Vari
 
     protected VisageAbstractVar(
             Name name,
-            VisageType jfxtype,
+            VisageType visagetype,
             VisageModifiers mods,
             VisageExpression init,
             VisageBindStatus bindStatus,
@@ -54,7 +54,7 @@ public abstract class VisageAbstractVar extends VisageExpression implements Vari
             VisageVarSymbol sym) {
         super(bindStatus);
         this.name = name;
-        this.jfxtype = jfxtype;
+        this.visagetype = visagetype;
         this.mods = mods;
         this.init = init;
         this.triggers = new VisageOnReplace[VisageOnReplace.Kind.values().length];
@@ -114,15 +114,15 @@ public abstract class VisageAbstractVar extends VisageExpression implements Vari
     }
 
     public VisageTree getType() {
-        return jfxtype;
+        return visagetype;
     }
 
-    public VisageType getJFXType() {
-        return jfxtype;
+    public VisageType getVisageType() {
+        return visagetype;
     }
 
-    public void setJFXType(VisageType type) {
-        jfxtype = type;
+    public void setVisageType(VisageType type) {
+        visagetype = type;
     }
 
     public VisageModifiers getModifiers() {

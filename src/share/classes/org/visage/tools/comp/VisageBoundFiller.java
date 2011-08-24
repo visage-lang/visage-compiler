@@ -212,7 +212,7 @@ public class VisageBoundFiller extends VisageTreeScanner {
                 for (VisageVar fxVar : tree.getParams()) {
                     VisageVar localVar = fxmake.Var(
                             fxVar.name,
-                            fxVar.getJFXType(),
+                            fxVar.getVisageType(),
                             fxmake.Modifiers(fxVar.mods.flags & ~Flags.PARAMETER),
                             preTrans.defaultValue(fxVar.type),
                             VisageBindStatus.UNIDIBIND, null, null);

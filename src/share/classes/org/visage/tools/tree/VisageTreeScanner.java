@@ -187,7 +187,7 @@ public class VisageTreeScanner implements VisageVisitor {
 
     public void visitFunctionDefinition(VisageFunctionDefinition tree) {
         scan(tree.getModifiers());
-        scan(tree.getJFXReturnType());
+        scan(tree.getVisageReturnType());
         visitFunctionValue(tree.operation);
     }
 
@@ -287,7 +287,7 @@ public class VisageTreeScanner implements VisageVisitor {
     }
 
     public void visitVar(VisageVar tree) {
-        scan(tree.getJFXType());
+        scan(tree.getVisageType());
         scan(tree.mods);
         scan(tree.getInitializer());
         scan(tree.getOnReplace());
