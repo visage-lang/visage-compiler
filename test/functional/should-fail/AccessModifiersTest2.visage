@@ -1,6 +1,6 @@
 /*
  *
- * JFXC-1250 : Disallow more than one of public, protected, package
+ * VSGC-1250 : Disallow more than one of public, protected, package
  * @test/compile-error
  *
  */

@@ -1,4 +1,0 @@
-test/should-fail/jfxc3994c.visage:14: Duplicate variable override: variable x already overridden in jfxc3994c.A
-override var x = 2; //?
-             ^
-1 error

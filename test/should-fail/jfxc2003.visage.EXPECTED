@@ -1,4 +1,0 @@
-test/should-fail/jfxc2003.visage:7: print(:Object) in visage.lang.Builtins cannot be applied to (String,String)
-print(s, s);
-^
-1 error

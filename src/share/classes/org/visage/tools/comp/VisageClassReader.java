@@ -432,7 +432,7 @@ public class VisageClassReader extends ClassReader {
         return new MethodSymbol(flags, name, type, owner);
     }
 
-    // JFXC-2849 - Mixins: Change the mixin interface from $Intf to $Mixin.
+    // VSGC-2849 - Mixins: Change the mixin interface from $Intf to $Mixin.
     private void checkForIntfSymbol(Symbol sym) throws CompletionFailure {        
         if (sym.name.endsWith(defs.deprecatedInterfaceSuffixName)) {
             String fileString = ((ClassSymbol) sym).classfile.getName();
@@ -501,7 +501,7 @@ public class VisageClassReader extends ClassReader {
             
             ct.supertype_field = translateType(jt.supertype_field);
             
-            // JFXC-2841 - Mixins: Cannot find firePropertyChange method in SwingComboBox.visage
+            // VSGC-2841 - Mixins: Cannot find firePropertyChange method in SwingComboBox.visage
             if (ct.supertype_field != null && 
                 ct.supertype_field.tsym != null &&
                 ct.supertype_field.tsym.kind == TYP) {

@@ -1,0 +1,9 @@
+/**
+ * VSGC-3317 : Optimize bound Visage var select with mutable selectors
+ *
+ * @subtest vsgc3317Init.visage
+ */
+
+public class vsgc3317InitSubA {
+  var ll ="lala"
+}

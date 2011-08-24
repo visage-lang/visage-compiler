@@ -107,7 +107,7 @@ public class SplitPane extends Component, Container {
      */
     /* final */ override function remove(component: Component): Void {
         // PENDING(shannonh) - what I really want here is a deleteByIdentity operator
-        // http://visage.org/jira/browse/JFXC-1005
+        // http://visage.org/jira/browse/VSGC-1005
         var indices = for (c in content where Visage.isSameObject(c.component, component)) indexof c;
         for (i in [sizeof indices - 1..0 step -1]) {
             delete content[indices[i]];

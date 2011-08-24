@@ -1,5 +1,5 @@
 /**
- * JFXC-2717: Integer sequence elements failed to compare when accessed by index
+ * VSGC-2717: Integer sequence elements failed to compare when accessed by index
  * @test
  * @run
  */
@@ -138,7 +138,7 @@ public class SeqCompare  {
              }
         if(passed2 == false) fail++
         else pass++;
-        if(passed and passed2) println("PASS {id} As originally reported in jfxc2717");
+        if(passed and passed2) println("PASS {id} As originally reported in vsgc2717");
    }
 
   function itest3(id:String) {

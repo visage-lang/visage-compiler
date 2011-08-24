@@ -1,7 +1,0 @@
-/**
- * Regression test JFXC-3468 : Compiler can not resolve symbols from visage.lang.Builtins when using -sourcepath option
- * @compile jfxc3468b/pak1/A.visage
- * @compilearg -sourcepath
- * @compilearg test/should-fail
- * @test/compile-error
- */

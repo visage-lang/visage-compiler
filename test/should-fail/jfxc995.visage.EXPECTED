@@ -1,4 +1,0 @@
-test/should-fail/jfxc995.visage:10: cyclic inheritance involving jfxc995.Foo
-class Foo extends Bar,One {
-^
-1 error

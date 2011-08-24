@@ -1,4 +1,0 @@
-test/should-fail/jfxc3152.visage:16: Not allowed in bind context keyframe literal
-        at(1s) {
-        ^
-1 error

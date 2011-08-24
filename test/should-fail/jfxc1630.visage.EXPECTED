@@ -1,4 +1,0 @@
-test/should-fail/jfxc1630.visage:9: variable x declared 'override' but does not override another variable.
-  override var x = 88;
-               ^
-1 error

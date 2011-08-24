@@ -411,7 +411,7 @@ public class VisageToJava extends VisageAbstractTranslation {
             if (tree.sym.owner.kind == Kinds.TYP) {
                 flags |= Flags.STATIC;
             }
-            // JFXC-2831 - Mixins should be abstract.
+            // VSGC-2831 - Mixins should be abstract.
             if (tree.sym.kind == Kinds.TYP && isMixinClass) {
                 flags |= Flags.ABSTRACT;
             }

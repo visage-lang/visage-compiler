@@ -1,6 +1,0 @@
-/**
- * @subtest jfxc4038test.visage
- *
- *
- */
-public var f=function(){jfxc4038test{}.func()}

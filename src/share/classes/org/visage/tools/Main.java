@@ -45,7 +45,7 @@ public class Main {
 	if (loader != null) {
 	    loader.setPackageAssertionStatus("org.visage.tools", true);
             
-            //workaround for JFXC-964, so compiler works when IDE enables all assertions
+            //workaround for VSGC-964, so compiler works when IDE enables all assertions
 	    loader.setClassAssertionStatus("com.sun.tools.mjavac.code.Symbol", false);
             loader.setClassAssertionStatus("com.sun.tools.mjavac.jvm.Code", false);
         }

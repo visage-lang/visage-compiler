@@ -92,7 +92,7 @@ class TesterGlobal {
         assertEquals(testOverloadGlobalRetInt(10), isInt);
         assertEquals(testOverloadGlobalRetInt(3.1415926535), isFloat);
         
-        /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
+        /**** Comppile-time error: Integer out of range, issue vsgc2571 ****/
         // assertEquals(testOverloadGlobalRetInt(2200000000 as Long), isLong);
         // assertEquals(testOverloadGlobalRetInt(2200000000), isLong);
     }
@@ -134,7 +134,7 @@ class TesterGlobal {
         testOverloadGlobalRetVoid(3.1415926535);
         assertEquals(returnType, isFloat);
 
-        /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
+        /**** Comppile-time error: Integer out of range, issue vsgc2571 ****/
         // testOverloadGlobalRetVoid(2200000000);
         // assertEquals(returnType, isLong);
     }
@@ -197,7 +197,7 @@ class TesterInstance {
         assertEquals(testOverloadInstanceRetInt(10), isInt);
         assertEquals(testOverloadInstanceRetInt(3.1415926535), isFloat);
         
-        /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
+        /**** Comppile-time error: Integer out of range, issue vsgc2571 ****/
         // assertEquals(testOverloadInstanceRetInt(2200000000 as Long), isLong);
         // assertEquals(testOverloadInstanceRetInt(2200000000), isLong);
     }
@@ -239,7 +239,7 @@ class TesterInstance {
         testOverloadInstanceRetVoid(3.1415926535);
         assertEquals(returnType, isFloat);
 
-        /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
+        /**** Comppile-time error: Integer out of range, issue vsgc2571 ****/
         // testOverloadInstanceRetVoid(2200000000);
         // assertEquals(returnType, isLong);
     }
@@ -275,7 +275,7 @@ class TesterInherited extends TesterInstance {
         assertEquals(testOverloadInstanceRetInt(10), isInt);
         assertEquals(testOverloadInstanceRetInt(3.1415926535), isFloat);
         
-        /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
+        /**** Comppile-time error: Integer out of range, issue vsgc2571 ****/
         // assertEquals(testOverloadInstanceRetInt(2200000000 as Long), isLong);
         // assertEquals(testOverloadInstanceRetInt(2200000000), isLong);
     }
@@ -317,7 +317,7 @@ class TesterInherited extends TesterInstance {
         testOverloadInstanceRetVoid(3.1415926535);
         assertEquals(returnType, isFloat);
 
-        /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
+        /**** Comppile-time error: Integer out of range, issue vsgc2571 ****/
         // testOverloadInstanceRetVoid(2200000000);
         // assertEquals(returnType, isLong);
     }

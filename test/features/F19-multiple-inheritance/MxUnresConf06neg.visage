@@ -3,7 +3,7 @@
  * Mixin1 and Mixin2 declare an override-incompatible function.
  *
  * NOTE: please change the test tag to (at)test/compile-error and
- *       check the expected output when JFXC-3128 is fixed.
+ *       check the expected output when VSGC-3128 is fixed.
  *
  * @test/fail
  */

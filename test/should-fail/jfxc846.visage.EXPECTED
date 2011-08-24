@@ -1,5 +1,0 @@
-test/should-fail/jfxc846.visage:38: cannot find symbol
-symbol: class foo
-import foo
-       ^
-1 error

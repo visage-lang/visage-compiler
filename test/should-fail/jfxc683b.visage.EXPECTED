@@ -1,6 +1,0 @@
-test/should-fail/jfxc683b.visage:32: incompatible types
-found   : String
-required: jfxc683b.Node
-var n:Node = "";
-             ^
-1 error

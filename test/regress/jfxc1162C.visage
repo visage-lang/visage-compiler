@@ -1,6 +1,0 @@
-/*
- * @test
- * @compilefirst jfxc1162A.visage
- * @compilefirst jfxc1162B.visage
- */
-public class jfxc1162C extends jfxc1162B{} 

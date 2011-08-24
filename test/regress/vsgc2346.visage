@@ -1,0 +1,19 @@
+/**
+ * Regression test for VSGC-2346
+ *
+ * using wildcard "*" to import all classes in a user defined 
+ * package gives compilation error.
+ *
+ * @test
+ * @compile addressbook/Address.visage
+ * @compile vsgc2346.visage
+ */
+
+import addressbook.*;
+
+Address {
+     street: "1 Main Street";
+     city: "Santa Clara";
+     state: "CA";
+     zip: "95050";
+} 

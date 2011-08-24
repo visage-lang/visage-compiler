@@ -1,6 +1,0 @@
-test\should-fail\jfxc869.visage:20: cannot find symbol
-symbol  : variable ex
-location: class jfxc869
-System.out.println("I'm here {ex} ");
-                              ^
-1 error

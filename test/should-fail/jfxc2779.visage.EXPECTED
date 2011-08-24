@@ -1,4 +1,0 @@
-test/should-fail/jfxc2779.visage:9: x is already defined in jfxc2779
-  for (x in [0..5]) {
-       ^
-1 error

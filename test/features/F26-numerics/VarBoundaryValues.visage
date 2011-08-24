@@ -38,7 +38,7 @@ public class VarBoundaryValues extends VisageTestCase {
     function testTransitiveAssignmentLong() {
         var lLocal = lInstance;
         // Compiler error: Integer out of range: 9223372036854775807
-        // Uncomment this when issue JFXC-2571 is resolved
+        // Uncomment this when issue VSGC-2571 is resolved
  //       assertEquals(9223372036854775807 as Long, lLocal);
         lLocal = 9223372036854775807;
 //        assertEquals(9223372036854775807 as Long, lLocal);
@@ -91,7 +91,7 @@ public class VarBoundaryValues extends VisageTestCase {
     function testInstanceAndLocalLong() {
         // Min value
         // Compiler error: Long out of range: -9223372036854775808
-        // Uncomment this when issue JFXC-2576 is resolved
+        // Uncomment this when issue VSGC-2576 is resolved
 //        def lInstance : Long = -9223372036854775808;
 //        assertEquals(-9223372036854775808 as Long, lInstance);
 //        assertEquals(9223372036854775807 as Long, this.lInstance);

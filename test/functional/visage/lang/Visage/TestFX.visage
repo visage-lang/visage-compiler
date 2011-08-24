@@ -21,7 +21,7 @@ var data:String = "";
   * @return a Boolean value signifing sucess or failure of removing the action
 */
 
-/** jfxc3048 addShutdown action adds this type of function declaration numerous time and return unique handles each time */
+/** vsgc3048 addShutdown action adds this type of function declaration numerous time and return unique handles each time */
 public function faction1():Void { var message = "faction1"; println(message); }
 public function faction2():Void { var message = "faction2"; println(message); }
 
@@ -189,7 +189,7 @@ public class TestFX extends VisageTestCase  {
       jlt.RemoveShutdownFVActionTest();
 	}
 
-/* jfxc3048
+/* vsgc3048
 	function testRemoveShutdownFAction()  {
       var jlt = VISAGE_LANG_TEST {}
       jlt.RemoveShutdownFActionTest();

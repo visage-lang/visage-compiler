@@ -1,8 +1,0 @@
-/**
- * JFXC-3843 : compiled-bind: compiler crashes while compiling FxTester.
- *
- * @compilefirst FireT.visage
- * @compilefirst StaticT.visage
- * @test
- */
-public class Foo extends FireT, StaticT {}

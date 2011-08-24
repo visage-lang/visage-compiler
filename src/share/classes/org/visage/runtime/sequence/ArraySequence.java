@@ -142,7 +142,7 @@ public abstract class ArraySequence<T> extends AbstractSequence<T> {
         /*
          * When shifting gap, we need to clear unused portions of the "new" gap
          * with nulls. Without that ObjectArraySequences will leak objects.
-         * See JFXC-3337 (memory leak in bound for).
+         * See VSGC-3337 (memory leak in bound for).
          *
          * For large gaps, we don't want to null every slot in new gap. We can
          * ignore slots overlapping with "old" gap. In the line diagrams below,

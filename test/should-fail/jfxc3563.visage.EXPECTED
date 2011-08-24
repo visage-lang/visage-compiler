@@ -1,5 +1,0 @@
-test/should-fail/jfxc3563.visage:11: Missing variable initializer for y
-Variables defined in bind must be initialized explicitly.
-var a = bind A { var y; }
-                 ^
-1 error

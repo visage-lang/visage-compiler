@@ -1,0 +1,4 @@
+test/should-fail/vsgc1195.visage:17: doIt in vsgc1195.A cannot be applied to (String[])
+obj.doIt(["Visage","Rocks"]);
+   ^
+1 error

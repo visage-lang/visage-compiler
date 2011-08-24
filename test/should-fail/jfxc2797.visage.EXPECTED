@@ -1,6 +1,0 @@
-test\should-fail\jfxc2797.visage:9: inconvertible types
-found   : String
-required: java.lang.Integer
-println(str1 instanceof java.lang.Integer);
-        ^
-1 error

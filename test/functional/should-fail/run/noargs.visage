@@ -1,7 +1,7 @@
 /*
  * __ARGS__ is to be removed from being a global and meta variable
  * It is currently used in run() until run(_anything_:String[]) is in place.
- * See comments for jfxc-1426
+ * See comments for vsgc-1426
  *
  * @test/fail
  *

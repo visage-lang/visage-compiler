@@ -6,7 +6,7 @@
  * @test/fail
  */
 
-/* Uncomment this when JFXC-3094 is resolved */
+/* Uncomment this when VSGC-3094 is resolved */
 //mixin class AbstractMixin {
 abstract class AbstractMixin {
     abstract function foo(s : String) : Integer;

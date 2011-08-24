@@ -1,4 +1,0 @@
-test\should-fail\jfxc1200.visage:7: Integer out of range: 2147483648.
-var oops:Integer = 2147483648; // Integer.MAX_VALUE + 1
-                   ^
-1 error

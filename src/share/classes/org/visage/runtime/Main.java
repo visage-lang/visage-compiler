@@ -33,7 +33,7 @@ import java.util.jar.Manifest;
  * Entry.start() to initialize Visage runtime
  * and invoke user's Visage class. This is to
  * avoid running static initializer of user's
- * class from the main thread. See: JFXC-1888.
+ * class from the main thread. See: VSGC-1888.
  *
  * @author A. Sundararajan
  */

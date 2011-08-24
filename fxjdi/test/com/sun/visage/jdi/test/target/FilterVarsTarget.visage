@@ -48,7 +48,7 @@ class FilterVarsTargetSub extends Mixin1, FilterVarsTarget {
 
 var obj = FilterVarsTargetSub{};    // this is static in FilterVarsTarget
 obj.baseivar2;
-//obj.baseivar3;    // fails - see jfxc-4355
+//obj.baseivar3;    // fails - see vsgc-4355
 
 obj.stopHere();
 var bb = 89;

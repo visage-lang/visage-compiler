@@ -1,9 +1,0 @@
-/**
- * regression test for: JFXC-2977 - reference to foo is ambiguous when it merely overshadows.
- * @compilefirst jfxc2977m.visage
- * @compilefirst jfxc2977c.visage
- * @test
- */
-
-
-jfxc2977c{}.m();

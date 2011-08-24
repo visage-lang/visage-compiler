@@ -1,3 +1,0 @@
-test/should-fail/jfxc379end.visage:4: range end must be Integer or Number.
-var nonNumericEnd = [17.."z"];
-                     ^

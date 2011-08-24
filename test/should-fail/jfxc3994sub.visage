@@ -1,7 +1,0 @@
-/**
- * @subtest jfxc3994.visage
- */
-
-public class jfxc3994sub {
-   public var x;
-}

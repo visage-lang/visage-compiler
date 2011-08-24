@@ -14,9 +14,9 @@ import java.lang.System;
  *
  *
  * BUGS:
- * jfxc-1414: Table 5.1 - order of evaluation for *,/,% should be left to right
- * jfxc-1415: unary minus should have higher precedence than add and sub and evaluates right to left instead of left to right
- * jfxc-1416: Table 5.1 -  divide and assign is listed twice
+ * vsgc-1414: Table 5.1 - order of evaluation for *,/,% should be left to right
+ * vsgc-1415: unary minus should have higher precedence than add and sub and evaluates right to left instead of left to right
+ * vsgc-1416: Table 5.1 -  divide and assign is listed twice
  *
 Priority  	Visage Operator  	Operation  			Java Operator  	Order of Evaluation
 1 	          =				assign operator 			= 						Right to Left

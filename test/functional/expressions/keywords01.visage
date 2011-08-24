@@ -26,7 +26,7 @@ public class foo2 extends foo {
  }
 
 /*
- * JFXC-36 Cannot assign to a public-read var from within same class
+ * VSGC-36 Cannot assign to a public-read var from within same class
  * public-read keyword semanctics not implemented.
  */
 class ro {

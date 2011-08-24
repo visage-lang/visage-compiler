@@ -1,5 +1,5 @@
 /*
- * jfxc-1945: check for malformed main
+ * vsgc-1945: check for malformed main
  * Incorrect return value.
  * @test
  *

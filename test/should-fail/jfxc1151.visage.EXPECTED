@@ -1,4 +1,0 @@
-test/should-fail/jfxc1151.visage:8: x is already defined in f(java.lang.Object)
-var x:Object;
-^
-1 error

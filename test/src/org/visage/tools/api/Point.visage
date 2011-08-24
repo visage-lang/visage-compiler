@@ -5,7 +5,7 @@
 package org.visage.tools.api;
 
 /**
- * Simple class declarations for JFXC739Test.
+ * Simple class declarations for VSGC739Test.
  */
 
 public class Point {

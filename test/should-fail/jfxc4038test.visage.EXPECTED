@@ -1,7 +1,0 @@
-test/should-fail/jfxc4038test.visage:10: Note: Need explicit type for func because of cycle in definition.
-public function func() {
-^
-test/should-fail/jfxc4038sub.visage:6: This is the cyclic reference to func that prevents type inference.
-public var f=function(){jfxc4038test{}.func()}
-                                      ^
-1 error

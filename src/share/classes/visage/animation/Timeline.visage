@@ -115,7 +115,7 @@ public def INDEFINITE = -1;
 
 public class Timeline {
     // NOTE: We use a private instance def rather than directly using Duration.INDEFINITE
-    // to workaround compiler bug JFXC-3248 which was causing a memory leak.
+    // to workaround compiler bug VSGC-3248 which was causing a memory leak.
     def DURATION_INDEFINITE: Duration = Duration.INDEFINITE;
 
     /**

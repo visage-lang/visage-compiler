@@ -27,7 +27,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- * Associated bug id JFXC-4455 .Define a bound method , associate it to a variable
+ * Associated bug id VSGC-4455 .Define a bound method , associate it to a variable
  * and make sure it is called automatically whenever deemed necessary , if not
  * then its a BUG!
  * @author srikalyanchandrashekar

@@ -1,7 +1,0 @@
-test/should-fail/jfxc3560.visage:20: non-static variable material cannot be referenced from a static context
-var material = bind Cup.material;
-                       ^
-test/should-fail/jfxc3560.visage:21: non-static variable purpose cannot be referenced from a static context
-var purpose = bind Cup.purpose;
-                      ^
-2 errors

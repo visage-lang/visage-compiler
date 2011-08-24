@@ -51,7 +51,7 @@ public class VisageCompilerTest extends TestSuite {
     private static final String TEST_VISAGE_INCLUDES = "test.visage.includes";
 
     // Alternatively, a list of tests to run, eg
-    //   "test/regress/jfxc1043.visage test/regress/jfxc1053.visage"
+    //   "test/regress/vsgc1043.visage test/regress/vsgc1053.visage"
     private static final String TEST_VISAGE_LIST = "test.visage.list";
 
     // And a list of tests to skip

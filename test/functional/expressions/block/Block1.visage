@@ -23,7 +23,7 @@ var add = function(a:Integer, b:Integer):Integer {
 }
 
 //Same 'data' but inside a function
-var unboundz:Integer[] = [1..10]; //Unbound 'z' is requied to avoid compiler crash-JFXC913
+var unboundz:Integer[] = [1..10]; //Unbound 'z' is requied to avoid compiler crash-VSGC913
 
 var data ={
 	var a1 = [0,11];
@@ -38,14 +38,14 @@ var data ={
 			b;
 		} else if(true) {
 			if(true) {
-				//var a = z; // Not allowed to declare JFXC 909
+				//var a = z; // Not allowed to declare VSGC 909
 				var c = if(true){
 					delete a1;
 					if(true){
 						a1 = for(i in [-2..-1]) {add(i,i*2)};
 						delete a2;
 						insert a1 into a2;
-					}; // ';' is work around for JFXC 891
+					}; // ';' is work around for VSGC 891
 					reverse reverse a2;
 				} else z;
 				if(true) for(i in [1..10]) { insert i into c; i} else z;
@@ -60,14 +60,14 @@ var data ={
 			} b;
 		} else z;
 	}
-	delete add(-1,-2) from a; // this line can't be commented JFXC891
+	delete add(-1,-2) from a; // this line can't be commented VSGC891
 	reverse reverse reverse reverse a;
 };
 delete add(-2,-4) from data;
 if(not data.equals(z)){ throw new Exception("Test failed");}
 
 function makeData() {
-	// an unbound z should used in a function - JFXC913
+	// an unbound z should used in a function - VSGC913
 	var data ={
 		var a1 = [0,11];
 		var a = {
@@ -81,14 +81,14 @@ function makeData() {
 				b;
 			} else if(true) {
 				if(true) {
-					//var a = unboundz; // Not allowed to declared JFXC 909
+					//var a = unboundz; // Not allowed to declared VSGC 909
 					var c = if(true){
 						delete a1;
 						if(true){
 							a1 = for(i in [-2..-1]) {add(i,i*2)};
 							delete a2;
 							insert a1 into a2;
-						}; // ';' is work around for JFXC 891
+						}; // ';' is work around for VSGC 891
 						reverse reverse a2;
 					} else unboundz;
 					if(true) for(i in [1..10]) { insert i into c; i} else unboundz;
@@ -103,7 +103,7 @@ function makeData() {
 				} b;
 			} else unboundz;
 		}
-		delete add(-1,-2) from a; // this line can't be commented JFXC891
+		delete add(-1,-2) from a; // this line can't be commented VSGC891
 		reverse reverse reverse reverse a;
 	};
 	delete add(-2,-4) from data;

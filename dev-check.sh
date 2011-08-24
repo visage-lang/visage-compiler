@@ -10,7 +10,7 @@ if [ "$1" = -vv ] ; then
 fi
 
 # dev-expected-fails list in canonical form, eg:
-# test/regress/jfxc979.visage
+# test/regress/vsgc979.visage
 # test/functional/sequences/SeqCompare.visage
 
 ##cat build/test/dev-expected-fails | tr " " "\n" | sed -e '/^ *$/d' -e's@.*/\([^/]*\)/@\1/@' -e 's@ .*@@' | sort > build/test/dev-expected-fails1

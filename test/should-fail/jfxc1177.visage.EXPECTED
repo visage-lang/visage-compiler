@@ -1,4 +1,0 @@
-test/should-fail/jfxc1177.visage:5: cyclic inheritance involving jfxc1177
-class jfxc1177 extends jfxc1177.A{}
-^
-1 error

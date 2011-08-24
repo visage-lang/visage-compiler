@@ -1,4 +1,0 @@
-test\should-fail\jfxc2279.visage:12: Not allowed in bind context System.out.println("hello")
-var v = bind { System.out.println("hello"); 2 }
-               ^
-1 error

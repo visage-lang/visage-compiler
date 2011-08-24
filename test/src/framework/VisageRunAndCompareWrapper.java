@@ -201,7 +201,7 @@ public class VisageRunAndCompareWrapper extends TestCase {
     }
     
     // This checks for output written to System.err because of a bug in Java implementation on MacOS.
-    // See JFXC-2002 and http://developer.apple.com/releasenotes/Java/Java50Release4RN/OutstandingIssues/chapter_4_section_3.html
+    // See VSGC-2002 and http://developer.apple.com/releasenotes/Java/Java50Release4RN/OutstandingIssues/chapter_4_section_3.html
     private static boolean checkForMacOSJavaBug(File errorFileHandle) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(errorFileHandle)));
         String line;

@@ -1,0 +1,9 @@
+test/should-fail/vsgc1901.visage:4: cannot find symbol
+symbol  : class KeyFramexx
+location: package visage.animation
+import visage.animation.KeyFramexx;
+                        ^
+test/should-fail/vsgc1901.visage:5: package visage.xxanimation does not exist
+import visage.xxanimation.KeyFrame;
+                          ^
+2 errors

@@ -451,7 +451,7 @@ public class VisageScriptClassBuilder {
             }
         });
 
-/***** This is part of the fix for JFXC-3416.  But, it causes incorrect compile time 
+/***** This is part of the fix for VSGC-3416.  But, it causes incorrect compile time 
        errors in the ShoppingService sample so we disable this.
        The error msgs in functional/should-fail/AccessModifiersTest.visage.EXPECTED
        are sensitive to this so if you fix the problem, you will have to fix that
@@ -576,7 +576,7 @@ public class VisageScriptClassBuilder {
      *
      * TODO: Review whether the caller even needs to copy the statements from the existing
      *       body into stats, or can just use it. This change to code positions was done as
-     *       an emergency patch (JFXC-2291) for release 1.0 and I thought
+     *       an emergency patch (VSGC-2291) for release 1.0 and I thought
      *       it best to perform minimal surgery on the existing mechanism - Jim Idle.
      *
      * @param module           The Script level node

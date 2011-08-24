@@ -15,7 +15,7 @@ import visage.fxunit.VisageTestCase;
      * [java] required: char
      * [java]     def c1 : Character = 'X';
      * [java]                          ^
-     * (moving to curently-failing/jfxc2437.visage)
+     * (moving to curently-failing/vsgc2437.visage)
      */
 // var c1 : Character = 'X';
 // var c1 : Character = '\u0F0F';
@@ -27,7 +27,7 @@ var s1 : Short = 30000;
 var f1 : Float = 3.1415926535;
 var d1 : Double = 2.71828183;
 
-/* Compilation failure; see JFXC-2583 */
+/* Compilation failure; see VSGC-2583 */
 //var cSeq1 : Character[] = [ 10000..10003 ];
 var cSeq1 : Character[] = [ 10000, 10001, 10002, 10003 ];
 var bSeq1 : Byte[] = [ 10..13 ];
@@ -105,7 +105,7 @@ public class VarScopes extends VisageTestCase {
          * method assertEquals(java.lang.Object,java.lang.Object) in
          * junit.framework.Assert and method assertEquals(char,char) in
          * junit.framework.Assert match" 
-         * See JFXC-2572 */
+         * See VSGC-2572 */
 //        assertEquals(10000 as Character, cSeq3[0] as Character);
 
         assertEquals(cSeq1, cSeq2);
@@ -158,7 +158,7 @@ public class VarScopes extends VisageTestCase {
         /* Does not work: "expected:<[ 5555.11, 5556.11, 5557.11, 5558.11 ]>
          * but was:<[ 5555.10986328125, 5556.10986328125,
          *            5557.10986328125, 5558.10986328125 ]>"
-         * See JFXC-2586 */
+         * See VSGC-2586 */
 //        assertEquals([5555.11, 5556.11, 5557.11, 5558.11], dSeq3);
         assertEquals([5555.25 as Double, 5556.25, 5557.25, 5558.25], dSeq3);
 

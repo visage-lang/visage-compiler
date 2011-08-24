@@ -259,10 +259,10 @@ import org.visage.runtime.sequence.Sequences;
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
     public void invalidate$(int varNum, int startPos, int endPos, int newLength, int phase) {
-        // JFXC-3964 - Var invalidate may be optimized away.
+        // VSGC-3964 - Var invalidate may be optimized away.
     }
     public static void invalidate$(VisageObject obj, int varNum, int startPos, int endPos, int newLength, int phase) {
-        // JFXC-3964 - Var invalidate may be optimized away.
+        // VSGC-3964 - Var invalidate may be optimized away.
     }
 
     /**

@@ -3,8 +3,8 @@
  * @run
  */
 
-// TODO JFXC-833
-// The tests for using a single element as input are deactivated until JFXC-833
+// TODO VSGC-833
+// The tests for using a single element as input are deactivated until VSGC-833
 // is resolved.
 
 import visage.util.Sequences;
@@ -50,8 +50,8 @@ public class DummyComparator extends Comparator {
 
 public class SequencesTest extends visage.fxunit.VisageTestCase {
     
-    // TODO: JFXC-833 Simplify singleInteger, singleElement, and assertEquals
-    // TODO: JFXC-869 Simplify try-catch blocks below after resolve
+    // TODO: VSGC-833 Simplify singleInteger, singleElement, and assertEquals
+    // TODO: VSGC-869 Simplify try-catch blocks below after resolve
 
     var emptyInteger:     Integer[];
     var singleInteger:    Integer[];

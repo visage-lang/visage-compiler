@@ -1,4 +1,0 @@
-test\should-fail\jfxc1913.visage:8: missing method body, or declare abstract
-    function bar() : String
-    ^
-1 error

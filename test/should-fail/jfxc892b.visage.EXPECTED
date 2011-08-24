@@ -1,4 +1,0 @@
-test/should-fail/jfxc892b.visage:7: illegal generic type for instanceof
-System.out.println(x instanceof Integer[]);
-                                ^
-1 error

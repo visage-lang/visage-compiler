@@ -1,4 +1,0 @@
-test/should-fail/jfxc638.visage:7: You cannot change the value(s) of 'localSeq' because it is a parameter.
-    localSeq[0] = 4; 
-    ^
-1 error

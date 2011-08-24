@@ -1,4 +1,0 @@
-test/should-fail/jfxc3395.visage:8: script variable s cannot be initialized inside object literal expression
-jfxc3395{s:""};
-         ^
-1 error

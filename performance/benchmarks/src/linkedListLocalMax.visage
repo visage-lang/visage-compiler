@@ -1,6 +1,6 @@
 
 /*
- * this test is adapted from jfxc3315LocalMax.visage
+ * this test is adapted from vsgc3315LocalMax.visage
  */
 public class LinkedListLocalMax extends cbm {
     override public function test():Number {

@@ -647,7 +647,7 @@ public abstract class VisageTranslationSupport {
         }
         VisageVarSymbol vsym = (VisageVarSymbol) sym; //TODO: make parameter a VisageVarSymbol
         String sname = sym.name.toString();
-        // JFXC-2837 - Mixins: script-private vars no longer hidden -- var with same name as
+        // VSGC-2837 - Mixins: script-private vars no longer hidden -- var with same name as
         // var in subclass, but with different type fails
         if (!vsym.isStatic() && vsym.hasScriptOnlyAccess() && (vsym.isExternallySeen() || types.isMixin(owner))) {
             // mangle name to hide it

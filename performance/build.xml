@@ -162,7 +162,7 @@
         <run-benchmark benchmark="qsort" gcneeded="true" loopcount="128000"/>
         <!-- ignored tests
         <run-benchmark benchmark="boundSequenceRange"/>
-        <run-benchmark benchmark="visibleNode"/> // JFXC-3693
+        <run-benchmark benchmark="visibleNode"/> // VSGC-3693
         -->
     </target>
     

@@ -106,7 +106,7 @@ public class MxOnSeq01 extends VisageTestCase {
 
 /*
  *  trigger in mixin triggered in sub-sub-sub-class
- *  INVALID TEST: expected result need to be updated after fix of JFXC-3097
+ *  INVALID TEST: expected result need to be updated after fix of VSGC-3097
  */
     function INVALID_testA06() {
         res="";

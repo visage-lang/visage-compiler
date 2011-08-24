@@ -1,0 +1,4 @@
+test\should-fail\vsgc1863.visage:10: There must be no more than one 'run' function.
+function run() {
+^
+1 error

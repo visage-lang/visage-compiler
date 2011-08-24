@@ -175,7 +175,7 @@ class TesterOverride extends TesterInstance {
         testOverloadInstanceRetVoid(3.1415926535);
         assertEquals(returnType, isFloatNew);
 
-        /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
+        /**** Comppile-time error: Integer out of range, issue vsgc2571 ****/
         // testOverloadInstanceRetVoid(2200000000);
         // assertEquals(returnType, isLongNew);
     }

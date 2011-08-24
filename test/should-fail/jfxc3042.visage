@@ -1,9 +1,0 @@
-/**
- * Regression test: JFXC-3042 : Visage compiler fails with an exception
- *
- * @test/compile-error
- */
-
-mixin class A {}
-
-var x:A = if (true) {};

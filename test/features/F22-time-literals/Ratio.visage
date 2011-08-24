@@ -1,5 +1,5 @@
 /**
- * JFXC-2350 - Division not supported for Duration
+ * VSGC-2350 - Division not supported for Duration
  * 
  * @test
  * @run

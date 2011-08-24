@@ -1,5 +1,5 @@
 /*
- * this test is adapted from jfxc3247max.visage
+ * this test is adapted from vsgc3247max.visage
  */
 public class linkedListOnReplace extends cbm {
     override function test() : Number {

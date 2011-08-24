@@ -1,0 +1,6 @@
+/*
+ * @test
+ * @compile vsgc165a.visage
+ */
+ 
+package var BAR : vsgc165a = new vsgc165a;

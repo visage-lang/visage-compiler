@@ -146,8 +146,8 @@
       name="test-single" depends="init,-do-not-recompile,compile-test-single,-pre-test-run-single,
                                   -do-test-run-single,-post-test-run-single" 
                                description="Run single unit test."
-            E.G.   ant test-single -Dtest.visage.includes='**/jfxc2347.visage'
-            or     ant test-single -Dtest.visage.includes=jfxc2347.visage
+            E.G.   ant test-single -Dtest.visage.includes='**/vsgc2347.visage'
+            or     ant test-single -Dtest.visage.includes=vsgc2347.visage
 
 
     Your visage-compiler repo must be under the top level repository, ${top-repo}.

@@ -1402,13 +1402,13 @@ class VisageAnalyzeClass {
         }
 
         // Add the current vars to the var results.
-        // JFXC-3043 - This needs to be done after mixins.
+        // VSGC-3043 - This needs to be done after mixins.
         for (TranslatedVarInfo tai : translatedAttrInfo) {
             addVarToList(tai);
         }
 
         // Add the override vars to the var results.
-        // JFXC-3043 - This needs to be done after mixins.
+        // VSGC-3043 - This needs to be done after mixins.
         for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
             if (!tai.overridesMixin()) {
                 addVarToList(tai);
@@ -1416,7 +1416,7 @@ class VisageAnalyzeClass {
         }
 
         // Add the functions to the function results.
-        // JFXC-3043 - This needs to be done after mixins.
+        // VSGC-3043 - This needs to be done after mixins.
         for (TranslatedFuncInfo tfi : translatedFuncInfo) {
             if (tfi.isStatic()) {
                 scriptFuncInfos.append(tfi);
@@ -1474,7 +1474,7 @@ class VisageAnalyzeClass {
                         // Method member.
                         MethodSymbol meth = (MethodSymbol)methMem;
 
-                        // Workaround for JFXC-3040 - Compile failure building
+                        // Workaround for VSGC-3040 - Compile failure building
                         // runtime/visage-ui-controls/visage/scene/control/Button.visage
                         //if (!needsCloning) continue;
 

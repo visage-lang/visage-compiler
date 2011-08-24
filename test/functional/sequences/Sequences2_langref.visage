@@ -1,7 +1,7 @@
 import java.lang.System;
 
 /* Sample from Language Reference section on: "Querying sequences with foreach"
- * This had two or three minor problems (jfxc-835)"
+ * This had two or three minor problems (vsgc-835)"
  *   1. tracks should be declared as String[] not the old style String*
  *   2. 'foreach' needs to be changed to simply 'for'
  *   3. Title of section should probably not use 'foreach', at least not unquoted.

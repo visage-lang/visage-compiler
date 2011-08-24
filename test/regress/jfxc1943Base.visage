@@ -1,7 +1,0 @@
-/**
- * @subtest jfxc1943.visage
- */
-
-public class jfxc1943Base {
-    public var content:String[];
-}

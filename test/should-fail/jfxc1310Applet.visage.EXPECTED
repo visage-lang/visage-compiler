@@ -1,6 +1,0 @@
-test/should-fail/jfxc1310Application.visage:6: cannot find symbol
-symbol  : class Component
-location: class jfxc1310Application
-    public var content: Component;
-                        ^
-1 error

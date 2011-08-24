@@ -1,4 +1,0 @@
-test/should-fail/jfxc3994b.visage:14: variable x declared 'override' but does not override another variable.
-    override var x = "";
-                 ^
-1 error

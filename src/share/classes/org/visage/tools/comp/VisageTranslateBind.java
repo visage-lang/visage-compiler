@@ -270,7 +270,7 @@ public class VisageTranslateBind extends VisageAbstractTranslation implements Vi
                         VisageIdent ident = (VisageIdent)arg;
                         targs.append(getReceiverOrThis(ident.sym));
                         targs.append(Offset(ident.sym));
-                    } else if (false/*disable-JFXC-4079*/ && preTrans.isImmutable(arg)) {
+                    } else if (false/*disable-VSGC-4079*/ && preTrans.isImmutable(arg)) {
                         // pass VisageConstant wrapper for argument expression
                         targs.append(Call(defs.VisageConstant_make, translateExpr(arg, arg.type)));
                         // pass VisageConstant.VOFF$value as offset value
@@ -287,7 +287,7 @@ public class VisageTranslateBind extends VisageAbstractTranslation implements Vi
 
         @Override
         JCExpression translateArg(VisageExpression arg, Type formal) {
-            if (conditionallyReevaluate && arg instanceof VisageIdent /*disable-JFXC-4079: && !preTrans.isImmutable(arg)*/) {
+            if (conditionallyReevaluate && arg instanceof VisageIdent /*disable-VSGC-4079: && !preTrans.isImmutable(arg)*/) {
                 // if no args have changed, don't call function, just return previous value
                 Symbol sym = ((VisageIdent) arg).sym;
                 addBindee((VisageVarSymbol) sym);   //TODO: isn't this redundant?

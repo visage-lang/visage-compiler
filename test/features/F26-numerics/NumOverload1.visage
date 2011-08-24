@@ -49,7 +49,7 @@ function overloadFoo(i : Duration):String {return "Duration";}
     function testFloat() {
         var i : Float = 123456789;
         var r = overloadFoo(i);
-// JFXC-2408#87
+// VSGC-2408#87
 //        assertEquals("Float", r);   
     }
     function testDouble() {
@@ -60,7 +60,7 @@ function overloadFoo(i : Duration):String {return "Duration";}
     function testNumber() {
         var i : Number = 123456789;
         var r = overloadFoo(i);
-// JFXC-2408#87
+// VSGC-2408#87
 //        assertEquals("Number", r);
     }
     function testString() {

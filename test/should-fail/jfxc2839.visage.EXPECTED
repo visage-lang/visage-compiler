@@ -1,6 +1,0 @@
-test/should-fail/jfxc2839.visage:7: unexpected type
-found   : Integer
-required: Object[]
-var x:Number[] = 13 [30 ..50];
-                 ^
-1 error

@@ -64,7 +64,7 @@ public class VisageBlock extends VisageExpression implements BlockExpressionTree
      * always use "stats" field directly. For external walkers, we want to
      * present source return statement, if any instead of value alone. So, we
      * return a modified list of statements with return statement or return value
-     * appended. See also JFXC-3284.
+     * appended. See also VSGC-3284.
      */
     public java.util.List<ExpressionTree> getStatements() {
         // form a new list with possible return statement, if any

@@ -1,4 +1,0 @@
-test/should-fail/jfxc1188.visage:5: Sequence of Void not allowed.
-function fn():Void[]{
-              ^
-1 error

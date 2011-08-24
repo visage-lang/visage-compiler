@@ -1,4 +1,0 @@
-test/should-fail/jfxc3890.visage:13: warning: void block value in non-void function
-   println("void");
-   ^
-1 warning

@@ -88,7 +88,7 @@ function testPrimitive() {
     println(tester.testOverloadRetInt(10));
     println(tester.testOverloadRetInt(3.1415926535));
 
-    /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
+    /**** Comppile-time error: Integer out of range, issue vsgc2571 ****/
     // println(tester.testOverloadRetInt(2200000000 as Long));
     // println(tester.testOverloadRetInt(2200000000));
 
@@ -131,7 +131,7 @@ function testPrimitive() {
     tester.testOverloadRetVoid(3.1415926535);
     println(tester.returnType);
 
-    /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
+    /**** Comppile-time error: Integer out of range, issue vsgc2571 ****/
     // tester.testOverloadRetVoid(2200000000);
     // println(tester.returnType);
 }
@@ -156,7 +156,7 @@ function testWrapper() {
     println(tester.testOverloadWrapperRetInt(10));
     println(tester.testOverloadWrapperRetInt(3.1415926535));
 
-    /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
+    /**** Comppile-time error: Integer out of range, issue vsgc2571 ****/
     // println(testOverloadWrapperRetInt(2200000000 as Long));
     // println(testOverloadWrapperRetInt(2200000000));
 
@@ -199,7 +199,7 @@ function testWrapper() {
     tester.testOverloadWrapperRetVoid(3.1415926535);
     println(tester.returnType);
 
-    /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
+    /**** Comppile-time error: Integer out of range, issue vsgc2571 ****/
     // tester.testOverloadWrapperRetVoid(2200000000);
     // println(tester.returnType);
 }

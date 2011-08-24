@@ -1,4 +1,0 @@
-test/should-fail/jfxc-2058.visage:7: missing method body, or declare abstract
-function f(a :Number, )
-^
-1 error

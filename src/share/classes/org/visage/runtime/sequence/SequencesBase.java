@@ -333,7 +333,7 @@ public class SequencesBase {
 
     public static int calculateIntRangeSize(int lower, int upper, int step, boolean exclusive) {
         if (step == 0) {
-            // Undo JFXC-3735 - because of forward reference binds, zero happens frequently.
+            // Undo VSGC-3735 - because of forward reference binds, zero happens frequently.
             return 0;
         }
         if (Math.abs((long) lower - (long) upper) + ((long) (exclusive ? 0 : 1)) > Integer.MAX_VALUE)
@@ -356,7 +356,7 @@ public class SequencesBase {
 
     public static int calculateFloatRangeSize(float lower, float upper, float step, boolean exclusive) {
         if (step == 0.0f) {
-            // Undo JFXC-3735 - because of forward reference binds, zero happens frequently.
+            // Undo VSGC-3735 - because of forward reference binds, zero happens frequently.
             return 0;
         }
         if (upper == lower) {

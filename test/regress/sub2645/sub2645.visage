@@ -1,5 +1,5 @@
 /**
- * JFXC-2645 : package name = file name causes javadump
+ * VSGC-2645 : package name = file name causes javadump
  *
  * @subtest
  */

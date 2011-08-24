@@ -1,0 +1,10 @@
+/*
+ * Regression: VSGC-3274 - Internal Error in Visage compiler: get$scene() in ... cannot override get$scene() in visage.scene.Node; overriding method is static.
+ *
+ * @compilefirst vsgc3274A.visage
+ * @test
+ *
+ */
+
+public class vsgc3274B extends vsgc3274A {}
+def x:Object = null;

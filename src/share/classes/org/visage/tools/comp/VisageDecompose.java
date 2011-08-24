@@ -309,7 +309,7 @@ public class VisageDecompose implements VisageVisitor {
         ListBuffer<VisageExpression> lb = new ListBuffer<VisageExpression>();
         Type paramType = paramTypes != null? paramTypes.head : null;
         for (VisageExpression tree: trees) {
-            if (false/*disable-JFXC-4079*/ && tree != null && preTrans.isImmutable(tree)) {
+            if (false/*disable-VSGC-4079*/ && tree != null && preTrans.isImmutable(tree)) {
                 lb.append(tree);
             } else {
                 lb.append(shred(tree, paramType));

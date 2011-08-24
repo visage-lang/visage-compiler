@@ -51,7 +51,7 @@ public class ToLong extends VisageTestCase {
 
         l = ll;
 
-        // Uncomment these lines when JFXC-2576 is fixed
+        // Uncomment these lines when VSGC-2576 is fixed
 //        assertEquals(9223372036854775807 as Long, l);
 //        l = 9223372036854775807 as Long;
 //        assertEquals(9223372036854775807 as Long, l);

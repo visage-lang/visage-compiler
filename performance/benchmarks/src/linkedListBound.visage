@@ -1,5 +1,5 @@
 /*
- * this test is adapted from jfxc3317Max.visage
+ * this test is adapted from vsgc3317Max.visage
  */
 
 public class linkedListBound extends cbm {

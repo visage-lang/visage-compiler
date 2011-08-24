@@ -1,0 +1,16 @@
+vsgc1628.visage:8: cannot find symbol
+symbol  : variable nono
+location: class vsgc1628b
+var x = vsgc1628b {nono: 7};
+                   ^
+vsgc1628.visage:9: cannot find symbol
+symbol  : variable nono
+location: class vsgc1628b
+x.nono = 4;
+ ^
+vsgc1628.visage:10: cannot find symbol
+symbol  : variable sonono
+location: class vsgc1628
+vsgc1628.sonono = 5;
+        ^
+3 errors

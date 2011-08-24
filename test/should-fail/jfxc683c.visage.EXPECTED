@@ -1,6 +1,0 @@
-test/should-fail/jfxc683c.visage:32: incompatible types
-found   : Integer
-required: jfxc683c.Node
-var n:Node = 1;
-             ^
-1 error

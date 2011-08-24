@@ -113,11 +113,11 @@ if( findMinInteger() != MININT-1 ) throw new Exception("error in findMinInteger"
 if( findMaxInteger() !=  MAXINT ) throw new Exception("error in findMaxInteger");
 
 def MAXLONG:Long =  9223372036854775807;
-// bug jfxc-2567 - comiler won't allow number smaller than min int on right side of assignment
+// bug vsgc-2567 - comiler won't allow number smaller than min int on right side of assignment
 //def MINLONG:Long = -9223372036854775807-1;
 //if( findMaxLong() != MAXLONG   ) throw new Exception("error in findMaxLong");
 
-// bug jfxc-2543 - comparison operator does not accpet min Long value
+// bug vsgc-2543 - comparison operator does not accpet min Long value
 //if( findMinLong() != -9223372036854775808 ) throw new Exception("error in findMinLong");
 //if( findMinLong() != -9223372036854775807 - 1 ) throw new Exception("error in findMinLong");
 //if( findMinLong() != MINLONG ) throw new Exception("error in findMinLong");

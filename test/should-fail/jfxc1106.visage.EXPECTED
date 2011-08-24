@@ -1,4 +1,0 @@
-test/should-fail/jfxc1106.visage:10: You cannot change the value(s) of 'initial' because it is a parameter.
-        initial = initial - amount;
-        ^
-1 error

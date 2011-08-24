@@ -138,7 +138,7 @@ public class VisageBackendLog extends Log {
 
     @Override
     protected void writeDiagnostic(JCDiagnostic diagnostic) {
-        // See jfxc-507.  Don't output NOTEs; let javac do it.  
+        // See vsgc-507.  Don't output NOTEs; let javac do it.  
         if (diagnostic.getType() == JCDiagnostic.DiagnosticType.ERROR) {
             createCrashFile();
             // write the dump if there is one 

@@ -1,4 +1,0 @@
-test/should-fail/jfxc2900.visage:15: Within a bind, for-loops must not iterate over an Iterable.  Use sequences.
-def content = bind for( tweet in tweets ) {
-                                 ^
-1 error

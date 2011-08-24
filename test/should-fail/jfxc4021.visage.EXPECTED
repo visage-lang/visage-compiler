@@ -1,4 +1,0 @@
-test/should-fail/jfxc4021.visage:9: day is already defined in jfxc4021
-   for(day in weekDays[day | day == "Mo"]) {
-                       ^
-1 error

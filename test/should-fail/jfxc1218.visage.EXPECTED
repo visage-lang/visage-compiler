@@ -1,4 +1,0 @@
-test/should-fail/jfxc1218.visage:4: 'void' type not allowed here
-function func(g:Void):Void{
-                ^
-1 error

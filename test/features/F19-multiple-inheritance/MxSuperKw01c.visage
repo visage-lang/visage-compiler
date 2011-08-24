@@ -10,12 +10,12 @@
 /* Mixin extends mixin */
 mixin class Mixin2 extends MxSuperKw01p {
     override public function foo() : String {
-        /* Uncomment this when JFXC-2660 is fixed */
+        /* Uncomment this when VSGC-2660 is fixed */
 //        super.foo();
         "MxSuperKw01p.foo"
     }
     public function bar() : String {
-        /* Uncomment this when JFXC-2660 is fixed */
+        /* Uncomment this when VSGC-2660 is fixed */
 //        super.foo();
         "MxSuperKw01p.foo"
     }
@@ -24,12 +24,12 @@ mixin class Mixin2 extends MxSuperKw01p {
 /* Non-mixin extends mixin */
 class Mixee1 extends MxSuperKw01p {
     override public function foo() : String {
-        /* Uncomment this when JFXC-2660 is fixed */
+        /* Uncomment this when VSGC-2660 is fixed */
 //        super.foo();
         "MxSuperKw01p.foo"
     }
     public function bar() : String {
-        /* Uncomment this when JFXC-2660 is fixed */
+        /* Uncomment this when VSGC-2660 is fixed */
 //        super.foo();
         "MxSuperKw01p.foo"
     }

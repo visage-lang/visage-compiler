@@ -1,7 +1,0 @@
-test/should-fail/jfxc2677-b.visage:9: It looks like you are missing a ',' delimiter or perhaps have a malformed expression here?
-se= [6 7 8];
-      ^
-test/should-fail/jfxc2677-b.visage:9: It looks like you are missing a ',' delimiter or perhaps have a malformed expression here?
-se= [6 7 8];
-        ^
-2 errors

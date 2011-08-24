@@ -1,4 +1,0 @@
-test/should-fail/jfxc1213.visage:10: Bound function must not be void.
-   bound function func2(){
-   ^
-1 error

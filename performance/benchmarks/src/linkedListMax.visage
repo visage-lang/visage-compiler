@@ -1,6 +1,6 @@
 
 /*
- * this test is adapted from jfxc3315Max.visage
+ * this test is adapted from vsgc3315Max.visage
  */
 public class linkedListMax extends cbm {
     override function test() : Number {

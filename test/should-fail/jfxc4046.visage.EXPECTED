@@ -1,4 +1,0 @@
-test/should-fail/jfxc4046.visage:8: Not allowed in bind context try/catch block
-    try {
-    ^
-1 error

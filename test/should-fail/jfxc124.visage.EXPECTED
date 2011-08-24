@@ -1,6 +1,0 @@
-test/should-fail/jfxc124.visage:8: unexpected type
-found   : Integer
-required: Sequence (or nativearray)
-System.out.println("i = {i[i]}"); 
-                         ^
-1 error

@@ -2,7 +2,7 @@
  * @test
  * @run
  *
- * JFXC-929
+ * VSGC-929
  */
 import java.lang.System;
 import java.util.*;

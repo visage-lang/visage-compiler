@@ -1,0 +1,15 @@
+/**
+ * VSGC-3952 : Samples: Mosaic fails with an NPE in initVars$
+ *
+ * Simple direct access
+ *
+ * @compilefirst vsgc3952mix.visage
+ * @compilefirst vsgc3952sub.visage
+ * @test
+ * @run
+ */
+
+def fiv = vsgc3952sub{};
+var sb = bind fiv.furb;
+
+println(sb)

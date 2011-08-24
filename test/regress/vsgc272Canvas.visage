@@ -1,0 +1,16 @@
+/* VSGC-272:  Bad class cast attribution with MI.
+ *
+ * @test
+ * @compile vsgc272Canvas.visage
+ * @compile vsgc272CanvasElement.visage 
+ * @compile vsgc272Node.visage
+ * @compile vsgc272Widget.visage 
+ * @run
+ */
+class vsgc272Canvas extends vsgc272Widget, vsgc272CanvasElement {
+    public var content: vsgc272Node[]
+        on replace oldValue[a..b] = newElements {
+            for (newValue in newElements)
+                newValue.parentCanvasElement = this;
+        }
+}

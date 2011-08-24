@@ -1,5 +1,5 @@
 /**
- * Regression test for JFXC-2771: Regression: tests KeyFrame_TS103_01.visage, and 104 and 105 fail using an uptodate Scenario.jar
+ * Regression test for VSGC-2771: Regression: tests KeyFrame_TS103_01.visage, and 104 and 105 fail using an uptodate Scenario.jar
  *
  * KeyFrame_TS104_01.visage
  * 

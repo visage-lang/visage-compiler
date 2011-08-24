@@ -1,5 +1,5 @@
 /*
- * jfxc-1776: check for malformed main
+ * vsgc-1776: check for malformed main
  * Incorrect run parameters
  * @test/fail
  */

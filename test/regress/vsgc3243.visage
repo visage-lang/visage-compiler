@@ -1,0 +1,19 @@
+/*
+ * VSGC-3243:  Using mixin class causes IllegalArgumentException arising from visage.reflect.VisageLocal$VarMember.getValue.
+ *
+ * @compilefirst vsgc3243A.visage
+ * @compilefirst vsgc3243B.visage
+ * @test
+ * @run
+ *
+ */
+
+import visage.reflect.*;
+
+var b = vsgc3243B{};
+var context = VisageLocal.getContext();
+var mirror = context.mirrorOf(b); 
+var cls = context.findClass("vsgc3243B"); 
+var fld = cls.getVariable("a");
+var a = fld.getValue(mirror); 
+println("{a!=null}");

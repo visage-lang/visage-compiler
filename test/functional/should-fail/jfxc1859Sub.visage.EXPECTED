@@ -1,4 +1,0 @@
-test/functional/should-fail/jfxc1859Sub.visage:16: s has script only (default) bind access in jfxc1859
- var f2=jfxc1859Sub{ x:bind f1.s with inverse; };  
-                              ^
-1 error

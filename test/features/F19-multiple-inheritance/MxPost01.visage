@@ -74,7 +74,7 @@ public class MxPost01 extends VisageTestCase {
     }
 /*
  * initializing in mixee, mixin and super mixin
- * INVALID TEST - need to be fixed if JFXC-3078 fixed
+ * INVALID TEST - need to be fixed if VSGC-3078 fixed
  */
     function INVALID_testA02() {
         res = "";
@@ -84,7 +84,7 @@ public class MxPost01 extends VisageTestCase {
 
 /*
  * initializing in mixee, supeclass and in two mixin
- * INVALID TEST - need to be fixed if JFXC-3078 fixed
+ * INVALID TEST - need to be fixed if VSGC-3078 fixed
  */
     function INVALID_testA03() {
         res = "";

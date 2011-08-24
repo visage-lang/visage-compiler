@@ -187,7 +187,7 @@ public class VisageAttr implements VisageVisitor {
      *  If check fails, store errType in tree and return it.
      *  No checks are performed if the prototype is a method type.
      *  Its not necessary in this case since we know that kind and type
-     *  are correct.  WRONG - see JFXC-2199.
+     *  are correct.  WRONG - see VSGC-2199.
      *
      *  @param tree     The tree whose kind and type is checked
      *  @param owntype  The computed type of the tree
@@ -1310,7 +1310,7 @@ public class VisageAttr implements VisageVisitor {
                     elemtype = types.upperBound(iterableParams.last());
                 }
             }
-            //FIXME: if exprtype is nativearray of T, T is the element type of the for-each (see JFXC-2784)
+            //FIXME: if exprtype is nativearray of T, T is the element type of the for-each (see VSGC-2784)
             else if (types.isArray(exprType)) {
                 elemtype = types.elemtype(exprType);
             }
@@ -1557,7 +1557,7 @@ public class VisageAttr implements VisageVisitor {
             if (cdef == null &&
                 (flags & (ABSTRACT | INTERFACE | VisageFlags.MIXIN)) != 0) {
                 if ((flags & (VisageFlags.MIXIN)) != 0) {
-                    // JFXC-2815 - new expressions should report an error when trying to instantiate a mixin class.
+                    // VSGC-2815 - new expressions should report an error when trying to instantiate a mixin class.
                     log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_MIXIN_CANNOT_BE_INSTANTIATED,
                               clazztype.tsym);
                 } else {
@@ -3984,7 +3984,7 @@ public class VisageAttr implements VisageVisitor {
         //TODO: this is evil
         //wrap it in a function
         /* 
-         * JFXC-3133 -- previously, we filled "tree.value" with anon
+         * VSGC-3133 -- previously, we filled "tree.value" with anon
          * FunctionValue. But, if this VisageInterpolateValue tree is
          * attributed twice, on the second visit, tree.value would
          * be a function value and so would fail with type check.

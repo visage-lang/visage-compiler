@@ -1,9 +1,0 @@
-/*
- * Regression: JFXC-2080 - Visage Compiler fails if tried to bind a sequence which contains String expression "Visage".split("").
- *
- * @test
- *
- */
-
-var splitter:String='';
-var i:String[] = bind ["Visage".split(splitter)];

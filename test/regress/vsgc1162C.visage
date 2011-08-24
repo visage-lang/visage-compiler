@@ -1,0 +1,6 @@
+/*
+ * @test
+ * @compilefirst vsgc1162A.visage
+ * @compilefirst vsgc1162B.visage
+ */
+public class vsgc1162C extends vsgc1162B{} 

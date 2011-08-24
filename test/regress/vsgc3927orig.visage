@@ -1,0 +1,13 @@
+/*
+ * Regression test 
+ * VSGC-3927 : SWAT failure : JawbreakerGame compiler crash -- VisageClassSymbol cannot be cast to VisageVarSymbol
+ *
+ * Original extraction
+ *
+ * @compilefirst vsgc3927origSub.visage
+ * @test
+ * @run
+ */
+
+var tc = bind vsgc3927origSub.timeLimit[0];
+println(tc);

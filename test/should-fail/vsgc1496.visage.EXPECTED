@@ -1,0 +1,25 @@
+test\should-fail\vsgc1496.visage:13: Not allowed in bind context ++
+var v1 = bind v++;
+              ^
+test\should-fail\vsgc1496.visage:14: Not allowed in bind context ++
+var v2 = bind ++v;
+              ^
+test\should-fail\vsgc1496.visage:15: Not allowed in bind context --
+var v3 = bind v--;
+              ^
+test\should-fail\vsgc1496.visage:16: Not allowed in bind context --
+var v4 = bind --v;
+              ^
+test\should-fail\vsgc1496.visage:20: Not allowed in bind context compound assignment
+var v5 = bind v += 2;
+              ^
+test\should-fail\vsgc1496.visage:21: Not allowed in bind context compound assignment
+var v6 = bind v -= 2;
+              ^
+test\should-fail\vsgc1496.visage:22: Not allowed in bind context compound assignment
+var v7 = bind v *= 2;
+              ^
+test\should-fail\vsgc1496.visage:23: Not allowed in bind context compound assignment
+var v8 = bind v /= 2;
+              ^
+8 errors

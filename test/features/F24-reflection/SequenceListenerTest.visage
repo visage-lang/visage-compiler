@@ -1,7 +1,7 @@
 /*
  * @test
  * @run
- * From the JFXC-3904 bug reported by Eamonn McManus.
+ * From the VSGC-3904 bug reported by Eamonn McManus.
  */
 
 import visage.reflect.*;

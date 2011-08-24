@@ -1,4 +1,0 @@
-test/should-fail/jfxc3273.visage:13: jfxc3273.C is not abstract and does not override abstract method m() in jfxc3273.A
-class C extends A, B { }
-^
-1 error

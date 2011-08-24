@@ -1,4 +1,0 @@
-test/should-fail/jfxc1866.visage:8: Attempting to create a Visage class using new with a non-empty parameter list. Use object literal instead.
-new Sample(1);
-           ^
-1 error

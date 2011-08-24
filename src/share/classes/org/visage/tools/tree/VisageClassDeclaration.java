@@ -148,7 +148,7 @@ public class VisageClassDeclaration extends VisageExpression implements ClassDec
         this.implementing = implementing;
         this.mixing       = mixing;
         
-        // JFXC-2820 - Reorder the supertypes during attribution.
+        // VSGC-2820 - Reorder the supertypes during attribution.
         ListBuffer<VisageExpression> orderedSuperTypes = new ListBuffer<VisageExpression>();
         
         // Add supers according to declaration and normal, mixin and interface constraints.

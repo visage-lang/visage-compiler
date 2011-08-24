@@ -1,3 +1,0 @@
-test/should-fail/jfxc379step.visage:4: range step must be Integer or Number.
-var nonNumericStep = [17..42 step "n"];
-                                  ^

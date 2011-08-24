@@ -1,5 +1,5 @@
 /*
- * jfxc2410 - Predefined type names for {Integer,Double,Float...}
+ * vsgc2410 - Predefined type names for {Integer,Double,Float...}
  * @test
  * @run
  */
@@ -187,7 +187,7 @@ println("f={f}");
 
 
 /*
- * jfxc2442 - conversions between numeric sequences
+ * vsgc2442 - conversions between numeric sequences
  */
 var bs : Byte[];
 var ls : Long[];

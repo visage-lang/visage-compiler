@@ -17,7 +17,7 @@ public class MxResInitConf02 extends VisageTestCase {
      */
     function testConflictResolution() {
         var m = Mixee {};
-        /* Uncomment when JFXC-3072 is fixed */
+        /* Uncomment when VSGC-3072 is fixed */
 //        assertEquals("S", m.bar);
     }
 }
