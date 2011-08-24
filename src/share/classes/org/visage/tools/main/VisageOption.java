@@ -192,8 +192,8 @@ public interface VisageOption {
 
     /** A visagec-specific option
      */
-    static class VisageOption extends Option {
- 	VisageOption(OptionName name, String argsNameKey, String descrKey) {
+    static class VisageCOption extends Option {
+ 	VisageCOption(OptionName name, String argsNameKey, String descrKey) {
             super(name, argsNameKey, descrKey);
         }
         

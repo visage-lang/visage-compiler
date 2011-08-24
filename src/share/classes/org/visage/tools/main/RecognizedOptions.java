@@ -317,8 +317,8 @@ public class RecognizedOptions {
 		}
 	    },
 
-	new VisageOption.VisageOption(CLASSPATH,               MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH),
-	new VisageOption.VisageOption(CP,                      MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH) {
+	new VisageOption.VisageCOption(CLASSPATH,               MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH),
+	new VisageOption.VisageCOption(CP,                      MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH) {
         @Override
 	    public boolean process(Options options, String option, String arg) {
 		return super.process(options, "-classpath", arg);
@@ -415,7 +415,7 @@ public class RecognizedOptions {
 		return super.process(options, option, operand);
 	    }
 	},
-	new VisageOption.VisageOption(PLATFORM,	MsgSym.MESSAGE_VISAGE_OPT_ARG_NAME,	MsgSym.MESSAGE_VISAGE_OPT_PLATFORM) {
+	new VisageOption.VisageCOption(PLATFORM,	MsgSym.MESSAGE_VISAGE_OPT_ARG_NAME,	MsgSym.MESSAGE_VISAGE_OPT_PLATFORM) {
 	},
 	new Option(VERSION,					MsgSym.MESSAGE_OPT_VERSION) {
         @Override
