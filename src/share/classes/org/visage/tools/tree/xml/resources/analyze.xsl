@@ -33,10 +33,10 @@
     <xsl:template match="@*|node()"/>
 
     <xsl:template match="/">
-      <xsl:apply-templates select="visage:visage-script"/>
+      <xsl:apply-templates select="visage:visage"/>
     </xsl:template>
 
-    <xsl:template match="visage:visage-script">
+    <xsl:template match="visage:visage">
         <xsl:apply-templates select="visage:file"/>
         <xsl:apply-templates select="visage:package"/>
         <xsl:apply-templates select="visage:defs"/>

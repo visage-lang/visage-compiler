@@ -49,10 +49,10 @@
 
     <xsl:template match="/">
       <xsl:call-template name="init-globals"/>
-      <xsl:apply-templates select="visage:visage-script"/>
+      <xsl:apply-templates select="visage:visage"/>
     </xsl:template>
 
-    <xsl:template match="visage:visage-script">
+    <xsl:template match="visage:visage">
 <!-- output the source file name and write down global variable values as properties -->
         <xsl:apply-templates select="visage:file"/>
         <xsl:apply-templates select="visage:defs"/>
@@ -111,7 +111,7 @@ count.of.object.literals.with.binds=<xsl:value-of select="c:getGlobal('object-li
         </xsl:call-template>
     </xsl:template>
 
-    <xsl:template match="visage:visage-script/visage:defs/visage:var|visage:visage-script/visage:defs/visage:def">
+    <xsl:template match="visage:visage/visage:defs/visage:var|visage:visage/visage:defs/visage:def">
         <xsl:call-template name="handle-var">
             <xsl:with-param name="varEagerBinds" select="'eager-binds'"/>
             <xsl:with-param name="varLazyBinds" select="'lazy-binds'"/>

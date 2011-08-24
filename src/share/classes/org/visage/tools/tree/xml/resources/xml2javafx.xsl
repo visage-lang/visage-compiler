@@ -101,10 +101,10 @@
     <xsl:template match="@*|node()"/>
 
     <xsl:template match="/">
-      <xsl:apply-templates select="visage:visage-script"/>
+      <xsl:apply-templates select="visage:visage"/>
     </xsl:template>
 
-    <xsl:template match="visage:visage-script">
+    <xsl:template match="visage:visage">
         <xsl:call-template name="init-tabs"/>
         <xsl:apply-templates select="visage:file"/>
         <xsl:apply-templates select="visage:package"/>
@@ -681,7 +681,7 @@
     </xsl:template>
     
     <!-- treat file-level blocks as special, don't include braces around -->
-    <xsl:template match="visage:visage-script/visage:defs/visage:block">
+    <xsl:template match="visage:visage/visage:defs/visage:block">
         <xsl:call-template name="print-stmts">
         <xsl:with-param name="parent" select="visage:stmts"/>
         </xsl:call-template>

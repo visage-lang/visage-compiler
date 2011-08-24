@@ -48,7 +48,7 @@ public final class Constants {
     public static final String DOC_COMMENT = "doc-comment";
 
     // script file
-    public static final String JAVAFX_SCRIPT = "visage-script";
+    public static final String VISAGE = "visage";
     public static final String FILE = "file";
 
     // package and import

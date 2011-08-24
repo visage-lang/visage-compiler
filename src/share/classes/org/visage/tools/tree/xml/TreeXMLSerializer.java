@@ -121,7 +121,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
 
     public void visitScript(JFXScript script) {
         endPositions = script.endPositions;
-        startElement(JAVAFX_SCRIPT, script);
+        startElement(VISAGE, script);
         JavaFileObject file = script.getSourceFile();
         if (file != null) {
             sourceFileName = new File(file.getName()).getName();
@@ -146,7 +146,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(DEFINITIONS);
         emitAllSymbols();
         emitAllTypes();
-        endElement(JAVAFX_SCRIPT);
+        endElement(VISAGE);
     }
 
     public void visitImport(JFXImport imp) {
