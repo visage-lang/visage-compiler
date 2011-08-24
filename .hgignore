@@ -26,3 +26,4 @@
 ^artifacts/.*$
 \.dep\.inc$
 visagedoc/nbproject/private
+demos/visagepad/nbproject/private
