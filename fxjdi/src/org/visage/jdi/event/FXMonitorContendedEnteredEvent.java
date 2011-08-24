@@ -23,23 +23,23 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXObjectReference;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageObjectReference;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.event.MonitorContendedEnteredEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXMonitorContendedEnteredEvent extends FXLocatableEvent
+public class VisageMonitorContendedEnteredEvent extends VisageLocatableEvent
         implements MonitorContendedEnteredEvent {
-    public FXMonitorContendedEnteredEvent(FXVirtualMachine fxvm, MonitorContendedEnteredEvent underlying) {
+    public VisageMonitorContendedEnteredEvent(VisageVirtualMachine fxvm, MonitorContendedEnteredEvent underlying) {
         super(fxvm, underlying);
     }
 
-    public FXObjectReference monitor() {
-        return FXWrapper.wrap(virtualMachine(), underlying().monitor());
+    public VisageObjectReference monitor() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().monitor());
     }
 
     @Override

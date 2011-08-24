@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Symbol;
 
@@ -33,13 +33,13 @@ import com.sun.tools.mjavac.code.Symbol;
  *
  * @author Tom Ball
  */
-public class JFXUnary extends JFXExpression implements UnaryTree, Tree {
+public class VisageUnary extends VisageExpression implements UnaryTree, Tree {
 
     private JavafxTag opcode;
-    public JFXExpression arg;
+    public VisageExpression arg;
     public Symbol operator;
 
-    protected JFXUnary(JavafxTag opcode, JFXExpression arg) {
+    protected VisageUnary(JavafxTag opcode, VisageExpression arg) {
         this.opcode = opcode;
         this.arg = arg;
     }
@@ -58,7 +58,7 @@ public class JFXUnary extends JFXExpression implements UnaryTree, Tree {
         return opcode.asOperatorTag();
     }
 
-    public JFXExpression getExpression() {
+    public VisageExpression getExpression() {
         return arg;
     }
 
@@ -67,19 +67,19 @@ public class JFXUnary extends JFXExpression implements UnaryTree, Tree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
+    public VisageKind getJavaFXKind() {
         switch (getFXTag()) {
             case SIZEOF:
-                return JavaFXKind.SIZEOF;
+                return VisageKind.SIZEOF;
             case REVERSE:
-                return JavaFXKind.REVERSE;
+                return VisageKind.REVERSE;
             default:
                 return JavafxTreeInfo.tagToKind(getFXTag());
         }
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitUnary(this, data);
     }
 }

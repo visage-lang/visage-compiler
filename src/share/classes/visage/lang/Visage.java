@@ -27,8 +27,8 @@ import java.util.Vector;
 import org.visage.runtime.Entry;
 import org.visage.functions.Function0;
 import org.visage.runtime.SystemProperties;
-import org.visage.runtime.FXExit;
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageExit;
+import org.visage.runtime.VisageObject;
 
 import org.visage.runtime.sequence.Sequence;
 
@@ -79,7 +79,7 @@ public class Visage {
      * @return true if the variable has been initialized
      */
     @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
-    public static boolean isInitialized(FXObject instance, int varOffset) {
+    public static boolean isInitialized(VisageObject instance, int varOffset) {
         return Builtins.isInitialized(instance, varOffset);
     }
 
@@ -162,7 +162,7 @@ public class Visage {
      * to the VISAGEME/Embedded this will need to be tied the AMS
      * TODO: for Mobile Guys
      */
-    private static FXSystemActionData exitData = new FXSystemActionData();
+    private static VisageSystemActionData exitData = new VisageSystemActionData();
 
     /**
      * Exits the Script and causes any Shutdown Actions to be called
@@ -212,10 +212,10 @@ public class Visage {
         exitData.called = false;
         
         /*
-         * Use of FXExit here is needed because the EDT
+         * Use of VisageExit here is needed because the EDT
          * will pass it along rather than catch and quit
          */
-        throw new FXExit();
+        throw new VisageExit();
     }
 
     /**
@@ -339,13 +339,13 @@ public class Visage {
      * for exitActions, in the future there may me addition System 
      * Actions that will be required such as Low Resources or ...
      */
-    private static class FXSystemActionData {
+    private static class VisageSystemActionData {
         boolean called;
         Vector actions, handles;
 
-        private static FXSystemActionData singleton = null;
+        private static VisageSystemActionData singleton = null;
 
-        private FXSystemActionData() {
+        private VisageSystemActionData() {
             called = false;
             actions = new Vector();
             handles = new Vector();

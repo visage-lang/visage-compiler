@@ -63,7 +63,7 @@ class L extends A, M, I {
    postinit {res ="{res}l"; }
 }
 
-public class MxPost01 extends FXTestCase {
+public class MxPost01 extends VisageTestCase {
 /*
  *  initializing in mixin and mixee
  */

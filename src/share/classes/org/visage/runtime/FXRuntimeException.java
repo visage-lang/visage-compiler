@@ -24,23 +24,23 @@
 package org.visage.runtime;
 
 /**
- * FXRuntimeException
+ * VisageRuntimeException
  *
  * @author Brian Goetz
  */
-public class FXRuntimeException extends RuntimeException {
-    public FXRuntimeException() {
+public class VisageRuntimeException extends RuntimeException {
+    public VisageRuntimeException() {
     }
 
-    public FXRuntimeException(String message) {
+    public VisageRuntimeException(String message) {
         super(message);
     }
 
-    public FXRuntimeException(String message, Throwable cause) {
+    public VisageRuntimeException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public FXRuntimeException(Throwable cause) {
+    public VisageRuntimeException(Throwable cause) {
         super(cause);
     }
 }

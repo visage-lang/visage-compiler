@@ -29,7 +29,7 @@ import org.visage.runtime.AssignToBoundException;
 import org.visage.runtime.NumericTypeInfo;
 import org.visage.runtime.TypeInfo;
 import org.visage.runtime.Util;
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 
 /**
  * Sequences -- static helper methods for constructing derived sequences. Implements heuristics for reducing time and
@@ -48,7 +48,7 @@ public final class Sequences extends SequencesBase {
 $TEMPLATE_FROM$
 
 $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
-    public static $Tprim$ getAs$T$FromNewElements(FXObject instance, int varNum, int loIndex, int inserted, int k) {
+    public static $Tprim$ getAs$T$FromNewElements(VisageObject instance, int varNum, int loIndex, int inserted, int k) {
         if (k >= inserted)
             k = -1;
         else if (k >= 0)
@@ -82,11 +82,11 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
         return arr;
     }
 
-    public static void replaceSlice(FXObject instance, int varNum, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
+    public static void replaceSlice(VisageObject instance, int varNum, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
         int flags = instance.getFlags\$(varNum);
-		boolean wasUninitialized = (flags & FXObject.VFLGS\$INITIALIZED_STATE_BIT) == 0;
-        instance.setFlags\$(varNum, flags | FXObject.VFLGS\$INIT\$INITIALIZED_DEFAULT);
-        if ((flags & FXObject.VFLGS\$IS_BOUND_READONLY) == FXObject.VFLGS\$IS_BOUND_READONLY) {
+		boolean wasUninitialized = (flags & VisageObject.VFLGS\$INITIALIZED_STATE_BIT) == 0;
+        instance.setFlags\$(varNum, flags | VisageObject.VFLGS\$INIT\$INITIALIZED_DEFAULT);
+        if ((flags & VisageObject.VFLGS\$IS_BOUND_READONLY) == VisageObject.VFLGS\$IS_BOUND_READONLY) {
             throw new AssignToBoundException("Cannot mutate bound sequence");
         }
         Sequence<? extends $Tboxed$> oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
@@ -94,7 +94,7 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
             SequenceProxy sp = (SequenceProxy) oldValue;
             instance = sp.instance();
             varNum = sp.varNum();
-            instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT\$INITIALIZED_DEFAULT);
+            instance.varChangeBits\$(varNum, 0, VisageObject.VFLGS\$INIT\$INITIALIZED_DEFAULT);
             oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
         }
         int oldSize = oldValue.size();
@@ -109,7 +109,7 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
 
         if (endPos != startPos+1 || newValue != oldValue.getAs$T$(startPos) ||
             wasUninitialized) {
-            instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.PHASE_TRANS\$CASCADE_INVALIDATE);
+            instance.invalidate\$(varNum, startPos, endPos, 1, VisageObject.PHASE_TRANS\$CASCADE_INVALIDATE);
             $T$ArraySequence arr;
             if (! (oldValue instanceof $T$ArraySequence)
                 || (arr = ($T$ArraySequence) oldValue).isShared()) {
@@ -119,7 +119,7 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
             arr.replace(startPos, endPos, newValue, true);
             if (arr != oldValue)
                 instance.seq\$(varNum, arr);
-            instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.PHASE_TRANS\$CASCADE_TRIGGER);
+            instance.invalidate\$(varNum, startPos, endPos, 1, VisageObject.PHASE_TRANS\$CASCADE_TRIGGER);
         }
     }
 
@@ -127,7 +127,7 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
         return replaceSlice(oldValue, newValue, index, index + 1);
     }
 
-    public static $Tprim$ set(FXObject instance, int varNum, $Tprim$ newValue, int index) {
+    public static $Tprim$ set(VisageObject instance, int varNum, $Tprim$ newValue, int index) {
         replaceSlice(instance, varNum, newValue, index, index + 1);
         return newValue;
     }
@@ -137,7 +137,7 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
         return replaceSlice(oldValue, newValue, oldSize, oldSize);
     }
 
-    public static void insert(FXObject instance, int varNum, $Tprim$ newValue) {
+    public static void insert(VisageObject instance, int varNum, $Tprim$ newValue) {
         int oldSize = instance.size\$(varNum);
         replaceSlice(instance, varNum, newValue, oldSize, oldSize);
     }
@@ -146,7 +146,7 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
         return replaceSlice(oldValue, value, position, position);
     }
 
-    public static void insertBefore(FXObject instance, int varNum, $Tprim$ value, int position) {
+    public static void insertBefore(VisageObject instance, int varNum, $Tprim$ value, int position) {
         replaceSlice(instance, varNum, value, position, position);
     }
 

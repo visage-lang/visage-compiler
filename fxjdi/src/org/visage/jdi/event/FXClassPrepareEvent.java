@@ -23,27 +23,27 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXReferenceType;
-import org.visage.jdi.FXThreadReference;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageReferenceType;
+import org.visage.jdi.VisageThreadReference;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.event.ClassPrepareEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXClassPrepareEvent extends FXEvent implements ClassPrepareEvent {
-    public FXClassPrepareEvent(FXVirtualMachine fxvm, ClassPrepareEvent underlying) {
+public class VisageClassPrepareEvent extends VisageEvent implements ClassPrepareEvent {
+    public VisageClassPrepareEvent(VisageVirtualMachine fxvm, ClassPrepareEvent underlying) {
         super(fxvm, underlying);
     }
 
-    public FXReferenceType referenceType() {
-        return FXWrapper.wrap(virtualMachine(), underlying().referenceType());
+    public VisageReferenceType referenceType() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().referenceType());
     }
 
-    public FXThreadReference thread() {
-        return FXWrapper.wrap(virtualMachine(), underlying().thread());
+    public VisageThreadReference thread() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().thread());
     }
 
     @Override

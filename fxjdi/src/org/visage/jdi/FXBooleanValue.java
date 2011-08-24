@@ -29,8 +29,8 @@ import com.sun.jdi.BooleanValue;
  *
  * @author sundar
  */
-public class FXBooleanValue extends FXPrimitiveValue implements BooleanValue {
-    public FXBooleanValue(FXVirtualMachine fxvm, BooleanValue underlying) {
+public class VisageBooleanValue extends VisagePrimitiveValue implements BooleanValue {
+    public VisageBooleanValue(VisageVirtualMachine fxvm, BooleanValue underlying) {
         super(fxvm, underlying);
     }
 

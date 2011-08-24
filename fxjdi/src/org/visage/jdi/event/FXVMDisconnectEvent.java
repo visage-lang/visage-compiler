@@ -23,15 +23,15 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.event.VMDisconnectEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXVMDisconnectEvent extends FXEvent implements VMDisconnectEvent {
-    public FXVMDisconnectEvent(FXVirtualMachine fxvm, VMDisconnectEvent underlying) {
+public class VisageVMDisconnectEvent extends VisageEvent implements VMDisconnectEvent {
+    public VisageVMDisconnectEvent(VisageVirtualMachine fxvm, VMDisconnectEvent underlying) {
         super(fxvm, underlying);
     }
 

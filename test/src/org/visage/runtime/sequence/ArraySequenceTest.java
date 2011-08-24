@@ -23,7 +23,7 @@
 
 package org.visage.runtime.sequence;
 
-import org.visage.runtime.JavaFXTestCase;
+import org.visage.runtime.VisageTestCase;
 import org.visage.runtime.TypeInfo;
 import org.junit.Assert;
 
@@ -31,7 +31,7 @@ import org.junit.Assert;
  *
  * @author Michael Heinrichs
  */
-public class ArraySequenceTest extends JavaFXTestCase {
+public class ArraySequenceTest extends VisageTestCase {
     private Sequence<Integer> EMPTY = new ObjectArraySequence(TypeInfo.Integer, new Integer[0], true);
     private Sequence<Integer> SINGLETON = new ObjectArraySequence(TypeInfo.Integer, new Integer[] {1}, true);
     private Sequence<Integer> THREE_ELEMENTS = new ObjectArraySequence(TypeInfo.Integer, new Integer[] {1, 2, 3}, true);

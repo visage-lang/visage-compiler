@@ -23,15 +23,15 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.event.BreakpointEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXBreakpointEvent extends FXLocatableEvent implements BreakpointEvent {
-    public FXBreakpointEvent(FXVirtualMachine fxvm, BreakpointEvent underlying) {
+public class VisageBreakpointEvent extends VisageLocatableEvent implements BreakpointEvent {
+    public VisageBreakpointEvent(VisageVirtualMachine fxvm, BreakpointEvent underlying) {
         super(fxvm, underlying);
     }
 

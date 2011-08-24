@@ -23,8 +23,8 @@
 
 package org.visage.jdi;
 
-import org.visage.jdi.event.FXEventQueue;
-import org.visage.jdi.request.FXEventRequestManager;
+import org.visage.jdi.event.VisageEventQueue;
+import org.visage.jdi.request.VisageEventRequestManager;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.BooleanType;
@@ -74,9 +74,9 @@ import java.util.List;
  *
  * @author sundar
  */
-public class FXWrapper {
-    public static FXVirtualMachine wrap(VirtualMachine vm) {
-        return (vm == null)? null : new FXVirtualMachine(vm);
+public class VisageWrapper {
+    public static VisageVirtualMachine wrap(VirtualMachine vm) {
+        return (vm == null)? null : new VisageVirtualMachine(vm);
     }
 
     public static List<VirtualMachine> wrapVirtualMachines(List<VirtualMachine> vms) {
@@ -87,7 +87,7 @@ public class FXWrapper {
         return res;
     }
 
-    public static FXType wrap(FXVirtualMachine fxvm, Type type) {
+    public static VisageType wrap(VisageVirtualMachine fxvm, Type type) {
         if (type == null) {
             return null;
         }
@@ -121,7 +121,7 @@ public class FXWrapper {
         }
     }
 
-    public static List<Type> wrapTypes(FXVirtualMachine fxvm, List<Type> types) {
+    public static List<Type> wrapTypes(VisageVirtualMachine fxvm, List<Type> types) {
         if (types == null) {
             return null;
         }
@@ -132,7 +132,7 @@ public class FXWrapper {
         return result;
     }
 
-    public static FXReferenceType wrap(FXVirtualMachine fxvm, ReferenceType rt) {
+    public static VisageReferenceType wrap(VisageVirtualMachine fxvm, ReferenceType rt) {
         if (rt == null) {
             return null;
         } else if (rt instanceof ClassType) {
@@ -146,19 +146,19 @@ public class FXWrapper {
         }
     }
 
-    public static FXClassType wrap(FXVirtualMachine fxvm, ClassType ct) {
+    public static VisageClassType wrap(VisageVirtualMachine fxvm, ClassType ct) {
         return (ct == null)? null : fxvm.classType(ct);
     }
 
-    public static FXInterfaceType wrap(FXVirtualMachine fxvm, InterfaceType it) {
+    public static VisageInterfaceType wrap(VisageVirtualMachine fxvm, InterfaceType it) {
         return (it == null)? null : fxvm.interfaceType(it);
     }
 
-    public static FXArrayType wrap(FXVirtualMachine fxvm, ArrayType at) {
+    public static VisageArrayType wrap(VisageVirtualMachine fxvm, ArrayType at) {
         return (at == null)? null : fxvm.arrayType(at);
     }
 
-    public static List<ReferenceType> wrapReferenceTypes(FXVirtualMachine fxvm, List<ReferenceType> refTypes) {
+    public static List<ReferenceType> wrapReferenceTypes(VisageVirtualMachine fxvm, List<ReferenceType> refTypes) {
         // Note that VirtualMachineImpl caches the list, and returns an unmodifiable wrapped list.
         // Classes that get loaded in the future are added to its list by an EventListener on ClassPrepared 
         // events.  If we cache our wrapped list, they we would have to do the same thing, or be able
@@ -179,38 +179,38 @@ public class FXWrapper {
                     continue;
                 }
             }
-            result.add(FXWrapper.wrap(fxvm, rt));
+            result.add(VisageWrapper.wrap(fxvm, rt));
         }
         return result;
     }
 
-    public static List<ClassType> wrapClassTypes(FXVirtualMachine fxvm, List<ClassType> classes) {
+    public static List<ClassType> wrapClassTypes(VisageVirtualMachine fxvm, List<ClassType> classes) {
         if (classes == null) {
             return null;
         }
         List<ClassType> result = new ArrayList<ClassType>(classes.size());
         for (ClassType ct : classes) {
-            result.add(FXWrapper.wrap(fxvm, ct));
+            result.add(VisageWrapper.wrap(fxvm, ct));
         }
         return result;
     }
 
-    public static List<InterfaceType> wrapInterfaceTypes(FXVirtualMachine fxvm, List<InterfaceType> interfaces) {
+    public static List<InterfaceType> wrapInterfaceTypes(VisageVirtualMachine fxvm, List<InterfaceType> interfaces) {
         if (interfaces == null) {
             return null;
         }
         List<InterfaceType> result = new ArrayList<InterfaceType>(interfaces.size());
         for (InterfaceType it : interfaces) {
-            result.add(FXWrapper.wrap(fxvm, it));
+            result.add(VisageWrapper.wrap(fxvm, it));
         }
         return result;
     }
 
-    public static FXLocation wrap(FXVirtualMachine fxvm, Location loc) {
+    public static VisageLocation wrap(VisageVirtualMachine fxvm, Location loc) {
         return (loc == null)? null : fxvm.location(loc);
     }
 
-    public static List<Location> wrapLocations(FXVirtualMachine fxvm, List<Location> locations) {
+    public static List<Location> wrapLocations(VisageVirtualMachine fxvm, List<Location> locations) {
         if (locations == null) {
             return null;
         }
@@ -221,7 +221,7 @@ public class FXWrapper {
         return result;
     }
 
-    public static FXField wrap(FXVirtualMachine fxvm, Field field) {
+    public static VisageField wrap(VisageVirtualMachine fxvm, Field field) {
         return (field == null)? null : fxvm.field(field);
     }
 
@@ -230,8 +230,8 @@ public class FXWrapper {
      * Each field can be a user field of an Visage class, an internal field of an Visage class,
      * or a field of a Java class.
      */
-    public static List<Field> wrapFields(FXVirtualMachine fxvm, List<Field> fields) {
-        // Create FXField wrappers for each field that is a valid Visage field.
+    public static List<Field> wrapFields(VisageVirtualMachine fxvm, List<Field> fields) {
+        // Create VisageField wrappers for each field that is a valid Visage field.
         if (fields == null) {
             return null;
         }
@@ -258,7 +258,7 @@ public class FXWrapper {
                 }
             }
 
-            if (fldName.equals("$assertionsDisabled") && fld.declaringType().name().equals("org.visage.runtime.FXBase")) {
+            if (fldName.equals("$assertionsDisabled") && fld.declaringType().name().equals("org.visage.runtime.VisageBase")) {
                 continue;
             }
             /*
@@ -275,17 +275,17 @@ public class FXWrapper {
         return result;
     }
 
-    public static FXMethod wrap(FXVirtualMachine fxvm, Method method) {
+    public static VisageMethod wrap(VisageVirtualMachine fxvm, Method method) {
         return (method == null)? null : fxvm.method(method);
     }
 
-    public static List<Method> wrapMethods(FXVirtualMachine fxvm, List<Method> methods) {
+    public static List<Method> wrapMethods(VisageVirtualMachine fxvm, List<Method> methods) {
         if (methods == null) {
             return null;
         }
         List<Method> result = new ArrayList<Method>(20);
         for (Method mth : methods) {
-            FXMethod fxm = fxvm.method(mth);
+            VisageMethod fxm = fxvm.method(mth);
             if (!fxm.isJavaFXInternalMethod()) {
                 result.add(fxm);
             }
@@ -293,11 +293,11 @@ public class FXWrapper {
         return result;
     }
 
-    public static FXMonitorInfo wrap(FXVirtualMachine fxvm, MonitorInfo monitorInfo) {
+    public static VisageMonitorInfo wrap(VisageVirtualMachine fxvm, MonitorInfo monitorInfo) {
         return (monitorInfo == null)? null : fxvm.monitorInfo(monitorInfo);
     }
 
-    public static List<MonitorInfo> wrapMonitorInfos(FXVirtualMachine fxvm, List<MonitorInfo> monInfos) {
+    public static List<MonitorInfo> wrapMonitorInfos(VisageVirtualMachine fxvm, List<MonitorInfo> monInfos) {
         if (monInfos == null) {
             return null;
         }
@@ -308,11 +308,11 @@ public class FXWrapper {
         return result;
     }
 
-    public static FXStackFrame wrap(FXVirtualMachine fxvm, StackFrame frame) {
+    public static VisageStackFrame wrap(VisageVirtualMachine fxvm, StackFrame frame) {
         return (frame == null)? null : fxvm.stackFrame(frame);
     }
 
-    public static List<StackFrame> wrapFrames(FXVirtualMachine fxvm, List<StackFrame> frames) {
+    public static List<StackFrame> wrapFrames(VisageVirtualMachine fxvm, List<StackFrame> frames) {
         if (frames == null) {
             return null;
         }
@@ -323,11 +323,11 @@ public class FXWrapper {
         return result;
     }
 
-    public static FXLocalVariable wrap(FXVirtualMachine fxvm, LocalVariable var) {
+    public static VisageLocalVariable wrap(VisageVirtualMachine fxvm, LocalVariable var) {
         return (var == null)? null : fxvm.localVariable(var);
     }
 
-    public static List<LocalVariable> wrapLocalVariables(FXVirtualMachine fxvm, List<LocalVariable> locals) {
+    public static List<LocalVariable> wrapLocalVariables(VisageVirtualMachine fxvm, List<LocalVariable> locals) {
         if (locals == null) {
             return null;
         }
@@ -338,7 +338,7 @@ public class FXWrapper {
         return result;
     }
 
-    public static FXValue wrap(FXVirtualMachine fxvm, Value value) {
+    public static VisageValue wrap(VisageVirtualMachine fxvm, Value value) {
         if (value == null) {
             return null;
         }
@@ -372,7 +372,7 @@ public class FXWrapper {
         }
     }
 
-    public static List<ObjectReference> wrapObjectReferences(FXVirtualMachine fxvm, List<ObjectReference> refs) {
+    public static List<ObjectReference> wrapObjectReferences(VisageVirtualMachine fxvm, List<ObjectReference> refs) {
         if (refs == null) {
             return null;
         }
@@ -384,7 +384,7 @@ public class FXWrapper {
     }
 
 
-    public static FXObjectReference wrap(FXVirtualMachine fxvm, ObjectReference ref) {
+    public static VisageObjectReference wrap(VisageVirtualMachine fxvm, ObjectReference ref) {
         if (ref == null) {
             return null;
         } else if (ref instanceof ArrayReference) {
@@ -404,20 +404,20 @@ public class FXWrapper {
         }
     }
 
-    public static FXArrayReference wrap(FXVirtualMachine fxvm, ArrayReference ref) {
+    public static VisageArrayReference wrap(VisageVirtualMachine fxvm, ArrayReference ref) {
         return (ref == null)? null : fxvm.arrayReference(ref);
     }
 
-    public static FXThreadReference wrap(FXVirtualMachine fxvm, ThreadReference ref) {
+    public static VisageThreadReference wrap(VisageVirtualMachine fxvm, ThreadReference ref) {
         return (ref == null)? null : fxvm.threadReference(ref);
     }
 
 
-    public static FXThreadGroupReference wrap(FXVirtualMachine fxvm, ThreadGroupReference ref) {
+    public static VisageThreadGroupReference wrap(VisageVirtualMachine fxvm, ThreadGroupReference ref) {
         return (ref == null)? null : fxvm.threadGroupReference(ref);
     }
 
-    public static List<ThreadReference> wrapThreads(FXVirtualMachine fxvm, List<ThreadReference> threads) {
+    public static List<ThreadReference> wrapThreads(VisageVirtualMachine fxvm, List<ThreadReference> threads) {
         if (threads == null) {
             return null;
         }
@@ -428,7 +428,7 @@ public class FXWrapper {
         return result;
     }
 
-    public static List<ThreadGroupReference> wrapThreadGroups(FXVirtualMachine fxvm, List<ThreadGroupReference> threadGroups) {
+    public static List<ThreadGroupReference> wrapThreadGroups(VisageVirtualMachine fxvm, List<ThreadGroupReference> threadGroups) {
         if (threadGroups == null) {
             return null;
         }
@@ -439,15 +439,15 @@ public class FXWrapper {
         return result;
     }
 
-    public static FXClassLoaderReference wrap(FXVirtualMachine fxvm, ClassLoaderReference ref) {
+    public static VisageClassLoaderReference wrap(VisageVirtualMachine fxvm, ClassLoaderReference ref) {
         return (ref == null)? null : fxvm.classLoaderReference(ref);
     }
 
-    public static FXClassObjectReference wrap(FXVirtualMachine fxvm, ClassObjectReference ref) {
+    public static VisageClassObjectReference wrap(VisageVirtualMachine fxvm, ClassObjectReference ref) {
         return (ref == null)? null : fxvm.classObjectReference(ref);
     }
 
-    public static List<Value> wrapValues(FXVirtualMachine fxvm, List<Value> values) {
+    public static List<Value> wrapValues(VisageVirtualMachine fxvm, List<Value> values) {
         if (values == null) {
             return null;
         }
@@ -459,19 +459,19 @@ public class FXWrapper {
     }
 
     public static Location unwrap(Location loc) {
-        return (loc instanceof FXLocation)? ((FXLocation)loc).underlying() : loc;
+        return (loc instanceof VisageLocation)? ((VisageLocation)loc).underlying() : loc;
     }
 
     public static StackFrame unwrap(StackFrame frame) {
-        return (frame instanceof FXStackFrame)? ((FXStackFrame)frame).underlying() : frame;
+        return (frame instanceof VisageStackFrame)? ((VisageStackFrame)frame).underlying() : frame;
     }
 
     public static LocalVariable unwrap(LocalVariable var) {
-        return (var instanceof FXLocalVariable)? ((FXLocalVariable)var).underlying() : var;
+        return (var instanceof VisageLocalVariable)? ((VisageLocalVariable)var).underlying() : var;
     }
     
     public static Value unwrap(Value value) {
-        return (value instanceof FXValue)? ((FXValue)value).underlying() : value;
+        return (value instanceof VisageValue)? ((VisageValue)value).underlying() : value;
     }
 
     public static List<? extends Value> unwrapValues(List<? extends Value> values) {
@@ -486,23 +486,23 @@ public class FXWrapper {
     }
 
     public static Field unwrap(Field field) {
-        return (field instanceof FXField)? ((FXField)field).underlying() : field;
+        return (field instanceof VisageField)? ((VisageField)field).underlying() : field;
     }
 
     public static Method unwrap(Method method) {
-        return (method instanceof FXMethod)? ((FXMethod)method).underlying() : method;
+        return (method instanceof VisageMethod)? ((VisageMethod)method).underlying() : method;
     }
 
     public static ObjectReference unwrap(ObjectReference ref) {
-        return (ref instanceof FXObjectReference)? ((FXObjectReference)ref).underlying() : ref;
+        return (ref instanceof VisageObjectReference)? ((VisageObjectReference)ref).underlying() : ref;
     }
 
     public static ThreadReference unwrap(ThreadReference ref) {
-        return (ref instanceof FXThreadReference)? ((FXThreadReference)ref).underlying() : ref;
+        return (ref instanceof VisageThreadReference)? ((VisageThreadReference)ref).underlying() : ref;
     }
 
     public static ReferenceType unwrap(ReferenceType rt) {
-        return (rt instanceof FXReferenceType)? ((FXReferenceType)rt).underlying() : rt;
+        return (rt instanceof VisageReferenceType)? ((VisageReferenceType)rt).underlying() : rt;
     }
 
     public static List<? extends ReferenceType> unwrapReferenceTypes(List<? extends ReferenceType> refTypes) {
@@ -517,12 +517,12 @@ public class FXWrapper {
     }
 
     // event requests
-    public static FXEventRequestManager wrap(FXVirtualMachine fxvm, EventRequestManager man) {
-        return (man == null)? null : new FXEventRequestManager(fxvm, man);
+    public static VisageEventRequestManager wrap(VisageVirtualMachine fxvm, EventRequestManager man) {
+        return (man == null)? null : new VisageEventRequestManager(fxvm, man);
     }
 
     // event queue
-    public static FXEventQueue wrap(FXVirtualMachine fxvm, EventQueue evtQueue) {
-        return (evtQueue == null)? null : new FXEventQueue(fxvm, evtQueue);
+    public static VisageEventQueue wrap(VisageVirtualMachine fxvm, EventQueue evtQueue) {
+        return (evtQueue == null)? null : new VisageEventQueue(fxvm, evtQueue);
     }
 }

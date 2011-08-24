@@ -23,27 +23,27 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXMethod;
-import org.visage.jdi.FXValue;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageMethod;
+import org.visage.jdi.VisageValue;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.event.MethodExitEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXMethodExitEvent extends FXLocatableEvent implements MethodExitEvent {
-    public FXMethodExitEvent(FXVirtualMachine fxvm, MethodExitEvent underlying) {
+public class VisageMethodExitEvent extends VisageLocatableEvent implements MethodExitEvent {
+    public VisageMethodExitEvent(VisageVirtualMachine fxvm, MethodExitEvent underlying) {
         super(fxvm, underlying);
     }
 
-    public FXMethod method() {
-        return FXWrapper.wrap(virtualMachine(), underlying().method());
+    public VisageMethod method() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().method());
     }
 
-    public FXValue returnValue() {
-        return FXWrapper.wrap(virtualMachine(), underlying().returnValue());
+    public VisageValue returnValue() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().returnValue());
     }
 
     @Override

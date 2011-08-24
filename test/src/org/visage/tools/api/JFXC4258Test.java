@@ -25,18 +25,18 @@ package org.visage.tools.api;
 import org.visage.api.JavafxcTask;
 import org.visage.api.tree.IdentifierTree;
 
-import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.SourcePositions;
 import org.visage.api.tree.Tree;
 import org.visage.api.tree.UnitTree;
 import org.visage.api.tree.VariableTree;
 import org.visage.tools.comp.JavafxEnter;
 import org.visage.tools.comp.JavafxEnv;
-import org.visage.tools.tree.JFXClassDeclaration;
-import org.visage.tools.tree.JFXFunctionDefinition;
-import org.visage.tools.tree.JFXScript;
-import org.visage.tools.tree.JFXTree;
-import org.visage.tools.tree.JFXVar;
+import org.visage.tools.tree.VisageClassDeclaration;
+import org.visage.tools.tree.VisageFunctionDefinition;
+import org.visage.tools.tree.VisageScript;
+import org.visage.tools.tree.VisageTree;
+import org.visage.tools.tree.VisageVar;
 import org.visage.tools.tree.JavafxTreeScanner;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.util.Context;
@@ -78,15 +78,15 @@ public class JFXC4258Test {
             this.sym = sym;
         }
 
-        JFXTree result = null;
+        VisageTree result = null;
 
-        public void scan(JFXTree tree) {
+        public void scan(VisageTree tree) {
             if (tree != null && result == null) {
                 tree.accept(this);
             }
         }
 
-        public void visitScript( JFXScript that) {
+        public void visitScript( VisageScript that) {
             if (that.packge == sym) {
                 result = that;
             } else {
@@ -94,7 +94,7 @@ public class JFXC4258Test {
             }
         }
 
-        public void visitClassDeclaration( JFXClassDeclaration that) {
+        public void visitClassDeclaration( VisageClassDeclaration that) {
             if (that.sym == sym) {
                 result = that;
             } else {
@@ -102,7 +102,7 @@ public class JFXC4258Test {
             }
         }
 
-        public void visitFunctionDefinition( JFXFunctionDefinition that) {
+        public void visitFunctionDefinition( VisageFunctionDefinition that) {
             if (that.sym == sym) {
                 result = that;
             } else {
@@ -111,7 +111,7 @@ public class JFXC4258Test {
         }
 
 
-        public void visitVar( JFXVar that) {
+        public void visitVar( VisageVar that) {
             if (that.sym == sym) {
                 result = that;
             } else {
@@ -170,7 +170,7 @@ public class JFXC4258Test {
         final Tree[] t = new Tree[2];
         final Symbol[] sym = new Symbol[0];
 
-        JavaFXTreePathScanner<Void, Void> defTreeResolver = new JavaFXTreePathScanner<Void, Void>() {
+        VisageTreePathScanner<Void, Void> defTreeResolver = new VisageTreePathScanner<Void, Void>() {
             @Override
             public Void visitIdentifier(IdentifierTree node, Void p) {
                 Element e = trees.getElement(getCurrentPath());
@@ -192,7 +192,7 @@ public class JFXC4258Test {
             }
         };
 
-        JavaFXTreePathScanner<Void, Void> accessScope = new JavaFXTreePathScanner<Void, Void>() {
+        VisageTreePathScanner<Void, Void> accessScope = new VisageTreePathScanner<Void, Void>() {
             @Override
             public Void visitVariable(VariableTree node, Void p) {
                 Element e = trees.getElement(getCurrentPath());

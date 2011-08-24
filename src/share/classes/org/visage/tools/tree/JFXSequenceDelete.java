@@ -24,17 +24,17 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  *
  * @author Robert Field
  */
-public class JFXSequenceDelete extends JFXExpression implements SequenceDeleteTree {
-    private JFXExpression sequence;
-    private final JFXExpression element;
+public class VisageSequenceDelete extends VisageExpression implements SequenceDeleteTree {
+    private VisageExpression sequence;
+    private final VisageExpression element;
 
-    public JFXSequenceDelete(JFXExpression sequence, JFXExpression element) {
+    public VisageSequenceDelete(VisageExpression sequence, VisageExpression element) {
         this.sequence = sequence;
         this.element = element;
     }
@@ -43,11 +43,11 @@ public class JFXSequenceDelete extends JFXExpression implements SequenceDeleteTr
         v.visitSequenceDelete(this);
     }
 
-    public JFXExpression getSequence() {
+    public VisageExpression getSequence() {
         return sequence;
     }
     
-    public JFXExpression getElement() {
+    public VisageExpression getElement() {
         return element;
     }
     
@@ -56,11 +56,11 @@ public class JFXSequenceDelete extends JFXExpression implements SequenceDeleteTr
         return JavafxTag.DELETE;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.SEQUENCE_DELETE;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.SEQUENCE_DELETE;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitSequenceDelete(this, data);
     }
 }

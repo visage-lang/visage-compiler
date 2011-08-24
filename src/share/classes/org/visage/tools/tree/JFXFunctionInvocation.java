@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.List;
@@ -32,17 +32,17 @@ import com.sun.tools.mjavac.util.List;
 /**
  * A method invocation
  */
-public class JFXFunctionInvocation extends JFXExpression implements FunctionInvocationTree {
+public class VisageFunctionInvocation extends VisageExpression implements FunctionInvocationTree {
 
-    public List<JFXExpression> typeargs;
-    public JFXExpression meth;
-    public List<JFXExpression> args;
+    public List<VisageExpression> typeargs;
+    public VisageExpression meth;
+    public List<VisageExpression> args;
     public Type varargsElement;
 
-    protected JFXFunctionInvocation(List<JFXExpression> typeargs,
-            JFXExpression meth,
-            List<JFXExpression> args) {
-        this.typeargs = (typeargs == null) ? List.<JFXExpression>nil()
+    protected VisageFunctionInvocation(List<VisageExpression> typeargs,
+            VisageExpression meth,
+            List<VisageExpression> args) {
+        this.typeargs = (typeargs == null) ? List.<VisageExpression>nil()
                 : typeargs;
         this.meth = meth;
         this.args = args;
@@ -53,29 +53,29 @@ public class JFXFunctionInvocation extends JFXExpression implements FunctionInvo
         v.visitFunctionInvocation(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.METHOD_INVOCATION;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.METHOD_INVOCATION;
     }
 
-    public List<JFXExpression> getTypeArguments() {
+    public List<VisageExpression> getTypeArguments() {
         return typeargs;
     }
 
-    public JFXExpression getMethodSelect() {
+    public VisageExpression getMethodSelect() {
         return meth;
     }
 
-    public List<JFXExpression> getArguments() {
+    public List<VisageExpression> getArguments() {
         return args;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitMethodInvocation(this, d);
     }
 
     @Override
-    public JFXFunctionInvocation setType(Type type) {
+    public VisageFunctionInvocation setType(Type type) {
         super.setType(type);
         return this;
     }

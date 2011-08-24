@@ -22,25 +22,25 @@ class jfxc2136 {
     }  
 }
 
-    function getVarValue(object : Object, name : String) : FXValue {
-        var objectValue : FXObjectValue = FXLocal.getContext().mirrorOf(object);
-        var cls : FXClassType = objectValue.getType();
-        var attrs = cls.getMembers( FXMemberFilter.acceptAttributes(name), false );
-        var attr : FXVarMember  = attrs.get(0) as FXVarMember;
+    function getVarValue(object : Object, name : String) : VisageValue {
+        var objectValue : VisageObjectValue = VisageLocal.getContext().mirrorOf(object);
+        var cls : VisageClassType = objectValue.getType();
+        var attrs = cls.getMembers( VisageMemberFilter.acceptAttributes(name), false );
+        var attr : VisageVarMember  = attrs.get(0) as VisageVarMember;
         return attr.getValue(objectValue);
     }
 
 
     function setVarValue(object : Object, name : String, value : Object) {
-        var objectValue : FXObjectValue = FXLocal.getContext().mirrorOf(object);
-        var cls : FXClassType = objectValue.getType();
-        var attrs = cls.getMembers( FXMemberFilter.acceptAttributes(name), false);
-        var attr = attrs.get(0) as FXVarMember;
-        var mirrored : FXValue;
-        if (value instanceof FXValue)
-            mirrored = value as FXValue
+        var objectValue : VisageObjectValue = VisageLocal.getContext().mirrorOf(object);
+        var cls : VisageClassType = objectValue.getType();
+        var attrs = cls.getMembers( VisageMemberFilter.acceptAttributes(name), false);
+        var attr = attrs.get(0) as VisageVarMember;
+        var mirrored : VisageValue;
+        if (value instanceof VisageValue)
+            mirrored = value as VisageValue
         else
-            mirrored = FXLocal.getContext().mirrorOf(value);
+            mirrored = VisageLocal.getContext().mirrorOf(value);
         attr.setValue(objectValue, mirrored);
     }
 

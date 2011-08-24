@@ -25,7 +25,7 @@ package org.visage.tools.tree.xml;
 
 import org.visage.api.tree.ExpressionTree;
 import org.visage.api.tree.UnitTree;
-import org.visage.tools.tree.JFXScript;
+import org.visage.tools.tree.VisageScript;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Options;
 import java.io.ByteArrayOutputStream;
@@ -82,22 +82,22 @@ public class TreeXMLTransformer {
 
     public static void afterParse(Context context, UnitTree cu) {
         TreeXMLTransformer transformer = context.get(treeXMLTransformerKey);
-        if (transformer != null && transformer.phase == PARSE && (cu instanceof JFXScript)) {
-            transformer.transformWithCare(context, (JFXScript)cu);
+        if (transformer != null && transformer.phase == PARSE && (cu instanceof VisageScript)) {
+            transformer.transformWithCare(context, (VisageScript)cu);
         }
     }
 
     public static void afterEnter(Context context, UnitTree cu, TypeElement clazz) {
         TreeXMLTransformer transformer = context.get(treeXMLTransformerKey);
-        if (transformer != null && transformer.phase == ENTER && (cu instanceof JFXScript)) {
-            transformer.transformWithCare(context, (JFXScript)cu);
+        if (transformer != null && transformer.phase == ENTER && (cu instanceof VisageScript)) {
+            transformer.transformWithCare(context, (VisageScript)cu);
         }
     }
 
     public static void afterAnalyze(Context context, UnitTree cu, TypeElement clazz) {
         TreeXMLTransformer transformer = context.get(treeXMLTransformerKey);
-        if (transformer != null && transformer.phase == ANALYZE && (cu instanceof JFXScript)) {
-            transformer.transformWithCare(context, (JFXScript)cu);
+        if (transformer != null && transformer.phase == ANALYZE && (cu instanceof VisageScript)) {
+            transformer.transformWithCare(context, (VisageScript)cu);
         }
     }
     
@@ -247,7 +247,7 @@ public class TreeXMLTransformer {
         }
     }
 
-    private void transformWithCare(Context context, JFXScript script) {
+    private void transformWithCare(Context context, VisageScript script) {
         try {
             transform(context, script);
         } catch (Exception exp) {
@@ -259,7 +259,7 @@ public class TreeXMLTransformer {
     }
 
     // transform given compilation unit using XSL
-    private void transform(Context context, JFXScript script) {
+    private void transform(Context context, VisageScript script) {
         URI uri = script.getSourceFile().toUri();
         if (seenCompUnitAlready.containsKey(uri)) {
             return;
@@ -328,7 +328,7 @@ public class TreeXMLTransformer {
     }
 
     // converts AST into XML (SAX) events
-    private void convertAST2XML(Context context, JFXScript script, ContentHandler handler) {
+    private void convertAST2XML(Context context, VisageScript script, ContentHandler handler) {
         try {
             TreeXMLSerializer visitor = new TreeXMLSerializer(handler);
             Compiler.enter(context, script, visitor);

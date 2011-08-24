@@ -26,7 +26,7 @@ package org.visage.tools.tree;
 import org.visage.api.JavafxBindStatus;
 import org.visage.api.tree.TimeLiteralTree.Duration;
 import org.visage.api.tree.TypeTree.Cardinality;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
@@ -67,7 +67,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** The toplevel tree to which created trees belong.
      */
-    public JFXScript toplevel;
+    public VisageScript toplevel;
 
     /** The current name table. */
     protected Name.Table names;
@@ -95,7 +95,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
      */
-    protected JavafxTreeMaker(JFXScript toplevel, Name.Table names, JavafxTypes types, JavafxSymtab syms) {
+    protected JavafxTreeMaker(VisageScript toplevel, Name.Table names, JavafxTypes types, JavafxSymtab syms) {
         this.pos = Position.FIRSTPOS;
         this.toplevel = toplevel;
         this.names = names;
@@ -105,7 +105,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** Create a new tree maker for a given toplevel.
      */
-    public JavafxTreeMaker forToplevel(JFXScript toplevel) {
+    public JavafxTreeMaker forToplevel(VisageScript toplevel) {
         return new JavafxTreeMaker(toplevel, names, types, syms);
     }
 
@@ -123,171 +123,171 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return this;
     }
 
-    public JFXImport Import(JFXExpression qualid) {
-        JFXImport tree = new JFXImport(qualid);
+    public VisageImport Import(VisageExpression qualid) {
+        VisageImport tree = new VisageImport(qualid);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSkip Skip() {
-        JFXSkip tree = new JFXSkip();
+    public VisageSkip Skip() {
+        VisageSkip tree = new VisageSkip();
         tree.pos = pos;
         return tree;
     }
 
-    public JFXWhileLoop WhileLoop(JFXExpression cond, JFXExpression body) {
-        JFXWhileLoop tree = new JFXWhileLoop(cond, body);
+    public VisageWhileLoop WhileLoop(VisageExpression cond, VisageExpression body) {
+        VisageWhileLoop tree = new VisageWhileLoop(cond, body);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXTry Try(JFXBlock body, List<JFXCatch> catchers, JFXBlock finalizer) {
-        JFXTry tree = new JFXTry(body, catchers, finalizer);
+    public VisageTry Try(VisageBlock body, List<VisageCatch> catchers, VisageBlock finalizer) {
+        VisageTry tree = new VisageTry(body, catchers, finalizer);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXCatch ErroneousCatch(List<? extends JFXTree> errs) {
-        JFXCatch tree = new JFXErroneousCatch(errs);
+    public VisageCatch ErroneousCatch(List<? extends VisageTree> errs) {
+        VisageCatch tree = new VisageErroneousCatch(errs);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXCatch Catch(JFXVar param, JFXBlock body) {
-        JFXCatch tree = new JFXCatch(param, body);
+    public VisageCatch Catch(VisageVar param, VisageBlock body) {
+        VisageCatch tree = new VisageCatch(param, body);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXIfExpression Conditional(JFXExpression cond,
-                                   JFXExpression thenpart,
-                                   JFXExpression elsepart)
+    public VisageIfExpression Conditional(VisageExpression cond,
+                                   VisageExpression thenpart,
+                                   VisageExpression elsepart)
     {
-        JFXIfExpression tree = new JFXIfExpression(cond, thenpart, elsepart);
+        VisageIfExpression tree = new VisageIfExpression(cond, thenpart, elsepart);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXBreak Break(Name label) {
-        JFXBreak tree = new JFXBreak(label, null);
+    public VisageBreak Break(Name label) {
+        VisageBreak tree = new VisageBreak(label, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXContinue Continue(Name label) {
-        JFXContinue tree = new JFXContinue(label, null);
+    public VisageContinue Continue(Name label) {
+        VisageContinue tree = new VisageContinue(label, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXReturn Return(JFXExpression expr) {
-        JFXReturn tree = new JFXReturn(expr);
+    public VisageReturn Return(VisageExpression expr) {
+        VisageReturn tree = new VisageReturn(expr);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXThrow Throw(JFXExpression expr) {
-        JFXThrow tree = new JFXThrow(expr);
+    public VisageThrow Throw(VisageExpression expr) {
+        VisageThrow tree = new VisageThrow(expr);
         tree.pos = pos;
         return tree;
     }
-    public JFXThrow ErroneousThrow() {
-        JFXThrow tree = new JFXErroneousThrow();
+    public VisageThrow ErroneousThrow() {
+        VisageThrow tree = new VisageErroneousThrow();
         tree.pos = pos;
         return tree;
     }
-    public JFXFunctionInvocation Apply(List<JFXExpression> typeargs,
-                       JFXExpression fn,
-                       List<JFXExpression> args)
+    public VisageFunctionInvocation Apply(List<VisageExpression> typeargs,
+                       VisageExpression fn,
+                       List<VisageExpression> args)
     {
-        JFXFunctionInvocation tree = new JFXFunctionInvocation(
-                typeargs != null? typeargs : List.<JFXExpression>nil(),
+        VisageFunctionInvocation tree = new VisageFunctionInvocation(
+                typeargs != null? typeargs : List.<VisageExpression>nil(),
                 fn,
-                args != null? args : List.<JFXExpression>nil());
+                args != null? args : List.<VisageExpression>nil());
         tree.pos = pos;
         return tree;
     }
 
-    public JFXParens Parens(JFXExpression expr) {
-        JFXParens tree = new JFXParens(expr);
+    public VisageParens Parens(VisageExpression expr) {
+        VisageParens tree = new VisageParens(expr);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXAssign Assign(JFXExpression lhs, JFXExpression rhs) {
-        JFXAssign tree = new JFXAssign(lhs, rhs);
+    public VisageAssign Assign(VisageExpression lhs, VisageExpression rhs) {
+        VisageAssign tree = new VisageAssign(lhs, rhs);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXAssignOp Assignop(JavafxTag opcode, JFXExpression lhs, JFXExpression rhs) {
-        JFXAssignOp tree = new JFXAssignOp(opcode, lhs, rhs, null);
+    public VisageAssignOp Assignop(JavafxTag opcode, VisageExpression lhs, VisageExpression rhs) {
+        VisageAssignOp tree = new VisageAssignOp(opcode, lhs, rhs, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXBinary Binary(JavafxTag opcode, JFXExpression lhs, JFXExpression rhs) {
-        JFXBinary tree = new JFXBinary(opcode, lhs, rhs, null);
+    public VisageBinary Binary(JavafxTag opcode, VisageExpression lhs, VisageExpression rhs) {
+        VisageBinary tree = new VisageBinary(opcode, lhs, rhs, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXTypeCast TypeCast(JFXTree clazz, JFXExpression expr) {
-        JFXTypeCast tree = new JFXTypeCast(clazz, expr);
+    public VisageTypeCast TypeCast(VisageTree clazz, VisageExpression expr) {
+        VisageTypeCast tree = new VisageTypeCast(clazz, expr);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXInstanceOf TypeTest(JFXExpression expr, JFXTree clazz) {
-        JFXInstanceOf tree = new JFXInstanceOf(expr, clazz);
+    public VisageInstanceOf TypeTest(VisageExpression expr, VisageTree clazz) {
+        VisageInstanceOf tree = new VisageInstanceOf(expr, clazz);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSelect Select(JFXExpression selected, Name selector, boolean nullCheck) {
-        JFXSelect tree = new JFXSelect(selected, selector, null, nullCheck);
+    public VisageSelect Select(VisageExpression selected, Name selector, boolean nullCheck) {
+        VisageSelect tree = new VisageSelect(selected, selector, null, nullCheck);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXIdentSequenceProxy IdentSequenceProxy(Name name, Symbol sym, JavafxVarSymbol boundSizeSym) {
-        JFXIdentSequenceProxy tree = new JFXIdentSequenceProxy(name, sym, boundSizeSym);
+    public VisageIdentSequenceProxy IdentSequenceProxy(Name name, Symbol sym, JavafxVarSymbol boundSizeSym) {
+        VisageIdentSequenceProxy tree = new VisageIdentSequenceProxy(name, sym, boundSizeSym);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXIdent Ident(Name name) {
-        JFXIdent tree = new JFXIdent(name, null);
+    public VisageIdent Ident(Name name) {
+        VisageIdent tree = new VisageIdent(name, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXErroneousIdent ErroneousIdent() {
-        JFXErroneousIdent tree = new JFXErroneousIdent(List.<JFXTree>nil());
+    public VisageErroneousIdent ErroneousIdent() {
+        VisageErroneousIdent tree = new VisageErroneousIdent(List.<VisageTree>nil());
         tree.pos = pos;
         return tree;
     }
 
 
-    public JFXLiteral Literal(int tag, Object value) {
-        JFXLiteral tree = new JFXLiteral(tag, value);
+    public VisageLiteral Literal(int tag, Object value) {
+        VisageLiteral tree = new VisageLiteral(tag, value);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXModifiers Modifiers(long flags) {
-        JFXModifiers tree = new JFXModifiers(flags);
+    public VisageModifiers Modifiers(long flags) {
+        VisageModifiers tree = new VisageModifiers(flags);
         boolean noFlags = (flags & Flags.StandardFlags) == 0;
         tree.pos = (noFlags) ? Position.NOPOS : pos;
         return tree;
     }
 
-    public JFXErroneous Erroneous() {
-        return Erroneous(List.<JFXTree>nil());
+    public VisageErroneous Erroneous() {
+        return Erroneous(List.<VisageTree>nil());
     }
 
-    public JFXErroneous Erroneous(List<? extends JFXTree> errs) {
-        JFXErroneous tree = new JFXErroneous(errs);
+    public VisageErroneous Erroneous(List<? extends VisageTree> errs) {
+        VisageErroneous tree = new VisageErroneous(errs);
         tree.pos = pos;
         return tree;
     }
@@ -298,8 +298,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** Create an identifier from a symbol.
      */
-    public JFXIdent Ident(Symbol sym) {
-        JFXIdent id = new JFXIdent(
+    public VisageIdent Ident(Symbol sym) {
+        VisageIdent id = new VisageIdent(
                 (sym.name != names.empty)
                                 ? sym.name
                                 : sym.flatName(), sym);
@@ -312,23 +312,23 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     /** Create a selection node from a qualifier tree and a symbol.
      *  @param base   The qualifier tree.
      */
-    public JFXExpression Select(JFXExpression base, Symbol sym, boolean nullCheck) {
-        return new JFXSelect(base, sym.name, sym, nullCheck).setPos(pos).setType(sym.type);
+    public VisageExpression Select(VisageExpression base, Symbol sym, boolean nullCheck) {
+        return new VisageSelect(base, sym.name, sym, nullCheck).setPos(pos).setType(sym.type);
     }
 
     /** Create an identifier that refers to the variable declared in given variable
      *  declaration.
      */
-    public JFXIdent Ident(JFXVar param) {
+    public VisageIdent Ident(VisageVar param) {
         return Ident(param.sym);
     }
 
     /** Create a list of identifiers referring to the variables declared
      *  in given list of variable declarations.
      */
-    public List<JFXExpression> Idents(List<JFXVar> params) {
-        ListBuffer<JFXExpression> ids = new ListBuffer<JFXExpression>();
-        for (List<JFXVar> l = params; l.nonEmpty(); l = l.tail)
+    public List<VisageExpression> Idents(List<VisageVar> params) {
+        ListBuffer<VisageExpression> ids = new ListBuffer<VisageExpression>();
+        for (List<VisageVar> l = params; l.nonEmpty(); l = l.tail)
             ids.append(Ident(l.head));
         return ids.toList();
     }
@@ -346,7 +346,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         
         return owner.scriptSymbol;
     }
-    public JFXIdent Script(Symbol sym) {
+    public VisageIdent Script(Symbol sym) {
         return Ident(ScriptSymbol(sym));
     }
 
@@ -362,7 +362,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         
         return owner.thisSymbol;
     }
-    public JFXIdent This(Type t) {
+    public VisageIdent This(Type t) {
         return Ident(ThisSymbol(t));
     }
 
@@ -378,7 +378,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         
         return owner.superSymbol;
     }
-    public JFXIdent Super(Type t, TypeSymbol owner) {
+    public VisageIdent Super(Type t, TypeSymbol owner) {
         return Ident(SuperSymbol(t, owner));
     }
 
@@ -396,7 +396,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         
         return owner.scriptAccessSymbol;
     }
-    public JFXIdent ScriptAccess(Symbol sym) {
+    public VisageIdent ScriptAccess(Symbol sym) {
         return Ident(ScriptAccessSymbol(sym));
     }
     
@@ -404,24 +404,24 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
      * Create a method invocation from a method tree and a list of
      * argument trees.
      */
-    public JFXFunctionInvocation App(JFXExpression meth, List<JFXExpression> args) {
+    public VisageFunctionInvocation App(VisageExpression meth, List<VisageExpression> args) {
         return Apply(null, meth, args).setType(meth.type.getReturnType());
     }
 
     /**
      * Create a no-arg method invocation from a method tree
      */
-    public JFXFunctionInvocation App(JFXExpression meth) {
-        return Apply(null, meth, List.<JFXExpression>nil()).setType(meth.type.getReturnType());
+    public VisageFunctionInvocation App(VisageExpression meth) {
+        return Apply(null, meth, List.<VisageExpression>nil()).setType(meth.type.getReturnType());
     }
 
     /** Create a tree representing given type.
      */
-    public JFXExpression Type(Type t) {
+    public VisageExpression Type(Type t) {
         if (t == null) {
             return null;
         }
-        JFXExpression tp;
+        VisageExpression tp;
         switch (t.tag) {
             case FLOAT: 
                 tp = Ident(syms.floatTypeName);
@@ -451,9 +451,9 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                 tp = Ident(syms.voidTypeName);
                 break;
             case ARRAY:
-                JFXExpression elem = Type(types.elemtype(t));
-                elem = elem instanceof JFXType ? elem : TypeClass(elem, Cardinality.SINGLETON);
-                tp = TypeArray((JFXType)elem);
+                VisageExpression elem = Type(types.elemtype(t));
+                elem = elem instanceof VisageType ? elem : TypeClass(elem, Cardinality.SINGLETON);
+                tp = TypeArray((VisageType)elem);
                 break;
             case CLASS:
                 Type outer = t.getEnclosingType();
@@ -469,14 +469,14 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** Create a list of trees representing given list of types.
      */
-    public List<JFXExpression> Types(List<Type> ts) {
-        ListBuffer<JFXExpression> typeList = new ListBuffer<JFXExpression>();
+    public List<VisageExpression> Types(List<Type> ts) {
+        ListBuffer<VisageExpression> typeList = new ListBuffer<VisageExpression>();
         for (List<Type> l = ts; l.nonEmpty(); l = l.tail)
             typeList.append(Type(l.head));
         return typeList.toList();
     }
 
-    public JFXLiteral LiteralInteger(String text, int radix) {
+    public VisageLiteral LiteralInteger(String text, int radix) {
         long longVal = Convert.string2long(text, radix);
         // For decimal, allow Integer negative numbers
         if ((radix==10)? (longVal <= Integer.MAX_VALUE && longVal >= Integer.MIN_VALUE) : ((longVal & ~0xFFFFFFFFL) == 0L))
@@ -485,8 +485,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             return Literal(TypeTags.LONG, Long.valueOf(longVal));
     }
 
-    public JFXLiteral Literal(Object value) {
-        JFXLiteral result = null;
+    public VisageLiteral Literal(Object value) {
+        VisageLiteral result = null;
         if (value instanceof String) {
             result = Literal(CLASS, value).
                 setType(syms.stringType.constType(value));
@@ -522,8 +522,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** Make an attributed type cast expression.
      */
-    public JFXTypeCast TypeCast(Type type, JFXExpression expr) {
-        return (JFXTypeCast)TypeCast(Type(type), expr).setType(type);
+    public VisageTypeCast TypeCast(Type type, VisageExpression expr) {
+        return (VisageTypeCast)TypeCast(Type(type), expr).setType(type);
     }
 
 /* ***************************************************************************
@@ -565,11 +565,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
      */
     public Name paramName(int i)   { return names.fromString("x" + i); }
 
-    public JFXClassDeclaration ClassDeclaration(JFXModifiers mods,
+    public VisageClassDeclaration ClassDeclaration(VisageModifiers mods,
             Name name,
-            List<JFXExpression> supertypes,
-            List<JFXTree> declarations) {
-        JFXClassDeclaration tree = new JFXClassDeclaration(mods,
+            List<VisageExpression> supertypes,
+            List<VisageTree> declarations) {
+        VisageClassDeclaration tree = new VisageClassDeclaration(mods,
                 name,
                 supertypes,
                 declarations,
@@ -579,30 +579,30 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXBlock Block(long flags, List<JFXExpression> stats, JFXExpression value) {
-        JFXBlock tree = new JFXBlock(flags, stats, value);
+    public VisageBlock Block(long flags, List<VisageExpression> stats, VisageExpression value) {
+        VisageBlock tree = new VisageBlock(flags, stats, value);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXBlock ErroneousBlock() {
-        JFXErroneousBlock tree = new JFXErroneousBlock(List.<JFXTree>nil());
+    public VisageBlock ErroneousBlock() {
+        VisageErroneousBlock tree = new VisageErroneousBlock(List.<VisageTree>nil());
         tree.pos = pos;
         return tree;
     }
-    public JFXBlock ErroneousBlock(List<? extends JFXTree> errs) {
-        JFXErroneousBlock tree = new JFXErroneousBlock(errs);
+    public VisageBlock ErroneousBlock(List<? extends VisageTree> errs) {
+        VisageErroneousBlock tree = new VisageErroneousBlock(errs);
         tree.pos = pos;
         return tree;
     }
         
-    public JFXFunctionDefinition FunctionDefinition(
-            JFXModifiers modifiers,
+    public VisageFunctionDefinition FunctionDefinition(
+            VisageModifiers modifiers,
             Name name,
-            JFXType restype,
-            List<JFXVar> params,
-            JFXBlock bodyExpression) {
-        JFXFunctionDefinition tree = new JFXFunctionDefinition(
+            VisageType restype,
+            List<VisageVar> params,
+            VisageBlock bodyExpression) {
+        VisageFunctionDefinition tree = new VisageFunctionDefinition(
                 modifiers,
                 name,
                 restype,
@@ -613,11 +613,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXFunctionValue FunctionValue(
-            JFXType restype,
-             List<JFXVar> params,
-            JFXBlock bodyExpression) {
-        JFXFunctionValue tree = new JFXFunctionValue(
+    public VisageFunctionValue FunctionValue(
+            VisageType restype,
+             List<VisageVar> params,
+            VisageBlock bodyExpression) {
+        VisageFunctionValue tree = new VisageFunctionValue(
                 restype,
                 params,
                 bodyExpression);
@@ -625,332 +625,332 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXInitDefinition InitDefinition(
-            JFXBlock body) {
-        JFXInitDefinition tree = new JFXInitDefinition(
+    public VisageInitDefinition InitDefinition(
+            VisageBlock body) {
+        VisageInitDefinition tree = new VisageInitDefinition(
                 body);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXPostInitDefinition PostInitDefinition(JFXBlock body) {
-        JFXPostInitDefinition tree = new JFXPostInitDefinition(body);
+    public VisagePostInitDefinition PostInitDefinition(VisageBlock body) {
+        VisagePostInitDefinition tree = new VisagePostInitDefinition(body);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceEmpty EmptySequence() {
-        JFXSequenceEmpty tree = new JFXSequenceEmpty();
+    public VisageSequenceEmpty EmptySequence() {
+        VisageSequenceEmpty tree = new VisageSequenceEmpty();
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceRange RangeSequence(JFXExpression lower, JFXExpression upper, JFXExpression stepOrNull, boolean exclusive) {
-        JFXSequenceRange tree = new JFXSequenceRange(lower, upper,  stepOrNull,  exclusive);
+    public VisageSequenceRange RangeSequence(VisageExpression lower, VisageExpression upper, VisageExpression stepOrNull, boolean exclusive) {
+        VisageSequenceRange tree = new VisageSequenceRange(lower, upper,  stepOrNull,  exclusive);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceExplicit ExplicitSequence(List<JFXExpression> items) {
-        JFXSequenceExplicit tree = new JFXSequenceExplicit(items);
+    public VisageSequenceExplicit ExplicitSequence(List<VisageExpression> items) {
+        VisageSequenceExplicit tree = new VisageSequenceExplicit(items);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceIndexed SequenceIndexed(JFXExpression sequence, JFXExpression index) {
-        JFXSequenceIndexed tree = new JFXSequenceIndexed(sequence, index);
+    public VisageSequenceIndexed SequenceIndexed(VisageExpression sequence, VisageExpression index) {
+        VisageSequenceIndexed tree = new VisageSequenceIndexed(sequence, index);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceSlice SequenceSlice(JFXExpression sequence, JFXExpression firstIndex, JFXExpression lastIndex, int endKind) {
-        JFXSequenceSlice tree = new JFXSequenceSlice(sequence, firstIndex,
+    public VisageSequenceSlice SequenceSlice(VisageExpression sequence, VisageExpression firstIndex, VisageExpression lastIndex, int endKind) {
+        VisageSequenceSlice tree = new VisageSequenceSlice(sequence, firstIndex,
                 lastIndex, endKind);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceInsert SequenceInsert(JFXExpression sequence, JFXExpression element, JFXExpression position, boolean after) {
-        JFXSequenceInsert tree = new JFXSequenceInsert(sequence, element, position, after);
+    public VisageSequenceInsert SequenceInsert(VisageExpression sequence, VisageExpression element, VisageExpression position, boolean after) {
+        VisageSequenceInsert tree = new VisageSequenceInsert(sequence, element, position, after);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceDelete SequenceDelete(JFXExpression sequence) {
-        JFXSequenceDelete tree = new JFXSequenceDelete(sequence, null);
+    public VisageSequenceDelete SequenceDelete(VisageExpression sequence) {
+        VisageSequenceDelete tree = new VisageSequenceDelete(sequence, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceDelete SequenceDelete(JFXExpression sequence, JFXExpression element) {
-        JFXSequenceDelete tree = new JFXSequenceDelete(sequence, element);
+    public VisageSequenceDelete SequenceDelete(VisageExpression sequence, VisageExpression element) {
+        VisageSequenceDelete tree = new VisageSequenceDelete(sequence, element);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXStringExpression StringExpression(List<JFXExpression> parts,
+    public VisageStringExpression StringExpression(List<VisageExpression> parts,
                                         String translationKey) {
-        JFXStringExpression tree = new JFXStringExpression(parts, translationKey);
+        VisageStringExpression tree = new VisageStringExpression(parts, translationKey);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXInstanciate Instanciate(JavaFXKind kind, JFXExpression clazz, JFXClassDeclaration def, List<JFXExpression> args, List<JFXObjectLiteralPart> parts, List<JFXVar> localVars) {
-        JFXInstanciate tree = new JFXInstanciate(kind, clazz, def, args, parts, localVars, null);
+    public VisageInstanciate Instanciate(VisageKind kind, VisageExpression clazz, VisageClassDeclaration def, List<VisageExpression> args, List<VisageObjectLiteralPart> parts, List<VisageVar> localVars) {
+        VisageInstanciate tree = new VisageInstanciate(kind, clazz, def, args, parts, localVars, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXInstanciate ObjectLiteral(JFXExpression ident,
-            List<JFXTree> defs) {
-        return Instanciate(JavaFXKind.INSTANTIATE_OBJECT_LITERAL,
+    public VisageInstanciate ObjectLiteral(VisageExpression ident,
+            List<VisageTree> defs) {
+        return Instanciate(VisageKind.INSTANTIATE_OBJECT_LITERAL,
                 ident,
-                List.<JFXExpression>nil(),
+                List.<VisageExpression>nil(),
                 defs);
     }
 
-    public JFXInstanciate InstanciateNew(JFXExpression ident,
-            List<JFXExpression> args) {
-        return Instanciate(JavaFXKind.INSTANTIATE_NEW,
+    public VisageInstanciate InstanciateNew(VisageExpression ident,
+            List<VisageExpression> args) {
+        return Instanciate(VisageKind.INSTANTIATE_NEW,
                 ident,
-                args != null? args : List.<JFXExpression>nil(),
-                List.<JFXTree>nil());
+                args != null? args : List.<VisageExpression>nil(),
+                List.<VisageTree>nil());
     }
 
-   public JFXInstanciate Instanciate(JavaFXKind kind, JFXExpression ident,
-           List<JFXExpression> args,
-           List<JFXTree> defs) {
+   public VisageInstanciate Instanciate(VisageKind kind, VisageExpression ident,
+           List<VisageExpression> args,
+           List<VisageTree> defs) {
 
        // Don't try and process object literals that have erroneous elements
        //
-       if  (ident instanceof JFXErroneous) return null;
+       if  (ident instanceof VisageErroneous) return null;
 
-       ListBuffer<JFXObjectLiteralPart> partsBuffer = ListBuffer.lb();
-       ListBuffer<JFXTree> defsBuffer = ListBuffer.lb();
-       ListBuffer<JFXExpression> varsBuffer = ListBuffer.lb();
+       ListBuffer<VisageObjectLiteralPart> partsBuffer = ListBuffer.lb();
+       ListBuffer<VisageTree> defsBuffer = ListBuffer.lb();
+       ListBuffer<VisageExpression> varsBuffer = ListBuffer.lb();
        boolean boundParts = false;
        if (defs != null) {
-           for (JFXTree def : defs) {
-               if (def instanceof JFXObjectLiteralPart) {
-                   JFXObjectLiteralPart olp = (JFXObjectLiteralPart) def;
+           for (VisageTree def : defs) {
+               if (def instanceof VisageObjectLiteralPart) {
+                   VisageObjectLiteralPart olp = (VisageObjectLiteralPart) def;
                    partsBuffer.append(olp);
                    boundParts |= olp.isExplicitlyBound();
-               } else if (def instanceof JFXVar /* && ((JFXVar)def).isLocal()*/) {
+               } else if (def instanceof VisageVar /* && ((VisageVar)def).isLocal()*/) {
                    // for now, at least, assume any var declaration inside an object literal is local
-                   varsBuffer.append((JFXVar) def);
+                   varsBuffer.append((VisageVar) def);
                } else {
                    defsBuffer.append(def);
                }
            }
        }
-       JFXClassDeclaration klass = null;
+       VisageClassDeclaration klass = null;
        if (defsBuffer.size() > 0 || boundParts) {
-           JFXExpression id = ident;
-           while (id instanceof JFXSelect) id = ((JFXSelect)id).getExpression();
-           Name cname = objectLiteralClassName(((JFXIdent)id).getName());
+           VisageExpression id = ident;
+           while (id instanceof VisageSelect) id = ((VisageSelect)id).getExpression();
+           Name cname = objectLiteralClassName(((VisageIdent)id).getName());
            long innerClassFlags = Flags.SYNTHETIC | Flags.FINAL; // to enable, change to Flags.FINAL
            
-           klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JFXExpression>of(ident), defsBuffer.toList());
+           klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<VisageExpression>of(ident), defsBuffer.toList());
        }
 
-       JFXInstanciate tree = new JFXInstanciate(kind, ident,
+       VisageInstanciate tree = new VisageInstanciate(kind, ident,
                klass,
-               args==null? List.<JFXExpression>nil() : args,
+               args==null? List.<VisageExpression>nil() : args,
                partsBuffer.toList(),
-               List.convert(JFXVar.class, varsBuffer.toList()),
+               List.convert(VisageVar.class, varsBuffer.toList()),
                null);
        tree.pos = pos;
        return tree;
    }
 
-    public JFXObjectLiteralPart ObjectLiteralPart(
+    public VisageObjectLiteralPart ObjectLiteralPart(
             Name attrName,
-            JFXExpression expr,
+            VisageExpression expr,
             JavafxBindStatus bindStatus) {
-        JFXObjectLiteralPart tree =
-                new JFXObjectLiteralPart(attrName, expr, bindStatus, null);
+        VisageObjectLiteralPart tree =
+                new VisageObjectLiteralPart(attrName, expr, bindStatus, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXType  TypeAny(Cardinality cardinality) {
-        JFXType tree = new JFXTypeAny(cardinality);
+    public VisageType  TypeAny(Cardinality cardinality) {
+        VisageType tree = new VisageTypeAny(cardinality);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXType  ErroneousType() {
-        JFXType tree = new JFXErroneousType(List.<JFXTree>nil());
+    public VisageType  ErroneousType() {
+        VisageType tree = new VisageErroneousType(List.<VisageTree>nil());
         tree.pos = pos;
         return tree;
     }
 
-    public JFXType  ErroneousType(List<? extends JFXTree> errs) {
-        JFXType tree = new JFXErroneousType(errs);
+    public VisageType  ErroneousType(List<? extends VisageTree> errs) {
+        VisageType tree = new VisageErroneousType(errs);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXType  TypeUnknown() {
-        JFXType tree = new JFXTypeUnknown();
+    public VisageType  TypeUnknown() {
+        VisageType tree = new VisageTypeUnknown();
         tree.pos = pos;
         return tree;
     }
 
-    public JFXType  TypeClass(JFXExpression className,Cardinality cardinality) {
+    public VisageType  TypeClass(VisageExpression className,Cardinality cardinality) {
         return TypeClass(className, cardinality, null);
     }
 
-    public JFXType  TypeClass(JFXExpression className,Cardinality cardinality, ClassSymbol sym) {
-        JFXType tree = new JFXTypeClass(className, cardinality, sym);
+    public VisageType  TypeClass(VisageExpression className,Cardinality cardinality, ClassSymbol sym) {
+        VisageType tree = new VisageTypeClass(className, cardinality, sym);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXType TypeFunctional(List<JFXType> params,
-            JFXType restype,
+    public VisageType TypeFunctional(List<VisageType> params,
+            VisageType restype,
             Cardinality cardinality) {
-        JFXType tree = new JFXTypeFunctional(params,
+        VisageType tree = new VisageTypeFunctional(params,
                 restype,
                 cardinality);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXType TypeArray(JFXType elementType) {
-        JFXType tree = new JFXTypeArray(elementType);
+    public VisageType TypeArray(VisageType elementType) {
+        VisageType tree = new VisageTypeArray(elementType);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXOverrideClassVar TriggerWrapper(JFXIdent expr, JFXOnReplace onReplace, JFXOnReplace onInvalidate) {
-        JFXOverrideClassVar tree = new JFXOverrideClassVar(null, null, null, expr, null, null, onReplace, onInvalidate, null);
+    public VisageOverrideClassVar TriggerWrapper(VisageIdent expr, VisageOnReplace onReplace, VisageOnReplace onInvalidate) {
+        VisageOverrideClassVar tree = new VisageOverrideClassVar(null, null, null, expr, null, null, onReplace, onInvalidate, null);
         tree.pos = pos;
         return tree;
     }
     
-   public JFXOnReplace ErroneousOnReplace(List<? extends JFXTree> errs) {
-        JFXOnReplace tree = new JFXErroneousOnReplace(errs, JFXOnReplace.Kind.ONREPLACE);
+   public VisageOnReplace ErroneousOnReplace(List<? extends VisageTree> errs) {
+        VisageOnReplace tree = new VisageErroneousOnReplace(errs, VisageOnReplace.Kind.ONREPLACE);
         tree.pos = pos;
         return tree;
     }
 
-   public JFXOnReplace ErroneousOnInvalidate(List<? extends JFXTree> errs) {
-        JFXOnReplace tree = new JFXErroneousOnReplace(errs, JFXOnReplace.Kind.ONINVALIDATE);
+   public VisageOnReplace ErroneousOnInvalidate(List<? extends VisageTree> errs) {
+        VisageOnReplace tree = new VisageErroneousOnReplace(errs, VisageOnReplace.Kind.ONINVALIDATE);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXOnReplace OnReplace(JFXVar oldValue, JFXBlock body) {
-        JFXOnReplace tree = new JFXOnReplace(oldValue, body, JFXOnReplace.Kind.ONREPLACE);
+    public VisageOnReplace OnReplace(VisageVar oldValue, VisageBlock body) {
+        VisageOnReplace tree = new VisageOnReplace(oldValue, body, VisageOnReplace.Kind.ONREPLACE);
         tree.pos = pos;
         return tree;
     }
 
-     public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
-             JFXVar lastIndex, JFXVar newElements, JFXBlock body) {
+     public VisageOnReplace OnReplace(VisageVar oldValue, VisageVar firstIndex,
+             VisageVar lastIndex, VisageVar newElements, VisageBlock body) {
          return OnReplace(oldValue, firstIndex, lastIndex,
-                 JFXSequenceSlice.END_INCLUSIVE, newElements, body);
+                 VisageSequenceSlice.END_INCLUSIVE, newElements, body);
     }
 
-     public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
-             JFXVar lastIndex, int endKind, JFXVar newElements, JFXBlock body) {
-         JFXOnReplace tree = OnReplace(oldValue, firstIndex, lastIndex,
+     public VisageOnReplace OnReplace(VisageVar oldValue, VisageVar firstIndex,
+             VisageVar lastIndex, int endKind, VisageVar newElements, VisageBlock body) {
+         VisageOnReplace tree = OnReplace(oldValue, firstIndex, lastIndex,
                  endKind, newElements, null, body);
         tree.pos = pos;
         return tree;
      }
 
-     public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
-             JFXVar lastIndex, int endKind, JFXVar newElements, JFXVar saveVar, JFXBlock body) {
-         JFXOnReplace tree = new JFXOnReplace(oldValue, firstIndex, lastIndex,
-                 endKind, newElements, saveVar, body, JFXOnReplace.Kind.ONREPLACE);
+     public VisageOnReplace OnReplace(VisageVar oldValue, VisageVar firstIndex,
+             VisageVar lastIndex, int endKind, VisageVar newElements, VisageVar saveVar, VisageBlock body) {
+         VisageOnReplace tree = new VisageOnReplace(oldValue, firstIndex, lastIndex,
+                 endKind, newElements, saveVar, body, VisageOnReplace.Kind.ONREPLACE);
         tree.pos = pos;
         return tree;
      }
 
-     public JFXOnReplace OnInvalidate(JFXBlock body) {
-        JFXOnReplace tree = new JFXOnReplace(null, body, JFXOnReplace.Kind.ONINVALIDATE);
+     public VisageOnReplace OnInvalidate(VisageBlock body) {
+        VisageOnReplace tree = new VisageOnReplace(null, body, VisageOnReplace.Kind.ONINVALIDATE);
         tree.pos = pos;
         return tree;
     }
 
-     public JFXVarInit VarInit(JFXVar var) {
-         JFXVarInit tree = new JFXVarInit(var);
+     public VisageVarInit VarInit(VisageVar var) {
+         VisageVarInit tree = new VisageVarInit(var);
          tree.pos = (var==null) ? Position.NOPOS : var.pos;
          return tree;
      }
 
-     public JFXVarRef VarRef(JFXExpression expr, JFXVarRef.RefKind kind) {
-         JFXVarRef tree = new JFXVarRef(expr, kind);
+     public VisageVarRef VarRef(VisageExpression expr, VisageVarRef.RefKind kind) {
+         VisageVarRef tree = new VisageVarRef(expr, kind);
          tree.pos = pos;
          return tree;
      }
 
-    public JFXVar Var(Name name,
-            JFXType type,
-            JFXModifiers mods,
-            JFXExpression initializer,
+    public VisageVar Var(Name name,
+            VisageType type,
+            VisageModifiers mods,
+            VisageExpression initializer,
             JavafxBindStatus bindStatus,
-            JFXOnReplace onReplace,
-            JFXOnReplace onInvalidate) {
-            JFXVar tree = new JFXVar(name, type,
+            VisageOnReplace onReplace,
+            VisageOnReplace onInvalidate) {
+            VisageVar tree = new VisageVar(name, type,
                mods, initializer, bindStatus, onReplace, onInvalidate, null);
         tree.pos = pos;
         return tree;
     }
-    public JFXOverrideClassVar OverrideClassVar(Name name, JFXType type, JFXModifiers mods, JFXIdent expr,
-            JFXExpression initializer,
+    public VisageOverrideClassVar OverrideClassVar(Name name, VisageType type, VisageModifiers mods, VisageIdent expr,
+            VisageExpression initializer,
             JavafxBindStatus bindStatus,
-            JFXOnReplace onReplace,
-            JFXOnReplace onInvalidate) {
-        JFXOverrideClassVar tree = new JFXOverrideClassVar(name, type, mods, expr, initializer,
+            VisageOnReplace onReplace,
+            VisageOnReplace onInvalidate) {
+        VisageOverrideClassVar tree = new VisageOverrideClassVar(name, type, mods, expr, initializer,
                 bindStatus, onReplace, onInvalidate, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXVar Param(Name name,
-            JFXType type) {
-        JFXVar tree = new JFXVar(name, type,
+    public VisageVar Param(Name name,
+            VisageType type) {
+        VisageVar tree = new VisageVar(name, type,
                 Modifiers(Flags.PARAMETER), null, JavafxBindStatus.UNBOUND, null, null, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXForExpression ForExpression(
-            List<JFXForExpressionInClause> inClauses,
-            JFXExpression bodyExpr) {
-        JFXForExpression tree = new JFXForExpression(JavaFXKind.FOR_EXPRESSION_FOR, inClauses, bodyExpr);
+    public VisageForExpression ForExpression(
+            List<VisageForExpressionInClause> inClauses,
+            VisageExpression bodyExpr) {
+        VisageForExpression tree = new VisageForExpression(VisageKind.FOR_EXPRESSION_FOR, inClauses, bodyExpr);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXForExpression Predicate(
-            List<JFXForExpressionInClause> inClauses,
-            JFXExpression bodyExpr) {
-        JFXForExpression tree = new JFXForExpression(JavaFXKind.FOR_EXPRESSION_PREDICATE, inClauses, bodyExpr);
+    public VisageForExpression Predicate(
+            List<VisageForExpressionInClause> inClauses,
+            VisageExpression bodyExpr) {
+        VisageForExpression tree = new VisageForExpression(VisageKind.FOR_EXPRESSION_PREDICATE, inClauses, bodyExpr);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXForExpressionInClause InClause(
-            JFXVar var,
-            JFXExpression seqExpr,
-            JFXExpression whereExpr) {
-        JFXForExpressionInClause tree = new JFXForExpressionInClause(var, seqExpr, whereExpr);
+    public VisageForExpressionInClause InClause(
+            VisageVar var,
+            VisageExpression seqExpr,
+            VisageExpression whereExpr) {
+        VisageForExpressionInClause tree = new VisageForExpressionInClause(var, seqExpr, whereExpr);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXErroneousForExpressionInClause ErroneousInClause(List<? extends JFXTree> errs) {
+    public VisageErroneousForExpressionInClause ErroneousInClause(List<? extends VisageTree> errs) {
 
-        JFXErroneousForExpressionInClause tree = new JFXErroneousForExpressionInClause(errs);
+        VisageErroneousForExpressionInClause tree = new VisageErroneousForExpressionInClause(errs);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXExpression Identifier(Name name) {
+    public VisageExpression Identifier(Name name) {
         String str = name.toString();
         if (str.indexOf('.') < 0 && str.indexOf('<') < 0) {
             return Ident(name);
@@ -958,9 +958,9 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return Identifier(str);
     }
 
-    public JFXExpression Identifier(String str) {
+    public VisageExpression Identifier(String str) {
         assert str.indexOf('<') < 0 : "attempt to parse a type with 'Identifier'.  Use TypeTree";
-        JFXExpression tree = null;
+        VisageExpression tree = null;
         int inx;
         int lastInx = 0;
         do {
@@ -981,25 +981,25 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXInterpolateValue InterpolateValue(JFXExpression attr, JFXExpression v, JFXExpression interp) {
-        JFXInterpolateValue tree = new JFXInterpolateValue(attr, v, interp);
+    public VisageInterpolateValue InterpolateValue(VisageExpression attr, VisageExpression v, VisageExpression interp) {
+        VisageInterpolateValue tree = new VisageInterpolateValue(attr, v, interp);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXInvalidate Invalidate(JFXExpression var) {
-        JFXInvalidate tree = new JFXInvalidate(var);
+    public VisageInvalidate Invalidate(VisageExpression var) {
+        VisageInvalidate tree = new VisageInvalidate(var);
         tree.pos = pos;
         return tree;
     }
      
-    public JFXIndexof Indexof (JFXIdent name) {
-        JFXIndexof tree = new JFXIndexof(name);
+    public VisageIndexof Indexof (VisageIdent name) {
+        VisageIndexof tree = new VisageIndexof(name);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXTimeLiteral TimeLiteral(String str) {
+    public VisageTimeLiteral TimeLiteral(String str) {
         int i = 0;
         char[] buf = str.toCharArray();
 
@@ -1051,26 +1051,26 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             // error already reported in scanner
             timeVal = Double.NaN;
         }
-        JFXLiteral literal = Literal(timeVal);
-        JFXTimeLiteral tree = new JFXTimeLiteral(literal, duration);
+        VisageLiteral literal = Literal(timeVal);
+        VisageTimeLiteral tree = new VisageTimeLiteral(literal, duration);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXTimeLiteral TimeLiteral(JFXLiteral literal, Duration duration) {
-        JFXTimeLiteral tree = new JFXTimeLiteral(literal, duration);
+    public VisageTimeLiteral TimeLiteral(VisageLiteral literal, Duration duration) {
+        VisageTimeLiteral tree = new VisageTimeLiteral(literal, duration);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXErroneousTimeLiteral ErroneousTimeLiteral() {
-        JFXErroneousTimeLiteral tree = new JFXErroneousTimeLiteral(List.<JFXTree>nil());
+    public VisageErroneousTimeLiteral ErroneousTimeLiteral() {
+        VisageErroneousTimeLiteral tree = new VisageErroneousTimeLiteral(List.<VisageTree>nil());
         tree.pos = pos;
 
         return tree;
     }
 
-    public JFXLengthLiteral LengthLiteral(String str) {
+    public VisageLengthLiteral LengthLiteral(String str) {
         int i = 0;
         char[] buf = str.toCharArray();
 
@@ -1128,26 +1128,26 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             // error already reported in scanner
             lengthVal = Double.NaN;
         }
-        JFXLiteral literal = Literal(lengthVal);
-        JFXLengthLiteral tree = new JFXLengthLiteral(literal, units);
+        VisageLiteral literal = Literal(lengthVal);
+        VisageLengthLiteral tree = new VisageLengthLiteral(literal, units);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXLengthLiteral LengthLiteral(JFXLiteral literal, LengthUnit units) {
-        JFXLengthLiteral tree = new JFXLengthLiteral(literal, units);
+    public VisageLengthLiteral LengthLiteral(VisageLiteral literal, LengthUnit units) {
+        VisageLengthLiteral tree = new VisageLengthLiteral(literal, units);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXErroneousLengthLiteral ErroneousLengthLiteral() {
-        JFXErroneousLengthLiteral tree = new JFXErroneousLengthLiteral(List.<JFXTree>nil());
+    public VisageErroneousLengthLiteral ErroneousLengthLiteral() {
+        VisageErroneousLengthLiteral tree = new VisageErroneousLengthLiteral(List.<VisageTree>nil());
         tree.pos = pos;
 
         return tree;
     }
 
-    public JFXAngleLiteral AngleLiteral(String str) {
+    public VisageAngleLiteral AngleLiteral(String str) {
         int i = 0;
         char[] buf = str.toCharArray();
 
@@ -1193,26 +1193,26 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             // error already reported in scanner
             angleVal = Double.NaN;
         }
-        JFXLiteral literal = Literal(angleVal);
-        JFXAngleLiteral tree = new JFXAngleLiteral(literal, units);
+        VisageLiteral literal = Literal(angleVal);
+        VisageAngleLiteral tree = new VisageAngleLiteral(literal, units);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXAngleLiteral AngleLiteral(JFXLiteral literal, AngleUnit units) {
-        JFXAngleLiteral tree = new JFXAngleLiteral(literal, units);
+    public VisageAngleLiteral AngleLiteral(VisageLiteral literal, AngleUnit units) {
+        VisageAngleLiteral tree = new VisageAngleLiteral(literal, units);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXErroneousAngleLiteral ErroneousAngleLiteral() {
-        JFXErroneousAngleLiteral tree = new JFXErroneousAngleLiteral(List.<JFXTree>nil());
+    public VisageErroneousAngleLiteral ErroneousAngleLiteral() {
+        VisageErroneousAngleLiteral tree = new VisageErroneousAngleLiteral(List.<VisageTree>nil());
         tree.pos = pos;
 
         return tree;
     }
 
-    public JFXColorLiteral ColorLiteral(String str) {
+    public VisageColorLiteral ColorLiteral(String str) {
         // valid strings: #rgb, #rrggbb, #rgb|a, or #rrggbb|aa
         String color;
         String alpha = null;
@@ -1245,33 +1245,33 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                 int b = colorVal & 0xF; b |= b << 4;
                 colorVal = r << 16 | g << 8 | b;
         }
-        JFXLiteral literal = Literal(colorVal | alphaVal << 24);
-        JFXColorLiteral tree = new JFXColorLiteral(literal);
+        VisageLiteral literal = Literal(colorVal | alphaVal << 24);
+        VisageColorLiteral tree = new VisageColorLiteral(literal);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXColorLiteral ColorLiteral(JFXLiteral literal) {
-        JFXColorLiteral tree = new JFXColorLiteral(literal);
+    public VisageColorLiteral ColorLiteral(VisageLiteral literal) {
+        VisageColorLiteral tree = new VisageColorLiteral(literal);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXErroneousColorLiteral ErroneousColorLiteral() {
-        JFXErroneousColorLiteral tree = new JFXErroneousColorLiteral(List.<JFXTree>nil());
+    public VisageErroneousColorLiteral ErroneousColorLiteral() {
+        VisageErroneousColorLiteral tree = new VisageErroneousColorLiteral(List.<VisageTree>nil());
         tree.pos = pos;
 
         return tree;
     }
 
-    public JFXKeyFrameLiteral KeyFrameLiteral(JFXExpression start, List<JFXExpression> values, JFXExpression trigger) {
-        JFXKeyFrameLiteral tree = new JFXKeyFrameLiteral(start, values, trigger);
+    public VisageKeyFrameLiteral KeyFrameLiteral(VisageExpression start, List<VisageExpression> values, VisageExpression trigger) {
+        VisageKeyFrameLiteral tree = new VisageKeyFrameLiteral(start, values, trigger);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXUnary Unary(JavafxTag opcode, JFXExpression arg) {
-        JFXUnary tree = new JFXUnary(opcode, arg);
+    public VisageUnary Unary(JavafxTag opcode, VisageExpression arg) {
+        VisageUnary tree = new VisageUnary(opcode, arg);
         tree.pos = pos;
         return tree;
     }
@@ -1289,15 +1289,15 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     /**
      * Clone of javac's JavafxTreeMaker.Script, minus the assertion check of defs types.
      */
-    public JFXScript Script(JFXExpression pid,
-                                      List<JFXTree> defs) {
-        JFXScript tree = new JFXScript(pid, defs,
+    public VisageScript Script(VisageExpression pid,
+                                      List<VisageTree> defs) {
+        VisageScript tree = new VisageScript(pid, defs,
                                      null, null, null, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXExpression QualIdent(Symbol sym) {
+    public VisageExpression QualIdent(Symbol sym) {
         if (sym.kind ==Kinds.PCK && sym.owner == syms.rootPackage)
             return Ident(sym);
         return isUnqualifiable(sym)

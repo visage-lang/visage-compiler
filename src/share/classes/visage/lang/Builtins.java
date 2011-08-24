@@ -23,7 +23,7 @@
 
 package visage.lang;
 
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 
 /**
  * These functions are automatically imported for
@@ -93,11 +93,11 @@ public class Builtins {
      * @return true if the variable has been initialized
      */
     @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
-    public static boolean isInitialized(FXObject instance, int offset) {
+    public static boolean isInitialized(VisageObject instance, int offset) {
         return instance != null && (
                    offset == -1 ? instance.isInitialized$internal$() // this pointer uses -1
-                   : instance.varTestBits$(offset, FXObject.VFLGS$IS_BOUND, FXObject.VFLGS$IS_BOUND) ||
-                     instance.varTestBits$(offset, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT)
+                   : instance.varTestBits$(offset, VisageObject.VFLGS$IS_BOUND, VisageObject.VFLGS$IS_BOUND) ||
+                     instance.varTestBits$(offset, VisageObject.VFLGS$INIT$MASK, VisageObject.VFLGS$INIT$INITIALIZED_DEFAULT)
                );
     }
 
@@ -109,10 +109,10 @@ public class Builtins {
      * @return true if the variable is bound
      */
     @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
-    public static boolean isReadOnly(FXObject instance, int offset) {
+    public static boolean isReadOnly(VisageObject instance, int offset) {
         return offset == -1 ? true // this pointer uses -1 (and is read only)
                : instance.varTestBits$(offset,
-                 FXObject.VFLGS$IS_READONLY,
-                 FXObject.VFLGS$IS_READONLY);
+                 VisageObject.VFLGS$IS_READONLY,
+                 VisageObject.VFLGS$IS_READONLY);
     }
 }

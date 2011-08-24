@@ -52,10 +52,10 @@ public class WatchAccessModificationTest extends JdbBase {
     private void checkWatchPointEvent(WatchpointEvent wpEvent) {
         if (wpEvent instanceof AccessWatchpointEvent) {
             Assert.assertTrue(((AccessWatchpointEvent)wpEvent).valueCurrent().type().name().equals("float"));
-            Assert.assertTrue(wpEvent.getClass().toString().equals("class org.visage.jdi.event.FXAccessWatchpointEvent"));
+            Assert.assertTrue(wpEvent.getClass().toString().equals("class org.visage.jdi.event.VisageAccessWatchpointEvent"));
         } else if (wpEvent instanceof ModificationWatchpointEvent) {
             Assert.assertTrue(((ModificationWatchpointEvent)wpEvent).valueCurrent().type().name().equals("float"));
-            Assert.assertTrue(wpEvent.getClass().toString().equals("class org.visage.jdi.event.FXModificationWatchpointEvent"));
+            Assert.assertTrue(wpEvent.getClass().toString().equals("class org.visage.jdi.event.VisageModificationWatchpointEvent"));
         }
     }
 /**

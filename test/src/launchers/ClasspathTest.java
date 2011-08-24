@@ -83,8 +83,8 @@ public class ClasspathTest extends TestCase {
     public void testBootClasspath() throws IOException {
 
         String testSrc = 
-                "import visage.util.FXEvaluator;\n" +
-                "FXEvaluator.eval(\"println(\\\"Hello World\\\")\");";
+                "import visage.util.VisageEvaluator;\n" +
+                "VisageEvaluator.eval(\"println(\\\"Hello World\\\")\");";
 
         Utils.createFxJar(new File(Utils.workingDir, TESTNAME + ".jar"), testSrc);
         ArrayList<String> cmdsList = new ArrayList<String>();

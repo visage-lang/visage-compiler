@@ -24,17 +24,17 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * A assignment with "=".
  */
-public class JFXAssign extends JFXExpression implements AssignmentTree {
+public class VisageAssign extends VisageExpression implements AssignmentTree {
 
-    public JFXExpression lhs;
-    public JFXExpression rhs;
+    public VisageExpression lhs;
+    public VisageExpression rhs;
 
-    protected JFXAssign(JFXExpression lhs, JFXExpression rhs) {
+    protected VisageAssign(VisageExpression lhs, VisageExpression rhs) {
         this.lhs = lhs;
         this.rhs = rhs;
     }
@@ -45,20 +45,20 @@ public class JFXAssign extends JFXExpression implements AssignmentTree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.ASSIGNMENT;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.ASSIGNMENT;
     }
 
-    public JFXExpression getVariable() {
+    public VisageExpression getVariable() {
         return lhs;
     }
 
-    public JFXExpression getExpression() {
+    public VisageExpression getExpression() {
         return rhs;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitAssignment(this, d);
     }
 

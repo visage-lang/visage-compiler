@@ -29,8 +29,8 @@ import com.sun.jdi.PrimitiveType;
  *
  * @author sundar
  */
-public class FXPrimitiveType extends FXType implements PrimitiveType {
-    public FXPrimitiveType(FXVirtualMachine fxvm, PrimitiveType underlying) {
+public class VisagePrimitiveType extends VisageType implements PrimitiveType {
+    public VisagePrimitiveType(VisageVirtualMachine fxvm, PrimitiveType underlying) {
         super(fxvm, underlying);
     }
 

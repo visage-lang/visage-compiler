@@ -35,7 +35,7 @@ import javax.tools.*;
  * This is the main class for Visage shell.
  */
 public class ScriptShell implements DiagnosticListener<JavaFileObject> {
-    JavaFXScriptContext context;
+    VisageScriptContext context;
 
     /**
      * main entry point to the command line tool
@@ -54,7 +54,7 @@ public class ScriptShell implements DiagnosticListener<JavaFileObject> {
     }
 
     public ScriptShell(ClassLoader parentClassLoader) {
-        context = new JavaFXScriptContext(parentClassLoader);
+        context = new VisageScriptContext(parentClassLoader);
     }
 
     // Each -e or -f or interactive mode is represented
@@ -302,7 +302,7 @@ public class ScriptShell implements DiagnosticListener<JavaFileObject> {
         String classPath = System.getProperty("java.class.path"); // FIXME
         Writer err = null; // FIXME
         String fileName = "visage" + counter;
-        JavaFXCompiledScript compiled = context.compiler.compile(fileName, script,
+        VisageCompiledScript compiled = context.compiler.compile(fileName, script,
                 err, sourcePath, classPath, getDiagnosticListener());
         if (compiled == null)
             return;
@@ -330,20 +330,20 @@ public class ScriptShell implements DiagnosticListener<JavaFileObject> {
         Writer err = null;
         String script;
         try {
-            script = JavaFXScriptCompiler.readFully(reader);
+            script = VisageScriptCompiler.readFully(reader);
         }
         catch (java.io.IOException ex) {
             reportException(ex);
             return;
         }
-        JavaFXCompiledScript compiled = context.compiler.compile(fileName, script,
+        VisageCompiledScript compiled = context.compiler.compile(fileName, script,
                 err, sourcePath, classPath, getDiagnosticListener());
         if (compiled == null)
             return;
         evaluate(compiled);
     }
 
-    protected void evaluate (JavaFXCompiledScript compiled) {
+    protected void evaluate (VisageCompiledScript compiled) {
          try {
             reportResult(compiled.eval(context));
         }

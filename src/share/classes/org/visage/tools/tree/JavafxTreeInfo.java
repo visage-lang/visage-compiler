@@ -95,10 +95,10 @@ public class JavafxTreeInfo {
      *  end position of given tree, if it is a block with
      *  defined endpos.
      */
-    public static DiagnosticPosition diagEndPos(final JFXTree tree) {
+    public static DiagnosticPosition diagEndPos(final VisageTree tree) {
         final int endPos = JavafxTreeInfo.endPos(tree);
         return new DiagnosticPosition() {
-            public JFXTree getTree() { return tree; }
+            public VisageTree getTree() { return tree; }
             public int getStartPosition() { return JavafxTreeInfo.getStartPos(tree); }
             public int getPreferredPosition() { return endPos; }
             public int getEndPosition(Map<JCTree, Integer> endPosTable) { 
@@ -107,27 +107,27 @@ public class JavafxTreeInfo {
         };
     }
 
-    public static DiagnosticPosition diagnosticPositionFor(final Symbol sym, final JFXTree tree) {
-        JFXTree decl = declarationFor(sym, tree);
+    public static DiagnosticPosition diagnosticPositionFor(final Symbol sym, final VisageTree tree) {
+        VisageTree decl = declarationFor(sym, tree);
         return ((decl != null) ? decl : tree).pos();
     }
 
     /** Find the declaration for a symbol, where
      *  that symbol is defined somewhere in the given tree. */
-    public static JFXTree declarationFor(final Symbol sym, final JFXTree tree) {
+    public static VisageTree declarationFor(final Symbol sym, final VisageTree tree) {
         class DeclScanner extends JavafxTreeScanner {
 
-            JFXTree result = null;
+            VisageTree result = null;
 
             @Override
-            public void scan(JFXTree tree) {
+            public void scan(VisageTree tree) {
                 if ( tree != null && result == null ) {
                     tree.accept(this);
                 }
             }
 
             @Override
-            public void visitClassDeclaration(JFXClassDeclaration that) {
+            public void visitClassDeclaration(VisageClassDeclaration that) {
                 if (that.sym == sym) {
                     result = that;
                 }
@@ -137,7 +137,7 @@ public class JavafxTreeInfo {
             }
 
             @Override
-            public void visitScript(JFXScript that) {
+            public void visitScript(VisageScript that) {
                 if ( that.packge == sym ) {
                     result = that;
                 }
@@ -147,7 +147,7 @@ public class JavafxTreeInfo {
             }
 
             @Override
-            public void visitFunctionDefinition(JFXFunctionDefinition that) {
+            public void visitFunctionDefinition(VisageFunctionDefinition that) {
                 if ( that.sym == sym ) {
                     result = that;
                 }
@@ -157,7 +157,7 @@ public class JavafxTreeInfo {
             }
 
             @Override
-            public void visitVar(JFXVar that) {
+            public void visitVar(VisageVar that) {
                 if ( that.sym == sym ) {
                     result = that;
                 }
@@ -171,18 +171,18 @@ public class JavafxTreeInfo {
         return s.result;
     }
 
-    public static List<JFXTree> pathFor(final JFXTree node, final JFXScript unit) {
+    public static List<VisageTree> pathFor(final VisageTree node, final VisageScript unit) {
 	class Result extends Error {
 	    static final long serialVersionUID = -5942088234594905625L;
-	    List<JFXTree> path;
-	    Result(List<JFXTree> path) {
+	    List<VisageTree> path;
+	    Result(List<VisageTree> path) {
 		this.path = path;
 	    }
 	}
 	class PathFinder extends JavafxTreeScanner {
-	    List<JFXTree> path = List.nil();
+	    List<VisageTree> path = List.nil();
             @Override
-	    public void scan(JFXTree tree) {
+	    public void scan(VisageTree tree) {
 		if (tree != null) {
 		    path = path.prepend(tree);
 		    if (tree == node)
@@ -317,113 +317,113 @@ public class JavafxTreeInfo {
 	}
     }
 
-    static Tree.JavaFXKind tagToKind(JavafxTag tag) {
+    static Tree.VisageKind tagToKind(JavafxTag tag) {
         switch (tag) {
         // Postfix expressions
         case POSTINC:           // _ ++
-            return Tree.JavaFXKind.POSTFIX_INCREMENT;
+            return Tree.VisageKind.POSTFIX_INCREMENT;
         case POSTDEC:           // _ --
-            return Tree.JavaFXKind.POSTFIX_DECREMENT;
+            return Tree.VisageKind.POSTFIX_DECREMENT;
 
         // Unary operators
         case PREINC:            // ++ _
-            return Tree.JavaFXKind.PREFIX_INCREMENT;
+            return Tree.VisageKind.PREFIX_INCREMENT;
         case PREDEC:            // -- _
-            return Tree.JavaFXKind.PREFIX_DECREMENT;
+            return Tree.VisageKind.PREFIX_DECREMENT;
         case NEG:               // -
-            return Tree.JavaFXKind.UNARY_MINUS;
+            return Tree.VisageKind.UNARY_MINUS;
         case NOT:               // !
-            return Tree.JavaFXKind.LOGICAL_COMPLEMENT;
+            return Tree.VisageKind.LOGICAL_COMPLEMENT;
 
         // Binary operators
 
         // Multiplicative operators
         case MUL:               // *
-            return Tree.JavaFXKind.MULTIPLY;
+            return Tree.VisageKind.MULTIPLY;
         case DIV:               // /
-            return Tree.JavaFXKind.DIVIDE;
+            return Tree.VisageKind.DIVIDE;
         case MOD:               // %
-            return Tree.JavaFXKind.REMAINDER;
+            return Tree.VisageKind.REMAINDER;
 
         // Additive operators
         case PLUS:              // +
-            return Tree.JavaFXKind.PLUS;
+            return Tree.VisageKind.PLUS;
         case MINUS:             // -
-            return Tree.JavaFXKind.MINUS;
+            return Tree.VisageKind.MINUS;
 
          // Relational operators
         case LT:                // <
-            return Tree.JavaFXKind.LESS_THAN;
+            return Tree.VisageKind.LESS_THAN;
         case GT:                // >
-            return Tree.JavaFXKind.GREATER_THAN;
+            return Tree.VisageKind.GREATER_THAN;
         case LE:                // <=
-            return Tree.JavaFXKind.LESS_THAN_EQUAL;
+            return Tree.VisageKind.LESS_THAN_EQUAL;
         case GE:                // >=
-            return Tree.JavaFXKind.GREATER_THAN_EQUAL;
+            return Tree.VisageKind.GREATER_THAN_EQUAL;
 
         // Equality operators
         case EQ:                // ==
-            return Tree.JavaFXKind.EQUAL_TO;
+            return Tree.VisageKind.EQUAL_TO;
         case NE:                // !=
-            return Tree.JavaFXKind.NOT_EQUAL_TO;
+            return Tree.VisageKind.NOT_EQUAL_TO;
 
          // Conditional operators
         case AND:               // &&
-            return Tree.JavaFXKind.CONDITIONAL_AND;
+            return Tree.VisageKind.CONDITIONAL_AND;
         case OR:                // ||
-            return Tree.JavaFXKind.CONDITIONAL_OR;
+            return Tree.VisageKind.CONDITIONAL_OR;
 
         // Assignment operators
         case MUL_ASG:           // *=
-            return Tree.JavaFXKind.MULTIPLY_ASSIGNMENT;
+            return Tree.VisageKind.MULTIPLY_ASSIGNMENT;
         case DIV_ASG:           // /=
-            return Tree.JavaFXKind.DIVIDE_ASSIGNMENT;
+            return Tree.VisageKind.DIVIDE_ASSIGNMENT;
         case PLUS_ASG:          // +=
-            return Tree.JavaFXKind.PLUS_ASSIGNMENT;
+            return Tree.VisageKind.PLUS_ASSIGNMENT;
         case MINUS_ASG:         // -=
-            return Tree.JavaFXKind.MINUS_ASSIGNMENT;
+            return Tree.VisageKind.MINUS_ASSIGNMENT;
 
         // Null check (implementation detail), for example, __.getClass()
         case NULLCHK:
-            return Tree.JavaFXKind.OTHER;
+            return Tree.VisageKind.OTHER;
 
         // Visage tags which are used in javac trees
         case SIZEOF:
-            return Tree.JavaFXKind.OTHER;
+            return Tree.VisageKind.OTHER;
         case REVERSE:
-            return Tree.JavaFXKind.OTHER;
+            return Tree.VisageKind.OTHER;
 
         default:
             return null;
         }
     }
     
-    public static void setSymbol(JFXTree tree, Symbol sym) {
+    public static void setSymbol(VisageTree tree, Symbol sym) {
 	tree = skipParens(tree);
 	switch (tree.getFXTag()) {
 	case IDENT:
-	    ((JFXIdent) tree).sym = sym; break;
+	    ((VisageIdent) tree).sym = sym; break;
 	case SELECT:
-	    ((JFXSelect) tree).sym = sym; break;
+	    ((VisageSelect) tree).sym = sym; break;
 	}
     }
 
     /** If this tree is an identifier or a field, return its symbol,
      *  otherwise return null.
      */
-    public static Symbol symbol(JFXTree tree) {
+    public static Symbol symbol(VisageTree tree) {
 	tree = skipParens(tree);
 	switch (tree.getFXTag()) {
 	case IDENT:
-	    return ((JFXIdent) tree).sym;
+	    return ((VisageIdent) tree).sym;
 	case SELECT:
-	    return ((JFXSelect) tree).sym;
+	    return ((VisageSelect) tree).sym;
         case SEQUENCE_INDEXED:
-            return symbol(((JFXSequenceIndexed) tree).getSequence());
+            return symbol(((VisageSequenceIndexed) tree).getSequence());
         case SEQUENCE_SLICE:
-            return symbol(((JFXSequenceSlice) tree).getSequence());
+            return symbol(((VisageSequenceSlice) tree).getSequence());
         case VAR_REF:
-            return ((JFXVarRef)tree).getVarSymbol();
+            return ((VisageVarRef)tree).getVarSymbol();
 	default:
 	    return null;
 	}
@@ -431,11 +431,11 @@ public class JavafxTreeInfo {
 
     /** Skip parens and return the enclosed expression
      */
-    public static JFXTree skipParens(JFXTree tree) {
+    public static VisageTree skipParens(VisageTree tree) {
 
         if (tree == null) return tree;
         if (tree.getFXTag() == JavafxTag.PARENS)
-            return skipParens(((JFXParens)tree).expr);
+            return skipParens(((VisageParens)tree).expr);
         else
             return tree;
     }
@@ -443,7 +443,7 @@ public class JavafxTreeInfo {
     /** If this tree is a qualified identifier, its return fully qualified name,
      *  otherwise return null.
      */
-    public static Name fullName(JFXTree tree) {
+    public static Name fullName(VisageTree tree) {
 
         // Protect against a missing tree
         //
@@ -452,9 +452,9 @@ public class JavafxTreeInfo {
         tree = skipParens(tree);
         switch (tree.getFXTag()) {
         case IDENT:
-            return ((JFXIdent) tree).getName();
+            return ((VisageIdent) tree).getName();
         case SELECT:
-            Name sname = fullName(((JFXSelect) tree).selected);
+            Name sname = fullName(((VisageSelect) tree).selected);
             return sname == null ? null : sname.append('.', name(tree));
         default:
             return null;
@@ -464,18 +464,18 @@ public class JavafxTreeInfo {
     /** If this tree is an identifier or a field or a parameterized type,
      *  return its name, otherwise return null.
      */
-    public static Name name(JFXTree tree) {
+    public static Name name(VisageTree tree) {
         switch (tree.getFXTag()) {
         case IDENT:
-            return ((JFXIdent) tree).getName();
+            return ((VisageIdent) tree).getName();
         case SELECT:
-            return ((JFXSelect) tree).name;
+            return ((VisageSelect) tree).name;
         default:
             return null;
         }
     }
 
-    public static Symbol symbolFor(JFXTree node) {
+    public static Symbol symbolFor(VisageTree node) {
         if (node == null)
         {
             return null;
@@ -484,38 +484,38 @@ public class JavafxTreeInfo {
 
         switch (node.getFXTag()) {
         case VAR_DEF:
-            return ((JFXVar) node).sym;
+            return ((VisageVar) node).sym;
         case VAR_SCRIPT_INIT:
-            return ((JFXVarInit) node).getSymbol();
+            return ((VisageVarInit) node).getSymbol();
         case CLASS_DEF:
-            return ((JFXClassDeclaration) node).sym;
+            return ((VisageClassDeclaration) node).sym;
         case FUNCTION_DEF:
-            return ((JFXFunctionDefinition) node).sym;
+            return ((VisageFunctionDefinition) node).sym;
         case FUNCTIONEXPRESSION:
-            return symbolFor(((JFXFunctionValue) node).definition);
+            return symbolFor(((VisageFunctionValue) node).definition);
         case OBJECT_LITERAL_PART:
-            return ((JFXObjectLiteralPart) node).sym;
+            return ((VisageObjectLiteralPart) node).sym;
         case TYPECLASS:
-            return symbolFor(((JFXTypeClass) node).getTypeExpression());
+            return symbolFor(((VisageTypeClass) node).getTypeExpression());
         case IDENT:
-            return ((JFXIdent) node).sym;
+            return ((VisageIdent) node).sym;
         case INDEXOF:
-            JFXForExpressionInClause clause = ((JFXIndexof) node).clause;
+            VisageForExpressionInClause clause = ((VisageIndexof) node).clause;
             return clause == null ? null : clause.var.sym;
         case SELECT:
-            return ((JFXSelect) node).sym;
+            return ((VisageSelect) node).sym;
         case APPLY:
-            return symbolFor(((JFXFunctionInvocation) node).meth);
+            return symbolFor(((VisageFunctionInvocation) node).meth);
         case TOPLEVEL:
-            return ((JFXScript) node).packge;
+            return ((VisageScript) node).packge;
         case ON_REPLACE:
-            return symbolFor(((JFXOnReplace) node).getOldValue());
+            return symbolFor(((VisageOnReplace) node).getOldValue());
         case OVERRIDE_ATTRIBUTE_DEF:
-            return symbolFor(((JFXOverrideClassVar) node).getId());
+            return symbolFor(((VisageOverrideClassVar) node).getId());
         case INIT_DEF:
-            return ((JFXInitDefinition) node).sym;
+            return ((VisageInitDefinition) node).sym;
         case POSTINIT_DEF:
-            return ((JFXPostInitDefinition) node).sym;
+            return ((VisagePostInitDefinition) node).sym;
         default:
             return null;
         }
@@ -526,7 +526,7 @@ public class JavafxTreeInfo {
      * token of the node's source text.
      * @param tree  The tree node
      */
-    public static int getStartPos(JFXTree tree) {
+    public static int getStartPos(VisageTree tree) {
         if (tree == null) {
             return Position.NOPOS;
         }
@@ -534,16 +534,16 @@ public class JavafxTreeInfo {
         switch (tree.getFXTag()) {
 
             case APPLY:
-                return getStartPos(((JFXFunctionInvocation) tree).meth);
+                return getStartPos(((VisageFunctionInvocation) tree).meth);
 
             case ASSIGN:
-                return getStartPos(((JFXAssign) tree).lhs);
+                return getStartPos(((VisageAssign) tree).lhs);
 
             case PLUS_ASG:
             case MINUS_ASG:
             case MUL_ASG:
             case DIV_ASG:
-                return getStartPos(((JFXAssignOp) tree).lhs);
+                return getStartPos(((VisageAssignOp) tree).lhs);
 
             case OR:
             case AND:
@@ -558,17 +558,17 @@ public class JavafxTreeInfo {
             case MUL:
             case DIV:
             case MOD:
-                return getStartPos(((JFXBinary) tree).lhs);
+                return getStartPos(((VisageBinary) tree).lhs);
 
             case SELECT:
-                return getStartPos(((JFXSelect) tree).selected);
+                return getStartPos(((VisageSelect) tree).selected);
 
             case TYPETEST:
-                return getStartPos(((JFXInstanceOf) tree).expr);
+                return getStartPos(((VisageInstanceOf) tree).expr);
 
             case POSTINC:
             case POSTDEC:
-                return getStartPos(((JFXUnary) tree).arg);
+                return getStartPos(((VisageUnary) tree).arg);
 
             case ERRONEOUS:
 
@@ -587,11 +587,11 @@ public class JavafxTreeInfo {
     /** The end position of given tree, if it is a block with
      *  defined endpos.
      */
-    public static int endPos(JFXTree tree) {
-        if (tree.getFXTag() == JavafxTag.BLOCK_EXPRESSION && ((JFXBlock) tree).endpos != Position.NOPOS)
-            return ((JFXBlock) tree).endpos;
+    public static int endPos(VisageTree tree) {
+        if (tree.getFXTag() == JavafxTag.BLOCK_EXPRESSION && ((VisageBlock) tree).endpos != Position.NOPOS)
+            return ((VisageBlock) tree).endpos;
         else if (tree.getFXTag() == JavafxTag.TRY) {
-            JFXTry t = (JFXTry) tree;
+            VisageTry t = (VisageTry) tree;
             return endPos((t.finalizer != null)
                           ? t.finalizer
                           : t.catchers.last().body);
@@ -601,14 +601,14 @@ public class JavafxTreeInfo {
 
     /** The end position of given tree, given  a table of end positions generated by the parser
      */
-    public static int getEndPos(JFXTree tree, Map<JCTree, Integer> endPositions) {
+    public static int getEndPos(VisageTree tree, Map<JCTree, Integer> endPositions) {
         if (tree == null)
             return Position.NOPOS;
 
         if (endPositions == null) {
             // fall back on limited info in the tree
-            return tree instanceof JFXBlock ?
-                ((JFXBlock)tree).endpos : JavafxTreeInfo.endPos(tree);
+            return tree instanceof VisageBlock ?
+                ((VisageBlock)tree).endpos : JavafxTreeInfo.endPos(tree);
         }
 
         Integer mapPos = endPositions.get(tree);
@@ -617,27 +617,27 @@ public class JavafxTreeInfo {
 
         switch(tree.getFXTag()) {
           case INIT_DEF:
-            return getEndPos((JFXTree) ((JFXInitDefinition) tree).getBody(), endPositions);
+            return getEndPos((VisageTree) ((VisageInitDefinition) tree).getBody(), endPositions);
           case POSTINIT_DEF:
-            return getEndPos((JFXTree) ((JFXPostInitDefinition) tree).getBody(), endPositions);
+            return getEndPos((VisageTree) ((VisagePostInitDefinition) tree).getBody(), endPositions);
           case OVERRIDE_ATTRIBUTE_DEF: {
-            JFXOverrideClassVar t = (JFXOverrideClassVar)tree;
+            VisageOverrideClassVar t = (VisageOverrideClassVar)tree;
             if (t.getOnReplace() != null)
                 return getEndPos(t.getOnReplace(), endPositions);
             return getEndPos(t.getInitializer(), endPositions);
           }
           case ON_REPLACE:
-            return getEndPos(((JFXOnReplace) tree).getBody(), endPositions);
+            return getEndPos(((VisageOnReplace) tree).getBody(), endPositions);
           case OBJECT_LITERAL_PART:
-            return getEndPos(((JFXObjectLiteralPart) tree).getExpression(), endPositions);
+            return getEndPos(((VisageObjectLiteralPart) tree).getExpression(), endPositions);
           case STRING_EXPRESSION:
-            return tree.pos + ((JFXStringExpression) tree).translationKey.length();
+            return tree.pos + ((VisageStringExpression) tree).translationKey.length();
           case FOR_EXPRESSION:
-            return getEndPos(((JFXForExpression) tree).getBodyExpression(), endPositions);
+            return getEndPos(((VisageForExpression) tree).getBodyExpression(), endPositions);
           case FOR_EXPRESSION_IN_CLAUSE:
-            return getEndPos(((JFXForExpressionInClause) tree).getWhereExpression(), endPositions);
+            return getEndPos(((VisageForExpressionInClause) tree).getWhereExpression(), endPositions);
           case TYPECLASS:
-            return getEndPos(((JFXTypeClass) tree).getClassName(), endPositions);
+            return getEndPos(((VisageTypeClass) tree).getClassName(), endPositions);
           case TIME_LITERAL:
             return tree.pos + tree.toString().length();
         }

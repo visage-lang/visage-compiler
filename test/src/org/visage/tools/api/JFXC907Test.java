@@ -26,9 +26,9 @@ package org.visage.tools.api;
 import org.visage.api.JavafxcTask;
 import org.visage.tools.api.JavafxcTrees;
 import org.visage.tools.api.JavafxcTool;
-import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.ClassDeclarationTree;
-import org.visage.api.tree.JavaFXTreePath;
+import org.visage.api.tree.VisageTreePath;
 import org.visage.api.tree.UnitTree;
 import javax.lang.model.element.Element;
 import org.visage.api.tree.SourcePositions;
@@ -74,7 +74,7 @@ public class JFXC907Test {
         }
     }
 
-class DetectorVisitor<Void,EnumSet> extends JavaFXTreePathScanner<Void,EnumSet> {
+class DetectorVisitor<Void,EnumSet> extends VisageTreePathScanner<Void,EnumSet> {
     JavafxcTrees trees;
     SourcePositions sp;
     UnitTree unit;
@@ -89,7 +89,7 @@ class DetectorVisitor<Void,EnumSet> extends JavaFXTreePathScanner<Void,EnumSet> 
     public Void visitClassDeclaration(ClassDeclarationTree tree, EnumSet p) {
         Element e = trees.getElement(getCurrentPath());
         Assert.assertNotNull(e);
-        JavaFXTreePath pth = trees.getPath(unit, tree);
+        VisageTreePath pth = trees.getPath(unit, tree);
         Assert.assertNotNull(pth);
 
         scan(tree.getClassMembers(), null);
@@ -100,7 +100,7 @@ class DetectorVisitor<Void,EnumSet> extends JavaFXTreePathScanner<Void,EnumSet> 
     public Void visitVariable(VariableTree tree, EnumSet p) {                
         Element e = trees.getElement(getCurrentPath());
         Assert.assertNotNull(e);        
-        JavaFXTreePath pth = trees.getPath(unit, tree);
+        VisageTreePath pth = trees.getPath(unit, tree);
         Assert.assertNotNull(pth);
         return null;
     }

@@ -29,9 +29,9 @@ import com.sun.jdi.IntegerType;
  *
  * @author sundar
  */
-public class FXIntegerType extends FXPrimitiveType implements IntegerType {
+public class VisageIntegerType extends VisagePrimitiveType implements IntegerType {
 
-    public FXIntegerType(FXVirtualMachine fxvm, IntegerType underlying) {
+    public VisageIntegerType(VisageVirtualMachine fxvm, IntegerType underlying) {
         super(fxvm, underlying);
     }
 

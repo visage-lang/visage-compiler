@@ -82,7 +82,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 
         predefClassDef = fxmake.ClassDeclaration(
                 fxmake.Modifiers(PUBLIC),
-                syms.predefClass.name, List.<JFXExpression>nil(), null);
+                syms.predefClass.name, List.<VisageExpression>nil(), null);
         predefClassDef.sym = syms.predefClass;
         fileManager = context.get(JavaFileManager.class);
         types = JavafxTypes.instance(context);
@@ -97,7 +97,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     /** Visitor method: Scan a single node.
      */
     @Override
-    public void scan(JFXTree tree) {
+    public void scan(VisageTree tree) {
         if (tree != null) {
             tree.accept(this);
         }
@@ -106,9 +106,9 @@ public class JavafxEnter extends JavafxTreeScanner {
     /** Visitor method: scan a list of nodes.
      */
     @Override
-    public void scan(List<? extends JFXTree> trees) {
+    public void scan(List<? extends VisageTree> trees) {
         if (trees != null) {
-            for (List<? extends JFXTree> l = trees; l.nonEmpty(); l = l.tail) {
+            for (List<? extends VisageTree> l = trees; l.nonEmpty(); l = l.tail) {
                 scan(l.head);
             }
         }
@@ -139,7 +139,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 
     /** A dummy class to serve as enclClass for toplevel environments.
      */
-    private JFXClassDeclaration predefClassDef;
+    private VisageClassDeclaration predefClassDef;
 
 /* ************************************************************************
  * environment construction
@@ -159,7 +159,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      *	@param tree	The class definition.
      *	@param env	The environment current outside of the class definition.
      */
-    public static JavafxEnv<JavafxAttrContext> classEnv(JFXClassDeclaration tree, JavafxEnv<JavafxAttrContext> env) {
+    public static JavafxEnv<JavafxAttrContext> classEnv(VisageClassDeclaration tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> localEnv =
                 env.dup(tree, env.info.dup(new Scope(tree.sym)));
         localEnv.enclClass = tree;
@@ -173,7 +173,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     /** Create a fresh environment for toplevels.
      *	@param tree	The toplevel tree.
      */
-    JavafxEnv<JavafxAttrContext> topLevelEnv(JFXScript tree) {
+    JavafxEnv<JavafxAttrContext> topLevelEnv(VisageScript tree) {
         JavafxEnv<JavafxAttrContext> localEnv = new JavafxEnv<JavafxAttrContext>(tree, new JavafxAttrContext());
         localEnv.toplevel = tree;
         localEnv.enclClass = predefClassDef;
@@ -189,7 +189,7 @@ public class JavafxEnter extends JavafxTreeScanner {
         return localEnv;
     }
 
-    public JavafxEnv<JavafxAttrContext> getTopLevelEnv(JFXScript tree) {
+    public JavafxEnv<JavafxAttrContext> getTopLevelEnv(VisageScript tree) {
         JavafxEnv<JavafxAttrContext> localEnv = new JavafxEnv<JavafxAttrContext>(tree, new JavafxAttrContext());
         localEnv.toplevel = tree;
         localEnv.enclClass = predefClassDef;
@@ -205,7 +205,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      */
     public static Scope enterScope(JavafxEnv<JavafxAttrContext> env) {
         return (env.tree.getFXTag() == JavafxTag.CLASS_DEF)
-                ? ((JFXClassDeclaration) env.tree).sym.members_field
+                ? ((VisageClassDeclaration) env.tree).sym.members_field
                 : env.info.scope;
     }
 
@@ -230,7 +230,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      *	@param tree    The tree to be visited.
      *	@param env     The environment visitor argument.
      */
-    Type classEnter(JFXTree tree, JavafxEnv<JavafxAttrContext> env) {
+    Type classEnter(VisageTree tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> prevEnv = this.env;
         try {
             this.env = env;
@@ -250,7 +250,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 // Visage change
     protected
 // Visage change
-            <T extends JFXTree> List<Type> classEnter(List<T> trees, JavafxEnv<JavafxAttrContext> env) {
+            <T extends VisageTree> List<Type> classEnter(List<T> trees, JavafxEnv<JavafxAttrContext> env) {
         ListBuffer<Type> ts = new ListBuffer<Type>();
         for (List<T> l = trees; l.nonEmpty(); l = l.tail) {
             ts.append(classEnter(l.head, env));
@@ -259,7 +259,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitScript(JFXScript tree) {
+    public void visitScript(VisageScript tree) {
         JavaFileObject prev = log.useSource(tree.sourcefile);
         boolean isPkgInfo = tree.sourcefile.isNameCompatible("package-info",
                 JavaFileObject.Kind.SOURCE);
@@ -276,7 +276,7 @@ public class JavafxEnter extends JavafxTreeScanner {
         tree.packge.complete(); // Find all classes in package.
         JavafxEnv<JavafxAttrContext> localEnv = topLevelEnv(tree);
 
-        JFXClassDeclaration moduleClass =
+        VisageClassDeclaration moduleClass =
                 visageModuleBuilder.preProcessJfxTopLevel(tree);
 
         // Save environment of package-info.java file.
@@ -285,7 +285,7 @@ public class JavafxEnter extends JavafxTreeScanner {
             if (env0 == null) {
                 typeEnvs.put(tree.packge, localEnv);
             } else {
-                JFXScript tree0 = env0.toplevel;
+                VisageScript tree0 = env0.toplevel;
                 if (!fileManager.isSameFile(tree.sourcefile, tree0.sourcefile)) {
                     log.warning(tree.pid != null ? tree.pid.pos()
                             : null,
@@ -306,7 +306,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     public ListBuffer<Scope> scriptScopes = new ListBuffer<Scope>();
 
     @Override
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
+    public void visitClassDeclaration(VisageClassDeclaration tree) {
         Symbol owner = env.info.scope.owner;
         Scope enclScope = enterScope(env);
         ClassSymbol c;
@@ -394,7 +394,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     /** Main method: enter all classes in a list of toplevel trees.
      *	@param trees	  The list of trees to be processed.
      */
-    public void main(List<JFXScript> trees) {
+    public void main(List<VisageScript> trees) {
         complete(trees, null);
     }
 
@@ -403,7 +403,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      *  @param trees      The list of trees to be processed.
      *  @param c          The class symbol to be processed.
      */
-    public void complete(List<JFXScript> trees, ClassSymbol c) {
+    public void complete(List<VisageScript> trees, ClassSymbol c) {
         annotate.enterStart();
         ListBuffer<ClassSymbol> prevUncompleted = uncompleted;
         if (memberEnter.completionEnabled) {
@@ -428,7 +428,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 
                 // if there remain any unimported toplevels (these must have
                 // no classes at all), process their import statements as well.
-                for (JFXScript tree : trees) {
+                for (VisageScript tree : trees) {
                     if (!tree.isEntered) {
                         JavaFileObject prev = log.useSource(tree.sourcefile);
                         JavafxEnv<JavafxAttrContext> localEnv = typeEnvs.get(tree.packge);

@@ -23,8 +23,8 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXMirror;
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageMirror;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.event.Event;
 import com.sun.jdi.event.EventSet;
 import java.util.Collection;
@@ -34,13 +34,13 @@ import java.util.Iterator;
  *
  * @author sundar
  */
-public class FXEventSet extends FXMirror implements EventSet {
-    public FXEventSet(FXVirtualMachine fxvm, EventSet underlying) {
+public class VisageEventSet extends VisageMirror implements EventSet {
+    public VisageEventSet(VisageVirtualMachine fxvm, EventSet underlying) {
         super(fxvm, underlying);
     }
 
-    public FXEventIterator eventIterator() {
-        return FXEventIterator.wrap(virtualMachine(), underlying().eventIterator());
+    public VisageEventIterator eventIterator() {
+        return VisageEventIterator.wrap(virtualMachine(), underlying().eventIterator());
     }
 
     public void resume() {
@@ -52,11 +52,11 @@ public class FXEventSet extends FXMirror implements EventSet {
     }
 
     public boolean add(Event evt) {
-        return underlying().add(FXEvent.unwrap(evt));
+        return underlying().add(VisageEvent.unwrap(evt));
     }
 
     public boolean addAll(Collection<? extends Event> events) {
-        return underlying().addAll(FXEvent.unwrapEvents(events));
+        return underlying().addAll(VisageEvent.unwrapEvents(events));
     }
 
     public void clear() {
@@ -64,11 +64,11 @@ public class FXEventSet extends FXMirror implements EventSet {
     }
 
     public boolean contains(Object obj) {
-        return underlying().contains((obj instanceof Event)? FXEvent.unwrap((Event)obj) : obj);
+        return underlying().contains((obj instanceof Event)? VisageEvent.unwrap((Event)obj) : obj);
     }
 
     public boolean containsAll(Collection<?> arg0) {
-        return underlying().containsAll(FXEvent.unwrapEvents(arg0));
+        return underlying().containsAll(VisageEvent.unwrapEvents(arg0));
     }
 
     public boolean isEmpty() {
@@ -84,7 +84,7 @@ public class FXEventSet extends FXMirror implements EventSet {
                 }
 
                 public Event next() {
-                    return FXEvent.wrap(virtualMachine(), wrapped.next());
+                    return VisageEvent.wrap(virtualMachine(), wrapped.next());
                 }
 
                 public void remove() {
@@ -98,15 +98,15 @@ public class FXEventSet extends FXMirror implements EventSet {
 
     public boolean remove(Object obj) {
         return underlying().remove((obj instanceof Event)?
-            FXEvent.unwrap((Event)obj) : obj);
+            VisageEvent.unwrap((Event)obj) : obj);
     }
 
     public boolean removeAll(Collection<?> arg0) {
-        return underlying().removeAll(FXEvent.unwrapEvents(arg0));
+        return underlying().removeAll(VisageEvent.unwrapEvents(arg0));
     }
 
     public boolean retainAll(Collection<?> arg0) {
-        return underlying().retainAll(FXEvent.unwrapEvents(arg0));
+        return underlying().retainAll(VisageEvent.unwrapEvents(arg0));
     }
 
     public int size() {
@@ -118,7 +118,7 @@ public class FXEventSet extends FXMirror implements EventSet {
         if (res != null) {
             for (int i = 0; i < res.length; i++) {
                 if (res[i] instanceof Event) {
-                    res[i] = FXEvent.unwrap((Event)res[i]);
+                    res[i] = VisageEvent.unwrap((Event)res[i]);
                 }
             }
         }
@@ -135,7 +135,7 @@ public class FXEventSet extends FXMirror implements EventSet {
         return (EventSet) super.underlying();
     }
 
-    public static FXEventSet wrap(FXVirtualMachine fxvm, EventSet evtSet) {
-        return (evtSet == null)? null : new FXEventSet(fxvm, evtSet);
+    public static VisageEventSet wrap(VisageVirtualMachine fxvm, EventSet evtSet) {
+        return (evtSet == null)? null : new VisageEventSet(fxvm, evtSet);
     }
 }

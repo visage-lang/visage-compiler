@@ -67,7 +67,7 @@ public class StdoutPane extends ScrollableComponent {
     
     postinit {
         var out = new PrintStream(StdoutStream {stdout: this}, true);
-        System.out.println("Redirecting output to FXPad console panel");
+        System.out.println("Redirecting output to VisagePad console panel");
         System.setErr(out);
         System.setOut(out)        
     }

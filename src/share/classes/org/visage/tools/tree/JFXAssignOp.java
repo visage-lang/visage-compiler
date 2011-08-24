@@ -24,24 +24,24 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Symbol;
 
 /**
  * An assignment with "+=", "|=" ...
  */
-public class JFXAssignOp extends JFXExpression implements CompoundAssignmentTree {
+public class VisageAssignOp extends VisageExpression implements CompoundAssignmentTree {
 
     private JavafxTag opcode;
-    public JFXExpression lhs;
-    public JFXExpression rhs;
+    public VisageExpression lhs;
+    public VisageExpression rhs;
     public Symbol operator;
 
-    protected JFXAssignOp(JavafxTag opcode, JFXExpression lhs, JFXExpression rhs, Symbol operator) {
+    protected VisageAssignOp(JavafxTag opcode, VisageExpression lhs, VisageExpression rhs, Symbol operator) {
         this.opcode = opcode;
-        this.lhs = (JFXExpression) lhs;
-        this.rhs = (JFXExpression) rhs;
+        this.lhs = (VisageExpression) lhs;
+        this.rhs = (VisageExpression) rhs;
         this.operator = operator;
     }
 
@@ -50,15 +50,15 @@ public class JFXAssignOp extends JFXExpression implements CompoundAssignmentTree
         v.visitAssignop(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
+    public VisageKind getJavaFXKind() {
         return JavafxTreeInfo.tagToKind(getFXTag());
     }
 
-    public JFXExpression getVariable() {
+    public VisageExpression getVariable() {
         return lhs;
     }
 
-    public JFXExpression getExpression() {
+    public VisageExpression getExpression() {
         return rhs;
     }
 
@@ -67,7 +67,7 @@ public class JFXAssignOp extends JFXExpression implements CompoundAssignmentTree
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitCompoundAssignment(this, d);
     }
 

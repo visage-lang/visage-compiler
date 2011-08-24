@@ -28,10 +28,10 @@ package visage.reflect;
  * @author Per Bothner
  * @profile desktop
  */
-public class FXBooleanValue  extends FXPrimitiveValue {
+public class VisageBooleanValue  extends VisagePrimitiveValue {
     boolean value;
 
-    public FXBooleanValue(boolean value, FXPrimitiveType type) {
+    public VisageBooleanValue(boolean value, VisagePrimitiveType type) {
         this.value = value;
         this.type = type;
     }

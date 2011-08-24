@@ -23,27 +23,27 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXLocation;
-import org.visage.jdi.FXThreadReference;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageLocation;
+import org.visage.jdi.VisageThreadReference;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.event.LocatableEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXLocatableEvent extends FXEvent implements LocatableEvent {
-    public FXLocatableEvent(FXVirtualMachine fxvm, LocatableEvent underlying) {
+public class VisageLocatableEvent extends VisageEvent implements LocatableEvent {
+    public VisageLocatableEvent(VisageVirtualMachine fxvm, LocatableEvent underlying) {
         super(fxvm, underlying);
     }
 
-    public FXThreadReference thread() {
-        return FXWrapper.wrap(virtualMachine(), underlying().thread());
+    public VisageThreadReference thread() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().thread());
     }
 
-    public FXLocation location() {
-        return FXWrapper.wrap(virtualMachine(), underlying().location());
+    public VisageLocation location() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().location());
     }
 
     @Override

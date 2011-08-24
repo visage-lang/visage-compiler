@@ -29,8 +29,8 @@
 package org.visage.jdi.test;
 
 import com.sun.jdi.ReferenceType;
-import org.visage.jdi.FXReferenceType;
-import org.visage.jdi.FXObjectReference;
+import org.visage.jdi.VisageReferenceType;
+import org.visage.jdi.VisageObjectReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.jdi.ThreadReference;
@@ -68,7 +68,7 @@ public class PublicFetchInvalidTest extends JavafxTestBase {
         BreakpointEvent bpe = startTo(targetClassName + "$sam", "stopHere", "()V");
         targetClass = bpe.location().declaringType();
 
-        FXReferenceType topClass = (FXReferenceType)vm().classesByName(targetClassName).get(0);
+        VisageReferenceType topClass = (VisageReferenceType)vm().classesByName(targetClassName).get(0);
         writeActual("Field values for class = " + topClass.name());
         writeActual("  value of staticVar = " + topClass.getValue(topClass.fieldByName("staticVar")));
         // note that staticBinder is invalid
@@ -118,7 +118,7 @@ public class PublicFetchInvalidTest extends JavafxTestBase {
         }
 
         // Object ivars
-        FXObjectReference samObjRef = (FXObjectReference)topClass.getValue(topClass.fieldByName("samObj"));
+        VisageObjectReference samObjRef = (VisageObjectReference)topClass.getValue(topClass.fieldByName("samObj"));
         ReferenceType samClass = (ReferenceType)samObjRef.type();
         writeActual("\nField values for object = " + samObjRef);
         writeActual("  value of ivar0 = "          + samObjRef.getValue(samClass.fieldByName("ivar0")));

@@ -41,7 +41,7 @@
     </Match>
     <Match>
         <!-- Switch-fallthrough on purpose -->
-        <Class name="org.visage.runtime.util.FXPropertyResourceBundle"/>
+        <Class name="org.visage.runtime.util.VisagePropertyResourceBundle"/>
         <Method name="initialize"/>
         <Bug pattern="SF_SWITCH_FALLTHROUGH"/>
     </Match>

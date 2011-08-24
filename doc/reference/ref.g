@@ -143,7 +143,7 @@ packageDecl
 scriptItems
 
 	
-	returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()] // This rule builds a list of JFXTree, which is used 
+	returns [ListBuffer<VisageTree> items = new ListBuffer<VisageTree>()] // This rule builds a list of VisageTree, which is used 
 																	// by the caller to build the actual AST.
 																	//
 	:
@@ -208,7 +208,7 @@ scriptItems
 //
 modifiers
 
-	returns [JFXModifiers mods]	// Constructs and returns a specialized modifer node
+	returns [VisageModifiers mods]	// Constructs and returns a specialized modifer node
 
 @init {
 
@@ -268,7 +268,7 @@ modifierFlag
 //
 importDecl
 
-	returns [JFXTree value] // The import declaration is built as a generic JFXTree
+	returns [VisageTree value] // The import declaration is built as a generic VisageTree
 
  	: IMPORT importId
  	
@@ -289,7 +289,7 @@ importDecl
 //
 importId
 
-	returns [JFXExpression pid]	// Qualified names are built as expression trees
+	returns [VisageExpression pid]	// Qualified names are built as expression trees
 
  	: i1=identifier
  		{
@@ -476,7 +476,7 @@ onReplaceClause
 //
 paramNameOpt
 
-	returns [JFXVar var]	// Returns a JFXVar tree node
+	returns [VisageVar var]	// Returns a VisageVar tree node
 
     : paramName
     	{
@@ -492,7 +492,7 @@ paramNameOpt
 //
 paramName
 
-	returns [JFXVar var]	// Returns a JFXVar tree node
+	returns [VisageVar var]	// Returns a VisageVar tree node
 
 	: name
 		{
@@ -521,7 +521,7 @@ variableLabel
 //
 throw
 
-	returns [JFXExpression value]	// Returns the Visage Expression tree representing what we must throw
+	returns [VisageExpression value]	// Returns the Visage Expression tree representing what we must throw
 
 	: THROW valueExpression ((SEMI)=>SEMI)?
 	
@@ -759,7 +759,7 @@ assignOp
 
 orExpression
 
-	returns [JFXExpression value] 	
+	returns [VisageExpression value] 	
 		
 	:	e1=andExpression
 			
@@ -771,7 +771,7 @@ orExpression
 
 andExpression
 
-	returns [JFXExpression value] 	
+	returns [VisageExpression value] 	
 		
 	: e1=typeExpression
 	  	( 
@@ -785,7 +785,7 @@ andExpression
 //
 typeExpression 
 
-	returns [JFXExpression value] 	// Expression tree for typed expressions
+	returns [VisageExpression value] 	// Expression tree for typed expressions
 		
 @init
 {
@@ -823,7 +823,7 @@ typeExpression
 //	
 relationalExpression  
 
-	returns [JFXExpression value] 	// Expression tree for typed expressions
+	returns [VisageExpression value] 	// Expression tree for typed expressions
 		
 @init
 {
@@ -1190,7 +1190,7 @@ stringExpression
 //    the leadin of the next expression or the trailing of
 //    the prior expression, or it stands alone.
 //
-strCompoundElement [ ListBuffer<JFXExpression> strexp ]
+strCompoundElement [ ListBuffer<VisageExpression> strexp ]
 	
 	: STRING_LITERAL		
 	| qlsl 			[ strexp ]
@@ -1201,7 +1201,7 @@ strCompoundElement [ ListBuffer<JFXExpression> strexp ]
 // String lit component
 // String literals with embedded formats/expressions
 //
-qlsl [ ListBuffer<JFXExpression> strexp]
+qlsl [ ListBuffer<VisageExpression> strexp]
 	: 	//QUOTE_LBRACE_STRING_LITERAL	
 		QUOTE
 	  	( STRING '{'
@@ -1219,7 +1219,7 @@ STRING
 // ----------------------
 // String element with optional format expression
 //
-stringExpressionInner [ ListBuffer<JFXExpression> strexp]
+stringExpressionInner [ ListBuffer<VisageExpression> strexp]
 	: //RBRACE_LBRACE_STRING_LITERAL 
 		'}' STRING '{'
 		formattedExpression
@@ -1271,7 +1271,7 @@ expressionList
 //
 type
 
-	returns [JFXType rtype]
+	returns [VisageType rtype]
 
 @init
 {
@@ -1312,7 +1312,7 @@ type
 //
 typeArgList
  	
- returns [ListBuffer<JFXType> ptypes = ListBuffer.<JFXType>lb(); ]
+ returns [ListBuffer<VisageType> ptypes = ListBuffer.<VisageType>lb(); ]
  
  	: t1=typeArg
  	
@@ -1338,7 +1338,7 @@ typeArgList
 //
 typeArg 
 
-	returns [JFXType rtype]
+	returns [VisageType rtype]
 
  	: (
  		(
@@ -1380,13 +1380,13 @@ cardinality
 //
 typeName
 
-	returns [JFXExpression value]
+	returns [VisageExpression value]
 
 @init
 {
 	// Accumulate any generic arguments
 	//
-	ListBuffer<JFXExpression> exprbuff = ListBuffer.<JFXExpression>lb();
+	ListBuffer<VisageExpression> exprbuff = ListBuffer.<VisageExpression>lb();
 }
 
 	: qualifiedName 		
@@ -1464,7 +1464,7 @@ qualifiedName
 //
 identifier
 
-	returns [JFXIdent value]
+	returns [VisageIdent value]
 
 	: n1=name
 		{

@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 
@@ -32,7 +32,7 @@ import com.sun.tools.mjavac.util.List;
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
-public class JFXErroneousForExpressionInClause extends JFXForExpressionInClause
+public class VisageErroneousForExpressionInClause extends VisageForExpressionInClause
 
 {
     /**
@@ -41,19 +41,19 @@ public class JFXErroneousForExpressionInClause extends JFXForExpressionInClause
      * stores a local erroneous block and uses this for the
      * vistor pattern etc.
      */
-    private JFXErroneous errNode;
+    private VisageErroneous errNode;
     /**
      * Constructor that allows us to provide any nodes we found that may or may
      * not be in error.
      *
      * @param errs
      */
-    protected JFXErroneousForExpressionInClause(List<? extends JFXTree> errs) {
-        errNode = new JFXErroneous(errs);
+    protected VisageErroneousForExpressionInClause(List<? extends VisageTree> errs) {
+        errNode = new VisageErroneous(errs);
     }
 
     @Override
-    public List<? extends JFXTree> getErrorTrees() {
+    public List<? extends VisageTree> getErrorTrees() {
         return errNode.getErrorTrees();
     }
 
@@ -63,7 +63,7 @@ public class JFXErroneousForExpressionInClause extends JFXForExpressionInClause
     }
 
     @Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitErroneous(errNode, d);
     }
 
@@ -73,7 +73,7 @@ public class JFXErroneousForExpressionInClause extends JFXForExpressionInClause
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.ERRONEOUS;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.ERRONEOUS;
     }
 }

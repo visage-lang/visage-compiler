@@ -25,9 +25,9 @@ package org.visage.tools.api;
 
 import org.visage.api.JavafxcTask;
 import org.visage.api.tree.ClassDeclarationTree;
-import org.visage.api.tree.JavaFXTreePath;
+import org.visage.api.tree.VisageTreePath;
 
-import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.UnitTree;
 import com.sun.tools.mjavac.util.JavacFileManager;
 import java.io.File;
@@ -44,7 +44,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from org.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.VisageKind.values().
  *
  * @author David Strupl
  */
@@ -87,12 +87,12 @@ public class JFXC3787Test {
 
     @Test
     public void testParenthesizedPositions() throws Exception {
-        JavaFXTreePathScanner<Void, Void> scanner = new JavaFXTreePathScanner<Void, Void>() {
+        VisageTreePathScanner<Void, Void> scanner = new VisageTreePathScanner<Void, Void>() {
 
             @Override
             public Void visitClassDeclaration(ClassDeclarationTree node, Void p) {
                 Element e = trees.getElement(getCurrentPath());
-                JavaFXTreePath path = trees.getPath(e);
+                VisageTreePath path = trees.getPath(e);
                 assertNotNull("Returned null path for class definition!", path);
                 return super.visitClassDeclaration(node, p);
             }

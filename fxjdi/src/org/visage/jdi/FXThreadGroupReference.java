@@ -31,8 +31,8 @@ import java.util.List;
  *
  * @author sundar
  */
-public class FXThreadGroupReference extends FXObjectReference implements ThreadGroupReference {
-    public FXThreadGroupReference(FXVirtualMachine fxvm, ThreadGroupReference underlying) {
+public class VisageThreadGroupReference extends VisageObjectReference implements ThreadGroupReference {
+    public VisageThreadGroupReference(VisageVirtualMachine fxvm, ThreadGroupReference underlying) {
         super(fxvm, underlying);
     }
 
@@ -40,8 +40,8 @@ public class FXThreadGroupReference extends FXObjectReference implements ThreadG
         return underlying().name();
     }
 
-    public FXThreadGroupReference parent() {
-        return FXWrapper.wrap(virtualMachine(), underlying().parent());
+    public VisageThreadGroupReference parent() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().parent());
     }
 
     public void resume() {
@@ -53,11 +53,11 @@ public class FXThreadGroupReference extends FXObjectReference implements ThreadG
     }
 
     public List<ThreadGroupReference> threadGroups() {
-        return FXWrapper.wrapThreadGroups(virtualMachine(), underlying().threadGroups());
+        return VisageWrapper.wrapThreadGroups(virtualMachine(), underlying().threadGroups());
     }
 
     public List<ThreadReference> threads() {
-        return FXWrapper.wrapThreads(virtualMachine(), underlying().threads());
+        return VisageWrapper.wrapThreads(virtualMachine(), underlying().threads());
     }
     
     @Override

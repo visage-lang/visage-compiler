@@ -29,16 +29,16 @@ package visage.reflect;
  * @profile desktop
  */
 
-public abstract class FXFunctionValue implements FXValue {
-    protected FXFunctionValue() {
+public abstract class VisageFunctionValue implements VisageValue {
+    protected VisageFunctionValue() {
     }
 
     /** Invoke this function. */
-    public abstract FXValue apply(FXValue... arg);
+    public abstract VisageValue apply(VisageValue... arg);
 
     /** Get the run-time type of this value. */
-    public abstract FXFunctionType getType();
+    public abstract VisageFunctionType getType();
 
-    public FXValue getItem(int index) { return this; }
+    public VisageValue getItem(int index) { return this; }
     public int getItemCount() { return isNull() ? 0 : 1; }
 }

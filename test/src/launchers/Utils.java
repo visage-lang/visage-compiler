@@ -32,7 +32,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import org.visage.api.JavaFXScriptEngine;
+import org.visage.api.VisageScriptEngine;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -59,7 +59,7 @@ public class Utils {
     static boolean debug = false;
     static File workingDir = null;
     static JavaCompiler javaCompiler = null;
-    private static JavaFXScriptEngine engine = null;
+    private static VisageScriptEngine engine = null;
     static final boolean isWindows =
             System.getProperty("os.name").startsWith("Windows");
 
@@ -106,10 +106,10 @@ public class Utils {
         if (engine == null) {
             ScriptEngineManager manager = new ScriptEngineManager();
             ScriptEngine scrEng = manager.getEngineByName("visage");
-            if (scrEng instanceof JavaFXScriptEngine) {
-                engine = (JavaFXScriptEngine) scrEng;
+            if (scrEng instanceof VisageScriptEngine) {
+                engine = (VisageScriptEngine) scrEng;
             } else {
-                throw new AssertionError("scrEng not instance of JavaFXSciptEngine");
+                throw new AssertionError("scrEng not instance of VisageSciptEngine");
             }
 
         }

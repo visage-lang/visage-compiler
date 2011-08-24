@@ -30,9 +30,9 @@ package org.visage.jdi.test;
 
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ClassType;
-import org.visage.jdi.FXReferenceType;
-import org.visage.jdi.FXObjectReference;
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageReferenceType;
+import org.visage.jdi.VisageObjectReference;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.jdi.ThreadReference;
@@ -70,10 +70,10 @@ public class FetchInvalidTest extends JavafxTestBase {
         BreakpointEvent bpe = startTo(targetClassName + "$sam", "stopHere", "()V");
         targetClass = bpe.location().declaringType();
 
-        FXReferenceType topClass = (FXReferenceType)vm().classesByName(targetClassName).get(0);
+        VisageReferenceType topClass = (VisageReferenceType)vm().classesByName(targetClassName).get(0);
         writeActual("Field values for class = " + topClass.name());
         writeActual("  value of staticVar = " + topClass.getValue(topClass.fieldByName("staticVar")));
-        writeActual("  last exception = " + ((FXVirtualMachine)vm()).lastFieldAccessException());
+        writeActual("  last exception = " + ((VisageVirtualMachine)vm()).lastFieldAccessException());
         // note that staticBinder is invalid
         if (topClass.isInvalid(topClass.fieldByName("staticBinder"))) {
             writeActual("  staticBinder is invalid");
@@ -98,7 +98,7 @@ public class FetchInvalidTest extends JavafxTestBase {
             }
         }
         Map<Field, Value>allValues = topClass.getValues(validFields);
-                    writeActual("  last exception = " + ((FXVirtualMachine)vm()).lastFieldAccessException());
+                    writeActual("  last exception = " + ((VisageVirtualMachine)vm()).lastFieldAccessException());
 
         for (Field fld: validFields) {
             writeActual("   field1 = " + fld + ", value = " + allValues.get(fld));
@@ -123,7 +123,7 @@ public class FetchInvalidTest extends JavafxTestBase {
         }
 
         // Object ivars
-        FXObjectReference samObjRef = (FXObjectReference)topClass.getValue(topClass.fieldByName("samObj"));
+        VisageObjectReference samObjRef = (VisageObjectReference)topClass.getValue(topClass.fieldByName("samObj"));
         ReferenceType samClass = (ReferenceType)samObjRef.type();
         writeActual("\nField values for object = " + samObjRef);
         writeActual("  value of ivar0 = "          + samObjRef.getValue(samClass.fieldByName("ivar0")));

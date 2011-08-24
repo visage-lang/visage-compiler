@@ -98,12 +98,12 @@ public class JavafxcTrees {
     public SourcePositions getSourcePositions() {
         return new SourcePositions() {
                 public long getStartPosition(UnitTree file, Tree tree) {
-                    return JavafxTreeInfo.getStartPos((JFXTree) tree);
+                    return JavafxTreeInfo.getStartPos((VisageTree) tree);
                 }
 
                 public long getEndPosition(UnitTree file, Tree tree) {
-                    Map<JCTree,Integer> endPositions = ((JFXScript) file).endPositions;
-                    return JavafxTreeInfo.getEndPos((JFXTree)tree, endPositions);
+                    Map<JCTree,Integer> endPositions = ((VisageScript) file).endPositions;
+                    return JavafxTreeInfo.getEndPos((VisageTree)tree, endPositions);
                 }
             };
     }
@@ -122,48 +122,48 @@ public class JavafxcTrees {
         JavafxEnv<JavafxAttrContext> env = enter.getEnv(enclosing);
         if (env == null)
             return null;
-        JFXClassDeclaration classNode = env.enclClass;
+        VisageClassDeclaration classNode = env.enclClass;
         if (classNode != null) {
             if (JavafxTreeInfo.symbolFor(classNode) == element)
                 return classNode;
-            for (JFXTree node : classNode.getMembers())
+            for (VisageTree node : classNode.getMembers())
                 if (JavafxTreeInfo.symbolFor(node) == element)
                     return node;
         }
         return null;
     }
 
-    public JavaFXTreePath getPath(UnitTree unit, Tree node) {
-        return getPath(new JavaFXTreePath(unit), node);
+    public VisageTreePath getPath(UnitTree unit, Tree node) {
+        return getPath(new VisageTreePath(unit), node);
     }
 
-    public JavaFXTreePath getPath(Element e) {
-        final Pair<JFXTree, JFXScript> treeTopLevel = getTreeAndTopLevel(e);
+    public VisageTreePath getPath(Element e) {
+        final Pair<VisageTree, VisageScript> treeTopLevel = getTreeAndTopLevel(e);
         if (treeTopLevel == null)
             return null;
         return getPath(treeTopLevel.snd, treeTopLevel.fst);
     }
     
     /**
-     * Gets a tree path for a tree node within a subtree identified by a JavaFXTreePath object.
+     * Gets a tree path for a tree node within a subtree identified by a VisageTreePath object.
      * @return null if the node is not found
      */
-    public static JavaFXTreePath getPath(JavaFXTreePath path, Tree target) {
+    public static VisageTreePath getPath(VisageTreePath path, Tree target) {
         path.getClass();
         target.getClass();
 
         class Result extends Error {
             static final long serialVersionUID = -5942088234594905625L;
-            JavaFXTreePath path;
-            Result(JavaFXTreePath path) {
+            VisageTreePath path;
+            Result(VisageTreePath path) {
                 this.path = path;
             }
         }
-        class PathFinder extends JavaFXTreePathScanner<JavaFXTreePath,Tree> {
+        class PathFinder extends VisageTreePathScanner<VisageTreePath,Tree> {
             @Override
-            public JavaFXTreePath scan(Tree tree, Tree target) {
+            public VisageTreePath scan(Tree tree, Tree target) {
                 if (tree == target)
-                    throw new Result(new JavaFXTreePath(getCurrentPath(), target));
+                    throw new Result(new VisageTreePath(getCurrentPath(), target));
                 return super.scan(tree, target);
             }
         }
@@ -176,17 +176,17 @@ public class JavafxcTrees {
         return null;
     }
 
-    public Element getElement(JavaFXTreePath path) {
+    public Element getElement(VisageTreePath path) {
         Tree t = path.getLeaf();
-        return JavafxTreeInfo.symbolFor((JFXTree) t);
+        return JavafxTreeInfo.symbolFor((VisageTree) t);
     }
 
-    public TypeMirror getTypeMirror(JavaFXTreePath path) {
+    public TypeMirror getTypeMirror(VisageTreePath path) {
         Tree t = path.getLeaf();
-        return ((JFXTree)t).type;
+        return ((VisageTree)t).type;
     }
 
-    public JavafxcScope getScope(JavaFXTreePath path) {
+    public JavafxcScope getScope(VisageTreePath path) {
         return new JavafxcScope(ctx, getAttrContext(path));
     }
 
@@ -208,8 +208,8 @@ public class JavafxcTrees {
             return false;
     }
 
-    private JavafxEnv<JavafxAttrContext> getAttrContext(JavaFXTreePath path) {
-        if (!(path.getLeaf() instanceof JFXTree))  // implicit null-check
+    private JavafxEnv<JavafxAttrContext> getAttrContext(VisageTreePath path) {
+        if (!(path.getLeaf() instanceof VisageTree))  // implicit null-check
             throw new IllegalArgumentException();
 
         // if we're being invoked via from a JSR199 client, we need to make sure
@@ -223,17 +223,17 @@ public class JavafxcTrees {
             }
         }
 
-        JFXScript unit = (JFXScript) path.getCompilationUnit();
+        VisageScript unit = (VisageScript) path.getCompilationUnit();
         Copier copier = new Copier(fxmake.forToplevel(unit));
 
         copier.endPositions = unit.endPositions;
 
         JavafxEnv<JavafxAttrContext> env = null;
-        JFXFunctionDefinition function = null;
-        JFXVar field = null;
+        VisageFunctionDefinition function = null;
+        VisageVar field = null;
 
         List<Tree> l = List.nil();
-        JavaFXTreePath p = path;
+        VisageTreePath p = path;
         while (p != null) {
             l = l.prepend(p.getLeaf());
             p = p.getParentPath();
@@ -241,27 +241,27 @@ public class JavafxcTrees {
 
         for ( ; l.nonEmpty(); l = l.tail) {
             Tree tree = l.head;
-            if (tree instanceof JFXScript) {
-                env = enter.getTopLevelEnv((JFXScript)tree);
+            if (tree instanceof VisageScript) {
+                env = enter.getTopLevelEnv((VisageScript)tree);
             }
-            else if (tree instanceof JFXClassDeclaration) {
-                env = enter.getClassEnv(((JFXClassDeclaration)tree).sym);
+            else if (tree instanceof VisageClassDeclaration) {
+                env = enter.getClassEnv(((VisageClassDeclaration)tree).sym);
             }
-            else if (tree instanceof JFXFunctionDefinition) {
-                function = (JFXFunctionDefinition)tree;
+            else if (tree instanceof VisageFunctionDefinition) {
+                function = (VisageFunctionDefinition)tree;
             }
-            else if (tree instanceof JFXVar) {
-                field = (JFXVar)tree;
+            else if (tree instanceof VisageVar) {
+                field = (VisageVar)tree;
             }
-            else if (tree instanceof JFXBlock) {
+            else if (tree instanceof VisageBlock) {
                 if (function != null)
                     env = memberEnter.getMethodEnv(function, env);
-                JFXTree body = copier.copy((JFXTree)tree, (JFXTree) path.getLeaf());
+                VisageTree body = copier.copy((VisageTree)tree, (VisageTree) path.getLeaf());
                 env = attribStatToTree(body, env, copier.leafCopy);
                 return env;
             } else if (field != null && field.getInitializer() == tree) {
                 env = memberEnter.getInitEnv(field, env);
-                JFXExpression expr = copier.copy((JFXExpression)tree, (JFXTree) path.getLeaf());
+                VisageExpression expr = copier.copy((VisageExpression)tree, (VisageTree) path.getLeaf());
                 env = attribExprToTree(expr, env, copier.leafCopy);
                 return env;
             }
@@ -269,7 +269,7 @@ public class JavafxcTrees {
         return field != null ? memberEnter.getInitEnv(field, env) : env;
     }
 
-    private JavafxEnv<JavafxAttrContext> attribStatToTree(JFXTree stat, JavafxEnv<JavafxAttrContext>env, JFXTree tree) {
+    private JavafxEnv<JavafxAttrContext> attribStatToTree(VisageTree stat, JavafxEnv<JavafxAttrContext>env, VisageTree tree) {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
         try {
             return attr.attribStatToTree(stat, env, tree);
@@ -278,7 +278,7 @@ public class JavafxcTrees {
         }
     }
 
-    private JavafxEnv<JavafxAttrContext> attribExprToTree(JFXExpression expr, JavafxEnv<JavafxAttrContext>env, JFXTree tree) {
+    private JavafxEnv<JavafxAttrContext> attribExprToTree(VisageExpression expr, JavafxEnv<JavafxAttrContext>env, VisageTree tree) {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
         try {
             return attr.attribExprToTree(expr, env, tree);
@@ -287,7 +287,7 @@ public class JavafxcTrees {
         }
     }
     
-    private Pair<JFXTree, JFXScript> getTreeAndTopLevel(Element e) {
+    private Pair<VisageTree, VisageScript> getTreeAndTopLevel(Element e) {
         if (e == null)
             return null;
 
@@ -299,21 +299,21 @@ public class JavafxcTrees {
         if (enterEnv == null)
             return null;
         
-        JFXTree tree = JavafxTreeInfo.declarationFor(sym, enterEnv.tree);
+        VisageTree tree = JavafxTreeInfo.declarationFor(sym, enterEnv.tree);
         if (tree == null || enterEnv.toplevel == null)
             return null;
-        return new Pair<JFXTree,JFXScript>(tree, enterEnv.toplevel);
+        return new Pair<VisageTree,VisageScript>(tree, enterEnv.toplevel);
     }
 
-    public JavafxEnv<JavafxAttrContext> getFunctionEnv(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> getFunctionEnv(VisageFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> mEnv = memberEnter.methodEnv(tree, env);
         mEnv.info.lint = mEnv.info.lint.augment(tree.sym.attributes_field, tree.sym.flags());
-        for (List<JFXVar> l = tree.getParams(); l.nonEmpty(); l = l.tail)
+        for (List<VisageVar> l = tree.getParams(); l.nonEmpty(); l = l.tail)
             mEnv.info.scope.enterIfAbsent(l.head.sym);
         return mEnv;
     }
 
-    public JavafxEnv<JavafxAttrContext> getInitEnv(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> getInitEnv(VisageVar tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> iEnv = memberEnter.initEnv(tree, env);
         return iEnv;
     }
@@ -322,20 +322,20 @@ public class JavafxcTrees {
      * Makes a copy of a tree, noting the value resulting from copying a particular leaf.
      **/
     static class Copier extends JavafxTreeCopier {
-        JFXTree leaf;
-        JFXTree leafCopy = null;
+        VisageTree leaf;
+        VisageTree leafCopy = null;
 
         Copier(JavafxTreeMaker M) {
             super(M);
         }
 
-        public <T extends JFXTree> T copy(T t, JFXTree leaf) {
+        public <T extends VisageTree> T copy(T t, VisageTree leaf) {
             this.leaf = leaf;
             return copy(t);
         }
         
         @Override
-        public <T extends JFXTree> T copy(T t) {
+        public <T extends VisageTree> T copy(T t) {
             T t2 = super.copy(t);
             if (t == leaf)
                 leafCopy = t2;
@@ -343,7 +343,7 @@ public class JavafxcTrees {
         }
 
         @Override
-        public void visitForExpressionInClause(JFXForExpressionInClause tree) {
+        public void visitForExpressionInClause(VisageForExpressionInClause tree) {
             result = maker.InClause(copy(tree.var), copy(tree.getSequenceExpression()), copy(tree.getWhereExpression()));
         }
     }

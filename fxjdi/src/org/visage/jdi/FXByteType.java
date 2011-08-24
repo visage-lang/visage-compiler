@@ -29,9 +29,9 @@ import com.sun.jdi.ByteType;
  *
  * @author sundar
  */
-public class FXByteType extends FXPrimitiveType implements ByteType {
+public class VisageByteType extends VisagePrimitiveType implements ByteType {
 
-    public FXByteType(FXVirtualMachine fxvm, ByteType underlying) {
+    public VisageByteType(VisageVirtualMachine fxvm, ByteType underlying) {
         super(fxvm, underlying);
     }
 

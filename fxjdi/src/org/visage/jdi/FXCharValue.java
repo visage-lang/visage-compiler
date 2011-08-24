@@ -29,8 +29,8 @@ import com.sun.jdi.CharValue;
  *
  * @author sundar
  */
-public class FXCharValue extends FXPrimitiveValue implements CharValue {
-    public FXCharValue(FXVirtualMachine fxvm, CharValue underlying) {
+public class VisageCharValue extends VisagePrimitiveValue implements CharValue {
+    public VisageCharValue(VisageVirtualMachine fxvm, CharValue underlying) {
         super(fxvm, underlying);
     }
 
@@ -39,7 +39,7 @@ public class FXCharValue extends FXPrimitiveValue implements CharValue {
     }
 
     public int compareTo(CharValue o) {
-        return underlying().compareTo((CharValue)FXWrapper.unwrap(o));
+        return underlying().compareTo((CharValue)VisageWrapper.unwrap(o));
     }
 
     @Override

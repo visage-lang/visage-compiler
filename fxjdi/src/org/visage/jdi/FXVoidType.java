@@ -29,8 +29,8 @@ import com.sun.jdi.VoidType;
  *
  * @author sundar
  */
-public class FXVoidType extends FXType implements VoidType {
-    public FXVoidType(FXVirtualMachine fxvm, VoidType underlying) {
+public class VisageVoidType extends VisageType implements VoidType {
+    public VisageVoidType(VisageVirtualMachine fxvm, VoidType underlying) {
         super(fxvm, underlying);
     }
 

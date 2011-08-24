@@ -29,10 +29,10 @@ package visage.reflect;
  * @profile desktop
  */
 
-public class FXFloatValue extends FXPrimitiveValue {
+public class VisageFloatValue extends VisagePrimitiveValue {
     float value;
 
-    public FXFloatValue(float value, FXPrimitiveType type) {
+    public VisageFloatValue(float value, VisagePrimitiveType type) {
         this.value = value;
         this.type = type;
     }

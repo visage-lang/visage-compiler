@@ -29,10 +29,10 @@ import org.visage.runtime.*;
  * @author Per Bothner
  */
 public class SequenceRef<T> extends AbstractSequence<T> {
-    FXObject instance;
+    VisageObject instance;
     int varNum;
 
-    public SequenceRef(TypeInfo<T> ti, FXObject instance, int varNum) {
+    public SequenceRef(TypeInfo<T> ti, VisageObject instance, int varNum) {
         super(ti);
         this.instance = instance;
         this.varNum = varNum;

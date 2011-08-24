@@ -63,12 +63,12 @@ class PlatformUtils {
         return sname == null ? null : sname.value();
     }
 
-    static Annotation getAnnotation (FXLocal.ClassType ctype, Class clas) {
+    static Annotation getAnnotation (VisageLocal.ClassType ctype, Class clas) {
         Class cls = ctype.refClass;
         return cls.getAnnotation(clas);
     }
 
-    static <T extends Annotation> T getAnnotation (FXLocal.VarMember vmem, Class<T> clas) {
+    static <T extends Annotation> T getAnnotation (VisageLocal.VarMember vmem, Class<T> clas) {
         Field fld = vmem.fld;
         if (fld != null)
             return fld.getAnnotation(clas);
@@ -78,95 +78,95 @@ class PlatformUtils {
         return null;
     }
 
-    static int checkPublic(FXLocal.ClassType ctype) {
+    static int checkPublic(VisageLocal.ClassType ctype) {
         if (ctype.isJfxType())
             return -1;
         return getAnnotation(ctype, Public.class) != null ? 1 : 0;
     }
 
-    static int checkPackage(FXLocal.ClassType ctype) {
+    static int checkPackage(VisageLocal.ClassType ctype) {
         if (! ctype.isJfxType())
             return -1;
         return getAnnotation(ctype, Package.class) != null ? 1 : 0;
     }
 
-    static boolean isProtected(FXLocal.ClassType ctype) {
+    static boolean isProtected(VisageLocal.ClassType ctype) {
         return getAnnotation(ctype, Protected.class) != null;
     }
 
-    static int checkAccess(FXLocal.VarMember vmem, Class ann) {
+    static int checkAccess(VisageLocal.VarMember vmem, Class ann) {
         if (! vmem.getDeclaringClass().isJfxType())
            return -1;
        return getAnnotation(vmem, ann) != null ? 1 : 0;
     }
 
-    static boolean checkAccessAnnotations(FXLocal.VarMember vmem) {
+    static boolean checkAccessAnnotations(VisageLocal.VarMember vmem) {
         if (getAnnotation(vmem, Public.class) != null)
-             vmem.flags |= FXLocal.VarMember.IS_PUBLIC;
+             vmem.flags |= VisageLocal.VarMember.IS_PUBLIC;
         if (getAnnotation(vmem, Protected.class) != null)
-            vmem.flags |= FXLocal.VarMember.IS_PROTECTED;
+            vmem.flags |= VisageLocal.VarMember.IS_PROTECTED;
         if (getAnnotation(vmem, Package.class) != null)
-            vmem.flags |= FXLocal.VarMember.IS_PACKAGE;
+            vmem.flags |= VisageLocal.VarMember.IS_PACKAGE;
         if (getAnnotation(vmem, PublicInitable.class) != null)
-            vmem.flags |= FXLocal.VarMember.IS_PUBLIC_INIT;
+            vmem.flags |= VisageLocal.VarMember.IS_PUBLIC_INIT;
         if (getAnnotation(vmem, PublicReadable.class) != null)
-            vmem.flags |= FXLocal.VarMember.IS_PUBLIC_READ;
+            vmem.flags |= VisageLocal.VarMember.IS_PUBLIC_READ;
         return true;
     }
 
-    static int checkDef(FXLocal.VarMember vmem) {
+    static int checkDef(VisageLocal.VarMember vmem) {
         return checkAccess(vmem, Def.class);
     }
 
-    static int checkAccess(FXLocal.FunctionMember fmem, Class ann) {
+    static int checkAccess(VisageLocal.FunctionMember fmem, Class ann) {
         if (! fmem.getDeclaringClass().isJfxType())
            return -1;
        return fmem.method.getAnnotation(ann) != null ? 1 : 0;
     }
 
-    static int checkPublic(FXLocal.FunctionMember fmem) {
+    static int checkPublic(VisageLocal.FunctionMember fmem) {
         return checkAccess(fmem, Public.class);
     }
 
-    static int checkProtected(FXLocal.FunctionMember fmem) {
+    static int checkProtected(VisageLocal.FunctionMember fmem) {
         return checkAccess(fmem, Protected.class);
     }
 
-    static int checkPackage(FXLocal.FunctionMember fmem) {
+    static int checkPackage(VisageLocal.FunctionMember fmem) {
         return checkAccess(fmem, Package.class);
     }
 
-    // Return either an FXType, if resolved, or a Type (which
+    // Return either an VisageType, if resolved, or a Type (which
     // the same as typ, though possibly "simplified".
-    static Object resolveGeneric (FXLocal.Context context, Type typ) {
+    static Object resolveGeneric (VisageLocal.Context context, Type typ) {
         if (typ instanceof ParameterizedType) {
             ParameterizedType ptyp = (ParameterizedType) typ;
             Type raw = ptyp.getRawType();
             Type[] targs = ptyp.getActualTypeArguments();
             if (raw instanceof Class) {
                 String rawName = ((Class) raw).getName();
-                if (FXClassType.SEQUENCE_CLASSNAME.equals(rawName) &&
+                if (VisageClassType.SEQUENCE_CLASSNAME.equals(rawName) &&
                     targs.length == 1) {
-                    return new FXSequenceType(context.makeTypeRef(targs[0]));
+                    return new VisageSequenceType(context.makeTypeRef(targs[0]));
                 }
-                if (FXClassType.OBJECT_VARIABLE_CLASSNAME.equals(rawName) &&
+                if (VisageClassType.OBJECT_VARIABLE_CLASSNAME.equals(rawName) &&
                         targs.length == 1) {
                     return context.makeTypeRef(targs[0]);
                 }
-                if (FXClassType.SEQUENCE_VARIABLE_CLASSNAME.equals(rawName) &&
+                if (VisageClassType.SEQUENCE_VARIABLE_CLASSNAME.equals(rawName) &&
                     targs.length == 1) {
-                    return new FXSequenceType(context.makeTypeRef(targs[0]));
+                    return new VisageSequenceType(context.makeTypeRef(targs[0]));
                 }
-                if (rawName.startsWith(FXClassType.FUNCTION_CLASSNAME_PREFIX)) {
-                    FXType[] prtypes = new FXType[targs.length-1];
+                if (rawName.startsWith(VisageClassType.FUNCTION_CLASSNAME_PREFIX)) {
+                    VisageType[] prtypes = new VisageType[targs.length-1];
                     for (int i = prtypes.length;  --i >= 0; )
                         prtypes[i] = context.makeTypeRef(targs[i+1]);
-                    FXType rettype;
+                    VisageType rettype;
                     if (targs[0] == java.lang.Void.class)
-                        rettype = FXPrimitiveType.voidType;
+                        rettype = VisagePrimitiveType.voidType;
                     else
                         rettype = context.makeTypeRef(targs[0]);
-                    return new FXFunctionType(prtypes, rettype);
+                    return new VisageFunctionType(prtypes, rettype);
                 }
             }
 
@@ -180,15 +180,15 @@ class PlatformUtils {
             if (typ instanceof Class) {
                 String rawName = ((Class) typ).getName();
                 // Kludge, because generics don't handle primitive types.
-                FXType ptype = context.getPrimitiveType(rawName);
+                VisageType ptype = context.getPrimitiveType(rawName);
                 if (ptype != null)
                     return ptype;
             }
             return context.makeTypeRef(typ);
         }
         if (typ instanceof GenericArrayType) {
-            FXType elType = context.makeTypeRef(((GenericArrayType) typ).getGenericComponentType());
-            return new FXJavaArrayType(elType);
+            VisageType elType = context.makeTypeRef(((GenericArrayType) typ).getGenericComponentType());
+            return new VisageJavaArrayType(elType);
         }
         if (typ instanceof TypeVariable) {
             // KLUDGE

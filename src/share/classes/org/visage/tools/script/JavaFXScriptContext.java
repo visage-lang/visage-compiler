@@ -34,15 +34,15 @@ import visage.reflect.*;
  * Run-time context used for evaluating scripts.
  * @author Per Bothner
  */
-public class JavaFXScriptContext {
-    JavaFXScriptCompiler compiler;
+public class VisageScriptContext {
+    VisageScriptCompiler compiler;
     MemoryClassLoader loader;
 
-    protected JavaFXScriptContext() {
+    protected VisageScriptContext() {
     }
 
-    public JavaFXScriptContext(ClassLoader parentClassLoader) {
-        compiler = new JavaFXScriptCompiler(parentClassLoader);
+    public VisageScriptContext(ClassLoader parentClassLoader) {
+        compiler = new VisageScriptCompiler(parentClassLoader);
         loader = new MemoryClassLoader(compiler.clbuffers, parentClassLoader);
     }
 
@@ -72,10 +72,10 @@ public class JavaFXScriptContext {
         }
     }
 
-    FXVarMember reflectSymbol (Symbol sym) {
-        SoftReference<FXVarMember> ref = symbolMap.get(sym);
+    VisageVarMember reflectSymbol (Symbol sym) {
+        SoftReference<VisageVarMember> ref = symbolMap.get(sym);
         if (ref != null) {
-            FXVarMember rvar = ref.get();
+            VisageVarMember rvar = ref.get();
             if (rvar != null)
                 return rvar;
         }
@@ -88,9 +88,9 @@ public class JavaFXScriptContext {
             throw new RuntimeException("no class "+cname+" for "+sname, ex);
         }
         try {
-            FXLocal.Context rcontext = FXLocal.getContext();
-            FXLocal.ClassType rclass = rcontext.makeClassRef(clazz);
-            FXVarMember rvar = rclass.getVariable(sname);
+            VisageLocal.Context rcontext = VisageLocal.getContext();
+            VisageLocal.ClassType rclass = rcontext.makeClassRef(clazz);
+            VisageVarMember rvar = rclass.getVariable(sname);
             ref = new SoftReference(rvar);
             symbolMap.put(sym, ref);
             return rvar;
@@ -101,9 +101,9 @@ public class JavaFXScriptContext {
     }
 
     public Object getVarValue (Symbol sym)  {
-        FXVarMember rvar = reflectSymbol(sym);
-        FXValue rvalue = rvar.getValue(null);
-        return ((FXLocal.Value) rvalue).asObject();
+        VisageVarMember rvar = reflectSymbol(sym);
+        VisageValue rvalue = rvar.getValue(null);
+        return ((VisageLocal.Value) rvalue).asObject();
     }
 
     public Object getVarValue(Name name) {
@@ -117,12 +117,12 @@ public class JavaFXScriptContext {
         return getVarValue(entry.sym); // FIXME check for errors
     }
 
-    static WeakHashMap<Symbol,SoftReference<FXVarMember>> symbolMap =
-        new WeakHashMap<Symbol,SoftReference<FXVarMember>>();
+    static WeakHashMap<Symbol,SoftReference<VisageVarMember>> symbolMap =
+        new WeakHashMap<Symbol,SoftReference<VisageVarMember>>();
 
     public void setVarValue(Symbol sym, Object newValue) {
-        FXVarMember rvar = reflectSymbol(sym);
-        FXLocal.Context rcontext = FXLocal.getContext();
+        VisageVarMember rvar = reflectSymbol(sym);
+        VisageLocal.Context rcontext = VisageLocal.getContext();
         rvar.setValue(null, rcontext.mirrorOf(newValue));
     }
 

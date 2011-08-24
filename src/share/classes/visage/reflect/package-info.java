@@ -29,24 +29,24 @@
  *
  * <h2>Context</h2>
  * The objects in this package are directly or indirectly created
- * from a {@link visage.reflect.FXContext FXContext}.
- * In the default case there is a single {@code FXContext} instance that
+ * from a {@link visage.reflect.VisageContext VisageContext}.
+ * In the default case there is a single {@code VisageContext} instance that
  * uses Java reflection.  You get one of these by doing:
  * <pre>
- * FXLocal.Context ctx = FXLocal.getContext();
+ * VisageLocal.Context ctx = VisageLocal.getContext();
  * </pre>
  * Alternatively, you can do:
  * <pre>
- * FXContext ctx = FXContext.getInstance();
+ * VisageContext ctx = VisageContext.getInstance();
  * </pre>
  * The latter is more abstract (as it supports proxying for remote VMs)
- * but the more specific {@code FXLocal.Context} supports some extra
+ * but the more specific {@code VisageLocal.Context} supports some extra
  * operations that only make sense for same-VM reflection.
  *
  * <h2>Values</h2>
  * The various reflection operations do not directly use
  * Java values.  Instead,
- * an {@link visage.reflect.FXObjectValue} is a <q>handle</q> or
+ * an {@link visage.reflect.VisageObjectValue} is a <q>handle</q> or
  * proxy for an <code>Object</code>.  This extra layer of indirection
  * isn't needed in many cases, but it is useful for remote invocation,
  * remote control, or in general access to data in a different VM.
@@ -59,10 +59,10 @@
  * </pre></blockquote>
  * you can do:
  * <blockquote><pre>
- * FXContext rcontext = ...;
- * FXClassType cls = rcontext.findClass(...);
- * FXObjectValue x = ...;
- * FXObjectValue z = cls.allocation();
+ * VisageContext rcontext = ...;
+ * VisageClassType cls = rcontext.findClass(...);
+ * VisageObjectValue x = ...;
+ * VisageObjectValue z = cls.allocation();
  * z.initVar("a", ???);
  * z.bindVar("b", ???);
  * z.initialize();
@@ -70,12 +70,12 @@
  *
  * <h2>Sequence operations</h2>
  * <p>
- * Use {@link visage.reflect.FXSequenceBuilder} to create a new sequence.
+ * Use {@link visage.reflect.VisageSequenceBuilder} to create a new sequence.
  * <p>
  * To get the number of items in a sequence,
- * use {@link visage.reflect.FXValue#getItemCount ValueRef.getItemCount}.
+ * use {@link visage.reflect.VisageValue#getItemCount ValueRef.getItemCount}.
  * To index into a sequence,
- * use {@link visage.reflect.FXValue#getItem ValueRef.getItem}.
+ * use {@link visage.reflect.VisageValue#getItem ValueRef.getItem}.
  *
  * <h2>Design notes and issues</h2>
  * Some design principles, influenced by the "Mirrored reflection"

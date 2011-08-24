@@ -30,9 +30,9 @@ package org.visage.jdi.test;
 
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ClassType;
-import org.visage.jdi.FXReferenceType;
-import org.visage.jdi.FXClassType;
-import org.visage.jdi.FXObjectReference;
+import org.visage.jdi.VisageReferenceType;
+import org.visage.jdi.VisageClassType;
+import org.visage.jdi.VisageObjectReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.jdi.VoidValue;
@@ -88,7 +88,7 @@ public class SetValueTest extends JavafxTestBase {
             writeActual("field " + fld + ": value = " + initVals.getValue(fld));
         }
 
-        FXClassType topClassClass = (FXClassType)topClass;
+        VisageClassType topClassClass = (VisageClassType)topClass;
         Field statVar = topClass.fieldByName("statString");
         topClassClass.setValue(statVar, vm().mirrorOf("statString2"));
         writeActual("statString = " + topClass.getValue(statVar));

@@ -25,7 +25,7 @@
 
 package org.visage.tools.debug.tty;
 
-import org.visage.jdi.FXReferenceType;
+import org.visage.jdi.VisageReferenceType;
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 
@@ -325,11 +325,11 @@ class BreakpointSpec extends EventRequestSpec {
     private Method findMatchingMethod(ReferenceType refType)
                                         throws AmbiguousMethodException,
                                                NoSuchMethodException {
-        if (refType instanceof FXReferenceType && methodName().indexOf('$') != -1) {
+        if (refType instanceof VisageReferenceType && methodName().indexOf('$') != -1) {
             // this is some sort of internal name, eg, visage$run$
-            // which are filtered out of FXReferenceType, so we have to
+            // which are filtered out of VisageReferenceType, so we have to
             // look at the underlying ReferenceType
-            refType = ((FXReferenceType)refType)._underlying();
+            refType = ((VisageReferenceType)refType)._underlying();
         }
 
         // Normalize the argument string once before looping below.

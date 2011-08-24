@@ -29,8 +29,8 @@ import com.sun.jdi.ByteValue;
  *
  * @author sundar
  */
-public class FXByteValue extends FXPrimitiveValue implements ByteValue {
-    public FXByteValue(FXVirtualMachine fxvm, ByteValue underlying) {
+public class VisageByteValue extends VisagePrimitiveValue implements ByteValue {
+    public VisageByteValue(VisageVirtualMachine fxvm, ByteValue underlying) {
         super(fxvm, underlying);
     }
 
@@ -39,7 +39,7 @@ public class FXByteValue extends FXPrimitiveValue implements ByteValue {
     }
 
     public int compareTo(ByteValue o) {
-        return underlying().compareTo((ByteValue)FXWrapper.unwrap(o));
+        return underlying().compareTo((ByteValue)VisageWrapper.unwrap(o));
     }
 
     @Override

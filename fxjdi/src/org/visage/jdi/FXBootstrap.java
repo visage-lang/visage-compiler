@@ -23,7 +23,7 @@
 
 package org.visage.jdi;
 
-import org.visage.jdi.connect.FXConnector;
+import org.visage.jdi.connect.VisageConnector;
 import com.sun.jdi.Bootstrap;
 import com.sun.jdi.JDIPermission;
 import com.sun.jdi.VirtualMachine;
@@ -48,26 +48,26 @@ import java.util.ServiceLoader;
  * 
  * @author sundar
  */
-public class FXBootstrap {
+public class VisageBootstrap {
 
     /**
      * Get a VirtualMachineManager whose default launching connector is an instance of
-     * org.visage.jdi.connect.FXLaunchingConnector.  This VirtualMachineManager will be aware
+     * org.visage.jdi.connect.VisageLaunchingConnector.  This VirtualMachineManager will be aware
      * of all the connectors in Visage-JDI as well as the connectors in the normal JDI implementation.
      *
      * @return a VirtualMachineManager
      */
     public static VirtualMachineManager virtualMachineManager() {
-        return FXVirtualMachineManager.virtualMachineManager();
+        return VisageVirtualMachineManager.virtualMachineManager();
     }
 
-    private static class FXVirtualMachineManager implements VirtualMachineManager {
+    private static class VisageVirtualMachineManager implements VirtualMachineManager {
         private List<Connector> connectors = new ArrayList<Connector>();
         private LaunchingConnector defaultConnector = null;
         private static final int majorVersion = 1;
         private static final int minorVersion = 6;
         private static final Object lock = new Object();
-        private static FXVirtualMachineManager vmm;
+        private static VisageVirtualMachineManager vmm;
 
         public static VirtualMachineManager virtualMachineManager() {
             SecurityManager sm = System.getSecurityManager();
@@ -78,18 +78,18 @@ public class FXBootstrap {
             }
             synchronized (lock) {
                 if (vmm == null) {
-                    vmm = new FXVirtualMachineManager();
+                    vmm = new VisageVirtualMachineManager();
                 }
             }
             return vmm;
         }
 
-        protected FXVirtualMachineManager() {
+        protected VisageVirtualMachineManager() {
             /*
              * Load the connectors
              */
             ServiceLoader<Connector> connectorLoader =
-                    ServiceLoader.load(Connector.class, FXConnector.class.getClassLoader());
+                    ServiceLoader.load(Connector.class, VisageConnector.class.getClassLoader());
 
             Iterator<Connector> conns = connectorLoader.iterator();
 
@@ -150,7 +150,7 @@ public class FXBootstrap {
             boolean found = false;
             List<LaunchingConnector> launchers = launchingConnectors();
             for (LaunchingConnector lc : launchers) {
-                if (lc.name().equals("org.visage.jdi.connect.FXLaunchingConnector")) {
+                if (lc.name().equals("org.visage.jdi.connect.VisageLaunchingConnector")) {
                     setDefaultConnector(lc);
                     found = true;
                     break;
@@ -209,7 +209,7 @@ public class FXBootstrap {
 
         public List<VirtualMachine> connectedVirtualMachines() {
             VirtualMachineManager pvmm = Bootstrap.virtualMachineManager();
-            return FXWrapper.wrapVirtualMachines(pvmm.connectedVirtualMachines());
+            return VisageWrapper.wrapVirtualMachines(pvmm.connectedVirtualMachines());
         }
 
         public void addConnector(Connector connector) {
@@ -223,13 +223,13 @@ public class FXBootstrap {
         public VirtualMachine createVirtualMachine(Connection connection, 
                 Process process) throws IOException {
             VirtualMachineManager pvmm = Bootstrap.virtualMachineManager();
-            return FXWrapper.wrap(pvmm.createVirtualMachine(connection, process));
+            return VisageWrapper.wrap(pvmm.createVirtualMachine(connection, process));
         }
 
         public VirtualMachine createVirtualMachine(Connection connection) 
                 throws IOException {
             VirtualMachineManager pvmm = Bootstrap.virtualMachineManager();
-            return FXWrapper.wrap(pvmm.createVirtualMachine(connection));
+            return VisageWrapper.wrap(pvmm.createVirtualMachine(connection));
         }
 
         public int majorInterfaceVersion() {

@@ -28,10 +28,10 @@ package visage.reflect;
  * @author Per Bothner
  * @profile desktop
  */
-public class FXLongValue extends FXPrimitiveValue {
+public class VisageLongValue extends VisagePrimitiveValue {
     long value;
 
-    public FXLongValue(long value, FXPrimitiveType type) {
+    public VisageLongValue(long value, VisagePrimitiveType type) {
         this.value = value;
         this.type = type;
     }

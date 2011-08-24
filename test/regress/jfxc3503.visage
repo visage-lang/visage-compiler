@@ -7,7 +7,7 @@ class MyClass {
   public var myVar : String;
 };
 def myObj = MyClass {};
-var context = FXLocal.getContext();
+var context = VisageLocal.getContext();
 var clssref = context.findClass(myObj.getClass().getName());
 var setter = clssref.getVariable("myVar");
 var objmirror = context.mirrorOf(myObj);

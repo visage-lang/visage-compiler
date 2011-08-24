@@ -24,19 +24,19 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * A throw statement.
  */
-public class JFXThrow extends JFXExpression implements ThrowTree {
+public class VisageThrow extends VisageExpression implements ThrowTree {
 
-    public JFXExpression expr;
+    public VisageExpression expr;
 
-    protected JFXThrow() {
+    protected VisageThrow() {
         this(null);
     }
-    protected JFXThrow(JFXExpression expr) {
+    protected VisageThrow(VisageExpression expr) {
         this.expr = expr;
     }
 
@@ -45,16 +45,16 @@ public class JFXThrow extends JFXExpression implements ThrowTree {
         v.visitThrow(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.THROW;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.THROW;
     }
 
-    public JFXExpression getExpression() {
+    public VisageExpression getExpression() {
         return expr;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitThrow(this, d);
     }
 

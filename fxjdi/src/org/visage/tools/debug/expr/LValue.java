@@ -25,7 +25,7 @@
 
 package org.visage.tools.debug.expr;
 
-import org.visage.jdi.FXSequenceReference;
+import org.visage.jdi.VisageSequenceReference;
 import com.sun.jdi.*;
 import java.util.*;
 
@@ -94,9 +94,9 @@ abstract class LValue {
             "length".equals(fieldName)){
             return new LValueArrayLength((ArrayReference)val);
         }
-        if ((val instanceof FXSequenceReference) &&
+        if ((val instanceof VisageSequenceReference) &&
             "length".equals(fieldName)) {
-            return new LValueFXSequenceLength((FXSequenceReference)val, thread);
+            return new LValueFXSequenceLength((VisageSequenceReference)val, thread);
         }
         return new LValueInstanceMember(val, fieldName, thread);
     }
@@ -160,7 +160,7 @@ abstract class LValue {
         }
         Value arrayValue = interiorGetValue();
         try {
-            return (arrayValue instanceof FXSequenceReference)?
+            return (arrayValue instanceof VisageSequenceReference)?
                 new LValueFXSequenceElement(arrayValue, index, frameGetter.get().thread()) :
                 new LValueArrayElement(arrayValue, index);
         } catch (IncompatibleThreadStateException itse) {
@@ -618,10 +618,10 @@ abstract class LValue {
     }
 
     private static class LValueFXSequenceLength extends LValue {
-        final FXSequenceReference sequenceRef;
+        final VisageSequenceReference sequenceRef;
         final ThreadReference thread;
 
-        LValueFXSequenceLength (FXSequenceReference value, ThreadReference thread) {
+        LValueFXSequenceLength (VisageSequenceReference value, ThreadReference thread) {
             this.sequenceRef = value;
             this.thread = thread;
         }
@@ -678,16 +678,16 @@ abstract class LValue {
     }
 
     private static class LValueFXSequenceElement extends LValue {
-        final FXSequenceReference sequence;
+        final VisageSequenceReference sequence;
         final int index;
         final ThreadReference thread;
 
         LValueFXSequenceElement(Value value, int index, ThreadReference thread) throws ParseException {
-            if (!(value instanceof FXSequenceReference)) {
+            if (!(value instanceof VisageSequenceReference)) {
                 throw new ParseException(
                        "Must be sequence type: " + value);
             }
-            this.sequence = (FXSequenceReference)value;
+            this.sequence = (VisageSequenceReference)value;
             this.index = index;
             this.thread = thread;
         }

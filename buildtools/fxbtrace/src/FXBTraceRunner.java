@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  *
  * 1. Download the btrace binary bundle from https://btrace.dev.java.net/
  * 2. Extract it to BTRACE_HOME
- * 3. Run this class using % java options FXBTraceRunner options
+ * 3. Run this class using % java options VisageBTraceRunner options
  * In order to the following environment variables or properties must be set,
  * this is to facilitate testing of arbitrary SDK and test specimens.
  *   a. BUILD_DIR   or build.dir     : clean location for the build files
@@ -64,21 +64,21 @@ import java.util.logging.Logger;
  * 
  * Notes:
  *  VM parameters to the test specimen may be passed as follows:
- *  % java -DFXBTraceRunner.vmoptions="-Xmx512m, -Xss128, -Xfoobar=XX" FXBTraceRunner options
+ *  % java -DFXBTraceRunner.vmoptions="-Xmx512m, -Xss128, -Xfoobar=XX" VisageBTraceRunner options
  * 
  * Files:
  *  a. visage/visage-compiler/buildtools/fxbtrace/btrace_scripts/*.java
  *     Various btrace script files that can be used to trace Visage apps.
  * 
- *  b. visage/visage-compiler/buildtools/fxbtrace/src/FXBTraceRunner.java
+ *  b. visage/visage-compiler/buildtools/fxbtrace/src/VisageBTraceRunner.java
  *     This is simply a runner script takes care of compile the script, 
  *     running btrace on the application, killing the application.
  *  
  *  c. Output files in build directory:
  *     <btrace-script-class>.class.btrace : btrace output
  */
-public class FXBTraceRunner {
-    static final Logger logger = Logger.getLogger(FXBTraceRunner.class.getName());
+public class VisageBTraceRunner {
+    static final Logger logger = Logger.getLogger(VisageBTraceRunner.class.getName());
     static final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
     static boolean debug = true;
     
@@ -92,7 +92,7 @@ public class FXBTraceRunner {
     static final String BASE_DIR    = System.getProperty("base.dir", 
             System.getenv("BASE_DIR"));
    
-    static final String VISAGEBTRACERUNNER_NAME = "FXTrackerRunner"; 
+    static final String VISAGEBTRACERUNNER_NAME = "VisageTrackerRunner"; 
     static final String BTRACE_CLIENT_JAR = BTRACE_HOME + "/build/btrace-client.jar";
     static final String VISAGERT_JAR = VISAGE_HOME + "/lib/shared/visagert.jar";
     static final String BTRACE_COMPILER = "com.sun.btrace.compiler.Compiler";

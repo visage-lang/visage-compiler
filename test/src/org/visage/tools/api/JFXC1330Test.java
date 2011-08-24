@@ -7,7 +7,7 @@ package org.visage.tools.api;
 
 import org.visage.api.JavafxcTask;
 import org.visage.api.tree.ClassDeclarationTree;
-import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.SequenceIndexedTree;
 import org.visage.api.tree.UnitTree;
 import org.visage.api.tree.SourcePositions;
@@ -54,7 +54,7 @@ public class JFXC1330Test {
             final JavafxcTrees trees = JavafxcTrees.instance(visageTask);
             final SourcePositions sp = trees.getSourcePositions();
             for (final UnitTree unit : treeList) {
-                JavaFXTreePathScanner scanner = new JavaFXTreePathScanner<Object,Void>() {
+                VisageTreePathScanner scanner = new VisageTreePathScanner<Object,Void>() {
                     @Override
                     public Object visitSequenceIndexed(SequenceIndexedTree node, Void p) {
                         assertEquals(37, sp.getStartPosition(unit, node));

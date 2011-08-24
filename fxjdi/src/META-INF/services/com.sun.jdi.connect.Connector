@@ -1,7 +1,7 @@
-org.visage.jdi.connect.FXLaunchingConnector
-org.visage.jdi.connect.FXProcessAttachingConnector
-org.visage.jdi.connect.FXRawLaunchingConnector
-# org.visage.jdi.connect.FXSharedMemoryAttachingConnector
-# org.visage.jdi.connect.FXSharedMemoryListeningConnector
-org.visage.jdi.connect.FXSocketAttachingConnector
-org.visage.jdi.connect.FXSocketListeningConnector
+org.visage.jdi.connect.VisageLaunchingConnector
+org.visage.jdi.connect.VisageProcessAttachingConnector
+org.visage.jdi.connect.VisageRawLaunchingConnector
+# org.visage.jdi.connect.VisageSharedMemoryAttachingConnector
+# org.visage.jdi.connect.VisageSharedMemoryListeningConnector
+org.visage.jdi.connect.VisageSocketAttachingConnector
+org.visage.jdi.connect.VisageSocketListeningConnector

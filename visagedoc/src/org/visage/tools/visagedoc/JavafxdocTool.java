@@ -133,15 +133,15 @@ public class JavafxdocTool extends org.visage.tools.main.JavafxCompiler {
         clsreader.sourceCompleter = docClasses ? null : this;
 
         ListBuffer<String> filenames = new ListBuffer<String>();
-        ListBuffer<JFXScript> classTrees = new ListBuffer<JFXScript>();
-        ListBuffer<JFXScript> packTrees = new ListBuffer<JFXScript>();
+        ListBuffer<VisageScript> classTrees = new ListBuffer<VisageScript>();
+        ListBuffer<VisageScript> packTrees = new ListBuffer<VisageScript>();
 
         try {
             for (List<String> it = javaNames; it.nonEmpty(); it = it.tail) {
                 String name = it.head;
                 if (!docClasses && name.endsWith(".visage") && new File(name).exists()) {
                     docenv.notice("main.Loading_source_file", name);
-                        JFXScript tree = parse(name);
+                        VisageScript tree = parse(name);
                         classTrees.append(tree);
                 } else if (isValidPackageName(name)) {
                     filenames = filenames.append(name);
@@ -194,7 +194,7 @@ public class JavafxdocTool extends org.visage.tools.main.JavafxCompiler {
      * .java files found in such a directory to args.
      */
     private void parsePackageClasses(String name,
-                                     ListBuffer<JFXScript> trees,
+                                     ListBuffer<VisageScript> trees,
                                      List<String> excludedPackages)
         throws IOException {
         if (excludedPackages.contains(name)) {
@@ -351,18 +351,18 @@ public class JavafxdocTool extends org.visage.tools.main.JavafxCompiler {
     /**
      * From a list of top level trees, return the list of contained class definitions
      */
-    List<JFXClassDeclaration> listClasses(List<JFXScript> trees) {
-        ListBuffer<JFXClassDeclaration> result = new ListBuffer<JFXClassDeclaration>();
-        for (JFXScript t : trees) {
-            for (JFXTree def : t.defs) {
-                if (def instanceof JFXClassDeclaration)
-                    result.append((JFXClassDeclaration)def);
+    List<VisageClassDeclaration> listClasses(List<VisageScript> trees) {
+        ListBuffer<VisageClassDeclaration> result = new ListBuffer<VisageClassDeclaration>();
+        for (VisageScript t : trees) {
+            for (VisageTree def : t.defs) {
+                if (def instanceof VisageClassDeclaration)
+                    result.append((VisageClassDeclaration)def);
             }
         }
         return result.toList();
     }
     
-    private JFXScript parse(String filename) throws IOException {
+    private VisageScript parse(String filename) throws IOException {
         JavacFileManager fm = (JavacFileManager)fileManager;
         return parse(fm.getJavaFileObjectsFromStrings(List.of(filename)).iterator().next());
     }

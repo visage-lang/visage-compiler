@@ -23,12 +23,12 @@
 
 package org.visage.functions;
 
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 
 public class Function2<R, A1, A2> extends Function<R> {
     public Function2() {}
     
-    public Function2(final FXObject implementor, final int number) {
+    public Function2(final VisageObject implementor, final int number) {
         super(implementor, number);
     }
     

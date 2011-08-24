@@ -33,7 +33,7 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Symbol.*;
 
 import org.visage.tools.code.JavafxFlags;
-import org.visage.tools.tree.JFXFunctionDefinition;
+import org.visage.tools.tree.VisageFunctionDefinition;
 import java.text.CollationKey;
 
 import java.lang.reflect.Modifier;
@@ -57,7 +57,7 @@ public abstract class ExecutableMemberDocImpl
      * Constructor.
      */
     public ExecutableMemberDocImpl(DocEnv env, MethodSymbol sym,
-                                   String rawDocs, JFXFunctionDefinition tree, Position.LineMap lineMap) {
+                                   String rawDocs, VisageFunctionDefinition tree, Position.LineMap lineMap) {
         super(env, sym, rawDocs, tree, lineMap);
         this.sym = sym;
     }

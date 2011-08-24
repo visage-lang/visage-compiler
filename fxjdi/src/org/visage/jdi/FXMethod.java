@@ -35,17 +35,17 @@ import java.util.List;
  *
  * @author sundar
  */
-public class FXMethod extends FXTypeComponent implements Method {
-    public FXMethod(FXVirtualMachine fxvm, Method underlying) {
+public class VisageMethod extends VisageTypeComponent implements Method {
+    public VisageMethod(VisageVirtualMachine fxvm, Method underlying) {
         super(fxvm, underlying);
     }
 
     public List<Location> allLineLocations() throws AbsentInformationException {
-        return FXWrapper.wrapLocations(virtualMachine(), underlying().allLineLocations());
+        return VisageWrapper.wrapLocations(virtualMachine(), underlying().allLineLocations());
     }
 
     public List<Location> allLineLocations(String stratum, String sourceName) throws AbsentInformationException {
-        return FXWrapper.wrapLocations(virtualMachine(), underlying().allLineLocations(stratum, sourceName));
+        return VisageWrapper.wrapLocations(virtualMachine(), underlying().allLineLocations(stratum, sourceName));
     }
 
     public List<String> argumentTypeNames() {
@@ -53,11 +53,11 @@ public class FXMethod extends FXTypeComponent implements Method {
     }
 
     public List<Type> argumentTypes() throws ClassNotLoadedException {
-        return FXWrapper.wrapTypes(virtualMachine(), underlying().argumentTypes());
+        return VisageWrapper.wrapTypes(virtualMachine(), underlying().argumentTypes());
     }
 
     public List<LocalVariable> arguments() throws AbsentInformationException {
-        return FXWrapper.wrapLocalVariables(virtualMachine(), underlying().arguments());
+        return VisageWrapper.wrapLocalVariables(virtualMachine(), underlying().arguments());
     }
 
     public byte[] bytecodes() {
@@ -105,24 +105,24 @@ public class FXMethod extends FXTypeComponent implements Method {
             (isJavaFXMethod() && isInternalMethod());
     }
 
-    public FXLocation location() {
-        return FXWrapper.wrap(virtualMachine(), underlying().location());
+    public VisageLocation location() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().location());
     }
 
-    public FXLocation locationOfCodeIndex(long index) {
-        return FXWrapper.wrap(virtualMachine(), underlying().locationOfCodeIndex(index));
+    public VisageLocation locationOfCodeIndex(long index) {
+        return VisageWrapper.wrap(virtualMachine(), underlying().locationOfCodeIndex(index));
     }
 
     public List<Location> locationsOfLine(int line) throws AbsentInformationException {
-        return FXWrapper.wrapLocations(virtualMachine(), underlying().locationsOfLine(line));
+        return VisageWrapper.wrapLocations(virtualMachine(), underlying().locationsOfLine(line));
     }
 
     public List<Location> locationsOfLine(String stratum, String sourceName, int line) throws AbsentInformationException {
-        return FXWrapper.wrapLocations(virtualMachine(), underlying().locationsOfLine(stratum, sourceName, line));
+        return VisageWrapper.wrapLocations(virtualMachine(), underlying().locationsOfLine(stratum, sourceName, line));
     }
 
-    public FXType returnType() throws ClassNotLoadedException {
-        return FXWrapper.wrap(virtualMachine(), underlying().returnType());
+    public VisageType returnType() throws ClassNotLoadedException {
+        return VisageWrapper.wrap(virtualMachine(), underlying().returnType());
     }
 
     public String returnTypeName() {
@@ -130,15 +130,15 @@ public class FXMethod extends FXTypeComponent implements Method {
     }
 
     public List<LocalVariable> variables() throws AbsentInformationException {
-        return FXWrapper.wrapLocalVariables(virtualMachine(), underlying().variables());
+        return VisageWrapper.wrapLocalVariables(virtualMachine(), underlying().variables());
     }
 
     public List<LocalVariable> variablesByName(String name) throws AbsentInformationException {
-        return FXWrapper.wrapLocalVariables(virtualMachine(), underlying().variablesByName(name));
+        return VisageWrapper.wrapLocalVariables(virtualMachine(), underlying().variablesByName(name));
     }
 
     public int compareTo(Method o) {
-        return underlying().compareTo(FXWrapper.unwrap(o));
+        return underlying().compareTo(VisageWrapper.unwrap(o));
     }
 
     @Override

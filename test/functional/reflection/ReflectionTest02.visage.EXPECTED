@@ -3,13 +3,13 @@ class ReflectionTest02
   Super classes of ReflectionTest02:
     class ReflectionTest02
     class java.lang.Object
-    class org.visage.runtime.FXBase
+    class org.visage.runtime.VisageBase
   Mixin class: false
   Visage Type: true
   class java.lang.Object is assignable from class ReflectionTest02
   class ReflectionTest02 is not assignable from class java.lang.Object
-  class org.visage.runtime.FXBase is assignable from class ReflectionTest02
-  class ReflectionTest02 is not assignable from class org.visage.runtime.FXBase
+  class org.visage.runtime.VisageBase is assignable from class ReflectionTest02
+  class ReflectionTest02 is not assignable from class org.visage.runtime.VisageBase
 MEMBERS of class ReflectionTest02
    _clzStrings  isStatic=true; Declaring class: ReflectionTest02 
    _context  isStatic=true; Declaring class: ReflectionTest02 
@@ -39,7 +39,7 @@ MEMBERS of class ReflectionTest02
    wait  isStatic=false; Declaring class: java.lang.Object 
 VARIABLES of class ReflectionTest02
   _clzStrings type:null  static=true; Decl.class: ReflectionTest02 
-  _context type:visage.reflect.FXLocal.Context  static=true; Decl.class: ReflectionTest02 
+  _context type:visage.reflect.VisageLocal.Context  static=true; Decl.class: ReflectionTest02 
 FUNCTIONS of class ReflectionTest02
   Void _func0() min_args=0; var_args: false
   class java.lang.String _func1() min_args=1; var_args: false
@@ -72,15 +72,15 @@ class ReflectionTest02.TestClass
     class ReflectionTest02.BaseTestClass
     class ReflectionTest02.TestClass
     class java.lang.Object
-    class org.visage.runtime.FXBase
+    class org.visage.runtime.VisageBase
   Mixin class: false
   Visage Type: true
   class ReflectionTest02.BaseTestClass is assignable from class ReflectionTest02.TestClass
   class ReflectionTest02.TestClass is not assignable from class ReflectionTest02.BaseTestClass
   class java.lang.Object is assignable from class ReflectionTest02.TestClass
   class ReflectionTest02.TestClass is not assignable from class java.lang.Object
-  class org.visage.runtime.FXBase is assignable from class ReflectionTest02.TestClass
-  class ReflectionTest02.TestClass is not assignable from class org.visage.runtime.FXBase
+  class org.visage.runtime.VisageBase is assignable from class ReflectionTest02.TestClass
+  class ReflectionTest02.TestClass is not assignable from class org.visage.runtime.VisageBase
 MEMBERS of class ReflectionTest02.TestClass
    clone  isStatic=false; Declaring class: java.lang.Object 
    equals  isStatic=false; Declaring class: java.lang.Object 

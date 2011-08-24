@@ -24,20 +24,20 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import com.sun.tools.mjavac.code.Type;
 
 /**
  * A return statement.
  */
-public class JFXReturn extends JFXExpression implements ReturnTree {
+public class VisageReturn extends VisageExpression implements ReturnTree {
 
-    public JFXExpression expr;
+    public VisageExpression expr;
     public Type returnType = null;
 
     public boolean nonLocalReturn = false;
 
-    protected JFXReturn(JFXExpression expr) {
+    protected VisageReturn(VisageExpression expr) {
         this.expr = expr;
     }
 
@@ -46,16 +46,16 @@ public class JFXReturn extends JFXExpression implements ReturnTree {
         v.visitReturn(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.RETURN;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.RETURN;
     }
 
-    public JFXExpression getExpression() {
+    public VisageExpression getExpression() {
         return expr;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitReturn(this, d);
     }
 

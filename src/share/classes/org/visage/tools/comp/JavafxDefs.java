@@ -68,7 +68,7 @@ public class JavafxDefs {
     public static final String flags_AttributeFieldPrefix = "VFLG$";
 
     /**
-     * Prefixes and name strings of generated FXObject fields
+     * Prefixes and name strings of generated VisageObject fields
      *
      * Format: *_FXObjectFieldNameString
      */
@@ -129,14 +129,14 @@ public class JavafxDefs {
     public static final String cBoundForOverSequence = sequence_PackageString + ".BoundForOverSequence";
     public static final String cBoundForOverNullableSingleton = sequence_PackageString + ".BoundForOverNullableSingleton";
     public static final String cBoundForOverSingleton = sequence_PackageString + ".BoundForOverSingleton";
-    public static final String cBoundForPartI = sequence_PackageString + ".BoundFor$FXForPart";
+    public static final String cBoundForPartI = sequence_PackageString + ".BoundFor$VisageForPart";
     public static final String cObjectArraySequence = sequence_PackageString + ".ObjectArraySequence";
 
     // in runtime package -- public
-    public static final String cFXBase = runtime_PackageString + ".FXBase";
-    public static final String cFXObject = runtime_PackageString + ".FXObject";
+    public static final String cFXBase = runtime_PackageString + ".VisageBase";
+    public static final String cFXObject = runtime_PackageString + ".VisageObject";
     public static final String cErrorHandler = runtime_PackageString + ".ErrorHandler";
-    public static final String cFXMixin = runtime_PackageString + ".FXMixin";
+    public static final String cFXMixin = runtime_PackageString + ".VisageMixin";
     public static final String cTypeInfo = runtime_PackageString + ".TypeInfo";
     public static final String cNonLocalReturnException = runtime_PackageString + ".NonLocalReturnException";
     public static final String cNonLocalBreakException = runtime_PackageString + ".NonLocalBreakException";
@@ -144,11 +144,11 @@ public class JavafxDefs {
     // in runtime package
     private static final String cUtil = runtime_PackageString + ".Util";
     private static final String cChecks = runtime_PackageString + ".Checks";
-    private static final String cFXConstant = runtime_PackageString + ".FXConstant";
+    private static final String cFXConstant = runtime_PackageString + ".VisageConstant";
     private static final String cPointer = runtime_PackageString + ".Pointer";
     // in runtime.util package
     private static final String cStringLocalization = runtimeUtil_PackageString + ".StringLocalization";
-    private static final String cFXFormatter = runtimeUtil_PackageString + ".FXFormatter";
+    private static final String cFXFormatter = runtimeUtil_PackageString + ".VisageFormatter";
     // in java.lang package
     private static final String cMath = javaLang_PackageString + ".Math";
     private static final String cString = javaLang_PackageString + ".String";
@@ -247,12 +247,12 @@ public class JavafxDefs {
 
     final RuntimeMethod ErrorHandler_bindException;
 
-    final RuntimeMethod FXBase_switchDependence;
-    final RuntimeMethod FXBase_removeDependent;
-    final RuntimeMethod FXBase_addDependent;
-    final RuntimeMethod FXBase_makeInitMap;
+    final RuntimeMethod VisageBase_switchDependence;
+    final RuntimeMethod VisageBase_removeDependent;
+    final RuntimeMethod VisageBase_addDependent;
+    final RuntimeMethod VisageBase_makeInitMap;
 
-    final RuntimeMethod FXConstant_make;
+    final RuntimeMethod VisageConstant_make;
 
     final RuntimeMethod Pointer_make;
     final RuntimeMethod Pointer_switchDependence;
@@ -263,7 +263,7 @@ public class JavafxDefs {
     final RuntimeMethod Color_valueOf;
 
     final RuntimeMethod StringLocalization_getLocalizedString;
-    final RuntimeMethod FXFormatter_sprintf;
+    final RuntimeMethod VisageFormatter_sprintf;
     final RuntimeMethod String_format;
 
     /**
@@ -274,7 +274,7 @@ public class JavafxDefs {
     final Name cJavaLangThreadName;
 
     /**
-     * FXObject method Names
+     * VisageObject method Names
      */
     final Name applyDefaults_FXObjectMethodName;
     final Name invoke_FXObjectMethodName;
@@ -477,7 +477,7 @@ public class JavafxDefs {
     final Name flags_AttributeFieldPrefixName;
 
     /**
-     * Names of flags in FXObject
+     * Names of flags in VisageObject
      */
     final Name varFlagActionTest;
     final Name varFlagActionChange;
@@ -879,12 +879,12 @@ public class JavafxDefs {
 
         ErrorHandler_bindException = new RuntimeMethod(names, cErrorHandler, "bindException");
 
-        FXBase_switchDependence = new RuntimeMethod(names, cFXBase, "switchDependence$");
-        FXBase_removeDependent = new RuntimeMethod(names, cFXBase, "removeDependent$");
-        FXBase_addDependent = new RuntimeMethod(names, cFXBase, "addDependent$");
-        FXBase_makeInitMap = new RuntimeMethod(names, cFXBase, "makeInitMap$");
+        VisageBase_switchDependence = new RuntimeMethod(names, cFXBase, "switchDependence$");
+        VisageBase_removeDependent = new RuntimeMethod(names, cFXBase, "removeDependent$");
+        VisageBase_addDependent = new RuntimeMethod(names, cFXBase, "addDependent$");
+        VisageBase_makeInitMap = new RuntimeMethod(names, cFXBase, "makeInitMap$");
 
-        FXConstant_make = new RuntimeMethod(names, cFXConstant, "make");
+        VisageConstant_make = new RuntimeMethod(names, cFXConstant, "make");
 
         Pointer_make = new RuntimeMethod(names, cPointer, "make");
         Pointer_switchDependence = new RuntimeMethod(names, cPointer, "switchDependence");
@@ -895,7 +895,7 @@ public class JavafxDefs {
         Color_valueOf = new RuntimeMethod(names, cColor, "valueOf");
 
         StringLocalization_getLocalizedString = new RuntimeMethod(names, cStringLocalization, "getLocalizedString");
-        FXFormatter_sprintf = new RuntimeMethod(names, cFXFormatter, "sprintf");
+        VisageFormatter_sprintf = new RuntimeMethod(names, cFXFormatter, "sprintf");
         String_format = new RuntimeMethod(names, cString, "format");
 
         accessorPrefixes = new Name[] {

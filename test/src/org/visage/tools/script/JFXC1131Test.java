@@ -5,7 +5,7 @@
 
 package org.visage.tools.script;
 
-import org.visage.api.JavaFXScriptEngine;
+import org.visage.api.VisageScriptEngine;
 import java.io.File;
 import java.io.FileReader;
 import javax.script.Bindings;
@@ -27,7 +27,7 @@ public class JFXC1131Test {
         ScriptEngineManager manager = new ScriptEngineManager();
         manager.put("greeting", "Hello");
         ScriptEngine engine = manager.getEngineByExtension("visage");
-        assertTrue(engine instanceof JavaFXScriptEngine);
+        assertTrue(engine instanceof VisageScriptEngine);
         File script = new File("test/src/org/visage/tools/script/JFXC1131.visage");
         engine.getContext().setAttribute(ScriptEngine.FILENAME, script.getAbsolutePath(), ScriptContext.ENGINE_SCOPE);
         Bindings bindings = new SimpleBindings();

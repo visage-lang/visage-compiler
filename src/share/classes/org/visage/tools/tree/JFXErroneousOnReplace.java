@@ -28,11 +28,11 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 
-public class JFXErroneousOnReplace extends JFXOnReplace {
+public class VisageErroneousOnReplace extends VisageOnReplace {
     
     /**
      * This class is just an Erroneous node masquerading as
@@ -40,11 +40,11 @@ public class JFXErroneousOnReplace extends JFXOnReplace {
      * stores a local erroneous block and uses this for the
      * vistor pattern etc.
      */
-    private JFXErroneous errNode;
+    private VisageErroneous errNode;
 
-    protected JFXErroneousOnReplace(List<? extends JFXTree> errs, Kind triggerKind) {
+    protected VisageErroneousOnReplace(List<? extends VisageTree> errs, Kind triggerKind) {
         super(triggerKind);
-        errNode = new JFXErroneous(errs);
+        errNode = new VisageErroneous(errs);
     }
     
     @Override
@@ -52,7 +52,7 @@ public class JFXErroneousOnReplace extends JFXOnReplace {
         v.visitErroneous(errNode);
     }
     
-     public List<? extends JFXTree> getErrorTrees() {
+     public List<? extends VisageTree> getErrorTrees() {
         return errNode.getErrorTrees();
     }
         
@@ -62,12 +62,12 @@ public class JFXErroneousOnReplace extends JFXOnReplace {
     }
     
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.ERRONEOUS;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.ERRONEOUS;
     }
 
     @Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitErroneous(errNode, data);
     }
 

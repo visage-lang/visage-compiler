@@ -37,7 +37,7 @@ import org.apache.tools.ant.types.CommandlineJava;
 import org.apache.tools.ant.types.Path;
 
 /**
- * FXWrapperTestCase
+ * VisageWrapperTestCase
  *
  * @author Brian Goetz
  */

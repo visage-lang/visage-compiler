@@ -25,7 +25,7 @@ package org.visage.tools.tree;
 
 import org.visage.api.JavafxBindStatus;
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import org.visage.tools.code.JavafxVarSymbol;
 
 import com.sun.tools.mjavac.util.Name;
@@ -33,32 +33,32 @@ import com.sun.tools.mjavac.util.Name;
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
-public class JFXForExpressionInClause extends JFXTree implements ForExpressionInClauseTree, JFXBoundMarkable {
+public class VisageForExpressionInClause extends VisageTree implements ForExpressionInClauseTree, VisageBoundMarkable {
 
-    public final JFXVar var;
-    public JFXExpression seqExpr;
-    private JFXExpression whereExpr;
+    public final VisageVar var;
+    public VisageExpression seqExpr;
+    private VisageExpression whereExpr;
     private boolean hasWhere = false;
     public Name label;
 
     private boolean indexUsed;
     private JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;
 
-    public JFXVar boundHelper;
+    public VisageVar boundHelper;
     public JavafxVarSymbol indexVarSym;
     public JavafxVarSymbol inductionVarSym;
     public JavafxVarSymbol boundResultVarSym;
 
-    protected JFXForExpressionInClause() {
+    protected VisageForExpressionInClause() {
         this.var        = null;
         this.seqExpr    = null;
         this.whereExpr  = null;
     }
 
-    protected JFXForExpressionInClause(
-            JFXVar var,
-            JFXExpression seqExpr,
-            JFXExpression whereExpr) {
+    protected VisageForExpressionInClause(
+            VisageVar var,
+            VisageExpression seqExpr,
+            VisageExpression whereExpr) {
         this.var = var;
         this.seqExpr = seqExpr;
         this.whereExpr = whereExpr;
@@ -69,19 +69,19 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
         v.visitForExpressionInClause(this);
     }
 
-    public JFXVar getVar() {
+    public VisageVar getVar() {
         return var;
     }
 
-    public JFXVar getVariable() {
+    public VisageVar getVariable() {
         return var;
     }
 
-    public JFXExpression getSequenceExpression() {
+    public VisageExpression getSequenceExpression() {
         return seqExpr;
     }
 
-    public JFXExpression getWhereExpression() {
+    public VisageExpression getWhereExpression() {
         return whereExpr;
     }
 
@@ -89,7 +89,7 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
         return hasWhere;
     }
 
-    public void setWhereExpr(JFXExpression whereExpr) {
+    public void setWhereExpr(VisageExpression whereExpr) {
         this.whereExpr = whereExpr;
         if (whereExpr != null) {
             this.hasWhere = true;
@@ -109,11 +109,11 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
         return JavafxTag.FOR_EXPRESSION_IN_CLAUSE;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.FOR_EXPRESSION_IN_CLAUSE;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.FOR_EXPRESSION_IN_CLAUSE;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitForExpressionInClause(this, d);
     }
 

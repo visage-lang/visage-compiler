@@ -1,7 +1,7 @@
 /* test for the StringLocalizer.associate() function
  *
  * @test
- * @compile foo/bar/FXPropTest.visage
+ * @compile foo/bar/VisagePropTest.visage
  * @run
  */
 
@@ -9,7 +9,7 @@ import java.lang.System;
 import java.util.*;
 
 import visage.util.StringLocalizer;
-import foo.bar.FXPropTest;
+import foo.bar.VisagePropTest;
 
 // save the default locale for testing
 var curLoc = Locale.getDefault();
@@ -18,24 +18,24 @@ try {
     // set the default locale to Japan
     Locale.setDefault(Locale.JAPAN);
 
-    var aTest = FXPropTest{};
+    var aTest = VisagePropTest{};
 
     // This should print the originals
     aTest.print();
 
     // This should print the translated strings in 
-    // foo/bar/FXPropTestResources_ja.fxproperties
-    StringLocalizer.associate("foo.bar.FXPropTestResources", "foo.bar", "FXPropTest.visage");
+    // foo/bar/VisagePropTestResources_ja.fxproperties
+    StringLocalizer.associate("foo.bar.VisagePropTestResources", "foo.bar", "VisagePropTest.visage");
     StringLocalizer.associate("foo.FooResources", "foo.bar");
     aTest.print();
 
     // This should print the translated strings in 
     // foo/FooResources_ja.fxproperties
-    StringLocalizer.dissociate("foo.bar", "FXPropTest.visage");
+    StringLocalizer.dissociate("foo.bar", "VisagePropTest.visage");
     aTest.print();
 
     // This should print the originals
-    StringLocalizer.associate("foo.bar.FXPropTestResources", "foo.bar", "FXPropTest.visage");
+    StringLocalizer.associate("foo.bar.VisagePropTestResources", "foo.bar", "VisagePropTest.visage");
     StringLocalizer.dissociate("foo.bar");
     aTest.print();
 

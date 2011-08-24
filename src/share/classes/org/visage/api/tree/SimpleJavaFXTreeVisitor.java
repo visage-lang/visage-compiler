@@ -28,7 +28,7 @@ package org.visage.api.tree;
  *
  * @author Tom Ball
  */
-public class SimpleJavaFXTreeVisitor <R,P> implements JavaFXTreeVisitor<R,P> {
+public class SimpleJavaFXTreeVisitor <R,P> implements VisageTreeVisitor<R,P> {
 
     protected final R DEFAULT_VALUE;
 

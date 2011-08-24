@@ -28,8 +28,8 @@ import java.util.*;
 import com.sun.java.browser.plugin2.liveconnect.v1.*;
 import visage.reflect.*;
 
-public class FXClassDelegate extends FXTypeDelegate {
-    public FXClassDelegate(FXClassType clazz, Bridge bridge) {
+public class VisageClassDelegate extends VisageTypeDelegate {
+    public VisageClassDelegate(VisageClassType clazz, Bridge bridge) {
         this.clazz = clazz;
         this.bridge = bridge;
     }
@@ -60,7 +60,7 @@ public class FXClassDelegate extends FXTypeDelegate {
                             boolean isStatic,
                             boolean objectIsApplet,
                             Result[] result) throws Exception {
-        FXValue val = getField0(fieldName, receiver, isStatic, objectIsApplet);
+        VisageValue val = getField0(fieldName, receiver, isStatic, objectIsApplet);
         if (val != null) {
             // FIXME: figure out skipUnboxing flag
             result[0] = new Result(unbox(val), false);
@@ -68,14 +68,14 @@ public class FXClassDelegate extends FXTypeDelegate {
         return true;
     }
 
-    private FXValue getField0(String fieldName,
+    private VisageValue getField0(String fieldName,
                               Object receiver,
                               boolean isStatic,
                               boolean objectIsApplet) throws Exception {
         if (varMap == null) {
             collectVariables();
         }
-        FXVarMember var = varMap.get(fieldName);
+        VisageVarMember var = varMap.get(fieldName);
         if (var == null) {
             // Try again with the lower-case / case-insensitive version
             var = lowerCaseVarMap.get(fieldName);
@@ -83,7 +83,7 @@ public class FXClassDelegate extends FXTypeDelegate {
         if (var == null) {
             throw new NoSuchFieldException(fieldName);
         }
-        return var.getValue((FXObjectValue) receiver);
+        return var.getValue((VisageObjectValue) receiver);
     }
 
 
@@ -92,19 +92,19 @@ public class FXClassDelegate extends FXTypeDelegate {
                             Object value,
                             boolean isStatic,
                             boolean objectIsApplet) throws Exception {
-        setField0(fieldName, (FXObjectValue) receiver, value, isStatic, objectIsApplet);
+        setField0(fieldName, (VisageObjectValue) receiver, value, isStatic, objectIsApplet);
         return true;
     }
 
     private void setField0(String fieldName,
-                           FXObjectValue receiver,
+                           VisageObjectValue receiver,
                            Object value,
                            boolean isStatic,
                            boolean objectIsApplet) throws Exception {
         if (varMap == null) {
             collectVariables();
         }
-        FXVarMember var = varMap.get(fieldName);
+        VisageVarMember var = varMap.get(fieldName);
         if (var == null) {
             // Try again with the lower-case / case-insensitive version
             var = lowerCaseVarMap.get(fieldName);
@@ -112,7 +112,7 @@ public class FXClassDelegate extends FXTypeDelegate {
         if (var == null) {
             throw new NoSuchFieldException(fieldName);
         }
-        var.setValue(receiver, (FXValue) bridge.convert(value, var.getType()));
+        var.setValue(receiver, (VisageValue) bridge.convert(value, var.getType()));
     }
 
     public boolean hasField(String fieldName,
@@ -120,17 +120,17 @@ public class FXClassDelegate extends FXTypeDelegate {
                             boolean isStatic,
                             boolean objectIsApplet,
                             boolean[] result) {
-        result[0] = hasField0(fieldName, (FXValue) receiver, objectIsApplet);
+        result[0] = hasField0(fieldName, (VisageValue) receiver, objectIsApplet);
         return true;
     }
 
     private boolean hasField0(String fieldName,
-                              FXValue receiver,
+                              VisageValue receiver,
                               boolean objectIsApplet) {
         if (varMap == null) {
             collectVariables();
         }
-        FXVarMember var = varMap.get(fieldName);
+        VisageVarMember var = varMap.get(fieldName);
         if (var == null) {
             // Try again with the lower-case / case-insensitive version
             var = lowerCaseVarMap.get(fieldName);
@@ -143,12 +143,12 @@ public class FXClassDelegate extends FXTypeDelegate {
                              boolean isStatic,
                              boolean objectIsApplet,
                              boolean[] result) {
-        result[0] = hasMethod0(methodName, (FXObjectValue) receiver, objectIsApplet);
+        result[0] = hasMethod0(methodName, (VisageObjectValue) receiver, objectIsApplet);
         return true;
     }
 
     private boolean hasMethod0(String methodName,
-                               FXObjectValue receiver,
+                               VisageObjectValue receiver,
                                boolean objectIsApplet) {
         if (functionMap == null) {
             collectFunctions();
@@ -168,8 +168,8 @@ public class FXClassDelegate extends FXTypeDelegate {
                                     boolean isStatic,
                                     boolean objectIsApplet,
                                     boolean[] result) {
-        boolean res = (hasField0(name, (FXObjectValue) receiver, objectIsApplet) ||
-                       hasMethod0(name, (FXObjectValue) receiver, objectIsApplet));
+        boolean res = (hasField0(name, (VisageObjectValue) receiver, objectIsApplet) ||
+                       hasMethod0(name, (VisageObjectValue) receiver, objectIsApplet));
         result[0] = res;
         return true;
     }
@@ -189,23 +189,23 @@ public class FXClassDelegate extends FXTypeDelegate {
     // Internals only below this point
     //
 
-    private FXClassType clazz;
+    private VisageClassType clazz;
     private Bridge bridge;
 
     // Map of the names of visible variables to the variables themselves
-    private Map<String,FXVarMember> varMap;
+    private Map<String,VisageVarMember> varMap;
     // Map of the lower-case names of visible variables to the variables themselves
-    private Map<String,FXVarMember> lowerCaseVarMap;
+    private Map<String,VisageVarMember> lowerCaseVarMap;
     // Map of the names of visible functions to the FunctionBundles they correspond to
     private Map<String,FunctionBundle> functionMap;
     // Lower-case version of the map above
     private Map<String,FunctionBundle> lowerCaseFunctionMap;
 
     private void collectVariables() {
-        List<FXVarMember> vars = clazz.getVariables(true);
-        Map<String,FXVarMember> varMap = new HashMap<String,FXVarMember>();
-        Map<String,FXVarMember> lowerCaseVarMap = new HashMap<String,FXVarMember>();
-        for (FXVarMember var : vars) {
+        List<VisageVarMember> vars = clazz.getVariables(true);
+        Map<String,VisageVarMember> varMap = new HashMap<String,VisageVarMember>();
+        Map<String,VisageVarMember> lowerCaseVarMap = new HashMap<String,VisageVarMember>();
+        for (VisageVarMember var : vars) {
             varMap.put(var.getName(), var);
             // Lower-case / case-insensitive version as well
             lowerCaseVarMap.put(var.getName().toLowerCase(), var);
@@ -215,19 +215,19 @@ public class FXClassDelegate extends FXTypeDelegate {
     }
 
     private class FunctionInfo {
-        private FXFunctionMember function;
-        private FXType[] argumentTypes;
+        private VisageFunctionMember function;
+        private VisageType[] argumentTypes;
         private boolean returnsVoid;
 
-        public FunctionInfo(FXFunctionMember function) {
+        public FunctionInfo(VisageFunctionMember function) {
             this.function = function;
             // Query the argument types
-            FXFunctionType type = function.getType();
-            argumentTypes = new FXType[type.minArgs()];
+            VisageFunctionType type = function.getType();
+            argumentTypes = new VisageType[type.minArgs()];
             for (int i = 0; i < argumentTypes.length; i++) {
                 argumentTypes[i] = type.getArgumentType(i);
             }
-            FXType retType = getReturnType();
+            VisageType retType = getReturnType();
             if (retType.equals(voidType)) {
                 returnsVoid = true;
             }
@@ -251,8 +251,8 @@ public class FXClassDelegate extends FXTypeDelegate {
                                 other.getArgumentTypes()));
         }
 
-        private boolean arraysEqual(FXType[] params1,
-                                    FXType[] params2) {
+        private boolean arraysEqual(VisageType[] params1,
+                                    VisageType[] params2) {
             if ((params1 == null) != (params2 == null)) {
                 return false;
             }
@@ -270,15 +270,15 @@ public class FXClassDelegate extends FXTypeDelegate {
             return true;
         }
 
-        public FXFunctionMember getFunction() { return function; }
+        public VisageFunctionMember getFunction() { return function; }
 
         public    String     getName()          { return getFunction().getName(); }
-        public    FXType[]   getArgumentTypes() { return argumentTypes;           }
+        public    VisageType[]   getArgumentTypes() { return argumentTypes;           }
 
         // This might do either an invoke() or a newInstance() operation;
         // in the case of newInstance(), the target is ignored and may be null
         public Object invoke(Object target, Object[] args) throws Exception {
-            Object res = function.invoke((FXObjectValue) target, (FXValue[]) args);
+            Object res = function.invoke((VisageObjectValue) target, (VisageValue[]) args);
             // Return Void.TYPE for methods returning void to
             // disambiguate null and void return values to the caller
             if (res == null && returnsVoid)
@@ -288,7 +288,7 @@ public class FXClassDelegate extends FXTypeDelegate {
 
         // This returns the return type for a Method or the declaring
         // class for a Constructor
-        public FXType getReturnType() {
+        public VisageType getReturnType() {
             return function.getType().getReturnType();
         }
 
@@ -301,7 +301,7 @@ public class FXClassDelegate extends FXTypeDelegate {
     private class FunctionBundle {
         protected List<FunctionInfo> functions = new ArrayList<FunctionInfo>();
 
-        public void add(FXFunctionMember function) {
+        public void add(VisageFunctionMember function) {
             FunctionInfo info = new FunctionInfo(function);
             // Filter out duplicate methods early
             if (!functions.contains(info)) {
@@ -312,13 +312,13 @@ public class FXClassDelegate extends FXTypeDelegate {
         public Result invoke(Object target, Object[] arguments) throws Exception {
             FunctionInfo chosenInfo = null;
             FunctionInfo ambiguousInfo = null;
-            FXType[] chosenParameterTypes = null;
+            VisageType[] chosenParameterTypes = null;
             int minNumConversions = 0;
             boolean ambiguous = false;
 
             for (Iterator iter = functions.iterator(); iter.hasNext(); ) {
                 FunctionInfo info = (FunctionInfo) iter.next();
-                FXType[] parameterTypes = info.getArgumentTypes();
+                VisageType[] parameterTypes = info.getArgumentTypes();
                 if (arguments == null) {
                     if (parameterTypes.length != 0)
                         continue;
@@ -330,7 +330,7 @@ public class FXClassDelegate extends FXTypeDelegate {
                 int numConversions = 0;
                 for (int i = 0; i < parameterTypes.length; i++) {
                     Object arg = arguments[i];
-                    FXType expectedType = parameterTypes[i];
+                    VisageType expectedType = parameterTypes[i];
                     int cost = bridge.conversionCost(arg, expectedType);
                     if (cost < 0) {
                         numConversions = -1;
@@ -368,27 +368,27 @@ public class FXClassDelegate extends FXTypeDelegate {
             }
             
             // Convert all arguments
-            FXValue[] newArgs = null;
+            VisageValue[] newArgs = null;
             if (arguments != null) {
-                newArgs = new FXValue[arguments.length];
+                newArgs = new VisageValue[arguments.length];
                 for (int i = 0; i < arguments.length; i++) {
-                    newArgs[i] = (FXValue) bridge.convert(arguments[i], chosenParameterTypes[i]);
+                    newArgs[i] = (VisageValue) bridge.convert(arguments[i], chosenParameterTypes[i]);
                 }
             } else {
                 // Visage reflection mechanism doesn't like null argument array
-                newArgs = new FXValue[0];
+                newArgs = new VisageValue[0];
             }
             Object ret = chosenInfo.invoke(target, newArgs);
-            // Convert certain FXValues back to Java values (primitives, Strings)
+            // Convert certain VisageValues back to Java values (primitives, Strings)
             return new Result(unbox(ret), false);
         }
     }
 
     private void collectFunctions() {
-        List<FXFunctionMember> funcs = clazz.getFunctions(true);
+        List<VisageFunctionMember> funcs = clazz.getFunctions(true);
         Map<String,FunctionBundle> funcMap = new HashMap<String,FunctionBundle>();
         Map<String,FunctionBundle> lowerCaseFuncMap = new HashMap<String,FunctionBundle>();
-        for (FXFunctionMember func : funcs) {
+        for (VisageFunctionMember func : funcs) {
             FunctionBundle bundle = funcMap.get(func.getName());
             if (bundle == null) {
                 bundle = new FunctionBundle();

@@ -24,20 +24,20 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * Indexof expression
  *
  * @author Per Bothner
  */
-public class JFXIndexof extends JFXExpression implements IndexofTree {
+public class VisageIndexof extends VisageExpression implements IndexofTree {
 
     /** Name of corresponding 'for'/'where' variable. */
-    public JFXIdent fname;
-    public JFXForExpressionInClause clause;
+    public VisageIdent fname;
+    public VisageForExpressionInClause clause;
 
-    protected JFXIndexof(JFXIdent fname) {
+    protected VisageIndexof(VisageIdent fname) {
         this.fname = fname;
     }
 
@@ -52,16 +52,16 @@ public class JFXIndexof extends JFXExpression implements IndexofTree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.INDEXOF;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.INDEXOF;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitIndexof(this, data);
     }
 
-    public JFXIdent getForVarIdentifier() {
+    public VisageIdent getForVarIdentifier() {
         return fname;
     }
 }

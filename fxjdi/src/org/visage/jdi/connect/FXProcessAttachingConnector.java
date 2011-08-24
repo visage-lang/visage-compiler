@@ -23,7 +23,7 @@
 
 package org.visage.jdi.connect;
 
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector.Argument;
@@ -35,18 +35,18 @@ import java.util.Map;
  *
  * @author sundar
  */
-public class FXProcessAttachingConnector extends FXConnector implements AttachingConnector {
-    public FXProcessAttachingConnector() {
+public class VisageProcessAttachingConnector extends VisageConnector implements AttachingConnector {
+    public VisageProcessAttachingConnector() {
         this(makePlatformConnector());
     }
 
-    public FXProcessAttachingConnector(AttachingConnector underlying) {
+    public VisageProcessAttachingConnector(AttachingConnector underlying) {
         super(underlying);
     }
 
     public VirtualMachine attach(Map<String, ? extends Argument> args)
             throws IOException, IllegalConnectorArgumentsException {
-        return FXWrapper.wrap(underlying().attach(args));
+        return VisageWrapper.wrap(underlying().attach(args));
     }
 
     @Override

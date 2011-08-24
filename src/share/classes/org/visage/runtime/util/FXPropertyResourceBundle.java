@@ -50,7 +50,7 @@ import java.util.logging.Logger;
 import org.visage.runtime.util.backport.ResourceBundle;
 import org.visage.runtime.util.backport.ResourceBundleEnumeration;
 
-class FXPropertyResourceBundle extends ResourceBundle {
+class VisagePropertyResourceBundle extends ResourceBundle {
 
     private static final String CHARTAG = "@charset \"";
     private static final List<String> FORMAT_VISAGEPROPERTIES
@@ -72,12 +72,12 @@ class FXPropertyResourceBundle extends ResourceBundle {
     // to be removed if we discard JDK 5 support
     private static final Locale ROOTLOCALE = new Locale("");
 
-    public FXPropertyResourceBundle(InputStream is, String resourceName) 
+    public VisagePropertyResourceBundle(InputStream is, String resourceName) 
                                                         throws IOException {
         this(getReader(is), resourceName);
     }
 
-    public FXPropertyResourceBundle(Reader reader, String resourceName)
+    public VisagePropertyResourceBundle(Reader reader, String resourceName)
                                                         throws IOException {
         lookup = new ConcurrentHashMap<String, Object>();
         initialize(reader, resourceName);
@@ -475,10 +475,10 @@ class FXPropertyResourceBundle extends ResourceBundle {
 	}
     }
 
-    static class FXPropertiesControl extends ResourceBundle.Control {
-	static final FXPropertiesControl INSTANCE = new FXPropertiesControl();
+    static class VisagePropertiesControl extends ResourceBundle.Control {
+	static final VisagePropertiesControl INSTANCE = new VisagePropertiesControl();
 
-	private FXPropertiesControl() {
+	private VisagePropertiesControl() {
 	}
 
         @Override
@@ -487,7 +487,7 @@ class FXPropertyResourceBundle extends ResourceBundle {
                 throw new NullPointerException();
             }
  
-            return FXPropertyResourceBundle.FORMAT_VISAGEPROPERTIES;
+            return VisagePropertyResourceBundle.FORMAT_VISAGEPROPERTIES;
         }
 
         @Override
@@ -540,7 +540,7 @@ class FXPropertyResourceBundle extends ResourceBundle {
 
 	    if (stream != null) {
 	        try {
-		    bundle = new FXPropertyResourceBundle(stream, resourceName);
+		    bundle = new VisagePropertyResourceBundle(stream, resourceName);
 	        } finally {
 		    stream.close();
 	        }
@@ -566,7 +566,7 @@ class FXPropertyResourceBundle extends ResourceBundle {
 
     private static void log(Level l, String msg) {
         if (logger == null) {
-            logger = Logger.getLogger("org.visage.runtime.util.FXPropertyResourceBundle");
+            logger = Logger.getLogger("org.visage.runtime.util.VisagePropertyResourceBundle");
         }
 
         logger.log(l, msg);

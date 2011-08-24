@@ -4,7 +4,7 @@ import com.sun.btrace.annotations.*;
 import static com.sun.btrace.BTraceUtils.*;
 
 /**
- * Print histogram of FXBase.notifyDependents$ calls every 10 sec.
+ * Print histogram of VisageBase.notifyDependents$ calls every 10 sec.
  * Class name and variable number are used as key for the histogram.
  *
  * @author A. Sundararajan
@@ -13,7 +13,7 @@ import static com.sun.btrace.BTraceUtils.*;
     private static Map<String, AtomicInteger> histo = newHashMap();
 
     @OnMethod(
-        clazz="org.visage.runtime.FXBase",
+        clazz="org.visage.runtime.VisageBase",
         method="notifyDependents$"
     )
     public static void onNotifyDependents(@Self Object obj, int varNum, int phase) {
@@ -28,7 +28,7 @@ import static com.sun.btrace.BTraceUtils.*;
     }
 
     @OnMethod(
-        clazz="org.visage.runtime.FXBase",
+        clazz="org.visage.runtime.VisageBase",
         method="notifyDependents$"
     )
     public static void onNotifyDependents(@Self Object obj, int varNum, int startPos, int endPos, int newLength, int phase) {

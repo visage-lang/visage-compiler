@@ -24,9 +24,9 @@
 package fxjdi;
 
 
-import org.visage.jdi.FXStackFrame;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageStackFrame;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.BreakpointEvent;
@@ -55,12 +55,12 @@ public class LocalVarTest extends JdbBase {
 
             BreakpointEvent bkpt = resumeToBreakpoint();
             // We hide Visage synthetic variables.
-            FXStackFrame frame = (FXStackFrame) bkpt.thread().frame(0);
+            VisageStackFrame frame = (VisageStackFrame) bkpt.thread().frame(0);
             LocalVariable var = frame.visibleVariableByName("_$UNUSED$_$ARGS$_");
             Assert.assertNull(var);
 
             // underlying (java) frame object exposes this variable.
-            StackFrame jframe = FXWrapper.unwrap(frame);
+            StackFrame jframe = VisageWrapper.unwrap(frame);
             var = jframe.visibleVariableByName("_$UNUSED$_$ARGS$_");
             Assert.assertNotNull(var);
 

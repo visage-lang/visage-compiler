@@ -29,11 +29,11 @@ package visage.reflect;
  * @profile desktop
  */
 
-public abstract class FXPrimitiveValue implements FXLocal.Value {
-    FXPrimitiveType type;
+public abstract class VisagePrimitiveValue implements VisageLocal.Value {
+    VisagePrimitiveType type;
 
     public boolean isNull() { return false; }
-    public FXPrimitiveType getType() { return type; }
-    public FXValue getItem(int index) { return this; }
+    public VisagePrimitiveType getType() { return type; }
+    public VisageValue getItem(int index) { return this; }
     public int getItemCount() {return isNull() ? 0 : 1; }
 }

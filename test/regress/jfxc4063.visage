@@ -3,11 +3,11 @@
  * @run
  */
 
-import visage.reflect.FXLocal;
-import visage.reflect.FXVarMember;
-import visage.reflect.FXValue;
-import visage.reflect.FXSequenceValue;
-import visage.reflect.FXSequenceType;
+import visage.reflect.VisageLocal;
+import visage.reflect.VisageVarMember;
+import visage.reflect.VisageValue;
+import visage.reflect.VisageSequenceValue;
+import visage.reflect.VisageSequenceType;
 
 
 var x=26;
@@ -18,7 +18,7 @@ public class A {
 def b = A{};
 def sq = [22, 23, 26];
 
-def cntxt = FXLocal.getContext();
+def cntxt = VisageLocal.getContext();
 
 function run() {
 
@@ -35,8 +35,8 @@ function run() {
     println("newobj.t1 is {nobj.t1}");
 }
 
-function buildSequence(v:FXVarMember, obj:Object[]):FXValue {
-    def elementType = (v.getType() as FXSequenceType).getComponentType();
+function buildSequence(v:VisageVarMember, obj:Object[]):VisageValue {
+    def elementType = (v.getType() as VisageSequenceType).getComponentType();
     def builder = cntxt.makeSequenceBuilder(elementType);
     for (o in obj) {
         builder.append(cntxt.mirrorOf(o));

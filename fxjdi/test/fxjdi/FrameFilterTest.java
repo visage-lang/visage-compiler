@@ -24,9 +24,9 @@
 package fxjdi;
 
 
-import org.visage.jdi.FXStackFrame;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageStackFrame;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.BreakpointEvent;
@@ -60,14 +60,14 @@ public class FrameFilterTest extends JdbBase {
             fxrun();
 
             BreakpointEvent bkpt = waitForBreakpointEvent();
-            FXStackFrame frame = (FXStackFrame) bkpt.thread().frame(0);
+            VisageStackFrame frame = (VisageStackFrame) bkpt.thread().frame(0);
 
             // onReplace$xx is internal visage method and so should not show up.
             Assert.assertEquals("visage$run$", frame.location().method().name());
 
             // onReplace$xx is internal visage method and so should show up in underlying
             // (java JDI) frames.
-            StackFrame jframe = FXWrapper.unwrap(bkpt.thread()).frame(0);
+            StackFrame jframe = VisageWrapper.unwrap(bkpt.thread()).frame(0);
             Assert.assertEquals("onReplace$xx", jframe.location().method().name());
             
             cont();

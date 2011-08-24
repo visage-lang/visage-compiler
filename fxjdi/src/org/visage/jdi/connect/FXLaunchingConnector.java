@@ -23,8 +23,8 @@
 
 package org.visage.jdi.connect;
 
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.connect.Connector.Argument;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.connect.LaunchingConnector;
@@ -36,18 +36,18 @@ import java.util.Map;
  *
  * @author sundar
  */
-public class FXLaunchingConnector extends FXConnector implements LaunchingConnector {
-    public FXLaunchingConnector() {
+public class VisageLaunchingConnector extends VisageConnector implements LaunchingConnector {
+    public VisageLaunchingConnector() {
         this(makePlatformConnector());
     }
     
-    public FXLaunchingConnector(LaunchingConnector underlying) {
+    public VisageLaunchingConnector(LaunchingConnector underlying) {
         super(underlying);
     }
 
-    public FXVirtualMachine launch(Map<String, ? extends Argument> args)
+    public VisageVirtualMachine launch(Map<String, ? extends Argument> args)
             throws IOException, IllegalConnectorArgumentsException, VMStartException {
-        return FXWrapper.wrap(underlying().launch(args));
+        return VisageWrapper.wrap(underlying().launch(args));
     }
 
     @Override

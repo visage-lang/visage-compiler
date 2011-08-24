@@ -3,10 +3,10 @@
  * @run
  */
 
-import visage.reflect.FXLocal;
-import visage.reflect.FXVarMember;
+import visage.reflect.VisageLocal;
+import visage.reflect.VisageVarMember;
 
-def cntxt = FXLocal.getContext();
+def cntxt = VisageLocal.getContext();
 
 public class A1 {
     public-init var n: Number on replace {

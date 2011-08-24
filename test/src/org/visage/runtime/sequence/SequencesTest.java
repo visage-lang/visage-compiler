@@ -24,7 +24,7 @@ package org.visage.runtime.sequence;
 
 import java.util.Comparator;
 
-import org.visage.runtime.JavaFXTestCase;
+import org.visage.runtime.VisageTestCase;
 import org.visage.runtime.TypeInfo;
 
 /**
@@ -32,7 +32,7 @@ import org.visage.runtime.TypeInfo;
  *
  * @author Michael Heinrichs
  */
-public class SequencesTest extends JavaFXTestCase {
+public class SequencesTest extends VisageTestCase {
 
     public static class DummyElement {
         public int id;

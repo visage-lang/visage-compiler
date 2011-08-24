@@ -1,5 +1,5 @@
 /**
- * Regression test JFXC-3586 : Compiled bind: ABORT not implemented JFXIndexof - non-bound-for with bound-index-of
+ * Regression test JFXC-3586 : Compiled bind: ABORT not implemented VisageIndexof - non-bound-for with bound-index-of
  *
  * Value test
  *

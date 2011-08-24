@@ -39,18 +39,18 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * FXUnitTestCase
+ * VisageUnitTestCase
  *
  * @author Brian Goetz
  */
-public class FXUnitTestWrapper extends TestCase {
+public class VisageUnitTestWrapper extends TestCase {
     private final TestCase object;
     private final File testFile;
     private final Method testMethod;
     private final Method setUp;
     private final Method tearDown;
 
-    public FXUnitTestWrapper(String name, File testFile, TestCase object, Method testMethod, Method setUp, Method tearDown) {
+    public VisageUnitTestWrapper(String name, File testFile, TestCase object, Method testMethod, Method setUp, Method tearDown) {
         super(name);
         this.testFile = testFile;
         this.object = object;
@@ -104,7 +104,7 @@ public class FXUnitTestWrapper extends TestCase {
         files.add(testFile.getPath());
         int errors = TestHelper.doCompile(buildDir.getPath(), TestHelper.getClassPath(buildDir), files, out, err);
         if (errors == 0) {
-            ClassLoader cl = new URLClassLoader(new URL[] { buildDir.toURL() }, FXUnitTestWrapper.class.getClassLoader());
+            ClassLoader cl = new URLClassLoader(new URL[] { buildDir.toURL() }, VisageUnitTestWrapper.class.getClassLoader());
             String className = testFile.getName();
             className = className.substring(0, className.length() - ".visage".length());
             Class<? extends TestCase> clazz = (Class<? extends TestCase>) cl.loadClass(className);
@@ -124,7 +124,7 @@ public class FXUnitTestWrapper extends TestCase {
             for (Method m : methods) {
                 if (m.getName().startsWith("test") && !Modifier.isStatic(m.getModifiers())) {
                     m.setAccessible(true);
-                    suite.addTest(new FXUnitTestWrapper(m.getName(), testFile, instance, m, setUp, tearDown));
+                    suite.addTest(new VisageUnitTestWrapper(m.getName(), testFile, instance, m, setUp, tearDown));
                 }
             }
         }

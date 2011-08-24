@@ -23,8 +23,8 @@
 
 package fxjdi;
 
-import org.visage.jdi.FXStackFrame;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageStackFrame;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.BreakpointEvent;

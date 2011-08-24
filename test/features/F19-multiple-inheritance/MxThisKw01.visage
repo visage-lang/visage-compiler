@@ -4,7 +4,7 @@
  * @test/fxunit
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
 /*
  * Use 'this' to access functions declared in the same mixin
@@ -30,7 +30,7 @@ class Mixee2 extends Mixin1 {
     }
 }
 
-public class MxThisKw01 extends FXTestCase {
+public class MxThisKw01 extends VisageTestCase {
     function testThisKeywordFunction() {
         var m1 = Mixee1 {};
         var m2 = Mixee2 {};

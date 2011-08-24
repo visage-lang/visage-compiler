@@ -27,11 +27,11 @@ import com.sun.jdi.InterfaceType;
 import com.sun.jdi.Method;
 
 /**
- * This class represents org.visage.runtime.FXObject interface type.
+ * This class represents org.visage.runtime.VisageObject interface type.
  *
  * @author sundar
  */
-public class FXObjectType extends FXInterfaceType {
+public class VisageObjectType extends VisageInterfaceType {
     private Method count$Method;
     private Method get$Method;
     private Method set$Method;
@@ -39,9 +39,9 @@ public class FXObjectType extends FXInterfaceType {
     private Method getFlags$Method;
     private Method setFlags$Method;
 
-    public FXObjectType(FXVirtualMachine fxvm, InterfaceType underlying) {
+    public VisageObjectType(VisageVirtualMachine fxvm, InterfaceType underlying) {
         super(fxvm, underlying);
-        if (! underlying.name().equals(FXVirtualMachine.VISAGE_OBJECT_TYPE_NAME)) {
+        if (! underlying.name().equals(VisageVirtualMachine.VISAGE_OBJECT_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }
         count$Method = underlying.methodsByName("count$").get(0);

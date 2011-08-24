@@ -24,8 +24,8 @@
 package org.visage.runtime;
 
 /**
- * FXExit
+ * VisageExit
  *
  * @author Saul Wold
  */
-public class FXExit extends ThreadDeath { }
+public class VisageExit extends ThreadDeath { }

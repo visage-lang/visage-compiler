@@ -29,20 +29,20 @@ package visage.reflect;
  * @profile desktop
  */
 
-public interface FXValue {
+public interface VisageValue {
     /** Get the type of this value.
      * This is depends on the value's "source", such as a variable's type.
      * This may not be what you want - you might want
-     * {{@link FXLocal.ObjectValue#getClassType} instead.
+     * {{@link VisageLocal.ObjectValue#getClassType} instead.
      * (Perhaps we should deprecate getType to avoid confusion.)
      */
-    public abstract FXType getType();
+    public abstract VisageType getType();
 
     public int getItemCount();
 
     public abstract boolean isNull();
 
-    public FXValue getItem(int index);
+    public VisageValue getItem(int index);
 
     public abstract String getValueString();
 }

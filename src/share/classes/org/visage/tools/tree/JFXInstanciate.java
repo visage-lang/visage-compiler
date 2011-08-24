@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
@@ -33,20 +33,20 @@ import com.sun.tools.mjavac.util.List;
 /**
  * A class declaration
  */
-public class JFXInstanciate extends JFXExpression implements InstantiateTree {
+public class VisageInstanciate extends VisageExpression implements InstantiateTree {
 
-    private final JavaFXKind fxKind;
-    private final JFXExpression clazz;
-    private final JFXClassDeclaration def;
-    private final List<JFXExpression> args;
-    private final List<JFXObjectLiteralPart> parts;
-    private final List<JFXVar> localVars;
+    private final VisageKind fxKind;
+    private final VisageExpression clazz;
+    private final VisageClassDeclaration def;
+    private final List<VisageExpression> args;
+    private final List<VisageObjectLiteralPart> parts;
+    private final List<VisageVar> localVars;
     public ClassSymbol sym;
     public Symbol constructor;
     public Symbol varDefinedByThis;
 
-    protected JFXInstanciate(JavaFXKind fxKind, JFXExpression clazz, JFXClassDeclaration def, List<JFXExpression> args,
-            List<JFXObjectLiteralPart> parts, List<JFXVar> localVars, ClassSymbol sym) {
+    protected VisageInstanciate(VisageKind fxKind, VisageExpression clazz, VisageClassDeclaration def, List<VisageExpression> args,
+            List<VisageObjectLiteralPart> parts, List<VisageVar> localVars, ClassSymbol sym) {
         this.fxKind = fxKind;
         this.clazz = clazz;
         this.def = def;
@@ -60,24 +60,24 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
         v.visitInstanciate(this);
     }
 
-    public JFXExpression getIdentifier() {
+    public VisageExpression getIdentifier() {
         return clazz;
     }
     
-    public List<JFXExpression> getArgs() {
+    public List<VisageExpression> getArgs() {
         return args;
     }
 
     public java.util.List<ExpressionTree> getArguments() {
-        return JFXTree.convertList(ExpressionTree.class, args);
+        return VisageTree.convertList(ExpressionTree.class, args);
     }
 
     public Symbol getIdentifierSym() {
         switch (clazz.getFXTag()) {
             case IDENT:
-                return ((JFXIdent) clazz).sym;
+                return ((VisageIdent) clazz).sym;
             case SELECT:
-                return ((JFXSelect) clazz).sym;
+                return ((VisageSelect) clazz).sym;
         }
         assert false;
         return null;
@@ -93,19 +93,19 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
      *  the compiler doesn't have to deal with them explicitly. Note that we still
      *  need to maintain access for IDE.
      */
-    public List<JFXVar> getLocalvars() {
+    public List<VisageVar> getLocalvars() {
         return localVars;
     }
 
-    public List<JFXObjectLiteralPart> getParts() {
+    public List<VisageObjectLiteralPart> getParts() {
         return parts;
     }
 
     public java.util.List<ObjectLiteralPartTree> getLiteralParts() {
-        return JFXTree.convertList(ObjectLiteralPartTree.class, parts);
+        return VisageTree.convertList(ObjectLiteralPartTree.class, parts);
     }
 
-    public JFXClassDeclaration getClassBody() {
+    public VisageClassDeclaration getClassBody() {
         return def;
     }
 
@@ -114,11 +114,11 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
         return JavafxTag.OBJECT_LITERAL;
     }
 
-    public JavaFXKind getJavaFXKind() {
+    public VisageKind getJavaFXKind() {
         return fxKind;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitInstantiate(this, data);
     }
 }

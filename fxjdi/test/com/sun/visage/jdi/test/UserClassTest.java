@@ -32,7 +32,7 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ClassType;
-import org.visage.jdi.FXReferenceType;
+import org.visage.jdi.VisageReferenceType;
 import com.sun.jdi.event.BreakpointEvent;
 import java.util.List;
 import org.junit.Test;
@@ -62,7 +62,7 @@ public class UserClassTest extends JavafxTestBase {
 
     void printUser(StackFrame frame, int count) {
         ReferenceType rt = frame.location().declaringType();
-        ClassType userClass = ((FXReferenceType)rt).javaFXUserClass();
+        ClassType userClass = ((VisageReferenceType)rt).javaFXUserClass();
         // The ObjLit class has an inconsistend suffixe, eg sometimes $ObjLit$4 and sometimes $ObjLit$1
         //        writeActual("userClass " + count + " = " + rt.name() + ", " + 
         writeActual("userClass " + count + " = " + "<tbd>" + ", " + 

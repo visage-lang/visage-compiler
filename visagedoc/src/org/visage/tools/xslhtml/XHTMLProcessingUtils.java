@@ -23,7 +23,7 @@
 
 package org.visage.tools.xslhtml;
 
-import org.visage.tools.script.JavaFXScriptEngineFactory;
+import org.visage.tools.script.VisageScriptEngineFactory;
 import org.visage.tools.xmldoclet.Util;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -655,7 +655,7 @@ public class XHTMLProcessingUtils {
 
     @SuppressWarnings("unchecked")
     private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, ClassNotFoundException {
-        ScriptEngineFactory factory = new JavaFXScriptEngineFactory();
+        ScriptEngineFactory factory = new VisageScriptEngineFactory();
         ScriptEngine scrEng = factory.getScriptEngine();
         if (pw == null) {
             pw = new PrintWriter(System.err);

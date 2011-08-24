@@ -33,21 +33,21 @@ import java.util.List;
  *
  * @author sundar
  */
-public class FXArrayReference extends FXObjectReference implements ArrayReference {
-    public FXArrayReference(FXVirtualMachine fxvm, ArrayReference underlying) {
+public class VisageArrayReference extends VisageObjectReference implements ArrayReference {
+    public VisageArrayReference(VisageVirtualMachine fxvm, ArrayReference underlying) {
         super(fxvm, underlying);
     }
 
-    public FXValue getValue(int index) {
-        return FXWrapper.wrap(virtualMachine(), underlying().getValue(index));
+    public VisageValue getValue(int index) {
+        return VisageWrapper.wrap(virtualMachine(), underlying().getValue(index));
     }
 
     public List<Value> getValues() {
-        return FXWrapper.wrapValues(virtualMachine(), underlying().getValues());
+        return VisageWrapper.wrapValues(virtualMachine(), underlying().getValues());
     }
 
     public List<Value> getValues(int index, int length) {
-        return FXWrapper.wrapValues(virtualMachine(), underlying().getValues(index, length));
+        return VisageWrapper.wrapValues(virtualMachine(), underlying().getValues(index, length));
     }
 
     public int length() {
@@ -56,17 +56,17 @@ public class FXArrayReference extends FXObjectReference implements ArrayReferenc
 
     public void setValue(int index, Value value)
             throws InvalidTypeException, ClassNotLoadedException {
-        underlying().setValue(index, FXWrapper.unwrap(value));
+        underlying().setValue(index, VisageWrapper.unwrap(value));
     }
 
     public void setValues(List<? extends Value> values)
             throws InvalidTypeException, ClassNotLoadedException {
-        underlying().setValues(FXWrapper.unwrapValues(values));
+        underlying().setValues(VisageWrapper.unwrapValues(values));
     }
 
     public void setValues(int index, List<? extends Value> values, int srcIndex, int length)
             throws InvalidTypeException, ClassNotLoadedException {
-        underlying().setValues(index, FXWrapper.unwrapValues(values), srcIndex, length);
+        underlying().setValues(index, VisageWrapper.unwrapValues(values), srcIndex, length);
     }
 
     @Override

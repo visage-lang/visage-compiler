@@ -32,35 +32,35 @@ import java.util.Iterator;
  * @author Jonathan Gibbons
  * @since 1.6
  */
-public class JavaFXTreePath implements Iterable<Tree> {
+public class VisageTreePath implements Iterable<Tree> {
     /**
      * Gets a tree path for a tree node within a compilation unit.
      * @return null if the node is not found
      */
-    public static JavaFXTreePath getPath(UnitTree unit, Tree target) {
-        return getPath(new JavaFXTreePath(unit), target);
+    public static VisageTreePath getPath(UnitTree unit, Tree target) {
+        return getPath(new VisageTreePath(unit), target);
     }
 
     /**
      * Gets a tree path for a tree node within a subtree identified by a TreePath object.
      * @return null if the node is not found
      */
-    public static JavaFXTreePath getPath(JavaFXTreePath path, Tree target) {
+    public static VisageTreePath getPath(VisageTreePath path, Tree target) {
         path.getClass();
         target.getClass();
 
         class Result extends Error {
             static final long serialVersionUID = -5942088234594905625L;
-            JavaFXTreePath path;
-            Result(JavaFXTreePath path) {
+            VisageTreePath path;
+            Result(VisageTreePath path) {
                 this.path = path;
             }
         }
-        class PathFinder extends JavaFXTreePathScanner<JavaFXTreePath,Tree> {
+        class PathFinder extends VisageTreePathScanner<VisageTreePath,Tree> {
             @Override
-            public JavaFXTreePath scan(Tree tree, Tree target) {
+            public VisageTreePath scan(Tree tree, Tree target) {
                 if (tree == target)
-                    throw new Result(new JavaFXTreePath(getCurrentPath(), target));
+                    throw new Result(new VisageTreePath(getCurrentPath(), target));
                 return super.scan(tree, target);
             }
         }
@@ -76,15 +76,15 @@ public class JavaFXTreePath implements Iterable<Tree> {
     /**
      * Creates a TreePath for a root node.
      */
-    public JavaFXTreePath(UnitTree t) {
+    public VisageTreePath(UnitTree t) {
         this(null, t);
     }
 
     /**
      * Creates a TreePath for a child node.
      */
-    public JavaFXTreePath(JavaFXTreePath p, Tree t) {
-        if (t.getJavaFXKind() == Tree.JavaFXKind.COMPILATION_UNIT) {
+    public VisageTreePath(VisageTreePath p, Tree t) {
+        if (t.getJavaFXKind() == Tree.VisageKind.COMPILATION_UNIT) {
             compilationUnit = (UnitTree) t;
             parent = null;
         }
@@ -111,7 +111,7 @@ public class JavaFXTreePath implements Iterable<Tree> {
     /**
      * Get the path for the enclosing node, or null if there is no enclosing node.
      */
-    public JavaFXTreePath getParentPath() {
+    public VisageTreePath getParentPath() {
         return parent;
     }
 
@@ -130,11 +130,11 @@ public class JavaFXTreePath implements Iterable<Tree> {
                 throw new UnsupportedOperationException();
             }
 
-            private JavaFXTreePath curr;
+            private VisageTreePath curr;
         };
     }
 
     private UnitTree compilationUnit;
     private Tree leaf;
-    private JavaFXTreePath parent;
+    private VisageTreePath parent;
 }

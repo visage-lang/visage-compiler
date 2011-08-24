@@ -49,7 +49,7 @@ public interface Tree {
     /**
      * Enumerates all kinds of trees.
      */
-    public enum JavaFXKind {
+    public enum VisageKind {
 
         /**
          * Used for instances of {@link AssignmentTree}.
@@ -539,7 +539,7 @@ public interface Tree {
         OTHER(null);
         
 
-        JavaFXKind(Class<? extends Tree> intf) {
+        VisageKind(Class<? extends Tree> intf) {
             associatedInterface = intf;
         }
 
@@ -555,7 +555,7 @@ public interface Tree {
      *
      * @return the kind of this tree.
      */
-    JavaFXKind getJavaFXKind();
+    VisageKind getJavaFXKind();
 
     /**
      * Was this tree expected, but missing, and filled-in by the parser
@@ -569,5 +569,5 @@ public interface Tree {
      * @param <R> result type of this operation.
      * @param <D> type of additonal data.
      */
-    <R,D> R accept(JavaFXTreeVisitor<R,D> visitor, D data);
+    <R,D> R accept(VisageTreeVisitor<R,D> visitor, D data);
 }

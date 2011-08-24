@@ -4,7 +4,7 @@
  * @test/fxunit
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
 mixin class Mixin1 { function foo() : Integer { 1 } }
 mixin class Mixin2 { function foo() : Integer { 2 } }
@@ -22,7 +22,7 @@ class Mixee extends Mixin1, Super, Mixin2 {
     function foo3() : Integer { Super.foo() }
 }
 
-public class MxResSuperConf01 extends FXTestCase {
+public class MxResSuperConf01 extends VisageTestCase {
     /*
      * All parents declare the function foo(). Mixee overrides foo()
      * and invokes from its body (and from another functions)

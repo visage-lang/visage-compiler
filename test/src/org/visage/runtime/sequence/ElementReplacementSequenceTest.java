@@ -24,7 +24,7 @@ package org.visage.runtime.sequence;
 
 import java.util.Iterator;
 
-import org.visage.runtime.JavaFXTestCase;
+import org.visage.runtime.VisageTestCase;
 import org.visage.runtime.TypeInfo;
 import org.junit.Assert;
 
@@ -32,7 +32,7 @@ import org.junit.Assert;
  *
  * @author Michael Heinrichs
  */
-public class ElementReplacementSequenceTest extends JavaFXTestCase {
+public class ElementReplacementSequenceTest extends VisageTestCase {
     public void testDummy() { }
     /* ??? HOW MUCH OF THIS CAN BE RE_USED?
     

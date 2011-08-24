@@ -23,8 +23,8 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
@@ -34,9 +34,9 @@ import com.sun.jdi.request.MonitorContendedEnterRequest;
  *
  * @author sundar
  */
-public class FXMonitorContendedEnterRequest extends FXEventRequest
+public class VisageMonitorContendedEnterRequest extends VisageEventRequest
         implements MonitorContendedEnterRequest {
-    public FXMonitorContendedEnterRequest(FXVirtualMachine fxvm, MonitorContendedEnterRequest underlying) {
+    public VisageMonitorContendedEnterRequest(VisageVirtualMachine fxvm, MonitorContendedEnterRequest underlying) {
         super(fxvm, underlying);
     }
 
@@ -45,7 +45,7 @@ public class FXMonitorContendedEnterRequest extends FXEventRequest
     }
 
     public void addClassFilter(ReferenceType arg0) {
-        underlying().addClassFilter(FXWrapper.unwrap(arg0));
+        underlying().addClassFilter(VisageWrapper.unwrap(arg0));
     }
 
     public void addClassFilter(String arg0) {
@@ -53,11 +53,11 @@ public class FXMonitorContendedEnterRequest extends FXEventRequest
     }
 
     public void addInstanceFilter(ObjectReference arg0) {
-        underlying().addInstanceFilter(FXWrapper.unwrap(arg0));
+        underlying().addInstanceFilter(VisageWrapper.unwrap(arg0));
     }
 
     public void addThreadFilter(ThreadReference arg0) {
-        underlying().addThreadFilter(FXWrapper.unwrap(arg0));
+        underlying().addThreadFilter(VisageWrapper.unwrap(arg0));
     }
 
     @Override

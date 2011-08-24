@@ -172,7 +172,7 @@ class TesterInherited extends TesterInstance {
     }
 }
 
-public class MethodReturn extends FXTestCase {
+public class MethodReturn extends VisageTestCase {
     function testMethodGlobal() {
         var tester = TesterGlobal{};
         tester.testGlobal();

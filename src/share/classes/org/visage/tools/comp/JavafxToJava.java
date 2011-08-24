@@ -126,18 +126,18 @@ public class JavafxToJava extends JavafxAbstractTranslation {
      * Specifically: package and import names.
      * Do a dumb simple conversion.
      */
-    private JCExpression straightConvert(JFXExpression tree) {
+    private JCExpression straightConvert(VisageExpression tree) {
         if (tree == null) {
             return null;
         }
         DiagnosticPosition diagPos = tree.pos();
         switch (tree.getFXTag()) {
             case IDENT: {
-                JFXIdent id = (JFXIdent) tree;
+                VisageIdent id = (VisageIdent) tree;
                 return make.at(diagPos).Ident(id.getName());
             }
             case SELECT: {
-                JFXSelect sel = (JFXSelect) tree;
+                VisageSelect sel = (VisageSelect) tree;
                 return make.at(diagPos).Select(
                         straightConvert(sel.getExpression()),
                         sel.getIdentifier());
@@ -161,10 +161,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    private void setSubstitution(JFXTree target, Symbol sym) {
-        if (target instanceof JFXInstanciate) {
+    private void setSubstitution(VisageTree target, Symbol sym) {
+        if (target instanceof VisageInstanciate) {
             // Set up to substitute a reference to the this var within its definition
-            ((JFXInstanciate) target).varDefinedByThis = sym;
+            ((VisageInstanciate) target).varDefinedByThis = sym;
         }
     }
 
@@ -232,7 +232,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     /**
      * Make a version of the on-replace to be used in inline in a setter.
      */
-    private JCStatement translateTriggerAsInline(JavafxVarSymbol vsym, JFXOnReplace onReplace) {
+    private JCStatement translateTriggerAsInline(JavafxVarSymbol vsym, VisageOnReplace onReplace) {
         if (onReplace == null) return null;
         boolean isSequence = vsym.isSequence();
         if (isSequence) {
@@ -255,11 +255,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     private class ClassDeclarationTranslator extends Translator {
 
-        private final JFXClassDeclaration tree;
+        private final VisageClassDeclaration tree;
         private final boolean isMixinClass;
         private final ListBuffer<JCTree> translatedDefs = ListBuffer.lb();
 
-        ClassDeclarationTranslator(JFXClassDeclaration tree) {
+        ClassDeclarationTranslator(VisageClassDeclaration tree) {
             super(tree.pos());
             this.tree = tree;
             isMixinClass = tree.isMixinClass();
@@ -281,32 +281,32 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
             prependToStatements = prependToDefinitions = ListBuffer.lb();
             {
-                for (JFXTree def : tree.getMembers()) {
+                for (VisageTree def : tree.getMembers()) {
                     switch (def.getFXTag()) {
                         case INIT_DEF: {
                             setContext(false);
-                            translateAndAppendStaticBlock(((JFXInitDefinition) def).getBody(), translatedInitBlocks);
+                            translateAndAppendStaticBlock(((VisageInitDefinition) def).getBody(), translatedInitBlocks);
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case POSTINIT_DEF: {
                             setContext(false);
-                            translateAndAppendStaticBlock(((JFXPostInitDefinition) def).getBody(), translatedPostInitBlocks);
+                            translateAndAppendStaticBlock(((VisagePostInitDefinition) def).getBody(), translatedPostInitBlocks);
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case VAR_DEF: {
-                            JFXVar attrDef = (JFXVar) def;
+                            VisageVar attrDef = (VisageVar) def;
                             setContext(attrDef.isStatic());
-                            JFXExpression initializer = attrDef.getInitializer();
+                            VisageExpression initializer = attrDef.getInitializer();
                             boolean initWithBoundFuncResult = 
-                                (initializer instanceof JFXIdent) &&
-                                isBoundFunctionResult(((JFXIdent)initializer).sym);
+                                (initializer instanceof VisageIdent) &&
+                                isBoundFunctionResult(((VisageIdent)initializer).sym);
                             ExpressionResult bindResult = translateBind(attrDef);
                             TranslatedVarInfo ai = new TranslatedVarInfo(
                                     attrDef,
                                     translateVarInit(attrDef),
-                                    initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
+                                    initWithBoundFuncResult? ((VisageIdent)initializer).sym : null,
                                     bindResult,
                                     attrDef.getOnReplace(),
                                     translateTriggerAsInline(attrDef.sym, attrDef.getOnReplace()),
@@ -316,17 +316,17 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             break;
                         }
                         case OVERRIDE_ATTRIBUTE_DEF: {
-                            JFXOverrideClassVar override = (JFXOverrideClassVar) def;
+                            VisageOverrideClassVar override = (VisageOverrideClassVar) def;
                             setContext(override.isStatic());
-                            JFXExpression initializer = override.getInitializer();
+                            VisageExpression initializer = override.getInitializer();
                             boolean initWithBoundFuncResult =
-                                (initializer instanceof JFXIdent) &&
-                                isBoundFunctionResult(((JFXIdent)initializer).sym);
+                                (initializer instanceof VisageIdent) &&
+                                isBoundFunctionResult(((VisageIdent)initializer).sym);
                             ExpressionResult bindResult = translateBind(override);
                             TranslatedOverrideClassVarInfo ai = new TranslatedOverrideClassVarInfo(
                                     override,
                                     translateVarInit(override),
-                                    initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
+                                    initWithBoundFuncResult? ((VisageIdent)initializer).sym : null,
                                     bindResult,
                                     override.getOnReplace(),
                                     translateTriggerAsInline(override.sym, override.getOnReplace()),
@@ -336,7 +336,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             break;
                         }
                         case FUNCTION_DEF: {
-                            JFXFunctionDefinition funcDef = (JFXFunctionDefinition) def;
+                            VisageFunctionDefinition funcDef = (VisageFunctionDefinition) def;
                             setContext(funcDef.isStatic());
                             funcInfo.append(new TranslatedFuncInfo(funcDef, translateToSpecialResult(funcDef).trees()));
                             break;
@@ -344,7 +344,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         case CLASS_DEF: {
                             // Handle other classes.
                             inInstanceContext = ReceiverContext.Oops;
-                            translatedDefs.appendList(translateToStatementsResult((JFXClassDeclaration)def, syms.voidType).trees());
+                            translatedDefs.appendList(translateToStatementsResult((VisageClassDeclaration)def, syms.voidType).trees());
                             break;
                         }
                         default: {
@@ -446,7 +446,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         }
 
-        private ExpressionResult translateBind(JFXAbstractVar var) {
+        private ExpressionResult translateBind(VisageAbstractVar var) {
             return var.isBidiBind() ?
                     translateInvBind.translate(var.getInitializer(), var.type, var.sym) :
                     var.isBound() ?
@@ -454,7 +454,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         null;
         }
 
-        private JCExpression translateVarInit(JFXAbstractVar var) {
+        private JCExpression translateVarInit(VisageAbstractVar var) {
             if (var.getInitializer()==null || var.isBound()) {
                 // no init, or init handled by bind or JavafxVarInit
                 return null;
@@ -468,7 +468,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                  ).expr();
         }
 
-        private void translateAndAppendStaticBlock(JFXBlock block, ListBuffer<JCStatement> translatedBlocks) {
+        private void translateAndAppendStaticBlock(VisageBlock block, ListBuffer<JCStatement> translatedBlocks) {
             JCStatement stmt = translateToStatement(block, syms.voidType);
             if (stmt != null) {
                 translatedBlocks.append(stmt);
@@ -477,7 +477,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     private JCExpression translateNonBoundInit(DiagnosticPosition diagPos,
-                                JFXExpression init,
+                                VisageExpression init,
                                 JavafxVarSymbol vsym) {
         // normal init -- unbound
         if (init == null) {
@@ -492,7 +492,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     private ExpressionResult translateDefinitionalAssignmentToSetExpression(final DiagnosticPosition diagPos,
-            final JFXExpression init,
+            final VisageExpression init,
             final JavafxVarSymbol vsym,
             final Name instanceName) {
 
@@ -528,7 +528,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     private ExpressionResult translateInitExpression(final DiagnosticPosition diagPos,
-            final JFXExpression init,
+            final VisageExpression init,
             final JavafxVarSymbol vsym,
             final Name instanceName) {
 
@@ -553,14 +553,14 @@ public class JavafxToJava extends JavafxAbstractTranslation {
      */
     private class VarTranslator extends ExpressionTranslator {
 
-        final JFXVar tree;
+        final VisageVar tree;
         final JavafxVarSymbol vsym;        
         final long modFlags;
 
-        VarTranslator(JFXVar tree) {
+        VarTranslator(VisageVar tree) {
             super(tree.pos());
             this.tree = tree;
-            JFXModifiers mods = tree.getModifiers();
+            VisageModifiers mods = tree.getModifiers();
             vsym = tree.getSymbol();
             assert !vsym.isMember() : "attributes are processed in the class and should never come here: " + tree.name;
             assert !vsym.isParameter() : "we should not see parameters here" + tree.name;
@@ -592,10 +592,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     private class BlockExpressionTranslator extends ExpressionTranslator {
 
-        private final JFXExpression value;
-        private final List<JFXExpression> statements;
+        private final VisageExpression value;
+        private final List<VisageExpression> statements;
 
-        BlockExpressionTranslator(JFXBlock tree) {
+        BlockExpressionTranslator(VisageBlock tree) {
             super(tree.pos());
             this.value = tree.value;
             this.statements = tree.getStmts();
@@ -606,7 +606,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             try {
                 prependToStatements = ListBuffer.lb();
 
-                for (JFXExpression expr : statements) {
+                for (VisageExpression expr : statements) {
                     JCStatement stmt = translateToStatement(expr, syms.voidType);
                     if (stmt != null) {
                         addPreface(stmt);
@@ -616,8 +616,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 if (yield() == ToExpression) {
                     // make into block expression
                     //TODO: this may be unneeded, or even wrong
-                    JFXExpression rawValue = (value.getFXTag() == JavafxTag.RETURN)?
-                         ((JFXReturn) value).getExpression()
+                    VisageExpression rawValue = (value.getFXTag() == JavafxTag.RETURN)?
+                         ((VisageReturn) value).getExpression()
                         : value;
 
                     JCExpression tvalue = translateExpr(rawValue, targetType); // must be before prepend
@@ -636,7 +636,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     if (value != null) {
                         if (value.getFXTag() == JavafxTag.VAR_SCRIPT_INIT && targetType != syms.voidType) {
                             translateStmt(value, syms.voidType);
-                            addPreface(Stmt(Get(((JFXVarInit) value).getSymbol()), targetType));
+                            addPreface(Stmt(Get(((VisageVarInit) value).getSymbol()), targetType));
                         } else {
                             translateStmt(value, targetType);
                         }
@@ -661,16 +661,16 @@ public class JavafxToJava extends JavafxAbstractTranslation {
          * @param indexOrNull The index into the variable reference.  Or null if not indexed.
          * @param rhs The expression acting on ref or null
          */
-        SequenceActionTranslator(DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull, JFXExpression rhs) {
+        SequenceActionTranslator(DiagnosticPosition diagPos, VisageExpression ref, RuntimeMethod meth, VisageExpression indexOrNull, VisageExpression rhs) {
             this(diagPos, ref, meth, indexOrNull, syms.voidType, rhs);
         }
 
-        SequenceActionTranslator(DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull, Type fullType, JFXExpression rhs) {
+        SequenceActionTranslator(DiagnosticPosition diagPos, VisageExpression ref, RuntimeMethod meth, VisageExpression indexOrNull, Type fullType, VisageExpression rhs) {
             super(diagPos, ref, indexOrNull, fullType, rhs);
             this.meth = meth;
         }
 
-        SequenceActionTranslator(DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull) {
+        SequenceActionTranslator(DiagnosticPosition diagPos, VisageExpression ref, RuntimeMethod meth, VisageExpression indexOrNull) {
             this(diagPos, ref, meth, indexOrNull, null);
         }
 
@@ -740,9 +740,9 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     class SequenceSliceActionTranslator extends SequenceActionTranslator {
 
-        private final JFXSequenceSlice slice;
+        private final VisageSequenceSlice slice;
 
-        SequenceSliceActionTranslator(JFXSequenceSlice slice, RuntimeMethod meth, Type fullType, JFXExpression rhs) {
+        SequenceSliceActionTranslator(VisageSequenceSlice slice, RuntimeMethod meth, Type fullType, VisageExpression rhs) {
             super(slice.pos(), slice.getSequence(), meth, slice.getFirstIndex(), fullType, rhs);
             this.slice = slice;
         }
@@ -754,9 +754,9 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     class SequenceInsertTranslator extends SequenceActionTranslator {
-        JFXSequenceInsert tree;
+        VisageSequenceInsert tree;
 
-        public SequenceInsertTranslator(JFXSequenceInsert tree) {
+        public SequenceInsertTranslator(VisageSequenceInsert tree) {
             super(
                     tree.pos(),
                     tree.getSequence(),
@@ -781,17 +781,17 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     private class TryTranslator extends ExpressionTranslator {
 
-        private final JFXTry tree;
+        private final VisageTry tree;
 
-        TryTranslator(JFXTry tree) {
+        TryTranslator(VisageTry tree) {
             super(tree.pos());
             this.tree = tree;
         }
 
         protected StatementsResult doit() {
             ListBuffer<JCCatch> tCatchers = ListBuffer.lb();
-            for (List<JFXCatch> l = tree.catchers; l.nonEmpty(); l = l.tail) {
-                JFXCatch cat = l.head;
+            for (List<VisageCatch> l = tree.catchers; l.nonEmpty(); l = l.tail) {
+                VisageCatch cat = l.head;
                 JCVariableDecl param = convertParam(cat.param);
                 JCBlock tCatBody = translateToBlock(cat.body, syms.voidType);
                 tCatchers.append(m().Catch(param, tCatBody));
@@ -804,9 +804,9 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     private class WhileTranslator extends ExpressionTranslator {
 
-        private final JFXWhileLoop tree;
+        private final VisageWhileLoop tree;
 
-        WhileTranslator(JFXWhileLoop tree) {
+        WhileTranslator(VisageWhileLoop tree) {
             super(tree);
             this.tree = tree;
         }
@@ -822,9 +822,9 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     class ScriptTranslator extends Translator {
 
-        final JFXScript tree;
+        final VisageScript tree;
 
-        ScriptTranslator(JFXScript tree) {
+        ScriptTranslator(VisageScript tree) {
             super(tree.pos());
             this.tree = tree;
         }
@@ -837,13 +837,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             ListBuffer<JCTree> imports = ListBuffer.lb();
             additionalImports = ListBuffer.lb();
             prependToStatements = prependToDefinitions = ListBuffer.lb();
-            for (JFXTree def : tree.defs) {
+            for (VisageTree def : tree.defs) {
                 switch (def.getFXTag()) {
                     case IMPORT:
                         // ignore import
                         break;
                     case CLASS_DEF:
-                        translatedDefinitions.appendList(translateToStatementsResult((JFXClassDeclaration) def, syms.voidType).trees());
+                        translatedDefinitions.appendList(translateToStatementsResult((VisageClassDeclaration) def, syms.voidType).trees());
                         break;
                     default:
                         assert false : "something wierd in the script: " + def;
@@ -879,12 +879,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     class InvalidateTranslator extends ExpressionTranslator {
 
-        private final JFXExpression varRef;
+        private final VisageExpression varRef;
         private final Symbol vsym;
         private JCVariableDecl invalVar = null;
         private JCVariableDecl newLenVar = null;
 
-        InvalidateTranslator(JFXInvalidate tree) {
+        InvalidateTranslator(VisageInvalidate tree) {
             super(tree.pos());
             this.varRef = tree.getVariable();
             this.vsym = JavafxTreeInfo.symbol(varRef);
@@ -910,7 +910,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         protected AbstractStatementsResult doit() {
             if (varRef.getFXTag() == JavafxTag.SELECT) {
-                JFXSelect sel = (JFXSelect) varRef;
+                VisageSelect sel = (VisageSelect) varRef;
                 JCExpression selected = translateToExpression(sel.selected, sel.selected.type);
                 if (selected != null) {
                     invalVar = TmpVar("inval", sel.selected.type, selected);
@@ -940,13 +940,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         return "visage$";
     }
 
-    private void fillClassesWithOuters(JFXScript tree) {
+    private void fillClassesWithOuters(VisageScript tree) {
         class FillClassesWithOuters extends JavafxTreeScanner {
-            JFXClassDeclaration currentClass;
+            VisageClassDeclaration currentClass;
 
             @Override
-            public void visitClassDeclaration(JFXClassDeclaration tree) {
-                JFXClassDeclaration prevClass = currentClass;
+            public void visitClassDeclaration(VisageClassDeclaration tree) {
+                VisageClassDeclaration prevClass = currentClass;
                 try {
                     currentClass = tree;
                     super.visitClassDeclaration(tree);
@@ -957,7 +957,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             }
 
             @Override
-            public void visitIdent(JFXIdent tree) {
+            public void visitIdent(VisageIdent tree) {
                 super.visitIdent(tree);
                 if (currentClass != null && tree.sym.kind != Kinds.TYP) {
                     addOutersForOuterAccess(tree.sym, currentClass.sym);
@@ -965,7 +965,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             }
 
             @Override
-            public void visitSelect(JFXSelect tree) {
+            public void visitSelect(VisageSelect tree) {
                 super.visitSelect(tree);
                 Symbol sym = expressionSymbol(tree.selected);
                 if (currentClass != null && sym != null && sym.kind == Kinds.TYP) {
@@ -973,8 +973,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 }
             }
 
-            @Override // Need this because JavafxTreeScanner is not visiting the args of the JFXInstanciate tree. Starting to visit them generate tons of errors.
-            public void visitInstanciate(JFXInstanciate tree) {
+            @Override // Need this because JavafxTreeScanner is not visiting the args of the VisageInstanciate tree. Starting to visit them generate tons of errors.
+            public void visitInstanciate(VisageInstanciate tree) {
                 super.visitInstanciate(tree);
                 super.scan(tree.getArgs());
             }
@@ -1018,10 +1018,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
      */
 
     @Override
-    public void visitAssign(final JFXAssign tree) {
+    public void visitAssign(final VisageAssign tree) {
         if (types.isSequence(tree.lhs.type)) {
             if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
-                result = new SequenceSliceActionTranslator((JFXSequenceSlice) tree.lhs, defs.Sequences_replaceSlice, tree.type, tree.rhs).doit();
+                result = new SequenceSliceActionTranslator((VisageSequenceSlice) tree.lhs, defs.Sequences_replaceSlice, tree.type, tree.rhs).doit();
             } else {
                 result = new SequenceActionTranslator(tree.pos(), tree.lhs, defs.Sequences_set, null, tree.type, tree.rhs) {
 
@@ -1043,22 +1043,22 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     @Override
-    public void visitAssignop(final JFXAssignOp tree) {
+    public void visitAssignop(final VisageAssignOp tree) {
         badVisitor("Assignop should have been lowered");
     }
 
-    public void visitBlockExpression(JFXBlock tree) {
+    public void visitBlockExpression(VisageBlock tree) {
         result = new BlockExpressionTranslator(tree).doit();
     }
 
     @Override
-    public void visitBreak(JFXBreak tree) {
+    public void visitBreak(VisageBreak tree) {
         result = new StatementsResult(make.at(tree.pos).Break(tree.label));
     }
 
     @Override
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
-        JFXClassDeclaration prevClass = currentClass();
+    public void visitClassDeclaration(VisageClassDeclaration tree) {
+        VisageClassDeclaration prevClass = currentClass();
         setCurrentClass(tree);
 
         if (tree.isScriptClass()) {
@@ -1076,13 +1076,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     @Override
-    public void visitContinue(JFXContinue tree) {
+    public void visitContinue(VisageContinue tree) {
         result = new StatementsResult(make.at(tree.pos).Continue(tree.label));
     }
 
     @Override
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        JFXFunctionDefinition prevFunction = currentFunction();
+    public void visitFunctionDefinition(VisageFunctionDefinition tree) {
+        VisageFunctionDefinition prevFunction = currentFunction();
         try {
             setCurrentFunction(tree);
             result = new FunctionTranslator(tree, false).doit();
@@ -1093,22 +1093,22 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     @Override
-    public void visitFunctionValue(JFXFunctionValue tree) {
-        JFXFunctionDefinition def = tree.definition;
+    public void visitFunctionValue(VisageFunctionValue tree) {
+        VisageFunctionDefinition def = tree.definition;
         result = new FunctionValueTranslator(make.Ident(defs.lambda_MethodName), def, tree.pos(), (MethodType) def.type, tree.type).doit();
     }
 
-    public void visitIdent(JFXIdent tree) {
+    public void visitIdent(VisageIdent tree) {
         result = new IdentTranslator(tree).doit();
     }
 
     @Override
-    public void visitInvalidate(final JFXInvalidate tree) {
+    public void visitInvalidate(final VisageInvalidate tree) {
         result = new InvalidateTranslator(tree).doit();
     }
 
     @Override
-    public void visitParens(JFXParens tree) {
+    public void visitParens(VisageParens tree) {
         if (yield() == ToExpression) {
             result = translateToExpressionResult(tree.expr, targetType);
         } else {
@@ -1117,8 +1117,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     @Override
-    public void visitReturn(JFXReturn tree) {
-        JFXExpression exp = tree.getExpression();
+    public void visitReturn(VisageReturn tree) {
+        VisageExpression exp = tree.getExpression();
         if (exp == null) {
             result = new StatementsResult(make.at(tree).Return(null));
         } else {
@@ -1127,7 +1127,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     @Override
-    public void visitScript(JFXScript tree) {
+    public void visitScript(VisageScript tree) {
         if (depGraphWriter != null) {
             depGraphWriter.start(tree);
         }
@@ -1140,26 +1140,26 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    public void visitSelect(JFXSelect tree) {
+    public void visitSelect(VisageSelect tree) {
 	result = new SelectTranslator(tree).doit();
     }
 
     @Override
-    public void visitSequenceDelete(JFXSequenceDelete tree) {
+    public void visitSequenceDelete(VisageSequenceDelete tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JFXExpression seq = tree.getSequence();
+        VisageExpression seq = tree.getSequence();
         SequenceActionTranslator trans;
         if (tree.getElement() != null) {
             trans = new SequenceActionTranslator(diagPos, seq, defs.Sequences_deleteValue, null, tree.getElement());
         } else {
             switch (seq.getFXTag()) {
                 case SEQUENCE_INDEXED:
-                    JFXSequenceIndexed si = (JFXSequenceIndexed) seq;
+                    VisageSequenceIndexed si = (VisageSequenceIndexed) seq;
                     trans = new SequenceActionTranslator(diagPos, si.getSequence(), defs.Sequences_deleteIndexed, si.getIndex());
                     break;
                 case SEQUENCE_SLICE:
-                    final JFXSequenceSlice ss = (JFXSequenceSlice) seq;
-                    trans = new SequenceSliceActionTranslator((JFXSequenceSlice) seq, defs.Sequences_deleteSlice, syms.voidType, null);
+                    final VisageSequenceSlice ss = (VisageSequenceSlice) seq;
+                    trans = new SequenceSliceActionTranslator((VisageSequenceSlice) seq, defs.Sequences_deleteSlice, syms.voidType, null);
                     break;
                 default:
                     if (types.isSequence(seq.type)) {
@@ -1174,33 +1174,33 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     @Override
-    public void visitSequenceInsert(JFXSequenceInsert tree) {
+    public void visitSequenceInsert(VisageSequenceInsert tree) {
         result = new SequenceInsertTranslator(tree).doit();
     }
 
     @Override
-    public void visitSkip(JFXSkip tree) {
+    public void visitSkip(VisageSkip tree) {
         result = new StatementsResult(make.at(tree.pos).Skip());
     }
 
     @Override
-    public void visitThrow(JFXThrow tree) {
+    public void visitThrow(VisageThrow tree) {
         JCTree expr = translateToExpression(tree.expr, tree.type);
         result = new StatementsResult(make.at(tree.pos).Throw(expr));
     }
 
     @Override
-    public void visitTry(JFXTry tree) {
+    public void visitTry(VisageTry tree) {
         result = new TryTranslator(tree).doit();
     }
 
     @Override
-    public void visitVar(JFXVar tree) {
+    public void visitVar(VisageVar tree) {
         result = new VarTranslator(tree).doit();
     }
 
     @Override
-    public void visitWhileLoop(JFXWhileLoop tree) {
+    public void visitWhileLoop(VisageWhileLoop tree) {
         result = new WhileTranslator(tree).doit();
     }
 

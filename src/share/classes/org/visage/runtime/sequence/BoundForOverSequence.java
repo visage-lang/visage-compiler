@@ -22,11 +22,11 @@
  */
 
 package org.visage.runtime.sequence;
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 
 public abstract class BoundForOverSequence<T, PT> extends BoundForOverVaryingAbstract<T, PT> {
 
-    public BoundForOverSequence(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
+    public BoundForOverSequence(VisageObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         super(container, forVarNum, inductionSeqVarNum, dependsOnIndex);
     }
 
@@ -41,13 +41,13 @@ public abstract class BoundForOverSequence<T, PT> extends BoundForOverVaryingAbs
 
     /** Get the size of part ipart. */
     protected int size(int ipart) {
-        FXForPart part = getPart(ipart);
+        VisageForPart part = getPart(ipart);
         return part.size$(partResultVarNum); // sequence version
     }
 
     /** Get the j'th item of part ipart. */
     protected T get(int ipart, int j) {
-        FXForPart part = getPart(ipart);
+        VisageForPart part = getPart(ipart);
         return (T) part.elem$(partResultVarNum, j);
     }
 }

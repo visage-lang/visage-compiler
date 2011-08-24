@@ -70,7 +70,7 @@ class L extends A, M, I {
    function getL() { return v; }
 }
 
-public class MxInit01 extends FXTestCase {
+public class MxInit01 extends VisageTestCase {
 /*
  *  initializing in mixin and mixee
  */

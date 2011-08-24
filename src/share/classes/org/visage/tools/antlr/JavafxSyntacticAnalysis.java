@@ -26,7 +26,7 @@ package org.visage.tools.antlr;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 import com.sun.tools.mjavac.util.*;
-import org.visage.tools.tree.JFXScript;
+import org.visage.tools.tree.VisageScript;
 
 /**
  *
@@ -67,8 +67,8 @@ public class JavafxSyntacticAnalysis {
         log = Log.instance(context);
     }
 
-    public JFXScript parse(CharSequence content, String fileName) {
-        JFXScript unit = null;
+    public VisageScript parse(CharSequence content, String fileName) {
+        VisageScript unit = null;
         String parserChoice = options.get("parser");
         if (parserChoice == null) {
             parserChoice = "v4"; // default
@@ -99,7 +99,7 @@ public class JavafxSyntacticAnalysis {
                     parser.initialize(context);
                     
                     // Invoke the script rule and parse the script. This should
-                    // always return a JFXSript.
+                    // always return a VisageSript.
                     //
                     unit = parser.script();
 

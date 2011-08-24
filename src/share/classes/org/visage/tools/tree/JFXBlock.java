@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.code.*;
@@ -34,26 +34,26 @@ import com.sun.tools.mjavac.util.Position;
  *
  * @author bothner
  */
-public class JFXBlock extends JFXExpression implements BlockExpressionTree {
+public class VisageBlock extends VisageExpression implements BlockExpressionTree {
 
     public long flags;
-    public List<JFXExpression> stats;
-    public JFXExpression value;
+    public List<VisageExpression> stats;
+    public VisageExpression value;
     // During attribution we rewrite return statement with the expression
     // returned. See JavafxAttr.finishFunctionDefinition. In such cases, we
     // save actual return statement in this field.
-    public JFXReturn returnStatement;
+    public VisageReturn returnStatement;
     /** Position of closing brace, optional. */
     public int endpos = Position.NOPOS;
     public boolean isVoidValueAllowed = true;
 
-    protected JFXBlock(long flags, List<JFXExpression> stats, JFXExpression value) {
+    protected VisageBlock(long flags, List<VisageExpression> stats, VisageExpression value) {
         this.stats = stats;
         this.flags = flags;
         this.value = value;
     }
 
-    protected JFXBlock() {
+    protected VisageBlock() {
         this.stats = null;
         this.flags = 0;
         this.value = null;
@@ -68,7 +68,7 @@ public class JFXBlock extends JFXExpression implements BlockExpressionTree {
      */
     public java.util.List<ExpressionTree> getStatements() {
         // form a new list with possible return statement, if any
-        List<JFXExpression> statements;
+        List<VisageExpression> statements;
         if (returnStatement == null && value == null) {
             statements = stats;
         } else {
@@ -77,11 +77,11 @@ public class JFXBlock extends JFXExpression implements BlockExpressionTree {
         return convertList(ExpressionTree.class, statements);
     }
 
-    public List<JFXExpression> getStmts() {
+    public List<VisageExpression> getStmts() {
         return stats;
     }
 
-   public JFXExpression getValue() {
+   public VisageExpression getValue() {
         return value;
     }
 
@@ -95,7 +95,7 @@ public class JFXBlock extends JFXExpression implements BlockExpressionTree {
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitBlockExpression(this, d);
     }
 
@@ -103,7 +103,7 @@ public class JFXBlock extends JFXExpression implements BlockExpressionTree {
         v.visitBlockExpression(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.BLOCK_EXPRESSION;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.BLOCK_EXPRESSION;
     }
 }

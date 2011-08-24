@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.util.Name;
@@ -34,15 +34,15 @@ import com.sun.tools.mjavac.util.Name;
  * @param idname the name
  * @param sym the symbol
  */
-public class JFXIdent extends JFXExpression implements IdentifierTree {
+public class VisageIdent extends VisageExpression implements IdentifierTree {
 
     private Name name;
     public Symbol sym;
 
-    protected JFXIdent() {
+    protected VisageIdent() {
         this(null, null);
     }
-    protected JFXIdent(Name name, Symbol sym) {
+    protected VisageIdent(Name name, Symbol sym) {
         this.name = name;
         this.sym = sym;
     }
@@ -53,8 +53,8 @@ public class JFXIdent extends JFXExpression implements IdentifierTree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.IDENTIFIER;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.IDENTIFIER;
     }
 
     public Name getName() {
@@ -62,7 +62,7 @@ public class JFXIdent extends JFXExpression implements IdentifierTree {
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitIdentifier(this, d);
     }
 

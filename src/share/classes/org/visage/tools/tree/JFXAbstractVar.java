@@ -34,32 +34,32 @@ import com.sun.tools.mjavac.util.Name;
  *
  * @author Robert Field
  */
-public abstract class JFXAbstractVar extends JFXExpression implements VariableTree {
+public abstract class VisageAbstractVar extends VisageExpression implements VariableTree {
     public final Name name;
-    private JFXType jfxtype;
-    public final JFXModifiers mods;
-    private final JFXExpression init;
-    private final JFXOnReplace[] triggers;
+    private VisageType jfxtype;
+    public final VisageModifiers mods;
+    private final VisageExpression init;
+    private final VisageOnReplace[] triggers;
     
     public JavafxVarSymbol sym;
 
-    protected JFXAbstractVar(
+    protected VisageAbstractVar(
             Name name,
-            JFXType jfxtype,
-            JFXModifiers mods,
-            JFXExpression init,
+            VisageType jfxtype,
+            VisageModifiers mods,
+            VisageExpression init,
             JavafxBindStatus bindStatus,
-            JFXOnReplace onReplace,
-            JFXOnReplace onInvalidate,
+            VisageOnReplace onReplace,
+            VisageOnReplace onInvalidate,
             JavafxVarSymbol sym) {
         super(bindStatus);
         this.name = name;
         this.jfxtype = jfxtype;
         this.mods = mods;
         this.init = init;
-        this.triggers = new JFXOnReplace[JFXOnReplace.Kind.values().length];
-        this.triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()] = onReplace;
-        this.triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()] = onInvalidate;
+        this.triggers = new VisageOnReplace[VisageOnReplace.Kind.values().length];
+        this.triggers[VisageOnReplace.Kind.ONREPLACE.ordinal()] = onReplace;
+        this.triggers[VisageOnReplace.Kind.ONINVALIDATE.ordinal()] = onInvalidate;
         this.sym = sym;
     }
 
@@ -69,31 +69,31 @@ public abstract class JFXAbstractVar extends JFXExpression implements VariableTr
         return sym.isStatic();
     }
 
-    public JFXExpression getInitializer() {
+    public VisageExpression getInitializer() {
         return init;
     }
 
-    public JFXOnReplace getOnInvalidate() {
-        return triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()];
+    public VisageOnReplace getOnInvalidate() {
+        return triggers[VisageOnReplace.Kind.ONINVALIDATE.ordinal()];
     }
 
     public OnReplaceTree getOnInvalidateTree() {
-        return triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()];
+        return triggers[VisageOnReplace.Kind.ONINVALIDATE.ordinal()];
     }
 
-    public JFXOnReplace getOnReplace() {
-        return triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()];
+    public VisageOnReplace getOnReplace() {
+        return triggers[VisageOnReplace.Kind.ONREPLACE.ordinal()];
     }
 
     public OnReplaceTree getOnReplaceTree() {
-        return triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()];
+        return triggers[VisageOnReplace.Kind.ONREPLACE.ordinal()];
     }
 
-    public JFXOnReplace getTrigger(JFXOnReplace.Kind triggerKind) {
+    public VisageOnReplace getTrigger(VisageOnReplace.Kind triggerKind) {
         return triggers[triggerKind.ordinal()];
     }
 
-    public OnReplaceTree getTriggerTree(JFXOnReplace.Kind triggerKind) {
+    public OnReplaceTree getTriggerTree(VisageOnReplace.Kind triggerKind) {
         return triggers[triggerKind.ordinal()];
     }
 
@@ -101,35 +101,35 @@ public abstract class JFXAbstractVar extends JFXExpression implements VariableTr
         return sym;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitVariable(this, data);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.VARIABLE;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.VARIABLE;
     }
 
     public Name getName() {
         return name;
     }
 
-    public JFXTree getType() {
+    public VisageTree getType() {
         return jfxtype;
     }
 
-    public JFXType getJFXType() {
+    public VisageType getJFXType() {
         return jfxtype;
     }
 
-    public void setJFXType(JFXType type) {
+    public void setJFXType(VisageType type) {
         jfxtype = type;
     }
 
-    public JFXModifiers getModifiers() {
+    public VisageModifiers getModifiers() {
         return mods;
     }
     
     public boolean isLiteralInit() {
-        return init != null && init instanceof JFXLiteral;
+        return init != null && init instanceof VisageLiteral;
     }
 }

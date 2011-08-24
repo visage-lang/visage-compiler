@@ -8,7 +8,7 @@ class Foo {
   var a : Integer;
 }
 
-class jfxc945 extends FXTestCase {
+class jfxc945 extends VisageTestCase {
   function testDBZ() {
     var a = 4;
     var b = 2;

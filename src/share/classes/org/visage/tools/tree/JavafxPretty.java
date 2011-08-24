@@ -165,14 +165,14 @@ public class JavafxPretty implements JavafxVisitor {
     /** Visitor method: print expression tree.
      *  @param prec  The current precedence level.
      */
-    public void printExpr(JFXTree tree, int prec) throws IOException {
+    public void printExpr(VisageTree tree, int prec) throws IOException {
         int prevPrec = this.prec;
         try {
 //          uncomment to debug position information
 //            println();
 //            print(posAsString(tree.getStartPosition()));
             this.prec = prec;
-            if (tree == null || tree instanceof JFXErroneous) {
+            if (tree == null || tree instanceof VisageErroneous) {
                 print("/*missing*/");
             } else {
                 tree.accept(this);
@@ -189,20 +189,20 @@ public class JavafxPretty implements JavafxVisitor {
     /** Derived visitor method: print expression tree at minimum precedence level
      *  for expression.
      */
-    public void printExpr(JFXTree tree) throws IOException {
+    public void printExpr(VisageTree tree) throws IOException {
         printExpr(tree, JavafxTreeInfo.noPrec);
     }
 
     /** Derived visitor method: print statement tree.
      */
-    public void printStat(JFXTree tree) throws IOException {
+    public void printStat(VisageTree tree) throws IOException {
         printExpr(tree, JavafxTreeInfo.notExpression);
     }
 
     /** Derived visitor method: print list of expression trees, separated by given string.
      *  @param sep the separator string
      */
-    public <T extends JFXTree> void printExprs(List<T> trees, String sep) throws IOException {
+    public <T extends VisageTree> void printExprs(List<T> trees, String sep) throws IOException {
         if (trees.nonEmpty()) {
             printExpr(trees.head);
             for (List<T> l = trees.tail; l.nonEmpty(); l = l.tail) {
@@ -214,14 +214,14 @@ public class JavafxPretty implements JavafxVisitor {
 
     /** Derived visitor method: print list of expression trees, separated by commas.
      */
-    public <T extends JFXTree> void printExprs(List<T> trees) throws IOException {
+    public <T extends VisageTree> void printExprs(List<T> trees) throws IOException {
         printExprs(trees, ", ");
     }
 
     /** Derived visitor method: print list of statements, each on a separate line.
      */
-    public void printStats(List<? extends JFXTree> trees) throws IOException {
-        for (List<? extends JFXTree> l = trees; l.nonEmpty(); l = l.tail) {
+    public void printStats(List<? extends VisageTree> trees) throws IOException {
+        for (List<? extends VisageTree> l = trees; l.nonEmpty(); l = l.tail) {
             align();
             printStat(l.head);
             println();
@@ -240,7 +240,7 @@ public class JavafxPretty implements JavafxVisitor {
     /** Print documentation comment, if it exists
      *  @param tree    The tree for which a documentation comment should be printed.
      */
-    public void printDocComment(JFXTree tree) throws IOException {
+    public void printDocComment(VisageTree tree) throws IOException {
         if (docComments != null) {
             String dc = docComments.get(tree);
             if (dc != null) {
@@ -266,7 +266,7 @@ public class JavafxPretty implements JavafxVisitor {
 
     /** Print a block.
      */
-    public void printBlock(List<? extends JFXTree> stats) throws IOException {
+    public void printBlock(List<? extends VisageTree> stats) throws IOException {
         print("{");
         println();
         indent();
@@ -283,7 +283,7 @@ public class JavafxPretty implements JavafxVisitor {
      *  @param cdef     The class definition, which is assumed to be part of the
      *                  toplevel tree.
      */
-    public void printUnit(JFXScript tree) throws IOException {
+    public void printUnit(VisageScript tree) throws IOException {
         docComments = tree.docComments;
         printDocComment(tree);
         if (tree.pid != null) {
@@ -293,9 +293,9 @@ public class JavafxPretty implements JavafxVisitor {
             println();
         }
         boolean firstImport = true;
-        for (List<JFXTree> l = tree.defs; l.nonEmpty(); l = l.tail) {
+        for (List<VisageTree> l = tree.defs; l.nonEmpty(); l = l.tail) {
             if (l.head.getFXTag() == JavafxTag.IMPORT) {
-                JFXImport imp = (JFXImport)l.head;
+                VisageImport imp = (VisageImport)l.head;
                     if (firstImport) {
                         firstImport = false;
                         println();
@@ -307,15 +307,15 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
     // where
-    boolean isUsed(final Symbol t, JFXTree cdef) {
+    boolean isUsed(final Symbol t, VisageTree cdef) {
         class UsedVisitor extends JavafxTreeScanner {
             @Override
-            public void scan(JFXTree tree) {
+            public void scan(VisageTree tree) {
                 if (tree!=null && !result) tree.accept(this);
             }
             boolean result = false;
             @Override
-            public void visitIdent(JFXIdent tree) {
+            public void visitIdent(VisageIdent tree) {
                 if (tree.sym == t) result = true;
             }
         }
@@ -328,7 +328,7 @@ public class JavafxPretty implements JavafxVisitor {
      * Visitor methods
      *************************************************************************/
 
-    public void visitScript(JFXScript tree) {
+    public void visitScript(VisageScript tree) {
         try {
             printUnit(tree);
         } catch (IOException e) {
@@ -336,7 +336,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitImport(JFXImport tree) {
+    public void visitImport(VisageImport tree) {
         try {
             print("import ");
             printExpr(tree.qualid);
@@ -347,7 +347,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitSkip(JFXSkip tree) {
+    public void visitSkip(VisageSkip tree) {
         try {
             print(";");
         } catch (IOException e) {
@@ -355,7 +355,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitWhileLoop(JFXWhileLoop tree) {
+    public void visitWhileLoop(VisageWhileLoop tree) {
         try {
             print("while ");
             if (tree.cond.getFXTag() == JavafxTag.PARENS) {
@@ -372,11 +372,11 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitTry(JFXTry tree) {
+    public void visitTry(VisageTry tree) {
         try {
             print("try ");
             printStat(tree.body);
-            for (List<JFXCatch> l = tree.catchers; l.nonEmpty(); l = l.tail) {
+            for (List<VisageCatch> l = tree.catchers; l.nonEmpty(); l = l.tail) {
                 printStat(l.head);
             }
             if (tree.finalizer != null) {
@@ -388,7 +388,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitCatch(JFXCatch tree) {
+    public void visitCatch(VisageCatch tree) {
         try {
             print(" catch (");
             printExpr(tree.param);
@@ -399,7 +399,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitIfExpression(JFXIfExpression tree) {
+    public void visitIfExpression(VisageIfExpression tree) {
         try {
             print(" if (");
             printExpr(tree.cond);
@@ -414,7 +414,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitBreak(JFXBreak tree) {
+    public void visitBreak(VisageBreak tree) {
         try {
             print("break");
             if (tree.label != null) print(" " + tree.label);
@@ -424,7 +424,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitContinue(JFXContinue tree) {
+    public void visitContinue(VisageContinue tree) {
         try {
             print("continue");
             if (tree.label != null) print(" " + tree.label);
@@ -434,7 +434,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitReturn(JFXReturn tree) {
+    public void visitReturn(VisageReturn tree) {
         try {
             print("return");
             if (tree.expr != null) {
@@ -447,7 +447,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitThrow(JFXThrow tree) {
+    public void visitThrow(VisageThrow tree) {
         try {
             print("throw ");
             printExpr(tree.expr);
@@ -457,11 +457,11 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+    public void visitFunctionInvocation(VisageFunctionInvocation tree) {
         try {
             if (!tree.typeargs.isEmpty()) {
                 if (tree.meth.getFXTag() == JavafxTag.SELECT) {
-                    JFXSelect left = (JFXSelect)tree.meth;
+                    VisageSelect left = (VisageSelect)tree.meth;
                     printExpr(left.selected);
                     print(".<");
                     printExprs(tree.typeargs);
@@ -483,7 +483,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitParens(JFXParens tree) {
+    public void visitParens(VisageParens tree) {
         try {
             print("(");
             printExpr(tree.expr);
@@ -493,7 +493,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitAssign(JFXAssign tree) {
+    public void visitAssign(VisageAssign tree) {
         try {
             open(prec, JavafxTreeInfo.assignPrec);
             printExpr(tree.lhs, JavafxTreeInfo.assignPrec + 1);
@@ -538,7 +538,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitAssignop(JFXAssignOp tree) {
+    public void visitAssignop(VisageAssignOp tree) {
         try {
             open(prec, JavafxTreeInfo.assignopPrec);
             printExpr(tree.lhs, JavafxTreeInfo.assignopPrec + 1);
@@ -551,7 +551,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     //@Override
-    public void visitUnary(JFXUnary tree) {
+    public void visitUnary(VisageUnary tree) {
         try {
            if (tree.getFXTag() == JavafxTag.SIZEOF) {
                print("(sizeof ");
@@ -575,7 +575,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitBinary(JFXBinary tree) {
+    public void visitBinary(VisageBinary tree) {
         try {
             int ownprec = JavafxTreeInfo.opPrec(tree.getFXTag());
             String opname = operatorName(tree.getFXTag());
@@ -589,7 +589,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitTypeCast(JFXTypeCast tree) {
+    public void visitTypeCast(VisageTypeCast tree) {
         try {
             printExpr(tree.expr, JavafxTreeInfo.prefixPrec);
             print(" as ");
@@ -599,7 +599,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitInstanceOf(JFXInstanceOf tree) {
+    public void visitInstanceOf(VisageInstanceOf tree) {
         try {
             open(prec, JavafxTreeInfo.ordPrec);
             printExpr(tree.expr, JavafxTreeInfo.ordPrec);
@@ -611,7 +611,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitSelect(JFXSelect tree) {
+    public void visitSelect(VisageSelect tree) {
         try {
             printExpr(tree.selected, JavafxTreeInfo.postfixPrec);
             print("." + tree.name);
@@ -620,7 +620,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitIdent(JFXIdent tree) {
+    public void visitIdent(VisageIdent tree) {
         try {
             print(tree.getName());
         } catch (IOException e) {
@@ -628,7 +628,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitLiteral(JFXLiteral tree) {
+    public void visitLiteral(VisageLiteral tree) {
         try {
             switch (tree.typetag) {
                 case TypeTags.BYTE:
@@ -667,7 +667,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
 
-    public void visitErroneous(JFXErroneous tree) {
+    public void visitErroneous(VisageErroneous tree) {
         try {
             print("(ERROR)");
         } catch (IOException e) {
@@ -675,7 +675,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitModifiers(JFXModifiers mods) {
+    public void visitModifiers(VisageModifiers mods) {
         try {
             printFlags(mods.flags);
         } catch (IOException e) {
@@ -683,7 +683,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitTree(JFXTree tree) {
+    public void visitTree(VisageTree tree) {
         try {
             print("(UNKNOWN: " + tree + ")");
             println();
@@ -714,7 +714,7 @@ public class JavafxPretty implements JavafxVisitor {
         return " %(" + pos + ")" + line + "% ";
     }
 
-    private void printInterpolateValue(JFXInterpolateValue tree) {
+    private void printInterpolateValue(VisageInterpolateValue tree) {
         try {
             if (tree.getAttribute() != null) {
                 print(tree.getAttribute());
@@ -727,7 +727,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
+    public void visitClassDeclaration(VisageClassDeclaration tree) {
         try {
             int oldScope = variableScope;
             variableScope = SCOPE_CLASS;
@@ -740,7 +740,7 @@ public class JavafxPretty implements JavafxVisitor {
             print(n == null ? "<anonymous>" : n);
             if (tree.getSupertypes().nonEmpty()) {
                 print(" extends");
-                for (JFXExpression sup : tree.getSupertypes()) {
+                for (VisageExpression sup : tree.getSupertypes()) {
                     print(" ");
                     printExpr(sup);
                 }
@@ -748,7 +748,7 @@ public class JavafxPretty implements JavafxVisitor {
             print(" {");
             println();
             indent();
-            for (JFXTree mem : tree.getMembers()) {
+            for (VisageTree mem : tree.getMembers()) {
                 align();
                 printExpr(mem);
             }
@@ -763,7 +763,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-     public static void visitFunctionValue(JavafxPretty pretty, JFXFunctionValue tree) {
+     public static void visitFunctionValue(JavafxPretty pretty, VisageFunctionValue tree) {
         try {
             pretty.println();
             pretty.align();
@@ -775,10 +775,10 @@ public class JavafxPretty implements JavafxVisitor {
             if (tree.getType() != null) {
                 pretty.printExpr(tree.getType());
             }
-            JFXBlock body = tree.getBodyExpression();
+            VisageBlock body = tree.getBodyExpression();
             if (body != null) {
 
-                if  (body instanceof JFXErroneousBlock) {
+                if  (body instanceof VisageErroneousBlock) {
                     pretty.print("<erroroneous>");
                 } else {
                     pretty.printExpr(body);
@@ -790,11 +790,11 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-  public void visitFunctionValue(JFXFunctionValue tree) {
+  public void visitFunctionValue(VisageFunctionValue tree) {
           visitFunctionValue(this, tree);
     }
 
-    public static void visitFunctionDefinition(JavafxPretty pretty, JFXFunctionDefinition tree) {
+    public static void visitFunctionDefinition(JavafxPretty pretty, VisageFunctionDefinition tree) {
         try {
             JavafxPretty fxpretty = (JavafxPretty)pretty;
             int oldScope = fxpretty.variableScope;
@@ -813,7 +813,7 @@ public class JavafxPretty implements JavafxVisitor {
                 pretty.print(" : ");
                 pretty.printExpr(tree.operation.rettype);
             }
-            JFXBlock body = tree.getBodyExpression();
+            VisageBlock body = tree.getBodyExpression();
             if (body != null) {
                 pretty.print(" ");
                 pretty.printExpr(body);
@@ -825,11 +825,11 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
     
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(VisageFunctionDefinition tree) {
         visitFunctionDefinition(this, tree);
     }
 
-    public void visitInitDefinition(JFXInitDefinition tree) {
+    public void visitInitDefinition(VisageInitDefinition tree) {
         try {
             println();
             align();
@@ -842,7 +842,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
+    public void visitPostInitDefinition(VisagePostInitDefinition tree) {
         try {
             println();
             align();
@@ -855,11 +855,11 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitBlockExpression(JFXBlock tree) {
+    public void visitBlockExpression(VisageBlock tree) {
         visitBlockExpression(this, tree);
     }
 
-    public static void visitBlockExpression(JavafxPretty pretty, JFXBlock tree) {
+    public static void visitBlockExpression(JavafxPretty pretty, VisageBlock tree) {
         try {
             pretty.printFlags(tree.flags);
             pretty.print("{");
@@ -892,7 +892,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitSequenceEmpty(JFXSequenceEmpty that) {
+    public void visitSequenceEmpty(VisageSequenceEmpty that) {
         try {
             print("[]");
         } catch (IOException e) {
@@ -900,7 +900,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
     
-    public void visitSequenceRange(JFXSequenceRange that) {
+    public void visitSequenceRange(VisageSequenceRange that) {
          try {
             print("[");
             printExpr(that.getLower());
@@ -919,11 +919,11 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
     
-    public void visitSequenceExplicit(JFXSequenceExplicit that) {
+    public void visitSequenceExplicit(VisageSequenceExplicit that) {
         try {
             boolean first = true;
             print("[");
-            for (JFXExpression expr : that.getItems()) {
+            for (VisageExpression expr : that.getItems()) {
                 if (!first) {
                     print(", ");
                 }
@@ -936,7 +936,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitSequenceIndexed(JFXSequenceIndexed that) {
+    public void visitSequenceIndexed(VisageSequenceIndexed that) {
         try {
             printExpr(that.getSequence());
             print("[ ");
@@ -947,7 +947,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-     public void visitSequenceSlice(JFXSequenceSlice that) {
+     public void visitSequenceSlice(VisageSequenceSlice that) {
         try {
             printExpr(that.getSequence());
             print("[ ");
@@ -961,7 +961,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
     
     //@Override
-    public void visitSequenceInsert(JFXSequenceInsert that) {
+    public void visitSequenceInsert(VisageSequenceInsert that) {
         try {
             print("insert ");
             printExpr(that.getElement());
@@ -974,7 +974,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
     
     //@Override
-    public void visitSequenceDelete(JFXSequenceDelete that) {
+    public void visitSequenceDelete(VisageSequenceDelete that) {
         try {
             print("delete ");
             printExpr(that.getSequence());
@@ -990,7 +990,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     //@Override
-    public void visitInvalidate(JFXInvalidate that) {
+    public void visitInvalidate(VisageInvalidate that) {
         try {
             print("invalidate ");
             printExpr(that.getVariable());
@@ -1001,14 +1001,14 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     //@Override
-    public void visitStringExpression(JFXStringExpression tree) {
+    public void visitStringExpression(VisageStringExpression tree) {
         try {
             int i;
-            List<JFXExpression> parts = tree.getParts();
+            List<VisageExpression> parts = tree.getParts();
             for (i = 0; i < parts.length() - 1; i += 3) {
                 printExpr(parts.get(i));
                 print("{");
-                JFXExpression format = parts.get(i + 1);
+                VisageExpression format = parts.get(i + 1);
                 if (format != null) {
                     printExpr(format);
                 }
@@ -1021,9 +1021,9 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitInstanciate(JFXInstanciate tree) {
+    public void visitInstanciate(VisageInstanciate tree) {
         try {
-            JFXExpression id = tree.getIdentifier();
+            VisageExpression id = tree.getIdentifier();
             if (tree.getArgs().nonEmpty())
                 print("new ");
             if (id != null) {
@@ -1040,7 +1040,7 @@ public class JavafxPretty implements JavafxVisitor {
                 print(" {");
                 if (tree.getParts().nonEmpty()) {
                     indent();
-                    for (JFXObjectLiteralPart mem : tree.getParts()) {
+                    for (VisageObjectLiteralPart mem : tree.getParts()) {
                         println();
                         align();
                         printExpr(mem);
@@ -1060,7 +1060,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
+    public void visitObjectLiteralPart(VisageObjectLiteralPart tree) {
         try {
             print(tree.getName());
             print(": ");
@@ -1071,7 +1071,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitTypeAny(JFXTypeAny tree) {
+    public void visitTypeAny(VisageTypeAny tree) {
         try {
             print("* ");
             print(ary(tree));
@@ -1080,9 +1080,9 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void printTypeSpecifier(JFXType type) {
+    public void printTypeSpecifier(VisageType type) {
         try {
-            if (type instanceof JFXTypeUnknown)
+            if (type instanceof VisageTypeUnknown)
                 return;
             print(": ");
             printExpr(type);
@@ -1090,7 +1090,7 @@ public class JavafxPretty implements JavafxVisitor {
             throw new UncheckedIOException(e);
         }
     }
-    public void visitTypeClass(JFXTypeClass tree) {
+    public void visitTypeClass(VisageTypeClass tree) {
         try {
             print(tree.getClassName());
             print(ary(tree));
@@ -1099,19 +1099,19 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitTypeFunctional(JFXTypeFunctional tree) {
+    public void visitTypeFunctional(VisageTypeFunctional tree) {
         try {
             print("(");
-            List<JFXType> params = tree.getParams();
+            List<VisageType> params = tree.getParams();
             if (params.nonEmpty()) {
                 printTypeSpecifier(params.head);
-                for (List<JFXType> l = params.tail; l.nonEmpty(); l = l.tail) {
+                for (List<VisageType> l = params.tail; l.nonEmpty(); l = l.tail) {
                     print(", ");
                     printTypeSpecifier(l.head);
                 }
             }
             print(")");
-            printTypeSpecifier((JFXType)tree.getReturnType());
+            printTypeSpecifier((VisageType)tree.getReturnType());
             print(ary(tree));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -1119,7 +1119,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     //@Override
-    public void visitTypeArray(JFXTypeArray tree) {
+    public void visitTypeArray(VisageTypeArray tree) {
         try {
             print("nativearray of ");
             printTypeSpecifier(tree.getElementType());
@@ -1128,7 +1128,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitTypeUnknown(JFXTypeUnknown tree) {
+    public void visitTypeUnknown(VisageTypeUnknown tree) {
         try {
             print(ary(tree));
         } catch (IOException e) {
@@ -1136,7 +1136,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    String ary(JFXType tree) {
+    String ary(VisageType tree) {
         switch (tree.getCardinality()) {
             case ANY:
                 return "[]";
@@ -1146,7 +1146,7 @@ public class JavafxPretty implements JavafxVisitor {
         return "";
     }
 
-    public void visitVarInit(JFXVarInit tree) {
+    public void visitVarInit(VisageVarInit tree) {
         try {
             print("var-init: ");
             print(tree.getVar());
@@ -1156,7 +1156,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     //@Override
-    public void visitVarRef(JFXVarRef tree) {
+    public void visitVarRef(VisageVarRef tree) {
         try {
             print(tree.getVarRefKind() + "(" + tree.getExpression() + ")");
         }
@@ -1165,7 +1165,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitVar(JFXVar tree) {
+    public void visitVar(VisageVar tree) {
         try {
             if (docComments != null && docComments.get(tree) != null) {
                 println(); align();
@@ -1208,7 +1208,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+    public void visitOverrideClassVar(VisageOverrideClassVar tree) {
         try {
             print("override var ");
             printExpr(tree.getId());
@@ -1237,9 +1237,9 @@ public class JavafxPretty implements JavafxVisitor {
   
     
     //@Override
-    public void visitOnReplace(JFXOnReplace tree) {
+    public void visitOnReplace(VisageOnReplace tree) {
         try {
-            String triggerKind = tree.getTriggerKind() == JFXOnReplace.Kind.ONREPLACE ?
+            String triggerKind = tree.getTriggerKind() == VisageOnReplace.Kind.ONREPLACE ?
                 "replace" : "invalidate";
             print(" on " + triggerKind);
             if (tree.getOldValue() != null) {
@@ -1270,7 +1270,7 @@ public class JavafxPretty implements JavafxVisitor {
     
     
     //@Override
-    public void visitForExpression(JFXForExpression tree) {
+    public void visitForExpression(VisageForExpression tree) {
         try {
             boolean first = true;
             print("for (");
@@ -1281,25 +1281,25 @@ public class JavafxPretty implements JavafxVisitor {
                 // one or more in clauses was in error, so we jsut skip any
                 // erroneous ones.
                 //
-                if  (cl == null || cl instanceof JFXErroneousForExpressionInClause) {
+                if  (cl == null || cl instanceof VisageErroneousForExpressionInClause) {
                     continue;
                 }
 
-                JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
+                VisageForExpressionInClause clause = (VisageForExpressionInClause)cl;
                 if (first) {
                     first = false;
                 } else {
                     print(", ");
                 }
                 
-                JFXVar var = clause.getVar();
+                VisageVar var = clause.getVar();
 
                 // Don't try to examine erroneous loop controls, such as
                 // when a variable was missing. Again, this is because the IDE may
                 // try to attribute a node that is mostly correct, but contains
                 // one or more components that are in error.
                 //
-                if  (var == null || var instanceof JFXErroneousVar) 
+                if  (var == null || var instanceof VisageErroneousVar) 
                 {
                     print("<missing>)");
                 } else {
@@ -1307,9 +1307,9 @@ public class JavafxPretty implements JavafxVisitor {
                 }
                 print(" in ");
 
-                JFXExpression e1 = clause.getSequenceExpression();
+                VisageExpression e1 = clause.getSequenceExpression();
 
-                if  (e1 == null || e1 instanceof JFXErroneous) {
+                if  (e1 == null || e1 instanceof VisageErroneous) {
                    print("<error>");
                 } else {
                     printExpr(e1);
@@ -1321,9 +1321,9 @@ public class JavafxPretty implements JavafxVisitor {
             }
             print(") ");
 
-            JFXExpression body = tree.getBodyExpression();
+            VisageExpression body = tree.getBodyExpression();
 
-            if  (body == null || body instanceof JFXErroneous) {
+            if  (body == null || body instanceof VisageErroneous) {
                 print(" {}\n");
             } else {
                 printExpr(body);
@@ -1333,7 +1333,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitIndexof(JFXIndexof that) {
+    public void visitIndexof(VisageIndexof that) {
         try {
             print("indexof ");
             print(that.fname);
@@ -1343,24 +1343,24 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     //@Override
-    public void visitForExpressionInClause(JFXForExpressionInClause that) {
+    public void visitForExpressionInClause(VisageForExpressionInClause that) {
         try {
 
-            if (that.var == null || that.var instanceof JFXErroneousVar) {
+            if (that.var == null || that.var instanceof VisageErroneousVar) {
                 print("<missing var>");
             } else {
                 print(that.var);
             }
             print(" in ");
 
-            if (that.seqExpr == null || that.seqExpr instanceof JFXErroneous) {
+            if (that.seqExpr == null || that.seqExpr instanceof VisageErroneous) {
                 print("<missing expr>");
             } else {
                 print(that.seqExpr);
             }
             if (that.getWhereExpression() != null) {
                 print(" where ");
-                if (that.getWhereExpression() instanceof JFXErroneous) {
+                if (that.getWhereExpression() instanceof VisageErroneous) {
                     print("<erroreous where>");
                 } else {
                     print(that.getWhereExpression());
@@ -1372,7 +1372,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
     
     /** Convert a tree to a pretty-printed string. */
-    public static String toString(JFXTree tree) {
+    public static String toString(VisageTree tree) {
         StringWriter s = new StringWriter();
         try {
             new JavafxPretty(s, false).printExpr(tree);
@@ -1385,7 +1385,7 @@ public class JavafxPretty implements JavafxVisitor {
         return s.toString();
     }
 
-    public void visitTimeLiteral(JFXTimeLiteral tree) {
+    public void visitTimeLiteral(VisageTimeLiteral tree) {
         try {
             Double d = ((Number)tree.value.value).doubleValue();
             d /= tree.duration.getMultiplier();
@@ -1395,7 +1395,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitLengthLiteral(JFXLengthLiteral tree) {
+    public void visitLengthLiteral(VisageLengthLiteral tree) {
         try {
             Double d = ((Number)tree.value.value).doubleValue();
             print(d + tree.units.getSuffix());
@@ -1404,7 +1404,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitAngleLiteral(JFXAngleLiteral tree) {
+    public void visitAngleLiteral(VisageAngleLiteral tree) {
         try {
             Double d = ((Number)tree.value.value).doubleValue();
             print(d + tree.units.getSuffix());
@@ -1413,7 +1413,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitColorLiteral(JFXColorLiteral tree) {
+    public void visitColorLiteral(VisageColorLiteral tree) {
         try {
             Integer i = ((Number)tree.value.value).intValue();
             print("#" + Integer.toHexString(i));
@@ -1422,19 +1422,19 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitInterpolateValue(JFXInterpolateValue tree) {
+    public void visitInterpolateValue(VisageInterpolateValue tree) {
         printInterpolateValue(tree);
     }
     
-    private void printTween(JFXInterpolateValue tree) throws IOException {
-        JFXExpression tween = tree.getInterpolation();
+    private void printTween(VisageInterpolateValue tree) throws IOException {
+        VisageExpression tween = tree.getInterpolation();
         if (tween != null) {
             print(" tween ");
             print(tween);
         }
     }
 
-    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+    public void visitKeyFrameLiteral(VisageKeyFrameLiteral tree) {
         try {
             print("at (");
             print(tree.getStartDuration());
@@ -1442,12 +1442,12 @@ public class JavafxPretty implements JavafxVisitor {
             println();
             
             indent();
-            printStats(List.convert(JFXTree.class, tree.getInterpolationValues()));
+            printStats(List.convert(VisageTree.class, tree.getInterpolationValues()));
             
             if (tree.getTrigger() != null) {
                 align();
                 print("trigger ");
-                visitBlockExpression(this, (JFXBlock)tree.getTrigger());
+                visitBlockExpression(this, (VisageBlock)tree.getTrigger());
             }
             
             undent();

@@ -23,8 +23,8 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.request.ThreadDeathRequest;
 
@@ -32,13 +32,13 @@ import com.sun.jdi.request.ThreadDeathRequest;
  *
  * @author sundar
  */
-public class FXThreadDeathRequest extends FXEventRequest implements ThreadDeathRequest {
-    public FXThreadDeathRequest(FXVirtualMachine fxvm, ThreadDeathRequest underlying) {
+public class VisageThreadDeathRequest extends VisageEventRequest implements ThreadDeathRequest {
+    public VisageThreadDeathRequest(VisageVirtualMachine fxvm, ThreadDeathRequest underlying) {
         super(fxvm, underlying);
     }
 
     public void addThreadFilter(ThreadReference arg0) {
-        underlying().addThreadFilter(FXWrapper.unwrap(arg0));
+        underlying().addThreadFilter(VisageWrapper.unwrap(arg0));
     }
 
     @Override

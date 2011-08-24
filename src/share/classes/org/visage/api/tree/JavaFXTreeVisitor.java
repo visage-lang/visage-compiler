@@ -47,7 +47,7 @@ package org.visage.api.tree;
  *
  * @author Tom Ball
  */
-public interface JavaFXTreeVisitor<R,P> {
+public interface VisageTreeVisitor<R,P> {
     R visitMethodInvocation(FunctionInvocationTree node, P p);
     R visitAssignment(AssignmentTree node, P p);
     R visitCompoundAssignment(CompoundAssignmentTree node, P p);

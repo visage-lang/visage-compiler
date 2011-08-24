@@ -23,9 +23,9 @@
 
 package org.visage.tools.tree;
 
-import org.visage.api.tree.JavaFXTreeVisitor;
+import org.visage.api.tree.VisageTreeVisitor;
 import org.visage.api.tree.Tree;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import org.visage.api.tree.TypeArrayTree;
 
 
@@ -34,13 +34,13 @@ import org.visage.api.tree.TypeArrayTree;
  *
  * @author Robert Field
  */
-public class JFXTypeArray extends JFXType implements TypeArrayTree {
-    private JFXType elementType;
+public class VisageTypeArray extends VisageType implements TypeArrayTree {
+    private VisageType elementType;
     
     /*
      * @param cardinality one of the cardinality constants
      */
-    protected JFXTypeArray(JFXType elementType) {
+    protected VisageTypeArray(VisageType elementType) {
         super();
         this.elementType = elementType;
     }
@@ -48,7 +48,7 @@ public class JFXTypeArray extends JFXType implements TypeArrayTree {
         v.visitTypeArray(this);
     }
 
-    public JFXType getElementType() {
+    public VisageType getElementType() {
         return elementType;
     }
 
@@ -58,12 +58,12 @@ public class JFXTypeArray extends JFXType implements TypeArrayTree {
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitTypeArray(this, d);
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return Tree.JavaFXKind.TYPE_FUNCTIONAL;
+    public VisageKind getJavaFXKind() {
+        return Tree.VisageKind.TYPE_FUNCTIONAL;
     }
 }

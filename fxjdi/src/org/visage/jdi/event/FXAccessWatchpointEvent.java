@@ -23,7 +23,7 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.event.AccessWatchpointEvent;
 import com.sun.jdi.event.WatchpointEvent;
 
@@ -31,10 +31,10 @@ import com.sun.jdi.event.WatchpointEvent;
  *
  * @author sundar
  */
-public class FXAccessWatchpointEvent extends FXWatchpointEvent
+public class VisageAccessWatchpointEvent extends VisageWatchpointEvent
         implements AccessWatchpointEvent {
 
-    public FXAccessWatchpointEvent(FXVirtualMachine fxvm, AccessWatchpointEvent underlying) {
+    public VisageAccessWatchpointEvent(VisageVirtualMachine fxvm, AccessWatchpointEvent underlying) {
         super(fxvm, underlying);
     }
 

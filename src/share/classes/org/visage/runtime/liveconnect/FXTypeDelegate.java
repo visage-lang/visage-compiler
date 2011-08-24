@@ -28,9 +28,9 @@ import java.util.*;
 import com.sun.java.browser.plugin2.liveconnect.v1.*;
 import visage.reflect.*;
 
-public abstract class FXTypeDelegate implements InvocationDelegate {
-    protected FXTypeDelegate() {
-        FXLocal.Context context = FXLocal.getContext();
+public abstract class VisageTypeDelegate implements InvocationDelegate {
+    protected VisageTypeDelegate() {
+        VisageLocal.Context context = VisageLocal.getContext();
         voidType = context.getVoidType();
         booleanType = context.getBooleanType();
         integerType = context.getIntegerType();
@@ -42,18 +42,18 @@ public abstract class FXTypeDelegate implements InvocationDelegate {
             return obj;
         }
 
-        FXValue val = (FXValue) obj;
+        VisageValue val = (VisageValue) obj;
         if (val == null)
             return null;
         
-        FXType type = val.getType();
-        if (type instanceof FXPrimitiveType) {
-            return ((FXPrimitiveValue) val).asObject();
-        } else if (type instanceof FXLocal.ClassType) {
-            FXLocal.ClassType classType = (FXLocal.ClassType) type;
+        VisageType type = val.getType();
+        if (type instanceof VisagePrimitiveType) {
+            return ((VisagePrimitiveValue) val).asObject();
+        } else if (type instanceof VisageLocal.ClassType) {
+            VisageLocal.ClassType classType = (VisageLocal.ClassType) type;
             if (!classType.isJfxType()) {
                 // Return Java values as Java objects instead of Visage Script wrappers
-                return ((FXLocal.ObjectValue) val).asObject();
+                return ((VisageLocal.ObjectValue) val).asObject();
             }
         }
         // Sequence, etc. that we don't want to convert
@@ -65,8 +65,8 @@ public abstract class FXTypeDelegate implements InvocationDelegate {
     //
 
     // Need to know about certain primitive types
-    protected FXType voidType;
-    protected FXType booleanType;
-    protected FXType integerType;
-    protected FXType numberType;
+    protected VisageType voidType;
+    protected VisageType booleanType;
+    protected VisageType integerType;
+    protected VisageType numberType;
 }

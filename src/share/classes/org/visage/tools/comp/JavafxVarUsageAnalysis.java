@@ -46,7 +46,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     
     private boolean inLHS;
     private JavafxBindStatus bindStatus;
-    private JFXClassDeclaration currentClass;
+    private VisageClassDeclaration currentClass;
     private JavafxTypes types;
     private Name.Table names;
     private JavafxDefs defs;
@@ -87,13 +87,13 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         }
 
         @Override
-        public void visitVar(JFXVar tree) {
+        public void visitVar(VisageVar tree) {
             super.visitVar(tree);
             clearMark(tree.sym);
         }
 
         @Override
-        public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+        public void visitOverrideClassVar(VisageOverrideClassVar tree) {
             super.visitOverrideClassVar(tree);
             clearMark(tree.sym);
         }
@@ -134,21 +134,21 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitScript(JFXScript tree) {
+    public void visitScript(VisageScript tree) {
        inLHS = false;
        bindStatus = JavafxBindStatus.UNBOUND;
        super.visitScript(tree);
     }
 
     @Override
-    public void visitVarInit(JFXVarInit tree) {
+    public void visitVarInit(VisageVarInit tree) {
         Symbol sym = tree.getVar().sym;
         if (sym instanceof JavafxVarSymbol) {
             ((JavafxVarSymbol)sym).setHasVarInit();
         }
     }
 
-    private void scanVar(JFXAbstractVar tree) {
+    private void scanVar(VisageAbstractVar tree) {
         JavafxBindStatus wasBindStatus = bindStatus;
         bindStatus = tree.getBindStatus();
         if (bindStatus.isBound()) {
@@ -179,23 +179,23 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitVar(JFXVar tree) {
+    public void visitVar(VisageVar tree) {
         scanVar(tree);
     }
     
     @Override
-    public void visitVarRef(JFXVarRef tree) {
+    public void visitVarRef(VisageVarRef tree) {
         mark(tree.getVarSymbol(), VARUSE_NEED_ACCESSOR | VARUSE_VARREF);
     }
 
     @Override
-    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+    public void visitOverrideClassVar(VisageOverrideClassVar tree) {
         scanVar(tree);
         mark(tree.sym, OVERRIDE);
     }
 
     @Override
-    public void visitOnReplace(JFXOnReplace tree) {
+    public void visitOnReplace(VisageOnReplace tree) {
         if (tree.getOldValue() != null)
             mark(tree.getOldValue().sym, VARUSE_OPT_TRIGGER);
         if (tree.getNewElements() != null)
@@ -204,8 +204,8 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
-       JFXClassDeclaration previousClass = currentClass;
+    public void visitClassDeclaration(VisageClassDeclaration tree) {
+       VisageClassDeclaration previousClass = currentClass;
        currentClass = tree;
        // these start over in a class definition
        boolean wasLHS = inLHS;
@@ -224,7 +224,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(VisageFunctionDefinition tree) {
        // these start over in a function definition
        boolean wasLHS = inLHS;
        JavafxBindStatus wasBindStatus = bindStatus;
@@ -232,7 +232,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
        bindStatus = tree.getBindStatus();
        // don't use super, since we don't want to cancel the inBindContext
-       for (JFXVar param : tree.getParams()) {
+       for (VisageVar param : tree.getParams()) {
            scan(param);
        }
        scan(tree.getBodyExpression());
@@ -242,7 +242,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
    
     @Override
-    public void visitFunctionValue(JFXFunctionValue tree) {
+    public void visitFunctionValue(VisageFunctionValue tree) {
        // these start over in a function value
        boolean wasLHS = inLHS;
        JavafxBindStatus wasBindStatus = bindStatus;
@@ -256,12 +256,12 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+    public void visitFunctionInvocation(VisageFunctionInvocation tree) {
         super.visitFunctionInvocation(tree);
     }
 
     @Override
-    public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
+    public void visitObjectLiteralPart(VisageObjectLiteralPart tree) {
         JavafxBindStatus wasBindStatus = bindStatus;
 
         bindStatus = tree.getBindStatus();
@@ -274,7 +274,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitAssign(JFXAssign tree) {
+    public void visitAssign(VisageAssign tree) {
         boolean wasLHS = inLHS;
         inLHS = true;
         scan(tree.lhs);
@@ -283,7 +283,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitAssignop(JFXAssignOp tree) {
+    public void visitAssignop(VisageAssignOp tree) {
         boolean wasLHS = inLHS;
         inLHS = true;
         scan(tree.lhs);
@@ -292,7 +292,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitUnary(JFXUnary tree) {
+    public void visitUnary(VisageUnary tree) {
         boolean wasLHS = inLHS;
         JavafxVarSymbol sym = null;
         boolean restoreOptTrigger = false;
@@ -305,8 +305,8 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
                 inLHS = true;
                 break;
             case SIZEOF:
-               if (tree.arg instanceof JFXIdent) {
-                   sym = (JavafxVarSymbol) ((JFXIdent) tree.arg).sym;
+               if (tree.arg instanceof VisageIdent) {
+                   sym = (JavafxVarSymbol) ((VisageIdent) tree.arg).sym;
                    restoreOptTrigger = (sym.flags_field & VARUSE_OPT_TRIGGER) != 0;
                    restoreUsedOutsideSizeof = ! sym.isUsedOutsideSizeof();
                    sym.setUsedInSizeof();
@@ -322,22 +322,22 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitIdent(JFXIdent tree) {
+    public void visitIdent(VisageIdent tree) {
         markVarAccess(tree.sym);
     }
     
     @Override
-    public void visitInitDefinition(JFXInitDefinition that) {
+    public void visitInitDefinition(VisageInitDefinition that) {
         assert !inLHS : "cannot have init blocks on LHS";
         assert !bindStatus.isBound() : "cannot have init blocks on bind";
 
-        scan((JFXBlock)that.getBody());
+        scan((VisageBlock)that.getBody());
 
         that.sym.owner.flags_field |= CLASS_HAS_INIT_BLOCK;
     }
 
     @Override
-    public void visitInterpolateValue(final JFXInterpolateValue tree) {
+    public void visitInterpolateValue(final VisageInterpolateValue tree) {
         JavafxBindStatus wasBindStatus = bindStatus;
         bindStatus = JavafxBindStatus.UNIDIBIND;
 
@@ -348,7 +348,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitSelect(JFXSelect tree) {
+    public void visitSelect(VisageSelect tree) {
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
         boolean wasLHS = inLHS;
@@ -360,7 +360,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitSequenceInsert(JFXSequenceInsert tree) {
+    public void visitSequenceInsert(VisageSequenceInsert tree) {
         boolean wasLHS = inLHS;
         inLHS = true;
         scan(tree.getSequence());
@@ -369,7 +369,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitSequenceDelete(JFXSequenceDelete tree) {
+    public void visitSequenceDelete(VisageSequenceDelete tree) {
         boolean wasLHS = inLHS;
         inLHS = true;
         scan(tree.getSequence());
@@ -378,11 +378,11 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+    public void visitSequenceIndexed(VisageSequenceIndexed tree) {
         Symbol sym;
         boolean restoreOptTrigger;
-        if (tree.getSequence() instanceof JFXIdent) {
-            sym = ((JFXIdent) tree.getSequence()).sym;
+        if (tree.getSequence() instanceof VisageIdent) {
+            sym = ((VisageIdent) tree.getSequence()).sym;
             restoreOptTrigger = (sym.flags_field & VARUSE_OPT_TRIGGER) != 0;
         }
         else {
@@ -399,7 +399,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitSequenceSlice(JFXSequenceSlice tree) {
+    public void visitSequenceSlice(VisageSequenceSlice tree) {
         scan(tree.getSequence());
         boolean wasLHS = inLHS;
         inLHS = false;
@@ -409,23 +409,23 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitForExpressionInClause(JFXForExpressionInClause that) {
+    public void visitForExpressionInClause(VisageForExpressionInClause that) {
         scan(that.getVar());
         if (bindStatus.isBound()) {
             mark(that.getVar().sym, VARUSE_ASSIGNED_TO);
         }
         Symbol sym = null;
         boolean restoreOptTrigger = false;
-        JFXExpression seq = that.getSequenceExpression();
-        if (seq instanceof JFXIdent) {
-            sym = ((JFXIdent) seq).sym;
+        VisageExpression seq = that.getSequenceExpression();
+        if (seq instanceof VisageIdent) {
+            sym = ((VisageIdent) seq).sym;
             restoreOptTrigger = (sym.flags_field & VARUSE_OPT_TRIGGER) != 0;
         }
-        else if (seq instanceof JFXSequenceSlice) {
-            JFXSequenceSlice slice = (JFXSequenceSlice) seq;
-            JFXExpression sseq = slice.getSequence();
-            if (sseq instanceof JFXIdent) {
-                sym = ((JFXIdent) sseq).sym;
+        else if (seq instanceof VisageSequenceSlice) {
+            VisageSequenceSlice slice = (VisageSequenceSlice) seq;
+            VisageExpression sseq = slice.getSequence();
+            if (sseq instanceof VisageIdent) {
+                sym = ((VisageIdent) sseq).sym;
                 restoreOptTrigger = (sym.flags_field & VARUSE_OPT_TRIGGER) != 0;
             }
         }
@@ -435,12 +435,12 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         scan(that.getWhereExpression());
     }
 
-    JFXOnReplace findOnReplace(Symbol sym, JFXOnReplace current) {
+    VisageOnReplace findOnReplace(Symbol sym, VisageOnReplace current) {
         //for
         return null;
     }
 
-    void markForwardReferences(JFXTree tree) {
+    void markForwardReferences(VisageTree tree) {
         new ForwardReferenceChecker(names, types, defs, EnumSet.allOf(ForwardReferenceChecker.ScopeKind.class)) {
             @Override
             protected void reportForwardReference(DiagnosticPosition pos, boolean selfReference, Symbol s, boolean potential) {

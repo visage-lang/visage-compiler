@@ -23,32 +23,32 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXField;
-import org.visage.jdi.FXObjectReference;
-import org.visage.jdi.FXValue;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageField;
+import org.visage.jdi.VisageObjectReference;
+import org.visage.jdi.VisageValue;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.event.WatchpointEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXWatchpointEvent extends FXLocatableEvent implements WatchpointEvent {
-    public FXWatchpointEvent(FXVirtualMachine fxvm, WatchpointEvent underlying) {
+public class VisageWatchpointEvent extends VisageLocatableEvent implements WatchpointEvent {
+    public VisageWatchpointEvent(VisageVirtualMachine fxvm, WatchpointEvent underlying) {
         super(fxvm, underlying);
     }
 
-    public FXField field() {
-        return FXWrapper.wrap(virtualMachine(), underlying().field());
+    public VisageField field() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().field());
     }
 
-    public FXObjectReference object() {
-        return FXWrapper.wrap(virtualMachine(), underlying().object());
+    public VisageObjectReference object() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().object());
     }
 
-    public FXValue valueCurrent() {
-        return FXWrapper.wrap(virtualMachine(), underlying().valueCurrent());
+    public VisageValue valueCurrent() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().valueCurrent());
     }
     
     @Override

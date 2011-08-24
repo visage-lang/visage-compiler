@@ -30,11 +30,11 @@ import com.sun.tools.mjavac.util.Name;
 /**
  * A special translation-support identifier which proxies for a sequence
  */
-public class JFXIdentSequenceProxy extends JFXIdent {
+public class VisageIdentSequenceProxy extends VisageIdent {
 
     private JavafxVarSymbol boundSizeSym;
 
-    protected JFXIdentSequenceProxy(Name name, Symbol sym, JavafxVarSymbol boundSizeSym) {
+    protected VisageIdentSequenceProxy(Name name, Symbol sym, JavafxVarSymbol boundSizeSym) {
         super(name, sym);
         this.boundSizeSym = boundSizeSym;
     }

@@ -24,20 +24,20 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  *
  * @author Robert Field
  */
-public class JFXSequenceSlice extends JFXExpression implements SequenceSliceTree {
-    private final JFXExpression sequence;
-    private final JFXExpression firstIndex;
-    private final JFXExpression lastIndex;
+public class VisageSequenceSlice extends VisageExpression implements SequenceSliceTree {
+    private final VisageExpression sequence;
+    private final VisageExpression firstIndex;
+    private final VisageExpression lastIndex;
     private final int endKind;
 
-    public JFXSequenceSlice(JFXExpression sequence, JFXExpression firstIndex,
-            JFXExpression lastIndex, int endKind) {
+    public VisageSequenceSlice(VisageExpression sequence, VisageExpression firstIndex,
+            VisageExpression lastIndex, int endKind) {
         this.sequence = sequence;
         this.firstIndex = firstIndex;
         this.lastIndex = lastIndex;
@@ -48,15 +48,15 @@ public class JFXSequenceSlice extends JFXExpression implements SequenceSliceTree
         v.visitSequenceSlice(this);
     }
 
-    public JFXExpression getSequence() {
+    public VisageExpression getSequence() {
         return sequence;
     }
     
-    public JFXExpression getFirstIndex() {
+    public VisageExpression getFirstIndex() {
         return firstIndex;
     }
     
-    public JFXExpression getLastIndex() {
+    public VisageExpression getLastIndex() {
         return lastIndex;
     }
 
@@ -69,11 +69,11 @@ public class JFXSequenceSlice extends JFXExpression implements SequenceSliceTree
         return JavafxTag.SEQUENCE_SLICE;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.SEQUENCE_SLICE;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.SEQUENCE_SLICE;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitSequenceSlice(this, data);
     }
 }

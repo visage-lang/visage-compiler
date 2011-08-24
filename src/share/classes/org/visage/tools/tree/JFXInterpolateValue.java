@@ -24,21 +24,21 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import com.sun.tools.mjavac.code.Symbol;
 
 /**
  *
  * @author tball
  */
-public class JFXInterpolateValue extends JFXExpression implements InterpolateValueTree {
-    public final JFXExpression attribute;
-    public JFXExpression value;
-    public JFXExpression funcValue;
-    public final JFXExpression interpolation;
+public class VisageInterpolateValue extends VisageExpression implements InterpolateValueTree {
+    public final VisageExpression attribute;
+    public VisageExpression value;
+    public VisageExpression funcValue;
+    public final VisageExpression interpolation;
     public Symbol sym;
     
-    public JFXInterpolateValue(JFXExpression attr, JFXExpression v, JFXExpression interp) {
+    public VisageInterpolateValue(VisageExpression attr, VisageExpression v, VisageExpression interp) {
         attribute = attr;
         value = v;
         funcValue = null;
@@ -46,23 +46,23 @@ public class JFXInterpolateValue extends JFXExpression implements InterpolateVal
         sym = null;
     }
 
-    public JFXExpression getAttribute() {
+    public VisageExpression getAttribute() {
         return attribute;
     }
 
-    public JFXExpression getInterpolation() {
+    public VisageExpression getInterpolation() {
         return interpolation;
     }
 
-    public JFXExpression getValue() {
+    public VisageExpression getValue() {
         return value;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.INTERPOLATE_VALUE;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.INTERPOLATE_VALUE;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitInterpolateValue(this, data);
     }
 

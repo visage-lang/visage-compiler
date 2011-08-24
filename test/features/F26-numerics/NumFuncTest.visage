@@ -5,9 +5,9 @@
  * @
  */ 
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
  
-public class NumFuncTest extends FXTestCase {
+public class NumFuncTest extends VisageTestCase {
 
 var res = this;
 var gen: Boolean = false;

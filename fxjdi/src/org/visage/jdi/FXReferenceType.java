@@ -23,7 +23,7 @@
 
 package org.visage.jdi;
 
-import org.visage.jdi.event.FXEventQueue;
+import org.visage.jdi.event.VisageEventQueue;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.ClassObjectReference;
@@ -49,8 +49,8 @@ import java.util.regex.Pattern;
  *
  * @author sundar
  */
-public class FXReferenceType extends FXType implements ReferenceType {
-    public FXReferenceType(FXVirtualMachine fxvm, ReferenceType underlying) {
+public class VisageReferenceType extends VisageType implements ReferenceType {
+    public VisageReferenceType(VisageVirtualMachine fxvm, ReferenceType underlying) {
         super(fxvm, underlying);
     }
 
@@ -63,7 +63,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     public List<ObjectReference> instances(long count) {
-        return FXWrapper.wrapObjectReferences(virtualMachine(), underlying().instances(count));
+        return VisageWrapper.wrapObjectReferences(virtualMachine(), underlying().instances(count));
     }
 
     public int majorVersion() {
@@ -75,19 +75,19 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     public List<Field> allFields() {
-        return FXWrapper.wrapFields(virtualMachine(), underlying().allFields());
+        return VisageWrapper.wrapFields(virtualMachine(), underlying().allFields());
     }
 
     public List<Location> allLineLocations() throws AbsentInformationException {
-        return FXWrapper.wrapLocations(virtualMachine(), underlying().allLineLocations());
+        return VisageWrapper.wrapLocations(virtualMachine(), underlying().allLineLocations());
     }
 
     public List<Location> allLineLocations(String stratum, String sourceName) throws AbsentInformationException {
-        return FXWrapper.wrapLocations(virtualMachine(), underlying().allLineLocations(stratum, sourceName));
+        return VisageWrapper.wrapLocations(virtualMachine(), underlying().allLineLocations(stratum, sourceName));
     }
 
     public List<Method> allMethods() {
-        return FXWrapper.wrapMethods(virtualMachine(), underlying().allMethods());
+        return VisageWrapper.wrapMethods(virtualMachine(), underlying().allMethods());
     }
 
     public List<String> availableStrata() {
@@ -95,11 +95,11 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     public ClassLoaderReference classLoader() {
-        return FXWrapper.wrap(virtualMachine(), underlying().classLoader());
+        return VisageWrapper.wrap(virtualMachine(), underlying().classLoader());
     }
 
     public ClassObjectReference classObject() {
-        return FXWrapper.wrap(virtualMachine(), underlying().classObject());
+        return VisageWrapper.wrap(virtualMachine(), underlying().classObject());
     }
 
     public String defaultStratum() {
@@ -111,7 +111,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     // return null if there is no field or the name is ambigous. 
-    public FXField fieldByName(String name) {
+    public VisageField fieldByName(String name) {
         // There could be both an Visage field $xxx and a java field xxx
         Field javaField = underlying().fieldByName(name);
         Field fxField = underlying().fieldByName("$" + name);
@@ -129,11 +129,11 @@ public class FXReferenceType extends FXType implements ReferenceType {
             }
             fxField = javaField;
         }
-        return FXWrapper.wrap(virtualMachine(), fxField);
+        return VisageWrapper.wrap(virtualMachine(), fxField);
     }
 
     public List<Field> fields() {
-        return FXWrapper.wrapFields(virtualMachine(), underlying().fields());
+        return VisageWrapper.wrapFields(virtualMachine(), underlying().fields());
     }
 
     public String genericSignature() {
@@ -159,12 +159,12 @@ public class FXReferenceType extends FXType implements ReferenceType {
             scriptClassName = jdiRefTypeName + "$" + scriptClassName + "$Script";
             List<ReferenceType> rtx =  virtualMachine().classesByName(scriptClassName);
             if (rtx.size() != 1) {
-                System.out.println("--FXJDI Error: Can't find the class: " + scriptClassName);
+                System.out.println("--VisageJDI Error: Can't find the class: " + scriptClassName);
                 return 0;
             }
             scriptType = rtx.get(0);
         }
-        Field jdiField = FXWrapper.unwrap(field); 
+        Field jdiField = VisageWrapper.unwrap(field); 
         String jdiFieldName = jdiField.name();
         String vflgFieldName = "VFLG" + jdiFieldName;
 
@@ -173,7 +173,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
             // not all fields have a VFLG, eg, a private field that isn't accessed
             return 0;
         }
-        Value vflgValue = FXWrapper.unwrap(scriptType).getValue(FXWrapper.unwrap(vflgField));
+        Value vflgValue = VisageWrapper.unwrap(scriptType).getValue(VisageWrapper.unwrap(vflgField));
         return((ShortValue)vflgValue).value();
     }
 
@@ -189,12 +189,12 @@ public class FXReferenceType extends FXType implements ReferenceType {
         List<Field> noGetterUnwrappedFields = new ArrayList<Field>();    // fields that don't have getters
 
         // For fields that do have getters, we will just return VoidValue for them if
-        // or we will call FXGetValue for each, depending on doInvokes
+        // or we will call VisageGetValue for each, depending on doInvokes
         Map<Field, Value> result = new HashMap<Field, Value>();
 
         // Create the above Maps and lists
         for (Field wrappedField : wrappedFields) {
-            Field unwrapped = FXWrapper.unwrap(wrappedField);
+            Field unwrapped = VisageWrapper.unwrap(wrappedField);
             if (isJavaFXType()) {
                 List<Method> mth = underlying().methodsByName("get" + unwrapped.name());
                 if (mth.size() == 0) {
@@ -226,7 +226,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
         // wrapped version, and wrapped value into the result Map.
         for (Map.Entry<Field, Field> unwrappedEntry: unwrappedToWrappedMap.entrySet()) {
             Field wrappedField = unwrappedEntry.getValue();
-            Value resultValue = FXWrapper.wrap(virtualMachine(), 
+            Value resultValue = VisageWrapper.wrap(virtualMachine(), 
                                              unwrappedFieldValues.get(unwrappedEntry.getKey()));
             result.put(wrappedField, resultValue);
         }
@@ -241,7 +241,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
      * @return <code>true</code> if the value of the specified field is invalid; false otherwise.
      */
     public boolean isInvalid(Field field) {
-        return areFlagBitsSet(field, virtualMachine().FXInvalidFlagMask());
+        return areFlagBitsSet(field, virtualMachine().VisageInvalidFlagMask());
     }
 
     /**
@@ -251,7 +251,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
      * @return <code>true</code> if the specified field is read only; false otherwise.
      */
     public boolean isReadOnly(Field field) {
-        return areFlagBitsSet(field, virtualMachine().FXReadOnlyFlagMask());
+        return areFlagBitsSet(field, virtualMachine().VisageReadOnlyFlagMask());
     }
 
     /**
@@ -260,7 +260,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
      * @return <code>true</code> if the specified field was declared with a bind clause; false otherwise.
      */
     public boolean isBound(Field field) {
-        return areFlagBitsSet(field, virtualMachine().FXBoundFlagMask());
+        return areFlagBitsSet(field, virtualMachine().VisageBoundFlagMask());
     }
 
     /**
@@ -276,7 +276,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
     // (Except for the $Script class)
     private Pattern fxPat1 = Pattern.compile("\\$[0-9].*");
     private boolean isUserClassSet = false;
-    private FXClassType userClass = null;
+    private VisageClassType userClass = null;
 
     /**
      * JDI addition: Return the Visage user class associated with this reference type.
@@ -287,7 +287,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
      *
      * @return the Visage user class associated with this reference type if there is one, else null.
      */
-    public FXClassType javaFXUserClass() {
+    public VisageClassType javaFXUserClass() {
         if (isUserClassSet) {
             return userClass;
         }
@@ -313,7 +313,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
                 // can't happen
                 return null;
             }
-            userClass = (FXClassType)userClasses.get(0);
+            userClass = (VisageClassType)userClasses.get(0);
             return userClass;
         }
 
@@ -327,7 +327,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     private boolean isTopClassSet = false;
-    private FXClassType topClass = null;
+    private VisageClassType topClass = null;
     /**
      * JDI addition: Return the script class associated with this reference type.
      *
@@ -337,7 +337,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
      *
      * @return the Visage class that contains this class if there is one, else null.
      */
-    public FXClassType scriptClass() {
+    public VisageClassType scriptClass() {
         if (isTopClassSet) {
             return topClass;
         }
@@ -346,7 +346,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
         if (!isJavaFXType()) {
             return null;
         }
-        if (!(this instanceof FXClassType)) {
+        if (!(this instanceof VisageClassType)) {
             return null;
         }
 
@@ -356,7 +356,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
         String thisName = name();
         int firstDollar = thisName.indexOf('$');
         if (firstDollar == -1) {
-            topClass = (FXClassType)this;
+            topClass = (VisageClassType)this;
             return topClass;
         }
         topClassName = thisName.substring(0, firstDollar);
@@ -367,43 +367,43 @@ public class FXReferenceType extends FXType implements ReferenceType {
             return null;
         }
 
-        if (!(xx.get(0) instanceof FXClassType)) {
+        if (!(xx.get(0) instanceof VisageClassType)) {
             // shouldn't happen
             return null;
         }
         
-        topClass = (FXClassType)xx.get(0);
+        topClass = (VisageClassType)xx.get(0);
         return topClass;
     }
 
     /**
      * JDI extension: This will call the get function for the field if one exists via invokeMethod.
-     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)} passing true
-     * and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     * The call to invokeMethod is preceded by a call to {@link VisageEventQueue#setEventControl(boolean)} passing true
+     * and is followed by a call to {@link VisageEventQueue#setEventControl(boolean)} passing false.
      *
      * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
-     * {@link FXVirtualMachine#lastFieldAccessException()}. In this case,
+     * {@link VisageVirtualMachine#lastFieldAccessException()}. In this case,
      * the default value for the type of the field is returned for a PrimitiveType,
      * while null is returned for a non PrimitiveType.
      */
     public Value getValue(Field field) {
         virtualMachine().setLastFieldAccessException(null);
-        Field jdiField = FXWrapper.unwrap(field);
+        Field jdiField = VisageWrapper.unwrap(field);
         if (!isJavaFXType()) {
-            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
+            return VisageWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
         }
 
         //get$xxxx methods exist for fields except private fields which have no binders
 
         List<Method> mth = underlying().methodsByName("get" + jdiField.name());
         if (mth.size() == 0) {
-            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
+            return VisageWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
         }
         Exception theExc = null;
-        FXEventQueue eq = virtualMachine().eventQueue();
+        VisageEventQueue eq = virtualMachine().eventQueue();
         try {
             eq.setEventControl(true);
-            return ((FXClassType)this).invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), ClassType.INVOKE_SINGLE_THREADED);
+            return ((VisageClassType)this).invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), ClassType.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
         } catch(ClassNotLoadedException ee) {
@@ -429,11 +429,11 @@ public class FXReferenceType extends FXType implements ReferenceType {
 
     /**
      * JDI extension: This will call the get function for a field if one exists via invokeMethod.
-     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)}
-     * passing true and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     * The call to invokeMethod is preceded by a call to {@link VisageEventQueue#setEventControl(boolean)}
+     * passing true and is followed by a call to {@link VisageEventQueue#setEventControl(boolean)} passing false.
      *
      * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
-     * {@link FXVirtualMachine#lastFieldAccessException()}. In this case,
+     * {@link VisageVirtualMachine#lastFieldAccessException()}. In this case,
      * the default value for the type of the field is returned for a PrimitiveType,
      * while null is returned for a non PrimitiveType.
      */
@@ -446,12 +446,12 @@ public class FXReferenceType extends FXType implements ReferenceType {
         List<Field> noGetterUnwrappedFields = new ArrayList<Field>();    // fields that don't have getters
 
         // But first, for fields that do have getters, call invokeMethod
-        // or we will call FXGetValue for each, depending on doInvokes
+        // or we will call VisageGetValue for each, depending on doInvokes
         Map<Field, Value> result = new HashMap<Field, Value>();
 
         // Create the above Maps and lists
         for (Field wrappedField : wrappedFields) {
-            Field unwrapped = FXWrapper.unwrap(wrappedField);
+            Field unwrapped = VisageWrapper.unwrap(wrappedField);
             if (isJavaFXType()) {
                 List<Method> mth = underlying().methodsByName("get" + unwrapped.name());
                 if (mth.size() == 0) {
@@ -479,7 +479,7 @@ public class FXReferenceType extends FXType implements ReferenceType {
         // wrapped version, and wrapped value into the result Map.
         for (Map.Entry<Field, Field> unwrappedEntry: unwrappedToWrappedMap.entrySet()) {
             Field wrappedField = unwrappedEntry.getValue();
-            Value resultValue = FXWrapper.wrap(virtualMachine(), 
+            Value resultValue = VisageWrapper.wrap(virtualMachine(), 
                                              unwrappedFieldValues.get(unwrappedEntry.getKey()));
             result.put(wrappedField, resultValue);
         }
@@ -511,27 +511,27 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     public List<Location> locationsOfLine(int lineNumber) throws AbsentInformationException {
-        return FXWrapper.wrapLocations(virtualMachine(), underlying().locationsOfLine(lineNumber));
+        return VisageWrapper.wrapLocations(virtualMachine(), underlying().locationsOfLine(lineNumber));
     }
 
     public List<Location> locationsOfLine(String stratum, String sourceName, int line) throws AbsentInformationException {
-        return FXWrapper.wrapLocations(virtualMachine(), underlying().locationsOfLine(stratum, sourceName, line));
+        return VisageWrapper.wrapLocations(virtualMachine(), underlying().locationsOfLine(stratum, sourceName, line));
     }
 
     public List<Method> methods() {
-        return FXWrapper.wrapMethods(virtualMachine(), underlying().methods());
+        return VisageWrapper.wrapMethods(virtualMachine(), underlying().methods());
     }
 
     public List<Method> methodsByName(String name) {
-        return FXWrapper.wrapMethods(virtualMachine(), underlying().methodsByName(name));
+        return VisageWrapper.wrapMethods(virtualMachine(), underlying().methodsByName(name));
     }
 
     public List<Method> methodsByName(String name, String signature) {
-        return FXWrapper.wrapMethods(virtualMachine(), underlying().methodsByName(name, signature));
+        return VisageWrapper.wrapMethods(virtualMachine(), underlying().methodsByName(name, signature));
     }
 
     public List<ReferenceType> nestedTypes() {
-        return FXWrapper.wrapReferenceTypes(virtualMachine(), underlying().nestedTypes());
+        return VisageWrapper.wrapReferenceTypes(virtualMachine(), underlying().nestedTypes());
     }
 
     public String sourceDebugExtension() throws AbsentInformationException {
@@ -551,15 +551,15 @@ public class FXReferenceType extends FXType implements ReferenceType {
     }
 
     public List<Field> visibleFields() {
-        return FXWrapper.wrapFields(virtualMachine(), underlying().visibleFields());
+        return VisageWrapper.wrapFields(virtualMachine(), underlying().visibleFields());
     }
 
     public List<Method> visibleMethods() {
-        return FXWrapper.wrapMethods(virtualMachine(), underlying().visibleMethods());
+        return VisageWrapper.wrapMethods(virtualMachine(), underlying().visibleMethods());
     }
 
     public int compareTo(ReferenceType o) {
-        return underlying().compareTo(FXWrapper.unwrap(o));
+        return underlying().compareTo(VisageWrapper.unwrap(o));
     }
 
     public boolean isPackagePrivate() {
@@ -596,8 +596,8 @@ public class FXReferenceType extends FXType implements ReferenceType {
     public boolean isInternalJavaType() {
         if (!isInternalJavaTypeSet) {
             String myName = name();
-            if ("org.visage.runtime.FXBase".equals(myName) ||
-                "org.visage.runtime.FXObject".equals(myName) ||
+            if ("org.visage.runtime.VisageBase".equals(myName) ||
+                "org.visage.runtime.VisageObject".equals(myName) ||
                 myName.startsWith("org.visage.functions.Function")) {
                 internalJavaType = true;
                 isInternalJavaTypeSet = true;

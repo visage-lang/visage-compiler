@@ -27,7 +27,7 @@ import org.visage.api.JavafxcTask;
 
 import org.visage.api.tree.FunctionDefinitionTree;
 import org.visage.api.tree.FunctionInvocationTree;
-import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.UnitTree;
 import com.sun.tools.javac.util.JavacFileManager;
 import java.io.File;
@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from org.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.VisageKind.values().
  * 
  * @author David Strupl
  */
@@ -88,7 +88,7 @@ public class JFXC3382 {
 
     @Test
     public void testFunctionInvocationParameters() throws Exception {
-        JavaFXTreePathScanner<Void, Void> scanner = new JavaFXTreePathScanner<Void, Void>() {
+        VisageTreePathScanner<Void, Void> scanner = new VisageTreePathScanner<Void, Void>() {
 
             @Override
             public Void visitMethodInvocation(FunctionInvocationTree node, Void p) {
@@ -103,7 +103,7 @@ public class JFXC3382 {
 
     @Test
     public void testFunctionDefinitionParameters() throws Exception {
-        JavaFXTreePathScanner<Void, Void> scanner = new JavaFXTreePathScanner<Void, Void>() {
+        VisageTreePathScanner<Void, Void> scanner = new VisageTreePathScanner<Void, Void>() {
             @Override
             public Void visitFunctionDefinition(FunctionDefinitionTree node, Void p) {
                 Element e = trees.getElement(getCurrentPath());

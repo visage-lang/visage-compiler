@@ -4,13 +4,13 @@
  * @test/fxunit
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
 mixin class Mixin1 { public var bar : String }
 mixin class Mixin2 { public var bar : String = "M2" }
 class Mixee extends Mixin1, Mixin2 { override public var bar : String = "" }
 
-public class MxResInitConf04 extends FXTestCase {
+public class MxResInitConf04 extends VisageTestCase {
     /*
      * All parents and a Mixee declare the variable bar,
      * with a def.val. in Mixin2 and no default value in

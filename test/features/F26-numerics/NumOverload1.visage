@@ -7,7 +7,7 @@
 import visage.fxunit.*;
 import visage.lang.Visage;
 
-public class NumOverload1 extends FXTestCase {
+public class NumOverload1 extends VisageTestCase {
 
 function overloadFoo(i : Integer):String {return "Integer";}
 function overloadFoo(i : Long):String {return "Long";}

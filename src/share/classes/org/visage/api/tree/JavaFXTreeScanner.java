@@ -72,7 +72,7 @@ package org.visage.api.tree;
  * @author Robert Field
  */
 
-public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
+public class VisageTreeScanner<R,P> implements VisageTreeVisitor<R,P> {
 
     /** Scan a single node.
      */

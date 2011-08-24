@@ -23,8 +23,8 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXMirror;
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageMirror;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.request.AccessWatchpointRequest;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
@@ -50,8 +50,8 @@ import java.util.List;
  *
  * @author sundar
  */
-public class FXEventRequest extends FXMirror implements EventRequest {
-    public FXEventRequest(FXVirtualMachine fxvm, EventRequest underlying) {
+public class VisageEventRequest extends VisageMirror implements EventRequest {
+    public VisageEventRequest(VisageVirtualMachine fxvm, EventRequest underlying) {
         super(fxvm, underlying);
     }
 
@@ -98,131 +98,131 @@ public class FXEventRequest extends FXMirror implements EventRequest {
 
     // static utils for wrapping/unwrapping event request objects
 
-    public static FXEventRequest wrap(FXVirtualMachine fxvm, EventRequest req) {
+    public static VisageEventRequest wrap(VisageVirtualMachine fxvm, EventRequest req) {
         if (req == null) {
             return null;
         }
 
         if (req instanceof AccessWatchpointRequest) {
-            return new FXAccessWatchpointRequest(fxvm, (AccessWatchpointRequest)req);
+            return new VisageAccessWatchpointRequest(fxvm, (AccessWatchpointRequest)req);
         } else if (req instanceof BreakpointRequest) {
-            return new FXBreakpointRequest(fxvm, (BreakpointRequest)req);
+            return new VisageBreakpointRequest(fxvm, (BreakpointRequest)req);
         } else if (req instanceof ClassPrepareRequest) {
-            return new FXClassPrepareRequest(fxvm, (ClassPrepareRequest)req);
+            return new VisageClassPrepareRequest(fxvm, (ClassPrepareRequest)req);
         } else if (req instanceof ClassUnloadRequest) {
-            return new FXClassUnloadRequest(fxvm, (ClassUnloadRequest)req);
+            return new VisageClassUnloadRequest(fxvm, (ClassUnloadRequest)req);
         } else if (req instanceof ExceptionRequest) {
-            return new FXExceptionRequest(fxvm, (ExceptionRequest)req);
+            return new VisageExceptionRequest(fxvm, (ExceptionRequest)req);
         } else if (req instanceof MethodEntryRequest) {
-            return new FXMethodEntryRequest(fxvm, (MethodEntryRequest)req);
+            return new VisageMethodEntryRequest(fxvm, (MethodEntryRequest)req);
         } else if (req instanceof MethodExitRequest) {
-            return new FXMethodExitRequest(fxvm, (MethodExitRequest)req);
+            return new VisageMethodExitRequest(fxvm, (MethodExitRequest)req);
         } else if (req instanceof ModificationWatchpointRequest) {
-            return new FXModificationWatchpointRequest(fxvm, (ModificationWatchpointRequest)req);
+            return new VisageModificationWatchpointRequest(fxvm, (ModificationWatchpointRequest)req);
         } else if (req instanceof MonitorContendedEnterRequest) {
-            return new FXMonitorContendedEnterRequest(fxvm, (MonitorContendedEnterRequest)req);
+            return new VisageMonitorContendedEnterRequest(fxvm, (MonitorContendedEnterRequest)req);
         } else if (req instanceof MonitorContendedEnteredRequest) {
-            return new FXMonitorContendedEnteredRequest(fxvm, (MonitorContendedEnteredRequest)req);
+            return new VisageMonitorContendedEnteredRequest(fxvm, (MonitorContendedEnteredRequest)req);
         } else if (req instanceof MonitorWaitRequest) {
-            return new FXMonitorWaitRequest(fxvm, (MonitorWaitRequest)req);
+            return new VisageMonitorWaitRequest(fxvm, (MonitorWaitRequest)req);
         } else if (req instanceof MonitorWaitedRequest) {
-            return new FXMonitorWaitedRequest(fxvm, (MonitorWaitedRequest)req);
+            return new VisageMonitorWaitedRequest(fxvm, (MonitorWaitedRequest)req);
         } else if (req instanceof StepRequest) {
-            return new FXStepRequest(fxvm, (StepRequest)req);
+            return new VisageStepRequest(fxvm, (StepRequest)req);
         } else if (req instanceof ThreadDeathRequest) {
-            return new FXThreadDeathRequest(fxvm, (ThreadDeathRequest)req);
+            return new VisageThreadDeathRequest(fxvm, (ThreadDeathRequest)req);
         } else if (req instanceof ThreadStartRequest) {
-            return new FXThreadStartRequest(fxvm, (ThreadStartRequest)req);
+            return new VisageThreadStartRequest(fxvm, (ThreadStartRequest)req);
         } else if (req instanceof VMDeathRequest) {
-            return new FXVMDeathRequest(fxvm, (VMDeathRequest)req);
+            return new VisageVMDeathRequest(fxvm, (VMDeathRequest)req);
         } else if (req instanceof WatchpointRequest) {
-            return new FXWatchpointRequest(fxvm, (WatchpointRequest)req);
+            return new VisageWatchpointRequest(fxvm, (WatchpointRequest)req);
         } else {
-            return new FXEventRequest(fxvm, req);
+            return new VisageEventRequest(fxvm, req);
         }
     }
     
-    public static FXAccessWatchpointRequest wrap(
-            FXVirtualMachine fxvm, AccessWatchpointRequest req) {
-        return (req == null)? null : new FXAccessWatchpointRequest(fxvm, req);
+    public static VisageAccessWatchpointRequest wrap(
+            VisageVirtualMachine fxvm, AccessWatchpointRequest req) {
+        return (req == null)? null : new VisageAccessWatchpointRequest(fxvm, req);
     }
 
-    public static FXBreakpointRequest wrap(
-            FXVirtualMachine fxvm, BreakpointRequest req) {
-        return (req == null)? null : new FXBreakpointRequest(fxvm, req);
+    public static VisageBreakpointRequest wrap(
+            VisageVirtualMachine fxvm, BreakpointRequest req) {
+        return (req == null)? null : new VisageBreakpointRequest(fxvm, req);
     }
 
-    public static FXClassPrepareRequest wrap(
-            FXVirtualMachine fxvm, ClassPrepareRequest req) {
-        return (req == null)? null : new FXClassPrepareRequest(fxvm, req);
+    public static VisageClassPrepareRequest wrap(
+            VisageVirtualMachine fxvm, ClassPrepareRequest req) {
+        return (req == null)? null : new VisageClassPrepareRequest(fxvm, req);
     }
 
-    public static FXClassUnloadRequest wrap(
-            FXVirtualMachine fxvm, ClassUnloadRequest req) {
-        return (req == null)? null : new FXClassUnloadRequest(fxvm, req);
+    public static VisageClassUnloadRequest wrap(
+            VisageVirtualMachine fxvm, ClassUnloadRequest req) {
+        return (req == null)? null : new VisageClassUnloadRequest(fxvm, req);
     }
 
-    public static FXExceptionRequest wrap(
-            FXVirtualMachine fxvm, ExceptionRequest req) {
-        return (req == null)? null : new FXExceptionRequest(fxvm, req);
+    public static VisageExceptionRequest wrap(
+            VisageVirtualMachine fxvm, ExceptionRequest req) {
+        return (req == null)? null : new VisageExceptionRequest(fxvm, req);
     }
 
-    public static FXMethodEntryRequest wrap(
-            FXVirtualMachine fxvm, MethodEntryRequest req) {
-        return (req == null)? null : new FXMethodEntryRequest(fxvm, req);
+    public static VisageMethodEntryRequest wrap(
+            VisageVirtualMachine fxvm, MethodEntryRequest req) {
+        return (req == null)? null : new VisageMethodEntryRequest(fxvm, req);
     }
 
-    public static FXMethodExitRequest wrap(
-            FXVirtualMachine fxvm, MethodExitRequest req) {
-        return (req == null)? null : new FXMethodExitRequest(fxvm, req);
+    public static VisageMethodExitRequest wrap(
+            VisageVirtualMachine fxvm, MethodExitRequest req) {
+        return (req == null)? null : new VisageMethodExitRequest(fxvm, req);
     }
 
-    public static FXModificationWatchpointRequest wrap(
-            FXVirtualMachine fxvm, ModificationWatchpointRequest req) {
-        return (req == null)? null : new FXModificationWatchpointRequest(fxvm, req);
+    public static VisageModificationWatchpointRequest wrap(
+            VisageVirtualMachine fxvm, ModificationWatchpointRequest req) {
+        return (req == null)? null : new VisageModificationWatchpointRequest(fxvm, req);
     }
 
-    public static FXMonitorContendedEnterRequest wrap(
-            FXVirtualMachine fxvm, MonitorContendedEnterRequest req) {
-        return (req == null)? null : new FXMonitorContendedEnterRequest(fxvm, req);
+    public static VisageMonitorContendedEnterRequest wrap(
+            VisageVirtualMachine fxvm, MonitorContendedEnterRequest req) {
+        return (req == null)? null : new VisageMonitorContendedEnterRequest(fxvm, req);
     }
 
-    public static FXMonitorContendedEnteredRequest wrap(
-            FXVirtualMachine fxvm, MonitorContendedEnteredRequest req) {
-        return (req == null)? null : new FXMonitorContendedEnteredRequest(fxvm, req);
+    public static VisageMonitorContendedEnteredRequest wrap(
+            VisageVirtualMachine fxvm, MonitorContendedEnteredRequest req) {
+        return (req == null)? null : new VisageMonitorContendedEnteredRequest(fxvm, req);
     }
 
-    public static FXMonitorWaitRequest wrap(
-            FXVirtualMachine fxvm, MonitorWaitRequest req) {
-        return (req == null)? null : new FXMonitorWaitRequest(fxvm, req);
+    public static VisageMonitorWaitRequest wrap(
+            VisageVirtualMachine fxvm, MonitorWaitRequest req) {
+        return (req == null)? null : new VisageMonitorWaitRequest(fxvm, req);
     }
 
-    public static FXMonitorWaitedRequest wrap(
-            FXVirtualMachine fxvm, MonitorWaitedRequest req) {
-        return (req == null)? null : new FXMonitorWaitedRequest(fxvm, req);
+    public static VisageMonitorWaitedRequest wrap(
+            VisageVirtualMachine fxvm, MonitorWaitedRequest req) {
+        return (req == null)? null : new VisageMonitorWaitedRequest(fxvm, req);
     }
 
-    public static FXStepRequest wrap(
-            FXVirtualMachine fxvm, StepRequest req) {
-        return (req == null)? null : new FXStepRequest(fxvm, req);
+    public static VisageStepRequest wrap(
+            VisageVirtualMachine fxvm, StepRequest req) {
+        return (req == null)? null : new VisageStepRequest(fxvm, req);
     }
 
-    public static FXThreadDeathRequest wrap(
-            FXVirtualMachine fxvm, ThreadDeathRequest req) {
-        return (req == null)? null : new FXThreadDeathRequest(fxvm, req);
+    public static VisageThreadDeathRequest wrap(
+            VisageVirtualMachine fxvm, ThreadDeathRequest req) {
+        return (req == null)? null : new VisageThreadDeathRequest(fxvm, req);
     }
 
-    public static FXThreadStartRequest wrap(
-            FXVirtualMachine fxvm, ThreadStartRequest req) {
-        return (req == null)? null : new FXThreadStartRequest(fxvm, req);
+    public static VisageThreadStartRequest wrap(
+            VisageVirtualMachine fxvm, ThreadStartRequest req) {
+        return (req == null)? null : new VisageThreadStartRequest(fxvm, req);
     }
 
-    public static FXVMDeathRequest wrap(FXVirtualMachine fxvm, VMDeathRequest req) {
-        return (req == null)? null : new FXVMDeathRequest(fxvm, req);
+    public static VisageVMDeathRequest wrap(VisageVirtualMachine fxvm, VMDeathRequest req) {
+        return (req == null)? null : new VisageVMDeathRequest(fxvm, req);
     }
 
     public static List<AccessWatchpointRequest> wrapAccessWatchpointRequests(
-            FXVirtualMachine fxvm,  List<AccessWatchpointRequest> reqs) {
+            VisageVirtualMachine fxvm,  List<AccessWatchpointRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -234,7 +234,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<BreakpointRequest> wrapBreakpointRequests(
-            FXVirtualMachine fxvm,  List<BreakpointRequest> reqs) {
+            VisageVirtualMachine fxvm,  List<BreakpointRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -246,7 +246,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<ClassPrepareRequest> wrapClassPrepareRequests(
-            FXVirtualMachine fxvm,  List<ClassPrepareRequest> reqs) {
+            VisageVirtualMachine fxvm,  List<ClassPrepareRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -258,7 +258,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<ClassUnloadRequest> wrapClassUnloadRequests(
-            FXVirtualMachine fxvm, List<ClassUnloadRequest> reqs) {
+            VisageVirtualMachine fxvm, List<ClassUnloadRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -270,7 +270,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<ExceptionRequest> wrapExceptionRequests(
-            FXVirtualMachine fxvm, List<ExceptionRequest> reqs) {
+            VisageVirtualMachine fxvm, List<ExceptionRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -282,7 +282,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<MethodEntryRequest> wrapMethodEntryRequests(
-            FXVirtualMachine fxvm, List<MethodEntryRequest> reqs) {
+            VisageVirtualMachine fxvm, List<MethodEntryRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -294,7 +294,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<MethodExitRequest> wrapMethodExitRequests(
-            FXVirtualMachine fxvm, List<MethodExitRequest> reqs) {
+            VisageVirtualMachine fxvm, List<MethodExitRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -306,7 +306,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<ModificationWatchpointRequest> wrapModificationWatchpointRequests(
-            FXVirtualMachine fxvm, List<ModificationWatchpointRequest> reqs) {
+            VisageVirtualMachine fxvm, List<ModificationWatchpointRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -318,7 +318,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<MonitorContendedEnterRequest> wrapMonitorContendedEnterRequests(
-            FXVirtualMachine fxvm, List<MonitorContendedEnterRequest> reqs) {
+            VisageVirtualMachine fxvm, List<MonitorContendedEnterRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -330,7 +330,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<MonitorContendedEnteredRequest> wrapMonitorContendedEnteredRequests(
-            FXVirtualMachine fxvm, List<MonitorContendedEnteredRequest> reqs) {
+            VisageVirtualMachine fxvm, List<MonitorContendedEnteredRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -342,7 +342,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<MonitorWaitRequest> wrapMonitorWaitRequests(
-            FXVirtualMachine fxvm, List<MonitorWaitRequest> reqs) {
+            VisageVirtualMachine fxvm, List<MonitorWaitRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -354,7 +354,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<MonitorWaitedRequest> wrapMonitorWaitedRequests(
-            FXVirtualMachine fxvm, List<MonitorWaitedRequest> reqs) {
+            VisageVirtualMachine fxvm, List<MonitorWaitedRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -366,7 +366,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<StepRequest> wrapStepRequests(
-            FXVirtualMachine fxvm, List<StepRequest> reqs) {
+            VisageVirtualMachine fxvm, List<StepRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -378,7 +378,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<ThreadDeathRequest> wrapThreadDeathRequests(
-            FXVirtualMachine fxvm, List<ThreadDeathRequest> reqs) {
+            VisageVirtualMachine fxvm, List<ThreadDeathRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -390,7 +390,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<ThreadStartRequest> wrapThreadStartRequests(
-            FXVirtualMachine fxvm, List<ThreadStartRequest> reqs) {
+            VisageVirtualMachine fxvm, List<ThreadStartRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -402,7 +402,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     }
 
     public static List<VMDeathRequest> wrapVMDeathRequests(
-            FXVirtualMachine fxvm, List<VMDeathRequest> reqs) {
+            VisageVirtualMachine fxvm, List<VMDeathRequest> reqs) {
         if (reqs == null) {
             return null;
         }
@@ -415,7 +415,7 @@ public class FXEventRequest extends FXMirror implements EventRequest {
     
     // unwrap methods
     public static EventRequest unwrap(EventRequest req) {
-        return (req instanceof FXEventRequest)? ((FXEventRequest)req).underlying() : req;
+        return (req instanceof VisageEventRequest)? ((VisageEventRequest)req).underlying() : req;
     }
 
     public static <T extends EventRequest> List<T> unwrapEventRequests(List<T> requests) {

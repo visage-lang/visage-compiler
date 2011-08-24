@@ -23,8 +23,8 @@
 
 package org.visage.tools.tree;
 
-import org.visage.api.tree.JavaFXTreeVisitor;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.VisageTreeVisitor;
+import org.visage.api.tree.Tree.VisageKind;
 import com.sun.tools.mjavac.code.Symbol;
 
 
@@ -33,31 +33,31 @@ import com.sun.tools.mjavac.code.Symbol;
  * @param idname the name
  * @param sym the symbol
  */
-public class JFXVarRef extends JFXExpression {
+public class VisageVarRef extends VisageExpression {
 
     private Symbol sym;
-    private JFXExpression expr;
+    private VisageExpression expr;
     private RefKind kind;
-    private JFXExpression receiver;
+    private VisageExpression receiver;
 
-    protected JFXVarRef(JFXExpression expr, RefKind kind) {
+    protected VisageVarRef(VisageExpression expr, RefKind kind) {
         this.kind = kind;
         this.sym = JavafxTreeInfo.symbolFor(expr);
         this.expr = expr;
         if (!sym.isStatic() && expr.getFXTag() == JavafxTag.SELECT) {
-            receiver = ((JFXSelect)expr).selected;
+            receiver = ((VisageSelect)expr).selected;
         }
     }
 
-    public JFXExpression getReceiver() {
+    public VisageExpression getReceiver() {
         return receiver;
     }
 
-    public void setReceiver(JFXExpression receiver) {
+    public void setReceiver(VisageExpression receiver) {
         this.receiver = receiver;
     }
 
-    public JFXExpression getExpression() {
+    public VisageExpression getExpression() {
         return expr;
     }
 
@@ -82,11 +82,11 @@ public class JFXVarRef extends JFXExpression {
         return JavafxTag.VAR_REF;
     }
 
-    public JavaFXKind getJavaFXKind() {
+    public VisageKind getJavaFXKind() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

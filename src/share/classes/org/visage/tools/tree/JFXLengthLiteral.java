@@ -28,23 +28,23 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import visage.lang.LengthUnit;
 
 /**
  * Tree node for length literals, such as "100cm" or "3mm".
  * @author Stephen Chin <steveonjava@gmail.com>
  */
-public class JFXLengthLiteral extends JFXExpression implements LengthLiteralTree {
-    public JFXLiteral value;
+public class VisageLengthLiteral extends VisageExpression implements LengthLiteralTree {
+    public VisageLiteral value;
     public LengthUnit units;
     
-    protected JFXLengthLiteral(){
+    protected VisageLengthLiteral(){
         this.value = null;
         this.units = null;
     }
 
-    protected JFXLengthLiteral(JFXLiteral value, LengthUnit units) {
+    protected VisageLengthLiteral(VisageLiteral value, LengthUnit units) {
         this.value = value;
         this.units = units;
     }
@@ -60,12 +60,12 @@ public class JFXLengthLiteral extends JFXExpression implements LengthLiteralTree
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.LENGTH_LITERAL;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.LENGTH_LITERAL;
     }
 
     @Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitLengthLiteral(this, data);
     }
 
@@ -75,7 +75,7 @@ public class JFXLengthLiteral extends JFXExpression implements LengthLiteralTree
     }
 
     @Override
-    public JFXLiteral getValue() {
+    public VisageLiteral getValue() {
         return value;
     }
 }

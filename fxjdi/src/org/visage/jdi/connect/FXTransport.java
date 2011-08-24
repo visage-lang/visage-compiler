@@ -29,17 +29,17 @@ import com.sun.jdi.connect.Transport;
  *
  * @author sundar
  */
-public class FXTransport implements Transport {
+public class VisageTransport implements Transport {
     private Transport underlying;
 
-    public FXTransport(Transport underlying) {
+    public VisageTransport(Transport underlying) {
         this.underlying = underlying;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof FXTransport) {
-            obj = ((FXTransport)obj).underlying();
+        if (obj instanceof VisageTransport) {
+            obj = ((VisageTransport)obj).underlying();
         }
         return underlying().equals(obj);
     }

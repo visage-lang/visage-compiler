@@ -28,20 +28,20 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * Tree node for color literals, such as "#c0c0c0" or "#ccc".
  * @author Stephen Chin <steveonjava@gmail.com>
  */
-public class JFXColorLiteral extends JFXExpression implements ColorLiteralTree {
-    public JFXLiteral value;
+public class VisageColorLiteral extends VisageExpression implements ColorLiteralTree {
+    public VisageLiteral value;
     
-   protected JFXColorLiteral(){
+   protected VisageColorLiteral(){
         this.value = null;
     }
 
-    protected JFXColorLiteral(JFXLiteral value) {
+    protected VisageColorLiteral(VisageLiteral value) {
         this.value = value;
     }
 
@@ -56,17 +56,17 @@ public class JFXColorLiteral extends JFXExpression implements ColorLiteralTree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.COLOR_LITERAL;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.COLOR_LITERAL;
     }
 
     @Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitColorLiteral(this, data);
     }
 
     @Override
-    public JFXLiteral getValue() {
+    public VisageLiteral getValue() {
         return value;
     }
 }

@@ -31,7 +31,7 @@ import com.sun.javadoc.*;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Position;
-import org.visage.tools.tree.JFXClassDeclaration;
+import org.visage.tools.tree.VisageClassDeclaration;
 
 /**
  * This class holds the information from one run of javadoc.
@@ -68,7 +68,7 @@ public class RootDocImpl extends DocImpl implements RootDoc {
      * @param packages list of package names specified on the commandline
      * @param options list of options
      */
-    public RootDocImpl(DocEnv env, List<JFXClassDeclaration> classes, List<String> packages, List<String[]> options) {
+    public RootDocImpl(DocEnv env, List<VisageClassDeclaration> classes, List<String> packages, List<String[]> options) {
         super(env, null);
         this.options = options;
         setPackages(env, packages);
@@ -104,9 +104,9 @@ public class RootDocImpl extends DocImpl implements RootDoc {
      * @param env the compilation environment
      * @param classes a list of ClassDeclaration
      */
-    private void setClasses(DocEnv env, List<JFXClassDeclaration> classes) {
+    private void setClasses(DocEnv env, List<VisageClassDeclaration> classes) {
         ListBuffer<ClassDocImpl> result = new ListBuffer<ClassDocImpl>();
-        for (JFXClassDeclaration def : classes) {
+        for (VisageClassDeclaration def : classes) {
             //### Do we want modifier check here?
             if (env.shouldDocument(def.sym)) {
                 ClassDocImpl cd = env.getClassDoc(def.sym);

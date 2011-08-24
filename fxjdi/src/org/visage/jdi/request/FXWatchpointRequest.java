@@ -23,9 +23,9 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXField;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageField;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
@@ -35,8 +35,8 @@ import com.sun.jdi.request.WatchpointRequest;
  *
  * @author sundar
  */
-public class FXWatchpointRequest extends FXEventRequest implements WatchpointRequest {
-    public FXWatchpointRequest(FXVirtualMachine fxvm, WatchpointRequest underlying) {
+public class VisageWatchpointRequest extends VisageEventRequest implements WatchpointRequest {
+    public VisageWatchpointRequest(VisageVirtualMachine fxvm, WatchpointRequest underlying) {
         super(fxvm, underlying);
     }
 
@@ -45,7 +45,7 @@ public class FXWatchpointRequest extends FXEventRequest implements WatchpointReq
     }
 
     public void addClassFilter(ReferenceType arg0) {
-        underlying().addClassFilter(FXWrapper.unwrap(arg0));
+        underlying().addClassFilter(VisageWrapper.unwrap(arg0));
     }
 
     public void addClassFilter(String arg0) {
@@ -53,15 +53,15 @@ public class FXWatchpointRequest extends FXEventRequest implements WatchpointReq
     }
 
     public void addInstanceFilter(ObjectReference arg0) {
-        underlying().addInstanceFilter(FXWrapper.unwrap(arg0));
+        underlying().addInstanceFilter(VisageWrapper.unwrap(arg0));
     }
 
     public void addThreadFilter(ThreadReference arg0) {
-        underlying().addThreadFilter(FXWrapper.unwrap(arg0));
+        underlying().addThreadFilter(VisageWrapper.unwrap(arg0));
     }
 
-    public FXField field() {
-        return FXWrapper.wrap(virtualMachine(), underlying().field());
+    public VisageField field() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().field());
     }
 
     @Override

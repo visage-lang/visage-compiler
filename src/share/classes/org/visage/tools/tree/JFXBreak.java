@@ -24,20 +24,20 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import com.sun.tools.mjavac.util.Name;
 
 /**
  * A break from a loop or switch.
  */
-public class JFXBreak extends JFXExpression implements BreakTree {
+public class VisageBreak extends VisageExpression implements BreakTree {
 
     public Name label;
-    public JFXTree target;
+    public VisageTree target;
 
     public boolean nonLocalBreak = false;
 
-    protected JFXBreak(Name label, JFXTree target) {
+    protected VisageBreak(Name label, VisageTree target) {
         this.label = label;
         this.target = target;
     }
@@ -47,8 +47,8 @@ public class JFXBreak extends JFXExpression implements BreakTree {
         v.visitBreak(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.BREAK;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.BREAK;
     }
 
     public Name getLabel() {
@@ -56,7 +56,7 @@ public class JFXBreak extends JFXExpression implements BreakTree {
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitBreak(this, d);
     }
 

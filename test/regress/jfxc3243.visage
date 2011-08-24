@@ -1,5 +1,5 @@
 /*
- * JFXC-3243:  Using mixin class causes IllegalArgumentException arising from visage.reflect.FXLocal$VarMember.getValue.
+ * JFXC-3243:  Using mixin class causes IllegalArgumentException arising from visage.reflect.VisageLocal$VarMember.getValue.
  *
  * @compilefirst jfxc3243A.visage
  * @compilefirst jfxc3243B.visage
@@ -11,7 +11,7 @@
 import visage.reflect.*;
 
 var b = jfxc3243B{};
-var context = FXLocal.getContext();
+var context = VisageLocal.getContext();
 var mirror = context.mirrorOf(b); 
 var cls = context.findClass("jfxc3243B"); 
 var fld = cls.getVariable("a");

@@ -31,7 +31,7 @@ import static com.sun.btrace.BTraceUtils.*;
  */
 @BTrace public class OnReplaceTracer { 
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/onReplace\\$.+/"
     )
     public static void onReplaceEnter(
@@ -43,7 +43,7 @@ import static com.sun.btrace.BTraceUtils.*;
     }
 
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/onReplace\\$.+/",
         location=@Location(Kind.RETURN)
     )

@@ -658,7 +658,7 @@ public class JavafxCheck {
      *                to the left of the `.', null otherwise.
      *  @param env    The current environment.
      */
-    void checkAssignable(DiagnosticPosition pos, JavafxVarSymbol v, JFXTree base, Type site, JavafxEnv<JavafxAttrContext> env, WriteKind writeKind) {
+    void checkAssignable(DiagnosticPosition pos, JavafxVarSymbol v, VisageTree base, Type site, JavafxEnv<JavafxAttrContext> env, WriteKind writeKind) {
         //TODO: for attributes they are always final -- this should really be checked in JavafxClassReader
         //TODO: rebutal, actual we should just use a different final
         if ((v.flags() & FINAL) != 0 && !types.isJFXClass(v.owner) &&
@@ -710,8 +710,8 @@ public class JavafxCheck {
      * We don't re-evaluate the select target
      * in bidirectional binds. So, we may issue warning.
      */
-    boolean checkBidiSelect(JFXSelect select, JavafxEnv<JavafxAttrContext> env, Type pt) {
-        JFXTree base = select.getExpression();
+    boolean checkBidiSelect(VisageSelect select, JavafxEnv<JavafxAttrContext> env, Type pt) {
+        VisageTree base = select.getExpression();
 
         // We don't re-evaluate the select target
         // in bidirectional binds. So, we may issue warning.
@@ -736,7 +736,7 @@ public class JavafxCheck {
         // If the target of member select is a "def"
         // variable and not initialized with bind, then
         // we know the target can not change.
-        if (base instanceof JFXIdent) {
+        if (base instanceof VisageIdent) {
             long flags = sym.flags();
             boolean isDef = (flags & JavafxFlags.IS_DEF) != 0L;
             boolean isBindInit = (flags & JavafxFlags.VARUSE_BOUND_INIT) != 0L;
@@ -746,7 +746,7 @@ public class JavafxCheck {
         return true;
     }
 
-    void checkBoundArrayVar(JFXAbstractVar tree) {
+    void checkBoundArrayVar(VisageAbstractVar tree) {
         if (tree.getInitializer() == null ||
                 tree.getInitializer().type == null) {
             return;
@@ -764,20 +764,20 @@ public class JavafxCheck {
         }
     }
 
-    void checkBidiBind(JFXExpression init, JavafxBindStatus bindStatus, JavafxEnv<JavafxAttrContext> env, Type pt) {        
+    void checkBidiBind(VisageExpression init, JavafxBindStatus bindStatus, JavafxEnv<JavafxAttrContext> env, Type pt) {        
         if (bindStatus.isBidiBind()) {
             Symbol initSym = null;
-            JFXTree base = null;
+            VisageTree base = null;
             Type site = null;
             switch (init.getFXTag()) {
                 case IDENT: {
-                    initSym = ((JFXIdent) init).sym;
+                    initSym = ((VisageIdent) init).sym;
                     base = null;
                     site = env.enclClass.sym.type;
                     break;
                 }
                 case SELECT: {
-                    JFXSelect select = (JFXSelect) init;
+                    VisageSelect select = (VisageSelect) init;
                     initSym = select.sym;
                     base = select.getExpression();
 
@@ -982,7 +982,7 @@ public class JavafxCheck {
      *  @param flags         The set of modifiers given in a definition.
      *  @param sym           The defined symbol.
      */
-    long checkFlags(DiagnosticPosition pos, long flags, Symbol sym, JFXTree tree) {
+    long checkFlags(DiagnosticPosition pos, long flags, Symbol sym, VisageTree tree) {
         long mask;
         String msg = MsgSym.MESSAGE_VISAGE_MOD_NOT_ALLOWED_ON;
         String thing;
@@ -1099,7 +1099,7 @@ public class JavafxCheck {
     /** Visitor method: Validate a type expression, if it is not null, catching
      *  and reporting any completion failures.
      */
-    void validate(JFXTree tree) {
+    void validate(VisageTree tree) {
 	try {
 	    if (tree != null) tree.accept(validator);
 	} catch (CompletionFailure ex) {
@@ -1109,8 +1109,8 @@ public class JavafxCheck {
 
     /** Visitor method: Validate a list of type expressions.
      */
-    void validate(List<? extends JFXTree> trees) {
-	for (List<? extends JFXTree> l = trees; l.nonEmpty(); l = l.tail)
+    void validate(List<? extends VisageTree> trees) {
+	for (List<? extends VisageTree> l = trees; l.nonEmpty(); l = l.tail)
 	    validate(l.head);
     }
 
@@ -1119,7 +1119,7 @@ public class JavafxCheck {
     class Validator extends JavafxTreeScanner {
 
         @Override
-        public void visitSelect(JFXSelect tree) {
+        public void visitSelect(VisageSelect tree) {
 	    if (tree.type.tag == CLASS) {
                 visitSelectInternal(tree);
 
@@ -1129,7 +1129,7 @@ public class JavafxCheck {
                     log.error(tree.pos(), MsgSym.MESSAGE_IMPROPERLY_FORMED_TYPE_PARAM_MISSING);
             }
 	}
-        public void visitSelectInternal(JFXSelect tree) {
+        public void visitSelectInternal(VisageSelect tree) {
             if (tree.type.getEnclosingType().tag != CLASS &&
                 tree.selected.type.isParameterized()) {
                 // The enclosing type is not a class, so we are
@@ -1145,7 +1145,7 @@ public class JavafxCheck {
 	/** Default visitor method: do nothing.
 	 */
 	@Override
-	public void visitTree(JFXTree tree) {
+	public void visitTree(VisageTree tree) {
 	}
     }
 
@@ -1365,7 +1365,7 @@ public class JavafxCheck {
      *  @param origin       The class of which the overriding method
      *			    is a member.
      */
-    private void checkOverride(JFXTree tree,
+    private void checkOverride(VisageTree tree,
 		       MethodSymbol m,
 		       MethodSymbol other,
 		       ClassSymbol origin) {
@@ -1711,7 +1711,7 @@ public class JavafxCheck {
      *			    for errors.
      *  @param m            The overriding method.
      */
-    void checkOverride(JFXTree tree, MethodSymbol m) {
+    void checkOverride(VisageTree tree, MethodSymbol m) {
         ClassSymbol origin = (ClassSymbol) m.owner;
         boolean doesOverride = false;
         if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name)) {
@@ -1749,10 +1749,10 @@ public class JavafxCheck {
     
     /** Check to make sure that any mixins don't create var conflicts.
      */
-    void checkMixinConflicts(JFXClassDeclaration tree) {
-        for (JFXExpression mixin : tree.getMixing()) {
-            if (mixin instanceof JFXIdent) {
-                Symbol symbol = ((JFXIdent)mixin).sym;
+    void checkMixinConflicts(VisageClassDeclaration tree) {
+        for (VisageExpression mixin : tree.getMixing()) {
+            if (mixin instanceof VisageIdent) {
+                Symbol symbol = ((VisageIdent)mixin).sym;
                 if ((symbol.flags_field & JavafxFlags.MIXIN) != 0) {
                     ClassSymbol mixinSym = (ClassSymbol)symbol;
                     Scope s = mixinSym.members();
@@ -1959,14 +1959,14 @@ public class JavafxCheck {
      *  method conform to the method they implement.
      *  @param tree         The class definition whose members are checked.
      */
-    void checkImplementations(JFXClassDeclaration tree) {
+    void checkImplementations(VisageClassDeclaration tree) {
 	checkImplementations(tree, tree.sym);
     }
 //where
         /** Check that all methods which implement some
 	 *  method in `ic' conform to the method they implement.
 	 */
-	void checkImplementations(JFXClassDeclaration tree, ClassSymbol ic) {
+	void checkImplementations(VisageClassDeclaration tree, ClassSymbol ic) {
 	    ClassSymbol origin = tree.sym;
 	    for (List<Type> l = types.closure(ic.type); l.nonEmpty(); l = l.tail) {
 		ClassSymbol lc = (ClassSymbol)l.head.tsym;
@@ -1997,14 +1997,14 @@ public class JavafxCheck {
     /** Check that only one extend class is a java or visage base class.
      *  @param tree         The class definition whose extends are checked.
      **/
-     void checkOneBaseClass(JFXClassDeclaration tree) {
+     void checkOneBaseClass(VisageClassDeclaration tree) {
         // Get the list of non-mixin extends.
-        List<JFXExpression> extending = tree.getExtending();
+        List<VisageExpression> extending = tree.getExtending();
         
         // If there is more than one then we have too many.
         if (extending.size() > 1) {
             // Get the first extra for error position.
-            JFXExpression extra = extending.get(1);
+            VisageExpression extra = extending.get(1);
             log.error(extra.pos(),
                 MsgSym.MESSAGE_VISAGE_ONLY_ONE_BASE_CLASS_ALLOWED);
         }
@@ -2023,14 +2023,14 @@ public class JavafxCheck {
     /** Check that a mixin class has only mixin extends.
      *  @param tree         The class definition whose extends are checked.
      **/
-    void checkOnlyMixinsAndInterfaces(JFXClassDeclaration tree) {
+    void checkOnlyMixinsAndInterfaces(VisageClassDeclaration tree) {
         // Get the list of non-mixin extends.
-        List<JFXExpression> extending = tree.getExtending();
+        List<VisageExpression> extending = tree.getExtending();
         
         // Any is too many.
         if (extending.size() > 0) {
             // Get the first extra for error position.
-            JFXExpression extra = extending.get(0);
+            VisageExpression extra = extending.get(0);
             log.error(extra.pos(),
                 MsgSym.MESSAGE_VISAGE_ONLY_MIXINS_AND_INTERFACES);
         }
@@ -2252,15 +2252,15 @@ public class JavafxCheck {
 
     /** Check that a qualified name is in canonical form (for import decls).
      */
-    public void checkCanonical(JFXTree tree) {
+    public void checkCanonical(VisageTree tree) {
 	if (!isCanonical(tree))
 	    log.error(tree.pos(), MsgSym.MESSAGE_IMPORT_REQUIRES_CANONICAL,
 		      JavafxTreeInfo.symbol(tree));
     }
         // where
-	private boolean isCanonical(JFXTree tree) {
+	private boolean isCanonical(VisageTree tree) {
 	    while (tree.getFXTag() == JavafxTag.SELECT) {
-		JFXSelect s = (JFXSelect) tree;
+		VisageSelect s = (VisageSelect) tree;
 		if (s.sym.owner != JavafxTreeInfo.symbol(s.selected))
 		    return false;
 		tree = s.selected;
@@ -2297,7 +2297,7 @@ public class JavafxCheck {
 	return new ConversionWarner(pos, MsgSym.MESSAGE_UNCHECKED_ASSIGN, found, expected);
     }
 	
-    public void warnEmptyRangeLiteral(DiagnosticPosition pos, JFXLiteral lower, JFXLiteral upper, JFXLiteral step, boolean isExclusive) {
+    public void warnEmptyRangeLiteral(DiagnosticPosition pos, VisageLiteral lower, VisageLiteral upper, VisageLiteral step, boolean isExclusive) {
     double lowerValue = ((Number)lower.getValue()).doubleValue();
     double upperValue = ((Number)upper.getValue()).doubleValue();
     double stepValue = step != null? ((Number)step.getValue()).doubleValue() : 1;
@@ -2317,7 +2317,7 @@ public class JavafxCheck {
         }
     }
 
-    public void checkForwardReferences(JFXTree tree) {
+    public void checkForwardReferences(VisageTree tree) {
         final boolean onlyWarnings = options.get("fwdRefError") != null &&
 			options.get("fwdRefError").contains("false");
 
@@ -2418,7 +2418,7 @@ public class JavafxCheck {
 	}
 
 	@Override
-	public void visitClassDeclaration(JFXClassDeclaration tree) {
+	public void visitClassDeclaration(VisageClassDeclaration tree) {
 	    ClassSymbol prevClass = enclClass;
 	    try {
 		enclClass = tree.sym;
@@ -2437,7 +2437,7 @@ public class JavafxCheck {
 	}
 
 	@Override
-	public void visitFunctionValue(JFXFunctionValue tree) {
+	public void visitFunctionValue(VisageFunctionValue tree) {
             boolean isLambda = tree.definition.sym.name.equals(defs.lambda_MethodName);
             beginScope(isLambda ?
                 ScopeKind.FUNCTION_VALUE :
@@ -2452,8 +2452,8 @@ public class JavafxCheck {
 	}
 
 	@Override
-	public void visitOnReplace(JFXOnReplace tree) {
-	    beginScope(tree.getTriggerKind() == JFXOnReplace.Kind.ONREPLACE ?
+	public void visitOnReplace(VisageOnReplace tree) {
+	    beginScope(tree.getTriggerKind() == VisageOnReplace.Kind.ONREPLACE ?
                 ScopeKind.ON_REPLACE :
                 ScopeKind.ON_INVALIDATE);
 	    super.visitOnReplace(tree);
@@ -2461,35 +2461,35 @@ public class JavafxCheck {
 	}
 
 	@Override
-	public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+	public void visitKeyFrameLiteral(VisageKeyFrameLiteral tree) {
 	    beginScope(ScopeKind.KEYFRAME_LIT);
 	    super.visitKeyFrameLiteral(tree);
 	    endScope();
 	}
 
 	@Override
-	public void visitInterpolateValue(JFXInterpolateValue tree) {
+	public void visitInterpolateValue(VisageInterpolateValue tree) {
 	    beginScope(ScopeKind.INTERPOLATE_VALUE);
 	    super.visitInterpolateValue(tree);
 	    endScope();
 	}
 
 	@Override
-	public void visitInitDefinition(JFXInitDefinition tree) {
+	public void visitInitDefinition(VisageInitDefinition tree) {
 	    beginScope(ScopeKind.FUNCTION_DEF);
 	    super.visitInitDefinition(tree);
 	    endScope();
 	}
 
 	@Override
-	public void visitPostInitDefinition(JFXPostInitDefinition tree) {
+	public void visitPostInitDefinition(VisagePostInitDefinition tree) {
 	    beginScope(ScopeKind.FUNCTION_DEF);
 	    super.visitPostInitDefinition(tree);
 	    endScope();
 	}
 
 	@Override
-	public void visitBlockExpression(JFXBlock tree) {
+	public void visitBlockExpression(VisageBlock tree) {
             beginScope(ScopeKind.BLOCK_EXPR);
 	    addVars(tree.stats);
 	    addVar(tree.value);
@@ -2498,7 +2498,7 @@ public class JavafxCheck {
 	}
 
         @Override
-	public void visitVar(JFXVar tree) {
+	public void visitVar(VisageVar tree) {
 	    if (tree.getSymbol() != null) {
                 beginScope(ScopeKind.VAR_DEF);
                 currentScope().isStatic = tree.getSymbol().isStatic();
@@ -2512,7 +2512,7 @@ public class JavafxCheck {
 	}
 
 	@Override
-	public void visitAssign(JFXAssign tree) {
+	public void visitAssign(VisageAssign tree) {
 	    Symbol s = JavafxTreeInfo.symbolFor(tree.lhs);
 	    JavafxVarSymbol vsym = (s != null && s.kind == VAR) ?
 		(JavafxVarSymbol)s : null;
@@ -2528,7 +2528,7 @@ public class JavafxCheck {
 	}
 
 	@Override
-	public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+	public void visitOverrideClassVar(VisageOverrideClassVar tree) {
 	    if (tree.getSymbol() != null) {
                 beginScope(ScopeKind.VAR_DEF);
 		currentScope().overrideVarIdx =
@@ -2544,12 +2544,12 @@ public class JavafxCheck {
 	}
 
 	@Override
-	public void visitIdent(JFXIdent tree) {
+	public void visitIdent(VisageIdent tree) {
 	    checkForwardReference(tree, tree.sym);
 	}
 
 	@Override
-	public void visitSelect(JFXSelect tree) {
+	public void visitSelect(VisageSelect tree) {
 	    Symbol selectedSym = JavafxTreeInfo.symbolFor(tree.selected);
 	    boolean shouldCheck = false;
 	    if (selectedSym != null) {
@@ -2571,15 +2571,15 @@ public class JavafxCheck {
 	}
 
 	@Override
-	public void visitVarInit(JFXVarInit tree) {
+	public void visitVarInit(VisageVarInit tree) {
 	    removeVar(tree.getSymbol());
 	}
 
-	private void checkForwardReference(JFXExpression tree, Symbol s) {
+	private void checkForwardReference(VisageExpression tree, Symbol s) {
             checkForwardReference(currentScope(), tree, s, false);
         }
 
-	private void checkForwardReference(VarScope scope, JFXExpression tree, Symbol s, boolean optional) {
+	private void checkForwardReference(VarScope scope, VisageExpression tree, Symbol s, boolean optional) {
 	    if ((!tree.isBound() || optionalKinds.contains(ScopeKind.BOUND_CTX)) &&
                     s != null && s instanceof JavafxVarSymbol) {
 		JavafxVarSymbol vsym = (JavafxVarSymbol)s;
@@ -2637,18 +2637,18 @@ public class JavafxCheck {
             }
         }
 
-	private void addVars(List<? extends JFXTree> trees) {
-	    for (JFXTree t : trees) {
+	private void addVars(List<? extends VisageTree> trees) {
+	    for (VisageTree t : trees) {
 		addVar(t);
 	    }
 	}
 
-	private void addVar(JFXTree tree) {
+	private void addVar(VisageTree tree) {
 	    if (tree != null) {
 		JavafxVarSymbol sym = null;
 		switch (tree.getFXTag()) {
-		    case VAR_DEF: sym = ((JFXVar)tree).getSymbol(); break;
-		    case VAR_SCRIPT_INIT: sym = ((JFXVarInit)tree).getSymbol(); break;
+		    case VAR_DEF: sym = ((VisageVar)tree).getSymbol(); break;
+		    case VAR_SCRIPT_INIT: sym = ((VisageVarInit)tree).getSymbol(); break;
 		}
 		if (sym != null) {
 		    currentScope().uninited_vars.add(sym);

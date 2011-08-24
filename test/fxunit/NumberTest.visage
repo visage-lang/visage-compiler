@@ -2,9 +2,9 @@
  * @test/fxunit
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
-public class NumberTest extends FXTestCase {
+public class NumberTest extends VisageTestCase {
     public function testAssertEqualsNumber() {
         assertEquals(1.0, 1.0);
     }

@@ -4,7 +4,7 @@
  * @test/fxunit
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
 /*
  * Use 'this' to access the variable declared in the same mixin
@@ -30,7 +30,7 @@ class Mixee2 extends Mixin1 {
     }
 }
 
-public class MxThisKw02 extends FXTestCase {
+public class MxThisKw02 extends VisageTestCase {
     function testThisKeywordVar() {
         var m1 = Mixee1 {};
         var m2 = Mixee2 {};

@@ -13,9 +13,9 @@
  * @run
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
-public class VarOperations extends FXTestCase {
+public class VarOperations extends VisageTestCase {
 
     function testCharacter() {
         /* Arithmetical operations */

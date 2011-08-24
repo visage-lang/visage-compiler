@@ -24,38 +24,38 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 
-public class JFXKeyFrameLiteral extends JFXExpression implements KeyFrameLiteralTree {
-    public JFXExpression start;
-    public List<JFXExpression> values;
-    public JFXExpression trigger;
+public class VisageKeyFrameLiteral extends VisageExpression implements KeyFrameLiteralTree {
+    public VisageExpression start;
+    public List<VisageExpression> values;
+    public VisageExpression trigger;
     
-    public JFXKeyFrameLiteral(JFXExpression start, List<JFXExpression> values, JFXExpression trigger) {
+    public VisageKeyFrameLiteral(VisageExpression start, List<VisageExpression> values, VisageExpression trigger) {
         this.start = start;
         this.values = values;
         this.trigger = trigger;
     }
 
-    public JFXExpression getStartDuration() {
+    public VisageExpression getStartDuration() {
         return start;
     }
 
-    public List<JFXExpression> getInterpolationValues() {
+    public List<VisageExpression> getInterpolationValues() {
         return values;
     }
 
-    public JFXExpression getTrigger() {
+    public VisageExpression getTrigger() {
         return trigger;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.KEYFRAME_LITERAL;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.KEYFRAME_LITERAL;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitKeyFrameLiteral(this, data);
     }
 

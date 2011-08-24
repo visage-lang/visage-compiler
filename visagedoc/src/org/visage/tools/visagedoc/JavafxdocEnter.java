@@ -65,7 +65,7 @@ public class JavafxdocEnter extends JavafxEnter {
     final DocEnv docenv;
 
     @Override
-    public void main(List<JFXScript> trees) {
+    public void main(List<VisageScript> trees) {
         // count all Enter errors as warnings.
         int nerrors = messager.nerrors;
         super.main(trees);
@@ -74,7 +74,7 @@ public class JavafxdocEnter extends JavafxEnter {
     }
 
     @Override
-    public void visitScript(JFXScript tree) {
+    public void visitScript(VisageScript tree) {
         if (tree.docComments == null)
             tree.docComments = new HashMap<JCTree, String>();
         super.visitScript(tree);
@@ -85,7 +85,7 @@ public class JavafxdocEnter extends JavafxEnter {
     }
 
     @Override
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
+    public void visitClassDeclaration(VisageClassDeclaration tree) {
         super.visitClassDeclaration(tree);
         if (tree.sym != null && tree.sym.kind == Kinds.TYP) {
             if (tree.sym == null) return;

@@ -91,10 +91,10 @@ public class JavafxScriptClassBuilder {
         defaultRunArgName = names.fromString("_$UNUSED$_$ARGS$_");
     }
 
-    public void convertAccessFlags(JFXScript script) {
+    public void convertAccessFlags(VisageScript script) {
         new JavafxTreeScanner() {
             
-            void convertFlags(JFXModifiers mods) {
+            void convertFlags(VisageModifiers mods) {
                 long flags = mods.flags;
                 long access = flags & (Flags.AccessFlags | JavafxFlags.PACKAGE_ACCESS);
                 if (access == 0L) {
@@ -104,28 +104,28 @@ public class JavafxScriptClassBuilder {
             }
 
             @Override
-            public void visitClassDeclaration(JFXClassDeclaration tree) {
+            public void visitClassDeclaration(VisageClassDeclaration tree) {
                 super.visitClassDeclaration(tree);
                 convertFlags(tree.getModifiers());
             }
 
             @Override
-            public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+            public void visitFunctionDefinition(VisageFunctionDefinition tree) {
                 super.visitFunctionDefinition(tree);
                 convertFlags(tree.getModifiers());
             }
 
             @Override
-            public void visitVar(JFXVar tree) {
+            public void visitVar(VisageVar tree) {
                 super.visitVar(tree);
                 convertFlags(tree.getModifiers());
             }
         }.scan(script);
     }
     
-    private void checkAndNormalizeUserRunFunction(JFXFunctionDefinition runFunc) {
-        JFXFunctionValue fval = runFunc.operation;
-        List<JFXVar> params = fval.funParams;
+    private void checkAndNormalizeUserRunFunction(VisageFunctionDefinition runFunc) {
+        VisageFunctionValue fval = runFunc.operation;
+        List<VisageVar> params = fval.funParams;
         switch (params.size()) {
             case 0: {
                 // no parameter specified, fill it in
@@ -133,12 +133,12 @@ public class JavafxScriptClassBuilder {
                 break;
             }
             case 1: {
-                JFXType paramType = params.head.getJFXType();
+                VisageType paramType = params.head.getJFXType();
                 if (paramType.getCardinality() == Cardinality.ANY &&
-                        paramType instanceof JFXTypeClass) {
-                    JFXExpression cnExp = ((JFXTypeClass) paramType).getClassName();
-                    if (cnExp instanceof JFXIdent) {
-                        Name cName = ((JFXIdent)cnExp).getName();
+                        paramType instanceof VisageTypeClass) {
+                    VisageExpression cnExp = ((VisageTypeClass) paramType).getClassName();
+                    if (cnExp instanceof VisageIdent) {
+                        Name cName = ((VisageIdent)cnExp).getName();
                         if (cName == syms.stringTypeName) {
                             break;
                         }
@@ -160,7 +160,7 @@ public class JavafxScriptClassBuilder {
     }
 
 
-    public JFXClassDeclaration preProcessJfxTopLevel(JFXScript module) {
+    public VisageClassDeclaration preProcessJfxTopLevel(VisageScript module) {
         Name moduleClassName = scriptName(module);
         
         if (debugBadPositions) {
@@ -178,7 +178,7 @@ public class JavafxScriptClassBuilder {
             public boolean usesProfile;
             public DiagnosticPosition diagPos;
             @Override
-            public void visitIdent(JFXIdent id) {
+            public void visitIdent(VisageIdent id) {
                 super.visitIdent(id);
                 if (id.getName().equals(pseudoSourceFile)) {
                     usesSourceFile = true;
@@ -197,7 +197,7 @@ public class JavafxScriptClassBuilder {
                     markPosition(id);
 		}
             }
-            void markPosition(JFXTree tree) {
+            void markPosition(VisageTree tree) {
                 if (diagPos == null) { // want the first only
                     diagPos = tree.pos();
                 }
@@ -207,17 +207,17 @@ public class JavafxScriptClassBuilder {
         pseudoScanner.scan(module.defs);
         //debugPositions(module);
 
-        ListBuffer<JFXTree> scriptTops = ListBuffer.<JFXTree>lb();
-        final List<JFXTree> pseudoVars = pseudoVariables(module.pos(), moduleClassName, module,
+        ListBuffer<VisageTree> scriptTops = ListBuffer.<VisageTree>lb();
+        final List<VisageTree> pseudoVars = pseudoVariables(module.pos(), moduleClassName, module,
                 pseudoScanner.usesSourceFile, pseudoScanner.usesFile, pseudoScanner.usesDir, pseudoScanner.usesProfile);
         scriptTops.appendList(pseudoVars);
         scriptTops.appendList(module.defs);
         
         // Determine if this is a library script
         boolean externalAccessFound = false;
-        JFXFunctionDefinition userRunFunction = null;
+        VisageFunctionDefinition userRunFunction = null;
         final long EXTERNALIZING_FLAGS = Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS | JavafxFlags.PUBLIC_READ | JavafxFlags.PUBLIC_INIT;
-        for (JFXTree tree : scriptTops) {
+        for (VisageTree tree : scriptTops) {
 
             // Protect against erroneous scripts being attributed by IDE plugin
             //
@@ -225,15 +225,15 @@ public class JavafxScriptClassBuilder {
 
             switch (tree.getFXTag()) {
                 case CLASS_DEF: {
-                    JFXClassDeclaration decl = (JFXClassDeclaration) tree;
+                    VisageClassDeclaration decl = (VisageClassDeclaration) tree;
                     if ((decl.getModifiers().flags & EXTERNALIZING_FLAGS) != 0) {
                         externalAccessFound = true;
                     }
                     break;
                 }
                 case FUNCTION_DEF: {
-                    JFXFunctionDefinition decl =
-                            (JFXFunctionDefinition) tree;
+                    VisageFunctionDefinition decl =
+                            (VisageFunctionDefinition) tree;
                     Name name = decl.name;
                     if (name == defs.userRunFunctionName) {
                         if (userRunFunction == null) {
@@ -249,7 +249,7 @@ public class JavafxScriptClassBuilder {
                     break;
                 }
                 case VAR_DEF: { 
-                    JFXVar decl = (JFXVar) tree;
+                    VisageVar decl = (VisageVar) tree;
                     if ((decl.getModifiers().flags & EXTERNALIZING_FLAGS) != 0) {
                         externalAccessFound = true;
                     }
@@ -259,15 +259,15 @@ public class JavafxScriptClassBuilder {
         }
         final boolean isLibrary = externalAccessFound || (userRunFunction != null);
         module.isLibrary = isLibrary;
-        ListBuffer<JFXTree> scriptClassDefs = new ListBuffer<JFXTree>();
-        ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>();
-        JFXExpression value = null;
+        ListBuffer<VisageTree> scriptClassDefs = new ListBuffer<VisageTree>();
+        ListBuffer<VisageExpression> stats = new ListBuffer<VisageExpression>();
+        VisageExpression value = null;
        
         // Divide module defs between internsl run function body, Java compilation unit, and module class
-        ListBuffer<JFXTree> topLevelDefs = new ListBuffer<JFXTree>();
-        JFXClassDeclaration moduleClass = null;
+        ListBuffer<VisageTree> topLevelDefs = new ListBuffer<VisageTree>();
+        VisageClassDeclaration moduleClass = null;
         boolean looseExpressionsSeen = false;
-        for (JFXTree tree : scriptTops) {
+        for (VisageTree tree : scriptTops) {
             
             // Protect against errneous script trees being attributed by
             // IDE plugins.
@@ -282,7 +282,7 @@ public class JavafxScriptClassBuilder {
                     topLevelDefs.append(tree);
                     break;
                 case CLASS_DEF: {
-                    JFXClassDeclaration decl = (JFXClassDeclaration) tree;
+                    VisageClassDeclaration decl = (VisageClassDeclaration) tree;
                     Name name = decl.getName();
                     checkName(tree.pos, name);
                     if (name == moduleClassName) {
@@ -297,7 +297,7 @@ public class JavafxScriptClassBuilder {
                 }
                 case FUNCTION_DEF: {
                     // turn script-level functions into script-class static functions
-                    JFXFunctionDefinition decl = (JFXFunctionDefinition) tree;
+                    VisageFunctionDefinition decl = (VisageFunctionDefinition) tree;
                     decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
                     Name name = decl.name;
                     checkName(tree.pos, name);
@@ -311,7 +311,7 @@ public class JavafxScriptClassBuilder {
                 }
                 case VAR_DEF: {
                     // turn script-level variables into script-class static variables
-                    JFXVar decl = (JFXVar) tree;
+                    VisageVar decl = (VisageVar) tree;
                     if ( (decl.mods.flags & SCRIPT_LEVEL_SYNTH_STATIC) == 0) {
                         // if this wasn't already created as a synthetic
                         checkName(tree.pos, decl.getName());
@@ -336,7 +336,7 @@ public class JavafxScriptClassBuilder {
                         log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_LOOSE_EXPRESSIONS, reason);
                     }
                     looseExpressionsSeen = true;
-                    value = (JFXExpression) tree;
+                    value = (VisageExpression) tree;
                     break;
                 }
             }
@@ -353,12 +353,12 @@ public class JavafxScriptClassBuilder {
             // synthetic nor change the node postions.
             //
             SynthType               sType                   = SynthType.SYNTHETIC;
-            JFXFunctionDefinition   internalRunFunction     = null;
+            VisageFunctionDefinition   internalRunFunction     = null;
 
             Name commandLineArgs = defaultRunArgName;
             if (userRunFunction != null) {
 
-                List<JFXVar> params = userRunFunction.operation.getParams();
+                List<VisageVar> params = userRunFunction.operation.getParams();
 
                 // Protect IDE plugin against partially typed run function
                 // returning null for the parameters, statements or body, by
@@ -370,11 +370,11 @@ public class JavafxScriptClassBuilder {
                 // a run function was specified, start the statement, protecting
                 // against IDE generated errors.
                 //
-                JFXBlock body = userRunFunction.getBodyExpression();
+                VisageBlock body = userRunFunction.getBodyExpression();
                 if (body != null) {
 
                     int sSize = 0;
-                    List<JFXExpression> statements = body.getStmts();
+                    List<VisageExpression> statements = body.getStmts();
 
                     if (statements != null) {
                         sSize = statements.size();
@@ -410,12 +410,12 @@ public class JavafxScriptClassBuilder {
             // Synthesize a Main class definition and flag it as
             // such.
             //
-            JFXModifiers cMods = fxmake.Modifiers(PUBLIC);
+            VisageModifiers cMods = fxmake.Modifiers(PUBLIC);
             cMods.setGenType(SynthType.SYNTHETIC);
             moduleClass = fxmake.ClassDeclaration(
                     cMods, //public access needed for applet initialization
                     moduleClassName,
-                    List.<JFXExpression>nil(), // no supertypes
+                    List.<VisageExpression>nil(), // no supertypes
                     scriptClassDefs.toList());
             moduleClass.setGenType(SynthType.SYNTHETIC);
             moduleClass.setPos(module.getStartPosition());
@@ -438,9 +438,9 @@ public class JavafxScriptClassBuilder {
         // Sort the list into startPosition order for IDEs
         //
         
-        ArrayList<JFXTree> sortL = new ArrayList<JFXTree>(moduleClass.getMembers());
-        Collections.sort(sortL, new Comparator<JFXTree>() {
-            public int compare(JFXTree t1, JFXTree t2) {
+        ArrayList<VisageTree> sortL = new ArrayList<VisageTree>(moduleClass.getMembers());
+        Collections.sort(sortL, new Comparator<VisageTree>() {
+            public int compare(VisageTree t1, VisageTree t2) {
                 if (pseudoVars.contains(t1)) {
                     return -1;
                 } else if (pseudoVars.contains(t2)) {
@@ -460,7 +460,7 @@ public class JavafxScriptClassBuilder {
         // support much. Fortunately, there won't be thousands of entries in the member lists
         //
         scriptClassDefs.clear();
-        for (JFXTree e : sortL) {
+        for (VisageTree e : sortL) {
             scriptClassDefs.append(e);
         }
         moduleClass.setMembers(scriptClassDefs.toList());
@@ -480,7 +480,7 @@ public class JavafxScriptClassBuilder {
      * @param built  The AST we are synthesizing
      * @param copy   The AST we are copying information from
      */
-    protected void setEndPos(final JFXScript module, final JFXTree build, final JFXTree copy)
+    protected void setEndPos(final VisageScript module, final VisageTree build, final VisageTree copy)
     {
         // We can only calculate end position spans if we have an
         // end position map, for debugging, or for the IDE.
@@ -490,11 +490,11 @@ public class JavafxScriptClassBuilder {
         }
     }
 
-    private void debugPositions(final JFXScript module) {
+    private void debugPositions(final VisageScript module) {
         new JavafxTreeScanner() {
 
             @Override
-            public void scan(JFXTree tree) {
+            public void scan(VisageTree tree) {
                 super.scan(tree);
                 if (tree != null) {
                     System.out.println("[" + tree.getStartPosition() + "," + tree.getEndPosition(module.endPositions) + "]  " + tree.toString());
@@ -504,36 +504,36 @@ public class JavafxScriptClassBuilder {
 
     }
     
-    private List<JFXTree> pseudoVariables(DiagnosticPosition diagPos, Name moduleClassName, JFXScript module,
+    private List<VisageTree> pseudoVariables(DiagnosticPosition diagPos, Name moduleClassName, VisageScript module,
             boolean usesSourceFile, boolean usesFile, boolean usesDir, boolean usesProfile) {
-        ListBuffer<JFXTree> pseudoDefs = ListBuffer.<JFXTree>lb();
+        ListBuffer<VisageTree> pseudoDefs = ListBuffer.<VisageTree>lb();
         if (usesSourceFile) {
             String sourceName = module.getSourceFile().toUri().toString();
-            JFXExpression sourceFileVar =
+            VisageExpression sourceFileVar =
                 fxmake.at(diagPos).Var(pseudoSourceFile, getPseudoVarType(diagPos),
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
                          fxmake.Literal(sourceName), JavafxBindStatus.UNBOUND, null, null);
             pseudoDefs.append(sourceFileVar);
         }
         if (usesFile || usesDir) {
-            JFXExpression moduleClassFQN = module.pid != null ?
+            VisageExpression moduleClassFQN = module.pid != null ?
                 fxmake.at(diagPos).Select(module.pid, moduleClassName, false) : fxmake.at(diagPos).Ident(moduleClassName);
-            JFXExpression getFile = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__FILE__");
-            JFXExpression forName = fxmake.at(diagPos).Identifier("java.lang.Class.forName");
-            List<JFXExpression> args = List.<JFXExpression>of(fxmake.at(diagPos).Literal(moduleClassFQN.toString()));
-            JFXExpression loaderCall = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), forName, args);
-            args = List.<JFXExpression>of(loaderCall);
-            JFXExpression getFileURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getFile, args);
-            JFXExpression fileVar =
+            VisageExpression getFile = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__FILE__");
+            VisageExpression forName = fxmake.at(diagPos).Identifier("java.lang.Class.forName");
+            List<VisageExpression> args = List.<VisageExpression>of(fxmake.at(diagPos).Literal(moduleClassFQN.toString()));
+            VisageExpression loaderCall = fxmake.at(diagPos).Apply(List.<VisageExpression>nil(), forName, args);
+            args = List.<VisageExpression>of(loaderCall);
+            VisageExpression getFileURL = fxmake.at(diagPos).Apply(List.<VisageExpression>nil(), getFile, args);
+            VisageExpression fileVar =
                 fxmake.at(diagPos).Var(pseudoFile, getPseudoVarType(diagPos),
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
                          getFileURL, JavafxBindStatus.UNBOUND, null, null);
             pseudoDefs.append(fileVar);
 
             if (usesDir) {
-                JFXExpression getDir = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__DIR__");
-                args = List.<JFXExpression>of(fxmake.at(diagPos).Ident(pseudoFile));
-                JFXExpression getDirURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getDir, args);
+                VisageExpression getDir = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__DIR__");
+                args = List.<VisageExpression>of(fxmake.at(diagPos).Ident(pseudoFile));
+                VisageExpression getDirURL = fxmake.at(diagPos).Apply(List.<VisageExpression>nil(), getDir, args);
                 pseudoDefs.append(
                     fxmake.at(diagPos).Var(pseudoDir, getPseudoVarType(diagPos),
                              fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
@@ -541,9 +541,9 @@ public class JavafxScriptClassBuilder {
             }
         }
 	if (usesProfile) {
-           JFXExpression getProfile = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__PROFILE__");
-           JFXExpression getProfileString = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getProfile, List.<JFXExpression>nil());
-           JFXExpression profileVar =
+           VisageExpression getProfile = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__PROFILE__");
+           VisageExpression getProfileString = fxmake.at(diagPos).Apply(List.<VisageExpression>nil(), getProfile, List.<VisageExpression>nil());
+           VisageExpression profileVar =
                 fxmake.at(diagPos).Var(pseudoProfile, getPseudoVarType(diagPos),
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
                          getProfileString, JavafxBindStatus.UNBOUND, null, null);
@@ -552,22 +552,22 @@ public class JavafxScriptClassBuilder {
         return pseudoDefs.toList();
     }
     
-    private JFXType getPseudoVarType(DiagnosticPosition diagPos) {
-        JFXExpression fqn = fxmake.at(diagPos).Identifier("java.lang.String");
+    private VisageType getPseudoVarType(DiagnosticPosition diagPos) {
+        VisageExpression fqn = fxmake.at(diagPos).Identifier("java.lang.String");
         return fxmake.at(diagPos).TypeClass(fqn, TypeTree.Cardinality.SINGLETON);
     }
 
-    private List<JFXVar> makeRunFunctionArgs(Name argName) {
-        JFXVar mainArgs = fxmake.Param(argName, fxmake.TypeClass(
+    private List<VisageVar> makeRunFunctionArgs(Name argName) {
+        VisageVar mainArgs = fxmake.Param(argName, fxmake.TypeClass(
                 fxmake.Ident(syms.stringTypeName),
                 TypeTree.Cardinality.ANY));
-         return List.<JFXVar>of(mainArgs);
+         return List.<VisageVar>of(mainArgs);
     }
 
-    private JFXType makeRunFunctionType() {
-         JFXExpression rettree = fxmake.Type(syms.objectType);
+    private VisageType makeRunFunctionType() {
+         VisageExpression rettree = fxmake.Type(syms.objectType);
         rettree.type = syms.objectType;
-        return fxmake.TypeClass(rettree, JFXType.Cardinality.SINGLETON);
+        return fxmake.TypeClass(rettree, VisageType.Cardinality.SINGLETON);
     }
 
     /**
@@ -585,10 +585,10 @@ public class JavafxScriptClassBuilder {
      * @param value            The value of the function
      * @return                 The run function we have constructed
      */
-    private JFXFunctionDefinition makeInternalRunFunction(JFXScript module, Name argName, JFXFunctionDefinition userRunFunction, List<JFXExpression> stats, JFXExpression value) {
+    private VisageFunctionDefinition makeInternalRunFunction(VisageScript module, Name argName, VisageFunctionDefinition userRunFunction, List<VisageExpression> stats, VisageExpression value) {
 
-        JFXBlock existingBody = null;
-        JFXBlock body = fxmake.at(null).Block(module.getStartPosition(), stats, value);
+        VisageBlock existingBody = null;
+        VisageBlock body = fxmake.at(null).Block(module.getStartPosition(), stats, value);
         int sPos = module.getStartPosition();
 
         // First assume that this is synthetic
@@ -616,7 +616,7 @@ public class JavafxScriptClassBuilder {
 
         // Make the static run function
         //
-        JFXFunctionDefinition func = fxmake.at(sPos).FunctionDefinition(
+        VisageFunctionDefinition func = fxmake.at(sPos).FunctionDefinition(
                 fxmake.Modifiers(PUBLIC | STATIC | SCRIPT_LEVEL_SYNTH_STATIC | SYNTHETIC),
                 defs.internalRunFunctionName,
                 makeRunFunctionType(),
@@ -630,8 +630,8 @@ public class JavafxScriptClassBuilder {
 
             setEndPos(module, func, userRunFunction);
             func.operation.setPos(body.getStartPosition());
-            JFXVar param = func.getParams().head;
-            JFXVar existingParam = userRunFunction.getParams().head;
+            VisageVar param = func.getParams().head;
+            VisageVar existingParam = userRunFunction.getParams().head;
 
             if  (existingParam != null) {
 
@@ -649,7 +649,7 @@ public class JavafxScriptClassBuilder {
         return func;
     }
 
-    private Name scriptName(JFXScript tree) {
+    private Name scriptName(VisageScript tree) {
         String fileObjName = null;
 
         FileObject fo = tree.getSourceFile();
@@ -679,25 +679,25 @@ public class JavafxScriptClassBuilder {
         }
     }
     
-    private void checkForBadPositions(JFXScript testTree) {
+    private void checkForBadPositions(VisageScript testTree) {
         final Map<JCTree, Integer> endPositions = testTree.endPositions;  
         new JavafxTreeScanner() {
 
             @Override
-            public void scan(JFXTree tree) {
+            public void scan(VisageTree tree) {
                 super.scan(tree);
                 
                 // A Modifiers instance with no modifier tokens and no annotations
                 // is defined as having no position.
-                if (tree instanceof JFXModifiers) {
-                    JFXModifiers mods = (JFXModifiers)tree;
+                if (tree instanceof VisageModifiers) {
+                    VisageModifiers mods = (VisageModifiers)tree;
                     if (mods.getFlags().isEmpty() || 
                         (mods.flags & Flags.SYNTHETIC) != 0)
                         return;
                 }
                 
                 // TypeUnknown trees have no associated tokens.
-                if (tree instanceof JFXTypeUnknown)
+                if (tree instanceof VisageTypeUnknown)
                     return; 
                 
                 if (tree != null) {

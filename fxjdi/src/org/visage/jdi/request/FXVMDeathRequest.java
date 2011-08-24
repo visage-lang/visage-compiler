@@ -23,15 +23,15 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.request.VMDeathRequest;
 
 /**
  *
  * @author sundar
  */
-public class FXVMDeathRequest extends FXEventRequest implements VMDeathRequest {
-    public FXVMDeathRequest(FXVirtualMachine fxvm, VMDeathRequest underlying) {
+public class VisageVMDeathRequest extends VisageEventRequest implements VMDeathRequest {
+    public VisageVMDeathRequest(VisageVirtualMachine fxvm, VMDeathRequest underlying) {
         super(fxvm, underlying);
     }
 

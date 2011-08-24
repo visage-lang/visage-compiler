@@ -30,18 +30,18 @@ import org.visage.api.tree.*;
  *
  * @author Robert Field
  */
-public abstract class JFXType extends JFXExpression implements TypeTree {    
+public abstract class VisageType extends VisageExpression implements TypeTree {    
     private final Cardinality cardinality;
     
 
     /**
      * @param cardinality one of the cardinality constants
      */
-    protected JFXType(Cardinality cardinality) {
+    protected VisageType(Cardinality cardinality) {
         this.cardinality = cardinality;
     }
     
-    protected JFXType() {
+    protected VisageType() {
         this(null);
     }
     public Cardinality getCardinality() { return cardinality; }

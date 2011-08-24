@@ -26,7 +26,7 @@ package org.visage.jdi.test;
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 import com.sun.jdi.event.*;
-import org.visage.jdi.FXReferenceType;
+import org.visage.jdi.VisageReferenceType;
 import java.util.*;
 import java.io.*;
 
@@ -71,7 +71,7 @@ abstract public class TestScaffold extends TargetAdapter {
     static private class ArgInfo {
         String targetVMArgs = "";
         String targetAppCommandLine = "";
-        String connectorSpec = "org.visage.jdi.connect.FXLaunchingConnector:";
+        String connectorSpec = "org.visage.jdi.connect.VisageLaunchingConnector:";
         int traceFlags = 0;
     }
 
@@ -624,7 +624,7 @@ abstract public class TestScaffold extends TargetAdapter {
                     }
                 }
             });
-        if (connection.connector().name().equals("org.visage.jdi.connect.FXLaunchingConnector") ||
+        if (connection.connector().name().equals("org.visage.jdi.connect.VisageLaunchingConnector") ||
             connection.connector().name().equals("com.sun.jdi.CommandLineLaunch")) {
             if (argInfo.targetVMArgs.length() > 0) {
                 if (connection.connectorArg("options").length() > 0) {
@@ -809,9 +809,9 @@ abstract public class TestScaffold extends TargetAdapter {
     public Method findMethod(ReferenceType rt, String name, String signature) {
         if (name.indexOf('$') != -1) {
             // this is some sort of internal name, eg, visage$run
-            // which are filtered out of FXReferenceType, so we have to
+            // which are filtered out of VisageReferenceType, so we have to
             // look at the underlying ReferenceType
-            rt = ((FXReferenceType)rt)._underlying();
+            rt = ((VisageReferenceType)rt)._underlying();
         }
         List methods = rt.methods();
         Iterator iter = methods.iterator();

@@ -31,7 +31,7 @@ import com.sun.jdi.Method;
  *
  * @author sundar
  */
-public class FXSequenceType extends FXInterfaceType {
+public class VisageSequenceType extends VisageInterfaceType {
     // Sequence interface methods
     private Method sizeMethod;
     private Method getMethod;
@@ -45,9 +45,9 @@ public class FXSequenceType extends FXInterfaceType {
     private Method getAsDoubleMethod;
     private Method getElementTypeMethod;
 
-    public FXSequenceType(FXVirtualMachine fxvm, InterfaceType underlying) {
+    public VisageSequenceType(VisageVirtualMachine fxvm, InterfaceType underlying) {
         super(fxvm, underlying);
-        if (! underlying.name().equals(FXVirtualMachine.VISAGE_SEQUENCE_TYPE_NAME)) {
+        if (! underlying.name().equals(VisageVirtualMachine.VISAGE_SEQUENCE_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }
     }

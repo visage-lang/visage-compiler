@@ -24,15 +24,15 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  *
  * @author Robert Field
  */
-public class JFXSequenceEmpty extends JFXAbstractSequenceCreator implements SequenceEmptyTree {
+public class VisageSequenceEmpty extends VisageAbstractSequenceCreator implements SequenceEmptyTree {
 
-    public JFXSequenceEmpty() {
+    public VisageSequenceEmpty() {
     }
 
     public void accept(JavafxVisitor v) {
@@ -44,11 +44,11 @@ public class JFXSequenceEmpty extends JFXAbstractSequenceCreator implements Sequ
         return JavafxTag.SEQUENCE_EMPTY;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.SEQUENCE_EMPTY;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.SEQUENCE_EMPTY;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitSequenceEmpty(this, data);
     }
 }

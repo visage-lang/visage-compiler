@@ -23,9 +23,9 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXMirror;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageMirror;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.Field;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
@@ -54,108 +54,108 @@ import java.util.List;
  *
  * @author sundar
  */
-public class FXEventRequestManager extends FXMirror implements EventRequestManager {
-    public FXEventRequestManager(FXVirtualMachine fxvm, EventRequestManager underlying) {
+public class VisageEventRequestManager extends VisageMirror implements EventRequestManager {
+    public VisageEventRequestManager(VisageVirtualMachine fxvm, EventRequestManager underlying) {
         super(fxvm, underlying);
     }
 
     public List<AccessWatchpointRequest> accessWatchpointRequests() {
-        return FXEventRequest.wrapAccessWatchpointRequests(virtualMachine(),
+        return VisageEventRequest.wrapAccessWatchpointRequests(virtualMachine(),
                 underlying().accessWatchpointRequests());
     }
 
     public List<BreakpointRequest> breakpointRequests() {
-        return FXEventRequest.wrapBreakpointRequests(virtualMachine(),
+        return VisageEventRequest.wrapBreakpointRequests(virtualMachine(),
                 underlying().breakpointRequests());
     }
 
     public List<ClassPrepareRequest> classPrepareRequests() {
-        return FXEventRequest.wrapClassPrepareRequests(virtualMachine(),
+        return VisageEventRequest.wrapClassPrepareRequests(virtualMachine(),
                 underlying().classPrepareRequests());
     }
 
     public List<ClassUnloadRequest> classUnloadRequests() {
-        return FXEventRequest.wrapClassUnloadRequests(virtualMachine(),
+        return VisageEventRequest.wrapClassUnloadRequests(virtualMachine(),
                 underlying().classUnloadRequests());
     }
 
-    public FXAccessWatchpointRequest createAccessWatchpointRequest(Field arg0) {
-        return FXEventRequest.wrap(virtualMachine(),
-                underlying().createAccessWatchpointRequest(FXWrapper.unwrap(arg0)));
+    public VisageAccessWatchpointRequest createAccessWatchpointRequest(Field arg0) {
+        return VisageEventRequest.wrap(virtualMachine(),
+                underlying().createAccessWatchpointRequest(VisageWrapper.unwrap(arg0)));
     }
 
-    public FXBreakpointRequest createBreakpointRequest(Location arg0) {
-        return FXEventRequest.wrap(virtualMachine(),
-                underlying().createBreakpointRequest(FXWrapper.unwrap(arg0)));
+    public VisageBreakpointRequest createBreakpointRequest(Location arg0) {
+        return VisageEventRequest.wrap(virtualMachine(),
+                underlying().createBreakpointRequest(VisageWrapper.unwrap(arg0)));
     }
 
-    public FXClassPrepareRequest createClassPrepareRequest() {
-        return FXEventRequest.wrap(virtualMachine(),
+    public VisageClassPrepareRequest createClassPrepareRequest() {
+        return VisageEventRequest.wrap(virtualMachine(),
                 underlying().createClassPrepareRequest());
     }
 
-    public FXClassUnloadRequest createClassUnloadRequest() {
-        return FXEventRequest.wrap(virtualMachine(),
+    public VisageClassUnloadRequest createClassUnloadRequest() {
+        return VisageEventRequest.wrap(virtualMachine(),
                 underlying().createClassUnloadRequest());
     }
 
-    public FXExceptionRequest createExceptionRequest(ReferenceType arg0, boolean arg1, boolean arg2) {
-        return FXEventRequest.wrap(virtualMachine(),
-                underlying().createExceptionRequest(FXWrapper.unwrap(arg0), arg1, arg2));
+    public VisageExceptionRequest createExceptionRequest(ReferenceType arg0, boolean arg1, boolean arg2) {
+        return VisageEventRequest.wrap(virtualMachine(),
+                underlying().createExceptionRequest(VisageWrapper.unwrap(arg0), arg1, arg2));
     }
 
-    public FXMethodEntryRequest createMethodEntryRequest() {
-        return FXEventRequest.wrap(virtualMachine(),
+    public VisageMethodEntryRequest createMethodEntryRequest() {
+        return VisageEventRequest.wrap(virtualMachine(),
                 underlying().createMethodEntryRequest());
     }
 
-    public FXMethodExitRequest createMethodExitRequest() {
-        return FXEventRequest.wrap(virtualMachine(),
+    public VisageMethodExitRequest createMethodExitRequest() {
+        return VisageEventRequest.wrap(virtualMachine(),
                 underlying().createMethodExitRequest());
     }
 
-    public FXModificationWatchpointRequest createModificationWatchpointRequest(Field arg0) {
-        return FXEventRequest.wrap(virtualMachine(),
-                underlying().createModificationWatchpointRequest(FXWrapper.unwrap(arg0)));
+    public VisageModificationWatchpointRequest createModificationWatchpointRequest(Field arg0) {
+        return VisageEventRequest.wrap(virtualMachine(),
+                underlying().createModificationWatchpointRequest(VisageWrapper.unwrap(arg0)));
     }
 
-    public FXMonitorContendedEnterRequest createMonitorContendedEnterRequest() {
-        return FXEventRequest.wrap(virtualMachine(),
+    public VisageMonitorContendedEnterRequest createMonitorContendedEnterRequest() {
+        return VisageEventRequest.wrap(virtualMachine(),
                 underlying().createMonitorContendedEnterRequest());
     }
 
-    public FXMonitorContendedEnteredRequest createMonitorContendedEnteredRequest() {
-        return FXEventRequest.wrap(virtualMachine(),
+    public VisageMonitorContendedEnteredRequest createMonitorContendedEnteredRequest() {
+        return VisageEventRequest.wrap(virtualMachine(),
                 underlying().createMonitorContendedEnteredRequest());
     }
 
-    public FXMonitorWaitRequest createMonitorWaitRequest() {
-        return FXEventRequest.wrap(virtualMachine(),
+    public VisageMonitorWaitRequest createMonitorWaitRequest() {
+        return VisageEventRequest.wrap(virtualMachine(),
                 underlying().createMonitorWaitRequest());
     }
 
-    public FXMonitorWaitedRequest createMonitorWaitedRequest() {
-        return FXEventRequest.wrap(virtualMachine(),
+    public VisageMonitorWaitedRequest createMonitorWaitedRequest() {
+        return VisageEventRequest.wrap(virtualMachine(),
                 underlying().createMonitorWaitedRequest());
     }
 
-    public FXStepRequest createStepRequest(ThreadReference arg0, int arg1, int arg2) {
-        return FXEventRequest.wrap(virtualMachine(),
-                underlying().createStepRequest(FXWrapper.unwrap(arg0), arg1, arg2));
+    public VisageStepRequest createStepRequest(ThreadReference arg0, int arg1, int arg2) {
+        return VisageEventRequest.wrap(virtualMachine(),
+                underlying().createStepRequest(VisageWrapper.unwrap(arg0), arg1, arg2));
     }
 
-    public FXThreadDeathRequest createThreadDeathRequest() {
-        return FXEventRequest.wrap(virtualMachine(),
+    public VisageThreadDeathRequest createThreadDeathRequest() {
+        return VisageEventRequest.wrap(virtualMachine(),
                 underlying().createThreadDeathRequest());
     }
 
-    public FXThreadStartRequest createThreadStartRequest() {
-        return FXEventRequest.wrap(virtualMachine(),
+    public VisageThreadStartRequest createThreadStartRequest() {
+        return VisageEventRequest.wrap(virtualMachine(),
                 underlying().createThreadStartRequest());
     }
 
-    public FXVMDeathRequest createVMDeathRequest() {
-        return FXEventRequest.wrap(virtualMachine(),
+    public VisageVMDeathRequest createVMDeathRequest() {
+        return VisageEventRequest.wrap(virtualMachine(),
                 underlying().createVMDeathRequest());
     }
 
@@ -164,70 +164,70 @@ public class FXEventRequestManager extends FXMirror implements EventRequestManag
     }
 
     public void deleteEventRequest(EventRequest arg0) {
-        underlying().deleteEventRequest(FXEventRequest.unwrap(arg0));
+        underlying().deleteEventRequest(VisageEventRequest.unwrap(arg0));
     }
 
     public void deleteEventRequests(List<? extends EventRequest> arg0) {
-        underlying().deleteEventRequests(FXEventRequest.unwrapEventRequests(arg0));
+        underlying().deleteEventRequests(VisageEventRequest.unwrapEventRequests(arg0));
     }
 
     public List<ExceptionRequest> exceptionRequests() {
-        return FXEventRequest.wrapExceptionRequests(virtualMachine(),
+        return VisageEventRequest.wrapExceptionRequests(virtualMachine(),
                 underlying().exceptionRequests());
     }
 
     public List<MethodEntryRequest> methodEntryRequests() {
-        return FXEventRequest.wrapMethodEntryRequests(virtualMachine(),
+        return VisageEventRequest.wrapMethodEntryRequests(virtualMachine(),
                 underlying().methodEntryRequests());
     }
 
     public List<MethodExitRequest> methodExitRequests() {
-        return FXEventRequest.wrapMethodExitRequests(virtualMachine(),
+        return VisageEventRequest.wrapMethodExitRequests(virtualMachine(),
                 underlying().methodExitRequests());
     }
 
     public List<ModificationWatchpointRequest> modificationWatchpointRequests() {
-        return FXEventRequest.wrapModificationWatchpointRequests(virtualMachine(),
+        return VisageEventRequest.wrapModificationWatchpointRequests(virtualMachine(),
                 underlying().modificationWatchpointRequests());
     }
 
     public List<MonitorContendedEnterRequest> monitorContendedEnterRequests() {
-        return FXEventRequest.wrapMonitorContendedEnterRequests(virtualMachine(),
+        return VisageEventRequest.wrapMonitorContendedEnterRequests(virtualMachine(),
                 underlying().monitorContendedEnterRequests());
     }
 
     public List<MonitorContendedEnteredRequest> monitorContendedEnteredRequests() {
-        return FXEventRequest.wrapMonitorContendedEnteredRequests(virtualMachine(),
+        return VisageEventRequest.wrapMonitorContendedEnteredRequests(virtualMachine(),
                 underlying().monitorContendedEnteredRequests());
     }
 
     public List<MonitorWaitRequest> monitorWaitRequests() {
-        return FXEventRequest.wrapMonitorWaitRequests(virtualMachine(),
+        return VisageEventRequest.wrapMonitorWaitRequests(virtualMachine(),
                 underlying().monitorWaitRequests());
     }
 
     public List<MonitorWaitedRequest> monitorWaitedRequests() {
-        return FXEventRequest.wrapMonitorWaitedRequests(virtualMachine(),
+        return VisageEventRequest.wrapMonitorWaitedRequests(virtualMachine(),
                 underlying().monitorWaitedRequests());
     }
 
     public List<StepRequest> stepRequests() {
-        return FXEventRequest.wrapStepRequests(virtualMachine(),
+        return VisageEventRequest.wrapStepRequests(virtualMachine(),
                 underlying().stepRequests());
     }
 
     public List<ThreadDeathRequest> threadDeathRequests() {
-        return FXEventRequest.wrapThreadDeathRequests(virtualMachine(),
+        return VisageEventRequest.wrapThreadDeathRequests(virtualMachine(),
                 underlying().threadDeathRequests());
     }
 
     public List<ThreadStartRequest> threadStartRequests() {
-        return FXEventRequest.wrapThreadStartRequests(virtualMachine(),
+        return VisageEventRequest.wrapThreadStartRequests(virtualMachine(),
                 underlying().threadStartRequests());
     }
 
     public List<VMDeathRequest> vmDeathRequests() {
-        return FXEventRequest.wrapVMDeathRequests(virtualMachine(),
+        return VisageEventRequest.wrapVMDeathRequests(virtualMachine(),
                 underlying().vmDeathRequests());
     }
 

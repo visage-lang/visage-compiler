@@ -23,7 +23,7 @@
 
 package org.visage.tools.tree.xml;
 
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import org.visage.api.tree.TypeTree;
 import org.visage.runtime.Entry;
 import com.sun.tools.mjavac.code.Flags;
@@ -32,68 +32,68 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.util.Position;
 import org.visage.tools.code.JavafxFlags;
-import org.visage.tools.tree.JFXAngleLiteral;
-import org.visage.tools.tree.JFXAssign;
-import org.visage.tools.tree.JFXAssignOp;
-import org.visage.tools.tree.JFXBinary;
-import org.visage.tools.tree.JFXBlock;
-import org.visage.tools.tree.JFXBreak;
-import org.visage.tools.tree.JFXCatch;
-import org.visage.tools.tree.JFXClassDeclaration;
-import org.visage.tools.tree.JFXColorLiteral;
-import org.visage.tools.tree.JFXContinue;
-import org.visage.tools.tree.JFXErroneous;
-import org.visage.tools.tree.JFXExpression;
-import org.visage.tools.tree.JFXForExpression;
-import org.visage.tools.tree.JFXForExpressionInClause;
-import org.visage.tools.tree.JFXObjectLiteralPart;
-import org.visage.tools.tree.JFXFunctionDefinition;
-import org.visage.tools.tree.JFXFunctionInvocation;
-import org.visage.tools.tree.JFXFunctionValue;
-import org.visage.tools.tree.JFXIdent;
-import org.visage.tools.tree.JFXIfExpression;
-import org.visage.tools.tree.JFXImport;
-import org.visage.tools.tree.JFXIndexof;
-import org.visage.tools.tree.JFXInitDefinition;
-import org.visage.tools.tree.JFXInstanceOf;
-import org.visage.tools.tree.JFXInstanciate;
-import org.visage.tools.tree.JFXInterpolateValue;
-import org.visage.tools.tree.JFXInvalidate;
-import org.visage.tools.tree.JFXKeyFrameLiteral;
-import org.visage.tools.tree.JFXLengthLiteral;
-import org.visage.tools.tree.JFXLiteral;
-import org.visage.tools.tree.JFXModifiers;
-import org.visage.tools.tree.JFXOnReplace;
-import org.visage.tools.tree.JFXOverrideClassVar;
-import org.visage.tools.tree.JFXParens;
-import org.visage.tools.tree.JFXPostInitDefinition;
-import org.visage.tools.tree.JFXReturn;
-import org.visage.tools.tree.JFXScript;
-import org.visage.tools.tree.JFXSelect;
-import org.visage.tools.tree.JFXSequenceDelete;
-import org.visage.tools.tree.JFXSequenceEmpty;
-import org.visage.tools.tree.JFXSequenceExplicit;
-import org.visage.tools.tree.JFXSequenceIndexed;
-import org.visage.tools.tree.JFXSequenceInsert;
-import org.visage.tools.tree.JFXSequenceRange;
-import org.visage.tools.tree.JFXSequenceSlice;
-import org.visage.tools.tree.JFXSkip;
-import org.visage.tools.tree.JFXStringExpression;
-import org.visage.tools.tree.JFXThrow;
-import org.visage.tools.tree.JFXTimeLiteral;
-import org.visage.tools.tree.JFXTree;
-import org.visage.tools.tree.JFXTry;
-import org.visage.tools.tree.JFXTypeAny;
-import org.visage.tools.tree.JFXTypeArray;
-import org.visage.tools.tree.JFXTypeCast;
-import org.visage.tools.tree.JFXTypeClass;
-import org.visage.tools.tree.JFXTypeFunctional;
-import org.visage.tools.tree.JFXTypeUnknown;
-import org.visage.tools.tree.JFXUnary;
-import org.visage.tools.tree.JFXVar;
-import org.visage.tools.tree.JFXVarInit;
-import org.visage.tools.tree.JFXVarRef;
-import org.visage.tools.tree.JFXWhileLoop;
+import org.visage.tools.tree.VisageAngleLiteral;
+import org.visage.tools.tree.VisageAssign;
+import org.visage.tools.tree.VisageAssignOp;
+import org.visage.tools.tree.VisageBinary;
+import org.visage.tools.tree.VisageBlock;
+import org.visage.tools.tree.VisageBreak;
+import org.visage.tools.tree.VisageCatch;
+import org.visage.tools.tree.VisageClassDeclaration;
+import org.visage.tools.tree.VisageColorLiteral;
+import org.visage.tools.tree.VisageContinue;
+import org.visage.tools.tree.VisageErroneous;
+import org.visage.tools.tree.VisageExpression;
+import org.visage.tools.tree.VisageForExpression;
+import org.visage.tools.tree.VisageForExpressionInClause;
+import org.visage.tools.tree.VisageObjectLiteralPart;
+import org.visage.tools.tree.VisageFunctionDefinition;
+import org.visage.tools.tree.VisageFunctionInvocation;
+import org.visage.tools.tree.VisageFunctionValue;
+import org.visage.tools.tree.VisageIdent;
+import org.visage.tools.tree.VisageIfExpression;
+import org.visage.tools.tree.VisageImport;
+import org.visage.tools.tree.VisageIndexof;
+import org.visage.tools.tree.VisageInitDefinition;
+import org.visage.tools.tree.VisageInstanceOf;
+import org.visage.tools.tree.VisageInstanciate;
+import org.visage.tools.tree.VisageInterpolateValue;
+import org.visage.tools.tree.VisageInvalidate;
+import org.visage.tools.tree.VisageKeyFrameLiteral;
+import org.visage.tools.tree.VisageLengthLiteral;
+import org.visage.tools.tree.VisageLiteral;
+import org.visage.tools.tree.VisageModifiers;
+import org.visage.tools.tree.VisageOnReplace;
+import org.visage.tools.tree.VisageOverrideClassVar;
+import org.visage.tools.tree.VisageParens;
+import org.visage.tools.tree.VisagePostInitDefinition;
+import org.visage.tools.tree.VisageReturn;
+import org.visage.tools.tree.VisageScript;
+import org.visage.tools.tree.VisageSelect;
+import org.visage.tools.tree.VisageSequenceDelete;
+import org.visage.tools.tree.VisageSequenceEmpty;
+import org.visage.tools.tree.VisageSequenceExplicit;
+import org.visage.tools.tree.VisageSequenceIndexed;
+import org.visage.tools.tree.VisageSequenceInsert;
+import org.visage.tools.tree.VisageSequenceRange;
+import org.visage.tools.tree.VisageSequenceSlice;
+import org.visage.tools.tree.VisageSkip;
+import org.visage.tools.tree.VisageStringExpression;
+import org.visage.tools.tree.VisageThrow;
+import org.visage.tools.tree.VisageTimeLiteral;
+import org.visage.tools.tree.VisageTree;
+import org.visage.tools.tree.VisageTry;
+import org.visage.tools.tree.VisageTypeAny;
+import org.visage.tools.tree.VisageTypeArray;
+import org.visage.tools.tree.VisageTypeCast;
+import org.visage.tools.tree.VisageTypeClass;
+import org.visage.tools.tree.VisageTypeFunctional;
+import org.visage.tools.tree.VisageTypeUnknown;
+import org.visage.tools.tree.VisageUnary;
+import org.visage.tools.tree.VisageVar;
+import org.visage.tools.tree.VisageVarInit;
+import org.visage.tools.tree.VisageVarRef;
+import org.visage.tools.tree.VisageWhileLoop;
 import org.visage.tools.tree.JavafxVisitor;
 import java.io.File;
 import java.lang.reflect.Field;
@@ -119,7 +119,7 @@ import static org.visage.tools.tree.xml.Constants.*;
 final class TreeXMLSerializer implements JavafxVisitor {
     // order of the methods as in JavafxVisitor
 
-    public void visitScript(JFXScript script) {
+    public void visitScript(VisageScript script) {
         endPositions = script.endPositions;
         startElement(VISAGE, script);
         JavaFileObject file = script.getSourceFile();
@@ -149,25 +149,25 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(VISAGE);
     }
 
-    public void visitImport(JFXImport imp) {
+    public void visitImport(VisageImport imp) {
         startElement(IMPORT, imp);
         emitTree(imp.getQualifiedIdentifier());
         endElement(IMPORT);
     }
 
-    public void visitSkip(JFXSkip skip) {
+    public void visitSkip(VisageSkip skip) {
         startElement(EMPTY, skip);
         endElement(EMPTY);
     }
 
-    public void visitWhileLoop(JFXWhileLoop whileLoop) {
+    public void visitWhileLoop(VisageWhileLoop whileLoop) {
         startElement(WHILE, whileLoop);
         emitTree(TEST, whileLoop.getCondition());
         emitTree(STATEMENT, whileLoop.getBody());
         endElement(WHILE);
     }
 
-    public void visitTry(JFXTry tt) {
+    public void visitTry(VisageTry tt) {
         startElement(TRY, tt);
         emitTree(tt.getBlock());
         emitTreeList(CATCHES, tt.catchers);
@@ -175,14 +175,14 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(TRY);
     }
 
-    public void visitCatch(JFXCatch ct) {
+    public void visitCatch(VisageCatch ct) {
         startElement(CATCH, ct);
         emitTree(ct.getParameter());
         emitTree(ct.getBlock());
         endElement(CATCH);
     }
 
-    public void visitIfExpression(JFXIfExpression ifExpr) {
+    public void visitIfExpression(VisageIfExpression ifExpr) {
         startElement(IF, ifExpr);
         emitTree(TEST, ifExpr.getCondition());
         emitTree(THEN, ifExpr.getTrueExpression());
@@ -190,7 +190,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(IF);
     }
 
-    public void visitBreak(JFXBreak bt) {
+    public void visitBreak(VisageBreak bt) {
         startElement(BREAK, bt);
         Name label = bt.getLabel();
         if (label != null) {
@@ -199,7 +199,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(BREAK);
     }
 
-    public void visitContinue(JFXContinue ct) {
+    public void visitContinue(VisageContinue ct) {
         startElement(CONTINUE, ct);
         Name label = ct.getLabel();
         if (label != null) {
@@ -208,39 +208,39 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(CONTINUE);
     }
 
-    public void visitReturn(JFXReturn rt) {
+    public void visitReturn(VisageReturn rt) {
         startElement(RETURN, rt);
         emitTree(rt.getExpression());
         endElement(RETURN);
     }
     
-    public void visitThrow(JFXThrow tt) {
+    public void visitThrow(VisageThrow tt) {
         startElement(THROW, tt);
         emitTree(tt.getExpression());
         endElement(THROW);
     }
 
-    public void visitFunctionInvocation(JFXFunctionInvocation invoke) {
+    public void visitFunctionInvocation(VisageFunctionInvocation invoke) {
         startElement(INVOKE, invoke);
         emitTree(METHOD, invoke.getMethodSelect());
         emitTreeList(ARGUMENTS, invoke.getArguments());
         endElement(INVOKE);
     }
 
-    public void visitParens(JFXParens parens) {
+    public void visitParens(VisageParens parens) {
         startElement(PARENTHESIS, parens);
         emitTree(parens.getExpression());
         endElement(PARENTHESIS);
     }
     
-    public void visitAssign(JFXAssign assign) {
+    public void visitAssign(VisageAssign assign) {
         startElement(ASSIGNMENT, assign);
         emitTree(LEFT, assign.getVariable());
         emitTree(RIGHT, assign.getExpression());
         endElement(ASSIGNMENT);
     }
     
-    public void visitAssignop(JFXAssignOp assignOp) {
+    public void visitAssignop(VisageAssignOp assignOp) {
         final String tagName = enumToName(assignOp.getJavaFXKind());
         startElement(tagName, assignOp);
         emitTree(LEFT, assignOp.getVariable());
@@ -248,15 +248,15 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(tagName);
     }
 
-    public void visitUnary(JFXUnary unary) {
-        JavaFXKind kind = unary.getJavaFXKind();
+    public void visitUnary(VisageUnary unary) {
+        VisageKind kind = unary.getJavaFXKind();
         final String tagName = (kind == null) ? SIZEOF : enumToName(unary.getJavaFXKind());
         startElement(tagName, unary);
         emitTree(unary.getExpression());
         endElement(tagName);
     }
     
-    public void visitBinary(JFXBinary binary) {
+    public void visitBinary(VisageBinary binary) {
         final String tagName = enumToName(binary.getJavaFXKind());
         startElement(tagName, binary);
         emitTree(LEFT, binary.getLeftOperand());
@@ -264,21 +264,21 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(tagName);
     }
 
-    public void visitTypeCast(JFXTypeCast typeCast) {
+    public void visitTypeCast(VisageTypeCast typeCast) {
         startElement(CAST, typeCast);
         emitTree(TYPE, typeCast.getType());
         emitTree(EXPRESSION, typeCast.getExpression());
         endElement(CAST);
     }
 
-    public void visitInstanceOf(JFXInstanceOf instOf) {
+    public void visitInstanceOf(VisageInstanceOf instOf) {
         startElement(INSTANCEOF, instOf);
         emitTree(TYPE, instOf.getType());
         emitTree(EXPRESSION, instOf.getExpression());
         endElement(INSTANCEOF);
     }
 
-    public void visitSelect(JFXSelect select) {
+    public void visitSelect(VisageSelect select) {
         startElement(SELECT, select, select.sym);
         emitTree(EXPRESSION, select.getExpression());
         Name name = select.getIdentifier();
@@ -288,7 +288,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(SELECT);
     }
     
-    public void visitIdent(JFXIdent ident) {
+    public void visitIdent(VisageIdent ident) {
         startElement(IDENTIFIER, ident, ident.sym);
         Name name = ident.getName();
         if (name != null) {
@@ -297,9 +297,9 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(IDENTIFIER);
     }
 
-    public void visitLiteral(JFXLiteral literal) {
+    public void visitLiteral(VisageLiteral literal) {
         String tagName;
-        JavaFXKind kind = literal.getJavaFXKind();
+        VisageKind kind = literal.getJavaFXKind();
         switch (kind) {
             case INT_LITERAL:
                 tagName = INT_LITERAL;
@@ -333,23 +333,23 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(tagName);
     }
 
-    public void visitModifiers(JFXModifiers modifiers) {
-        emitModifiers((JFXModifiers)modifiers);
+    public void visitModifiers(VisageModifiers modifiers) {
+        emitModifiers((VisageModifiers)modifiers);
     }
 
-    public void visitErroneous(JFXErroneous error) {
+    public void visitErroneous(VisageErroneous error) {
         startElement(ERROR, error);
         emitTreeList(error.getErrorTrees());
         endElement(ERROR);
     }
 
-    public void visitClassDeclaration(JFXClassDeclaration classDecl) {
-        List<JFXTree> members = classDecl.getMembers();
-        List<JFXTree> staticMembers = new ArrayList<JFXTree>();
-        List<JFXTree> instanceMembers = new ArrayList<JFXTree>();
-        for (JFXTree m : members) {
-            if (m instanceof JFXFunctionDefinition) {
-                JFXFunctionDefinition func = (JFXFunctionDefinition)m;
+    public void visitClassDeclaration(VisageClassDeclaration classDecl) {
+        List<VisageTree> members = classDecl.getMembers();
+        List<VisageTree> staticMembers = new ArrayList<VisageTree>();
+        List<VisageTree> instanceMembers = new ArrayList<VisageTree>();
+        for (VisageTree m : members) {
+            if (m instanceof VisageFunctionDefinition) {
+                VisageFunctionDefinition func = (VisageFunctionDefinition)m;
                 if (visageEntryMethodName.equals(func.getName().toString())) {
                     visageEntryMethod = func;
                 }
@@ -358,14 +358,14 @@ final class TreeXMLSerializer implements JavafxVisitor {
                 } else {
                     instanceMembers.add(m);
                 }
-            } else if (m instanceof JFXVar) {
-                JFXVar var = (JFXVar)m;
+            } else if (m instanceof VisageVar) {
+                VisageVar var = (VisageVar)m;
                 if (var.getModifiers().getFlags().contains(Modifier.STATIC)) {
                     staticMembers.add(m);
                 } else {
                     instanceMembers.add(m);
                 }
-            } else if (m instanceof JFXClassDeclaration) {
+            } else if (m instanceof VisageClassDeclaration) {
                 staticMembers.add(m);
             } else {
                 // add anything else to instance members list
@@ -380,7 +380,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         } else {
             // emit static members that appear before the class in source order
             int classPos = classDecl.pos;
-            for (JFXTree item : staticMembers) {
+            for (VisageTree item : staticMembers) {
                 if (item.pos <= classPos) {
                     emitTree(item);
                 }
@@ -395,7 +395,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
             emitTreeList(MEMBERS, instanceMembers);
             endElement(CLASS);
             // emit static members that appear after the class in source order
-            for (JFXTree item : staticMembers) {
+            for (VisageTree item : staticMembers) {
                 if (item.pos > classPos) {
                     emitTree(item);
                 }
@@ -403,7 +403,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         }
     }
 
-    public void visitFunctionDefinition(JFXFunctionDefinition funcDef) {
+    public void visitFunctionDefinition(VisageFunctionDefinition funcDef) {
         if (funcDef.equals(visageEntryMethod)) {
             // handled specially, return from here
             return;
@@ -421,30 +421,30 @@ final class TreeXMLSerializer implements JavafxVisitor {
         }
     }
 
-    public void visitInitDefinition(JFXInitDefinition initDef) {
+    public void visitInitDefinition(VisageInitDefinition initDef) {
         startElement(INIT, initDef);
         emitTree(initDef.getBody());
         endElement(INIT);
     }
 
-    public void visitPostInitDefinition(JFXPostInitDefinition postInitDef) {
+    public void visitPostInitDefinition(VisagePostInitDefinition postInitDef) {
         startElement(POSTINIT, postInitDef);
         emitTree(postInitDef.getBody());
         endElement(POSTINIT);
     }
 
-    public void visitStringExpression(JFXStringExpression strExpr) {
+    public void visitStringExpression(VisageStringExpression strExpr) {
         startElement(STRING_EXPRESSION, strExpr);
         String translationKey = strExpr.translationKey;
         if (translationKey != null) {
             emitElement(STR_TRANS_KEY, translationKey);
         }
-        List<JFXExpression> parts = strExpr.getParts();
+        List<VisageExpression> parts = strExpr.getParts();
         int i;
         for (i = 0; i < parts.size() - 1; i += 3) {
             emitTree(PART, parts.get(i));
             startElement(PART);
-            JFXExpression format = parts.get(i + 1);
+            VisageExpression format = parts.get(i + 1);
             if (format != null) {
                 emitTree(FORMAT, format);
             }
@@ -455,8 +455,8 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(STRING_EXPRESSION);
     }
 
-    public void visitInstanciate(JFXInstanciate instanciate) {
-        List<JFXExpression> args = instanciate.getArgs();
+    public void visitInstanciate(VisageInstanciate instanciate) {
+        List<VisageExpression> args = instanciate.getArgs();
         final String tagName = ((args == null) || args.isEmpty())? OBJECT_LITERAL : NEW;
         startElement(tagName, instanciate);
         emitTree(CLASS, instanciate.getIdentifier());
@@ -464,7 +464,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         startElement(DEFINITIONS);
         emitTreeList(instanciate.getLocalvars());
         emitTreeList(instanciate.getParts());
-        JFXClassDeclaration clazz = instanciate.getClassBody();
+        VisageClassDeclaration clazz = instanciate.getClassBody();
         if (clazz != null) {
             emitTreeList(clazz.getMembers());
         }
@@ -472,7 +472,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(tagName);
     }
 
-    public void visitObjectLiteralPart(JFXObjectLiteralPart objLitPart) {
+    public void visitObjectLiteralPart(VisageObjectLiteralPart objLitPart) {
         startElement(OBJECT_LITERAL_INIT, objLitPart, objLitPart.sym);
         Name name = objLitPart.getName();
         if (name != null) {
@@ -483,17 +483,17 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(OBJECT_LITERAL_INIT);
     }
 
-    public void visitTypeAny(JFXTypeAny typeAny) {
+    public void visitTypeAny(VisageTypeAny typeAny) {
         startElement(TYPE_ANY, typeAny);
         TypeTree.Cardinality cardinality = typeAny.getCardinality();
         emitElement(CARDINALITY, cardinalityToString(cardinality));
         endElement(TYPE_ANY);
     }
 
-    public void visitTypeClass(JFXTypeClass typeClass) {
+    public void visitTypeClass(VisageTypeClass typeClass) {
         startElement(TYPE_CLASS, typeClass, getSymbolField(typeClass));
-        JFXExpression name = typeClass.getClassName();
-        if (name instanceof JFXIdent) {
+        VisageExpression name = typeClass.getClassName();
+        if (name instanceof VisageIdent) {
             String mappedName = primTypeNames.get(name.toString());
             if (mappedName != null) {
                 startElement(CLASS);
@@ -512,7 +512,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(TYPE_CLASS);
     }
 
-    public void visitTypeFunctional(JFXTypeFunctional typeFunc) {
+    public void visitTypeFunctional(VisageTypeFunctional typeFunc) {
         startElement(TYPE_FUNCTIONAL, typeFunc);
         emitTreeList(PARAMETERS, typeFunc.getParams());
         emitTree(RETURN_TYPE, typeFunc.restype);
@@ -521,19 +521,19 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(TYPE_FUNCTIONAL);
     }
 
-    public void visitTypeArray(JFXTypeArray typeArray) {
+    public void visitTypeArray(VisageTypeArray typeArray) {
         startElement(TYPE_ARRAY, typeArray);
         emitTree(typeArray.getElementType());
         endElement(TYPE_ARRAY);
     }
 
-    public void visitTypeUnknown(JFXTypeUnknown typeUnknown) {
+    public void visitTypeUnknown(VisageTypeUnknown typeUnknown) {
         startElement(TYPE_UNKNOWN, typeUnknown);
         endElement(TYPE_UNKNOWN);
     }
 
-    public void visitVar(JFXVar var) {
-        JFXModifiers mods = var.getModifiers();
+    public void visitVar(VisageVar var) {
+        VisageModifiers mods = var.getModifiers();
         String tagName = VAR;
         if (mods != null) {
             // ignore static variables inside "run" method
@@ -553,45 +553,45 @@ final class TreeXMLSerializer implements JavafxVisitor {
         emitTree(TYPE, var.getJFXType());
         emitElement(BIND_STATUS, bindStatusToString(var.getBindStatus()));
         emitTree(INITIAL_VALUE, var.getInitializer());
-        JFXOnReplace onReplace = var.getOnReplace();
+        VisageOnReplace onReplace = var.getOnReplace();
         emitTree(onReplace);
-        JFXOnReplace onInvalidate = var.getOnInvalidate();
+        VisageOnReplace onInvalidate = var.getOnInvalidate();
         emitTree(onInvalidate);
         endElement(tagName);
     }
 
-    public void visitVarInit(JFXVarInit tree) {
+    public void visitVarInit(VisageVarInit tree) {
         // ignore - not from source introduced later
     }
 
-    public void visitVarRef(JFXVarRef tree) {
+    public void visitVarRef(VisageVarRef tree) {
         // ignore - not in source introduced in lower
     }
 
-    public void visitOnReplace(JFXOnReplace onReplace) {
+    public void visitOnReplace(VisageOnReplace onReplace) {
         final String tagName =
-            (onReplace.getTriggerKind() == JFXOnReplace.Kind.ONINVALIDATE)?
+            (onReplace.getTriggerKind() == VisageOnReplace.Kind.ONINVALIDATE)?
             ON_INVALIDATE : ON_REPLACE;
         startElement(tagName, onReplace);
         emitTree(FIRST_INDEX, onReplace.getFirstIndex());
         emitTree(LAST_INDEX, onReplace.getLastIndex());
         emitTree(NEW_ELEMENTS, onReplace.getNewElements());
         emitTree(OLD_VALUE, onReplace.getOldValue());
-        if (onReplace.getEndKind() == JFXSequenceSlice.END_EXCLUSIVE) {
+        if (onReplace.getEndKind() == VisageSequenceSlice.END_EXCLUSIVE) {
             emitElement(SLICE_END_KIND, EXCLUSIVE);
         }
         emitTree(onReplace.getBody());
         endElement(tagName);
     }
 
-    public void visitBlockExpression(JFXBlock block) {
+    public void visitBlockExpression(VisageBlock block) {
         startElement(BLOCK_EXPRESSION, block);
         emitTreeList(STATEMENTS, block.getStmts());
         emitTree(VALUE, block.getValue());
         endElement(BLOCK_EXPRESSION);
     }
 
-    public void visitFunctionValue(JFXFunctionValue funcValue) {
+    public void visitFunctionValue(VisageFunctionValue funcValue) {
         startElement(ANON_FUNCTION, funcValue);
         emitTree(RETURN_TYPE, funcValue.getType());
         emitTreeList(PARAMETERS, funcValue.getParams());
@@ -599,12 +599,12 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(ANON_FUNCTION);
     }
 
-    public void visitSequenceEmpty(JFXSequenceEmpty seqEmpty) {
+    public void visitSequenceEmpty(VisageSequenceEmpty seqEmpty) {
         startElement(SEQUENCE_EMPTY, seqEmpty);
         endElement(SEQUENCE_EMPTY);
     }
 
-    public void visitSequenceRange(JFXSequenceRange seqRange) {
+    public void visitSequenceRange(VisageSequenceRange seqRange) {
         startElement(SEQUENCE_RANGE, seqRange);
         emitTree(LOWER, seqRange.getLower());
         emitTree(UPPER, seqRange.getUpper());
@@ -613,20 +613,20 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(SEQUENCE_RANGE);
     }
 
-    public void visitSequenceExplicit(JFXSequenceExplicit seqExplicit) {
+    public void visitSequenceExplicit(VisageSequenceExplicit seqExplicit) {
         startElement(SEQUENCE_EXPLICIT, seqExplicit);
         emitTreeList(ITEMS, seqExplicit.getItems());
         endElement(SEQUENCE_EXPLICIT);
     }
 
-    public void visitSequenceIndexed(JFXSequenceIndexed seqIndexed) {
+    public void visitSequenceIndexed(VisageSequenceIndexed seqIndexed) {
         startElement(SEQUENCE_INDEXED, seqIndexed);
         emitTree(SEQUENCE, seqIndexed.getSequence());
         emitTree(INDEX, seqIndexed.getIndex());
         endElement(SEQUENCE_INDEXED);
     }
 
-    public void visitSequenceSlice(JFXSequenceSlice seqSlice) {
+    public void visitSequenceSlice(VisageSequenceSlice seqSlice) {
         startElement(SEQUENCE_SLICE, seqSlice);
         emitTree(SEQUENCE, seqSlice.getSequence());
         emitTree(FIRST, seqSlice.getFirstIndex());
@@ -637,21 +637,21 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(SEQUENCE_SLICE);
     }
 
-    public void visitSequenceInsert(JFXSequenceInsert seqInsert) {
+    public void visitSequenceInsert(VisageSequenceInsert seqInsert) {
         startElement(SEQUENCE_INSERT, seqInsert);
         emitTree(SEQUENCE, seqInsert.getSequence());
         emitTree(ELEMENT, seqInsert.getElement());
         endElement(SEQUENCE_INSERT);
     }
 
-    public void visitSequenceDelete(JFXSequenceDelete seqDelete) {
+    public void visitSequenceDelete(VisageSequenceDelete seqDelete) {
         startElement(SEQUENCE_DELETE, seqDelete);
         emitTree(SEQUENCE, seqDelete.getSequence());
         emitTree(ELEMENT, seqDelete.getElement());
         endElement(SEQUENCE_DELETE);
     }
 
-    public void visitInvalidate(JFXInvalidate invalidate) {
+    public void visitInvalidate(VisageInvalidate invalidate) {
         startElement(INVALIDATE, invalidate);
         startElement(VAR);
         emitTree(invalidate.getVariable());
@@ -659,14 +659,14 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(INVALIDATE);
     }
 
-    public void visitForExpression(JFXForExpression forExpr) {
+    public void visitForExpression(VisageForExpression forExpr) {
         startElement(FOR, forExpr);
         emitTreeList(IN, forExpr.getForExpressionInClauses());
         emitTree(BODY, forExpr.getBodyExpression());
         endElement(FOR);
     }
 
-    public void visitForExpressionInClause(JFXForExpressionInClause inClause) {
+    public void visitForExpressionInClause(VisageForExpressionInClause inClause) {
         startElement(LIST_ITEM, inClause);
         emitTree(inClause.getVariable());
         emitTree(SEQUENCE, inClause.getSequenceExpression());
@@ -674,37 +674,37 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(LIST_ITEM);
     }
 
-    public void visitIndexof(JFXIndexof indexOf) {
+    public void visitIndexof(VisageIndexof indexOf) {
         startElement(INDEXOF, indexOf);
         emitTree(indexOf.getForVarIdentifier());
         endElement(INDEXOF);
     }
 
-    public void visitTimeLiteral(JFXTimeLiteral timeLiteral) {
+    public void visitTimeLiteral(VisageTimeLiteral timeLiteral) {
         startElement(TIME_LITERAL, timeLiteral);
         emitData(timeLiteral.getValue().toString());
         endElement(TIME_LITERAL);
     }
 
-    public void visitLengthLiteral(JFXLengthLiteral lengthLiteral) {
+    public void visitLengthLiteral(VisageLengthLiteral lengthLiteral) {
         startElement(LENGTH_LITERAL, lengthLiteral);
         emitData(lengthLiteral.getValue().toString());
         endElement(LENGTH_LITERAL);
     }
 
-    public void visitAngleLiteral(JFXAngleLiteral angleLiteral) {
+    public void visitAngleLiteral(VisageAngleLiteral angleLiteral) {
         startElement(ANGLE_LITERAL, angleLiteral);
         emitData(angleLiteral.getValue().toString());
         endElement(ANGLE_LITERAL);
     }
 
-    public void visitColorLiteral(JFXColorLiteral colorLiteral) {
+    public void visitColorLiteral(VisageColorLiteral colorLiteral) {
         startElement(COLOR_LITERAL, colorLiteral);
         emitData(colorLiteral.getValue().toString());
         endElement(COLOR_LITERAL);
     }
 
-    public void visitOverrideClassVar(JFXOverrideClassVar overrideVar) {
+    public void visitOverrideClassVar(VisageOverrideClassVar overrideVar) {
         startElement(OVERRIDE_VAR, overrideVar);
         emitElement(NAME, overrideVar.getName().toString());
         emitTree(EXPRESSION, overrideVar.getInitializer());
@@ -713,7 +713,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(OVERRIDE_VAR);
     }
 
-    public void visitInterpolateValue(JFXInterpolateValue interpolateValue) {
+    public void visitInterpolateValue(VisageInterpolateValue interpolateValue) {
         startElement(INTERPOLATE_VALUE, interpolateValue);
         emitTree(ATTRIBUTE, interpolateValue.getAttribute());
         emitTree(VALUE, interpolateValue.getValue());
@@ -721,7 +721,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(INTERPOLATE_VALUE);
     }
 
-    public void visitKeyFrameLiteral(JFXKeyFrameLiteral keyFrame) {
+    public void visitKeyFrameLiteral(VisageKeyFrameLiteral keyFrame) {
         startElement(KEYFRAME_LITERAL, keyFrame);
         emitTree(START_DURATION, keyFrame.getStartDuration());
         emitTreeList(INTERPOLATION_VALUES, keyFrame.getInterpolationValues());
@@ -738,7 +738,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
     }
 
     // start outputting SAX events based on given compilation unit instanciate
-    void start(JFXTree ut) {
+    void start(VisageTree ut) {
         try {
             handler.startDocument();
             ut.accept(this);
@@ -803,11 +803,11 @@ final class TreeXMLSerializer implements JavafxVisitor {
     // end positions map of the current compilation unit
     private Map<JCTree, Integer> endPositions;
     private String visageEntryMethodName;
-    private JFXFunctionDefinition visageEntryMethod;
+    private VisageFunctionDefinition visageEntryMethod;
     private boolean insideJavafxEntryMethod;
     private String sourceFileName;
 
-    private Symbol getSymbolField(JFXTree jcTree) {
+    private Symbol getSymbolField(VisageTree jcTree) {
         try {
             // Only few JCTree subclasses have "sym" field.
             // So, we need to use reflection to access the same.
@@ -910,11 +910,11 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(TYPES);
     }
 
-    private void startElement(String name, JFXTree tree) {
+    private void startElement(String name, VisageTree tree) {
         startElement(name, tree, null);
     }
 
-    private void startElement(String name, JFXTree tree, Symbol sym) {
+    private void startElement(String name, VisageTree tree, Symbol sym) {
         attrs.clear();
         if (sym != null) {
             String ref = putSymbol(sym);
@@ -983,7 +983,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
         }
     }
 
-    private void emitModifiers(JFXModifiers mods) {
+    private void emitModifiers(VisageModifiers mods) {
         if (mods != null) {
             startElement(MODIFIERS, mods);
             emitFlags(mods.flags);
@@ -1036,13 +1036,13 @@ final class TreeXMLSerializer implements JavafxVisitor {
         endElement(LIST_ITEM);
     }
 
-    private void emitTree(JFXTree t) {
+    private void emitTree(VisageTree t) {
         if (t != null) {
             t.accept(this);
         }
     }
 
-    private void emitTree(String name, JFXTree t) {
+    private void emitTree(String name, VisageTree t) {
         if (t != null) {
             if (name != null) {
                 startElement(name);
@@ -1054,20 +1054,20 @@ final class TreeXMLSerializer implements JavafxVisitor {
         }
     }
 
-    private void emitTreeList(List<? extends JFXTree> list) {
+    private void emitTreeList(List<? extends VisageTree> list) {
         emitTreeList(null, null, list);
     }
 
-    private void emitTreeList(String name, List<? extends JFXTree> list) {
+    private void emitTreeList(String name, List<? extends VisageTree> list) {
         emitTreeList(name, null, list);
     }
 
-    private void emitTreeList(String name, String itemName, List<? extends JFXTree> list) {
+    private void emitTreeList(String name, String itemName, List<? extends VisageTree> list) {
         if (list != null && !list.isEmpty()) {
             if (name != null) {
                 startElement(name);
             }
-            for (JFXTree item : list) {
+            for (VisageTree item : list) {
                 emitTree(itemName, item);
             }
             if (name != null) {

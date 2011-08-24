@@ -56,7 +56,7 @@ class TypeInference3 extends TypeInference2 {
     var newAttr = func3([2]);
     var anotherAttr = func8 ();
 }
-var context : FXLocal.Context = FXLocal.getContext();
+var context : VisageLocal.Context = VisageLocal.getContext();
 var classRef = context.findClass("ReflectionTest.TypeInference3");
 System.out.println("Reflecting class {classRef.getName()}");
 System.out.println("Inherited SuperClasses of TypeInference3 =>");

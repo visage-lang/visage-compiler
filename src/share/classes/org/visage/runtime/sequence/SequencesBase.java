@@ -28,7 +28,7 @@ import java.util.*;
 import org.visage.runtime.AssignToBoundException;
 import org.visage.runtime.TypeInfo;
 import org.visage.runtime.Util;
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 import org.visage.runtime.NumericTypeInfo;
 
 /**
@@ -939,7 +939,7 @@ public class SequencesBase {
         return Sequences.make(seq.getElementType(), list);
     }
 
-    public static <T> T getFromNewElements(FXObject instance, int varNum, int loIndex, int inserted, int k) {
+    public static <T> T getFromNewElements(VisageObject instance, int varNum, int loIndex, int inserted, int k) {
         if (k >= inserted)
             k = -1;
         else if (k >= 0)
@@ -999,11 +999,11 @@ public class SequencesBase {
         return arr;
     }
 
-    public static <T> void replaceSlice(FXObject instance, int varNum, T newValue, int startPos, int endPos/*exclusive*/) {
+    public static <T> void replaceSlice(VisageObject instance, int varNum, T newValue, int startPos, int endPos/*exclusive*/) {
         boolean wasUninitialized =
-                instance.varTestBits$(varNum, FXObject.VFLGS$INITIALIZED_STATE_BIT, 0);
-        instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
-        if (instance.varTestBits$(varNum, FXObject.VFLGS$IS_BOUND_READONLY, FXObject.VFLGS$IS_BOUND_READONLY)) {
+                instance.varTestBits$(varNum, VisageObject.VFLGS$INITIALIZED_STATE_BIT, 0);
+        instance.varChangeBits$(varNum, VisageObject.VFLGS$INIT$MASK, VisageObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+        if (instance.varTestBits$(varNum, VisageObject.VFLGS$IS_BOUND_READONLY, VisageObject.VFLGS$IS_BOUND_READONLY)) {
             throw new AssignToBoundException("Cannot mutate bound sequence");
         }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
@@ -1011,16 +1011,16 @@ public class SequencesBase {
             SequenceProxy sp = (SequenceProxy) oldValue;
             instance = sp.instance();
             varNum = sp.varNum();
-            instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+            instance.varChangeBits$(varNum, VisageObject.VFLGS$INIT$MASK, VisageObject.VFLGS$INIT$INITIALIZED_DEFAULT);
             oldValue = (Sequence<? extends T>) instance.get$(varNum);
         }
         if (preReplaceSlice(oldValue, newValue, startPos, endPos) ||
                 wasUninitialized) {
             int newLength = newValue==null?0:1;
-            instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
+            instance.invalidate$(varNum, startPos, endPos, newLength, VisageObject.PHASE_TRANS$CASCADE_INVALIDATE);
             Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos, true);
             instance.seq$(varNum, arr);
-            instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
+            instance.invalidate$(varNum, startPos, endPos, newLength,  VisageObject.PHASE_TRANS$CASCADE_TRIGGER);
         }
     }
 
@@ -1104,11 +1104,11 @@ public class SequencesBase {
         return arr;
     }
 
-    public static <T> void replaceSlice(FXObject instance, int varNum, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
+    public static <T> void replaceSlice(VisageObject instance, int varNum, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
         boolean wasUninitialized = 
-                instance.varTestBits$(varNum, FXObject.VFLGS$INITIALIZED_STATE_BIT, 0);
-        instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
-        if (instance.varTestBits$(varNum, FXObject.VFLGS$IS_BOUND_READONLY, FXObject.VFLGS$IS_BOUND_READONLY)) {
+                instance.varTestBits$(varNum, VisageObject.VFLGS$INITIALIZED_STATE_BIT, 0);
+        instance.varChangeBits$(varNum, VisageObject.VFLGS$INIT$MASK, VisageObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+        if (instance.varTestBits$(varNum, VisageObject.VFLGS$IS_BOUND_READONLY, VisageObject.VFLGS$IS_BOUND_READONLY)) {
             throw new AssignToBoundException("Cannot mutate bound sequence");
         }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
@@ -1116,16 +1116,16 @@ public class SequencesBase {
             SequenceProxy sp = (SequenceProxy) oldValue;
             instance = sp.instance();
             varNum = sp.varNum();
-            instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+            instance.varChangeBits$(varNum, VisageObject.VFLGS$INIT$MASK, VisageObject.VFLGS$INIT$INITIALIZED_DEFAULT);
             oldValue = (Sequence<? extends T>) instance.get$(varNum);
         }
         if (preReplaceSlice(oldValue, newValues, startPos, endPos) ||
                 wasUninitialized) {
             int newLength = newValues == null ? 0 : newValues.size();
-            instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
+            instance.invalidate$(varNum, startPos, endPos, newLength, VisageObject.PHASE_TRANS$CASCADE_INVALIDATE);
             Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValues, startPos, endPos, true);
             instance.seq$(varNum, arr);
-            instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
+            instance.invalidate$(varNum, startPos, endPos, newLength,  VisageObject.PHASE_TRANS$CASCADE_TRIGGER);
         }
     }
 
@@ -1138,7 +1138,7 @@ public class SequencesBase {
         return newValue;
     }
 
-    public static <T> Sequence<? extends T> set(FXObject instance, int varNum, Sequence<? extends T> newValue) { 
+    public static <T> Sequence<? extends T> set(VisageObject instance, int varNum, Sequence<? extends T> newValue) { 
         //TODO: should give slice invalidations, as if below, but should actually set to the new sequence
         replaceSlice(instance, varNum, newValue, 0, instance.size$(varNum));
         return newValue;
@@ -1148,7 +1148,7 @@ public class SequencesBase {
         return replaceSlice(oldValue, newValue, index, index + 1);
     }
 
-    public static <T> T set(FXObject instance, int varNum, T newValue, int index) {
+    public static <T> T set(VisageObject instance, int varNum, T newValue, int index) {
         replaceSlice(instance, varNum, newValue, index, index + 1);
         return newValue;
     }
@@ -1169,24 +1169,24 @@ public class SequencesBase {
         return arr;
     }
 
-    public static <T> void insert(FXObject instance, int varNum, T newValue) {
+    public static <T> void insert(VisageObject instance, int varNum, T newValue) {
         if (newValue == null)
             return;
-        instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+        instance.varChangeBits$(varNum, VisageObject.VFLGS$INIT$MASK, VisageObject.VFLGS$INIT$INITIALIZED_DEFAULT);
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
             SequenceProxy sp = (SequenceProxy) oldValue;
             instance = sp.instance();
             varNum = sp.varNum();
-            instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+            instance.varChangeBits$(varNum, VisageObject.VFLGS$INIT$MASK, VisageObject.VFLGS$INIT$INITIALIZED_DEFAULT);
             oldValue = (Sequence<? extends T>) instance.get$(varNum);
         }
         int oldSize = oldValue.size();
         int newLength = newValue==null?0:1;
         Sequence<? extends T> arr = insert(oldValue, newValue);
-        instance.invalidate$(varNum, oldSize, oldSize, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength, VisageObject.PHASE_TRANS$CASCADE_INVALIDATE);
         instance.seq$(varNum, arr);
-        instance.invalidate$(varNum, oldSize, oldSize, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength,  VisageObject.PHASE_TRANS$CASCADE_TRIGGER);
     }
 
     public static <T> Sequence<? extends T> insert(Sequence<? extends T> oldValue, Sequence<? extends T> values) {
@@ -1199,33 +1199,33 @@ public class SequencesBase {
         return arr;
     }
 
-    public static <T> void insert(FXObject instance, int varNum, Sequence<? extends T> values) {
+    public static <T> void insert(VisageObject instance, int varNum, Sequence<? extends T> values) {
         int inserted = values.size();
         if (inserted == 0)
             return;
-        instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+        instance.varChangeBits$(varNum, VisageObject.VFLGS$INIT$MASK, VisageObject.VFLGS$INIT$INITIALIZED_DEFAULT);
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
             SequenceProxy sp = (SequenceProxy) oldValue;
             instance = sp.instance();
             varNum = sp.varNum();
-            instance.varChangeBits$(varNum, FXObject.VFLGS$INIT$MASK, FXObject.VFLGS$INIT$INITIALIZED_DEFAULT);
+            instance.varChangeBits$(varNum, VisageObject.VFLGS$INIT$MASK, VisageObject.VFLGS$INIT$INITIALIZED_DEFAULT);
             oldValue = (Sequence<? extends T>) instance.get$(varNum);
         }
         int oldSize = oldValue.size();
         int newLength = values == null ? 0 : values.size();
         Sequence<? extends T> arr = insert(oldValue, values);
-        instance.invalidate$(varNum, oldSize, oldSize, newLength, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength, VisageObject.PHASE_TRANS$CASCADE_INVALIDATE);
         instance.seq$(varNum, arr);
-        instance.invalidate$(varNum, oldSize, oldSize, newLength,  FXObject.PHASE_TRANS$CASCADE_TRIGGER);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength,  VisageObject.PHASE_TRANS$CASCADE_TRIGGER);
 
     }
 
-    public static <T> void insertBefore(FXObject instance, int varNum, T value, int position) {
+    public static <T> void insertBefore(VisageObject instance, int varNum, T value, int position) {
         replaceSlice(instance, varNum, value, position, position);
     }
 
-    public static <T> void insertBefore(FXObject instance, int varNum, Sequence<? extends T> values, int position) {
+    public static <T> void insertBefore(VisageObject instance, int varNum, Sequence<? extends T> values, int position) {
         replaceSlice(instance, varNum, values, position, position);
     }
 
@@ -1237,7 +1237,7 @@ public class SequencesBase {
         return replaceSlice(oldValue, values, position, position);
     }
 
-    public static <T> void deleteIndexed(FXObject instance, int varNum, int position) {
+    public static <T> void deleteIndexed(VisageObject instance, int varNum, int position) {
         replaceSlice(instance, varNum, (Sequence<? extends T>)null, position, position+1);
     }
 
@@ -1245,7 +1245,7 @@ public class SequencesBase {
         return replaceSlice(oldValue, (Sequence<? extends T>)null, position, position+1);
     }
 
-    public static <T> void deleteSlice(FXObject instance, int varNum, int begin, int end) {
+    public static <T> void deleteSlice(VisageObject instance, int varNum, int begin, int end) {
         replaceSlice(instance, varNum, (Sequence<? extends T>)null, begin, end);
     }
 
@@ -1253,8 +1253,8 @@ public class SequencesBase {
         return replaceSlice(oldValue, (Sequence<? extends T>)null, begin, end);
     }
 
-    public static <T> void deleteValue(FXObject instance, int varNum, T value) {
-        if (instance.varTestBits$(varNum, FXObject.VFLGS$IS_BOUND_READONLY, FXObject.VFLGS$IS_BOUND_READONLY)) {
+    public static <T> void deleteValue(VisageObject instance, int varNum, T value) {
+        if (instance.varTestBits$(varNum, VisageObject.VFLGS$IS_BOUND_READONLY, VisageObject.VFLGS$IS_BOUND_READONLY)) {
             throw new AssignToBoundException("Cannot mutate bound sequence");
         }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
@@ -1306,12 +1306,12 @@ public class SequencesBase {
         return oldValue.getEmptySequence();
     }
 
-    public static <T> void deleteAll(FXObject instance, int varNum) {
+    public static <T> void deleteAll(VisageObject instance, int varNum) {
         int oldSize = instance.size$(varNum);
         replaceSlice(instance, varNum, (Sequence<? extends T>)null, 0, oldSize);
     }
 
-    public static boolean withinBounds(FXObject obj, int varNum, int position) {
+    public static boolean withinBounds(VisageObject obj, int varNum, int position) {
         return (position >= 0 && position < obj.size$(varNum));
     }
 }

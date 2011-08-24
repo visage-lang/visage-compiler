@@ -44,7 +44,7 @@ import javax.tools.JavaFileObject;
  * 
  * @author Tom Ball
  */
-public interface JavaFXScriptEngine extends ScriptEngine, Compilable, Invocable {
+public interface VisageScriptEngine extends ScriptEngine, Compilable, Invocable {
     
     /**
      * Causes the immediate execution of the script whose source is the String 

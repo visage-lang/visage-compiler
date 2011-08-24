@@ -24,17 +24,17 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * A type test.
  */
-public class JFXInstanceOf extends JFXExpression implements InstanceOfTree {
+public class VisageInstanceOf extends VisageExpression implements InstanceOfTree {
 
-    public JFXExpression expr;
-    public JFXTree clazz;
+    public VisageExpression expr;
+    public VisageTree clazz;
 
-    protected JFXInstanceOf(JFXExpression expr, JFXTree clazz) {
+    protected VisageInstanceOf(VisageExpression expr, VisageTree clazz) {
         this.expr = expr;
         this.clazz = clazz;
     }
@@ -44,20 +44,20 @@ public class JFXInstanceOf extends JFXExpression implements InstanceOfTree {
         v.visitInstanceOf(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.INSTANCE_OF;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.INSTANCE_OF;
     }
 
-    public JFXTree getType() {
+    public VisageTree getType() {
         return clazz;
     }
 
-    public JFXExpression getExpression() {
+    public VisageExpression getExpression() {
         return expr;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitInstanceOf(this, d);
     }
 

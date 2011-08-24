@@ -29,8 +29,8 @@ import com.sun.jdi.Type;
  *
  * @author sundar
  */
-public class FXType extends FXMirror implements Type {
-    public FXType(FXVirtualMachine fxvm, Type underlying) {
+public class VisageType extends VisageMirror implements Type {
+    public VisageType(VisageVirtualMachine fxvm, Type underlying) {
         super(fxvm, underlying);
     }
 

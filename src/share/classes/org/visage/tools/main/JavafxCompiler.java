@@ -482,9 +482,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      *  @param filename     The name of the file from which input stream comes.
      *  @param input        The input stream to be parsed.
      */
-    protected JFXScript parse(JavaFileObject filename, CharSequence content) {
+    protected VisageScript parse(JavaFileObject filename, CharSequence content) {
         long msec = now();
-        JFXScript tree = null;
+        VisageScript tree = null;
         if (content != null) {
             if (verbose) {
                 printVerbose(MsgSym.MESSAGE_PARSING_STARTED, filename);
@@ -510,7 +510,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         // test shouldn't be needed when we have better error recovery
         if (tree == null) {
             // We have nothing, so make an empty module
-            tree = make.Script(null, List.<JFXTree>nil());
+            tree = make.Script(null, List.<VisageTree>nil());
         }
 
         tree.sourcefile = filename;
@@ -534,10 +534,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         /** Parse contents of file.
      *  @param filename     The name of the file to be parsed.
      */
-    public JFXScript parse(JavaFileObject filename) {
+    public VisageScript parse(JavaFileObject filename) {
         JavaFileObject prev = log.useSource(filename);
         try {
-            JFXScript t = parse(filename, readSource(filename));
+            VisageScript t = parse(filename, readSource(filename));
             if (t.endPositions != null)
                 log.setEndPosTable(filename, t.endPositions);
             return t;
@@ -578,7 +578,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** Emit pretty=printed visage source corresponding to an input file.
      */
-    void printJavafxSource(String opt, JFXScript cu, CharSequence content) {
+    void printJavafxSource(String opt, VisageScript cu, CharSequence content) {
         String dump = options.get(opt);
         BufferedWriter out = null;
         if (dump != null) {
@@ -611,7 +611,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         if (completionFailureName == c.fullname) {
             throw new CompletionFailure(c, "user-selected completion failure by class name");
         }
-        JFXScript tree;
+        VisageScript tree;
         JavaFileObject filename = c.classfile;
         JavaFileObject prev = log.useSource(filename);
 
@@ -619,7 +619,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             tree = parse(filename, filename.getCharContent(false));
         } catch (IOException e) {
             log.error(MsgSym.MESSAGE_ERROR_READING_FILE, filename, e);
-            tree = make.Script(null, List.<JFXTree>nil());
+            tree = make.Script(null, List.<VisageTree>nil());
         } finally {
             log.useSource(prev);
         }
@@ -697,7 +697,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         start_msec = now();
         try {
             // Translate JavafxTrees into Javac trees.
-            List<JFXScript> cus = stopIfError(parseFiles(sourceFileObjects));
+            List<VisageScript> cus = stopIfError(parseFiles(sourceFileObjects));
 
 //             stopIfError(buildJavafxModule(cus, sourceFileObjects));
 
@@ -861,12 +861,12 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     /**
      * Parses a list of files.
      */
-   public List<JFXScript> parseFiles(List<JavaFileObject> fileObjects) throws IOException {
+   public List<VisageScript> parseFiles(List<JavaFileObject> fileObjects) throws IOException {
        if (errorCount() > 0)
            return List.nil();
 
         //parse all files
-        ListBuffer<JFXScript> trees = lb();
+        ListBuffer<VisageScript> trees = lb();
         for (JavaFileObject fileObject : fileObjects)
             trees.append(parse(fileObject));
         return trees.toList();
@@ -877,10 +877,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * As a side-effect, this puts elements on the "todo" list.
      * Also stores a list of all top level classes in rootClasses.
      */
-    public List<JFXScript> enterTrees(List<JFXScript> roots) {
+    public List<VisageScript> enterTrees(List<VisageScript> roots) {
         //enter symbols for all files
         if (taskListener != null) {
-            for (JFXScript unit: roots) {
+            for (VisageScript unit: roots) {
                 JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ENTER, unit);
                 taskListener.started(e);
             }
@@ -889,7 +889,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         enter.main(roots);
 
         if (taskListener != null) {
-            for (JFXScript unit: roots) {
+            for (VisageScript unit: roots) {
                 JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ENTER, unit);
                 taskListener.finished(e);
             }
@@ -898,13 +898,13 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         //If generating source, remember the classes declared in
         //the original compilation units listed on the command line.
         if (sourceOutput || stubOutput) {
-            ListBuffer<JFXClassDeclaration> cdefs = lb();
-            for (JFXScript unit : roots) {
-                for (List<JFXTree> defs = unit.defs;
+            ListBuffer<VisageClassDeclaration> cdefs = lb();
+            for (VisageScript unit : roots) {
+                for (List<VisageTree> defs = unit.defs;
                      defs.nonEmpty();
                      defs = defs.tail) {
-                    if (defs.head instanceof JFXClassDeclaration)
-                        cdefs.append((JFXClassDeclaration)defs.head);
+                    if (defs.head instanceof VisageClassDeclaration)
+                        cdefs.append((VisageClassDeclaration)defs.head);
                 }
             }
         }
@@ -959,7 +959,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                                   env.enclClass.sym.sourcefile :
                                   env.toplevel.sourcefile);
         try {
-            attr.attribClass(env.tree.pos(), env.tree instanceof JFXClassDeclaration ? (JFXClassDeclaration)env.tree : null,
+            attr.attribClass(env.tree.pos(), env.tree instanceof VisageClassDeclaration ? (VisageClassDeclaration)env.tree : null,
                 env.enclClass.sym);
             printJavafxSource("dumpattr", env.toplevel, null);
         }
@@ -1107,10 +1107,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
         // where
-        Map<JFXScript, List<JavafxEnv<JavafxAttrContext>>> groupByFile(List<JavafxEnv<JavafxAttrContext>> list) {
+        Map<VisageScript, List<JavafxEnv<JavafxAttrContext>>> groupByFile(List<JavafxEnv<JavafxAttrContext>> list) {
             // use a LinkedHashMap to preserve the order of the original list as much as possible
-            Map<JFXScript, List<JavafxEnv<JavafxAttrContext>>> map = new LinkedHashMap<JFXScript, List<JavafxEnv<JavafxAttrContext>>>();
-            Set<JFXScript> fixupSet = new HashSet<JFXScript>();
+            Map<VisageScript, List<JavafxEnv<JavafxAttrContext>>> map = new LinkedHashMap<VisageScript, List<JavafxEnv<JavafxAttrContext>>>();
+            Set<VisageScript> fixupSet = new HashSet<VisageScript>();
             for (List<JavafxEnv<JavafxAttrContext>> l = list; l.nonEmpty(); l = l.tail) {
                 JavafxEnv<JavafxAttrContext> env = l.head;
                 List<JavafxEnv<JavafxAttrContext>> sublist = map.get(env.toplevel);
@@ -1125,7 +1125,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 map.put(env.toplevel, sublist);
             }
             // fixup any lists that need reversing back to the correct order
-            for (JFXScript tree: fixupSet)
+            for (VisageScript tree: fixupSet)
                 map.put(tree, map.get(tree).reverse());
             return map;
         }

@@ -25,16 +25,16 @@ package org.visage.tools.api;
 import org.visage.api.JavafxcTask;
 import org.visage.api.tree.ForExpressionInClauseTree;
 import org.visage.api.tree.IdentifierTree;
-import org.visage.api.tree.JavaFXTreePath;
+import org.visage.api.tree.VisageTreePath;
 
-import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.SourcePositions;
 import org.visage.api.tree.Tree;
 import org.visage.api.tree.UnitTree;
 import org.visage.api.tree.VariableTree;
-import org.visage.tools.tree.JFXFunctionDefinition;
-import org.visage.tools.tree.JFXOverrideClassVar;
-import org.visage.tools.tree.JFXTree;
+import org.visage.tools.tree.VisageFunctionDefinition;
+import org.visage.tools.tree.VisageOverrideClassVar;
+import org.visage.tools.tree.VisageTree;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.util.Context;
@@ -64,7 +64,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from org.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.VisageKind.values().
  *
  * @author David Strupl
  */
@@ -117,7 +117,7 @@ public class JFXC4087 {
         final int[] pos = new int[]{-1};
         final boolean[] checkContext = new boolean[]{false};
 
-        JavaFXTreePathScanner<Void, Void> positionScanner = new JavaFXTreePathScanner<Void, Void>() {
+        VisageTreePathScanner<Void, Void> positionScanner = new VisageTreePathScanner<Void, Void>() {
             private boolean inClause = false;
             @Override
             public Void visitIdentifier(IdentifierTree node, Void p) {
@@ -142,7 +142,7 @@ public class JFXC4087 {
             }
         };
 
-        JavaFXTreePathScanner<Void, Void> accessContext = new JavaFXTreePathScanner<Void, Void>() {
+        VisageTreePathScanner<Void, Void> accessContext = new VisageTreePathScanner<Void, Void>() {
             @Override
             public Void visitVariable(VariableTree node, Void p) {
                 if (checkContext[0]) {

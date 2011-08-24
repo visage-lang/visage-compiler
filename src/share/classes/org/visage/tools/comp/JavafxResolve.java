@@ -583,8 +583,8 @@ public class JavafxResolve {
         while (env1 != null) {
             Scope sc = env1.info.scope;
             Type envClass;
-            if (env1.tree instanceof JFXClassDeclaration) {
-                JFXClassDeclaration cdecl = (JFXClassDeclaration) env1.tree;
+            if (env1.tree instanceof VisageClassDeclaration) {
+                VisageClassDeclaration cdecl = (VisageClassDeclaration) env1.tree;
                 if (cdecl.runMethod != null &&
                         name != names._this && name != names._super) {
                     envClass = null;
@@ -629,7 +629,7 @@ public class JavafxResolve {
                 }
             }
 
-            if (env1.tree instanceof JFXFunctionDefinition)
+            if (env1.tree instanceof VisageFunctionDefinition)
                 innerAccess = true;
             if (env1.outer != null && isStatic(env1)) staticOnly = true;
             env1 = env1.outer;
@@ -1212,7 +1212,7 @@ public class JavafxResolve {
             else if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
 
-            JFXClassDeclaration encl = env1.baseClause ? (JFXClassDeclaration)env1.tree : env1.enclClass;
+            VisageClassDeclaration encl = env1.baseClause ? (VisageClassDeclaration)env1.tree : env1.enclClass;
             if ((encl.sym.flags() & STATIC) != 0)
                 staticOnly = true;
         }

@@ -31,7 +31,7 @@ import org.visage.tools.code.JavafxSymtab;
 import org.visage.tools.code.JavafxTypes;
 import org.visage.tools.code.JavafxVarSymbol;
 import org.visage.tools.tree.*;
-import org.visage.tools.tree.JFXExpression;
+import org.visage.tools.tree.VisageExpression;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Scope;
@@ -137,12 +137,12 @@ public class JavafxLocalToClass {
      */
     private abstract class AbstractTreeChunker extends JavafxTreeScanner {
 
-        abstract void blockWithin(JFXBlock block, BlockKind bkind);
+        abstract void blockWithin(VisageBlock block, BlockKind bkind);
 
-        abstract void classWithin(JFXClassDeclaration block);
+        abstract void classWithin(VisageClassDeclaration block);
 
         @Override
-        public void visitClassDeclaration(JFXClassDeclaration tree) {
+        public void visitClassDeclaration(VisageClassDeclaration tree) {
             // The class is a new chunk
             pushOwner(tree.sym, false);
             classWithin(tree);
@@ -150,7 +150,7 @@ public class JavafxLocalToClass {
         }
 
         @Override
-        public void visitFunctionValue(JFXFunctionValue tree) {
+        public void visitFunctionValue(VisageFunctionValue tree) {
             // Don't process parameters
 
             // The body of the function begins a new chunk
@@ -164,9 +164,9 @@ public class JavafxLocalToClass {
         }
 
         @Override
-        public void visitForExpression(JFXForExpression tree) {
+        public void visitForExpression(VisageForExpression tree) {
             for (ForExpressionInClauseTree cl : tree.getInClauses()) {
-                JFXForExpressionInClause clause = (JFXForExpressionInClause) cl;
+                VisageForExpressionInClause clause = (VisageForExpressionInClause) cl;
                 // Don't process induction var
                 scan(clause.getSequenceExpression());
                 scan(clause.getWhereExpression());
@@ -176,28 +176,28 @@ public class JavafxLocalToClass {
             boolean prevStatic = isStatic;
             isStatic = false;
             pushOwner(preTrans.makeDummyMethodSymbol(owner, defs.boundForPartName), false);
-            blockWithin((JFXBlock) tree.getBodyExpression(), BlockKind.LOOP);
+            blockWithin((VisageBlock) tree.getBodyExpression(), BlockKind.LOOP);
             popOwner();
             isStatic = prevStatic;
         }
 
         @Override
-        public void visitWhileLoop(JFXWhileLoop tree) {
+        public void visitWhileLoop(VisageWhileLoop tree) {
             scan(tree.cond);
             // The body of the while-loop begins a new chunk
             // Lower has made the body a block-expression
-            blockWithin((JFXBlock) tree.getBody(), BlockKind.LOOP);
+            blockWithin((VisageBlock) tree.getBody(), BlockKind.LOOP);
         }
 
         @Override
-        public void visitCatch(JFXCatch tree) {
+        public void visitCatch(VisageCatch tree) {
             // Skip param
             // The body of the catch begins a new chunk
-            blockWithin((JFXBlock) tree.getBlock(), BlockKind.CATCH);
+            blockWithin((VisageBlock) tree.getBlock(), BlockKind.CATCH);
         }
 
         @Override
-        public void visitOnReplace(JFXOnReplace tree) {
+        public void visitOnReplace(VisageOnReplace tree) {
             pushOwner(preTrans.makeDummyMethodSymbol(owner), false);
             blockWithin(tree.getBody(), BlockKind.TRIGGER);
             popOwner();
@@ -207,28 +207,28 @@ public class JavafxLocalToClass {
 
         //TODO: should this just be on function-value?
         @Override
-        public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+        public void visitFunctionDefinition(VisageFunctionDefinition tree) {
             pushOwner(tree.sym, false);
             super.visitFunctionDefinition(tree);
             popOwner();
         }
 
         @Override
-        public void visitInitDefinition(JFXInitDefinition tree) {
+        public void visitInitDefinition(VisageInitDefinition tree) {
             pushOwner(tree.sym, false);
             super.visitInitDefinition(tree);
             popOwner();
         }
 
         @Override
-        public void visitPostInitDefinition(JFXPostInitDefinition tree) {
+        public void visitPostInitDefinition(VisagePostInitDefinition tree) {
             pushOwner(tree.sym, false);
             super.visitPostInitDefinition(tree);
             popOwner();
         }
 
         @Override
-        public void visitVar(JFXVar tree) {
+        public void visitVar(VisageVar tree) {
             pushOwner(preTrans.makeDummyMethodSymbol(owner), tree.isStatic());
             scan(tree.getInitializer());
             popOwner();
@@ -244,17 +244,17 @@ public class JavafxLocalToClass {
      * @param tree Expression to check
      * @return True if tree needs to be inflated
      */
-    private boolean needsToBeInflatedToClass(JFXTree tree) {
+    private boolean needsToBeInflatedToClass(VisageTree tree) {
 
         class InflationChecker extends AbstractTreeChunker {
 
             boolean needed = false;
 
-            void blockWithin(JFXBlock block, BlockKind bkind) {
+            void blockWithin(VisageBlock block, BlockKind bkind) {
                 // Do not descend -- this analysis is within the chunk
             }
 
-            void classWithin(JFXClassDeclaration klass) {
+            void classWithin(VisageClassDeclaration klass) {
                 // Do not descend -- this analysis is within the chunk
 
                 // If this block holds a class definition that references a local var that is
@@ -263,7 +263,7 @@ public class JavafxLocalToClass {
             }
 
             @Override
-            public void visitVar(JFXVar tree) {
+            public void visitVar(VisageVar tree) {
                 // Check for bound or triggered
                 needed |= tree.isBound();
                 needed |= tree.getOnReplace() != null;
@@ -273,32 +273,32 @@ public class JavafxLocalToClass {
             }
 
             @Override
-            public void visitForExpression(JFXForExpression tree) {
+            public void visitForExpression(VisageForExpression tree) {
                 needed |= needsToBeInflatedToClass(tree.getBodyExpression()) && referencesMutatedLocal(tree);
                 super.visitForExpression(tree);
             }
 
             @Override
-            public void visitCatch(JFXCatch tree) {
+            public void visitCatch(VisageCatch tree) {
                 needed |= needsToBeInflatedToClass(tree.getBlock()) && referencesMutatedLocal(tree);
                 super.visitCatch(tree);
             }
 
             @Override
-            public void visitWhileLoop(JFXWhileLoop tree) {
+            public void visitWhileLoop(VisageWhileLoop tree) {
                 needed |= needsToBeInflatedToClass(tree.getBody()) && referencesMutatedLocal(tree);
                 super.visitWhileLoop(tree);
             }
 
             @Override
-            public void visitFunctionValue(JFXFunctionValue tree) {
+            public void visitFunctionValue(VisageFunctionValue tree) {
                 // Funtion value may reference (non-final) locals
                 needed |= referencesLocal(tree);
                 super.visitFunctionValue(tree);
             }
 
             @Override
-            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+            public void visitFunctionInvocation(VisageFunctionInvocation tree) {
                 Symbol msym = JavafxTreeInfo.symbol(tree.meth);
 
                 // If the function call is the magic Pointer.make(Object)
@@ -312,7 +312,7 @@ public class JavafxLocalToClass {
                 } else if (msym != null && (msym.flags() & JavafxFlags.BOUND) != 0L) {
                     // This is a call to a bound function. If any of the arg involves
                     // a local  variable or literal value, then make a local context class
-                    for (JFXExpression arg : tree.args) {
+                    for (VisageExpression arg : tree.args) {
                         Symbol sym = JavafxTreeInfo.symbol(arg);
                         if (sym != null && sym.isLocal()) {
                             needed = true;
@@ -325,7 +325,7 @@ public class JavafxLocalToClass {
             }
 
             @Override
-            public void visitBlockExpression(JFXBlock tree) {
+            public void visitBlockExpression(VisageBlock tree) {
                 if (tree.isBound()) {
                     needed = true;
                 }
@@ -333,7 +333,7 @@ public class JavafxLocalToClass {
             }
 
             @Override
-            public void visitInterpolateValue(JFXInterpolateValue tree) {
+            public void visitInterpolateValue(VisageInterpolateValue tree) {
                 JavafxTag tag = JavafxTreeInfo.skipParens(tree.attribute).getFXTag();
                 if (tag == JavafxTag.IDENT) {
                     Symbol sym = JavafxTreeInfo.symbol(tree.attribute);
@@ -358,26 +358,26 @@ public class JavafxLocalToClass {
             this.classSym = classSym;
         }
 
-        ListBuffer<JFXVar> vars = ListBuffer.lb();
+        ListBuffer<VisageVar> vars = ListBuffer.lb();
 
-        List<JFXTree> varsAsMembers() {
-            return List.convert(JFXTree.class, vars.toList());
+        List<VisageTree> varsAsMembers() {
+            return List.convert(VisageTree.class, vars.toList());
         }
 
-        void blockWithin(JFXBlock block, BlockKind bkind) {
+        void blockWithin(VisageBlock block, BlockKind bkind) {
             // Do not descend -- this inflation is within the chunk
         }
 
-        void classWithin(JFXClassDeclaration block) {
+        void classWithin(VisageClassDeclaration block) {
             // Do not descend -- this inflation is within the chunk
         }
 
         /**
          * Convert any variables with the local context into a VarInit
          */
-        private JFXExpression convertExprAndScan(JFXExpression expr) {
-            if (expr instanceof JFXVar) {
-                JFXVar var = (JFXVar) expr;
+        private VisageExpression convertExprAndScan(VisageExpression expr) {
+            if (expr instanceof VisageVar) {
+                VisageVar var = (VisageVar) expr;
                 vars.append(var);
                 Scope oldScope = preTrans.getEnclosingScope(var.sym);
                 if (oldScope != null) {
@@ -399,7 +399,7 @@ public class JavafxLocalToClass {
                 scan(var.getOnInvalidate());
 
                 // Do the init in-line
-                JFXExpression vi = fxmake.at(var).VarInit(var);
+                VisageExpression vi = fxmake.at(var).VarInit(var);
                 vi.type = var.type;
                 return vi;
             } else {
@@ -410,9 +410,9 @@ public class JavafxLocalToClass {
         }
 
         @Override
-        public void visitBlockExpression(JFXBlock tree) {
-            ListBuffer<JFXExpression> stmts = ListBuffer.lb();
-            for (JFXExpression stat : tree.stats) {
+        public void visitBlockExpression(VisageBlock tree) {
+            ListBuffer<VisageExpression> stmts = ListBuffer.lb();
+            for (VisageExpression stat : tree.stats) {
                 stmts.append(convertExprAndScan(stat));
             }
             // Replace the guts of the block-expression with the var-converted versions
@@ -449,7 +449,7 @@ public class JavafxLocalToClass {
      *     (new local_klass44()).doit$();
      *   }
      */
-    private void inflateBlockToClass(JFXBlock block, BlockKind bkind) {
+    private void inflateBlockToClass(VisageBlock block, BlockKind bkind) {
         final Name funcName = preTrans.syntheticName(defs.doitDollarNamePrefix());
 
         String classNamePrefix;
@@ -474,14 +474,14 @@ public class JavafxLocalToClass {
 
         class BlockVarAndClassConverter extends VarAndClassConverter {
             List<JavafxTag> nonLocalExprTags = List.nil();
-            List<JFXCatch> nonLocalCatchers = List.nil();
+            List<VisageCatch> nonLocalCatchers = List.nil();
             Type returnType = null;
 
             BlockVarAndClassConverter() {
                 super(classSymbol);
             }
             @Override
-            public void visitReturn(JFXReturn tree) {
+            public void visitReturn(VisageReturn tree) {
                 // This is a return in a local context inflated to class
                 // Handle it as a non-local return
                 tree.nonLocalReturn = true;
@@ -489,13 +489,13 @@ public class JavafxLocalToClass {
                     topFunctionReturnType() :
                     syms.voidType;
                 if (!nonLocalExprTags.contains(tree.getFXTag())) {
-                    JFXVar param = makeExceptionParameter(syms.visage_NonLocalReturnExceptionType);
-                    JFXReturn catchBody = fxmake.Return(null);
+                    VisageVar param = makeExceptionParameter(syms.visage_NonLocalReturnExceptionType);
+                    VisageReturn catchBody = fxmake.Return(null);
                     if (returnType.tag != TypeTags.VOID) {
-                        JFXIdent nlParam = fxmake.Ident(param);
+                        VisageIdent nlParam = fxmake.Ident(param);
                         nlParam.type = param.type;
                         nlParam.sym = param.sym;
-                        JFXSelect nlValue = fxmake.Select(nlParam,
+                        VisageSelect nlValue = fxmake.Select(nlParam,
                         defs.value_NonLocalReturnExceptionFieldName, false);
                         nlValue.type = syms.objectType;
                         nlValue.sym = rs.findIdentInType(env, syms.visage_NonLocalReturnExceptionType, nlValue.name, Kinds.VAR);
@@ -507,48 +507,48 @@ public class JavafxLocalToClass {
                 scan(tree.expr);
             }
             @Override
-            public void visitBreak(JFXBreak tree) {
+            public void visitBreak(VisageBreak tree) {
                 // This is a break in a local context inflated to class
                 // Handle it as a non-local break
                 tree.nonLocalBreak = true;
                 if (!nonLocalExprTags.contains(tree.getFXTag())) {
-                    JFXVar param = makeExceptionParameter(syms.visage_NonLocalBreakExceptionType);
-                    JFXBreak catchBody = fxmake.Break(tree.label);
+                    VisageVar param = makeExceptionParameter(syms.visage_NonLocalBreakExceptionType);
+                    VisageBreak catchBody = fxmake.Break(tree.label);
                     nonLocalExprTags = nonLocalExprTags.append(tree.getFXTag());
                     nonLocalCatchers = nonLocalCatchers.append(makeCatchExpression(param, catchBody, syms.unreachableType));
                 }
             }
             @Override
-            public void visitContinue(JFXContinue tree) {
+            public void visitContinue(VisageContinue tree) {
                 // This is a continue in a local context inflated to class
                 // Handle it as a non-local continue
                 tree.nonLocalContinue = true;
                 if (!nonLocalExprTags.contains(tree.getFXTag())) {
-                    JFXVar param = makeExceptionParameter(syms.visage_NonLocalContinueExceptionType);
-                    JFXContinue catchBody = fxmake.Continue(tree.label);
+                    VisageVar param = makeExceptionParameter(syms.visage_NonLocalContinueExceptionType);
+                    VisageContinue catchBody = fxmake.Continue(tree.label);
                     nonLocalExprTags = nonLocalExprTags.append(tree.getFXTag());
                     nonLocalCatchers = nonLocalCatchers.append(makeCatchExpression(param, catchBody, syms.unreachableType));
                 }
             }
 
             @Override
-            public void visitVar(JFXVar tree) {
+            public void visitVar(VisageVar tree) {
                 if ((tree.mods.flags & Flags.PARAMETER) == 0L) {
                     throw new AssertionError("all vars should have been processed in the block expression");
                 }
             }
 
-            private JFXVar makeExceptionParameter(Type exceptionType) {
-                JFXVar param = fxmake.Param(preTrans.syntheticName(defs.exceptionDollarNamePrefix()), preTrans.makeTypeTree(exceptionType));
+            private VisageVar makeExceptionParameter(Type exceptionType) {
+                VisageVar param = fxmake.Param(preTrans.syntheticName(defs.exceptionDollarNamePrefix()), preTrans.makeTypeTree(exceptionType));
                 param.setType(exceptionType);
                 param.sym = new JavafxVarSymbol(types, names, 0L, param.name, param.type, owner);
                 return param;
             }
 
-            private JFXCatch makeCatchExpression(JFXVar param, JFXExpression body, Type bodyType) {
+            private VisageCatch makeCatchExpression(VisageVar param, VisageExpression body, Type bodyType) {
                 return fxmake.Catch(param,
-                                (JFXBlock)fxmake.Block(0L,
-                                    List.<JFXExpression>nil(),
+                                (VisageBlock)fxmake.Block(0L,
+                                    List.<VisageExpression>nil(),
                                     body).setType(bodyType));
             }
         }
@@ -560,56 +560,56 @@ public class JavafxLocalToClass {
 
         // Create whose vars are the block's vars and having a doit function with the content
 
-        JFXType fxtype = fxmake.TypeUnknown();
+        VisageType fxtype = fxmake.TypeUnknown();
         fxtype.type = block.type;
 
-        JFXBlock body = fxmake.Block(block.flags, block.getStmts(), block.getValue());
+        VisageBlock body = fxmake.Block(block.flags, block.getStmts(), block.getValue());
         body.type = block.type;
         body.pos = Position.NOPOS;
 
-        JFXFunctionDefinition doit = fxmake.FunctionDefinition(
+        VisageFunctionDefinition doit = fxmake.FunctionDefinition(
                 fxmake.Modifiers(JavafxFlags.SCRIPT_PRIVATE),
                 funcName,
                 fxtype,
-                List.<JFXVar>nil(),
+                List.<VisageVar>nil(),
                 body);
         doit.pos = Position.NOPOS;
         doit.sym = funcSym;
         doit.type = funcType;
 
-        final JFXClassDeclaration cdecl = fxmake.ClassDeclaration(
+        final VisageClassDeclaration cdecl = fxmake.ClassDeclaration(
                 fxmake.Modifiers(Flags.FINAL | Flags.SYNTHETIC),
                 className,
-                List.<JFXExpression>nil(),
+                List.<VisageExpression>nil(),
                 vc.varsAsMembers().append(doit));
         cdecl.sym = classSymbol;
         cdecl.type = classSymbol.type;
         types.addFxClass(classSymbol, cdecl);
-        cdecl.setDifferentiatedExtendingImplementingMixing(List.<JFXExpression>nil(), List.<JFXExpression>nil(), List.<JFXExpression>nil());
+        cdecl.setDifferentiatedExtendingImplementingMixing(List.<VisageExpression>nil(), List.<VisageExpression>nil(), List.<VisageExpression>nil());
 
-        JFXIdent classId = fxmake.Ident(className);
+        VisageIdent classId = fxmake.Ident(className);
         classId.sym = classSymbol;
         classId.type = classSymbol.type;
 
-        JFXInstanciate inst = fxmake.InstanciateNew(classId, null);
+        VisageInstanciate inst = fxmake.InstanciateNew(classId, null);
         inst.sym = classSymbol;
         inst.type = classSymbol.type;
 
-        JFXSelect select = fxmake.Select(inst, funcName, false);
+        VisageSelect select = fxmake.Select(inst, funcName, false);
         select.sym = funcSym;
         select.type = funcSym.type;
 
-        JFXFunctionInvocation apply = fxmake.Apply(null, select, null);
+        VisageFunctionInvocation apply = fxmake.Apply(null, select, null);
         apply.type = block.type;
 
-        List<JFXExpression> stats = List.<JFXExpression>of(cdecl);
-        JFXExpression value = apply;
+        List<VisageExpression> stats = List.<VisageExpression>of(cdecl);
+        VisageExpression value = apply;
 
         if (vc.nonLocalCatchers.size() > 0) {
 
-            JFXBlock tryBody = (JFXBlock)fxmake.Block(0L, stats, value).setType(block.type);
+            VisageBlock tryBody = (VisageBlock)fxmake.Block(0L, stats, value).setType(block.type);
             
-            stats = List.<JFXExpression>of(
+            stats = List.<VisageExpression>of(
                 fxmake.Try(
                     tryBody,
                     vc.nonLocalCatchers,
@@ -622,7 +622,7 @@ public class JavafxLocalToClass {
                         preTrans.syntheticName(defs.resDollarNamePrefix()),
                         types.normalize(block.type),
                         doit.sym);
-                JFXVar resVar = fxmake.Var(resVarSym.name,
+                VisageVar resVar = fxmake.Var(resVarSym.name,
                     preTrans.makeTypeTree(resVarSym.type),
                     fxmake.Modifiers(resVarSym.flags_field),
                     null,
@@ -630,7 +630,7 @@ public class JavafxLocalToClass {
                     null, null);
                 resVar.type = resVarSym.type;
                 resVar.sym = resVarSym;
-                JFXIdent resVarRef = fxmake.Ident(resVarSym);
+                VisageIdent resVarRef = fxmake.Ident(resVarSym);
                 resVarRef.sym = resVarSym;
                 resVarRef.type = resVar.type;
                 tryBody.value = fxmake.Assign(resVarRef, apply).setType(block.type);
@@ -663,10 +663,10 @@ public class JavafxLocalToClass {
     /**
      * Flatten any vars defined in var initializer block expressions into the class level
      */
-    private void flattenVarsIntoClass(JFXClassDeclaration klass) {
+    private void flattenVarsIntoClass(VisageClassDeclaration klass) {
         final JavafxClassSymbol classSym = (JavafxClassSymbol) klass.sym;
         VarAndClassConverter vc = new VarAndClassConverter(classSym);
-        for (JFXTree mem : klass.getMembers()) {
+        for (VisageTree mem : klass.getMembers()) {
             if (needsToBeInflatedToClass(mem)) {
                 vc.scan(mem);
             }
@@ -677,14 +677,14 @@ public class JavafxLocalToClass {
     /**
      * Descend to the next level of chunk
      */
-    private void descend(JFXTree tree) {
+    private void descend(VisageTree tree) {
         BottomUpChunkWalker bucw = new BottomUpChunkWalker();
         bucw.scan(tree);
     }
 
     private class BottomUpChunkWalker extends AbstractTreeChunker {
 
-        void blockWithin(JFXBlock block, BlockKind bkind) {
+        void blockWithin(VisageBlock block, BlockKind bkind) {
             // Descend into inner chunks
             descend(block);
 
@@ -694,8 +694,8 @@ public class JavafxLocalToClass {
             }
         }
 
-        void classWithin(JFXClassDeclaration klass) {
-            for (JFXTree member : klass.getMembers()) {
+        void classWithin(VisageClassDeclaration klass) {
+            for (VisageTree member : klass.getMembers()) {
                 descend(member);
             }
             flattenVarsIntoClass(klass);
@@ -705,14 +705,14 @@ public class JavafxLocalToClass {
 
     /************************** Utilities ******************************/
 
-    private boolean referencesMutatedLocal(JFXTree tree) {
+    private boolean referencesMutatedLocal(VisageTree tree) {
 
         class ReferenceChecker extends JavafxTreeScanner {
 
             boolean hasMutatedLocal = false;
 
             @Override
-            public void visitIdent(JFXIdent tree) {
+            public void visitIdent(VisageIdent tree) {
                 if (tree.sym instanceof VarSymbol) {
                     JavafxVarSymbol vsym = (JavafxVarSymbol) tree.sym;
                     if (vsym.isMutatedLocal()) {
@@ -726,14 +726,14 @@ public class JavafxLocalToClass {
         return rc.hasMutatedLocal;
     }
 
-    private boolean referencesLocal(JFXTree tree) {
+    private boolean referencesLocal(VisageTree tree) {
 
         class ReferenceChecker extends JavafxTreeScanner {
 
             boolean hasLocal = false;
 
             @Override
-            public void visitIdent(JFXIdent tree) {
+            public void visitIdent(VisageIdent tree) {
                 if (tree.sym instanceof VarSymbol) {
                     JavafxVarSymbol vsym = (JavafxVarSymbol) tree.sym;
                     if (vsym.isLocal()) {
@@ -745,7 +745,7 @@ public class JavafxLocalToClass {
             }
             
             @Override
-            public void visitIndexof(JFXIndexof tree) {
+            public void visitIndexof(VisageIndexof tree) {
                 hasLocal = true;
                 super.visitIndexof(tree);
             }
@@ -755,7 +755,7 @@ public class JavafxLocalToClass {
         return rc.hasLocal;
     }
 
-    private boolean hasSelfReference(JFXVar checkedVar) {
+    private boolean hasSelfReference(VisageVar checkedVar) {
         return checkedVar.sym.hasSelfReference();
     }
 

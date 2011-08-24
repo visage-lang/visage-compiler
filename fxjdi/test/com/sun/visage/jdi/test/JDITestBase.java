@@ -23,7 +23,7 @@
 
 package org.visage.jdi.test;
 
-import org.visage.jdi.connect.FXLaunchingConnector;
+import org.visage.jdi.connect.VisageLaunchingConnector;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.Connector;
 import java.util.Map;
@@ -56,9 +56,9 @@ public class JDITestBase {
     }
 
     // Override this method in subclass to create a different JDI VM.
-    // This implementation uses FXLaunchingConnector to get JDI VM.
+    // This implementation uses VisageLaunchingConnector to get JDI VM.
     protected VirtualMachine launchVM() {
-        FXLaunchingConnector conn = new FXLaunchingConnector();
+        VisageLaunchingConnector conn = new VisageLaunchingConnector();
         Map<String, Connector.Argument> args = conn.defaultArguments();
         Connector.StringArgument arg = (Connector.StringArgument) args.get("main");
         // dummy main class

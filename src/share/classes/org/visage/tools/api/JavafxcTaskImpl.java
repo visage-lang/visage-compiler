@@ -40,8 +40,8 @@ import org.visage.tools.comp.JavafxAttrContext;
 import org.visage.tools.comp.JavafxEnv;
 import org.visage.tools.main.CommandLine;
 import org.visage.tools.main.Main;
-import org.visage.tools.tree.JFXScript;
-import org.visage.tools.tree.JFXTree;
+import org.visage.tools.tree.VisageScript;
+import org.visage.tools.tree.VisageTree;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -65,8 +65,8 @@ public class JavafxcTaskImpl extends JavafxcTask {
     private String[] args;
     private Context context;
     private List<JavaFileObject> fileObjects;
-    private Map<JavaFileObject, JFXScript> notYetEntered;
-    private List<JFXScript> units;
+    private Map<JavaFileObject, VisageScript> notYetEntered;
+    private List<VisageScript> units;
     private JavafxTaskListener taskListener;
     private AtomicBoolean used = new AtomicBoolean();
     private Integer result = null;
@@ -147,7 +147,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
                 throw new IllegalArgumentException("Malformed arguments " + filenames.toString(" "));
             compiler = org.visage.tools.main.JavafxCompiler.instance(context);
             compiler.keepComments = true;
-            notYetEntered = new HashMap<JavaFileObject, JFXScript>();
+            notYetEntered = new HashMap<JavaFileObject, VisageScript>();
             for (JavaFileObject file: fileObjects)
                 notYetEntered.put(file, null);
             args = null;
@@ -199,7 +199,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
         try {
             prepareCompiler();
             units = compiler.parseFiles(fileObjects);
-            for (JFXScript unit: units) {
+            for (VisageScript unit: units) {
                 JavaFileObject file = unit.getSourceFile();
                 if (notYetEntered.containsKey(file))
                     notYetEntered.put(file, unit);
@@ -218,16 +218,16 @@ public class JavafxcTaskImpl extends JavafxcTask {
     void enter() throws IOException {
         prepareCompiler();
 
-        ListBuffer<JFXScript> roots = null;
+        ListBuffer<VisageScript> roots = null;
 
         if (notYetEntered.size() > 0) {
             if (!parsed)
                 parse();
             for (JavaFileObject file: fileObjects) {
-                JFXScript unit = notYetEntered.remove(file);
+                VisageScript unit = notYetEntered.remove(file);
                 if (unit != null) {
                     if (roots == null)
-                        roots = new ListBuffer<JFXScript>();
+                        roots = new ListBuffer<VisageScript>();
                     roots.append(unit);
                 }
             }
@@ -284,7 +284,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
         for (Tree node : path) {
             last = node;
         }
-        return ((JFXTree) last).type;
+        return ((VisageTree) last).type;
     }
 
     public JavacElements getElements() {

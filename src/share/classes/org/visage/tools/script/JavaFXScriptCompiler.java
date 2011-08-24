@@ -51,7 +51,7 @@ import com.sun.tools.mjavac.util.Name;
  * visible to future scripts, so this represents a "compiler context".
  * Based on https://scripting.dev.java.net's JavaCompiler by A. Sundararajan.
  */
-public class JavaFXScriptCompiler {
+public class VisageScriptCompiler {
     public JavafxcTool tool;
     private ClassLoader parentClassLoader;
     // a map in which the key is package name and the value is list of
@@ -74,7 +74,7 @@ public class JavaFXScriptCompiler {
     Name pseudoDir;
     Name pseudoProfile;
 
-    public JavaFXScriptCompiler(ClassLoader parent) {
+    public VisageScriptCompiler(ClassLoader parent) {
 	parentClassLoader = parent;
         tool = JavafxcTool.create();
         packageMap = new HashMap<String, List<String>>();
@@ -132,7 +132,7 @@ public class JavaFXScriptCompiler {
      * @param diagnostics error and warning collector
      * @param printDiagnostics true if diagnostics should be displayed
      */
-    public JavaFXCompiledScript compile(String fileName, String source,
+    public VisageCompiledScript compile(String fileName, String source,
                     Writer err, String sourcePath, String classPath,
                     DiagnosticListener<JavaFileObject> diagnostics) {
         Context context = new Context();
@@ -186,7 +186,7 @@ public class JavaFXScriptCompiler {
             namedImportScope.enter(e.sym, scriptScope);
         }
         env.scriptScopes.clear(); // ???
-        JavaFXCompiledScript result = new JavaFXCompiledScript();
+        VisageCompiledScript result = new VisageCompiledScript();
         result.compiler = this;
         result.scriptScope = scriptScope;
         result.clazzName = ((JavafxClassSymbol) scriptScope.owner).flatname.toString();

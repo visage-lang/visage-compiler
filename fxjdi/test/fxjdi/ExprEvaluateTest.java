@@ -23,8 +23,8 @@
 
 package fxjdi;
 
-import org.visage.jdi.FXIntegerType;
-import org.visage.jdi.FXIntegerValue;
+import org.visage.jdi.VisageIntegerType;
+import org.visage.jdi.VisageIntegerValue;
 import com.sun.jdi.Value;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -58,8 +58,8 @@ public class ExprEvaluateTest extends JdbBase {
             resumeToBreakpoint();
             list();
             Value val = evaluate("Eval.fact(3)");
-            Assert.assertTrue(val instanceof FXIntegerValue && val.type() instanceof FXIntegerType);
-            Assert.assertTrue(((FXIntegerValue)val).value() == 6);
+            Assert.assertTrue(val instanceof VisageIntegerValue && val.type() instanceof VisageIntegerType);
+            Assert.assertTrue(((VisageIntegerValue)val).value() == 6);
             Assert.assertTrue(val.type().name().equals("int"));
             resumeToBreakpoint();
             list();

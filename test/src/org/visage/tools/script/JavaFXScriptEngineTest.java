@@ -23,7 +23,7 @@
 
 package org.visage.tools.script;
 
-import org.visage.api.JavaFXScriptEngine;
+import org.visage.api.VisageScriptEngine;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
@@ -43,8 +43,8 @@ import static org.junit.Assert.*;
  * 
  * @author Tom Ball
  */
-public class JavaFXScriptEngineTest {
-    private JavaFXScriptEngine engine;
+public class VisageScriptEngineTest {
+    private VisageScriptEngine engine;
     private ByteArrayOutputStream out;
     private PrintStream stdout;
     private static PrintStream originalOut;
@@ -62,8 +62,8 @@ public class JavaFXScriptEngineTest {
     public void setUp() {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scrEng = manager.getEngineByName("visage");
-        assertTrue(scrEng instanceof JavaFXScriptEngine);
-        engine = (JavaFXScriptEngine)scrEng;
+        assertTrue(scrEng instanceof VisageScriptEngine);
+        engine = (VisageScriptEngine)scrEng;
         out = new ByteArrayOutputStream();
         stdout = new PrintStream(out);
         System.setOut(stdout);
@@ -76,28 +76,28 @@ public class JavaFXScriptEngineTest {
     public void getEngineByName() throws Exception {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scrEng = manager.getEngineByName("visage");
-        assertTrue(scrEng instanceof JavaFXScriptEngine);
+        assertTrue(scrEng instanceof VisageScriptEngine);
     }
     
     @Test
     public void getEngineByBadName() throws Exception {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scrEng = manager.getEngineByName("java");
-        assertFalse(scrEng instanceof JavaFXScriptEngine);
+        assertFalse(scrEng instanceof VisageScriptEngine);
     }
     
     @Test
     public void getEngineByExtension() throws Exception {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scrEng = manager.getEngineByName("visage");
-        assertTrue(scrEng instanceof JavaFXScriptEngine);
+        assertTrue(scrEng instanceof VisageScriptEngine);
     }
     
     @Test
     public void getEngineByBadExtension() throws Exception {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scrEng = manager.getEngineByName("java");
-        assertFalse(scrEng instanceof JavaFXScriptEngine);
+        assertFalse(scrEng instanceof VisageScriptEngine);
     }
 
     @Test
@@ -158,7 +158,7 @@ public class JavaFXScriptEngineTest {
     public void verifyGlobalBindings() throws Exception {
         ScriptEngineManager manager = new ScriptEngineManager();
         manager.put("greeting", "Hello");
-        engine = (JavaFXScriptEngine)manager.getEngineByExtension("visage");
+        engine = (VisageScriptEngine)manager.getEngineByExtension("visage");
         String script = "java.lang.System.out.print(\"{greeting}, {who}\");" +
                         "java.lang.System.out.flush();";
 
@@ -223,7 +223,7 @@ public class JavaFXScriptEngineTest {
             "t.hello(1); // invalid parameter  8\n";
 
         DiagnosticCollector<JavaFileObject> diags = new DiagnosticCollector<JavaFileObject>();
-        JavaFXScriptEngine jfxEngine = (JavaFXScriptEngine)engine;
+        VisageScriptEngine jfxEngine = (VisageScriptEngine)engine;
         try {
             jfxEngine.eval(script, diags);
             fail("script should have thrown ScriptException due to bad code");
@@ -253,7 +253,7 @@ public class JavaFXScriptEngineTest {
         bindings.put("who", "world");
 
         DiagnosticCollector<JavaFileObject> diags = new DiagnosticCollector<JavaFileObject>();
-        JavaFXScriptEngine jfxEngine = (JavaFXScriptEngine)engine;
+        VisageScriptEngine jfxEngine = (VisageScriptEngine)engine;
         try {
             jfxEngine.eval(script, bindings, diags);
             fail("script should have thrown ScriptException due to bad code");
@@ -268,7 +268,7 @@ public class JavaFXScriptEngineTest {
     
     @Test
     public void verifyNoExtraBindings() throws Exception {
-        // When entering var declarations in JavaFXPad, a user may reference
+        // When entering var declarations in VisagePad, a user may reference
         // a variable before declaring it.  This should return an error, but 
         // the script engine used to declare the var a binding, causing the
         // declaration to fail when the var's type is later declared.

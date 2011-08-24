@@ -29,9 +29,9 @@ import com.sun.jdi.DoubleType;
  *
  * @author sundar
  */
-public class FXDoubleType extends FXPrimitiveType implements DoubleType {
+public class VisageDoubleType extends VisagePrimitiveType implements DoubleType {
 
-    public FXDoubleType(FXVirtualMachine fxvm, DoubleType underlying) {
+    public VisageDoubleType(VisageVirtualMachine fxvm, DoubleType underlying) {
         super(fxvm, underlying);
     }
 

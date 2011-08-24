@@ -23,8 +23,8 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.event.VMStartEvent;
 
@@ -32,13 +32,13 @@ import com.sun.jdi.event.VMStartEvent;
  *
  * @author sundar
  */
-public class FXVMStartEvent extends FXEvent implements VMStartEvent {
-    public FXVMStartEvent(FXVirtualMachine fxvm, VMStartEvent underlying) {
+public class VisageVMStartEvent extends VisageEvent implements VMStartEvent {
+    public VisageVMStartEvent(VisageVirtualMachine fxvm, VMStartEvent underlying) {
         super(fxvm, underlying);
     }
 
     public ThreadReference thread() {
-        return FXWrapper.wrap(virtualMachine(), underlying().thread());
+        return VisageWrapper.wrap(virtualMachine(), underlying().thread());
     }
 
     @Override

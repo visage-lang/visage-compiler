@@ -24,15 +24,15 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 
-public class JFXErroneous extends JFXExpression implements ErroneousTree {
+public class VisageErroneous extends VisageExpression implements ErroneousTree {
 
-    public List<? extends JFXTree> errs;
+    public List<? extends VisageTree> errs;
 
-    protected JFXErroneous(List<? extends JFXTree> errs) {
+    protected VisageErroneous(List<? extends VisageTree> errs) {
         this.errs = errs;
     }
 
@@ -42,17 +42,17 @@ public class JFXErroneous extends JFXExpression implements ErroneousTree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.ERRONEOUS;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.ERRONEOUS;
     }
 
     @Override
-    public List<? extends JFXTree> getErrorTrees() {
+    public List<? extends VisageTree> getErrorTrees() {
         return errs;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitErroneous(this, d);
     }
 

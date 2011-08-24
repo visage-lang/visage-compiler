@@ -24,16 +24,16 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * Type not specified
  *
  * @author Robert Field
  */
-public class JFXTypeUnknown extends JFXType implements TypeUnknownTree {
+public class VisageTypeUnknown extends VisageType implements TypeUnknownTree {
 
-    protected JFXTypeUnknown() {
+    protected VisageTypeUnknown() {
         super(Cardinality.UNKNOWN);
     }
 
@@ -47,12 +47,12 @@ public class JFXTypeUnknown extends JFXType implements TypeUnknownTree {
     }
 
     //@Override
-    public <R,D> R accept(JavaFXTreeVisitor<R,D> v, D d) {
+    public <R,D> R accept(VisageTreeVisitor<R,D> v, D d) {
         return v.visitTypeUnknown(this, d);
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return Tree.JavaFXKind.TYPE_UNKNOWN;
+    public VisageKind getJavaFXKind() {
+        return Tree.VisageKind.TYPE_UNKNOWN;
     }
 }

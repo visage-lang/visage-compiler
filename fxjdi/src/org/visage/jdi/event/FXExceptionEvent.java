@@ -23,27 +23,27 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXLocation;
-import org.visage.jdi.FXObjectReference;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageLocation;
+import org.visage.jdi.VisageObjectReference;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.event.ExceptionEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXExceptionEvent extends FXLocatableEvent implements ExceptionEvent {
-    public FXExceptionEvent(FXVirtualMachine fxvm, ExceptionEvent underlying) {
+public class VisageExceptionEvent extends VisageLocatableEvent implements ExceptionEvent {
+    public VisageExceptionEvent(VisageVirtualMachine fxvm, ExceptionEvent underlying) {
         super(fxvm, underlying);
     }
 
-    public FXLocation catchLocation() {
-        return FXWrapper.wrap(virtualMachine(), underlying().catchLocation());
+    public VisageLocation catchLocation() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().catchLocation());
     }
 
-    public FXObjectReference exception() {
-        return FXWrapper.wrap(virtualMachine(), underlying().exception());
+    public VisageObjectReference exception() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().exception());
     }
 
     @Override

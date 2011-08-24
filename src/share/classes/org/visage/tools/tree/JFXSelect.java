@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.util.Name;
@@ -35,16 +35,16 @@ import com.sun.tools.mjavac.util.Name;
  * @param selector name of field to select thru
  * @param sym symbol of the selected class
  */
-public class JFXSelect extends JFXExpression implements MemberSelectTree {
+public class VisageSelect extends VisageExpression implements MemberSelectTree {
 
-    public JFXExpression selected;
+    public VisageExpression selected;
     public Name name;
     public Symbol sym;
     public boolean nullCheck;
 
-    public JFXVar boundSize;
+    public VisageVar boundSize;
 
-    protected JFXSelect(JFXExpression selected, Name name, Symbol sym, boolean nullCheck) {
+    protected VisageSelect(VisageExpression selected, Name name, Symbol sym, boolean nullCheck) {
         this.selected = selected;
         this.name = name;
         this.sym = sym;
@@ -57,16 +57,16 @@ public class JFXSelect extends JFXExpression implements MemberSelectTree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.MEMBER_SELECT;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.MEMBER_SELECT;
     }
 
-    public JFXExpression getExpression() {
+    public VisageExpression getExpression() {
         return selected;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitMemberSelect(this, d);
     }
 

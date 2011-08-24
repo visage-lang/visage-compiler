@@ -5,9 +5,9 @@
  * @
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
  
-public class NumSeqIndTest extends FXTestCase {
+public class NumSeqIndTest extends VisageTestCase {
 
 var res = 0;
 var s: String[] = ["0","1","2","3","4","5","6","7","8","9"];

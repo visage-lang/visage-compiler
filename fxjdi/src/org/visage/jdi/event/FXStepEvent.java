@@ -23,15 +23,15 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.event.StepEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXStepEvent extends FXLocatableEvent implements StepEvent {
-    public FXStepEvent(FXVirtualMachine fxvm, StepEvent underlying) {
+public class VisageStepEvent extends VisageLocatableEvent implements StepEvent {
+    public VisageStepEvent(VisageVirtualMachine fxvm, StepEvent underlying) {
         super(fxvm, underlying);
     }
 

@@ -22,11 +22,11 @@
  */
 
 package org.visage.runtime.sequence;
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 
 public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverVaryingAbstract<T, PT> {
 
-    public BoundForOverNullableSingleton(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
+    public BoundForOverNullableSingleton(VisageObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         super(container, forVarNum, inductionSeqVarNum, dependsOnIndex);
     }
 
@@ -42,7 +42,7 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
     /***
     protected void restoreValidState(int lowPart, int highPart) {
         for (int ipart = lowPart; ipart < highPart; ++ipart) {
-            FXForPart part = getPart(ipart);
+            VisageForPart part = getPart(ipart);
             part.varChangeBits$(partResultVarNum, VFLGS$STATE_MASK, VFLGS$STATE$VALID);
         }
     }
@@ -51,14 +51,14 @@ public abstract class BoundForOverNullableSingleton<T, PT> extends BoundForOverV
     /** Get the size of part ipart. */
     @Override
     protected int size(int ipart) {
-        FXForPart part = getPart(ipart);
+        VisageForPart part = getPart(ipart);
         return part.get$(partResultVarNum) == null? 0 : 1;
     }
 
     /** Get the j'th item of part ipart -- which for a singleton, is just the item. */
     @Override
     protected T get(int ipart, int j) {
-        FXForPart part = getPart(ipart);
+        VisageForPart part = getPart(ipart);
         return (T) part.get$(partResultVarNum);
     }
 }

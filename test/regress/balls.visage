@@ -1,5 +1,5 @@
 /*
- * Test generation of outer$ and getOuter$() in case of JFXInstanciate AST.
+ * Test generation of outer$ and getOuter$() in case of VisageInstanciate AST.
  * @test
  * @run
  */

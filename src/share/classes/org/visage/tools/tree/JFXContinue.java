@@ -24,21 +24,21 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.Name;
 
 /**
  * A continue of a loop.
  */
-public class JFXContinue extends JFXExpression implements ContinueTree {
+public class VisageContinue extends VisageExpression implements ContinueTree {
 
     public Name label;
-    public JFXTree target;
+    public VisageTree target;
 
     public boolean nonLocalContinue = false;
 
-    protected JFXContinue(Name label, JFXTree target) {
+    protected VisageContinue(Name label, VisageTree target) {
         this.label = label;
         this.target = target;
     }
@@ -48,8 +48,8 @@ public class JFXContinue extends JFXExpression implements ContinueTree {
         v.visitContinue(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.CONTINUE;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.CONTINUE;
     }
 
     public Name getLabel() {
@@ -57,7 +57,7 @@ public class JFXContinue extends JFXExpression implements ContinueTree {
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitContinue(this, d);
     }
 

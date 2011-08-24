@@ -31,7 +31,7 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.util.Position;
 
-import org.visage.tools.tree.JFXFunctionDefinition;
+import org.visage.tools.tree.VisageFunctionDefinition;
 import java.lang.reflect.Modifier;
 
 /**
@@ -56,7 +56,7 @@ public class FunctionDocImpl
      * constructor.
      */
     public FunctionDocImpl(DocEnv env, MethodSymbol sym,
-                         String docComment, JFXFunctionDefinition tree, Position.LineMap lineMap) {
+                         String docComment, VisageFunctionDefinition tree, Position.LineMap lineMap) {
         super(env, sym, docComment, tree, lineMap);
     }
 

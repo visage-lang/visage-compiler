@@ -23,15 +23,15 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.event.ClassUnloadEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXClassUnloadEvent extends FXEvent implements ClassUnloadEvent {
-    public FXClassUnloadEvent(FXVirtualMachine fxvm, ClassUnloadEvent underlying) {
+public class VisageClassUnloadEvent extends VisageEvent implements ClassUnloadEvent {
+    public VisageClassUnloadEvent(VisageVirtualMachine fxvm, ClassUnloadEvent underlying) {
         super(fxvm, underlying);
     }
 

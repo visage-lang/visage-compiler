@@ -24,23 +24,23 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
-public class JFXForExpression extends JFXExpression implements ForExpressionTree {
+public class VisageForExpression extends VisageExpression implements ForExpressionTree {
 
-    private final JavaFXKind fxKind;
-    public final List<JFXForExpressionInClause> inClauses;
-    public final JFXExpression bodyExpr;
+    private final VisageKind fxKind;
+    public final List<VisageForExpressionInClause> inClauses;
+    public final VisageExpression bodyExpr;
 
-    protected JFXForExpression(
-            JavaFXKind fxKind,
-            List<JFXForExpressionInClause> inClauses,
-            JFXExpression bodyExpr) {
+    protected VisageForExpression(
+            VisageKind fxKind,
+            List<VisageForExpressionInClause> inClauses,
+            VisageExpression bodyExpr) {
         this.fxKind = fxKind;
         this.inClauses = inClauses;
         this.bodyExpr = bodyExpr;
@@ -51,14 +51,14 @@ public class JFXForExpression extends JFXExpression implements ForExpressionTree
     }
 
     public java.util.List<ForExpressionInClauseTree> getInClauses() {
-        return JFXTree.convertList(ForExpressionInClauseTree.class, inClauses);
+        return VisageTree.convertList(ForExpressionInClauseTree.class, inClauses);
     }
 
-    public List<JFXForExpressionInClause> getForExpressionInClauses() {
+    public List<VisageForExpressionInClause> getForExpressionInClauses() {
         return inClauses;
     }
 
-    public JFXExpression getBodyExpression() {
+    public VisageExpression getBodyExpression() {
         return bodyExpr;
     }
 
@@ -67,11 +67,11 @@ public class JFXForExpression extends JFXExpression implements ForExpressionTree
         return JavafxTag.FOR_EXPRESSION;
     }
 
-    public JavaFXKind getJavaFXKind() {
+    public VisageKind getJavaFXKind() {
         return fxKind;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitForExpression(this, data);
     }
 }

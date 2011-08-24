@@ -30,7 +30,7 @@ import org.visage.api.JavafxBindStatus;
  *
  * @author Robert Field
  */
-public interface JFXBoundMarkable {
+public interface VisageBoundMarkable {
     void markBound(JavafxBindStatus bindStatus);
     boolean isBound();
     boolean isUnidiBind();

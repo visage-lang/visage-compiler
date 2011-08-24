@@ -5,14 +5,14 @@
  * @run
  */
 
-import visage.reflect.FXLocal;
-import visage.reflect.FXChangeListener;
+import visage.reflect.VisageLocal;
+import visage.reflect.VisageChangeListener;
 
 public class jfxc3646 {
     public var t1 : Integer;
 }
 
-def context = FXLocal.getContext();
+def context = VisageLocal.getContext();
 
 def obj = jfxc3646 { t1: 10 };
 def cls = context.findClass("jfxc3646");
@@ -20,7 +20,7 @@ def vr = cls.getVariable("t1");
 
 // add a listener
 var id = vr.addChangeListener(context.mirrorOf(obj),
-   FXChangeListener {
+   VisageChangeListener {
       public override function onChange() : Void {
          println("onChange: obj.t1 changed");
       }

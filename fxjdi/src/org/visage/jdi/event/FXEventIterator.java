@@ -23,26 +23,26 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.event.EventIterator;
 
 /**
  *
  * @author sundar
  */
-public class FXEventIterator implements EventIterator {
-    private final FXVirtualMachine fxvm;
+public class VisageEventIterator implements EventIterator {
+    private final VisageVirtualMachine fxvm;
     private final EventIterator underlying;
 
-    public FXEventIterator(FXVirtualMachine fxvm, EventIterator underlying) {
+    public VisageEventIterator(VisageVirtualMachine fxvm, EventIterator underlying) {
         this.fxvm = fxvm;
         this.underlying = underlying;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof FXEventIterator) {
-            obj = ((FXEventIterator)obj).underlying();
+        if (obj instanceof VisageEventIterator) {
+            obj = ((VisageEventIterator)obj).underlying();
         }
         return underlying().equals(obj);
     }
@@ -57,23 +57,23 @@ public class FXEventIterator implements EventIterator {
         return underlying().toString();
     }
 
-    public FXEvent nextEvent() {
-        return FXEvent.wrap(virtualMachine(), underlying().nextEvent());
+    public VisageEvent nextEvent() {
+        return VisageEvent.wrap(virtualMachine(), underlying().nextEvent());
     }
 
     public boolean hasNext() {
         return underlying().hasNext();
     }
 
-    public FXEvent next() {
-        return FXEvent.wrap(virtualMachine(), underlying().next());
+    public VisageEvent next() {
+        return VisageEvent.wrap(virtualMachine(), underlying().next());
     }
 
     public void remove() {
         underlying().remove();
     }
 
-    protected FXVirtualMachine virtualMachine() {
+    protected VisageVirtualMachine virtualMachine() {
         return fxvm;
     }
 
@@ -81,7 +81,7 @@ public class FXEventIterator implements EventIterator {
         return underlying;
     }
 
-    public static FXEventIterator wrap(FXVirtualMachine fxvm, EventIterator evtItr) {
-        return (evtItr == null)? null : new FXEventIterator(fxvm, evtItr);
+    public static VisageEventIterator wrap(VisageVirtualMachine fxvm, EventIterator evtItr) {
+        return (evtItr == null)? null : new VisageEventIterator(fxvm, evtItr);
     }
 }

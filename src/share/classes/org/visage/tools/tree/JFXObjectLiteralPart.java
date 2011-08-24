@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.code.Symbol;
@@ -33,9 +33,9 @@ import org.visage.api.JavafxBindStatus;
 /**
  * In object literal  "Identifier ':' [ 'bind'] expression"
  */
-public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteralPartTree {
+public class VisageObjectLiteralPart extends VisageExpression implements ObjectLiteralPartTree {
     public final Name name;
-    private final JFXExpression expr;
+    private final VisageExpression expr;
     private final JavafxBindStatus explicitBindStatus;
     public Symbol sym;
    /*
@@ -43,9 +43,9 @@ public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteral
     * @param init type of attribute
     * @param sym attribute symbol
     */
-    protected JFXObjectLiteralPart(
+    protected VisageObjectLiteralPart(
             Name name,
-            JFXExpression expr,
+            VisageExpression expr,
             JavafxBindStatus bindStatus,
             Symbol sym) {
         super(bindStatus);
@@ -63,7 +63,7 @@ public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteral
         return name;
     }
 
-    public JFXExpression getExpression() {
+    public VisageExpression getExpression() {
         return expr;
     }
 
@@ -80,11 +80,11 @@ public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteral
         return JavafxTag.OBJECT_LITERAL_PART;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.OBJECT_LITERAL_PART;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.OBJECT_LITERAL_PART;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitObjectLiteralPart(this, data);
     }
 }

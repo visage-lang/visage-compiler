@@ -22,7 +22,7 @@
  */
 package org.visage.jdi.test;
 
-import org.visage.jdi.FXStackFrame;
+import org.visage.jdi.VisageStackFrame;
 import com.sun.jdi.event.BreakpointEvent;
 import org.junit.Test;
 import junit.framework.Assert;
@@ -60,8 +60,8 @@ public class HelloTest extends JavafxTestBase {
             failure("frame failed");
         }
 
-        Assert.assertEquals(true, mainThread.frame(0) instanceof FXStackFrame);
-        Assert.assertEquals(true, ((FXStackFrame)mainThread.frame(0)).isJavaFXFrame());
+        Assert.assertEquals(true, mainThread.frame(0) instanceof VisageStackFrame);
+        Assert.assertEquals(true, ((VisageStackFrame)mainThread.frame(0)).isJavaFXFrame());
 
         /*
          * resume until end

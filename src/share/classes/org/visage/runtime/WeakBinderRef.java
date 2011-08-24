@@ -27,15 +27,15 @@ import org.visage.runtime.refq.RefQ;
 import org.visage.runtime.refq.WeakRef;
 import java.lang.ref.Reference;
 
-public class WeakBinderRef extends WeakRef<FXObject> {
-    private static RefQ<FXObject> refQ = new RefQ<FXObject>();
+public class WeakBinderRef extends WeakRef<VisageObject> {
+    private static RefQ<VisageObject> refQ = new RefQ<VisageObject>();
     /** Chain of Dep instances whose binderRef point back here. */
     Dep bindees;
     /** Increment this to disable checkForCleanups.
      * (I don't know if/when that is needed ...) */
     static volatile int unsafeToCleanup;
 
-    public static WeakBinderRef instance(FXObject bindee) {
+    public static WeakBinderRef instance(VisageObject bindee) {
         WeakBinderRef bref = bindee.getThisRef$internal$();
         if (bref == null) {
             bref = new WeakBinderRef(bindee);
@@ -48,7 +48,7 @@ public class WeakBinderRef extends WeakRef<FXObject> {
         if (unsafeToCleanup > 0) {
             return;
         }
-        Reference<? extends FXObject> ref;
+        Reference<? extends VisageObject> ref;
         while ((ref = refQ.poll()) != null) {
             if (ref instanceof WeakBinderRef) {
                 ((WeakBinderRef) ref).cleanup();
@@ -56,7 +56,7 @@ public class WeakBinderRef extends WeakRef<FXObject> {
         }
     }
 
-    WeakBinderRef(FXObject obj) {
+    WeakBinderRef(VisageObject obj) {
         super(obj, refQ);
     }
 

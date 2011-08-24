@@ -25,12 +25,12 @@ package visage.util;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-import org.visage.tools.script.JavaFXScriptEngineFactory;
+import org.visage.tools.script.VisageScriptEngineFactory;
 
 // factored out to avoid linkage error for javax.script.* on Java 1.5
 class Evaluator {
     static Object eval(String script) throws ScriptException {
-        JavaFXScriptEngineFactory fac = new JavaFXScriptEngineFactory();
+        VisageScriptEngineFactory fac = new VisageScriptEngineFactory();
         ScriptEngine engine = fac.getScriptEngine();
         if (engine == null)
             throw new ScriptException("no scripting engine available");
@@ -43,7 +43,7 @@ class Evaluator {
  * @author Saul Wold
  * @profile desktop
  */
-public class FXEvaluator {
+public class VisageEvaluator {
 
     /**
      * <p>

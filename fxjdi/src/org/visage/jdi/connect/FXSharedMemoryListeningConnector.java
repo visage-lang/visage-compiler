@@ -23,8 +23,8 @@
 
 package org.visage.jdi.connect;
 
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.connect.Connector.Argument;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.connect.ListeningConnector;
@@ -35,18 +35,18 @@ import java.util.Map;
  *
  * @author sundar
  */
-public class FXSharedMemoryListeningConnector extends FXConnector implements ListeningConnector {
-    public FXSharedMemoryListeningConnector() {
+public class VisageSharedMemoryListeningConnector extends VisageConnector implements ListeningConnector {
+    public VisageSharedMemoryListeningConnector() {
         this(makePlatformConnector());
     }
 
-    public FXSharedMemoryListeningConnector(ListeningConnector underlying) {
+    public VisageSharedMemoryListeningConnector(ListeningConnector underlying) {
         super(underlying);
     }
 
-    public FXVirtualMachine accept(Map<String, ? extends Argument> args)
+    public VisageVirtualMachine accept(Map<String, ? extends Argument> args)
             throws IOException, IllegalConnectorArgumentsException {
-        return FXWrapper.wrap(underlying().accept(args));
+        return VisageWrapper.wrap(underlying().accept(args));
     }
 
     public String startListening(Map<String, ? extends Argument> args)

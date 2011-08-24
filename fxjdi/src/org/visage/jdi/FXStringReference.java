@@ -29,8 +29,8 @@ import com.sun.jdi.StringReference;
  *
  * @author sundar
  */
-public class FXStringReference extends FXObjectReference implements StringReference {
-    public FXStringReference(FXVirtualMachine fxvm, StringReference underlying) {
+public class VisageStringReference extends VisageObjectReference implements StringReference {
+    public VisageStringReference(VisageVirtualMachine fxvm, StringReference underlying) {
         super(fxvm, underlying);
     }
 

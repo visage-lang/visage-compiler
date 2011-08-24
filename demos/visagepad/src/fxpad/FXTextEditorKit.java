@@ -30,7 +30,7 @@ import javax.swing.text.*;
 import javax.swing.event.*;
 import java.util.*;
 
-public class FXTextEditorKit extends DefaultEditorKit {
+public class VisageTextEditorKit extends DefaultEditorKit {
 
     @Override
     public String getContentType() {

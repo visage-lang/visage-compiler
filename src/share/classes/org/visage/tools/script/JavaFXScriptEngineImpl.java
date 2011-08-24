@@ -30,7 +30,7 @@ import java.util.*;
 import javax.script.*;
 import javax.tools.*;
 import com.sun.tools.mjavac.util.Name;
-import org.visage.api.JavaFXScriptEngine;
+import org.visage.api.VisageScriptEngine;
 import com.sun.tools.mjavac.code.*;
 
 /**
@@ -38,27 +38,27 @@ import com.sun.tools.mjavac.code.*;
  * the https://scripting.dev.java.net Java language script engine by
  * A. Sundararajan.
  */
-public class JavaFXScriptEngineImpl extends AbstractScriptEngine
-        implements JavaFXScriptEngine {
+public class VisageScriptEngineImpl extends AbstractScriptEngine
+        implements VisageScriptEngine {
 
-    public JavaFXScriptEngineImpl() {
+    public VisageScriptEngineImpl() {
     }
 
     // my factory, may be null
     private ScriptEngineFactory factory;
 
-    WeakHashMap<Bindings, JavaFXScriptContext> contextMap =
-            new WeakHashMap<Bindings, JavaFXScriptContext>();
+    WeakHashMap<Bindings, VisageScriptContext> contextMap =
+            new WeakHashMap<Bindings, VisageScriptContext>();
 
-    JavaFXScriptContext getJavaFXScriptContext(ScriptContext ctx) {
+    VisageScriptContext getJavaFXScriptContext(ScriptContext ctx) {
         Bindings bindings = ctx.getBindings(ScriptContext.ENGINE_SCOPE);
         return getJavaFXScriptContext(bindings);
     }
 
-    JavaFXScriptContext getJavaFXScriptContext(Bindings bindings) {
-        JavaFXScriptContext scontext = contextMap.get(bindings);
+    VisageScriptContext getJavaFXScriptContext(Bindings bindings) {
+        VisageScriptContext scontext = contextMap.get(bindings);
         if (scontext == null) {
-            scontext = new JavaFXScriptContext(Thread.currentThread().getContextClassLoader());
+            scontext = new VisageScriptContext(Thread.currentThread().getContextClassLoader());
             contextMap.put(bindings, scontext);
         }
         return scontext;
@@ -66,18 +66,18 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
     // my implementation for CompiledScript
     private class JavafxScriptCompiledScript extends CompiledScript {
-        JavaFXCompiledScript compiled;
+        VisageCompiledScript compiled;
 
-        JavafxScriptCompiledScript(JavaFXCompiledScript compiled) {
+        JavafxScriptCompiledScript(VisageCompiledScript compiled) {
             this.compiled = compiled;
         }
 
-        public JavaFXScriptEngineImpl getEngine() {
-            return JavaFXScriptEngineImpl.this;
+        public VisageScriptEngineImpl getEngine() {
+            return VisageScriptEngineImpl.this;
         }
 
         public Object eval(ScriptContext ctx) throws ScriptException {
-            JavaFXScriptContext scontext = getJavaFXScriptContext(ctx);
+            VisageScriptContext scontext = getJavaFXScriptContext(ctx);
             try {
                 // FIXME - set to false if using (unimplemented) "synchronized"
                 // implementation of ScriptContext and ScriptBindings.
@@ -197,7 +197,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
     public ScriptEngineFactory getFactory() {
         if (factory == null) {
-            factory = new JavaFXScriptEngineFactory();
+            factory = new VisageScriptEngineFactory();
         }
         return factory;
     }
@@ -222,7 +222,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         String sourcePath = getSourcePath(ctx);
         String classPath = getClassPath(ctx);
         String script = str;
-        JavaFXScriptContext scontext = getJavaFXScriptContext(ctx);
+        VisageScriptContext scontext = getJavaFXScriptContext(ctx);
         boolean copyVars = true;
         // JSR-223 requirement - but unsure if it's a good idea.
         // ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);	
@@ -252,7 +252,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
             }
         }
 
-        JavaFXCompiledScript compiled = scontext.compiler.compile(fileName, script,
+        VisageCompiledScript compiled = scontext.compiler.compile(fileName, script,
                 ctx.getErrorWriter(), sourcePath, classPath, listener);
         if (compiled == null) {
             throw new ScriptException("compilation failed");
@@ -304,7 +304,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     // read a Reader fully and return the content as string
     private String readFully(Reader reader) throws ScriptException {
         try {
-            return JavaFXScriptCompiler.readFully(reader);
+            return VisageScriptCompiler.readFully(reader);
         } catch (IOException exp) {
             throw new ScriptException(exp);
         }
@@ -315,7 +315,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
             throw new ScriptException("target object not specified");
         if (name == null)
             throw new ScriptException("method name not specified");
-        Method method = JavaFXScriptContext.findMethod(thiz.getClass(), name, args);
+        Method method = VisageScriptContext.findMethod(thiz.getClass(), name, args);
         if (method == null)
             throw new ScriptException(new NoSuchMethodException());
         try {
@@ -329,14 +329,14 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     public Object invokeFunction(String name, Object... args) throws ScriptException, NoSuchMethodException {
         if (name == null)
             throw new ScriptException("method name not specified");
-        JavaFXScriptContext scontext = getJavaFXScriptContext(getContext());
+        VisageScriptContext scontext = getJavaFXScriptContext(getContext());
         Name nname = scontext.compiler.names.fromString(name);
         for (Scope.Entry e = scontext.compiler.namedImportScope.lookup(nname);
              e.sym != null; e = e.next()) {
             // FIXME - should also handle VarSymbol whose type is a FunctionType.
             if (e.sym instanceof Symbol.MethodSymbol) {
                 Class script = scontext.loadSymbolClass(e.sym);
-               Method method = JavaFXScriptContext.findMethod(script, name, args);
+               Method method = VisageScriptContext.findMethod(script, name, args);
                if (method != null) {
                    try {
                         Constructor cons = findDefaultConstructor(script);

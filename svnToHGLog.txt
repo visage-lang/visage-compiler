@@ -28,7 +28,7 @@ changeset:   4440:96064df18a6d
 branch:      trunk
 user:        bothner
 date:        Sat Jan 17 08:55:32 2009 -0800
-summary:     [svn r4928] Fix two holes in JFXIndexOf support in the tree API used by IDEs.
+summary:     [svn r4928] Fix two holes in VisageIndexOf support in the tree API used by IDEs.
 
 changeset:   4439:f3d03b849ab4
 branch:      trunk
@@ -346,7 +346,7 @@ changeset:   4387:69583c6daeae
 branch:      trunk
 user:        sgw
 date:        Mon Jan 05 10:54:36 2009 -0800
-summary:     [svn r4857] JFXC-2323 Do not throw FXExit from RuntimeProvider.exit() Reviewed & Approved by Brian G
+summary:     [svn r4857] JFXC-2323 Do not throw VisageExit from RuntimeProvider.exit() Reviewed & Approved by Brian G
 
 changeset:   4386:7400a741085f
 branch:      trunk
@@ -628,7 +628,7 @@ changeset:   4340:87c9c47b072c
 branch:      trunk
 user:        bothner
 date:        Thu Dec 18 23:14:16 2008 -0800
-summary:     [svn r4807] Generalize unbox to handle arbitrary FXPrimitiveValue.
+summary:     [svn r4807] Generalize unbox to handle arbitrary VisagePrimitiveValue.
 
 changeset:   4339:6eb66ac67b61
 branch:      trunk
@@ -652,13 +652,13 @@ changeset:   4336:f59fb21d9abe
 branch:      trunk
 user:        bothner
 date:        Thu Dec 18 22:16:27 2008 -0800
-summary:     [svn r4803] Update JFXSequenceRange attribution for double->float change.
+summary:     [svn r4803] Update VisageSequenceRange attribution for double->float change.
 
 changeset:   4335:29bedb2f71d1
 branch:      trunk
 user:        bothner
 date:        Thu Dec 18 22:10:48 2008 -0800
-summary:     [svn r4802] Add LONG_LITERAL, and fix typo in JFXLiteral.getJavaFXKind.
+summary:     [svn r4802] Add LONG_LITERAL, and fix typo in VisageLiteral.getJavaFXKind.
 
 changeset:   4334:de05f622a4f7
 branch:      trunk
@@ -982,7 +982,7 @@ changeset:   4281:ca62c3904b67
 branch:      trunk
 user:        bothner
 date:        Tue Dec 09 21:53:19 2008 -0800
-summary:     [svn r4748] New common abstract super-class FXPrimitiveValue.java for
+summary:     [svn r4748] New common abstract super-class VisagePrimitiveValue.java for
 
 changeset:   4280:ca3fbbae57a7
 branch:      trunk
@@ -1432,13 +1432,13 @@ changeset:   4206:f11c83f9152b
 branch:      trunk
 user:        bothner
 date:        Wed Nov 19 15:50:55 2008 -0800
-summary:     [svn r4663] FXLocal.VarMemberLocation probably needs to be public, because it
+summary:     [svn r4663] VisageLocal.VarMemberLocation probably needs to be public, because it
 
 changeset:   4205:7b7e5f8e48da
 branch:      trunk
 user:        sundararajana
 date:        Wed Nov 19 07:09:26 2008 -0800
-summary:     [svn r4662] Partial fix for JFXC-1186 - JavaFXScriptEngine ASCII-script + JNLP: compilation failed.
+summary:     [svn r4662] Partial fix for JFXC-1186 - VisageScriptEngine ASCII-script + JNLP: compilation failed.
 
 changeset:   4204:7bff13a1dea1
 branch:      trunk
@@ -2362,7 +2362,7 @@ changeset:   4051:f7d159a7ce60
 branch:      trunk
 user:        bothner
 date:        Tue Oct 21 10:49:56 2008 -0700
-summary:     [svn r4468] Improve confusing JavaDoc for FXFunctionType.isVarArgs.
+summary:     [svn r4468] Improve confusing JavaDoc for VisageFunctionType.isVarArgs.
 
 changeset:   4050:a379c088a16d
 branch:      trunk
@@ -2932,7 +2932,7 @@ changeset:   3956:c279b2a1da3f
 branch:      trunk
 user:        michael_heinrichs
 date:        Wed Oct 08 05:28:20 2008 -0700
-summary:     [svn r4350] Fixed bug in FXCompilerTest (ignoreStdError was enabled by default).
+summary:     [svn r4350] Fixed bug in VisageCompilerTest (ignoreStdError was enabled by default).
 
 changeset:   3955:b8e46dfc6f8d
 branch:      trunk
@@ -3202,7 +3202,7 @@ changeset:   3911:2186e5fbb229
 branch:      trunk
 user:        bothner
 date:        Fri Oct 03 12:59:52 2008 -0700
-summary:     [svn r4292] In JFXForExpression, if looped-over expression is an Iterable *without*
+summary:     [svn r4292] In VisageForExpression, if looped-over expression is an Iterable *without*
 
 changeset:   3910:b874bbd5a894
 branch:      trunk
@@ -3316,7 +3316,7 @@ changeset:   3892:95e7152b22b4
 branch:      trunk
 user:        bothner
 date:        Thu Oct 02 15:27:50 2008 -0700
-summary:     [svn r4273] Add new FXObjectValue.getClassType() to mirror Object.getClass().
+summary:     [svn r4273] Add new VisageObjectValue.getClassType() to mirror Object.getClass().
 
 changeset:   3891:5b29f40753f7
 branch:      trunk
@@ -3514,7 +3514,7 @@ changeset:   3859:3bab5ce84a17
 branch:      trunk
 user:        briangoetz
 date:        Tue Sep 30 13:05:45 2008 -0700
-summary:     [svn r4240] JFXC-2100: enable printing of stack traces for binding/trigger exceptions by default.  Changes to error handler; also changes to test framework to suppress exceptions in FXUnit tests, and to allow EXPECTED tests to ignore stderr output (to pretty up the output of 'ant test' so we can spot real failures more easily.)  Also some cleanup in the test framework, generalizing the communicaoni mechanism between FXCompilerTest and FXRunAndCompareWrapper.
+summary:     [svn r4240] JFXC-2100: enable printing of stack traces for binding/trigger exceptions by default.  Changes to error handler; also changes to test framework to suppress exceptions in VisageUnit tests, and to allow EXPECTED tests to ignore stderr output (to pretty up the output of 'ant test' so we can spot real failures more easily.)  Also some cleanup in the test framework, generalizing the communicaoni mechanism between VisageCompilerTest and VisageRunAndCompareWrapper.
 
 changeset:   3858:49b363e91e1c
 branch:      trunk
@@ -3778,7 +3778,7 @@ changeset:   3815:053af2e9dd76
 branch:      trunk
 user:        sgw
 date:        Fri Sep 26 13:21:31 2008 -0700
-summary:     [svn r4195] Add org.visage.runtime.FXExit for handling FXExit across Mobile and Desktop, update Visage.java for this change
+summary:     [svn r4195] Add org.visage.runtime.VisageExit for handling VisageExit across Mobile and Desktop, update Visage.java for this change
 
 changeset:   3814:13976d399a20
 branch:      trunk
@@ -4426,7 +4426,7 @@ changeset:   3707:a3cf8cb988ad
 branch:      trunk
 user:        JimIdle
 date:        Mon Sep 15 14:32:24 2008 -0700
-summary:     [svn r4087] Fixed - JFXX-1994
+summary:     [svn r4087] Fixed - VisageX-1994
 
 changeset:   3706:b27a75589eb6
 branch:      trunk
@@ -4600,13 +4600,13 @@ changeset:   3678:33ed08c7cc19
 branch:      trunk
 user:        kbr
 date:        Sat Sep 13 10:46:21 2008 -0700
-summary:     [svn r4058] Implement hashCode() for FXClassType so they can be keys in HashMaps
+summary:     [svn r4058] Implement hashCode() for VisageClassType so they can be keys in HashMaps
 
 changeset:   3677:7c34c946f2e7
 branch:      trunk
 user:        chrisoliver
 date:        Fri Sep 12 21:15:05 2008 -0700
-summary:     [svn r4057] reverting previous change based on confirmation from Per that FXLocal.Context is intended to be a public interface
+summary:     [svn r4057] reverting previous change based on confirmation from Per that VisageLocal.Context is intended to be a public interface
 
 changeset:   3676:37ca5be9e0ff
 branch:      trunk
@@ -4690,7 +4690,7 @@ changeset:   3663:1cdede90a0d5
 branch:      trunk
 user:        bothner
 date:        Fri Sep 12 00:17:43 2008 -0700
-summary:     [svn r4043] Remove impl_getAbstractVariable from FXVarMemberLocation and
+summary:     [svn r4043] Remove impl_getAbstractVariable from VisageVarMemberLocation and
 
 changeset:   3662:53704b47340f
 branch:      trunk
@@ -5008,7 +5008,7 @@ changeset:   3610:4e37a0f1e39b
 branch:      trunk
 user:        bothner
 date:        Fri Sep 05 17:18:28 2008 -0700
-summary:     [svn r3989] Implement FXLocal.VarMember.isStatic().
+summary:     [svn r3989] Implement VisageLocal.VarMember.isStatic().
 
 changeset:   3609:5a167591dfdc
 branch:      trunk
@@ -5074,7 +5074,7 @@ changeset:   3599:b49f8019747c
 branch:      trunk
 user:        bothner
 date:        Fri Sep 05 08:56:18 2008 -0700
-summary:     [svn r3978] New FXFunctionType.  Use it.  This fixes a bug where minArgs wasn't
+summary:     [svn r3978] New VisageFunctionType.  Use it.  This fixes a bug where minArgs wasn't
 
 changeset:   3598:f4fef357751c
 branch:      trunk
@@ -5446,7 +5446,7 @@ changeset:   3537:a80ec921a680
 branch:      trunk
 user:        rfield
 date:        Wed Aug 27 16:21:00 2008 -0700
-summary:     [svn r3914] Fixed JFXC-1870 : Compiler crash compiling JavaFXPad
+summary:     [svn r3914] Fixed JFXC-1870 : Compiler crash compiling VisagePad
 
 changeset:   3536:5133a80018d1
 branch:      trunk
@@ -5458,7 +5458,7 @@ changeset:   3535:dac8a9f8b234
 branch:      trunk
 user:        rfield
 date:        Wed Aug 27 15:20:30 2008 -0700
-summary:     [svn r3912] Preliminary fix for JFXC-1870 : Compiler crash compiling JavaFXPad
+summary:     [svn r3912] Preliminary fix for JFXC-1870 : Compiler crash compiling VisagePad
 
 changeset:   3534:b42db9cd5efe
 branch:      trunk
@@ -5590,7 +5590,7 @@ changeset:   3513:40fd8097c7c4
 branch:      trunk
 user:        rfield
 date:        Mon Aug 25 22:29:32 2008 -0700
-summary:     [svn r3890] Fixed JFXC-1828 : API crash -- ClassCastException: JFXVarScriptInit cannot be cast to JFXVar
+summary:     [svn r3890] Fixed JFXC-1828 : API crash -- ClassCastException: VisageVarScriptInit cannot be cast to VisageVar
 
 changeset:   3512:8a2effd28cb0
 branch:      trunk
@@ -6262,7 +6262,7 @@ changeset:   3401:f2f8f0b21bd9
 branch:      trunk
 user:        shan_man
 date:        Thu Aug 14 20:51:31 2008 -0700
-summary:     [svn r3777] JavaFXBalls to closed workspace
+summary:     [svn r3777] VisageBalls to closed workspace
 
 changeset:   3400:33c7da70c53e
 branch:      trunk
@@ -6580,13 +6580,13 @@ changeset:   3348:9d17baea3bbc
 branch:      trunk
 user:        bchristi
 date:        Mon Aug 11 11:24:28 2008 -0700
-summary:     [svn r3723] JavaFXBalls: Added ability to set initial Ball Painting via visageballs.vector Setting
+summary:     [svn r3723] VisageBalls: Added ability to set initial Ball Painting via visageballs.vector Setting
 
 changeset:   3347:e141182fb751
 branch:      trunk
 user:        bchristi
 date:        Mon Aug 11 11:03:52 2008 -0700
-summary:     [svn r3722] Fixed JavaFXBalls 2D rendering
+summary:     [svn r3722] Fixed VisageBalls 2D rendering
 
 changeset:   3346:8b8db97c0820
 branch:      trunk
@@ -6886,7 +6886,7 @@ changeset:   3297:52e49905f04f
 branch:      trunk
 user:        davedavedave
 date:        Fri Aug 01 05:14:57 2008 -0700
-summary:     [svn r3671] intellij-plugin: FXSnippets window updated
+summary:     [svn r3671] intellij-plugin: VisageSnippets window updated
 
 changeset:   3296:f6bff74e43d5
 branch:      trunk
@@ -6934,7 +6934,7 @@ changeset:   3289:9da4f04cc405
 branch:      trunk
 user:        bchristi
 date:        Thu Jul 31 11:28:02 2008 -0700
-summary:     [svn r3663] Changed JavaFXBalls to be Timeline-based, using a true 200Hz timer.
+summary:     [svn r3663] Changed VisageBalls to be Timeline-based, using a true 200Hz timer.
 
 changeset:   3288:3522ad3865ef
 branch:      trunk
@@ -7294,7 +7294,7 @@ changeset:   3229:e54e52fc228d
 branch:      trunk
 user:        bchristi
 date:        Tue Jul 29 14:02:11 2008 -0700
-summary:     [svn r3594] Added "Classpath for Compiling Sources" to the Netbeans Run-time libraries for the JavaFXPad, StudioMoto, and Tesla demos.  This ought to fix JFXC-1651.
+summary:     [svn r3594] Added "Classpath for Compiling Sources" to the Netbeans Run-time libraries for the VisagePad, StudioMoto, and Tesla demos.  This ought to fix JFXC-1651.
 
 changeset:   3228:b62f4a9278cc
 branch:      trunk
@@ -8980,7 +8980,7 @@ changeset:   2948:3419425a2924
 branch:      trunk
 user:        freespirit
 date:        Mon Jul 07 21:46:19 2008 -0700
-summary:     [svn r3220] Update IDEA FXSnippets window to not use methods depreciated in IDEA 7.x ...
+summary:     [svn r3220] Update IDEA VisageSnippets window to not use methods depreciated in IDEA 7.x ...
 
 changeset:   2947:98d5f0ebc1c3
 branch:      trunk
@@ -9160,7 +9160,7 @@ changeset:   2918:537ccb09a27c
 branch:      trunk
 user:        tball
 date:        Thu Jul 03 11:04:59 2008 -0700
-summary:     [svn r3182] JFXC-1458: changed JFXIndexof fname to identifier for better tool support, added Tree.Kind.INDEXOF.
+summary:     [svn r3182] JFXC-1458: changed VisageIndexof fname to identifier for better tool support, added Tree.Kind.INDEXOF.
 
 changeset:   2917:5ed41b054de4
 branch:      trunk
@@ -11878,7 +11878,7 @@ changeset:   2465:c998bd91a6c3
 branch:      trunk
 user:        tball
 date:        Thu Apr 24 10:15:04 2008 -0700
-summary:     [svn r2643] JFXC-1119: added visitor support for JavaFXVariableTree
+summary:     [svn r2643] JFXC-1119: added visitor support for VisageVariableTree
 
 changeset:   2464:8c2dc2197138
 branch:      trunk
@@ -11938,7 +11938,7 @@ changeset:   2455:9ce20e04b88a
 branch:      trunk
 user:        tball
 date:        Wed Apr 23 08:33:06 2008 -0700
-summary:     [svn r2630] JFXC-1119: added JavaFXVariableTree support to public visitor API.
+summary:     [svn r2630] JFXC-1119: added VisageVariableTree support to public visitor API.
 
 changeset:   2454:f54165627400
 branch:      trunk
@@ -12244,7 +12244,7 @@ changeset:   2404:22bc6058dabd
 branch:      trunk
 user:        briangoetz
 date:        Tue Apr 15 10:04:12 2008 -0700
-summary:     [svn r2577] Improvements to FXObjectFactory test framework.  Commented-out test cases for JFXC-1067.
+summary:     [svn r2577] Improvements to VisageObjectFactory test framework.  Commented-out test cases for JFXC-1067.
 
 changeset:   2403:d32882b3d66f
 branch:      trunk
@@ -12274,7 +12274,7 @@ changeset:   2399:e3ede4a2e125
 branch:      trunk
 user:        briangoetz
 date:        Mon Apr 14 13:44:06 2008 -0700
-summary:     [svn r2572] Add dynamic-proxy-based framework (FXObjectFactory) for simulating object literal initialization for use in Java-based unit tests.
+summary:     [svn r2572] Add dynamic-proxy-based framework (VisageObjectFactory) for simulating object literal initialization for use in Java-based unit tests.
 
 changeset:   2398:bd4351121546
 branch:      trunk
@@ -12892,7 +12892,7 @@ changeset:   2296:31f825c0cc29
 branch:      trunk
 user:        briangoetz
 date:        Mon Apr 07 16:57:29 2008 -0700
-summary:     [svn r2464] Optimization: more aggressively flatten sequences; based on Chris' observation that CompositeSequence.get() is on the profile for JavaFXBalls.  No longer is.
+summary:     [svn r2464] Optimization: more aggressively flatten sequences; based on Chris' observation that CompositeSequence.get() is on the profile for VisageBalls.  No longer is.
 
 changeset:   2295:2c7711e58902
 branch:      trunk
@@ -12916,7 +12916,7 @@ changeset:   2292:93ba630646a9
 branch:      trunk
 user:        rfield
 date:        Mon Apr 07 14:37:13 2008 -0700
-summary:     [svn r2460] JavaFXPad--
+summary:     [svn r2460] VisagePad--
 
 changeset:   2291:76a02343222f
 branch:      trunk
@@ -13282,7 +13282,7 @@ changeset:   2231:89c45d6bbfb6
 branch:      trunk
 user:        briangoetz
 date:        Fri Apr 04 15:16:48 2008 -0700
-summary:     [svn r2398] Fix for JFXC-825 and partial fix for JFXC-1033; don't creating bindings as initially lazy.  This required turning the BoundXxx{Select,If}Expression classes into factories, to avoid order-of-initialization problems between subclass ctor and superclass ctor.  Thanks to Robert for doing the JavaFXBound work in perfect tag-team timing.
+summary:     [svn r2398] Fix for JFXC-825 and partial fix for JFXC-1033; don't creating bindings as initially lazy.  This required turning the BoundXxx{Select,If}Expression classes into factories, to avoid order-of-initialization problems between subclass ctor and superclass ctor.  Thanks to Robert for doing the VisageBound work in perfect tag-team timing.
 
 changeset:   2230:9e4a659e92c6
 branch:      trunk
@@ -13486,7 +13486,7 @@ changeset:   2197:ce4d82cf8549
 branch:      trunk
 user:        bothner
 date:        Tue Apr 01 17:02:22 2008 -0700
-summary:     [svn r2364] Remove bindStatus field from JFXObjectLiteralPart.  Instead, if the part
+summary:     [svn r2364] Remove bindStatus field from VisageObjectLiteralPart.  Instead, if the part
 
 changeset:   2196:b4d09ef00ecb
 branch:      trunk
@@ -13618,13 +13618,13 @@ changeset:   2175:394305456b3a
 branch:      trunk
 user:        michael_heinrichs
 date:        Mon Mar 31 04:42:42 2008 -0700
-summary:     [svn r2342] Fixed script/JavaFXScriptEngineImpl.invokeMethod (JFXC-1009).
+summary:     [svn r2342] Fixed script/VisageScriptEngineImpl.invokeMethod (JFXC-1009).
 
 changeset:   2174:4972943d90e2
 branch:      trunk
 user:        rfield
 date:        Fri Mar 28 23:57:09 2008 -0700
-summary:     [svn r2340] Fix JFXC-988 : Binding Overhaul: FXPad
+summary:     [svn r2340] Fix JFXC-988 : Binding Overhaul: VisagePad
 
 changeset:   2173:c903212d1794
 branch:      trunk
@@ -13876,7 +13876,7 @@ changeset:   2132:c7accec4b541
 branch:      trunk
 user:        rfield
 date:        Tue Mar 25 22:17:14 2008 -0700
-summary:     [svn r2298] Required for JFXC-978 : Binding Overhaul: make it work with FXPad
+summary:     [svn r2298] Required for JFXC-978 : Binding Overhaul: make it work with VisagePad
 
 changeset:   2131:80d6c9f40010
 branch:      trunk
@@ -13906,7 +13906,7 @@ changeset:   2127:1567569489ae
 branch:      trunk
 user:        rfield
 date:        Tue Mar 25 20:01:48 2008 -0700
-summary:     [svn r2293] Partial JFXC-978 : Binding Overhaul: make it work with FXPad
+summary:     [svn r2293] Partial JFXC-978 : Binding Overhaul: make it work with VisagePad
 
 changeset:   2126:2799a25ecd95
 branch:      trunk
@@ -14722,7 +14722,7 @@ changeset:   1991:a15e99e03ba2
 branch:      trunk
 user:        zhiqun
 date:        Thu Mar 13 14:17:32 2008 -0700
-summary:     [svn r2154] Partical JFXC-822: remove the AST classes for the old style trigger(JFXAbstractOnChange, JFXOnInsertElement, JFXOnReplaceElement, JFXOnDeleteElement, JFXOnDeleteAll)
+summary:     [svn r2154] Partical JFXC-822: remove the AST classes for the old style trigger(VisageAbstractOnChange, VisageOnInsertElement, VisageOnReplaceElement, VisageOnDeleteElement, VisageOnDeleteAll)
 
 changeset:   1990:3d225541786b
 branch:      trunk
@@ -14794,13 +14794,13 @@ changeset:   1979:475c7e8128ca
 branch:      trunk
 user:        alexsch
 date:        Thu Mar 13 02:59:43 2008 -0700
-summary:     [svn r2142] remove JavaFXAssortie project from sanbox
+summary:     [svn r2142] remove VisageAssortie project from sanbox
 
 changeset:   1978:f9ab9ce06c09
 branch:      trunk
 user:        alexsch
 date:        Thu Mar 13 02:52:50 2008 -0700
-summary:     [svn r2141] add JavaFXAssortis demo
+summary:     [svn r2141] add VisageAssortis demo
 
 changeset:   1977:dcca73438041
 branch:      trunk
@@ -14830,7 +14830,7 @@ changeset:   1973:9d264abdaddc
 branch:      trunk
 user:        zhiqun
 date:        Wed Mar 12 17:26:05 2008 -0700
-summary:     [svn r2136] JFXC-822: Remove JFXOnReplace from inheriting from JFXAbstractOnChange so that AST classes for the old style trigger can be removed in the next step
+summary:     [svn r2136] JFXC-822: Remove VisageOnReplace from inheriting from VisageAbstractOnChange so that AST classes for the old style trigger can be removed in the next step
 
 changeset:   1972:18d8bed445a3
 branch:      trunk
@@ -14872,7 +14872,7 @@ changeset:   1966:baaabf7945d8
 branch:      trunk
 user:        jimclarke
 date:        Wed Mar 12 07:11:55 2008 -0700
-summary:     [svn r2129] Starting port for FXPad
+summary:     [svn r2129] Starting port for VisagePad
 
 changeset:   1965:95bec6c1bd95
 branch:      trunk
@@ -14992,7 +14992,7 @@ changeset:   1946:7eff621ff197
 branch:      trunk
 user:        zhiqun
 date:        Mon Mar 10 17:55:30 2008 -0700
-summary:     [svn r2109] JFXC-820: AST creation should reflect only new-style triggers; JFXVar keeps "OnChanges" only transitionally
+summary:     [svn r2109] JFXC-820: AST creation should reflect only new-style triggers; VisageVar keeps "OnChanges" only transitionally
 
 changeset:   1945:54db515652a2
 branch:      trunk
@@ -15220,7 +15220,7 @@ changeset:   1908:0f6d9d607473
 branch:      trunk
 user:        rfield
 date:        Fri Mar 07 09:59:24 2008 -0800
-summary:     [svn r2070] Re-Fix JFXC-862 : Binding Overhaul: mark 'bound' modifier in JFXFunctionDefinition
+summary:     [svn r2070] Re-Fix JFXC-862 : Binding Overhaul: mark 'bound' modifier in VisageFunctionDefinition
 
 changeset:   1907:d18b520144ee
 branch:      trunk
@@ -15304,7 +15304,7 @@ changeset:   1894:917ec3157350
 branch:      trunk
 user:        rfield
 date:        Thu Mar 06 14:21:44 2008 -0800
-summary:     [svn r2056] Fix JFXC-862 : Binding Overhaul: mark 'bound' modifier in JFXFunctionDefinition
+summary:     [svn r2056] Fix JFXC-862 : Binding Overhaul: mark 'bound' modifier in VisageFunctionDefinition
 
 changeset:   1893:16889b2005c4
 branch:      trunk
@@ -15328,7 +15328,7 @@ changeset:   1890:86b8a3909758
 branch:      trunk
 user:        michael_heinrichs
 date:        Thu Mar 06 08:11:53 2008 -0800
-summary:     [svn r2052] Implemented support for setUp and tearDown in FXUnit.
+summary:     [svn r2052] Implemented support for setUp and tearDown in VisageUnit.
 
 changeset:   1889:0a30644c92dd
 branch:      trunk
@@ -15916,7 +15916,7 @@ changeset:   1792:07d47db88a51
 branch:      trunk
 user:        bothner
 date:        Tue Feb 26 16:59:17 2008 -0800
-summary:     [svn r1952] Add JFXOverrideAttribute to ForEachInClauseOwnerFixer.
+summary:     [svn r1952] Add VisageOverrideAttribute to ForEachInClauseOwnerFixer.
 
 changeset:   1791:edc72630ffa9
 branch:      trunk
@@ -16396,7 +16396,7 @@ changeset:   1712:8806bcdbe719
 branch:      trunk
 user:        jimclarke
 date:        Thu Feb 21 18:09:44 2008 -0800
-summary:     [svn r1868] remove import to FXNodeListener Java class
+summary:     [svn r1868] remove import to VisageNodeListener Java class
 
 changeset:   1711:3e362f3798c1
 branch:      trunk
@@ -16726,7 +16726,7 @@ changeset:   1657:19394d6bd717
 branch:      trunk
 user:        alexsch
 date:        Tue Feb 19 06:21:08 2008 -0800
-summary:     [svn r1813] add JavaFXAssortie tutorial project
+summary:     [svn r1813] add VisageAssortie tutorial project
 
 changeset:   1656:afb47cb0946d
 branch:      trunk
@@ -16864,7 +16864,7 @@ changeset:   1634:a2c65504b0f7
 branch:      trunk
 user:        rfield
 date:        Mon Feb 18 10:49:46 2008 -0800
-summary:     [svn r1790] JavaFXDoc part of last change for JFXC-710 : Compiler support for 'override attribute' to enable defaults on superclass attributes
+summary:     [svn r1790] VisageDoc part of last change for JFXC-710 : Compiler support for 'override attribute' to enable defaults on superclass attributes
 
 changeset:   1633:f7e52b8df322
 branch:      trunk
@@ -16888,7 +16888,7 @@ changeset:   1630:dc4cd3271557
 branch:      trunk
 user:        rfield
 date:        Sun Feb 17 23:19:22 2008 -0800
-summary:     [svn r1785] Fix  cannot find symbol  : variable FXTestCase
+summary:     [svn r1785] Fix  cannot find symbol  : variable VisageTestCase
 
 changeset:   1629:9c9029a76a0f
 branch:      trunk
@@ -18460,7 +18460,7 @@ changeset:   1368:37131b70d322
 branch:      trunk
 user:        njs
 date:        Fri Jan 18 17:58:31 2008 -0800
-summary:     [svn r1451] Localized "JavaFXBalls" demo into Japanese, using "##".
+summary:     [svn r1451] Localized "VisageBalls" demo into Japanese, using "##".
 
 changeset:   1367:7239951d5bb0
 branch:      trunk
@@ -18520,7 +18520,7 @@ changeset:   1358:db28d8dc8107
 branch:      trunk
 user:        tball
 date:        Thu Jan 17 23:06:40 2008 -0800
-summary:     [svn r1441] Install applet widget on EDT, verify applet is an FXObject before initializing.
+summary:     [svn r1441] Install applet widget on EDT, verify applet is an VisageObject before initializing.
 
 changeset:   1357:ce99a899376e
 branch:      trunk
@@ -19132,13 +19132,13 @@ changeset:   1256:e67ad42313d3
 branch:      trunk
 user:        tball
 date:        Sun Jan 06 18:52:44 2008 -0800
-summary:     [svn r1327] Applet support:  to use, either subclass visage.ui.Applet or use org.visage.api.ui.FXApplet and set a AppletClass parameter with the class name which has the widget for the applet content.
+summary:     [svn r1327] Applet support:  to use, either subclass visage.ui.Applet or use org.visage.api.ui.VisageApplet and set a AppletClass parameter with the class name which has the widget for the applet content.
 
 changeset:   1255:20bc1118d1f8
 branch:      trunk
 user:        jimclarke
 date:        Sun Jan 06 07:30:14 2008 -0800
-summary:     [svn r1326] remove dependency that bean class had to be assignable from FXObject
+summary:     [svn r1326] remove dependency that bean class had to be assignable from VisageObject
 
 changeset:   1254:7445aac66baf
 branch:      trunk
@@ -19192,7 +19192,7 @@ changeset:   1246:7929f7e81f5a
 branch:      trunk
 user:        briangoetz
 date:        Fri Jan 04 22:29:22 2008 -0800
-summary:     [svn r1317] More FXUnit
+summary:     [svn r1317] More VisageUnit
 
 changeset:   1245:7ac59390b4aa
 branch:      trunk
@@ -19204,7 +19204,7 @@ changeset:   1244:3ea9c59699e6
 branch:      trunk
 user:        chrisoliver
 date:        Fri Jan 04 21:24:13 2008 -0800
-summary:     [svn r1315] fixing breakage to FXPad
+summary:     [svn r1315] fixing breakage to VisagePad
 
 changeset:   1243:3cab9aa4e11f
 branch:      trunk
@@ -19480,7 +19480,7 @@ changeset:   1198:2650e7e094f1
 branch:      trunk
 user:        briangoetz
 date:        Thu Dec 27 10:50:35 2007 -0800
-summary:     [svn r1269] JFXC-42: FXUnit framework.  Allow test cases to extend TestCase; modify test runner to accept @test/fxunit and treat such files as JUnit test cases (reflectively searching for testXxx functions.)
+summary:     [svn r1269] JFXC-42: VisageUnit framework.  Allow test cases to extend TestCase; modify test runner to accept @test/fxunit and treat such files as JUnit test cases (reflectively searching for testXxx functions.)
 
 changeset:   1197:0d07fcb4b885
 branch:      trunk
@@ -19570,7 +19570,7 @@ changeset:   1183:cce48e7e2a24
 branch:      trunk
 user:        jimclarke
 date:        Sun Dec 23 13:09:51 2007 -0800
-summary:     [svn r1253] Added check for changed properties, added checks to see if it is running before calling start, added FXTimingTarget as option to both constructors of FXAnimation
+summary:     [svn r1253] Added check for changed properties, added checks to see if it is running before calling start, added VisageTimingTarget as option to both constructors of VisageAnimation
 
 changeset:   1182:41e79915e2c7
 branch:      trunk
@@ -19948,7 +19948,7 @@ changeset:   1120:7c83fe7084dc
 branch:      trunk
 user:        bothner
 date:        Mon Dec 17 17:35:29 2007 -0800
-summary:     [svn r1185] Do resolve constructor for JFXInstanciate, if ! isJFXClass.
+summary:     [svn r1185] Do resolve constructor for VisageInstanciate, if ! isJFXClass.
 
 changeset:   1119:f51c47bfb703
 branch:      trunk
@@ -20344,7 +20344,7 @@ changeset:   1054:012006b368d1
 branch:      trunk
 user:        jimclarke
 date:        Sat Dec 08 09:19:36 2007 -0800
-summary:     [svn r1119] Change attribute from visage to Visage to match FXMouseListener
+summary:     [svn r1119] Change attribute from visage to Visage to match VisageMouseListener
 
 changeset:   1053:bc084b55e0e0
 branch:      trunk
@@ -20548,7 +20548,7 @@ changeset:   1020:b97ea6ef877e
 branch:      trunk
 user:        lubomirlitchev
 date:        Wed Dec 05 23:11:13 2007 -0800
-summary:     [svn r1083] Added the code from Per's patch to avoind an NPE while attributing JFXInstanciate AST. Fixed a bug where the args member of JFXInstanciate AST is not visited while access to outer members is added.
+summary:     [svn r1083] Added the code from Per's patch to avoind an NPE while attributing VisageInstanciate AST. Fixed a bug where the args member of VisageInstanciate AST is not visited while access to outer members is added.
 
 changeset:   1019:7aca1f0bb157
 branch:      trunk
@@ -21742,7 +21742,7 @@ changeset:   821:83716dcffd40
 branch:      trunk
 user:        tball
 date:        Sat Nov 24 20:47:34 2007 -0800
-summary:     [svn r882] JavaFXBalls demo, aka BubbleMark.  Doesn't build yet, due to JFXC-298.
+summary:     [svn r882] VisageBalls demo, aka BubbleMark.  Doesn't build yet, due to JFXC-298.
 
 changeset:   820:e269b41b45e6
 branch:      trunk
@@ -22198,7 +22198,7 @@ changeset:   745:8388f97b39e0
 branch:      trunk
 user:        jimclarke
 date:        Sun Nov 18 08:20:33 2007 -0800
-summary:     [svn r806] Initial port from interpreter, changed class from F3NodeListener to FXNodeListener.java
+summary:     [svn r806] Initial port from interpreter, changed class from F3NodeListener to VisageNodeListener.java
 
 changeset:   744:79794cfc8d19
 branch:      trunk
@@ -22528,7 +22528,7 @@ changeset:   690:0c3d534c4a9f
 branch:      trunk
 user:        briangoetz
 date:        Wed Nov 14 19:17:05 2007 -0800
-summary:     [svn r751] Add partial assertUOE to JavaFXTestCase to allow for better testing of things that are supposed to throw UOE; not complete.
+summary:     [svn r751] Add partial assertUOE to VisageTestCase to allow for better testing of things that are supposed to throw UOE; not complete.
 
 changeset:   689:d5d1ed8bad2d
 branch:      trunk
@@ -22636,13 +22636,13 @@ changeset:   672:32daedac8f1e
 branch:      trunk
 user:        bstickney_cn
 date:        Wed Nov 14 11:21:02 2007 -0800
-summary:     [svn r733] moved JavafxLint.java to JavaFXLint.java
+summary:     [svn r733] moved JavafxLint.java to VisageLint.java
 
 changeset:   671:b19919fbe3d6
 branch:      trunk
 user:        bstickney_cn
 date:        Wed Nov 14 11:19:45 2007 -0800
-summary:     [svn r732] removed JavaFXLint.java
+summary:     [svn r732] removed VisageLint.java
 
 changeset:   670:cb7a452785dd
 branch:      trunk
@@ -23086,7 +23086,7 @@ changeset:   597:6a5497e5f9c2
 branch:      trunk
 user:        lubomirlitchev
 date:        Wed Nov 07 12:06:33 2007 -0800
-summary:     [svn r658] Fixed attribution issues with the synthetic newValue variable on the JFXAbstractOnChange AST -- fixes needed by JFXC-175 and JFXC-180.
+summary:     [svn r658] Fixed attribution issues with the synthetic newValue variable on the VisageAbstractOnChange AST -- fixes needed by JFXC-175 and JFXC-180.
 
 changeset:   596:ed63bab16e6e
 branch:      trunk
@@ -23488,7 +23488,7 @@ changeset:   530:5569e53b831d
 branch:      trunk
 user:        bothner
 date:        Sun Oct 28 13:02:37 2007 -0700
-summary:     [svn r591] Do nothing (i.e. don't recurse) for JFXOperationValue.
+summary:     [svn r591] Do nothing (i.e. don't recurse) for VisageOperationValue.
 
 changeset:   529:d3688cf25e2e
 branch:      trunk
@@ -23590,7 +23590,7 @@ changeset:   513:a56c79259a48
 branch:      trunk
 user:        lubomirlitchev
 date:        Fri Oct 26 08:35:46 2007 -0700
-summary:     [svn r574] Fixed JFXC-150. It looks the problem was introduced when elemType was added to the ovldValue on the JFXOnChange AST. In case the attribute/variable is not a sequence the elemType is null and it should not be assigned to the JFXVar typs for the OldValue. In such cases the type of the attribute/var should be used instead.
+summary:     [svn r574] Fixed JFXC-150. It looks the problem was introduced when elemType was added to the ovldValue on the VisageOnChange AST. In case the attribute/variable is not a sequence the elemType is null and it should not be assigned to the VisageVar typs for the OldValue. In such cases the type of the attribute/var should be used instead.
 
 changeset:   512:ada535ba3665
 branch:      trunk
@@ -23704,7 +23704,7 @@ changeset:   494:e59e4d353ca8
 branch:      trunk
 user:        lubomirlitchev
 date:        Wed Oct 24 09:54:10 2007 -0700
-summary:     [svn r554] Replaced all references, except newInstance to Visage classes to corresponding JFXClass$Intf interfaces. Enable a commented out test.
+summary:     [svn r554] Replaced all references, except newInstance to Visage classes to corresponding VisageClass$Intf interfaces. Enable a commented out test.
 
 changeset:   493:92600b98d6bb
 branch:      trunk
@@ -23914,7 +23914,7 @@ changeset:   459:418e86b893fb
 branch:      trunk
 user:        bothner
 date:        Fri Oct 19 22:31:19 2007 -0700
-summary:     [svn r519] Add link from JFXOperationValue to dummy JFXOperationDefinition.
+summary:     [svn r519] Add link from VisageOperationValue to dummy VisageOperationDefinition.
 
 changeset:   458:80da7a7f519c
 branch:      trunk
@@ -23956,7 +23956,7 @@ changeset:   452:37d658da278c
 branch:      trunk
 user:        bothner
 date:        Thu Oct 18 20:56:13 2007 -0700
-summary:     [svn r512] For JFXVar, do attribType in JavafxAttr, not JavafxMemberEnter.
+summary:     [svn r512] For VisageVar, do attribType in JavafxAttr, not JavafxMemberEnter.
 
 changeset:   451:a2e4b052221e
 branch:      trunk
@@ -24358,7 +24358,7 @@ changeset:   385:e228257a6a7e
 branch:      trunk
 user:        briangoetz
 date:        Thu Oct 11 15:07:56 2007 -0700
-summary:     [svn r444] Move FXUnit stuff back into main project
+summary:     [svn r444] Move VisageUnit stuff back into main project
 
 changeset:   384:8c6403a72e32
 branch:      trunk
@@ -24436,7 +24436,7 @@ changeset:   372:88f6aa1f51ed
 branch:      trunk
 user:        briangoetz
 date:        Wed Oct 10 10:01:36 2007 -0700
-summary:     [svn r431] Partial implementation of JFXC-42 - FXUnit framework.
+summary:     [svn r431] Partial implementation of JFXC-42 - VisageUnit framework.
 
 changeset:   371:52fbc3765158
 branch:      trunk
@@ -24604,13 +24604,13 @@ changeset:   344:9838a63d6c7e
 branch:      trunk
 user:        bothner
 date:        Fri Oct 05 12:23:29 2007 -0700
-summary:     [svn r403] Factor out pretty-printing of JFXOperationValue and JFXOperationDefinition
+summary:     [svn r403] Factor out pretty-printing of VisageOperationValue and VisageOperationDefinition
 
 changeset:   343:b96111a6e46a
 branch:      trunk
 user:        lubomirlitchev
 date:        Fri Oct 05 11:41:13 2007 -0700
-summary:     [svn r402] More MI implementation -- first cut of infrastruture to support inspecting FXObject interface extendors and building attribute/method lists from them.
+summary:     [svn r402] More MI implementation -- first cut of infrastruture to support inspecting VisageObject interface extendors and building attribute/method lists from them.
 
 changeset:   342:2eed8c840371
 branch:      trunk
@@ -24904,7 +24904,7 @@ changeset:   294:f0c21c3364bc
 branch:      trunk
 user:        bothner
 date:        Sat Sep 29 14:31:56 2007 -0700
-summary:     [svn r353] JFXOperationValue: New expression class for anonymous functions.
+summary:     [svn r353] VisageOperationValue: New expression class for anonymous functions.
 
 changeset:   293:7211ec40870c
 branch:      trunk
@@ -25042,7 +25042,7 @@ changeset:   271:ed9d7322862e
 branch:      trunk
 user:        rfield
 date:        Wed Sep 26 14:23:12 2007 -0700
-summary:     [svn r330] Unification and simplification of JFXType processing.
+summary:     [svn r330] Unification and simplification of VisageType processing.
 
 changeset:   270:8fdd8b70b56c
 branch:      trunk
@@ -25072,7 +25072,7 @@ changeset:   266:385443252806
 branch:      trunk
 user:        briangoetz
 date:        Tue Sep 25 15:44:43 2007 -0700
-summary:     [svn r325] Add FXObject; roll back Lubo's stack overflow code.
+summary:     [svn r325] Add VisageObject; roll back Lubo's stack overflow code.
 
 changeset:   265:884529f6cced
 branch:      trunk
@@ -26134,7 +26134,7 @@ changeset:   89:65c6b4f1fb67
 branch:      trunk
 user:        briangoetz
 date:        Wed Aug 15 15:52:22 2007 -0700
-summary:     [svn r106] Extend FXCompilerTest framework to actually RUN the tests, writing out contents of standard out and standard error to test/build/.../testName.visage.{ERROR,OUTPUT}, and failing if anything is written to std err.
+summary:     [svn r106] Extend VisageCompilerTest framework to actually RUN the tests, writing out contents of standard out and standard error to test/build/.../testName.visage.{ERROR,OUTPUT}, and failing if anything is written to std err.
 
 changeset:   88:ef1ad57f21b2
 branch:      trunk
@@ -26152,7 +26152,7 @@ changeset:   86:65de2ce6a817
 branch:      trunk
 user:        briangoetz
 date:        Wed Aug 15 14:02:28 2007 -0700
-summary:     [svn r103] Modify FXCompilerTest framework to mimic directory structure of test source, so that files in test/milestones/M3 are built in build/test/milestones/M3, to facilitate isolation of test cases from each other.
+summary:     [svn r103] Modify VisageCompilerTest framework to mimic directory structure of test source, so that files in test/milestones/M3 are built in build/test/milestones/M3, to facilitate isolation of test cases from each other.
 
 changeset:   85:cf7916ec5e91
 branch:      trunk
@@ -26386,7 +26386,7 @@ changeset:   47:539ddb5b7d0e
 branch:      trunk
 user:        bothner
 date:        Wed Aug 01 14:24:30 2007 -0700
-summary:     [svn r61] Add new JFXBlockExpression subclass of JCExpression.
+summary:     [svn r61] Add new VisageBlockExpression subclass of JCExpression.
 
 changeset:   46:78d07ab0a348
 branch:      trunk

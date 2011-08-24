@@ -28,29 +28,29 @@ import org.visage.api.tree.*;
 
 import com.sun.tools.mjavac.code.Type;
 
-public abstract class JFXExpression extends JFXTree implements ExpressionTree, JFXBoundMarkable {
+public abstract class VisageExpression extends VisageTree implements ExpressionTree, VisageBoundMarkable {
     
     private JavafxBindStatus bindStatus;
 
     /** Initialize tree.
      */
-    protected JFXExpression() {
+    protected VisageExpression() {
         this.bindStatus = JavafxBindStatus.UNBOUND;
     }
 
-    protected JFXExpression(JavafxBindStatus bindStatus) {
+    protected VisageExpression(JavafxBindStatus bindStatus) {
         this.bindStatus = bindStatus == null ? JavafxBindStatus.UNBOUND : bindStatus;
     }
 
 
     @Override
-    public JFXExpression setType(Type type) {
+    public VisageExpression setType(Type type) {
         super.setType(type);
         return this;
     }
 
     @Override
-    public JFXExpression setPos(int pos) {
+    public VisageExpression setPos(int pos) {
         super.setPos(pos);
         return this;
     }

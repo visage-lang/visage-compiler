@@ -24,17 +24,17 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * An import clause.
  * @param qualid    The imported class(es).
  */
-public class JFXImport extends JFXTree implements ImportTree {
+public class VisageImport extends VisageTree implements ImportTree {
 
-    public JFXExpression qualid;
+    public VisageExpression qualid;
 
-    protected JFXImport(JFXExpression qualid) {
+    protected VisageImport(VisageExpression qualid) {
         this.qualid = qualid;
     }
 
@@ -43,16 +43,16 @@ public class JFXImport extends JFXTree implements ImportTree {
         v.visitImport(this);
     }
 
-    public JFXExpression getQualifiedIdentifier() {
+    public VisageExpression getQualifiedIdentifier() {
         return qualid;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.IMPORT;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.IMPORT;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitImport(this, d);
     }
 

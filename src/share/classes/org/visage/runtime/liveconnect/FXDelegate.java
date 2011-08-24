@@ -28,8 +28,8 @@ import java.util.*;
 import com.sun.java.browser.plugin2.liveconnect.v1.*;
 import visage.reflect.*;
 
-public class FXDelegate implements InvocationDelegate {
-    public FXDelegate(Bridge bridge, String scriptClassName) {
+public class VisageDelegate implements InvocationDelegate {
+    public VisageDelegate(Bridge bridge, String scriptClassName) {
         this.bridge = bridge;
         this.scriptClassName = scriptClassName;
     }
@@ -134,7 +134,7 @@ public class FXDelegate implements InvocationDelegate {
         }
 
         try {
-            FXClassType clazz = context.findClass(name);
+            VisageClassType clazz = context.findClass(name);
             if (clazz != null && clazz.isJfxType()) {
                 return clazz;
             }
@@ -158,36 +158,36 @@ public class FXDelegate implements InvocationDelegate {
 
     private Bridge bridge;
     private String scriptClassName;
-    private FXLocal.Context context = FXLocal.getContext();
-    private Map<FXClassType, FXClassDelegate> classDelegates =
-        new HashMap<FXClassType, FXClassDelegate>();
+    private VisageLocal.Context context = VisageLocal.getContext();
+    private Map<VisageClassType, VisageClassDelegate> classDelegates =
+        new HashMap<VisageClassType, VisageClassDelegate>();
     private Set<String> notFXClasses = new HashSet<String>();
     // We only need a singleton sequence delegate
-    private FXSequenceDelegate sequenceDelegate;
+    private VisageSequenceDelegate sequenceDelegate;
 
     private synchronized InvocationDelegate getDelegate(Object[] box, boolean isStatic, boolean objectIsApplet) {
         Object obj = box[0];
-        if ((obj instanceof FXClassType) ||
-            (obj instanceof FXObjectValue)) {
+        if ((obj instanceof VisageClassType) ||
+            (obj instanceof VisageObjectValue)) {
             if (isStatic) {
-                return getClassDelegate((FXClassType) obj);
+                return getClassDelegate((VisageClassType) obj);
             } else {
-                FXObjectValue fxObj = (FXObjectValue) obj;
+                VisageObjectValue fxObj = (VisageObjectValue) obj;
                 return getClassDelegate(fxObj.getClassType());
             }
-        } else if (obj instanceof FXSequenceValue) {
+        } else if (obj instanceof VisageSequenceValue) {
             if (sequenceDelegate == null) {
-                sequenceDelegate = new FXSequenceDelegate(bridge);
+                sequenceDelegate = new VisageSequenceDelegate(bridge);
             }
             return sequenceDelegate;
         } else if (objectIsApplet) {
-            // The incoming applet object comes in as a non-FXObjectValue
+            // The incoming applet object comes in as a non-VisageObjectValue
             // but needs to be identified as such; we could do this check
             // for other values as well but we prefer not to due to the cost
-            FXObjectValue fxObj = context.mirrorOf(obj);
-            FXClassType fxClass = fxObj.getClassType();
+            VisageObjectValue fxObj = context.mirrorOf(obj);
+            VisageClassType fxClass = fxObj.getClassType();
             if (fxClass.isJfxType()) {
-                // Upgrade the receiver to an FXObjectValue
+                // Upgrade the receiver to an VisageObjectValue
                 box[0] = fxObj;
                 return getClassDelegate(fxClass);
             }
@@ -196,17 +196,17 @@ public class FXDelegate implements InvocationDelegate {
         return null;
     }
 
-    private InvocationDelegate getClassDelegate(FXClassType fxClass) {
-        FXClassDelegate delegate = classDelegates.get(fxClass);
+    private InvocationDelegate getClassDelegate(VisageClassType fxClass) {
+        VisageClassDelegate delegate = classDelegates.get(fxClass);
         if (delegate == null) {
-            delegate = new FXClassDelegate(fxClass, bridge);
+            delegate = new VisageClassDelegate(fxClass, bridge);
             classDelegates.put(fxClass, delegate);
         }
         return delegate;
     }
 
-    private FXClassType scriptClass;
-    private FXClassType getScriptClass(String className) {
+    private VisageClassType scriptClass;
+    private VisageClassType getScriptClass(String className) {
         if (scriptClass == null) {
             scriptClass = context.findClass(className);
         }

@@ -56,7 +56,7 @@ public class FieldDocImpl extends MemberDocImpl implements FieldDoc {
      * Constructor.
      */
     public FieldDocImpl(DocEnv env, VarSymbol sym,
-                        String rawDocs, JFXVar tree, Position.LineMap lineMap) {
+                        String rawDocs, VisageVar tree, Position.LineMap lineMap) {
         super(env, sym, rawDocs, tree, lineMap);
         this.sym = sym;
     }

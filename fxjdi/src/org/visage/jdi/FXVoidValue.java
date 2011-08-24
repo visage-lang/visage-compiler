@@ -11,8 +11,8 @@ import com.sun.jdi.VoidValue;
  *
  * @author sundar
  */
-public class FXVoidValue extends FXValue implements VoidValue {
-    public FXVoidValue(FXVirtualMachine fxvm, VoidValue underlying) {
+public class VisageVoidValue extends VisageValue implements VoidValue {
+    public VisageVoidValue(VisageVirtualMachine fxvm, VoidValue underlying) {
         super(fxvm, underlying);
     }
     

@@ -24,19 +24,19 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * Any Type
  *
  * @author Robert Field
  */
-public class JFXTypeAny extends JFXType implements TypeAnyTree {
+public class VisageTypeAny extends VisageType implements TypeAnyTree {
     
     /*
      * @param cardinality one of the cardinality constants
      */
-    protected JFXTypeAny(Cardinality cardinality) {
+    protected VisageTypeAny(Cardinality cardinality) {
         super(cardinality);
     }
     public void accept(JavafxVisitor v) { v.visitTypeAny(this); }
@@ -47,12 +47,12 @@ public class JFXTypeAny extends JFXType implements TypeAnyTree {
     }
 
     //@Override
-    public <R,D> R accept(JavaFXTreeVisitor<R,D> v, D d) {
+    public <R,D> R accept(VisageTreeVisitor<R,D> v, D d) {
         return v.visitTypeAny(this, d);
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return Tree.JavaFXKind.TYPE_ANY;
+    public VisageKind getJavaFXKind() {
+        return Tree.VisageKind.TYPE_ANY;
     }
 }

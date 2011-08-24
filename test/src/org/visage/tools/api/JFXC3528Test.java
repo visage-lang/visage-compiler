@@ -24,7 +24,7 @@
 package org.visage.tools.api;
 
 import org.visage.api.JavafxcTask;
-import org.visage.api.tree.JavaFXTreeScanner;
+import org.visage.api.tree.VisageTreeScanner;
 import org.visage.api.tree.ParenthesizedTree;
 import org.visage.api.tree.UnitTree;
 
@@ -69,7 +69,7 @@ public class JFXC3528Test {
         }
     }
 
-    static class ParensFinder extends JavaFXTreeScanner<Void,Object> {
+    static class ParensFinder extends VisageTreeScanner<Void,Object> {
 
         boolean foundParens = false;
 

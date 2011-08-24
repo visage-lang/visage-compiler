@@ -25,7 +25,7 @@
 
 package org.visage.tools.debug.tty;
 
-import org.visage.jdi.FXBootstrap;
+import org.visage.jdi.VisageBootstrap;
 import com.sun.jdi.*;
 import com.sun.jdi.event.*;
 import com.sun.jdi.request.*;
@@ -425,7 +425,7 @@ public class TTY implements EventNotifier {
                         } else if (cmd.equals("class")) {
                             evaluator.commandClass(t);
                         } else if (cmd.equals("connectors")) {
-                            evaluator.commandConnectors(FXBootstrap.virtualMachineManager());
+                            evaluator.commandConnectors(VisageBootstrap.virtualMachineManager());
                         } else if (cmd.equals("methods")) {
                             evaluator.commandMethods(t);
                         } else if (cmd.equals("fields")) {
@@ -539,7 +539,7 @@ public class TTY implements EventNotifier {
                             help();
                         } else if (cmd.equals("version")) {
                             evaluator.commandVersion(progname,
-                                                     FXBootstrap.virtualMachineManager());
+                                                     VisageBootstrap.virtualMachineManager());
                         } else if (cmd.equals("quit") || cmd.equals("exit")) {
                             if (handler != null) {
                                 handler.shutdown();
@@ -778,7 +778,7 @@ public class TTY implements EventNotifier {
 
     private static boolean supportsSharedMemory() {
         for (Connector connector :
-                 FXBootstrap.virtualMachineManager().allConnectors()) {
+                 VisageBootstrap.virtualMachineManager().allConnectors()) {
             if (connector.transport() == null) {
                 continue;
             }
@@ -915,11 +915,11 @@ public class TTY implements EventNotifier {
                  * specification string based on this decision.
                  */
                 if (supportsSharedMemory()) {
-                    connectSpec = "org.visage.jdi.connect.FXSharedMemoryAttachingConnector:name=" +
+                    connectSpec = "org.visage.jdi.connect.VisageSharedMemoryAttachingConnector:name=" +
                                    address;
                 } else {
                     String suboptions = addressToSocketArgs(address);
-                    connectSpec = "org.visage.jdi.connect.FXSocketAttachingConnector:" + suboptions;
+                    connectSpec = "org.visage.jdi.connect.VisageSocketAttachingConnector:" + suboptions;
                 }
             } else if (token.equals("-listen") || token.equals("-listenany")) {
                 if (connectSpec != null) {
@@ -942,12 +942,12 @@ public class TTY implements EventNotifier {
                  * specification string based on this decision.
                  */
                 if (supportsSharedMemory()) {
-                    connectSpec = "org.visage.jdi.connect.FXSharedMemoryListeningConnector:";
+                    connectSpec = "org.visage.jdi.connect.VisageSharedMemoryListeningConnector:";
                     if (address != null) {
                         connectSpec += ("name=" + address);
                     }
                 } else {
-                    connectSpec = "org.visage.jdi.connect.FXSocketListeningConnector:";
+                    connectSpec = "org.visage.jdi.connect.VisageSocketListeningConnector:";
                     if (address != null) {
                         connectSpec += addressToSocketArgs(address);
                     }
@@ -956,7 +956,7 @@ public class TTY implements EventNotifier {
                 launchImmediately = true;
             } else if (token.equals("-listconnectors")) {
                 Commands evaluator = new Commands(env);
-                evaluator.commandConnectors(FXBootstrap.virtualMachineManager());
+                evaluator.commandConnectors(VisageBootstrap.virtualMachineManager());
                 return;
             } else if (token.equals("-connect")) {
                 /*
@@ -979,7 +979,7 @@ public class TTY implements EventNotifier {
             } else if (token.equals("-version")) {
                 Commands evaluator = new Commands(env);
                 evaluator.commandVersion(progname,
-                                         FXBootstrap.virtualMachineManager());
+                                         VisageBootstrap.virtualMachineManager());
                 System.exit(0);
             } else if (token.startsWith("-")) {
                 usageError(env, "invalid option", token);
@@ -1016,7 +1016,7 @@ public class TTY implements EventNotifier {
          * jdb -connect 'com.sun.jdi.CommandLineLaunch:main=hello "a," b' arg1 = a, arg2 = b
          */
         if (connectSpec == null) {
-            connectSpec = "org.visage.jdi.connect.FXLaunchingConnector:";
+            connectSpec = "org.visage.jdi.connect.VisageLaunchingConnector:";
         } else if (!connectSpec.endsWith(",") && !connectSpec.endsWith(":")) {
             connectSpec += ","; // (Bug ID 4285874)
         }
@@ -1025,7 +1025,7 @@ public class TTY implements EventNotifier {
         javaArgs = javaArgs.trim();
 
         if (cmdLine.length() > 0) {
-            if (!connectSpec.startsWith("org.visage.jdi.connect.FXLaunchingConnector:") &&
+            if (!connectSpec.startsWith("org.visage.jdi.connect.VisageLaunchingConnector:") &&
                 !connectSpec.startsWith("com.sun.jdi.CommandLineLaunch:")) {
                 usageError(env, "Cannot specify command line with connector:",
                            connectSpec);
@@ -1035,7 +1035,7 @@ public class TTY implements EventNotifier {
         }
 
         if (javaArgs.length() > 0) {
-            if (!connectSpec.startsWith("org.visage.jdi.connect.FXLaunchingConnector:") &&
+            if (!connectSpec.startsWith("org.visage.jdi.connect.VisageLaunchingConnector:") &&
                 !connectSpec.startsWith("com.sun.jdi.CommandLineLaunch:")) {
                 usageError(env, "Cannot specify target vm arguments with connector:",
                            connectSpec);

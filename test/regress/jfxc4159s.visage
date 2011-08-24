@@ -3,12 +3,12 @@
  * @run
  */
 
-import visage.reflect.FXLocal;
-import visage.reflect.FXVarMember;
-import visage.reflect.FXValue;
-import visage.reflect.FXSequenceType;
+import visage.reflect.VisageLocal;
+import visage.reflect.VisageVarMember;
+import visage.reflect.VisageValue;
+import visage.reflect.VisageSequenceType;
 
-def cntxt = FXLocal.getContext();
+def cntxt = VisageLocal.getContext();
 var counter : Integer = 0;
 
 
@@ -58,13 +58,13 @@ public function run() {
     obj.initVar(v, buildSequence(v,a1));  // It should do the same.
     obj.initialize();
 
-    def a3 = (obj as FXLocal.Value).asObject();
+    def a3 = (obj as VisageLocal.Value).asObject();
 
     println("a1.parent is {a1.parent}");
 }
 
-function buildSequence(v:FXVarMember, o:Object):FXValue {
-   def elementType = (v.getType() as FXSequenceType).getComponentType();
+function buildSequence(v:VisageVarMember, o:Object):VisageValue {
+   def elementType = (v.getType() as VisageSequenceType).getComponentType();
    def builder = cntxt.makeSequenceBuilder(elementType);
    println( "insert sequence .. {o} ");
    builder.append(cntxt.mirrorOf(o));

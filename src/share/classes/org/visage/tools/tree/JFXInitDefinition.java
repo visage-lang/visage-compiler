@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 
@@ -32,15 +32,15 @@ import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
  *
  * @author Robert Field
  */
-public class JFXInitDefinition extends JFXTree implements InitDefinitionTree{
-    public JFXBlock body;
+public class VisageInitDefinition extends VisageTree implements InitDefinitionTree{
+    public VisageBlock body;
     public MethodSymbol sym;
 
-    protected JFXInitDefinition(JFXBlock body) {
+    protected VisageInitDefinition(VisageBlock body) {
         this.body = body;
     }
     
-    public JFXBlock getBody() {
+    public VisageBlock getBody() {
         return body;
     }
 
@@ -54,11 +54,11 @@ public class JFXInitDefinition extends JFXTree implements InitDefinitionTree{
         return JavafxTag.INIT_DEF;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.INIT_DEFINITION;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.INIT_DEFINITION;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitInitDefinition(this, data);
     }
 }

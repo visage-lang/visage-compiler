@@ -30,8 +30,8 @@ package visage.reflect;
  * @profile desktop
  */
 
-public abstract class FXType {
-    FXType() {
+public abstract class VisageType {
+    VisageType() {
     }
 
     /** Return name of type, or null ofr an unnamed type. */
@@ -50,9 +50,9 @@ public abstract class FXType {
         return sb.toString();
     }
 
-    /** Get a {@code FXSequenceType} using this as the item type. */
-    public FXSequenceType getSequenceType() {
-        return new FXSequenceType(this);
+    /** Get a {@code VisageSequenceType} using this as the item type. */
+    public VisageSequenceType getSequenceType() {
+        return new VisageSequenceType(this);
     }
     
     public boolean isJfxType() {
@@ -64,16 +64,16 @@ public abstract class FXType {
      * @param val values to coerce/convert
      * @return convert, or null if cannot be coerced
      */
-    public FXValue coerceOrNull (FXValue val) {
+    public VisageValue coerceOrNull (VisageValue val) {
         return val; // FIXME
     }
 
-    /** For now too conservative - if not comparing FXClassType types,
+    /** For now too conservative - if not comparing VisageClassType types,
      * uses equals.
      */
-    public boolean isAssignableFrom(FXType cls) {
-        if (this instanceof FXClassType && cls instanceof FXClassType)
-            return ((FXClassType) this).isAssignableFrom((FXClassType) cls);
+    public boolean isAssignableFrom(VisageType cls) {
+        if (this instanceof VisageClassType && cls instanceof VisageClassType)
+            return ((VisageClassType) this).isAssignableFrom((VisageClassType) cls);
         // FIXME
         return equals(cls);
     }

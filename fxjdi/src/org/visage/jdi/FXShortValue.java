@@ -29,8 +29,8 @@ import com.sun.jdi.ShortValue;
  *
  * @author sundar
  */
-public class FXShortValue extends FXPrimitiveValue implements ShortValue {
-    public FXShortValue(FXVirtualMachine fxvm, ShortValue underlying) {
+public class VisageShortValue extends VisagePrimitiveValue implements ShortValue {
+    public VisageShortValue(VisageVirtualMachine fxvm, ShortValue underlying) {
         super(fxvm, underlying);
     }
 
@@ -39,7 +39,7 @@ public class FXShortValue extends FXPrimitiveValue implements ShortValue {
     }
 
     public int compareTo(ShortValue o) {
-        return underlying().compareTo((ShortValue)FXWrapper.unwrap(o));
+        return underlying().compareTo((ShortValue)VisageWrapper.unwrap(o));
     }
 
     @Override

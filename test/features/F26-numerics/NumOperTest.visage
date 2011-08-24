@@ -5,9 +5,9 @@
  * @
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
  
-public class NumOperTest extends FXTestCase {
+public class NumOperTest extends VisageTestCase {
 
     var vByte : Byte = 120 as Byte ;
     var vShort : Short = 30000 as Short ;

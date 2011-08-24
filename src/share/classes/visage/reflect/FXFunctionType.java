@@ -29,16 +29,16 @@ package visage.reflect;
  * @profile desktop
  */
 
-public class FXFunctionType extends FXType {
+public class VisageFunctionType extends VisageType {
     protected int minArgs;
-    protected FXType[] argTypes;
+    protected VisageType[] argTypes;
     protected boolean varArgs;
-    protected FXType returnType;
+    protected VisageType returnType;
 
-    FXFunctionType() {
+    VisageFunctionType() {
     }
 
-    FXFunctionType(FXType[] argTypes, FXType returnType) {
+    VisageFunctionType(VisageType[] argTypes, VisageType returnType) {
         this.argTypes = argTypes;
         minArgs = argTypes.length;
         this.returnType = returnType;
@@ -55,12 +55,12 @@ public class FXFunctionType extends FXType {
      */
     public boolean isVarArgs() { return varArgs; }
 
-    public FXType getArgumentType(int i) {
+    public VisageType getArgumentType(int i) {
         return argTypes[varArgs && i >= minArgs ? minArgs : i]; }
 
-    public FXType getReturnType() { return returnType; }
+    public VisageType getReturnType() { return returnType; }
 
-    public boolean equals(FXFunctionType ftype) {
+    public boolean equals(VisageFunctionType ftype) {
         if (minArgs != ftype.minArgs || varArgs != ftype.varArgs
               || ! returnType.equals(ftype.returnType))
             return false;

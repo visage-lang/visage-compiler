@@ -30,39 +30,39 @@ package visage.reflect;
  * @author Per Bothner
  * @profile desktop
  */
-public abstract class FXVarMember implements FXMember {
-    protected FXVarMember() {
+public abstract class VisageVarMember implements VisageMember {
+    protected VisageVarMember() {
     }
 
-    public abstract FXType getType();
+    public abstract VisageType getType();
 
     /** Get the offset of the attribute. */
     public abstract int getOffset();
 
     /** Get the value of the attribute in a specified object. */
-    public abstract FXValue getValue(FXObjectValue obj);
+    public abstract VisageValue getValue(VisageObjectValue obj);
 
     /** Set the value of the attribute in a specified object. */
-    public abstract void setValue(FXObjectValue obj, FXValue newValue);
+    public abstract void setValue(VisageObjectValue obj, VisageValue newValue);
 
     /** Get a handle for the attribute in a specific object. */
-    public FXLocation getLocation(FXObjectValue obj) {
-        return new FXVarMemberLocation(obj, this);
+    public VisageLocation getLocation(VisageObjectValue obj) {
+        return new VisageVarMemberLocation(obj, this);
     }
 
-    protected abstract void initVar(FXObjectValue instance, FXValue value);
-    public abstract void initValue(FXObjectValue obj, FXValue ref);
+    protected abstract void initVar(VisageObjectValue instance, VisageValue value);
+    public abstract void initValue(VisageObjectValue obj, VisageValue ref);
     
     /** Add an on replace listener to the objects var. **/
-    public abstract FXChangeListenerID addChangeListener(FXObjectValue instance, FXChangeListener listener);
+    public abstract VisageChangeListenerID addChangeListener(VisageObjectValue instance, VisageChangeListener listener);
     
     /** Remove an on replace listener from the objects var. **/
-    public abstract void removeChangeListener(FXObjectValue instance, FXChangeListenerID id);
+    public abstract void removeChangeListener(VisageObjectValue instance, VisageChangeListenerID id);
     
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("var ");
-        FXClassType owner = getDeclaringClass();
+        VisageClassType owner = getDeclaringClass();
         if (owner != null) {
             String oname = owner.getName();
             if (oname != null) {

@@ -31,9 +31,9 @@ import java.util.*;
  * @profile desktop
  */
 
-public abstract class FXClassType extends FXType implements FXMember {
+public abstract class VisageClassType extends VisageType implements VisageMember {
     String name;
-    FXContext context;
+    VisageContext context;
     protected int modifiers;
     protected static final int VISAGE_MIXIN = 1;
     protected static final int VISAGE_CLASS = 2;
@@ -50,7 +50,7 @@ public abstract class FXClassType extends FXType implements FXMember {
     public static final String SETTER_PREFIX = "set$";
     public static final String LOCATION_GETTER_PREFIX = "loc$";
 
-    protected FXClassType(FXContext context, int modifiers) {
+    protected VisageClassType(VisageContext context, int modifiers) {
         this.context = context;
         this.modifiers = modifiers;
     }
@@ -66,7 +66,7 @@ public abstract class FXClassType extends FXType implements FXMember {
         return "class "+n;
     }
 
-    public boolean equals (FXClassType other) {
+    public boolean equals (VisageClassType other) {
         return context.equals(other.context) && name.equals(other.name);
     }
 
@@ -80,7 +80,7 @@ public abstract class FXClassType extends FXType implements FXMember {
      * @return the list of super-classes.  It sorted by class name for
      *   convenience and consistency.
      */
-    public abstract List<FXClassType> getSuperClasses(boolean all);
+    public abstract List<VisageClassType> getSuperClasses(boolean all);
     
     public boolean isMixin() {
         return (modifiers & VISAGE_MIXIN) != 0;
@@ -91,58 +91,58 @@ public abstract class FXClassType extends FXType implements FXMember {
         return (modifiers & VISAGE_CLASS) != 0;
     }
 
-    public boolean isAssignableFrom(FXClassType cls) {
+    public boolean isAssignableFrom(VisageClassType cls) {
         if (this.equals(cls))
             return true;
-        List<FXClassType> supers = cls.getSuperClasses(false);
-        for (FXClassType s : supers) {
+        List<VisageClassType> supers = cls.getSuperClasses(false);
+        for (VisageClassType s : supers) {
             if (isAssignableFrom(s))
                 return true;
         }
         return false;
     }
 
-    public List<FXMember> getMembers(FXMemberFilter filter, boolean all) {
-        SortedMemberArray<FXMember> result = new SortedMemberArray<FXMember>();
+    public List<VisageMember> getMembers(VisageMemberFilter filter, boolean all) {
+        SortedMemberArray<VisageMember> result = new SortedMemberArray<VisageMember>();
         if (all) {
-            List<FXClassType> supers = getSuperClasses(all);
-            for (FXClassType cl : supers)
+            List<VisageClassType> supers = getSuperClasses(all);
+            for (VisageClassType cl : supers)
                 cl.getMembers(filter, result);
         }
         else
             getMembers(filter, result);
         return result;
     }
-    public List<FXMember> getMembers(boolean all) {
-        return getMembers(new FXMemberFilter(), all);
+    public List<VisageMember> getMembers(boolean all) {
+        return getMembers(new VisageMemberFilter(), all);
     }
-    protected void getMembers(FXMemberFilter filter, SortedMemberArray<FXMember> result) {
+    protected void getMembers(VisageMemberFilter filter, SortedMemberArray<VisageMember> result) {
         getVariables(filter, result);
         getFunctions(filter, result);
     }
     
-    public List<FXFunctionMember> getFunctions(FXMemberFilter filter, boolean all) {
-        SortedMemberArray<FXFunctionMember> result = new SortedMemberArray<FXFunctionMember>();
+    public List<VisageFunctionMember> getFunctions(VisageMemberFilter filter, boolean all) {
+        SortedMemberArray<VisageFunctionMember> result = new SortedMemberArray<VisageFunctionMember>();
         if (all) {
-            List<FXClassType> supers = getSuperClasses(all);
-            for (FXClassType cl : supers)
+            List<VisageClassType> supers = getSuperClasses(all);
+            for (VisageClassType cl : supers)
                 cl.getFunctions(filter, result);
         }
         else
             getFunctions(filter, result);
         return result;
     }
-    public List<FXFunctionMember> getFunctions(boolean all) {
-        return getFunctions(FXMemberFilter.acceptMethods(), all);
+    public List<VisageFunctionMember> getFunctions(boolean all) {
+        return getFunctions(VisageMemberFilter.acceptMethods(), all);
     }
-    protected abstract void getFunctions(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result);
+    protected abstract void getFunctions(VisageMemberFilter filter, SortedMemberArray<? super VisageFunctionMember> result);
     
-    public List<FXVarMember> getVariables(FXMemberFilter filter, boolean all) {
-        SortedMemberArray<FXVarMember> result = new SortedMemberArray<FXVarMember>();
+    public List<VisageVarMember> getVariables(VisageMemberFilter filter, boolean all) {
+        SortedMemberArray<VisageVarMember> result = new SortedMemberArray<VisageVarMember>();
         if (all) {
-            List<FXClassType> supers = getSuperClasses(all);
+            List<VisageClassType> supers = getSuperClasses(all);
             boolean isMixin = isMixin();
-            for (FXClassType cl : supers) {
+            for (VisageClassType cl : supers) {
                 if (isMixin || !cl.isMixin())
                     cl.getVariables(filter, result);
             }
@@ -151,47 +151,47 @@ public abstract class FXClassType extends FXType implements FXMember {
             getVariables(filter, result);
         return result;
     }
-    public List<FXVarMember> getVariables(boolean all) {
-        return getVariables(FXMemberFilter.acceptAttributes(), all);
+    public List<VisageVarMember> getVariables(boolean all) {
+        return getVariables(VisageMemberFilter.acceptAttributes(), all);
     }
-    protected abstract void getVariables(FXMemberFilter filter, SortedMemberArray<? super FXVarMember> result);
+    protected abstract void getVariables(VisageMemberFilter filter, SortedMemberArray<? super VisageVarMember> result);
 
     /** Get a member with the matching name and type - NOT IMPLEMENTED YET.
      * (A method has a FunctionType.)
      * (Unimplemented because it requires type matching.)
      */
-    public FXMember getMember(String name, FXType type) {
+    public VisageMember getMember(String name, VisageType type) {
         throw new UnsupportedOperationException("getMember not implemented yet.");
     }
 
     /** Get the attribute (field) of this class with a given name. */
-    public FXVarMember getVariable(String name) {
-        FXMemberFilter filter = new FXMemberFilter();
+    public VisageVarMember getVariable(String name) {
+        VisageMemberFilter filter = new VisageMemberFilter();
         filter.setAttributesAccepted(true);
         filter.setRequiredName(name);
-        List<FXVarMember> attrs = getVariables(filter, true);
+        List<VisageVarMember> attrs = getVariables(filter, true);
         return attrs.isEmpty() ? null : attrs.get(attrs.size() - 1);
     }
 
     /** Find the function that (best) matches the name and argument types. */
-    public abstract FXFunctionMember getFunction(String name, FXType... argType);
+    public abstract VisageFunctionMember getFunction(String name, VisageType... argType);
 
-    public FXContext getReflectionContext() {
+    public VisageContext getReflectionContext() {
         return context;
     }
 
     /** Return raw uninitialized object. */
-    public abstract FXObjectValue allocate ();
+    public abstract VisageObjectValue allocate ();
 
     /** Create a new initialized object.
-     * This is just {@code allocate}+{@code FXObjectValue.initialize}.
+     * This is just {@code allocate}+{@code VisageObjectValue.initialize}.
      */
-    public FXObjectValue newInstance() {
+    public VisageObjectValue newInstance() {
         return allocate().initialize();
     }
 
-    static class SortedMemberArray<T extends FXMember> extends AbstractList<T> {
-        FXMember[] buffer = new FXMember[4];
+    static class SortedMemberArray<T extends VisageMember> extends AbstractList<T> {
+        VisageMember[] buffer = new VisageMember[4];
         int sz;
         public T get(int index) {
             if (index >= sz)
@@ -206,7 +206,7 @@ public abstract class FXClassType extends FXType implements FXMember {
             // for ClassLoaders complicates that.  Linear search should be ok.
             int i = 0;
             for (; i < sz; i++) {
-                FXMember c = buffer[i];
+                VisageMember c = buffer[i];
                 // First compare by name.
                 int cmp = c.getName().compareToIgnoreCase(clname);
                 if (cmp == 0)
@@ -216,8 +216,8 @@ public abstract class FXClassType extends FXType implements FXMember {
                 if (cmp < 0)
                     continue;
                 // Next compare by owner. Inherited members go earlier.
-                FXClassType clowner = cl.getDeclaringClass();
-                FXClassType cowner = c.getDeclaringClass();
+                VisageClassType clowner = cl.getDeclaringClass();
+                VisageClassType cowner = c.getDeclaringClass();
                 boolean clAssignableFromC = clowner.isAssignableFrom(cowner);
                 boolean cAssignableFromCl = cowner.isAssignableFrom(clowner);
                 if (clAssignableFromC && ! cAssignableFromCl)
@@ -235,18 +235,18 @@ public abstract class FXClassType extends FXType implements FXMember {
                 if (cmp < 0)
                     continue;
                 // Sort member classes before other members.
-                if (cl instanceof FXClassType)
+                if (cl instanceof VisageClassType)
                     break;
-                if (c instanceof FXClassType)
+                if (c instanceof VisageClassType)
                     continue;
                 // Sort var after member classes, but before other members.
-                if (cl instanceof FXVarMember)
+                if (cl instanceof VisageVarMember)
                     break;
-                if (c instanceof FXVarMember)
+                if (c instanceof VisageVarMember)
                     continue;
-                if (cl instanceof FXFunctionMember && c instanceof FXFunctionMember) {
-                    String scl = ((FXFunctionMember) cl).getType().toString();
-                    String sc = ((FXFunctionMember) c).getType().toString();
+                if (cl instanceof VisageFunctionMember && c instanceof VisageFunctionMember) {
+                    String scl = ((VisageFunctionMember) cl).getType().toString();
+                    String sc = ((VisageFunctionMember) c).getType().toString();
                     cmp = sc.compareToIgnoreCase(scl);
                     if (cmp == 0)
                         cmp = sc.compareTo(scl);
@@ -257,7 +257,7 @@ public abstract class FXClassType extends FXType implements FXMember {
                 break;
             }
             if (sz == buffer.length) {
-                FXMember[] tmp = new FXMember[2*sz];
+                VisageMember[] tmp = new VisageMember[2*sz];
                 System.arraycopy(buffer, 0, tmp, 0, sz);
                 buffer = tmp;
             }

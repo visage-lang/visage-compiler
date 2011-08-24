@@ -4,7 +4,7 @@
  * @test/fxunit
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
 mixin class Mixin1 {
     function foo() : Integer { 11 }
@@ -26,7 +26,7 @@ class Mixee3 extends Mixin2 {
     function foo(arg : Integer) : Integer { 22 }
 }
 
-public class MxFuncDecl01 extends FXTestCase {
+public class MxFuncDecl01 extends VisageTestCase {
     /*
      * foo() has body in both mixin and mixee. 
      * Check that the correct one is executed.

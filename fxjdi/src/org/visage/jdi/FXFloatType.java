@@ -29,9 +29,9 @@ import com.sun.jdi.FloatType;
  *
  * @author sundar
  */
-public class FXFloatType extends FXPrimitiveType implements FloatType {
+public class VisageFloatType extends VisagePrimitiveType implements FloatType {
 
-    public FXFloatType(FXVirtualMachine fxvm, FloatType underlying) {
+    public VisageFloatType(VisageVirtualMachine fxvm, FloatType underlying) {
         super(fxvm, underlying);
     }
 

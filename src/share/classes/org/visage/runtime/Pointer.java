@@ -34,11 +34,11 @@ import visage.animation.KeyValueTarget;
  */
 public class Pointer implements KeyValueTarget {
     private final Type type;
-    private final FXObject obj;
+    private final VisageObject obj;
     private final int varnum;
 
     @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Lorg/visage/runtime/Pointer;")
-    public static Pointer make(Type type, FXObject obj, int varnum) {
+    public static Pointer make(Type type, VisageObject obj, int varnum) {
         return new Pointer(type, obj, varnum);
     }
     
@@ -46,7 +46,7 @@ public class Pointer implements KeyValueTarget {
         return (p1 == null) ? (p2 == null) : p1.equals(p2);
     }
 
-    private Pointer(Type type, FXObject obj, int varnum) {
+    private Pointer(Type type, VisageObject obj, int varnum) {
         this.type = type;
         this.obj = obj;
         this.varnum = varnum;
@@ -68,7 +68,7 @@ public class Pointer implements KeyValueTarget {
         return null;
     }
 
-    public FXObject getFXObject() {
+    public VisageObject getFXObject() {
         return obj;
     }
 
@@ -134,22 +134,22 @@ public class Pointer implements KeyValueTarget {
         return System.identityHashCode(obj) ^ varnum;
     }
 
-    public void addDependency(FXObject dep) {
+    public void addDependency(VisageObject dep) {
         if (obj != null) {
             obj.addDependent$(varnum, dep, 0);
         }
     }
 
-    public void removeDependency(FXObject dep) {
+    public void removeDependency(VisageObject dep) {
         if (obj != null) {
             obj.removeDependent$(varnum, dep);
         }
     }
 
-    public static void switchDependence(Pointer oldPtr, Pointer newPtr, FXObject dep, int depNum) {
+    public static void switchDependence(Pointer oldPtr, Pointer newPtr, VisageObject dep, int depNum) {
         if (oldPtr != newPtr && dep != null) {
-            FXObject oldSrc = (oldPtr != null)? oldPtr.getFXObject() : null;
-            FXObject newSrc = (newPtr != null)? newPtr.getFXObject() : null;
+            VisageObject oldSrc = (oldPtr != null)? oldPtr.getFXObject() : null;
+            VisageObject newSrc = (newPtr != null)? newPtr.getFXObject() : null;
             int oldVarNum = (oldPtr != null)? oldPtr.getVarNum() : 0;
             int newVarNum = (newPtr != null)? newPtr.getVarNum() : 0;
             dep.switchDependence$(oldSrc, oldVarNum, newSrc, newVarNum, depNum);
@@ -164,9 +164,9 @@ public class Pointer implements KeyValueTarget {
      */
     public static class BoundPointer extends Pointer {
         private Pointer srcPtr;
-        private FXObject listener;
+        private VisageObject listener;
 
-        private BoundPointer(Pointer destPtr, Pointer srcPtr, FXObject listener) {
+        private BoundPointer(Pointer destPtr, Pointer srcPtr, VisageObject listener) {
             super(destPtr.getType(), destPtr.getFXObject(), destPtr.getVarNum());
             this.srcPtr = srcPtr;
             this.listener = listener;
@@ -196,12 +196,12 @@ public class Pointer implements KeyValueTarget {
      * @param srcPtr The source Pointer object to which the current Pointer is bound to
      */
     public BoundPointer bind(Pointer srcPtr) {
-        final FXObject thisObj = getFXObject();
+        final VisageObject thisObj = getFXObject();
         final int thisVarNum = getVarNum();
         final int srcVarNum = srcPtr.getVarNum();
-        FXObject listener = new FXBase() {
+        VisageObject listener = new VisageBase() {
             @Override
-            public boolean update$(FXObject src, final int depNum,
+            public boolean update$(VisageObject src, final int depNum,
                     int startPos, int endPos, int newLength, final int phase) {
                 if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
                     // update value from "src"

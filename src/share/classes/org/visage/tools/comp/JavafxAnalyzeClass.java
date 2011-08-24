@@ -66,7 +66,7 @@ class JavafxAnalyzeClass {
     private final DiagnosticPosition diagPos;
 
     // Current class decl.
-    private final JFXClassDeclaration currentClassDecl;
+    private final VisageClassDeclaration currentClassDecl;
 
     // Current class symbol.
     private final ClassSymbol currentClassSym;
@@ -328,7 +328,7 @@ class JavafxAnalyzeClass {
         }
 
         // null or visage tree for the var's 'on replace'.
-        public JFXOnReplace onReplace() { return null; }
+        public VisageOnReplace onReplace() { return null; }
 
         // null or Java tree for var's on-replace for use in a setter.
         public JCStatement onReplaceAsInline() { return null; }
@@ -337,7 +337,7 @@ class JavafxAnalyzeClass {
         public JCStatement onReplaceAsListenerInstanciation() { return null; }
 
         // null or visage tree for the var's 'on invalidate'.
-        public JFXOnReplace onInvalidate() { return null; }
+        public VisageOnReplace onInvalidate() { return null; }
 
         // null or Java tree for var's on-invalidate for use in var$invalidate method.
         public JCStatement onInvalidateAsInline() { return null; }
@@ -482,10 +482,10 @@ class JavafxAnalyzeClass {
     static abstract class TranslatedVarInfoBase extends VarInfo {
 
         // Null or visage code for the var's on replace.
-        private final JFXOnReplace onReplace;
+        private final VisageOnReplace onReplace;
 
         // Null or visage code for the var's on invalidate.
-        private final JFXOnReplace onInvalidate;
+        private final VisageOnReplace onInvalidate;
 
         // The bind status for the var/override
         private final JavafxBindStatus bindStatus;
@@ -504,8 +504,8 @@ class JavafxAnalyzeClass {
 
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, 
                 JCExpression initExpr, ExpressionResult bindOrNull,
-                JFXOnReplace onReplace, JCStatement onReplaceAsInline,
-                JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
+                VisageOnReplace onReplace, JCStatement onReplaceAsInline,
+                VisageOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(diagPos, name, attrSym, initExpr);
             this.hasInitializer = hasInitializer;
             this.bindStatus = bindStatus;
@@ -570,7 +570,7 @@ class JavafxAnalyzeClass {
 
         // Possible visage code for the var's 'on replace'.
         @Override
-        public JFXOnReplace onReplace() { return onReplace; }
+        public VisageOnReplace onReplace() { return onReplace; }
 
         // Possible java code for the var's 'on replace' in setter.
         @Override
@@ -578,7 +578,7 @@ class JavafxAnalyzeClass {
 
         // Possible visage code for the var's 'on invalidate'.
         @Override
-        public JFXOnReplace onInvalidate() { return onInvalidate; }
+        public VisageOnReplace onInvalidate() { return onInvalidate; }
 
         // Possible java code for the var's 'on invalidate' in var$invalidate method.
         @Override
@@ -598,14 +598,14 @@ class JavafxAnalyzeClass {
     //
     static class TranslatedVarInfo extends TranslatedVarInfoBase {
         // Tree for the visage var.
-        private final JFXVar var;
+        private final VisageVar var;
         private final Symbol boundFuncResultInitSym;
 
-        TranslatedVarInfo(JFXVar var, 
+        TranslatedVarInfo(VisageVar var, 
                 JCExpression initExpr, Symbol boundFuncResultInitSym,
                 ExpressionResult bindOrNull, 
-                JFXOnReplace onReplace, JCStatement onReplaceAsInline,
-                JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
+                VisageOnReplace onReplace, JCStatement onReplaceAsInline,
+                VisageOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null,
                   initExpr, bindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
@@ -614,7 +614,7 @@ class JavafxAnalyzeClass {
         }
 
         // Returns the tree for the visage var.
-        public JFXVar jfxVar() { return var; }
+        public VisageVar jfxVar() { return var; }
 
         @Override
         public boolean hasSafeInitializer() {
@@ -630,7 +630,7 @@ class JavafxAnalyzeClass {
                     }
 
                     @Override
-                    public void visitBinary(JFXBinary tree) {
+                    public void visitBinary(VisageBinary tree) {
                         switch (tree.getFXTag()) {
                             case DIV:
                             case MOD:
@@ -643,7 +643,7 @@ class JavafxAnalyzeClass {
                     }
 
                     @Override
-                    public void visitAssignop(JFXAssignOp tree) {
+                    public void visitAssignop(VisageAssignOp tree) {
                         switch (tree.getFXTag()) {
                             case DIV_ASG:
                                 markCanThrowException();
@@ -655,12 +655,12 @@ class JavafxAnalyzeClass {
                     }
 
                     @Override
-                    public void visitInstanciate(JFXInstanciate tree) {
+                    public void visitInstanciate(VisageInstanciate tree) {
                         markCanThrowException();
                     }
 
                     @Override
-                    public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+                    public void visitFunctionInvocation(VisageFunctionInvocation tree) {
                         markCanThrowException();
                     }
                 }
@@ -696,11 +696,11 @@ class JavafxAnalyzeClass {
         private final Symbol boundFuncResultInitSym;
 
 
-        TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
+        TranslatedOverrideClassVarInfo(VisageOverrideClassVar override,
                 JCExpression initExpr, Symbol boundFuncResultInitSym,
                 ExpressionResult bindOrNull,
-                JFXOnReplace onReplace, JCStatement onReplaceAsInline,
-                JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
+                VisageOnReplace onReplace, JCStatement onReplaceAsInline,
+                VisageOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer() != null, 
                     initExpr, bindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
@@ -908,7 +908,7 @@ class JavafxAnalyzeClass {
 
         // Possible visage code for the var's 'on replace'.
         @Override
-        public JFXOnReplace onReplace() {
+        public VisageOnReplace onReplace() {
             return hasOverrideVar() ? overrideVar().onReplace() : super.onReplace();
         }
 
@@ -920,7 +920,7 @@ class JavafxAnalyzeClass {
 
         // Possible visage code for the var's 'on invalidate'.
         @Override
-        public JFXOnReplace onInvalidate() {
+        public VisageOnReplace onInvalidate() {
             return hasOverrideVar() ? overrideVar().onInvalidate() : super.onInvalidate();
         }
 
@@ -1100,19 +1100,19 @@ class JavafxAnalyzeClass {
     //
     static class TranslatedFuncInfo extends FuncInfo {
         // Visage definition of the function.
-        private final JFXFunctionDefinition jfxFuncDef;
+        private final VisageFunctionDefinition jfxFuncDef;
         
         // Java translation of the function.
         private final List<JCTree> jcFuncDef;
         
-        TranslatedFuncInfo(JFXFunctionDefinition jfxFuncDef, List<JCTree> jcFuncDef) {
+        TranslatedFuncInfo(VisageFunctionDefinition jfxFuncDef, List<JCTree> jcFuncDef) {
             super(jfxFuncDef, jfxFuncDef.sym);
             this.jfxFuncDef = jfxFuncDef;
             this.jcFuncDef = jcFuncDef;
         }
 
         // Return the visage definition of the function.
-        public JFXFunctionDefinition jfxFunction() { return jfxFuncDef; }
+        public VisageFunctionDefinition jfxFunction() { return jfxFuncDef; }
 
         // Return the java translation of the function.
         public List<JCTree> jcFunction() { return jcFuncDef; }
@@ -1147,7 +1147,7 @@ class JavafxAnalyzeClass {
     //
     // Returns the current class decl.
     //
-    public JFXClassDeclaration getCurrentClassDecl() { return currentClassDecl; }
+    public VisageClassDeclaration getCurrentClassDecl() { return currentClassDecl; }
 
     //
     // Returns the current class symbol.
@@ -1160,27 +1160,27 @@ class JavafxAnalyzeClass {
     public boolean isCurrentClassSymbol(Symbol sym) { return sym == currentClassSym; }
 
     //
-    // Returns true if specified class is the FXBase class.
+    // Returns true if specified class is the VisageBase class.
     //
     public boolean isFXBase(Symbol sym) { return sym == syms.visage_FXBaseType.tsym; }
 
     //
-    // Returns true if specified class is the FXObject class.
+    // Returns true if specified class is the VisageObject class.
     //
     public boolean isFXObject(Symbol sym) { return sym == syms.visage_FXObjectType.tsym; }
 
     //
-    // Returns true if specified class is either the FXBase or the FXObject class.
+    // Returns true if specified class is either the VisageBase or the VisageObject class.
     //
     public boolean isRootClass(Symbol sym) { return isFXBase(sym) || isFXObject(sym); }
 
     //
-    // Returns true if the current class inherits directly from FXBase.
+    // Returns true if the current class inherits directly from VisageBase.
     //
     public boolean isFirstTier() { return superClassSym !=  null && isFXBase(superClassSym); }
 
     //
-    // Returns true if the current class inherits directly from FXBase and has no mixins.
+    // Returns true if the current class inherits directly from VisageBase and has no mixins.
     //
     public boolean isFirstTierNoMixins() { return isFirstTier() && allMixins.isEmpty(); }
 
@@ -1378,7 +1378,7 @@ class JavafxAnalyzeClass {
         }
 
         // Lastly, insert any mixin vars and methods from the interfaces.
-        for (JFXExpression supertype : currentClassDecl.getSupertypes()) {
+        for (VisageExpression supertype : currentClassDecl.getSupertypes()) {
             // This will technically only analyze mixin classes.
             // We also want to clone all mixin vars amnd methods.
             analyzeClass(supertype.type.tsym, true, true);

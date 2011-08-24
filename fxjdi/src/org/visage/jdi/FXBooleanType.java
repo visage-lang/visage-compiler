@@ -29,9 +29,9 @@ import com.sun.jdi.BooleanType;
  *
  * @author sundar
  */
-public class FXBooleanType extends FXPrimitiveType implements BooleanType {
+public class VisageBooleanType extends VisagePrimitiveType implements BooleanType {
 
-    public FXBooleanType(FXVirtualMachine fxvm, BooleanType underlying) {
+    public VisageBooleanType(VisageVirtualMachine fxvm, BooleanType underlying) {
         super(fxvm, underlying);
     }
 

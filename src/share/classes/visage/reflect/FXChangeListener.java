@@ -28,6 +28,6 @@ package visage.reflect;
  * @author Jim Laskey
  * @profile desktop
  */
-public interface FXChangeListener {
+public interface VisageChangeListener {
     public void onChange();
 }

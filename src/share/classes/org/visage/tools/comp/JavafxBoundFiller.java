@@ -29,7 +29,7 @@ import org.visage.tools.code.JavafxSymtab;
 import org.visage.tools.code.JavafxTypes;
 import org.visage.tools.code.JavafxVarSymbol;
 import org.visage.tools.tree.*;
-import org.visage.tools.tree.JFXExpression;
+import org.visage.tools.tree.VisageExpression;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
@@ -89,15 +89,15 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
      *           def result = bind block_value;
      */
     @Override
-    public void visitForExpression(JFXForExpression tree) {
+    public void visitForExpression(VisageForExpression tree) {
         if (tree.isBound()) {
-            JFXBlock body = (JFXBlock) tree.getBodyExpression();
+            VisageBlock body = (VisageBlock) tree.getBodyExpression();
             assert tree.getInClauses().size() == 1 : "lower is supposed to flatten to exactly one in-clause";
-            JFXForExpressionInClause clause = tree.getForExpressionInClauses().get(0);
+            VisageForExpressionInClause clause = tree.getForExpressionInClauses().get(0);
             MethodSymbol dummyOwner = preTrans.makeDummyMethodSymbol(clause.var.sym.owner);
-            JFXVar idxv = createIndexVar(clause, dummyOwner);
-            JFXVar iv = createInductionVar(clause, idxv.sym, dummyOwner);
-            JFXVar rv = createResultVar(clause, body, dummyOwner, tree.type);
+            VisageVar idxv = createIndexVar(clause, dummyOwner);
+            VisageVar iv = createInductionVar(clause, idxv.sym, dummyOwner);
+            VisageVar rv = createResultVar(clause, body, dummyOwner, tree.type);
             body.stats = body.stats.prepend(iv).prepend(idxv).append(rv);
             body.value = preTrans.defaultValue(body.type); // just fill the spot
             scan(clause);
@@ -110,7 +110,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
     /**
      * Create the '$indexof$x' variable
      */
-    private JFXVar createIndexVar(JFXForExpressionInClause clause, Symbol owner) {
+    private VisageVar createIndexVar(VisageForExpressionInClause clause, Symbol owner) {
         // Create the method parameter
         // $index$
         Name indexParamName = names.fromString(defs.dollarIndexNamePrefix());
@@ -119,9 +119,9 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
 
         // Create the index var
         // var $indexof$x = $index$
-        JFXVar indexVar = preTrans.LocalVar(clause.pos(), syms.intType, indexName, fxmake.Ident(indexParamSym), owner);
+        VisageVar indexVar = preTrans.LocalVar(clause.pos(), syms.intType, indexName, fxmake.Ident(indexParamSym), owner);
         // Stash the created variable so it can be used when we visit a
-        // JFXIndexof, where we convert that to a JFXIdent referencing the indexDecl.
+        // VisageIndexof, where we convert that to a VisageIdent referencing the indexDecl.
         clause.indexVarSym = indexVar.sym;
         return indexVar;
     }
@@ -130,9 +130,9 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
      * Create the induction var in the body
      *  var x
      */
-    private JFXVar createInductionVar(JFXForExpressionInClause clause, JavafxVarSymbol boundIndexVarSym, Symbol owner) {
-        JFXVar param = clause.getVar();
-        JFXVar inductionVar =  preTrans.LocalVar(param.pos(), param.type, param.name, null, owner);
+    private VisageVar createInductionVar(VisageForExpressionInClause clause, JavafxVarSymbol boundIndexVarSym, Symbol owner) {
+        VisageVar param = clause.getVar();
+        VisageVar inductionVar =  preTrans.LocalVar(param.pos(), param.type, param.name, null, owner);
         clause.inductionVarSym = inductionVar.sym = param.sym;
         return inductionVar;
     }
@@ -141,12 +141,12 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
      * Create the bound result:
      *  def result = bind block_value;
      */
-    private JFXVar createResultVar(JFXForExpressionInClause clause, JFXBlock body, Symbol owner, Type seqType) {
-        JFXExpression value = body.value;
+    private VisageVar createResultVar(VisageForExpressionInClause clause, VisageBlock body, Symbol owner, Type seqType) {
+        VisageExpression value = body.value;
         Type valtype = value.type;
         if (clause.getWhereExpression() != null) {
             // There is a where-clause, convert to an if-expression
-            JFXExpression nada;
+            VisageExpression nada;
             if (types.isSequence(valtype)) {
                 nada = fxmake.EmptySequence();
             } else {
@@ -163,9 +163,9 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
             clause.setWhereExpr(null);
         }
         body.type = valtype;
-        JFXVar param = clause.getVar();
+        VisageVar param = clause.getVar();
         Name resName = resultVarName(param.name);
-        JFXVar resultVar =  preTrans.BoundLocalVar(clause.pos(), valtype, resName, value, owner);
+        VisageVar resultVar =  preTrans.BoundLocalVar(clause.pos(), valtype, resName, value, owner);
         resultVar.sym.flags_field |= JavafxFlags.VARUSE_BIND_ACCESS;
         clause.boundResultVarSym = resultVar.sym;
         return resultVar;
@@ -176,13 +176,13 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitIndexof(JFXIndexof tree) {
+    public void visitIndexof(VisageIndexof tree) {
         // Convert
         super.visitIndexof(tree);
     }
 
     @Override
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(VisageFunctionDefinition tree) {
         if (tree.isBound()) {
             // Fill out the bound function support vars before
             // local inflation
@@ -191,26 +191,26 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
         super.visitFunctionDefinition(tree);
     }
 
-    private void boundFunctionFiller(JFXFunctionDefinition tree) {
+    private void boundFunctionFiller(VisageFunctionDefinition tree) {
         /*
          * For bound functions, make a synthetic bound variable with
          * initialization expression to be the return expression and return
          * the Pointer of the synthetic variable as the result.
          */
-        JFXBlock blk = tree.getBodyExpression();
+        VisageBlock blk = tree.getBodyExpression();
         if (blk != null) {
-            JFXExpression returnExpr = (blk.value instanceof JFXReturn) ? ((JFXReturn) blk.value).getExpression() : blk.value;
+            VisageExpression returnExpr = (blk.value instanceof VisageReturn) ? ((VisageReturn) blk.value).getExpression() : blk.value;
             if (returnExpr != null) {
                 fxmake.at(blk.value.pos);
-                ListBuffer<JFXExpression> stmts = ListBuffer.lb();
+                ListBuffer<VisageExpression> stmts = ListBuffer.lb();
                 /*
                  * Generate a local variable for each parameter. We will later
-                 * transform each param as FXObject+varNum pair during translation.
+                 * transform each param as VisageObject+varNum pair during translation.
                  * These locals will be converted into instance variables of the
                  * local context class.
                  */
-                for (JFXVar fxVar : tree.getParams()) {
-                    JFXVar localVar = fxmake.Var(
+                for (VisageVar fxVar : tree.getParams()) {
+                    VisageVar localVar = fxmake.Var(
                             fxVar.name,
                             fxVar.getJFXType(),
                             fxmake.Modifiers(fxVar.mods.flags & ~Flags.PARAMETER),
@@ -228,11 +228,11 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
                 if (returnExprIsVar) {
                     stmts.append(returnExpr);
                 }
-                JFXVar returnVar = fxmake.Var(
+                VisageVar returnVar = fxmake.Var(
                         defs.boundFunctionResultName,
                         fxmake.TypeUnknown(),
                         fxmake.Modifiers(0),
-                        returnExprIsVar ? fxmake.Ident((JFXVar) returnExpr) : returnExpr,
+                        returnExprIsVar ? fxmake.Ident((VisageVar) returnExpr) : returnExpr,
                         JavafxBindStatus.UNIDIBIND, null, null);
                 returnVar.type = tree.sym.type.getReturnType();
                 returnVar.sym = new JavafxVarSymbol(types, names,0L, defs.boundFunctionResultName, returnVar.type, tree.sym);
@@ -242,21 +242,21 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
 
                 // find the symbol of Pointer.make(Object) method.
                 // The select expression Pointer.make
-                JFXSelect select = fxmake.Select(fxmake.Type(syms.visage_PointerType), defs.make_PointerMethodName, false);
+                VisageSelect select = fxmake.Select(fxmake.Type(syms.visage_PointerType), defs.make_PointerMethodName, false);
                 select.sym = preTrans.makeSyntheticPointerMake();
                 select.type = select.sym.type;
 
 
                 // args for Pointer.make(Object)
-                JFXIdent ident = fxmake.Ident(returnVar);
+                VisageIdent ident = fxmake.Ident(returnVar);
                 ident.type = returnVar.type;
                 ident.sym = returnVar.sym;
-                ListBuffer<JFXExpression> pointerMakeArgs = ListBuffer.lb();
-                pointerMakeArgs.append(fxmake.VarRef(ident, JFXVarRef.RefKind.INST).setType(syms.visage_FXObjectType));
-                pointerMakeArgs.append(fxmake.VarRef(ident, JFXVarRef.RefKind.VARNUM).setType(syms.intType));
+                ListBuffer<VisageExpression> pointerMakeArgs = ListBuffer.lb();
+                pointerMakeArgs.append(fxmake.VarRef(ident, VisageVarRef.RefKind.INST).setType(syms.visage_FXObjectType));
+                pointerMakeArgs.append(fxmake.VarRef(ident, VisageVarRef.RefKind.VARNUM).setType(syms.intType));
 
                 // call Pointer.make($$bound$result$)
-                JFXFunctionInvocation apply = fxmake.Apply(null, select, pointerMakeArgs.toList());
+                VisageFunctionInvocation apply = fxmake.Apply(null, select, pointerMakeArgs.toList());
                 apply.type = syms.visage_PointerType;
 
                 blk.stats = stmts.toList();

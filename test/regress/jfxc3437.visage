@@ -1,5 +1,5 @@
 /**
- * JFXC-3437 :  FXLocal assumes a Sequence of a Boolean var.
+ * JFXC-3437 :  VisageLocal assumes a Sequence of a Boolean var.
  *
  * @test
  * @run
@@ -8,9 +8,9 @@
 import visage.reflect.*;
 
 public class jfxc3437 {
-    protected var context = FXLocal.getContext();
-    protected var objVal:FXObjectValue = context.mirrorOf(this);
-    protected var clsType:FXClassType = objVal.getClassType();
+    protected var context = VisageLocal.getContext();
+    protected var objVal:VisageObjectValue = context.mirrorOf(this);
+    protected var clsType:VisageClassType = objVal.getClassType();
 
     public var status:Boolean = true on replace {
         println("Value");

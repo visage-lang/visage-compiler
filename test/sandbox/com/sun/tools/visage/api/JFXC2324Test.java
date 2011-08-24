@@ -27,12 +27,12 @@ import org.visage.api.tree.MemberSelectTree;
 import org.visage.api.tree.VariableTree;
 import org.visage.tools.api.*;
 import org.visage.api.JavafxcTask;
-import org.visage.api.tree.JavaFXTreePath;
-import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.VisageTreePath;
+import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.Tree;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import org.visage.api.tree.UnitTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.code.Symbol;
@@ -40,8 +40,8 @@ import com.sun.tools.javac.code.Type;
 import org.visage.tools.comp.JavafxAttrContext;
 import org.visage.tools.comp.JavafxEnv;
 import org.visage.tools.comp.JavafxResolve;
-import org.visage.tools.tree.JFXClassDeclaration;
-import org.visage.tools.tree.JFXVar;
+import org.visage.tools.tree.VisageClassDeclaration;
+import org.visage.tools.tree.VisageVar;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +59,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from org.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.VisageKind.values().
  * 
  * @author David Strupl
  */

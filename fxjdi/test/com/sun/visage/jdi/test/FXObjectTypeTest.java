@@ -22,24 +22,24 @@
  */
 package org.visage.jdi.test;
 
-import org.visage.jdi.FXObjectType;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXReferenceType;
+import org.visage.jdi.VisageObjectType;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageReferenceType;
 import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 import org.junit.Test;
 import junit.framework.Assert;
 
 /**
- * Basic sanity check for FXObjectType (which wraps org.visage.runtime.FXObject)
+ * Basic sanity check for VisageObjectType (which wraps org.visage.runtime.VisageObject)
  *
  * @author sundar
  */
-public class FXObjectTypeTest extends JavafxTestBase {
+public class VisageObjectTypeTest extends JavafxTestBase {
     // any Visage class will do..
     private static String targetClassName = "org.visage.jdi.test.target.HelloTarget";
 
-    public FXObjectTypeTest() {
+    public VisageObjectTypeTest() {
         super(targetClassName);
     }
 
@@ -54,17 +54,17 @@ public class FXObjectTypeTest extends JavafxTestBase {
 
     protected void runTests() throws Exception {
         startToMain();
-        // run till visage$run$ - so that org.visage.runtime.FXObject is loaded!
+        // run till visage$run$ - so that org.visage.runtime.VisageObject is loaded!
         resumeTo(targetClassName, fxRunMethodName(), fxRunMethodSignature());
 
-        // look for FXObject type
-        ReferenceType rt = vm().classesByName(FXVirtualMachine.VISAGE_OBJECT_TYPE_NAME).get(0);
-        // it has to be FXObjectType
-        Assert.assertEquals(true, rt instanceof FXObjectType);
-        // check few methods of FXObjectType
-        // We are checking for internal methods that are filtered out by FXReferenceType, so
+        // look for VisageObject type
+        ReferenceType rt = vm().classesByName(VisageVirtualMachine.VISAGE_OBJECT_TYPE_NAME).get(0);
+        // it has to be VisageObjectType
+        Assert.assertEquals(true, rt instanceof VisageObjectType);
+        // check few methods of VisageObjectType
+        // We are checking for internal methods that are filtered out by VisageReferenceType, so
         // we have to use the underlying JDI ReferenceType
-        FXObjectType fxObjType = (FXObjectType)rt;
+        VisageObjectType fxObjType = (VisageObjectType)rt;
         Method count$Method = fxObjType.count$Method();
         Assert.assertEquals("count$", count$Method.name());
         Assert.assertEquals("()I", count$Method.signature());

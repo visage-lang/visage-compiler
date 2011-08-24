@@ -25,27 +25,27 @@ package org.visage.tools.tree;
 
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 
 /**
  * A throw statement.
  */
-public class JFXErroneousThrow extends JFXThrow {
+public class VisageErroneousThrow extends VisageThrow {
     /**
      * This class is just an Erroneous node masquerading as
      * a Block so that we can create it in the tree. So it
      * stores a local erroneous block and uses this for the
      * vistor pattern etc.
      */
-    private JFXErroneous errNode;
+    private VisageErroneous errNode;
 
-    protected JFXErroneousThrow() {
-        errNode = new JFXErroneous(List.<JFXTree>nil());
+    protected VisageErroneousThrow() {
+        errNode = new VisageErroneous(List.<VisageTree>nil());
     }
-    protected JFXErroneousThrow(List<? extends JFXTree> errs) {
-        errNode = new JFXErroneous(errs);
+    protected VisageErroneousThrow(List<? extends VisageTree> errs) {
+        errNode = new VisageErroneous(errs);
     }
 
     @Override
@@ -59,17 +59,17 @@ public class JFXErroneousThrow extends JFXThrow {
     }
 
     @Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitErroneous(errNode, d);
     }
 
-    public List<? extends JFXTree> getErrorTrees() {
+    public List<? extends VisageTree> getErrorTrees() {
         return errNode.getErrorTrees();
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.ERRONEOUS;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.ERRONEOUS;
     }
 
 }

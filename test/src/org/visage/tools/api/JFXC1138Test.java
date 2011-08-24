@@ -24,7 +24,7 @@
 package org.visage.tools.api;
 
 import org.visage.api.JavafxcTask;
-import org.visage.api.tree.JavaFXTreeScanner;
+import org.visage.api.tree.VisageTreeScanner;
 import org.visage.api.tree.UnitTree;
 import org.visage.api.tree.IdentifierTree;
 import org.visage.api.tree.MemberSelectTree;
@@ -86,7 +86,7 @@ public class JFXC1138Test {
         assertEquals(end, sp.getEndPosition(unit, tree));
     }
 
-    static class TreeFinder extends JavaFXTreeScanner<Void,Object> {
+    static class TreeFinder extends VisageTreeScanner<Void,Object> {
         UnitTree unit;
         Map<String,Tree> trees;
 

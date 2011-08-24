@@ -24,9 +24,9 @@
 package org.visage.tools.api;
 
 import org.visage.api.JavafxcTask;
-import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.VisageTreePathScanner;
 
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import org.visage.api.tree.UnitTree;
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,7 +52,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from org.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.VisageKind.values().
  * 
  * @author David Strupl
  */
@@ -88,7 +88,7 @@ public class AllTreesAnalyzeTest {
     
     /**
      * This test checks all the comments in file AllTrees.visage and compares them
-     * to the list of org.visage.api.tree.Tree.JavaFXKind.values()
+     * to the list of org.visage.api.tree.Tree.VisageKind.values()
      */
     @Test
     public void haveAllTreesCovered() throws Exception {
@@ -110,7 +110,7 @@ public class AllTreesAnalyzeTest {
         }
         
         Set<String> constructs = new HashSet<String>();
-        for (JavaFXKind k : JavaFXKind.values()) {
+        for (VisageKind k : VisageKind.values()) {
             if (!k.name().startsWith("MISSING_")) 
                 constructs.add(k.name());
         }
@@ -121,7 +121,7 @@ public class AllTreesAnalyzeTest {
         
         Set<String> extraInTestFile = new HashSet<String>(testFileConstructs);
         extraInTestFile.removeAll(constructs);
-        assertTrue("The following " + extraInTestFile.size() + " constructs are not in the JavaFXKinds: " + extraInTestFile, extraInTestFile.isEmpty());
+        assertTrue("The following " + extraInTestFile.size() + " constructs are not in the VisageKinds: " + extraInTestFile, extraInTestFile.isEmpty());
     }
     
     static class MockDiagnosticListener<T> implements DiagnosticListener<T> {
@@ -135,7 +135,7 @@ public class AllTreesAnalyzeTest {
         }
     }
     
-    private static class Visitor extends JavaFXTreePathScanner<Void, Void> {
+    private static class Visitor extends VisageTreePathScanner<Void, Void> {
         // TODO: do some tests checking the positions of the trees ...
     }
 }

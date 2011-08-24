@@ -24,14 +24,14 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * A no-op statement ";".
  */
-public class JFXSkip extends JFXExpression implements EmptyStatementTree {
+public class VisageSkip extends VisageExpression implements EmptyStatementTree {
 
-    protected JFXSkip() {
+    protected VisageSkip() {
     }
 
     @Override
@@ -40,12 +40,12 @@ public class JFXSkip extends JFXExpression implements EmptyStatementTree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.EMPTY_STATEMENT;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.EMPTY_STATEMENT;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitEmptyStatement(this, d);
     }
 

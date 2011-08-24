@@ -29,6 +29,6 @@ import org.visage.api.tree.SequenceCreatorTree;
  *
  * @author Robert Field
  */
-public abstract class JFXAbstractSequenceCreator extends JFXExpression implements SequenceCreatorTree {
+public abstract class VisageAbstractSequenceCreator extends VisageExpression implements SequenceCreatorTree {
 
 }

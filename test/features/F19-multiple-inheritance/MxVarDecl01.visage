@@ -4,7 +4,7 @@
  * @test/fxunit
  * @run
  */
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
 mixin class A {
   var v_  = 1;
@@ -66,7 +66,7 @@ class D extends A {
   function get_Number(): Number { return v_Number; }
 }
 
-public class MxVarDecl01 extends FXTestCase {
+public class MxVarDecl01 extends VisageTestCase {
 
   public function testA01() {
     var x= B{};

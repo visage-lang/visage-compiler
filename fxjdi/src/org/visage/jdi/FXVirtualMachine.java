@@ -23,8 +23,8 @@
 
 package org.visage.jdi;
 
-import org.visage.jdi.event.FXEventQueue;
-import org.visage.jdi.request.FXEventRequestManager;
+import org.visage.jdi.event.VisageEventQueue;
+import org.visage.jdi.request.VisageEventRequestManager;
 import com.sun.jdi.Type;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ArrayType;
@@ -72,8 +72,8 @@ import java.util.Map;
  *
  * @author sundar
  */
-public class FXVirtualMachine extends FXMirror implements VirtualMachine {
-    public FXVirtualMachine(VirtualMachine underlying) {
+public class VisageVirtualMachine extends VisageMirror implements VirtualMachine {
+    public VisageVirtualMachine(VirtualMachine underlying) {
         super(null, underlying);
     }
 
@@ -110,7 +110,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     public long[] instanceCounts(List<? extends ReferenceType> refTypes) {
-        return underlying().instanceCounts(FXWrapper.unwrapReferenceTypes(refTypes));
+        return underlying().instanceCounts(VisageWrapper.unwrapReferenceTypes(refTypes));
     }
 
     public VoidValue mirrorOfVoid() {
@@ -118,16 +118,16 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     @Override
-    public FXVirtualMachine virtualMachine() {
+    public VisageVirtualMachine virtualMachine() {
         return this;
     }
 
     public List<ReferenceType> allClasses() {
-        return FXWrapper.wrapReferenceTypes(this, underlying().allClasses());
+        return VisageWrapper.wrapReferenceTypes(this, underlying().allClasses());
     }
 
     public List<ThreadReference> allThreads() {
-        return FXWrapper.wrapThreads(this, underlying().allThreads());
+        return VisageWrapper.wrapThreads(this, underlying().allThreads());
     }
 
     public boolean canAddMethod() {
@@ -192,7 +192,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
 
     public List<ReferenceType> classesByName(String name) {
         List<ReferenceType> refTypes = underlying().classesByName(name);
-        return FXWrapper.wrapReferenceTypes(this, refTypes);
+        return VisageWrapper.wrapReferenceTypes(this, refTypes);
     }
 
     public String description() {
@@ -204,18 +204,18 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     
-    private FXEventQueue evtQueue;
-    public synchronized FXEventQueue eventQueue() {
+    private VisageEventQueue evtQueue;
+    public synchronized VisageEventQueue eventQueue() {
         if (evtQueue == null) {
-            evtQueue = FXWrapper.wrap(this, underlying().eventQueue());
+            evtQueue = VisageWrapper.wrap(this, underlying().eventQueue());
         }
         return evtQueue;
     }
 
-    private FXEventRequestManager evtManager;
-    public synchronized FXEventRequestManager eventRequestManager() {
+    private VisageEventRequestManager evtManager;
+    public synchronized VisageEventRequestManager eventRequestManager() {
         if (evtManager == null) {
-            evtManager = FXWrapper.wrap(this, underlying().eventRequestManager());
+            evtManager = VisageWrapper.wrap(this, underlying().eventRequestManager());
         }
         return evtManager;
     }
@@ -228,102 +228,102 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return underlying().getDefaultStratum();
     }
 
-    public FXBooleanValue mirrorOf(boolean value) {
-        return new FXBooleanValue(this, underlying().mirrorOf(value));
+    public VisageBooleanValue mirrorOf(boolean value) {
+        return new VisageBooleanValue(this, underlying().mirrorOf(value));
     }
 
-    public FXByteValue mirrorOf(byte value) {
-        return new FXByteValue(this, underlying().mirrorOf(value));
+    public VisageByteValue mirrorOf(byte value) {
+        return new VisageByteValue(this, underlying().mirrorOf(value));
     }
 
-    public FXCharValue mirrorOf(char value) {
-        return new FXCharValue(this, underlying().mirrorOf(value));
+    public VisageCharValue mirrorOf(char value) {
+        return new VisageCharValue(this, underlying().mirrorOf(value));
     }
 
-    public FXShortValue mirrorOf(short value) {
-        return new FXShortValue(this, underlying().mirrorOf(value));
+    public VisageShortValue mirrorOf(short value) {
+        return new VisageShortValue(this, underlying().mirrorOf(value));
     }
 
-    public FXIntegerValue mirrorOf(int value) {
-        return new FXIntegerValue(this, underlying().mirrorOf(value));
+    public VisageIntegerValue mirrorOf(int value) {
+        return new VisageIntegerValue(this, underlying().mirrorOf(value));
     }
 
-    public FXLongValue mirrorOf(long value) {
-        return new FXLongValue(this, underlying().mirrorOf(value));
+    public VisageLongValue mirrorOf(long value) {
+        return new VisageLongValue(this, underlying().mirrorOf(value));
     }
 
-    public FXFloatValue mirrorOf(float value) {
-        return new FXFloatValue(this, underlying().mirrorOf(value));
+    public VisageFloatValue mirrorOf(float value) {
+        return new VisageFloatValue(this, underlying().mirrorOf(value));
     }
 
-    public FXDoubleValue mirrorOf(double value) {
-        return new FXDoubleValue(this, underlying().mirrorOf(value));
+    public VisageDoubleValue mirrorOf(double value) {
+        return new VisageDoubleValue(this, underlying().mirrorOf(value));
     }
 
     public StringReference mirrorOf(String value) {
-        return new FXStringReference(this, underlying().mirrorOf(value));
+        return new VisageStringReference(this, underlying().mirrorOf(value));
     }
 
     // default values
 
-    private FXBooleanValue booleanDefaultValue;
-    protected synchronized FXBooleanValue booleanDefaultValue() {
+    private VisageBooleanValue booleanDefaultValue;
+    protected synchronized VisageBooleanValue booleanDefaultValue() {
         if (booleanDefaultValue == null) {
             booleanDefaultValue = mirrorOf(false);
         }
         return booleanDefaultValue;
     }
 
-    private FXByteValue byteDefaultValue;
-    protected synchronized FXByteValue byteDefaultValue() {
+    private VisageByteValue byteDefaultValue;
+    protected synchronized VisageByteValue byteDefaultValue() {
         if (byteDefaultValue == null) {
             byteDefaultValue = mirrorOf((byte)0);
         }
         return byteDefaultValue;
     }
 
-    private FXCharValue charDefaultValue;
-    protected synchronized FXCharValue charDefaultValue() {
+    private VisageCharValue charDefaultValue;
+    protected synchronized VisageCharValue charDefaultValue() {
         if (charDefaultValue == null) {
             charDefaultValue = mirrorOf('\u0000');
         }
         return charDefaultValue;
     }
 
-    private FXShortValue shortDefaultValue;
-    protected synchronized FXShortValue shortDefaultValue() {
+    private VisageShortValue shortDefaultValue;
+    protected synchronized VisageShortValue shortDefaultValue() {
         if (shortDefaultValue == null) {
             shortDefaultValue = mirrorOf((short)0);
         }
         return shortDefaultValue;
     }
 
-    private FXIntegerValue integerDefaultValue;
-    protected synchronized FXIntegerValue integerDefaultValue() {
+    private VisageIntegerValue integerDefaultValue;
+    protected synchronized VisageIntegerValue integerDefaultValue() {
         if (integerDefaultValue == null) {
             integerDefaultValue = mirrorOf(0);
         }
         return integerDefaultValue;
     }
 
-    private FXLongValue longDefaultValue;
-    protected synchronized FXLongValue longDefaultValue() {
+    private VisageLongValue longDefaultValue;
+    protected synchronized VisageLongValue longDefaultValue() {
         if (longDefaultValue == null) {
             longDefaultValue = mirrorOf(0l);
         }
         return longDefaultValue;
     }
 
-    private FXFloatValue floatDefaultValue;
-    protected synchronized FXFloatValue floatDefaultValue() {
+    private VisageFloatValue floatDefaultValue;
+    protected synchronized VisageFloatValue floatDefaultValue() {
         if (floatDefaultValue == null) {
             floatDefaultValue = mirrorOf(0.0f);
         }
         return floatDefaultValue;
     }
 
-    private FXDoubleValue doubleDefaultValue;
-    protected synchronized FXDoubleValue doubleDefaultValue() {
+    private VisageDoubleValue doubleDefaultValue;
+    protected synchronized VisageDoubleValue doubleDefaultValue() {
         if (doubleDefaultValue == null) {
             doubleDefaultValue = mirrorOf(0.0d);
         }
@@ -343,7 +343,7 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     public void redefineClasses(Map<? extends ReferenceType, byte[]> classBytes) {
         Map<ReferenceType, byte[]> unwrappedClassBytes = new HashMap<ReferenceType, byte[]>();
         for (Map.Entry<? extends ReferenceType, byte[]> entry : classBytes.entrySet()) {
-            unwrappedClassBytes.put(FXWrapper.unwrap(entry.getKey()), entry.getValue());
+            unwrappedClassBytes.put(VisageWrapper.unwrap(entry.getKey()), entry.getValue());
         }
         underlying().redefineClasses(unwrappedClassBytes);
     }
@@ -365,24 +365,24 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     }
 
     public List<ThreadGroupReference> topLevelThreadGroups() {
-        return FXWrapper.wrapThreadGroups(this, underlying().topLevelThreadGroups());
+        return VisageWrapper.wrapThreadGroups(this, underlying().topLevelThreadGroups());
     }
 
     public String version() {
         return underlying().version();
     }
 
-    private FXThreadReference cacheUiThread = null;
+    private VisageThreadReference cacheUiThread = null;
     /**
      * JDI addition: Return the thread upon which invokeMethods are performed to get/set fields
      *
      * @return the thread upon which invokeMethods are performed by Visage-JDI to get/set fields 
      * that have getters/setters
      */
-    public FXThreadReference uiThread() {
+    public VisageThreadReference uiThread() {
         if (cacheUiThread == null) {
-            FXField uiThreadField = fxEntryType().fieldByName("uiThread");
-            cacheUiThread = (FXThreadReference) ((FXReferenceType)fxEntryType()).getValue(uiThreadField);
+            VisageField uiThreadField = fxEntryType().fieldByName("uiThread");
+            cacheUiThread = (VisageThreadReference) ((VisageReferenceType)fxEntryType()).getValue(uiThreadField);
         }
         return cacheUiThread;
     }
@@ -394,64 +394,64 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
 
     // Visage types
     public static final String VISAGE_ENTRY_TYPE_NAME = "org.visage.runtime.Entry";
-    private FXClassType fxEntryType;
-    public synchronized FXClassType fxEntryType() {
+    private VisageClassType fxEntryType;
+    public synchronized VisageClassType fxEntryType() {
         if (fxEntryType == null) {
             List<ReferenceType> refTypes = classesByName(VISAGE_ENTRY_TYPE_NAME);
-            fxEntryType = refTypes.isEmpty() ? null : (FXClassType) refTypes.get(0);
+            fxEntryType = refTypes.isEmpty() ? null : (VisageClassType) refTypes.get(0);
         }
         return fxEntryType;
     }
 
-    public static final String VISAGE_OBJECT_TYPE_NAME = "org.visage.runtime.FXObject";
-    private FXObjectType fxObjectType;
-    public synchronized FXObjectType fxObjectType() {
+    public static final String VISAGE_OBJECT_TYPE_NAME = "org.visage.runtime.VisageObject";
+    private VisageObjectType fxObjectType;
+    public synchronized VisageObjectType fxObjectType() {
         if (fxObjectType == null) {
             List<ReferenceType> refTypes = classesByName(VISAGE_OBJECT_TYPE_NAME);
-            fxObjectType = refTypes.isEmpty() ? null : (FXObjectType) refTypes.get(0);
+            fxObjectType = refTypes.isEmpty() ? null : (VisageObjectType) refTypes.get(0);
         }
         return fxObjectType;
     }
 
-    public static final String VISAGE_MIXIN_TYPE_NAME = "org.visage.runtime.FXMixin";
-    private FXInterfaceType fxMixinType;
-    public synchronized FXReferenceType fxMixinType() {
+    public static final String VISAGE_MIXIN_TYPE_NAME = "org.visage.runtime.VisageMixin";
+    private VisageInterfaceType fxMixinType;
+    public synchronized VisageReferenceType fxMixinType() {
         if (fxMixinType == null) {
             List<ReferenceType> refTypes = classesByName(VISAGE_MIXIN_TYPE_NAME);
-            fxMixinType = refTypes.isEmpty()? null : (FXInterfaceType) refTypes.get(0);
+            fxMixinType = refTypes.isEmpty()? null : (VisageInterfaceType) refTypes.get(0);
         }
         return fxMixinType;
     }
 
     public static final String VISAGE_SEQUENCE_TYPE_NAME = "org.visage.runtime.sequence.Sequence";
-    private FXSequenceType fxSequenceType;
-    public synchronized FXSequenceType fxSequenceType() {
+    private VisageSequenceType fxSequenceType;
+    public synchronized VisageSequenceType fxSequenceType() {
         if (fxSequenceType == null) {
             List<ReferenceType> refTypes = classesByName(VISAGE_SEQUENCE_TYPE_NAME);
-            fxSequenceType = refTypes.isEmpty() ? null : (FXSequenceType) refTypes.get(0);
+            fxSequenceType = refTypes.isEmpty() ? null : (VisageSequenceType) refTypes.get(0);
         }
         return fxSequenceType;
     }
 
     public static final String VISAGE_SEQUENCES_TYPE_NAME = "org.visage.runtime.sequence.Sequences";
-    private FXSequencesType fxSequencesType;
-    public synchronized FXSequencesType fxSequencesType() {
+    private VisageSequencesType fxSequencesType;
+    public synchronized VisageSequencesType fxSequencesType() {
         if (fxSequencesType == null) {
             List<ReferenceType> refTypes = classesByName(VISAGE_SEQUENCES_TYPE_NAME);
             if (refTypes.isEmpty()) {
                 // ensure that the debuggee has loaded and initialized Sequences type
-                fxSequencesType = (FXSequencesType) classType(initSequencesType());
+                fxSequencesType = (VisageSequencesType) classType(initSequencesType());
             } else {
-                fxSequencesType = (FXSequencesType) refTypes.get(0);
+                fxSequencesType = (VisageSequencesType) refTypes.get(0);
             }
         }
         return fxSequencesType;
     }
 
-    private FXVoidValue voidValue;
-    protected synchronized FXVoidValue voidValue() {
+    private VisageVoidValue voidValue;
+    protected synchronized VisageVoidValue voidValue() {
         if (voidValue == null) {
-            voidValue = new FXVoidValue(this, underlying().mirrorOfVoid());
+            voidValue = new VisageVoidValue(this, underlying().mirrorOfVoid());
         }
         return voidValue;
     }
@@ -459,220 +459,220 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     // wrapper methods
 
     // primitive type accessors
-    private FXVoidType voidType;
-    protected synchronized FXVoidType voidType(VoidType vt) {
+    private VisageVoidType voidType;
+    protected synchronized VisageVoidType voidType(VoidType vt) {
         if (voidType == null) {
-            voidType = new FXVoidType(this, vt);
+            voidType = new VisageVoidType(this, vt);
         }
         return voidType;
     }
 
-    private FXBooleanType booleanType;
-    protected synchronized FXBooleanType booleanType(BooleanType bt) {
+    private VisageBooleanType booleanType;
+    protected synchronized VisageBooleanType booleanType(BooleanType bt) {
         if (booleanType == null) {
-            booleanType = new FXBooleanType(this, bt);
+            booleanType = new VisageBooleanType(this, bt);
         }
         return booleanType;
     }
 
-    private FXCharType charType;
-    protected synchronized FXCharType charType(CharType ct) {
+    private VisageCharType charType;
+    protected synchronized VisageCharType charType(CharType ct) {
         if (charType == null) {
-            charType = new FXCharType(this, ct);
+            charType = new VisageCharType(this, ct);
         }
         return charType;
     }
 
-    private FXByteType byteType;
-    protected synchronized FXByteType byteType(ByteType bt) {
+    private VisageByteType byteType;
+    protected synchronized VisageByteType byteType(ByteType bt) {
         if (byteType == null) {
-            byteType = new FXByteType(this, bt);
+            byteType = new VisageByteType(this, bt);
         }
         return byteType;
     }
 
-    private FXShortType shortType;
-    protected synchronized FXShortType shortType(ShortType st) {
+    private VisageShortType shortType;
+    protected synchronized VisageShortType shortType(ShortType st) {
         if (shortType == null) {
-            shortType = new FXShortType(this, st);
+            shortType = new VisageShortType(this, st);
         }
         return shortType;
     }
 
-    private FXIntegerType integerType;
-    protected synchronized FXIntegerType integerType(IntegerType it) {
+    private VisageIntegerType integerType;
+    protected synchronized VisageIntegerType integerType(IntegerType it) {
         if (integerType == null) {
-            integerType = new FXIntegerType(this, it);
+            integerType = new VisageIntegerType(this, it);
         }
         return integerType;
     }
 
-    private FXLongType longType;
-    protected synchronized FXLongType longType(LongType lt) {
+    private VisageLongType longType;
+    protected synchronized VisageLongType longType(LongType lt) {
         if (longType == null) {
-            longType = new FXLongType(this, lt);
+            longType = new VisageLongType(this, lt);
         }
         return longType;
     }
 
-    private FXFloatType floatType;
-    protected synchronized FXFloatType floatType(FloatType ft) {
+    private VisageFloatType floatType;
+    protected synchronized VisageFloatType floatType(FloatType ft) {
         if (floatType == null) {
-            floatType = new FXFloatType(this, ft);
+            floatType = new VisageFloatType(this, ft);
         }
         return floatType;
     }
 
 
-    private FXDoubleType doubleType;
-    protected synchronized FXDoubleType doubleType(DoubleType dt) {
+    private VisageDoubleType doubleType;
+    protected synchronized VisageDoubleType doubleType(DoubleType dt) {
         if (doubleType == null) {
-            doubleType = new FXDoubleType(this, dt);
+            doubleType = new VisageDoubleType(this, dt);
         }
         return doubleType;
     }
 
-    protected FXLocation location(Location loc) {
-        return new FXLocation(this, loc);
+    protected VisageLocation location(Location loc) {
+        return new VisageLocation(this, loc);
     }
 
-    private final Map<ReferenceType, FXReferenceType> refTypesCache =
-            new HashMap<ReferenceType, FXReferenceType>();
+    private final Map<ReferenceType, VisageReferenceType> refTypesCache =
+            new HashMap<ReferenceType, VisageReferenceType>();
 
-    protected FXReferenceType referenceType(ReferenceType rt) {
+    protected VisageReferenceType referenceType(ReferenceType rt) {
         synchronized (refTypesCache) {
             if (! refTypesCache.containsKey(rt)) {
-                refTypesCache.put(rt, new FXReferenceType(this, rt));
+                refTypesCache.put(rt, new VisageReferenceType(this, rt));
             }
             return refTypesCache.get(rt);
         }
     }
 
-    protected FXClassType classType(ClassType ct) {
+    protected VisageClassType classType(ClassType ct) {
         synchronized (refTypesCache) {
             if (! refTypesCache.containsKey(ct)) {
                 String name = ct.name();
                 if (name.equals(VISAGE_SEQUENCES_TYPE_NAME)) {
-                    refTypesCache.put(ct, new FXSequencesType(this, ct));
+                    refTypesCache.put(ct, new VisageSequencesType(this, ct));
                 } else {
-                    refTypesCache.put(ct, new FXClassType(this, ct));
+                    refTypesCache.put(ct, new VisageClassType(this, ct));
                 }
             }
-            return (FXClassType) refTypesCache.get(ct);
+            return (VisageClassType) refTypesCache.get(ct);
         }
     }
 
-    protected FXInterfaceType interfaceType(InterfaceType it) {
+    protected VisageInterfaceType interfaceType(InterfaceType it) {
         synchronized (refTypesCache) {
             if (! refTypesCache.containsKey(it)) {
                 String name = it.name();
                 if (name.equals(VISAGE_OBJECT_TYPE_NAME)) {
-                   refTypesCache.put(it, new FXObjectType(this, it));
+                   refTypesCache.put(it, new VisageObjectType(this, it));
                 } else if (name.equals(VISAGE_SEQUENCE_TYPE_NAME)) {
-                   refTypesCache.put(it, new FXSequenceType(this, it));
+                   refTypesCache.put(it, new VisageSequenceType(this, it));
                 } else {
-                   refTypesCache.put(it, new FXInterfaceType(this, it));
+                   refTypesCache.put(it, new VisageInterfaceType(this, it));
                 }
             }
-            return (FXInterfaceType) refTypesCache.get(it);
+            return (VisageInterfaceType) refTypesCache.get(it);
         }
     }
 
-    protected FXArrayType arrayType(ArrayType at) {
+    protected VisageArrayType arrayType(ArrayType at) {
         synchronized (at) {
             if (! refTypesCache.containsKey(at)) {
-                refTypesCache.put(at, new FXArrayType(this, at));
+                refTypesCache.put(at, new VisageArrayType(this, at));
             }
-            return (FXArrayType) refTypesCache.get(at);
+            return (VisageArrayType) refTypesCache.get(at);
         }
     }
 
-    protected FXField field(Field field) {
-        return new FXField(this, field);
+    protected VisageField field(Field field) {
+        return new VisageField(this, field);
     }
 
-    protected FXMethod method(Method method) {
-        return new FXMethod(this, method);
+    protected VisageMethod method(Method method) {
+        return new VisageMethod(this, method);
     }
 
-    protected FXLocalVariable localVariable(LocalVariable var) {
-        return new FXLocalVariable(this, var);
+    protected VisageLocalVariable localVariable(LocalVariable var) {
+        return new VisageLocalVariable(this, var);
     }
 
-    protected FXBooleanValue booleanValue(BooleanValue value) {
-        return new FXBooleanValue(this, value);
+    protected VisageBooleanValue booleanValue(BooleanValue value) {
+        return new VisageBooleanValue(this, value);
     }
 
-    protected FXCharValue charValue(CharValue value) {
-        return new FXCharValue(this, value);
+    protected VisageCharValue charValue(CharValue value) {
+        return new VisageCharValue(this, value);
     }
 
-    protected FXByteValue byteValue(ByteValue value) {
-        return new FXByteValue(this, value);
+    protected VisageByteValue byteValue(ByteValue value) {
+        return new VisageByteValue(this, value);
     }
 
-    protected FXShortValue shortValue(ShortValue value) {
-        return new FXShortValue(this, value);
+    protected VisageShortValue shortValue(ShortValue value) {
+        return new VisageShortValue(this, value);
     }
 
-    protected FXIntegerValue integerValue(IntegerValue value) {
-        return new FXIntegerValue(this, value);
+    protected VisageIntegerValue integerValue(IntegerValue value) {
+        return new VisageIntegerValue(this, value);
     }
 
-    protected FXLongValue longValue(LongValue value) {
-        return new FXLongValue(this, value);
+    protected VisageLongValue longValue(LongValue value) {
+        return new VisageLongValue(this, value);
     }
 
-    protected FXFloatValue floatValue(FloatValue value) {
-        return new FXFloatValue(this, value);
+    protected VisageFloatValue floatValue(FloatValue value) {
+        return new VisageFloatValue(this, value);
     }
 
-    protected FXDoubleValue doubleValue(DoubleValue value) {
-        return new FXDoubleValue(this, value);
+    protected VisageDoubleValue doubleValue(DoubleValue value) {
+        return new VisageDoubleValue(this, value);
     }
 
-    protected FXObjectReference objectReference(ObjectReference ref) {
+    protected VisageObjectReference objectReference(ObjectReference ref) {
         ReferenceType rt = ref.referenceType();
         if (rt instanceof ClassType) {
             ClassType ct = (ClassType) rt;
-            boolean isSeq =  ct.allInterfaces().contains(FXWrapper.unwrap(fxSequenceType()));
+            boolean isSeq =  ct.allInterfaces().contains(VisageWrapper.unwrap(fxSequenceType()));
             if (isSeq) {
-                return new FXSequenceReference(this, ref);
+                return new VisageSequenceReference(this, ref);
             }
         }
-        return new FXObjectReference(this, ref);
+        return new VisageObjectReference(this, ref);
     }
 
-    protected FXThreadReference threadReference(ThreadReference tref) {
-        return new FXThreadReference(this, tref);
+    protected VisageThreadReference threadReference(ThreadReference tref) {
+        return new VisageThreadReference(this, tref);
     }
 
-    protected FXThreadGroupReference threadGroupReference(ThreadGroupReference tgref) {
-        return new FXThreadGroupReference(this, tgref);
+    protected VisageThreadGroupReference threadGroupReference(ThreadGroupReference tgref) {
+        return new VisageThreadGroupReference(this, tgref);
     }
 
-    protected FXStringReference stringReference(StringReference sref) {
-        return new FXStringReference(this, sref);
+    protected VisageStringReference stringReference(StringReference sref) {
+        return new VisageStringReference(this, sref);
     }
 
-    protected FXClassLoaderReference classLoaderReference(ClassLoaderReference clref) {
-        return new FXClassLoaderReference(this, clref);
+    protected VisageClassLoaderReference classLoaderReference(ClassLoaderReference clref) {
+        return new VisageClassLoaderReference(this, clref);
     }
 
-    protected FXClassObjectReference classObjectReference(ClassObjectReference coref) {
-        return new FXClassObjectReference(this, coref);
+    protected VisageClassObjectReference classObjectReference(ClassObjectReference coref) {
+        return new VisageClassObjectReference(this, coref);
     }
 
-    protected FXArrayReference arrayReference(ArrayReference aref) {
-        return new FXArrayReference(this, aref);
+    protected VisageArrayReference arrayReference(ArrayReference aref) {
+        return new VisageArrayReference(this, aref);
     }
 
-    protected FXMonitorInfo monitorInfo(MonitorInfo monitorInfo) {
-        return new FXMonitorInfo(this, monitorInfo);
+    protected VisageMonitorInfo monitorInfo(MonitorInfo monitorInfo) {
+        return new VisageMonitorInfo(this, monitorInfo);
     }
 
-    protected FXStackFrame stackFrame(StackFrame frame) {
-        return new FXStackFrame(this, frame);
+    protected VisageStackFrame stackFrame(StackFrame frame) {
+        return new VisageStackFrame(this, frame);
     }
 
     protected Exception lastFieldAccessException = null;
@@ -699,9 +699,9 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
     private int getFlagMask(String maskName) {
         int flagMask = 0;
         // we only work with underlying JDI objects here
-        List<ReferenceType> rtx =  this.underlying().classesByName("org.visage.runtime.FXObject");
+        List<ReferenceType> rtx =  this.underlying().classesByName("org.visage.runtime.VisageObject");
         if (rtx.size() != 1) {
-            System.out.println("Can't find the ReferenceType for org.visage.runtime.FXObject");
+            System.out.println("Can't find the ReferenceType for org.visage.runtime.VisageObject");
             return 0;
         }
         ReferenceType fxObjectRefType = rtx.get(0);
@@ -710,21 +710,21 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
         return ((IntegerValue)flagValue).value();
     }
 
-    protected int FXReadOnlyFlagMask() {
+    protected int VisageReadOnlyFlagMask() {
         if (readOnlyFlagMask == 0) {
             readOnlyFlagMask = getFlagMask("VFLGS$IS_READONLY");
         }
         return readOnlyFlagMask;
     }
 
-    protected int FXInvalidFlagMask() {
+    protected int VisageInvalidFlagMask() {
         if (invalidFlagMask == 0) {
             invalidFlagMask = getFlagMask("VFLGS$IS_BOUND_INVALID");
         }
         return invalidFlagMask;
     }
 
-    protected int FXBoundFlagMask() {
+    protected int VisageBoundFlagMask() {
         if (boundFlagMask == 0) {
             boundFlagMask = getFlagMask("VFLGS$IS_BOUND");
         }
@@ -772,9 +772,9 @@ public class FXVirtualMachine extends FXMirror implements VirtualMachine {
             List<Value> args = new ArrayList<Value>(3);
             args.add(vm.mirrorOf(VISAGE_SEQUENCES_TYPE_NAME));
             args.add(vm.mirrorOf(true));
-            args.add(FXWrapper.unwrap(fxEntryType().classLoader()));
+            args.add(VisageWrapper.unwrap(fxEntryType().classLoader()));
             ClassObjectReference retVal = (ClassObjectReference)classType.invokeMethod(
-                                                 FXWrapper.unwrap(uiThread()), forName, args, 0);
+                                                 VisageWrapper.unwrap(uiThread()), forName, args, 0);
             // retVal must be a ClassObjectReference for the Sequences class
             return (ClassType)retVal.reflectedType();
         } catch (RuntimeException exp) {

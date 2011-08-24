@@ -23,7 +23,7 @@
 
 package org.visage.jdi.test;
 
-import org.visage.jdi.FXBootstrap;
+import org.visage.jdi.VisageBootstrap;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.*;
 
@@ -127,7 +127,7 @@ class VMConnection {
 
 
     private Connector findConnector(String name) {
-        List connectors = FXBootstrap.virtualMachineManager().allConnectors();
+        List connectors = VisageBootstrap.virtualMachineManager().allConnectors();
         Iterator iter = connectors.iterator();
         while (iter.hasNext()) {
             Connector connector = (Connector)iter.next();

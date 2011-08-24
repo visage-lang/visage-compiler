@@ -25,7 +25,7 @@ package org.visage.tools.api;
 
 import org.visage.api.JavafxcTask;
 import org.visage.api.tree.UnitTree;
-import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.OnReplaceTree;
 
 import java.io.File;
@@ -81,7 +81,7 @@ public class JFXC1205Test {
         }
     }
     
-    private static class FindOnReplaceVisitor extends JavaFXTreePathScanner<Void, Void> {
+    private static class FindOnReplaceVisitor extends VisageTreePathScanner<Void, Void> {
         @Override
         public Void visitOnReplace(OnReplaceTree tree, Void voodoo) {
             super.visitOnReplace(tree, null);

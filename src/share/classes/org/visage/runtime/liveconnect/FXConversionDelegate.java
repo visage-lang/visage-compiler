@@ -29,8 +29,8 @@ import netscape.javascript.*;
 import com.sun.java.browser.plugin2.liveconnect.v1.*;
 import visage.reflect.*;
 
-public class FXConversionDelegate implements ConversionDelegate {
-    private FXLocal.Context context = FXLocal.getContext();
+public class VisageConversionDelegate implements ConversionDelegate {
+    private VisageLocal.Context context = VisageLocal.getContext();
     private Bridge bridge;
 
     // Support for conversion of arbitrary Objects to Strings
@@ -44,16 +44,16 @@ public class FXConversionDelegate implements ConversionDelegate {
         TOSTRING_CONVERSION_PENALTY * TOSTRING_CONVERSION_PENALTY;
 
     // Need to know about certain primitive types
-    private FXType booleanType;
-    private FXType charType;
-    private FXType byteType;
-    private FXType shortType;
-    private FXType integerType;
-    private FXType longType;
-    private FXType floatType;
-    private FXType doubleType;
+    private VisageType booleanType;
+    private VisageType charType;
+    private VisageType byteType;
+    private VisageType shortType;
+    private VisageType integerType;
+    private VisageType longType;
+    private VisageType floatType;
+    private VisageType doubleType;
 
-    public FXConversionDelegate(Bridge bridge) {
+    public VisageConversionDelegate(Bridge bridge) {
         this.bridge = bridge;
         booleanType = context.getBooleanType();
         charType = context.getCharacterType();
@@ -66,13 +66,13 @@ public class FXConversionDelegate implements ConversionDelegate {
     }
 
     public int conversionCost(Object arg, Object toType) {
-        if (!(toType instanceof FXType)) {
+        if (!(toType instanceof VisageType)) {
             return -1;
         }
 
-        FXType targetType = (FXType) toType;
+        VisageType targetType = (VisageType) toType;
         if (arg == null) {
-            if (targetType instanceof FXPrimitiveType) {
+            if (targetType instanceof VisagePrimitiveType) {
                 // null arguments can not undergo unboxing conversions
                 return -1;
             }
@@ -80,7 +80,7 @@ public class FXConversionDelegate implements ConversionDelegate {
         }
 
         // Primitive value conversions
-        if (targetType instanceof FXPrimitiveType) {
+        if (targetType instanceof VisagePrimitiveType) {
             if (targetType.equals(floatType)) {
                 if (arg instanceof Float)
                     return 0;
@@ -126,15 +126,15 @@ public class FXConversionDelegate implements ConversionDelegate {
 
         // FIXME: add any-to-String conversion
 
-        if (!(targetType instanceof FXClassType)) {
+        if (!(targetType instanceof VisageClassType)) {
             // Don't know what's going on
             return -1;
         }
 
-        FXType argType;
-        if (arg instanceof FXValue) {
-            if (arg instanceof FXObjectValue) {
-                argType = ((FXObjectValue) arg).getClassType();
+        VisageType argType;
+        if (arg instanceof VisageValue) {
+            if (arg instanceof VisageObjectValue) {
+                argType = ((VisageObjectValue) arg).getClassType();
             } else {
                 // Shouldn't happen if we know what is going on
                 return -1;
@@ -148,10 +148,10 @@ public class FXConversionDelegate implements ConversionDelegate {
             return 0;
         }
 
-        return conversionDistance((FXClassType) argType, (FXClassType) targetType);
+        return conversionDistance((VisageClassType) argType, (VisageClassType) targetType);
     }
 
-    private int conversionDistance(FXClassType fromType, FXClassType toType) {
+    private int conversionDistance(VisageClassType fromType, VisageClassType toType) {
         int res = conversionDistance(fromType, toType, 0);
         if (res == Integer.MAX_VALUE) {
             // Not convertible
@@ -160,32 +160,32 @@ public class FXConversionDelegate implements ConversionDelegate {
         return res;
     }
 
-    private int conversionDistance(FXClassType fromType, FXClassType toType, int depth) {
+    private int conversionDistance(VisageClassType fromType, VisageClassType toType, int depth) {
         if (fromType.equals(toType)) {
             return depth;
         }
 
         // Walk up superclass hierarchy
-        List<FXClassType> supers = fromType.getSuperClasses(false);
+        List<VisageClassType> supers = fromType.getSuperClasses(false);
         int minDepth = Integer.MAX_VALUE;
-        for (FXClassType type : supers) {
+        for (VisageClassType type : supers) {
             minDepth = Math.min(minDepth, conversionDistance(type, toType, 1 + depth));
         }
         return minDepth;
     }
 
     public boolean convert(Object obj, Object toType, Object[] result) throws Exception {
-        if (!(toType instanceof FXType)) {
+        if (!(toType instanceof VisageType)) {
             return false;
         }
 
-        FXType targetType = (FXType) toType;
+        VisageType targetType = (VisageType) toType;
         if (obj == null) {
             return true;
         }
 
         // Primitive value conversions
-        if (targetType instanceof FXPrimitiveType) {
+        if (targetType instanceof VisagePrimitiveType) {
             boolean isNumber = obj instanceof Number;
 
             if (targetType.equals(floatType)) {
@@ -298,12 +298,12 @@ public class FXConversionDelegate implements ConversionDelegate {
         if (obj instanceof JSObject) {
             if (isStringType(targetType)) {
                 result[0] = context.mirrorOf(obj.toString());
-            } else if (targetType instanceof FXSequenceType) {
+            } else if (targetType instanceof VisageSequenceType) {
                 try {
                     JSObject jsObj = (JSObject) obj;
-                    FXType componentType = ((FXSequenceType) targetType).getComponentType();
+                    VisageType componentType = ((VisageSequenceType) targetType).getComponentType();
                     int length = ((Number) jsObj.getMember("length")).intValue();
-                    FXValue[] values = new FXValue[length];
+                    VisageValue[] values = new VisageValue[length];
                     Object[] tmp = new Object[1];
                     for (int i = 0; i < length; i++) {
                         Object element = null;
@@ -314,7 +314,7 @@ public class FXConversionDelegate implements ConversionDelegate {
                         }
                         if (element != null) {
                             convert(element, componentType, tmp);
-                            values[i] = (FXValue) tmp[0];
+                            values[i] = (VisageValue) tmp[0];
                         }
                     }
                     result[0] = context.makeSequence(componentType, values);
@@ -329,15 +329,15 @@ public class FXConversionDelegate implements ConversionDelegate {
 
         // FIXME: add any-to-String conversion
         
-        if (!(targetType instanceof FXClassType)) {
+        if (!(targetType instanceof VisageClassType)) {
             // Don't know what's going on
             throw inconvertible(obj, targetType);
         }
 
-        FXType argType;
-        if (obj instanceof FXValue) {
-            if (obj instanceof FXObjectValue) {
-                argType = ((FXObjectValue) obj).getClassType();
+        VisageType argType;
+        if (obj instanceof VisageValue) {
+            if (obj instanceof VisageObjectValue) {
+                argType = ((VisageObjectValue) obj).getClassType();
             } else {
                 // Shouldn't happen if we know what is going on
                 throw inconvertible(obj, targetType);
@@ -350,26 +350,26 @@ public class FXConversionDelegate implements ConversionDelegate {
             throw inconvertible(argType, targetType);
         }
 
-        if (obj instanceof FXValue) {
-            result[0] = (FXValue) obj;
+        if (obj instanceof VisageValue) {
+            result[0] = (VisageValue) obj;
         } else {
             result[0] = context.mirrorOf(obj);
         }
         return true;
     }
 
-    private boolean isStringType(FXType targetType) {
-        return ((targetType instanceof FXLocal.ClassType) &&
-                (((FXLocal.ClassType) targetType).getJavaImplementationClass() == String.class));
+    private boolean isStringType(VisageType targetType) {
+        return ((targetType instanceof VisageLocal.ClassType) &&
+                (((VisageLocal.ClassType) targetType).getJavaImplementationClass() == String.class));
     }
             
     // Indicates whether a JSObject can be converted to the target type
-    private boolean canConvert(JSObject obj, FXType targetType) {
+    private boolean canConvert(JSObject obj, VisageType targetType) {
         if (isStringType(targetType)) {
             return true;
         }
 
-        if (targetType instanceof FXSequenceType) {
+        if (targetType instanceof VisageSequenceType) {
             // See whether we have a chance of converting it; note
             // that this is a risky conversion because it implies a
             // lot of work that might go wrong (and we don't want to
@@ -385,11 +385,11 @@ public class FXConversionDelegate implements ConversionDelegate {
         return false;
     }
 
-    private static IllegalArgumentException inconvertible(Object object, FXType toType) {
+    private static IllegalArgumentException inconvertible(Object object, VisageType toType) {
         return inconvertible(object, toType, null);
     }
 
-    private static IllegalArgumentException inconvertible(Object object, FXType toType, Exception cause) {
+    private static IllegalArgumentException inconvertible(Object object, VisageType toType, Exception cause) {
         IllegalArgumentException exc = 
             new IllegalArgumentException("Object " + object +
                                          " can not be converted to " + toType);
@@ -399,13 +399,13 @@ public class FXConversionDelegate implements ConversionDelegate {
         return exc;
     }
 
-    private static IllegalArgumentException inconvertible(FXType objectType, FXType targetType) {
+    private static IllegalArgumentException inconvertible(VisageType objectType, VisageType targetType) {
         return inconvertible(objectType, targetType, null);
     }
 
-    private static IllegalArgumentException inconvertible(FXType objectType, FXType targetType, Exception cause) {
+    private static IllegalArgumentException inconvertible(VisageType objectType, VisageType targetType, Exception cause) {
         IllegalArgumentException exc = 
-            new IllegalArgumentException("FXType " + objectType.getName() +
+            new IllegalArgumentException("VisageType " + objectType.getName() +
                                          " can not be converted to " + targetType.getName());
         if (cause != null) {
             exc.initCause(cause);

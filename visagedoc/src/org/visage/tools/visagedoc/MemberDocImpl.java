@@ -26,7 +26,7 @@ package org.visage.tools.visagedoc;
 import com.sun.javadoc.*;
 
 import com.sun.tools.mjavac.code.Symbol;
-import org.visage.tools.tree.JFXTree;
+import org.visage.tools.tree.VisageTree;
 import com.sun.tools.mjavac.util.Position;
 
 /**
@@ -50,7 +50,7 @@ public abstract class MemberDocImpl
     /**
      * constructor.
      */
-    public MemberDocImpl(DocEnv env, Symbol sym, String doc, JFXTree tree, Position.LineMap lineMap) {
+    public MemberDocImpl(DocEnv env, Symbol sym, String doc, VisageTree tree, Position.LineMap lineMap) {
         super(env, sym, doc, tree, lineMap);
     }
 

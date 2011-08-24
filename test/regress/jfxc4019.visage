@@ -18,7 +18,7 @@ public mixin class C1 {
 
 function test1() {
     def a = A1 {};
-    def cntxt = FXLocal.getContext(); 
+    def cntxt = VisageLocal.getContext(); 
     def ov = cntxt.mirrorOf(a);
     for (v in ov.getClassType().getVariables(true)) {
         if (not v.isStatic() and (v.isPublic() or v.isPublicInit())) {
@@ -38,7 +38,7 @@ public mixin class C2 {
 }
 
 function test2() {
-    def cntxt = FXLocal.getContext();
+    def cntxt = VisageLocal.getContext();
     def btn = A2{height:23.0};
     def ov = cntxt.mirrorOf(btn);
     for (v in ov.getClassType().getVariables(true)) {

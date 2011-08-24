@@ -31,9 +31,9 @@ package visage.reflect;
  * @profile desktop
  */
 
-public interface FXMember {
+public interface VisageMember {
     public abstract String getName();
-    public abstract FXClassType getDeclaringClass();
+    public abstract VisageClassType getDeclaringClass();
     public abstract boolean isStatic();
 
     /** The member was specified to have public access. */

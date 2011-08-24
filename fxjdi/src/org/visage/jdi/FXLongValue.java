@@ -29,8 +29,8 @@ import com.sun.jdi.LongValue;
  *
  * @author sundar
  */
-public class FXLongValue extends FXPrimitiveValue implements LongValue {
-    public FXLongValue(FXVirtualMachine fxvm, LongValue underlying) {
+public class VisageLongValue extends VisagePrimitiveValue implements LongValue {
+    public VisageLongValue(VisageVirtualMachine fxvm, LongValue underlying) {
         super(fxvm, underlying);
     }
 
@@ -39,7 +39,7 @@ public class FXLongValue extends FXPrimitiveValue implements LongValue {
     }
 
     public int compareTo(LongValue o) {
-        return underlying().compareTo((LongValue)FXWrapper.unwrap(o));
+        return underlying().compareTo((LongValue)VisageWrapper.unwrap(o));
     }
 
     @Override

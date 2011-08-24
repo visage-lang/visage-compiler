@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
-import org.visage.jdi.FXReferenceType;
-import org.visage.jdi.FXObjectReference;
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageReferenceType;
+import org.visage.jdi.VisageObjectReference;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.Value;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.event.BreakpointEvent;
@@ -82,18 +82,18 @@ public class InvokeExceptionsTest extends JavafxTestBase {
                     writeActual(fld.name() + " = " + 
                                 vvRT.getValue(fld) +
                                 ", except = " + 
-                                ((FXVirtualMachine)vm()).lastFieldAccessException());
+                                ((VisageVirtualMachine)vm()).lastFieldAccessException());
                 } else {
                     ivars.add(fld);
                     writeActual(fld.name() + " = " + 
                                 vvVal.getValue(fld) + 
                                 ", except = " + 
-                                ((FXVirtualMachine)vm()).lastFieldAccessException());
+                                ((VisageVirtualMachine)vm()).lastFieldAccessException());
                 }
             }
             
             Map<Field, Value> ivals = vvVal.getValues(ivars);
-            writeActual("Except = " + ((FXVirtualMachine)vm()).lastFieldAccessException());
+            writeActual("Except = " + ((VisageVirtualMachine)vm()).lastFieldAccessException());
             for (Field fld: ivars) {
                 writeActual(fld.name() + " = " +  vvVal.getValue(fld));
             }

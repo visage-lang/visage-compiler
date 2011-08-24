@@ -30,31 +30,31 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
-public class JFXOnReplace extends JFXTree implements OnReplaceTree {
+public class VisageOnReplace extends VisageTree implements OnReplaceTree {
     
-    private final JFXVar firstIndex;
-    private final JFXVar oldValue;
-    private final JFXBlock body;
+    private final VisageVar firstIndex;
+    private final VisageVar oldValue;
+    private final VisageBlock body;
     private int endKind;
     private Kind triggerKind;
-    private JFXVar lastIndex;
-    private JFXVar newElements;
-    private JFXVar saveVar;
+    private VisageVar lastIndex;
+    private VisageVar newElements;
+    private VisageVar saveVar;
 
     
-    public JFXOnReplace(Kind triggerKind) {
+    public VisageOnReplace(Kind triggerKind) {
         this(null, null, null, 0, null, null, null, triggerKind);
     }
 
-    public JFXOnReplace( JFXVar oldValue, JFXBlock body, Kind triggerKind) {
+    public VisageOnReplace( VisageVar oldValue, VisageBlock body, Kind triggerKind) {
         this(oldValue, null, null, 0, null, null, body, triggerKind);
     }
     
     
-    public JFXOnReplace(JFXVar oldValue, JFXVar firstIndex, JFXVar lastIndex,
-            int endKind, JFXVar newElements, JFXVar saveVar, JFXBlock body, Kind triggerKind) {
+    public VisageOnReplace(VisageVar oldValue, VisageVar firstIndex, VisageVar lastIndex,
+            int endKind, VisageVar newElements, VisageVar saveVar, VisageBlock body, Kind triggerKind) {
         this.oldValue = oldValue;
         this.firstIndex = firstIndex;
         this.lastIndex = lastIndex;
@@ -73,35 +73,35 @@ public class JFXOnReplace extends JFXTree implements OnReplaceTree {
         return JavafxTag.ON_REPLACE;
     }
     
-    public JFXVar getOldValue() {
+    public VisageVar getOldValue() {
         return oldValue;
     }
     
-    public JFXBlock getBody() {
+    public VisageBlock getBody() {
         return body;
     }
     
-    public JFXVar getFirstIndex () {
+    public VisageVar getFirstIndex () {
         return firstIndex;
     }
 
-    public JFXVar getLastIndex () {
+    public VisageVar getLastIndex () {
         return lastIndex;
     }
 
-    public JFXVar getNewElements () {
+    public VisageVar getNewElements () {
         return newElements;
     }
 
-    public JFXVar getSaveVar () {
+    public VisageVar getSaveVar () {
         return saveVar;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.ON_REPLACE;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.ON_REPLACE;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitOnReplace(this, data);
     }
 

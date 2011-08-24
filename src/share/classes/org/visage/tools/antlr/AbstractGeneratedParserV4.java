@@ -34,11 +34,11 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.tree.JCTree;
 
 import com.sun.tools.mjavac.util.Options;
-import org.visage.tools.tree.JFXInterpolateValue;
-import org.visage.tools.tree.JFXTree;
-import org.visage.tools.tree.JFXBlock;
-import org.visage.tools.tree.JFXErroneous;
-import org.visage.tools.tree.JFXType;
+import org.visage.tools.tree.VisageInterpolateValue;
+import org.visage.tools.tree.VisageTree;
+import org.visage.tools.tree.VisageBlock;
+import org.visage.tools.tree.VisageErroneous;
+import org.visage.tools.tree.VisageType;
 import org.visage.tools.tree.JavafxTreeInfo;
 import org.visage.tools.tree.JavafxTreeMaker;
 
@@ -140,7 +140,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * so that they can navigate source code even while it is not,
      * strictly speaking, valid code.
      */
-    protected JFXErroneous errorNode = null;  
+    protected VisageErroneous errorNode = null;  
 
     /**
      * Defines the human readable names of all the tokens that the lexer
@@ -1024,7 +1024,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * Visage infrastructure.
      */
 
-    public void displayRecognitionError(String[] tokenNames, RecognitionException e, JFXTree node) {
+    public void displayRecognitionError(String[] tokenNames, RecognitionException e, VisageTree node) {
 
         // Now we build the appropriate error message
         //
@@ -1233,7 +1233,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * @param tree The AST node that we wish to create an endpos for
      * @param list A list of interpolation value AST nodes.
      */
-    void endPos(JCTree tree, com.sun.tools.mjavac.util.List<JFXInterpolateValue> list) {
+    void endPos(JCTree tree, com.sun.tools.mjavac.util.List<VisageInterpolateValue> list) {
         if (genEndPos) {
             int endLast = endPositions.get(list.last());
             endPositions.put(tree, endLast);
@@ -1297,8 +1297,8 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             int start = tree.getStartPosition();
             if (end <= start)
                 end = start + 1;
-            if (tree instanceof JFXBlock)
-                ((JFXBlock) tree).endpos = end;
+            if (tree instanceof VisageBlock)
+                ((VisageBlock) tree).endpos = end;
             if (genEndPos) {
                 endPositions.put(tree, end);
             }
@@ -1310,7 +1310,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * @return
      */
     protected List noJFXTrees() {
-        return List.<JFXTree>nil();
+        return List.<VisageTree>nil();
     }
     
     /**
@@ -1546,7 +1546,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      *         all the tokesn that we had to discard in order to resync somewhere
      *         sensible.
      */
-    protected JFXErroneous resyncClassMember(int ruleStart, RecognitionException re)
+    protected VisageErroneous resyncClassMember(int ruleStart, RecognitionException re)
     {
         // First lets find out what the follow set is from this particular context
         //
@@ -1639,7 +1639,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // So we need to create an erroneous node that covers everything
         // we skipped.
         //
-        JFXErroneous errNode = F.at(ruleStart).Erroneous();
+        VisageErroneous errNode = F.at(ruleStart).Erroneous();
         endPos(errNode);
 
         // The caller will send the AST node to whereever it needs to be
@@ -1662,11 +1662,11 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      *           can use that information.
      * @return Either a Visage error node for the AST that spans the start and end of
      *         all the tokens that we had to discard in order to resync somewhere
-     *         sensible, or a JFXMissingType
+     *         sensible, or a VisageMissingType
      */
-    protected JFXType resyncType(int ruleStart, RecognitionException re)
+    protected VisageType resyncType(int ruleStart, RecognitionException re)
     {
-        JFXType errNode;
+        VisageType errNode;
         
     	// If we got an NVA here then basically there was no typeName or typeArgList
 	// and so on. We create a missing type is the rule has consumed no tokens

@@ -26,7 +26,7 @@ package org.visage.tools.comp;
 
 import org.visage.api.JavafxBindStatus;
 import org.visage.api.tree.SequenceSliceTree;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import org.visage.tools.code.JavafxSymtab;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
@@ -115,19 +115,19 @@ public abstract class JavafxAbstractTranslation
         return yieldKind;
     }
 
-    JFXClassDeclaration currentClass() {
+    VisageClassDeclaration currentClass() {
         return getAttrEnv().enclClass;
     }
 
-    JFXFunctionDefinition currentFunction() {
+    VisageFunctionDefinition currentFunction() {
         return getAttrEnv().enclFunction;
     }
 
-    void setCurrentClass(JFXClassDeclaration tree) {
+    void setCurrentClass(VisageClassDeclaration tree) {
         getAttrEnv().enclClass = tree;
     }
 
-    void setCurrentFunction(JFXFunctionDefinition tree) {
+    void setCurrentFunction(VisageFunctionDefinition tree) {
         getAttrEnv().enclFunction = tree;
     }
 
@@ -235,7 +235,7 @@ public abstract class JavafxAbstractTranslation
      * But it does handle nulls coming in from Java method returns, and variables.
      */
     protected JCExpression convertNullability(final DiagnosticPosition diagPos, final JCExpression expr,
-            final JFXExpression inExpr, final Type outType) {
+            final VisageExpression inExpr, final Type outType) {
         class ConvertNullabilityTranslator extends Translator {
             ConvertNullabilityTranslator(DiagnosticPosition diagPos) { super(diagPos); }
 
@@ -251,7 +251,7 @@ public abstract class JavafxAbstractTranslation
                 }
 
                 final Type inType = inExpr.type;
-                if (inType == syms.botType || inExpr.getJavaFXKind() == JavaFXKind.NULL_LITERAL) {
+                if (inType == syms.botType || inExpr.getJavaFXKind() == VisageKind.NULL_LITERAL) {
                     return DefaultValue(outType);
                 }
 
@@ -484,8 +484,8 @@ public abstract class JavafxAbstractTranslation
 
     /********** translation support **********/
 
-    private void translateCore(JFXTree expr, Type targettedType, Yield yield) {
-            JFXTree prevWhere = getAttrEnv().where;
+    private void translateCore(VisageTree expr, Type targettedType, Yield yield) {
+            VisageTree prevWhere = getAttrEnv().where;
             Yield prevYield = yield();
             Type prevTargetType = targetType;
             getAttrEnv().where = expr;
@@ -497,7 +497,7 @@ public abstract class JavafxAbstractTranslation
             getAttrEnv().where = prevWhere;
     }
 
-    ExpressionResult translateToExpressionResult(JFXExpression expr, Type targettedType) {
+    ExpressionResult translateToExpressionResult(VisageExpression expr, Type targettedType) {
         if (expr == null) {
             return null;
         } else {
@@ -510,7 +510,7 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
-    StatementsResult translateToStatementsResult(JFXExpression expr, Type targettedType) {
+    StatementsResult translateToStatementsResult(VisageExpression expr, Type targettedType) {
         if (expr == null) {
             return null;
         } else {
@@ -600,15 +600,15 @@ public abstract class JavafxAbstractTranslation
         return new JCConverter(res, targettedType).asExpression();
     }
 
-    JCExpression translateToExpression(JFXExpression expr, Type targettedType) {
+    JCExpression translateToExpression(VisageExpression expr, Type targettedType) {
         return asExpression(translateToExpressionResult(expr, targettedType), targettedType);
     }
 
-    JCStatement translateToStatement(JFXExpression expr, Type targettedType) {
+    JCStatement translateToStatement(VisageExpression expr, Type targettedType) {
         return asStatement(translateToStatementsResult(expr, targettedType), targettedType);
     }
 
-    JCBlock translateToBlock(JFXExpression expr, Type targettedType) {
+    JCBlock translateToBlock(VisageExpression expr, Type targettedType) {
         if (expr == null) {
             return null;
         } else {
@@ -616,16 +616,16 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
-    JCTree translateFunction(JFXFunctionDefinition tree, boolean maintainContext) {
+    JCTree translateFunction(VisageFunctionDefinition tree, boolean maintainContext) {
         return new FunctionTranslator(tree, maintainContext).doit().tree();
     }
 
     /** Translate a single tree.
      */
-    SpecialResult translateToSpecialResult(JFXTree tree) {
+    SpecialResult translateToSpecialResult(VisageTree tree) {
         SpecialResult ret;
 
-        JFXTree prevWhere = getAttrEnv().where;
+        VisageTree prevWhere = getAttrEnv().where;
         getAttrEnv().where = tree;
         tree.accept(this);
         getAttrEnv().where = prevWhere;
@@ -637,7 +637,7 @@ public abstract class JavafxAbstractTranslation
     static class OnReplaceInfo {
         public OnReplaceInfo outer;
         JavafxVarSymbol vsym;
-        public JFXOnReplace onReplace;
+        public VisageOnReplace onReplace;
         Symbol newElementsSym;
         Type arraySequenceType;
         Type seqWithExtendsType;
@@ -658,7 +658,7 @@ public abstract class JavafxAbstractTranslation
         return new UseSequenceBuilder(diagPos, elemType, null) {
 
             @Override
-            JCStatement addElement(JFXExpression exprToAdd) {
+            JCStatement addElement(VisageExpression exprToAdd) {
                 JCExpression expr = translateToExpression(exprToAdd, targettedType(exprToAdd));
                 JCVariableDecl varDef = TmpVar(targettedType(exprToAdd), expr);
                 return nonLocal ?
@@ -702,7 +702,7 @@ public abstract class JavafxAbstractTranslation
             this.seqBuilder = seqBuilder;
         }
 
-        Type targettedType(JFXExpression exprToAdd) {
+        Type targettedType(VisageExpression exprToAdd) {
             Type exprType = exprToAdd.type;
             if (types.isArray(exprType) || types.isSequence(exprType)) {
                 return types.sequenceType(elemType);
@@ -752,7 +752,7 @@ public abstract class JavafxAbstractTranslation
             return id(sbName);
         }
 
-        abstract JCStatement addElement(JFXExpression expr);
+        abstract JCStatement addElement(VisageExpression expr);
 
         abstract List<JCExpression> makeConstructorArgs();
 
@@ -778,7 +778,7 @@ public abstract class JavafxAbstractTranslation
             return fxmake.at(diagPos);
         }
 
-        JCVariableDecl convertParam(JFXVar param) {
+        JCVariableDecl convertParam(VisageVar param) {
             return Param(param.type, param.name);
         }
     }
@@ -813,19 +813,19 @@ public abstract class JavafxAbstractTranslation
             }
         }
 
-        JCExpression translateExpr(JFXExpression expr, Type type) {
+        JCExpression translateExpr(VisageExpression expr, Type type) {
             ExpressionResult result = translateToExpressionResult(expr, type);
             return mergeResults(result);
         }
 
-        JCExpression translateExprToBlockExpression(JFXExpression expr, Type type) {
+        JCExpression translateExprToBlockExpression(VisageExpression expr, Type type) {
             ExpressionResult result = translateToExpressionResult(expr, type);
             return mergeResultsToBlockExpression(result);
         }
 
-        List<JCExpression> translateExprs(List<JFXExpression> list) {
+        List<JCExpression> translateExprs(List<VisageExpression> list) {
             ListBuffer<JCExpression> trans = ListBuffer.lb();
-            for (List<JFXExpression> l = list; l.nonEmpty(); l = l.tail) {
+            for (List<VisageExpression> l = list; l.nonEmpty(); l = l.tail) {
                 JCExpression res = translateExpr(l.head, null);
                 if (res != null) {
                     trans.append(res);
@@ -834,7 +834,7 @@ public abstract class JavafxAbstractTranslation
             return trans.toList();
         }
 
-        void translateStmt(JFXExpression expr, Type targettedType) {
+        void translateStmt(VisageExpression expr, Type targettedType) {
             //TODO: My guess is that statements will need to preserve bindee info for block-expressions
             StatementsResult res = translateToStatementsResult(expr, targettedType);
             addPreface(res.statements());
@@ -956,9 +956,9 @@ public abstract class JavafxAbstractTranslation
             }
         }
 
-        JCExpression translateSizeof(JFXExpression expr, JCExpression transExpr) {
-            if (expr instanceof JFXIdent) {
-                JFXIdent varId = (JFXIdent) expr;
+        JCExpression translateSizeof(VisageExpression expr, JCExpression transExpr) {
+            if (expr instanceof VisageIdent) {
+                VisageIdent varId = (VisageIdent) expr;
                 OnReplaceInfo info = findOnReplaceInfo(varId.sym);
                 if (info != null) {
                     return id(paramNewElementsLengthName(info.onReplace));
@@ -971,9 +971,9 @@ public abstract class JavafxAbstractTranslation
 
     class LiteralTranslator extends ExpressionTranslator {
 
-        protected final JFXLiteral tree;
+        protected final VisageLiteral tree;
 
-        LiteralTranslator(JFXLiteral tree) {
+        LiteralTranslator(VisageLiteral tree) {
             super(tree.pos());
             this.tree = tree;
         }
@@ -990,31 +990,31 @@ public abstract class JavafxAbstractTranslation
 
     class StringExpressionTranslator extends ExpressionTranslator {
 
-        private final JFXStringExpression tree;
-        StringExpressionTranslator(JFXStringExpression tree) {
+        private final VisageStringExpression tree;
+        StringExpressionTranslator(VisageStringExpression tree) {
             super(tree.pos());
             this.tree = tree;
         }
 
         protected ExpressionResult doit() {
             StringBuffer sb = new StringBuffer();
-            List<JFXExpression> parts = tree.getParts();
+            List<VisageExpression> parts = tree.getParts();
             ListBuffer<JCExpression> values = new ListBuffer<JCExpression>();
 
-            JFXLiteral lit = (JFXLiteral) (parts.head);            // "...{
+            VisageLiteral lit = (VisageLiteral) (parts.head);            // "...{
             sb.append((String) lit.value);
             parts = parts.tail;
             boolean containsDateTimeFormat = false;
 
             while (parts.nonEmpty()) {
-                lit = (JFXLiteral) (parts.head);                  // optional format (or null)
+                lit = (VisageLiteral) (parts.head);                  // optional format (or null)
                 String format = (String) lit.value;
                 if ((!containsDateTimeFormat) && format.length() > 0
                     && JavafxDefs.DATETIME_FORMAT_PATTERN.matcher(format).find()) {
                     containsDateTimeFormat = true;
                 }
                 parts = parts.tail;
-                JFXExpression exp = parts.head;
+                VisageExpression exp = parts.head;
                 JCExpression texp;
                 if (exp != null && types.isSameType(exp.type, syms.visage_DurationType)) {
                     texp = Call(translateExpr(exp, syms.visage_DurationType), defs.toMillis_DurationMethodName);
@@ -1027,7 +1027,7 @@ public abstract class JavafxAbstractTranslation
                 values.append(texp);
                 parts = parts.tail;
 
-                lit = (JFXLiteral) (parts.head);                  // }...{  or  }..."
+                lit = (VisageLiteral) (parts.head);                  // }...{  or  }..."
                 String part = (String)lit.value;
                 sb.append(part.replace("%", "%%"));              // escape percent signs
                 parts = parts.tail;
@@ -1045,7 +1045,7 @@ public abstract class JavafxAbstractTranslation
                        currentClass().sym.flatname.toString().replace('.', '/').replaceAll("\\$.*", "");
                 values.prepend(String(resourceName));
             } else if (containsDateTimeFormat) {
-                formatMethod = defs.FXFormatter_sprintf;
+                formatMethod = defs.VisageFormatter_sprintf;
             } else {
                 formatMethod = defs.String_format;
             }
@@ -1113,7 +1113,7 @@ public abstract class JavafxAbstractTranslation
             this.staticReference = refSym != null && refSym.isStatic();
         }
 
-        abstract JFXExpression getToCheck();
+        abstract VisageExpression getToCheck();
 
         abstract JCExpression fullExpression(JCExpression mungedToCheckTranslated);
 
@@ -1125,7 +1125,7 @@ public abstract class JavafxAbstractTranslation
             return getToCheck() != null && !getToCheck().type.isPrimitive() && possiblyNull(getToCheck());
         }
 
-        protected JCExpression preserveSideEffects(Type type, JFXExpression expr, JCExpression trans) {
+        protected JCExpression preserveSideEffects(Type type, VisageExpression expr, JCExpression trans) {
             if (needNullCheck() && expr!=null && hasSideEffects(expr)) {
                 // if there is going to be a null check (which thus could keep expr
                 // from being evaluated), and expr has side-effects, then eval
@@ -1154,7 +1154,7 @@ public abstract class JavafxAbstractTranslation
          * Note: 'toCheck'  may or may not be in a LHS but in either
          * event the selector is a value expression
          */
-        JCExpression translateToCheck(JFXExpression expr) {
+        JCExpression translateToCheck(VisageExpression expr) {
             if (staticReference) {
                 return staticReference(refSym);
             } else if (expr == null) {
@@ -1253,39 +1253,39 @@ public abstract class JavafxAbstractTranslation
             }
         }
 
-        private boolean possiblyNull(JFXExpression expr) {
+        private boolean possiblyNull(VisageExpression expr) {
             if (expr == null) {
                 return true;
             }
             switch (expr.getFXTag()) {
                case ASSIGN:
-                   return possiblyNull(((JFXAssign)expr).getExpression());
+                   return possiblyNull(((VisageAssign)expr).getExpression());
                case APPLY:
                    return true;
                case BLOCK_EXPRESSION:
-                   return possiblyNull(((JFXBlock)expr).getValue());
+                   return possiblyNull(((VisageBlock)expr).getValue());
                case IDENT: {
-                   if (((JFXIdent)expr).sym instanceof VarSymbol) {
-                       Symbol sym = ((JFXIdent)expr).sym;
+                   if (((VisageIdent)expr).sym instanceof VarSymbol) {
+                       Symbol sym = ((VisageIdent)expr).sym;
                        return sym.name != names._this && sym.name != names._super;
                    } else {
                        return false;
                    }
                }
                case CONDEXPR:
-                   return possiblyNull(((JFXIfExpression)expr).getTrueExpression()) || possiblyNull(((JFXIfExpression)expr).getFalseExpression());
+                   return possiblyNull(((VisageIfExpression)expr).getTrueExpression()) || possiblyNull(((VisageIfExpression)expr).getFalseExpression());
                case LITERAL:
-                   return expr.getJavaFXKind() == JavaFXKind.NULL_LITERAL;
+                   return expr.getJavaFXKind() == VisageKind.NULL_LITERAL;
                case PARENS:
-                   return possiblyNull(((JFXParens)expr).getExpression());
+                   return possiblyNull(((VisageParens)expr).getExpression());
                case SELECT:
-                   return ((JFXSelect)expr).sym instanceof VarSymbol;
+                   return ((VisageSelect)expr).sym instanceof VarSymbol;
                case SEQUENCE_INDEXED:
                    return true;
                case TYPECAST:
-                   return possiblyNull(((JFXTypeCast)expr).getExpression());
+                   return possiblyNull(((VisageTypeCast)expr).getExpression());
                case VAR_DEF:
-                   return possiblyNull(((JFXVar)expr).getInitializer());
+                   return possiblyNull(((VisageVar)expr).getInitializer());
                 default:
                     return false;
             }
@@ -1294,10 +1294,10 @@ public abstract class JavafxAbstractTranslation
 
     class SelectTranslator extends NullCheckTranslator {
 
-        protected final JFXSelect tree;
+        protected final VisageSelect tree;
         protected final Name name;
 
-        protected SelectTranslator(JFXSelect tree) {
+        protected SelectTranslator(VisageSelect tree) {
             super(tree.pos(), tree.sym, tree.type);
             this.tree = tree;
             this.name = tree.getIdentifier();
@@ -1309,7 +1309,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         @Override
-        JFXExpression getToCheck() {
+        VisageExpression getToCheck() {
             return tree.getExpression();
         }
 
@@ -1322,11 +1322,11 @@ public abstract class JavafxAbstractTranslation
 
     class SelectElementTranslator extends NullCheckTranslator {
 
-        private final JFXSelect tree;
+        private final VisageSelect tree;
         private final Name name;
         private final JCExpression tIndex;
 
-        private SelectElementTranslator(JFXSelect tree, JCExpression tIndex) {
+        private SelectElementTranslator(VisageSelect tree, JCExpression tIndex) {
             super(tree.pos(), tree.sym, types.elementType(tree.type));
             this.tree = tree;
             this.name = tree.getIdentifier();
@@ -1339,7 +1339,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         @Override
-        JFXExpression getToCheck() {
+        VisageExpression getToCheck() {
             return tree.getExpression();
         }
 
@@ -1359,7 +1359,7 @@ public abstract class JavafxAbstractTranslation
 
         private final JCExpression tIndex;
 
-        IdentElementTranslator(JFXIdent tree, JCExpression tIndex) {
+        IdentElementTranslator(VisageIdent tree, JCExpression tIndex) {
             super(tree);
             this.tIndex = tIndex;
         }
@@ -1373,8 +1373,8 @@ public abstract class JavafxAbstractTranslation
     class FunctionCallTranslator extends NullCheckTranslator {
 
         // Function determination
-        protected final JFXExpression meth;
-        protected final JFXExpression selector;
+        protected final VisageExpression meth;
+        protected final VisageExpression selector;
         protected final boolean thisCall;
         protected final boolean superCall;
         protected final MethodSymbol msym;
@@ -1389,8 +1389,8 @@ public abstract class JavafxAbstractTranslation
         protected final boolean selectorNullCheck;
 
         // Call info
-        protected final List<JFXExpression> typeargs;
-        protected final List<JFXExpression> args;
+        protected final List<VisageExpression> typeargs;
+        protected final List<VisageExpression> args;
 
         // Null Checking control
         protected final boolean knownNonNull;
@@ -1400,7 +1400,7 @@ public abstract class JavafxAbstractTranslation
         // preface statements generated when translating argument expressions
         private ListBuffer<JCStatement> argumentPreface;
 
-        FunctionCallTranslator(final JFXFunctionInvocation tree) {
+        FunctionCallTranslator(final VisageFunctionInvocation tree) {
             // If this is an invoke (later "useInvoke") then the named meth is not the refSym
             // since it will be wrapped with a ".invoke()"
             super(
@@ -1410,12 +1410,12 @@ public abstract class JavafxAbstractTranslation
 
             // Function determination
             meth = tree.meth;
-            JFXSelect fieldAccess = meth.getFXTag() == JavafxTag.SELECT ? (JFXSelect) meth : null;
+            VisageSelect fieldAccess = meth.getFXTag() == JavafxTag.SELECT ? (VisageSelect) meth : null;
             selector = fieldAccess != null ? fieldAccess.getExpression() : null;
             selectorNullCheck = fieldAccess != null ? fieldAccess.nullCheck : false;
             msym = (refSym instanceof MethodSymbol) ? (MethodSymbol) refSym : null;
             funcSym = expressionSymbol(tree.meth); //either MethodSymbol or VarSymbol
-            Name selectorIdName = (selector != null && selector.getFXTag() == JavafxTag.IDENT) ? ((JFXIdent) selector).getName() : null;
+            Name selectorIdName = (selector != null && selector.getFXTag() == JavafxTag.IDENT) ? ((VisageIdent) selector).getName() : null;
             thisCall = selectorIdName == names._this;
             superCall = selectorIdName == names._super;
             ClassSymbol csym = currentClass().sym;
@@ -1465,7 +1465,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         @Override
-        JCExpression translateToCheck(JFXExpression expr) {
+        JCExpression translateToCheck(VisageExpression expr) {
             JCExpression newExpr = null;
             if (renameToSuper || superCall) {
                 newExpr = resolveSuper(funcSym.owner);
@@ -1552,7 +1552,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         @Override
-        JFXExpression getToCheck() {
+        VisageExpression getToCheck() {
             return useInvoke? meth : selector;
         }
 
@@ -1594,18 +1594,18 @@ public abstract class JavafxAbstractTranslation
 
                 /*
                  * For each source bound function argument expression, we create a wrapper
-                 * variable of type FXConstant and pass it along with FXConstant.VOFF$value
+                 * variable of type VisageConstant and pass it along with VisageConstant.VOFF$value
                  * as the arguments to the bound function.
                  */
                 Type formal = null;
                 List<Type> t = formals;
-                for (JFXExpression arg : args) {
+                for (VisageExpression arg : args) {
                     formal = t.head;
                     t = t.tail;
-                    // pass FXConstant wrapper for argument expression
-                    targs.append(Call(defs.FXConstant_make, translateExpr(arg, formal)));
+                    // pass VisageConstant wrapper for argument expression
+                    targs.append(Call(defs.VisageConstant_make, translateExpr(arg, formal)));
 
-                    // pass FXConstant.VOFF$value as offset value
+                    // pass VisageConstant.VOFF$value as offset value
                     targs.append(Select(makeType(syms.visage_FXConstantType), defs.varOFF$valueName));
                 }
             } else {
@@ -1614,8 +1614,8 @@ public abstract class JavafxAbstractTranslation
                 List<Type> t = formals;
                 ListBuffer<JCExpression> rargs = null;
                 int argNum = 0;
-                for (List<JFXExpression> l = args; l.nonEmpty(); l = l.tail) {
-                    JFXExpression arg = l.head;
+                for (List<VisageExpression> l = args; l.nonEmpty(); l = l.tail) {
+                    VisageExpression arg = l.head;
                     if (!handlingVarargs) {
                         formal = t.head;
                         t = t.tail;
@@ -1649,8 +1649,8 @@ public abstract class JavafxAbstractTranslation
                 }
                 if (magicPointerMakeFunction) {
                     // Pointer.make has just two arguments (inst, varNum) -- we need to
-                    // add an extra argument - so that the Pointer.make(Type, FXObject, int) is called.
-                    JFXVarRef varRef = (JFXVarRef)args.head;
+                    // add an extra argument - so that the Pointer.make(Type, VisageObject, int) is called.
+                    VisageVarRef varRef = (VisageVarRef)args.head;
                     JCExpression varType = makeKeyValueTargetType(varRef.getVarSymbol().type);
                     targs.prepend(varType);
                 }
@@ -1658,16 +1658,16 @@ public abstract class JavafxAbstractTranslation
             return targs.toList();
         }
 
-        JCExpression translateArg(JFXExpression arg, Type formal) {
+        JCExpression translateArg(VisageExpression arg, Type formal) {
             return preserveSideEffects(formal, arg, translateExpr(arg, formal));
         }
     }
 
     class TimeLiteralTranslator extends ExpressionTranslator {
 
-        JFXExpression value;
+        VisageExpression value;
 
-        TimeLiteralTranslator(JFXTimeLiteral tree) {
+        TimeLiteralTranslator(VisageTimeLiteral tree) {
             super(tree.pos());
             this.value = tree.value;
         }
@@ -1681,10 +1681,10 @@ public abstract class JavafxAbstractTranslation
 
     class LengthLiteralTranslator extends ExpressionTranslator {
 
-        JFXExpression value;
+        VisageExpression value;
         LengthUnit units;
 
-        LengthLiteralTranslator(JFXLengthLiteral tree) {
+        LengthLiteralTranslator(VisageLengthLiteral tree) {
             super(tree.pos());
             this.value = tree.value;
             this.units = tree.units;
@@ -1700,10 +1700,10 @@ public abstract class JavafxAbstractTranslation
 
     class AngleLiteralTranslator extends ExpressionTranslator {
 
-        JFXExpression value;
+        VisageExpression value;
         AngleUnit units;
 
-        AngleLiteralTranslator(JFXAngleLiteral tree) {
+        AngleLiteralTranslator(VisageAngleLiteral tree) {
             super(tree.pos());
             this.value = tree.value;
             this.units = tree.units;
@@ -1719,9 +1719,9 @@ public abstract class JavafxAbstractTranslation
 
     class ColorLiteralTranslator extends ExpressionTranslator {
 
-        JFXExpression value;
+        VisageExpression value;
 
-        ColorLiteralTranslator(JFXColorLiteral tree) {
+        ColorLiteralTranslator(VisageColorLiteral tree) {
             super(tree.pos());
             this.value = tree.value;
         }
@@ -1735,7 +1735,7 @@ public abstract class JavafxAbstractTranslation
 
     class FunctionTranslator extends Translator {
 
-        final JFXFunctionDefinition tree;
+        final VisageFunctionDefinition tree;
         final boolean maintainContext;
         final MethodType mtype;
         final MethodSymbol sym;
@@ -1750,7 +1750,7 @@ public abstract class JavafxAbstractTranslation
         final boolean isInstanceFunctionAsStaticMethod;
         final boolean isMixinClass;
 
-        FunctionTranslator(JFXFunctionDefinition tree, boolean maintainContext) {
+        FunctionTranslator(VisageFunctionDefinition tree, boolean maintainContext) {
             super(tree.pos());
             this.tree = tree;
             this.maintainContext = maintainContext;
@@ -1769,8 +1769,8 @@ public abstract class JavafxAbstractTranslation
             this.isInstanceFunctionAsStaticMethod = isInstanceFunction && isMixinClass;
         }
 
-        private JCBlock makeRunMethodBody(JFXBlock bexpr) {
-            final JFXExpression value = bexpr.value;
+        private JCBlock makeRunMethodBody(VisageBlock bexpr) {
+            final VisageExpression value = bexpr.value;
             JCBlock block;
             if (value == null || value.type == syms.voidType) {
                 // the block has no value: translate as simple statement and add a null return
@@ -1820,14 +1820,14 @@ public abstract class JavafxAbstractTranslation
                 params.prepend(ReceiverParam(currentClass()));
             }
             if (isBound) {
-                for (JFXVar fxVar : tree.getParams()) {
+                for (VisageVar fxVar : tree.getParams()) {
                     params.append(Param(syms.visage_FXObjectType,
                             boundFunctionObjectParamName(fxVar.name)));
                     params.append(Param(syms.visage_IntegerType,
                             boundFunctionVarNumParamName(fxVar.name)));
                 }
             } else {
-                for (JFXVar fxVar : tree.getParams()) {
+                for (VisageVar fxVar : tree.getParams()) {
                     params.append(convertParam(fxVar));
                 }
             }
@@ -1836,7 +1836,7 @@ public abstract class JavafxAbstractTranslation
 
         private JCBlock methodBody() {
             // construct the body of the translated function
-            JFXBlock bexpr = tree.getBodyExpression();
+            VisageBlock bexpr = tree.getBodyExpression();
             JCBlock body;
             if (bexpr == null) {
                 body = null; // null if no block expression
@@ -1847,7 +1847,7 @@ public abstract class JavafxAbstractTranslation
                 // the "normal" case
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 if (! isBound) {
-                    for (JFXVar fxVar : tree.getParams()) {
+                    for (VisageVar fxVar : tree.getParams()) {
                         if (types.isSequence(fxVar.sym.type)) {
                             setDiagPos(fxVar);
                             stmts.append(CallStmt(id(fxVar.getName()), defs.incrementSharing_SequenceMethodName));
@@ -1902,7 +1902,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         protected SpecialResult doit() {
-            JFXTree prevWhere = getAttrEnv().where;
+            VisageTree prevWhere = getAttrEnv().where;
             Yield prevYield = yield();
             Type prevTargetType = targetType;
             getAttrEnv().where = tree;
@@ -1930,9 +1930,9 @@ public abstract class JavafxAbstractTranslation
     }
 
     class IdentTranslator extends MemberReferenceTranslator {
-        protected final JFXIdent tree;
+        protected final VisageIdent tree;
         protected final Symbol sym;
-        IdentTranslator(JFXIdent tree) {
+        IdentTranslator(VisageIdent tree) {
             super(tree.pos());
             this.tree = tree;
             this.sym = tree.sym;
@@ -1989,7 +1989,7 @@ public abstract class JavafxAbstractTranslation
      */
     class BoundIdentTranslator extends IdentTranslator {
 
-        BoundIdentTranslator(JFXIdent tree) {
+        BoundIdentTranslator(VisageIdent tree) {
             super(tree);
         }
         
@@ -2031,16 +2031,16 @@ public abstract class JavafxAbstractTranslation
 
         protected final JavafxVarSymbol selectResSym;
 
-        BoundSelectTranslator(JFXSelect tree, JavafxVarSymbol selectResSym) {
+        BoundSelectTranslator(VisageSelect tree, JavafxVarSymbol selectResSym) {
             super(tree);
             this.selectResSym = selectResSym;
         }
 
         @Override
         protected ExpressionResult doit() {
-            JFXExpression selectorExpr = tree.getExpression();
-            if (selectorExpr instanceof JFXIdent) {
-                JFXIdent selector = (JFXIdent) selectorExpr;
+            VisageExpression selectorExpr = tree.getExpression();
+            if (selectorExpr instanceof VisageIdent) {
+                VisageIdent selector = (VisageIdent) selectorExpr;
                 
                 if (selector.sym instanceof JavafxVarSymbol) {
                     JavafxVarSymbol selectorSym = (JavafxVarSymbol)selector.sym;
@@ -2062,17 +2062,17 @@ public abstract class JavafxAbstractTranslation
 
     class BoundBlockExpressionTranslator extends ExpressionTranslator {
 
-        private final JFXExpression value;
-        private final List<JFXExpression> statements;
+        private final VisageExpression value;
+        private final List<VisageExpression> statements;
 
-        BoundBlockExpressionTranslator(JFXBlock tree) {
+        BoundBlockExpressionTranslator(VisageBlock tree) {
             super(tree.pos());
             this.value = tree.value;
             this.statements = tree.getStmts();
         }
 
         protected ExpressionResult doit() {
-            for (JFXExpression expr : statements) {
+            for (VisageExpression expr : statements) {
                 translateStmt(expr, syms.voidType);
             }
             JCExpression tvalue = translateExpr(value, targetType);
@@ -2085,10 +2085,10 @@ public abstract class JavafxAbstractTranslation
      */
     abstract class AssignTranslator extends NullCheckTranslator {
 
-        protected final JFXExpression ref;
-        protected final JFXExpression indexOrNull;
-        protected final JFXExpression rhs;
-        protected final JFXExpression selector;
+        protected final VisageExpression ref;
+        protected final VisageExpression indexOrNull;
+        protected final VisageExpression rhs;
+        protected final VisageExpression selector;
         protected final JCExpression rhsTranslated;
         protected final boolean useAccessors;
         protected final boolean selectorNullCheck;
@@ -2101,13 +2101,13 @@ public abstract class JavafxAbstractTranslation
          * @param fullType The type of the resultant expression
          * @param rhs The expression acting on ref
          */
-        AssignTranslator(final DiagnosticPosition diagPos, final JFXExpression ref, final JFXExpression indexOrNull, Type fullType, final JFXExpression rhs) {
+        AssignTranslator(final DiagnosticPosition diagPos, final VisageExpression ref, final VisageExpression indexOrNull, Type fullType, final VisageExpression rhs) {
             super(diagPos, expressionSymbol(ref), fullType);
             this.ref = ref;
             this.indexOrNull = indexOrNull;
             this.rhs = rhs;
-            this.selector = (ref instanceof JFXSelect) ? ((JFXSelect) ref).getExpression() : null;
-            this.selectorNullCheck = (ref instanceof JFXSelect) ? ((JFXSelect) ref).nullCheck : false;
+            this.selector = (ref instanceof VisageSelect) ? ((VisageSelect) ref).getExpression() : null;
+            this.selectorNullCheck = (ref instanceof VisageSelect) ? ((VisageSelect) ref).nullCheck : false;
             if (rhs != null) {
                 JCExpression translated = convertNullability(diagPos, translateExpr(rhs, rhsType()), rhs, rhsType());
                 this.rhsTranslated = preserveSideEffects(fullType, rhs, translated);
@@ -2125,11 +2125,11 @@ public abstract class JavafxAbstractTranslation
          * @param lhs
          * @param rhs
          */
-        AssignTranslator(final DiagnosticPosition diagPos, final JFXExpression lhs, final JFXExpression rhs) {
+        AssignTranslator(final DiagnosticPosition diagPos, final VisageExpression lhs, final VisageExpression rhs) {
             this(
                     diagPos,
-                    lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED? ((JFXSequenceIndexed)lhs).getSequence() : lhs,
-                    lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED? ((JFXSequenceIndexed)lhs).getIndex() : null,
+                    lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED? ((VisageSequenceIndexed)lhs).getSequence() : lhs,
+                    lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED? ((VisageSequenceIndexed)lhs).getIndex() : null,
                     lhs.type,
                     rhs);
         }
@@ -2143,7 +2143,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         @Override
-        JFXExpression getToCheck() {
+        VisageExpression getToCheck() {
             return selector;
         }
 
@@ -2217,7 +2217,7 @@ public abstract class JavafxAbstractTranslation
             }
         }
 
-        JCExpression makeSliceEndPos(JFXSequenceSlice tree) {
+        JCExpression makeSliceEndPos(VisageSequenceSlice tree) {
             JCExpression endPos;
             if (tree.getLastIndex() == null) {
                 endPos = Call(
@@ -2310,11 +2310,11 @@ public abstract class JavafxAbstractTranslation
 
     class UnaryOperationTranslator extends ExpressionTranslator {
 
-        private final JFXUnary tree;
-        private final JFXExpression expr;
+        private final VisageUnary tree;
+        private final VisageExpression expr;
         private final JCExpression transExpr;
 
-        UnaryOperationTranslator(JFXUnary tree) {
+        UnaryOperationTranslator(VisageUnary tree) {
             super(tree.pos());
             this.tree = tree;
             this.expr = tree.getExpression();
@@ -2369,11 +2369,11 @@ public abstract class JavafxAbstractTranslation
 
     class BinaryOperationTranslator extends ExpressionTranslator {
 
-        final JFXBinary tree;
+        final VisageBinary tree;
         final Type lhsType;
         final Type rhsType;
 
-        BinaryOperationTranslator(DiagnosticPosition diagPos, final JFXBinary tree) {
+        BinaryOperationTranslator(DiagnosticPosition diagPos, final VisageBinary tree) {
             super(diagPos);
             this.tree = tree;
             this.lhsType = tree.lhs.type;
@@ -2829,7 +2829,7 @@ public abstract class JavafxAbstractTranslation
     class FunctionValueTranslator extends ExpressionTranslator {
 
         private JCExpression meth;
-        private final JFXFunctionDefinition def;
+        private final VisageFunctionDefinition def;
         private final MethodType mtype;
         private final Type resultType;
         private final Name name;
@@ -2843,7 +2843,7 @@ public abstract class JavafxAbstractTranslation
             this.name = null;
         }
 
-        FunctionValueTranslator(JCExpression meth, JFXFunctionDefinition def, DiagnosticPosition diagPos, MethodType mtype, Type resultType) {
+        FunctionValueTranslator(JCExpression meth, VisageFunctionDefinition def, DiagnosticPosition diagPos, MethodType mtype, Type resultType) {
             super(diagPos);
             this.meth = meth;
             this.def = def;
@@ -2862,9 +2862,9 @@ public abstract class JavafxAbstractTranslation
             JCBlock body;
             int argNum = 0;
             
-	    JFXBlock bexpr = def.getBodyExpression();
+	    VisageBlock bexpr = def.getBodyExpression();
 
-	    for (JFXVar fxVar : def.getParams()) {
+	    for (VisageVar fxVar : def.getParams()) {
 		setDiagPos(fxVar);
 		Name paramName = fxVar.getName();
 		Type paramType = fxVar.sym.type;
@@ -2977,13 +2977,13 @@ public abstract class JavafxAbstractTranslation
          */
         protected abstract List<JCExpression> completeTranslatedConstructorArgs();
 
-        protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxVarSymbol vsym) {
+        protected JCExpression translateInstanceVariableInit(VisageExpression init, JavafxVarSymbol vsym) {
             ExpressionResult eres = translateToExpressionResult(init, vsym.type);
             mergeResults(eres);
             return convertNullability(init.pos(), eres.expr(), init, vsym.type);
         }
 
-        void setInstanceVariable(Name instanceName, JavafxBindStatus bindStatus, JavafxVarSymbol vsym, JFXExpression init) {
+        void setInstanceVariable(Name instanceName, JavafxBindStatus bindStatus, JavafxVarSymbol vsym, VisageExpression init) {
             JCExpression transInit = translateInstanceVariableInit(init, vsym);
             JCExpression tc = instanceName == null ? null : id(instanceName);
             JCStatement def;
@@ -3100,7 +3100,7 @@ public abstract class JavafxAbstractTranslation
          * @param isFX
          * @return
          */
-        protected ExpressionResult buildInstance(Type declaredType, JFXClassDeclaration cdef, boolean isFX) {
+        protected ExpressionResult buildInstance(Type declaredType, VisageClassDeclaration cdef, boolean isFX) {
             Type type;
 
             if (cdef == null) {
@@ -3197,10 +3197,10 @@ public abstract class JavafxAbstractTranslation
      */
     class InstanciateTranslator extends NewInstanceTranslator {
 
-        protected final JFXInstanciate tree;
+        protected final VisageInstanciate tree;
         private final ClassSymbol idSym;
 
-        InstanciateTranslator(final JFXInstanciate tree) {
+        InstanciateTranslator(final VisageInstanciate tree) {
             super(tree.pos(), tree.varDefinedByThis != null ? tree.varDefinedByThis.name : null);
             this.tree = tree;
             this.idSym = (ClassSymbol)JavafxTreeInfo.symbol(tree.getIdentifier());
@@ -3213,10 +3213,10 @@ public abstract class JavafxAbstractTranslation
 
         @Override
         protected void initInstanceVariables(Name instName) {
-            for (JFXObjectLiteralPart olpart : tree.getParts()) {
+            for (VisageObjectLiteralPart olpart : tree.getParts()) {
                 diagPos = olpart.pos(); // overwrite diagPos (must restore)
                 JavafxBindStatus bindStatus = olpart.getBindStatus();
-                JFXExpression init = olpart.getExpression();
+                VisageExpression init = olpart.getExpression();
                 JavafxVarSymbol vsym = (JavafxVarSymbol) olpart.sym;
                 setInstanceVariable(instName, bindStatus, vsym, init);
             }
@@ -3224,7 +3224,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         protected List<JCExpression> translatedConstructorArgs() {
-            List<JFXExpression> args = tree.getArgs();
+            List<VisageExpression> args = tree.getArgs();
             Symbol sym = tree.constructor;
             if (sym != null && sym.type != null) {
                 ListBuffer<JCExpression> translated = ListBuffer.lb();
@@ -3235,7 +3235,7 @@ public abstract class JavafxAbstractTranslation
                 boolean handlingVarargs = false;
                 Type formal = null;
                 List<Type> t = formals;
-                for (List<JFXExpression> l = args; l.nonEmpty(); l = l.tail) {
+                for (List<VisageExpression> l = args; l.nonEmpty(); l = l.tail) {
                     if (!handlingVarargs) {
                         formal = t.head;
                         t = t.tail;
@@ -3275,10 +3275,10 @@ public abstract class JavafxAbstractTranslation
 
     class TypeCastTranslator extends ExpressionTranslator {
 
-        private final JFXExpression expr;
-        private final JFXTree clazz;
+        private final VisageExpression expr;
+        private final VisageTree clazz;
 
-        TypeCastTranslator(final JFXTypeCast tree) {
+        TypeCastTranslator(final VisageTypeCast tree) {
             super(tree.pos());
             this.expr = tree.getExpression();
             this.clazz = tree.clazz;
@@ -3299,9 +3299,9 @@ public abstract class JavafxAbstractTranslation
     class InstanceOfTranslator extends ExpressionTranslator {
 
         private final Type classType;
-        private final JFXExpression expr;
+        private final VisageExpression expr;
 
-        InstanceOfTranslator(JFXInstanceOf tree) {
+        InstanceOfTranslator(VisageInstanceOf tree) {
             super(tree.pos());
             this.classType = types.boxedTypeOrType(tree.clazz.type);
             this.expr = tree.getExpression();
@@ -3327,7 +3327,7 @@ public abstract class JavafxAbstractTranslation
 
         private final Type type;
 
-        SequenceEmptyTranslator(JFXSequenceEmpty tree) {
+        SequenceEmptyTranslator(VisageSequenceEmpty tree) {
             super(tree.pos());
             this.type = tree.type;
         }
@@ -3352,21 +3352,21 @@ public abstract class JavafxAbstractTranslation
      */
     class IfTranslator extends ExpressionTranslator {
 
-        private final JFXIfExpression tree;
+        private final VisageIfExpression tree;
 
-        IfTranslator(JFXIfExpression tree) {
+        IfTranslator(VisageIfExpression tree) {
             super(tree.pos());
             this.tree = tree;
         }
 
-        JCExpression sideExpr(JFXExpression expr) {
+        JCExpression sideExpr(VisageExpression expr) {
             ExpressionResult res = translateToExpressionResult(expr, targetType);
             addBindees(res.bindees());
             addInterClassBindees(res.interClass());
             return asExpression(res, targetType);
         }
 
-        JCStatement sideStmt(JFXExpression expr) {
+        JCStatement sideStmt(VisageExpression expr) {
             if (expr == null) {
                 return null;
             } else {
@@ -3376,8 +3376,8 @@ public abstract class JavafxAbstractTranslation
 
         protected AbstractStatementsResult doit() {
             JCExpression cond = translateExpr(tree.getCondition(), syms.booleanType);
-            JFXExpression trueSide = tree.getTrueExpression();
-            JFXExpression falseSide = tree.getFalseExpression();
+            VisageExpression trueSide = tree.getTrueExpression();
+            VisageExpression falseSide = tree.getFalseExpression();
             if (yield() == ToExpression) {
                 return toResult(
                     If (cond,
@@ -3394,8 +3394,8 @@ public abstract class JavafxAbstractTranslation
     }
 
     class IndexOfTranslator extends ExpressionTranslator {
-        final JFXIndexof tree;
-        IndexOfTranslator(JFXIndexof tree) {
+        final VisageIndexof tree;
+        IndexOfTranslator(VisageIndexof tree) {
             super(tree.pos());
             assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
             this.tree = tree;
@@ -3407,13 +3407,13 @@ public abstract class JavafxAbstractTranslation
 
     class SequenceIndexedTranslator extends ExpressionTranslator {
 
-        private final JFXExpression seq;
+        private final VisageExpression seq;
         private final JCExpression tSeq;
         private final boolean isTSeqDirect;
         private final JCExpression tIndex;
         private final Type resultType;
 
-        SequenceIndexedTranslator(DiagnosticPosition diagPos, JFXExpression seq, JCExpression tSeq, JCExpression tIndex, Type resultType) {
+        SequenceIndexedTranslator(DiagnosticPosition diagPos, VisageExpression seq, JCExpression tSeq, JCExpression tIndex, Type resultType) {
             super(diagPos);
             this.seq = seq;
             this.tSeq = tSeq;
@@ -3422,7 +3422,7 @@ public abstract class JavafxAbstractTranslation
             this.resultType = resultType;
         }
 
-        SequenceIndexedTranslator(JFXSequenceIndexed tree) {
+        SequenceIndexedTranslator(VisageSequenceIndexed tree) {
             super(tree.pos());
             this.seq = tree.getSequence();
             this.tSeq = translateExpr(seq, null);  
@@ -3443,12 +3443,12 @@ public abstract class JavafxAbstractTranslation
                 return m().Indexed(tSeq, tIndex);
             }
             JavafxTypeRepresentation typeRep = types.typeRep(resultType);
-            if (seq instanceof JFXIdent) {
-                JFXIdent var = (JFXIdent) seq;
+            if (seq instanceof VisageIdent) {
+                VisageIdent var = (VisageIdent) seq;
                 OnReplaceInfo info = findOnReplaceInfo(var.sym);
                 if (info != null
                         && (var.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {
-                    JFXOnReplace onReplace = info.onReplace;
+                    VisageOnReplace onReplace = info.onReplace;
                     ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
                     args.append(getReceiverOrThis(info.vsym));
                     args.append(Offset(info.vsym));
@@ -3485,13 +3485,13 @@ public abstract class JavafxAbstractTranslation
                             Yield prevYield = yieldKind;
                             yieldKind = ToExpression;  // Force expression result so that the merge works
                             try {
-                                return mergeResults((ExpressionResult) new SelectElementTranslator((JFXSelect) seq, tIndex).doit());
+                                return mergeResults((ExpressionResult) new SelectElementTranslator((VisageSelect) seq, tIndex).doit());
                             } finally {
                                 yieldKind = prevYield;
                             }
                         }
                         case IDENT:
-                            return mergeResults(new IdentElementTranslator((JFXIdent) seq, tIndex).doit());
+                            return mergeResults(new IdentElementTranslator((VisageIdent) seq, tIndex).doit());
                     }
                 }
             }
@@ -3505,12 +3505,12 @@ public abstract class JavafxAbstractTranslation
     class SequenceSliceTranslator extends ExpressionTranslator {
 
         private final Type type;
-        private final JFXExpression seq;
+        private final VisageExpression seq;
         private final int endKind;
-        private final JFXExpression firstIndex;
-        private final JFXExpression lastIndex;
+        private final VisageExpression firstIndex;
+        private final VisageExpression lastIndex;
 
-        SequenceSliceTranslator(JFXSequenceSlice tree) {
+        SequenceSliceTranslator(VisageSequenceSlice tree) {
             super(tree.pos());
             this.type = tree.type;
             this.seq = tree.getSequence();
@@ -3547,11 +3547,11 @@ public abstract class JavafxAbstractTranslation
 
     class ExplicitSequenceTranslator extends ExpressionTranslator {
 
-        final List<JFXExpression> items;
+        final List<VisageExpression> items;
         final Type elemType;
         final Type resultType;
 
-        ExplicitSequenceTranslator(DiagnosticPosition diagPos, List<JFXExpression> items, Type elemType, Type resultType) {
+        ExplicitSequenceTranslator(DiagnosticPosition diagPos, List<VisageExpression> items, Type elemType, Type resultType) {
             super(diagPos);
             this.items = items;
             this.elemType = elemType;
@@ -3576,8 +3576,8 @@ public abstract class JavafxAbstractTranslation
         protected ExpressionResult doit() {
             UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType, items.length(), false);
             addPreface(builder.makeBuilderVar());
-            for (JFXExpression item : items) {
-                if (item.getJavaFXKind() != JavaFXKind.NULL_LITERAL) {
+            for (VisageExpression item : items) {
+                if (item.getJavaFXKind() != VisageKind.NULL_LITERAL) {
                     // Insert all non-null elements
                     addPreface(builder.addElement(item));
                 }
@@ -3590,14 +3590,14 @@ public abstract class JavafxAbstractTranslation
 
     class SequenceRangeTranslator extends ExpressionTranslator {
 
-        private final JFXExpression lower;
-        private final JFXExpression upper;
-        private final JFXExpression step;
+        private final VisageExpression lower;
+        private final VisageExpression upper;
+        private final VisageExpression step;
         private final boolean hasStep;
         private final boolean exclusive;
         private final Type type;
 
-        SequenceRangeTranslator(JFXSequenceRange tree) {
+        SequenceRangeTranslator(VisageSequenceRange tree) {
             super(tree.pos());
             this.lower = tree.getLower();
             this.upper = tree.getUpper();
@@ -3649,17 +3649,17 @@ public abstract class JavafxAbstractTranslation
 
     class ForExpressionTranslator extends ExpressionTranslator {
 
-        final JFXForExpression tree;
+        final VisageForExpression tree;
 
-        ForExpressionTranslator(JFXForExpression tree) {
+        ForExpressionTranslator(VisageForExpression tree) {
             super(tree.pos());
             this.tree = tree;
         }
 
-        private JCStatement wrapWithInClause(JFXForExpression tree, JCStatement coreStmt) {
+        private JCStatement wrapWithInClause(VisageForExpression tree, JCStatement coreStmt) {
             JCStatement stmt = coreStmt;
             for (int inx = tree.getInClauses().size() - 1; inx >= 0; --inx) {
-                JFXForExpressionInClause clause = (JFXForExpressionInClause) tree.getInClauses().get(inx);
+                VisageForExpressionInClause clause = (VisageForExpressionInClause) tree.getInClauses().get(inx);
                 stmt = new InClauseTranslator(clause, stmt).doitStmt();
             }
             return stmt;
@@ -3706,20 +3706,20 @@ public abstract class JavafxAbstractTranslation
      * Translator class for for-expression in/where clauses
      */
     private class InClauseTranslator extends ExpressionTranslator {
-        final JFXForExpressionInClause clause;      // in clause being translated
-        final JFXVar var;                           // user named Visage induction variable
+        final VisageForExpressionInClause clause;      // in clause being translated
+        final VisageVar var;                           // user named Visage induction variable
         final Type inductionVarType;                // type of the induction variable
         final JCVariableDecl inductionVar;          // generated induction variable
         JCStatement body;                           // statement being generated by wrapping
         boolean indexedLoop;
 
-        InClauseTranslator(JFXForExpressionInClause clause, JCStatement coreStmt) {
+        InClauseTranslator(VisageForExpressionInClause clause, JCStatement coreStmt) {
             super(clause);
             this.clause = clause;
             this.var = clause.getVar();
             this.inductionVarType = var.type;
             this.body = coreStmt;
-            JFXExpression seq = clause.seqExpr;
+            VisageExpression seq = clause.seqExpr;
             this.indexedLoop =
                     (seq.getFXTag() == JavafxTag.SEQUENCE_SLICE ||
                      (seq.getFXTag() != JavafxTag.SEQUENCE_RANGE &&
@@ -3745,7 +3745,7 @@ public abstract class JavafxAbstractTranslation
          * Generate a range sequence conditional test.
          * Result depends on if the range is ascending/descending and if the range is exclusive
          */
-        private JCExpression condTest(JFXSequenceRange range, boolean stepNegative, JCVariableDecl upperVar) {
+        private JCExpression condTest(VisageSequenceRange range, boolean stepNegative, JCVariableDecl upperVar) {
             int op;
             if (stepNegative) {
                 if (range.isExclusive()) {
@@ -3766,8 +3766,8 @@ public abstract class JavafxAbstractTranslation
         /**
          * Determine if a literal is negative
          */
-        private boolean isNegative(JFXExpression expr) {
-            JFXLiteral lit = (JFXLiteral) expr;
+        private boolean isNegative(VisageExpression expr) {
+            VisageLiteral lit = (VisageLiteral) expr;
             Object val = lit.getValue();
 
             switch (lit.typetag) {
@@ -3818,14 +3818,14 @@ public abstract class JavafxAbstractTranslation
          *     for (int $i = max(lo,0);  i++; $i < min(hi,seq.size())) { def x = seq[$i]; body }
          * (We may need to put seq and/or hi in a temporary variable first.)
          */
-        void translateSliceInClause(JFXExpression seq, JFXExpression first, JFXExpression last, int endKind, JCVariableDecl seqVar) {
+        void translateSliceInClause(VisageExpression seq, VisageExpression first, VisageExpression last, int endKind, JCVariableDecl seqVar) {
             // Collect all the loop initializing statements (variable declarations)
             ListBuffer<JCStatement> tinits = ListBuffer.lb();
             boolean needSeqVar;
-            if (! (seq instanceof JFXIdent))
+            if (! (seq instanceof VisageIdent))
                 needSeqVar = true;
             else  {
-                Symbol seqsym = ((JFXIdent) seq).sym;
+                Symbol seqsym = ((VisageIdent) seq).sym;
                 OnReplaceInfo info = findOnReplaceInfo(seqsym);
                 needSeqVar = info == null ||
                         (seqsym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) == 0;
@@ -3893,7 +3893,7 @@ public abstract class JavafxAbstractTranslation
          *            body
          */
         void translateRangeInClause() {
-            JFXSequenceRange range = (JFXSequenceRange) clause.seqExpr;
+            VisageSequenceRange range = (VisageSequenceRange) clause.seqExpr;
             // Collect all the loop initializing statements (variable declarations)
             ListBuffer<JCStatement> tinits = ListBuffer.lb();
             // Set the initial value of the induction variable to be the low end of the range, and add it the the initializing statements
@@ -3907,7 +3907,7 @@ public abstract class JavafxAbstractTranslation
             // The condition that will be tested each time through the loop
             JCExpression tcond;
             // The user's step expression, or null if none specified
-            JFXExpression step = range.getStepOrNull();
+            VisageExpression step = range.getStepOrNull();
             if (step != null) {
                 // There is a user specified step expression
                 JCExpression stepVal = translateToExpression(step, inductionVarType);
@@ -3962,7 +3962,7 @@ public abstract class JavafxAbstractTranslation
             //     body;
             //   }
             JCVariableDecl incrementingIndexVar = null;
-            JFXExpression seq = clause.seqExpr;
+            VisageExpression seq = clause.seqExpr;
             JCVariableDecl seqVar = null;
             {
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
@@ -3977,9 +3977,9 @@ public abstract class JavafxAbstractTranslation
                 JCExpression varInit;     // Initializer for var.
 
                 if (indexedLoop) {
-                    JFXExpression sseq;
-                    if (clause.seqExpr instanceof JFXSequenceSlice) {
-                        sseq = ((JFXSequenceSlice) clause.seqExpr).getSequence();
+                    VisageExpression sseq;
+                    if (clause.seqExpr instanceof VisageSequenceSlice) {
+                        sseq = ((VisageSequenceSlice) clause.seqExpr).getSequence();
                     } else {
                         sseq = clause.seqExpr;
                     }
@@ -4000,7 +4000,7 @@ public abstract class JavafxAbstractTranslation
                 // Iterating over a range sequence
                 translateRangeInClause();
             } else if (seq.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
-                JFXSequenceSlice slice = (JFXSequenceSlice) clause.seqExpr;
+                VisageSequenceSlice slice = (VisageSequenceSlice) clause.seqExpr;
                 translateSliceInClause(slice.getSequence(), slice.getFirstIndex(), slice.getLastIndex(),
                         slice.getEndKind(), seqVar);
             } else {
@@ -4040,10 +4040,10 @@ public abstract class JavafxAbstractTranslation
     }
 
     class VarInitTranslator extends ExpressionTranslator {
-        private final JFXVar var;
+        private final VisageVar var;
         private final JavafxVarSymbol vsym;
 
-        VarInitTranslator(JFXVarInit tree) {
+        VarInitTranslator(VisageVarInit tree) {
             super(tree.pos());
             this.var = tree.getVar();
             this.vsym = tree.getSymbol();
@@ -4080,12 +4080,12 @@ public abstract class JavafxAbstractTranslation
     class VarRefTranslator extends ExpressionTranslator {
 
         Symbol varSymbol;
-        JFXExpression receiver;
-        JFXVarRef.RefKind kind;
+        VisageExpression receiver;
+        VisageVarRef.RefKind kind;
         Type expectedType;
 
 
-        VarRefTranslator(JFXVarRef tree) {
+        VarRefTranslator(VisageVarRef tree) {
             super(tree.pos());
             this.varSymbol = tree.getVarSymbol();
             this.receiver = tree.getReceiver();
@@ -4128,143 +4128,143 @@ public abstract class JavafxAbstractTranslation
      * Assume non-bound non-notifying implementations -- override where needed
      */
 
-    public void visitAssign(JFXAssign tree) {
+    public void visitAssign(VisageAssign tree) {
         disallowedInBind();
     }
 
-    public void visitAssignop(JFXAssignOp tree) {
+    public void visitAssignop(VisageAssignOp tree) {
         disallowedInBind();
     }
 
-    public void visitBinary(JFXBinary tree) {
+    public void visitBinary(VisageBinary tree) {
         result = (new BinaryOperationTranslator(tree.pos(), tree)).doit();
     }
 
-    public void visitBreak(JFXBreak tree) {
+    public void visitBreak(VisageBreak tree) {
         disallowedInBind();
     }
 
-    public void visitCatch(JFXCatch tree) {
+    public void visitCatch(VisageCatch tree) {
         processedInParent();
     }
 
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
+    public void visitClassDeclaration(VisageClassDeclaration tree) {
         // redirected back to JavafxToJava
         toJava.visitClassDeclaration(tree);
         result = toJava.result;
     }
 
-    public void visitContinue(JFXContinue tree) {
+    public void visitContinue(VisageContinue tree) {
         disallowedInBind();
     }
 
-    public void visitErroneous(JFXErroneous tree) {
+    public void visitErroneous(VisageErroneous tree) {
         badVisitor("erroneous nodes shouldn't have gotten this far");
     }
 
-    public void visitForExpression(JFXForExpression tree) {
+    public void visitForExpression(VisageForExpression tree) {
         result = (new ForExpressionTranslator(tree)).doit();
     }
 
-    public void visitForExpressionInClause(JFXForExpressionInClause that) {
+    public void visitForExpressionInClause(VisageForExpressionInClause that) {
         processedInParent();
     }
 
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(VisageFunctionDefinition tree) {
         disallowedInBind();
     }
 
-    public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
+    public void visitFunctionInvocation(final VisageFunctionInvocation tree) {
         result = new FunctionCallTranslator(tree).doit();
     }
 
-    public void visitFunctionValue(JFXFunctionValue tree) {
+    public void visitFunctionValue(VisageFunctionValue tree) {
         disallowedInBind();
     }
 
-    public abstract void visitIdent(JFXIdent tree);
+    public abstract void visitIdent(VisageIdent tree);
 
-    public void visitIfExpression(JFXIfExpression tree) {
+    public void visitIfExpression(VisageIfExpression tree) {
         result = new IfTranslator(tree).doit();
     }
 
-    public void visitImport(JFXImport tree) {
+    public void visitImport(VisageImport tree) {
         processedInParent();
     }
 
-    public void visitIndexof(final JFXIndexof tree) {
+    public void visitIndexof(final VisageIndexof tree) {
         result = new IndexOfTranslator(tree).doit();
     }
 
-    public void visitInitDefinition(JFXInitDefinition tree) {
+    public void visitInitDefinition(VisageInitDefinition tree) {
         processedInParent();
     }
 
-    public void visitInstanceOf(JFXInstanceOf tree) {
+    public void visitInstanceOf(VisageInstanceOf tree) {
         result = new InstanceOfTranslator(tree).doit();
     }
 
-    public void visitInstanciate(JFXInstanciate tree) {
+    public void visitInstanciate(VisageInstanciate tree) {
         result = new InstanciateTranslator(tree).doit();
     }
 
-    public void visitInterpolateValue(final JFXInterpolateValue tree) {
+    public void visitInterpolateValue(final VisageInterpolateValue tree) {
         throw new AssertionError("KeyFrame should have been lowered");
     }
 
-    public void visitInvalidate(JFXInvalidate tree) {
+    public void visitInvalidate(VisageInvalidate tree) {
         disallowedInBind();
     }
 
-    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+    public void visitKeyFrameLiteral(VisageKeyFrameLiteral tree) {
         disallowedInBind();
     }
 
-    public void visitLiteral(JFXLiteral tree) {
+    public void visitLiteral(VisageLiteral tree) {
          result = new LiteralTranslator(tree).doit();
     }
 
-   public void visitModifiers(JFXModifiers tree) {
+   public void visitModifiers(VisageModifiers tree) {
         processedInParent();
     }
 
-    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
+    public void visitObjectLiteralPart(VisageObjectLiteralPart that) {
         processedInParent();
     }
 
-    public void visitOnReplace(JFXOnReplace tree) {
+    public void visitOnReplace(VisageOnReplace tree) {
         processedInParent();
     }
 
-    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+    public void visitOverrideClassVar(VisageOverrideClassVar tree) {
         processedInParent();
     }
 
-    public void visitParens(JFXParens tree) {
+    public void visitParens(VisageParens tree) {
         result = translateToExpressionResult(tree.expr, targetType);
     }
 
-    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
+    public void visitPostInitDefinition(VisagePostInitDefinition tree) {
         processedInParent();
     }
 
-    public void visitReturn(JFXReturn tree) {
+    public void visitReturn(VisageReturn tree) {
         disallowedInBind();
     }
 
-    public void visitScript(JFXScript tree) {
+    public void visitScript(VisageScript tree) {
         disallowedInBind();
     }
 
-    public void visitSequenceDelete(JFXSequenceDelete tree) {
+    public void visitSequenceDelete(VisageSequenceDelete tree) {
         disallowedInBind();
     }
 
-    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
+    public void visitSequenceEmpty(VisageSequenceEmpty tree) {
         result = new SequenceEmptyTranslator(tree).doit();
     }
 
-    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+    public void visitSequenceExplicit(VisageSequenceExplicit tree) {
         result = new ExplicitSequenceTranslator(
                 tree.pos(),
                 tree.getItems(),
@@ -4273,83 +4273,83 @@ public abstract class JavafxAbstractTranslation
              .doit();
     }
 
-    public void visitSequenceIndexed(final JFXSequenceIndexed tree) {
+    public void visitSequenceIndexed(final VisageSequenceIndexed tree) {
         result = new SequenceIndexedTranslator(tree).doit();
     }
 
-    public void visitSequenceInsert(JFXSequenceInsert tree) {
+    public void visitSequenceInsert(VisageSequenceInsert tree) {
         disallowedInBind();
     }
 
-    public void visitSequenceRange(JFXSequenceRange tree) {
+    public void visitSequenceRange(VisageSequenceRange tree) {
         result = new SequenceRangeTranslator(tree).doit();
     }
 
-    public void visitSequenceSlice(JFXSequenceSlice tree) {
+    public void visitSequenceSlice(VisageSequenceSlice tree) {
         result = new SequenceSliceTranslator(tree).doit();
     }
 
-    public void visitSkip(JFXSkip tree) {
+    public void visitSkip(VisageSkip tree) {
         disallowedInBind();
     }
 
-    public void visitStringExpression(JFXStringExpression tree) {
+    public void visitStringExpression(VisageStringExpression tree) {
         result = new StringExpressionTranslator(tree).doit();
     }
 
-    public void visitThrow(JFXThrow tree) {
+    public void visitThrow(VisageThrow tree) {
         disallowedInBind();
     }
 
-    public void visitTimeLiteral(final JFXTimeLiteral tree) {
+    public void visitTimeLiteral(final VisageTimeLiteral tree) {
         result = new TimeLiteralTranslator(tree).doit();
    }
 
-    public void visitLengthLiteral(final JFXLengthLiteral tree) {
+    public void visitLengthLiteral(final VisageLengthLiteral tree) {
         result = new LengthLiteralTranslator(tree).doit();
    }
 
-    public void visitAngleLiteral(final JFXAngleLiteral tree) {
+    public void visitAngleLiteral(final VisageAngleLiteral tree) {
         result = new AngleLiteralTranslator(tree).doit();
    }
 
-    public void visitColorLiteral(final JFXColorLiteral tree) {
+    public void visitColorLiteral(final VisageColorLiteral tree) {
         result = new ColorLiteralTranslator(tree).doit();
    }
 
-    public void visitTree(JFXTree that) {
+    public void visitTree(VisageTree that) {
         badVisitor("Should not be here!!!");
     }
 
-    public void visitTry(JFXTry tree) {
+    public void visitTry(VisageTry tree) {
         disallowedInBind();
     }
 
-    public void visitTypeAny(JFXTypeAny that) {
+    public void visitTypeAny(VisageTypeAny that) {
         processedInParent();
     }
 
-    public void visitTypeCast(final JFXTypeCast tree) {
+    public void visitTypeCast(final VisageTypeCast tree) {
         result = new TypeCastTranslator(tree).doit();
     }
 
-    public void visitTypeClass(JFXTypeClass that) {
+    public void visitTypeClass(VisageTypeClass that) {
         processedInParent();
     }
 
-    public void visitTypeFunctional(JFXTypeFunctional that) {
+    public void visitTypeFunctional(VisageTypeFunctional that) {
         processedInParent();
     }
 
-    public void visitTypeArray(JFXTypeArray tree) {
+    public void visitTypeArray(VisageTypeArray tree) {
         processedInParent();
     }
 
-    public void visitTypeUnknown(JFXTypeUnknown that) {
+    public void visitTypeUnknown(VisageTypeUnknown that) {
         processedInParent();
     }
 
-    public void visitUnary(JFXUnary tree) {
+    public void visitUnary(VisageUnary tree) {
         if (tree.getFXTag().isIncDec()) {
             //we shouldn't be here - arithmetic unary expressions should
             //have been lowered to standard binary expressions
@@ -4358,19 +4358,19 @@ public abstract class JavafxAbstractTranslation
         result = new UnaryOperationTranslator(tree).doit();
     }
 
-    public void visitVar(JFXVar tree) {
+    public void visitVar(VisageVar tree) {
         disallowedInBind();
     }
 
-    public void visitVarInit(JFXVarInit tree) {
+    public void visitVarInit(VisageVarInit tree) {
         result = new VarInitTranslator(tree).doit();
     }
 
-    public void visitVarRef(JFXVarRef tree) {
+    public void visitVarRef(VisageVarRef tree) {
         result = new VarRefTranslator(tree).doit();
     }
 
-    public void visitWhileLoop(JFXWhileLoop tree) {
+    public void visitWhileLoop(VisageWhileLoop tree) {
         disallowedInBind();
     }
 }

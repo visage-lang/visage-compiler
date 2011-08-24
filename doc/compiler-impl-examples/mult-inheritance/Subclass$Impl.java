@@ -1,14 +1,14 @@
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 import org.visage.runtime.InitHelper;
 import org.visage.runtime.location.AbstractVariable;
 import org.visage.runtime.location.IntVariable;
 
 
-interface Base$Intf extends FXObject {
+interface Base$Intf extends VisageObject {
     public IntVariable get$a();
 }
 
-interface OtherBase$Intf extends FXObject {
+interface OtherBase$Intf extends VisageObject {
     public IntVariable get$b();
 }
 

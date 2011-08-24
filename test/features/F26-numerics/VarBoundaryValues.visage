@@ -7,9 +7,9 @@
  * @run
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
-public class VarBoundaryValues extends FXTestCase {
+public class VarBoundaryValues extends VisageTestCase {
     var cInstance = cScript;
     var bInstance = bScript;
     var lInstance = lScript;

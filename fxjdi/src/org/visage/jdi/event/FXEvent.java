@@ -23,9 +23,9 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXMirror;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.request.FXEventRequest;
+import org.visage.jdi.VisageMirror;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.request.VisageEventRequest;
 import com.sun.jdi.event.AccessWatchpointEvent;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
@@ -54,13 +54,13 @@ import java.util.Collection;
  *
  * @author sundar
  */
-public class FXEvent extends FXMirror implements Event {
-    public FXEvent(FXVirtualMachine fxvm, Event underlying) {
+public class VisageEvent extends VisageMirror implements Event {
+    public VisageEvent(VisageVirtualMachine fxvm, Event underlying) {
         super(fxvm, underlying);
     }
 
-    public FXEventRequest request() {
-        return FXEventRequest.wrap(virtualMachine(), underlying().request());
+    public VisageEventRequest request() {
+        return VisageEventRequest.wrap(virtualMachine(), underlying().request());
     }
 
     @Override
@@ -69,55 +69,55 @@ public class FXEvent extends FXMirror implements Event {
     }
 
     public static Event unwrap(Event evt) {
-        return (evt instanceof FXEvent)? ((FXEvent)evt).underlying() : evt;
+        return (evt instanceof VisageEvent)? ((VisageEvent)evt).underlying() : evt;
     }
 
-    public static FXEvent wrap(FXVirtualMachine fxvm, Event evt) {
+    public static VisageEvent wrap(VisageVirtualMachine fxvm, Event evt) {
         if (evt == null) {
             return null;
         }
         if (evt instanceof AccessWatchpointEvent) {
-            return new FXAccessWatchpointEvent(fxvm, (AccessWatchpointEvent)evt);
+            return new VisageAccessWatchpointEvent(fxvm, (AccessWatchpointEvent)evt);
         } else if (evt instanceof BreakpointEvent) {
-            return new FXBreakpointEvent(fxvm, (BreakpointEvent)evt);
+            return new VisageBreakpointEvent(fxvm, (BreakpointEvent)evt);
         } else if (evt instanceof ClassPrepareEvent) {
-            return new FXClassPrepareEvent(fxvm, (ClassPrepareEvent)evt);
+            return new VisageClassPrepareEvent(fxvm, (ClassPrepareEvent)evt);
         } else if (evt instanceof ClassUnloadEvent) {
-            return new FXClassUnloadEvent(fxvm, (ClassUnloadEvent)evt);
+            return new VisageClassUnloadEvent(fxvm, (ClassUnloadEvent)evt);
         } else if (evt instanceof ExceptionEvent) {
-            return new FXExceptionEvent(fxvm, (ExceptionEvent)evt);
+            return new VisageExceptionEvent(fxvm, (ExceptionEvent)evt);
         } else if (evt instanceof MethodEntryEvent) {
-            return new FXMethodEntryEvent(fxvm, (MethodEntryEvent)evt);
+            return new VisageMethodEntryEvent(fxvm, (MethodEntryEvent)evt);
         } else if (evt instanceof MethodExitEvent) {
-            return new FXMethodExitEvent(fxvm, (MethodExitEvent)evt);
+            return new VisageMethodExitEvent(fxvm, (MethodExitEvent)evt);
         } else if (evt instanceof ModificationWatchpointEvent) {
-            return new FXModificationWatchpointEvent(fxvm, (ModificationWatchpointEvent)evt);
+            return new VisageModificationWatchpointEvent(fxvm, (ModificationWatchpointEvent)evt);
         } else if (evt instanceof MonitorContendedEnterEvent) {
-            return new FXMonitorContendedEnterEvent(fxvm, (MonitorContendedEnterEvent)evt);
+            return new VisageMonitorContendedEnterEvent(fxvm, (MonitorContendedEnterEvent)evt);
         } else if (evt instanceof MonitorContendedEnteredEvent) {
-            return new FXMonitorContendedEnteredEvent(fxvm, (MonitorContendedEnteredEvent)evt);
+            return new VisageMonitorContendedEnteredEvent(fxvm, (MonitorContendedEnteredEvent)evt);
         } else if (evt instanceof MonitorWaitEvent) {
-            return new FXMonitorWaitEvent(fxvm, (MonitorWaitEvent)evt);
+            return new VisageMonitorWaitEvent(fxvm, (MonitorWaitEvent)evt);
         } else if (evt instanceof MonitorWaitedEvent) {
-            return new FXMonitorWaitedEvent(fxvm, (MonitorWaitedEvent)evt);
+            return new VisageMonitorWaitedEvent(fxvm, (MonitorWaitedEvent)evt);
         } else if (evt instanceof StepEvent) {
-            return new FXStepEvent(fxvm, (StepEvent)evt);
+            return new VisageStepEvent(fxvm, (StepEvent)evt);
         } else if (evt instanceof ThreadDeathEvent) {
-            return new FXThreadDeathEvent(fxvm, (ThreadDeathEvent)evt);
+            return new VisageThreadDeathEvent(fxvm, (ThreadDeathEvent)evt);
         } else if (evt instanceof ThreadStartEvent) {
-            return new FXThreadStartEvent(fxvm, (ThreadStartEvent)evt);
+            return new VisageThreadStartEvent(fxvm, (ThreadStartEvent)evt);
         } else if (evt instanceof VMDeathEvent) {
-            return new FXVMDeathEvent(fxvm, (VMDeathEvent)evt);
+            return new VisageVMDeathEvent(fxvm, (VMDeathEvent)evt);
         } else if (evt instanceof VMDisconnectEvent) {
-            return new FXVMDisconnectEvent(fxvm, (VMDisconnectEvent)evt);
+            return new VisageVMDisconnectEvent(fxvm, (VMDisconnectEvent)evt);
         } else if (evt instanceof VMStartEvent) {
-            return new FXVMStartEvent(fxvm, (VMStartEvent)evt);
+            return new VisageVMStartEvent(fxvm, (VMStartEvent)evt);
         } else if (evt instanceof WatchpointEvent) {
-            return new FXWatchpointEvent(fxvm, (WatchpointEvent)evt);
+            return new VisageWatchpointEvent(fxvm, (WatchpointEvent)evt);
         } else if (evt instanceof LocatableEvent) {
-            return new FXLocatableEvent(fxvm, (LocatableEvent)evt);
+            return new VisageLocatableEvent(fxvm, (LocatableEvent)evt);
         } else {
-            return new FXEvent(fxvm, evt);
+            return new VisageEvent(fxvm, evt);
         }
     }
 

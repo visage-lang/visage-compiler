@@ -543,7 +543,7 @@ public class DocEnv {
     /**
      * Create the PackageDoc (or a subtype) for a package symbol.
      */
-    void makePackageDoc(PackageSymbol pack, String docComment, JFXScript tree) {
+    void makePackageDoc(PackageSymbol pack, String docComment, VisageScript tree) {
         PackageDocImpl result = packageMap.get(pack);
         docComment = processDocComment(docComment);
         if (result != null) {
@@ -572,7 +572,7 @@ public class DocEnv {
     /**
      * Create the ClassDoc (or a subtype) for a class symbol.
      */
-    protected void makeClassDoc(ClassSymbol clazz, String docComment, JFXClassDeclaration tree, Position.LineMap lineMap) {
+    protected void makeClassDoc(ClassSymbol clazz, String docComment, VisageClassDeclaration tree, Position.LineMap lineMap) {
         ClassDocImpl result = classMap.get(clazz);
         docComment = processDocComment(docComment);
         if (result != null) {
@@ -599,7 +599,7 @@ public class DocEnv {
     /**
      * Create a FieldDoc for a var symbol.
      */
-    protected void makeFieldDoc(VarSymbol var, String docComment, JFXVar tree, Position.LineMap lineMap) {
+    protected void makeFieldDoc(VarSymbol var, String docComment, VisageVar tree, Position.LineMap lineMap) {
         FieldDocImpl result = fieldMap.get(var);
         docComment = processDocComment(docComment);
         if (result != null) {
@@ -618,7 +618,7 @@ public class DocEnv {
      * Should be called only on symbols representing methods.
      */
     protected void makeFunctionDoc(MethodSymbol meth, String docComment,
-                       JFXFunctionDefinition tree, Position.LineMap lineMap) {
+                       VisageFunctionDefinition tree, Position.LineMap lineMap) {
         FunctionDocImpl result = (FunctionDocImpl)methodMap.get(meth);
         docComment = processDocComment(docComment);
         if (result != null) {
@@ -647,7 +647,7 @@ public class DocEnv {
      * Should be called only on symbols representing constructors.
      */
     protected void makeConstructorDoc(MethodSymbol meth, String docComment,
-                            JFXFunctionDefinition tree, Position.LineMap lineMap) {
+                            VisageFunctionDefinition tree, Position.LineMap lineMap) {
         ConstructorDocImpl result = (ConstructorDocImpl)methodMap.get(meth);
         docComment = processDocComment(docComment);
         if (result != null) {

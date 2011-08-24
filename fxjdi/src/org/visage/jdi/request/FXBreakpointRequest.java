@@ -23,9 +23,9 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXLocation;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageLocation;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.request.BreakpointRequest;
@@ -34,21 +34,21 @@ import com.sun.jdi.request.BreakpointRequest;
  *
  * @author sundar
  */
-public class FXBreakpointRequest extends FXEventRequest implements BreakpointRequest {
-    public FXBreakpointRequest(FXVirtualMachine fxvm, BreakpointRequest underlying) {
+public class VisageBreakpointRequest extends VisageEventRequest implements BreakpointRequest {
+    public VisageBreakpointRequest(VisageVirtualMachine fxvm, BreakpointRequest underlying) {
         super(fxvm, underlying);
     }
 
     public void addInstanceFilter(ObjectReference arg0) {
-        underlying().addInstanceFilter(FXWrapper.unwrap(arg0));
+        underlying().addInstanceFilter(VisageWrapper.unwrap(arg0));
     }
 
     public void addThreadFilter(ThreadReference arg0) {
-        underlying().addThreadFilter(FXWrapper.unwrap(arg0));
+        underlying().addThreadFilter(VisageWrapper.unwrap(arg0));
     }
 
-    public FXLocation location() {
-        return FXWrapper.wrap(virtualMachine(), underlying().location());
+    public VisageLocation location() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().location());
     }
 
     @Override

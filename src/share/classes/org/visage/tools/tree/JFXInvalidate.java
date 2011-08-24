@@ -24,17 +24,17 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  *
  * @author Maurizio Cimadamore
  */
-public class JFXInvalidate extends JFXExpression implements VariableInvalidateTree {
-    private JFXExpression var;
+public class VisageInvalidate extends VisageExpression implements VariableInvalidateTree {
+    private VisageExpression var;
 
 
-    public JFXInvalidate(JFXExpression var) {
+    public VisageInvalidate(VisageExpression var) {
         this.var = var;
     }
 
@@ -42,7 +42,7 @@ public class JFXInvalidate extends JFXExpression implements VariableInvalidateTr
         v.visitInvalidate(this);
     }
 
-    public JFXExpression getVariable() {
+    public VisageExpression getVariable() {
         return var;
     }
 
@@ -51,11 +51,11 @@ public class JFXInvalidate extends JFXExpression implements VariableInvalidateTr
         return JavafxTag.INVALIDATE;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.VARIABLE_INVALIDATE;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.VARIABLE_INVALIDATE;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitVariableInvalidate(this, data);
     }
 }

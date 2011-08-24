@@ -48,7 +48,7 @@ public class DummyComparator extends Comparator {
     }
 }
 
-public class SequencesTest extends visage.fxunit.FXTestCase {
+public class SequencesTest extends visage.fxunit.VisageTestCase {
     
     // TODO: JFXC-833 Simplify singleInteger, singleElement, and assertEquals
     // TODO: JFXC-869 Simplify try-catch blocks below after resolve

@@ -7,7 +7,7 @@
  * @run
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
 /* --------------------------------------------------------------
  *            This block could live in a common visage file
@@ -32,7 +32,7 @@ public def fSeq : Float[] = [ 1.11, 2.22, 3.33 ];
 
 var b : Byte;
 
-public class ToByte extends FXTestCase {
+public class ToByte extends VisageTestCase {
 
     function testToByte() {
         b = bb;

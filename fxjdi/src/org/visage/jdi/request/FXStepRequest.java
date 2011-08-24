@@ -23,9 +23,9 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXThreadReference;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageThreadReference;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.request.StepRequest;
@@ -34,8 +34,8 @@ import com.sun.jdi.request.StepRequest;
  *
  * @author sundar
  */
-public class FXStepRequest extends FXEventRequest implements StepRequest {
-    public FXStepRequest(FXVirtualMachine fxvm, StepRequest underlying) {
+public class VisageStepRequest extends VisageEventRequest implements StepRequest {
+    public VisageStepRequest(VisageVirtualMachine fxvm, StepRequest underlying) {
         super(fxvm, underlying);
     }
 
@@ -44,7 +44,7 @@ public class FXStepRequest extends FXEventRequest implements StepRequest {
     }
 
     public void addClassFilter(ReferenceType arg0) {
-        underlying().addClassFilter(FXWrapper.unwrap(arg0));
+        underlying().addClassFilter(VisageWrapper.unwrap(arg0));
     }
 
     public void addClassFilter(String arg0) {
@@ -52,7 +52,7 @@ public class FXStepRequest extends FXEventRequest implements StepRequest {
     }
 
     public void addInstanceFilter(ObjectReference ref) {
-        underlying().addInstanceFilter(FXWrapper.unwrap(ref));
+        underlying().addInstanceFilter(VisageWrapper.unwrap(ref));
     }
 
     public int depth() {
@@ -63,8 +63,8 @@ public class FXStepRequest extends FXEventRequest implements StepRequest {
         return underlying().size();
     }
 
-    public FXThreadReference thread() {
-        return FXWrapper.wrap(virtualMachine(), underlying().thread());
+    public VisageThreadReference thread() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().thread());
     }
 
     @Override

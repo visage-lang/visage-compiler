@@ -34,8 +34,8 @@ import java.util.List;
  *
  * @author sundar
  */
-public class FXArrayType extends FXReferenceType implements ArrayType {
-    public FXArrayType(FXVirtualMachine fxvm, ArrayType underlying) {
+public class VisageArrayType extends VisageReferenceType implements ArrayType {
+    public VisageArrayType(VisageVirtualMachine fxvm, ArrayType underlying) {
         super(fxvm, underlying);
     }
 
@@ -43,16 +43,16 @@ public class FXArrayType extends FXReferenceType implements ArrayType {
         return underlying().componentSignature();
     }
 
-    public FXType componentType() throws ClassNotLoadedException {
-        return FXWrapper.wrap(virtualMachine(), underlying().componentType());
+    public VisageType componentType() throws ClassNotLoadedException {
+        return VisageWrapper.wrap(virtualMachine(), underlying().componentType());
     }
 
     public String componentTypeName() {
         return underlying().componentTypeName();
     }
 
-    public FXArrayReference newInstance(int length) {
-        return FXWrapper.wrap(virtualMachine(), underlying().newInstance(length));
+    public VisageArrayReference newInstance(int length) {
+        return VisageWrapper.wrap(virtualMachine(), underlying().newInstance(length));
     }
 
     @Override

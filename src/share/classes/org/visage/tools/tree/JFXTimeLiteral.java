@@ -24,22 +24,22 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * Tree node for time literals, such as "100ms" or "3m".
  * @author tball
  */
-public class JFXTimeLiteral extends JFXExpression implements TimeLiteralTree {
-    public JFXLiteral value;
+public class VisageTimeLiteral extends VisageExpression implements TimeLiteralTree {
+    public VisageLiteral value;
     public Duration duration;
     
-   protected JFXTimeLiteral(){
+   protected VisageTimeLiteral(){
         this.value = null;
         this.duration = null;
     }
 
-    protected JFXTimeLiteral(JFXLiteral value, Duration duration) {
+    protected VisageTimeLiteral(VisageLiteral value, Duration duration) {
         this.value = value;
         this.duration = duration;
     }
@@ -53,11 +53,11 @@ public class JFXTimeLiteral extends JFXExpression implements TimeLiteralTree {
         v.visitTimeLiteral(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.TIME_LITERAL;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.TIME_LITERAL;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitTimeLiteral(this, data);
     }
 
@@ -65,7 +65,7 @@ public class JFXTimeLiteral extends JFXExpression implements TimeLiteralTree {
         return duration;
     }
 
-    public JFXLiteral getValue() {
+    public VisageLiteral getValue() {
         return value;
     }
 }

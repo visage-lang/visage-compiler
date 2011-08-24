@@ -11,7 +11,7 @@ public class SequenceListenerTest {
     public var seq: Object[];
 }
 
-class DummyListener extends FXChangeListener {
+class DummyListener extends VisageChangeListener {
     var id: String;
 
     override function onChange() {
@@ -20,7 +20,7 @@ class DummyListener extends FXChangeListener {
 }
 
 public function run() {
-    def fxContext = FXLocal.getContext();
+    def fxContext = VisageLocal.getContext();
     def seqListenerClass = fxContext.makeClassRef(SequenceListenerTest.class);
     def xVar = seqListenerClass.getVariable('x');
     def seqVar = seqListenerClass.getVariable('seq');

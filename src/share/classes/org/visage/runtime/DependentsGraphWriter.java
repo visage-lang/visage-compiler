@@ -54,42 +54,42 @@ public final class DependentsGraphWriter {
     /**
      * Writes given object's dependent network to the file in GXL format.
      *
-     * @param obj The FXObject whose dependents graph is serialized
+     * @param obj The VisageObject whose dependents graph is serialized
      * @param fileName The name of the file to which the graph is serialized
      */
-    public static void write(FXObject obj, String fileName) {
+    public static void write(VisageObject obj, String fileName) {
         write(obj, fileName, false);
     }
 
     /**
      * Writes given object's dependent network to the file in GXL format.
      *
-     * @param obj The FXObject whose dependents graph is serialized
+     * @param obj The VisageObject whose dependents graph is serialized
      * @param fileName The name of the file to which the graph is serialized
-     * @param followFields does the graph includes all transitively reachable FXObjects?
+     * @param followFields does the graph includes all transitively reachable VisageObjects?
      */
-    public static void write(FXObject obj, String fileName, boolean followFields) {
+    public static void write(VisageObject obj, String fileName, boolean followFields) {
         write(obj, new File(fileName), followFields);
     }
 
     /**
      * Writes given object's dependent network to the file in GXL format.
      * 
-     * @param obj The FXObject whose dependents graph is serialized
+     * @param obj The VisageObject whose dependents graph is serialized
      * @param file The file to which the graph is serialized
      */
-    public static void write(FXObject obj, File file) {
+    public static void write(VisageObject obj, File file) {
         write(obj, file, false);
     }
 
     /**
      * Writes given object's dependent network to the file in GXL format.
      *
-     * @param obj The FXObject whose dependents graph is serialized
+     * @param obj The VisageObject whose dependents graph is serialized
      * @param file The file to which the graph is serialized
-     * @param followFields does the graph includes all transitively reachable FXObjects?
+     * @param followFields does the graph includes all transitively reachable VisageObjects?
      */
-    public static void write(FXObject obj, File file, boolean followFields) {
+    public static void write(VisageObject obj, File file, boolean followFields) {
         DependentsGraphWriter depWriter = new DependentsGraphWriter(file, followFields);
         depWriter.start(file.getName());
         depWriter.writeDependencies(obj);
@@ -131,22 +131,22 @@ public final class DependentsGraphWriter {
     private static final String INTEROBJECT_EDGE_COLOR = "red";
 
     // objects we have seen so far
-    private Map<FXObject, FXObject> allObjects;
+    private Map<VisageObject, VisageObject> allObjects;
     // repeatedly cleared and used attributes object
     private AttributesImpl attrs;
     // SAX sink to output SAX events
     private ContentHandler handler;
 
     /*
-     * Chase variables in every FXObject or not - by default, the graph
+     * Chase variables in every VisageObject or not - by default, the graph
      * includes only transitive closure of all dependents of the given object.
      * If this flag is true, then graph includes all transitively reachable
-     * FXObject type objects as well. (much bigger graph!)
+     * VisageObject type objects as well. (much bigger graph!)
      */
     private boolean followFields;
 
     private DependentsGraphWriter(File file, boolean followFields) {
-        this.allObjects = new IdentityHashMap<FXObject, FXObject>();
+        this.allObjects = new IdentityHashMap<VisageObject, VisageObject>();
         this.attrs = new AttributesImpl();
         this.handler =  makeContentHandler(file);
         this.followFields = followFields;
@@ -180,7 +180,7 @@ public final class DependentsGraphWriter {
 
     private void end() {
         // write node for each symbol seen
-        for (FXObject obj : allObjects.keySet()) {
+        for (VisageObject obj : allObjects.keySet()) {
             attrs.clear();
             attrs.addAttribute("", ID, ID, ATTR_ID, id(obj));
             startElement(NODE, attrs);
@@ -200,13 +200,13 @@ public final class DependentsGraphWriter {
         handler = null;
     }
 
-    private void writeDependencies(FXObject bindee) {
+    private void writeDependencies(VisageObject bindee) {
         if (allObjects.containsKey(bindee)) {
             return;
         }
         allObjects.put(bindee, bindee);
-        List<FXObject> dependents = DependentsManager.getDependents(bindee);
-        for (FXObject binder : dependents) {
+        List<VisageObject> dependents = DependentsManager.getDependents(bindee);
+        for (VisageObject binder : dependents) {
             // write dependence b/w binder and bindee
             writeDependency(binder, bindee);
             // write the network of the dependee now
@@ -216,14 +216,14 @@ public final class DependentsGraphWriter {
             final int count = bindee.count$();
             for (int idx = 0; idx < count; idx++) {
                 Object fieldValue = bindee.get$(idx);
-                if (fieldValue instanceof FXObject) {
-                    writeDependencies((FXObject) fieldValue);
+                if (fieldValue instanceof VisageObject) {
+                    writeDependencies((VisageObject) fieldValue);
                 } else if (fieldValue instanceof Sequence) {
                     Sequence seq = (Sequence)fieldValue;
                     if (seq.getElementType() == TypeInfo.Object) {
                         for (Object elem : seq) {
-                            if (elem instanceof FXObject) {
-                                writeDependencies((FXObject)elem);
+                            if (elem instanceof VisageObject) {
+                                writeDependencies((VisageObject)elem);
                             }
                         }
                     }
@@ -232,7 +232,7 @@ public final class DependentsGraphWriter {
         }
     }
 
-    private void writeDependency(FXObject binder, FXObject bindee) {
+    private void writeDependency(VisageObject binder, VisageObject bindee) {
         // write an edge from binder to bindee node
         attrs.clear();
         attrs.addAttribute("", FROM, FROM, ATTR_IDREF, id(binder));
@@ -248,7 +248,7 @@ public final class DependentsGraphWriter {
         endElement(EDGE);
     }
 
-    private String id(FXObject obj) {
+    private String id(VisageObject obj) {
         StringBuilder buf = new StringBuilder();
         buf.append(obj.getClass().getName());
         buf.append('@');

@@ -23,8 +23,8 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXMirror;
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageMirror;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.event.EventQueue;
 import com.sun.jdi.event.EventSet;
 import java.util.Collections;
@@ -33,12 +33,12 @@ import java.util.ArrayList;
 
 /**
  * This wrapper class allows the client to control which events are suppressed and which are passed to the client while
- * an internal invokeMethod is in progress.  Internal invokeMethods are used by get/setValue(s) methods in FXReferenceType, 
- * FXClassType, and FXObjectReference if the field involved has a getter/setter.
+ * an internal invokeMethod is in progress.  Internal invokeMethods are used by get/setValue(s) methods in VisageReferenceType, 
+ * VisageClassType, and VisageObjectReference if the field involved has a getter/setter.
  *
  * @author sundar
  */
-public class FXEventQueue extends FXMirror implements EventQueue {
+public class VisageEventQueue extends VisageMirror implements EventQueue {
 
     // Note that this class is not used for the internal EventQueue - 
     // that is not exposed in the Visage-JDI layer
@@ -64,11 +64,11 @@ public class FXEventQueue extends FXMirror implements EventQueue {
     private List<Class> eventsToBePassed = new ArrayList<Class>();
     
     // Filter for EventSets that should be passed thru in controlled mode.
-    private boolean shouldPassEventSet(FXEventSet eventSet) {
+    private boolean shouldPassEventSet(VisageEventSet eventSet) {
         if (eventsToBePassed == null) {
             return true;
         }
-        FXEvent newEvt = eventSet.eventIterator().next();
+        VisageEvent newEvt = eventSet.eventIterator().next();
         for (Class evtClass: eventsToBePassed) {
             if (evtClass.isInstance(newEvt)) {
                 return true;
@@ -128,13 +128,13 @@ public class FXEventQueue extends FXMirror implements EventQueue {
         List<Class> newList = new ArrayList<Class>(passThese.size() + 2);
         boolean tripleSeen = false;
         for (Class evtClass: passThese) {
-            if (evtClass.isInstance(FXBreakpointEvent.class) ||
-                evtClass.isInstance(FXStepEvent.class) ||
-                evtClass.isInstance(FXMethodEntryEvent.class)) {
+            if (evtClass.isInstance(VisageBreakpointEvent.class) ||
+                evtClass.isInstance(VisageStepEvent.class) ||
+                evtClass.isInstance(VisageMethodEntryEvent.class)) {
                 if (!tripleSeen) {
-                    newList.add(FXBreakpointEvent.class);
-                    newList.add(FXStepEvent.class);
-                    newList.add(FXMethodEntryEvent.class);
+                    newList.add(VisageBreakpointEvent.class);
+                    newList.add(VisageStepEvent.class);
+                    newList.add(VisageMethodEntryEvent.class);
                     tripleSeen = true;
                 }
             } else {
@@ -153,24 +153,24 @@ public class FXEventQueue extends FXMirror implements EventQueue {
         return eventsToBePassed;
     }
 
-    public FXEventQueue(FXVirtualMachine fxvm, EventQueue underlying) {
+    public VisageEventQueue(VisageVirtualMachine fxvm, EventQueue underlying) {
         super(fxvm, underlying);
         
-        eventsToBePassed.add(FXClassPrepareEvent.class);
-        eventsToBePassed.add(FXVMDeathEvent.class);
-        eventsToBePassed.add(FXVMDisconnectEvent.class);
-        eventsToBePassed.add(FXVMStartEvent.class);
+        eventsToBePassed.add(VisageClassPrepareEvent.class);
+        eventsToBePassed.add(VisageVMDeathEvent.class);
+        eventsToBePassed.add(VisageVMDisconnectEvent.class);
+        eventsToBePassed.add(VisageVMStartEvent.class);
     }
 
-    public FXEventSet remove() throws InterruptedException {
+    public VisageEventSet remove() throws InterruptedException {
         return remove(0);
     }
 
-    public FXEventSet remove(long arg0) throws InterruptedException {
-        FXEventSet eventSet;
+    public VisageEventSet remove(long arg0) throws InterruptedException {
+        VisageEventSet eventSet;
         while(true) {
             // we are normally waiting under here when eventControl changes
-            eventSet = FXEventSet.wrap(virtualMachine(), underlying().remove(arg0));
+            eventSet = VisageEventSet.wrap(virtualMachine(), underlying().remove(arg0));
             if (!eventControl) {
                 // eventSet will be null if it timed out.
                 return eventSet;

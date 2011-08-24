@@ -23,7 +23,7 @@
 
 package fxjdi;
 
-import org.visage.jdi.FXSequenceReference;
+import org.visage.jdi.VisageSequenceReference;
 import com.sun.jdi.StringReference;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class JFXC4440Test extends JdbBase {
         stop("in JFXC4440Test.func");
         fxrun();
         resumeToBreakpoint();
-        FXSequenceReference seq = (FXSequenceReference) evaluate("JFXC4440Test.seq");
+        VisageSequenceReference seq = (VisageSequenceReference) evaluate("JFXC4440Test.seq");
         // used to get NPE from this setValue call.
         seq.setValue(0, vm().mirrorOf("sun"));
         Assert.assertEquals(((StringReference)seq.getValue(0)).value(), "sun");

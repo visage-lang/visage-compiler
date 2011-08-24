@@ -24,25 +24,25 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * "if {cond} truePart [else falsePart]" conditional expression
  */
-public class JFXIfExpression extends JFXExpression implements ConditionalExpressionTree {
+public class VisageIfExpression extends VisageExpression implements ConditionalExpressionTree {
 
-    public final JFXExpression cond;
-    public final JFXExpression truepart;
-    public final JFXExpression falsepart;
+    public final VisageExpression cond;
+    public final VisageExpression truepart;
+    public final VisageExpression falsepart;
 
-    public JFXVar boundCondVar;
-    public JFXVar boundThenVar;
-    public JFXVar boundElseVar;
-    public JFXVar boundSizeVar;
+    public VisageVar boundCondVar;
+    public VisageVar boundThenVar;
+    public VisageVar boundElseVar;
+    public VisageVar boundSizeVar;
 
-    protected JFXIfExpression(JFXExpression cond,
-            JFXExpression truepart,
-            JFXExpression falsepart) {
+    protected VisageIfExpression(VisageExpression cond,
+            VisageExpression truepart,
+            VisageExpression falsepart) {
         this.cond = cond;
         this.truepart = truepart;
         this.falsepart = falsepart;
@@ -53,24 +53,24 @@ public class JFXIfExpression extends JFXExpression implements ConditionalExpress
         v.visitIfExpression(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.CONDITIONAL_EXPRESSION;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.CONDITIONAL_EXPRESSION;
     }
 
-    public JFXExpression getCondition() {
+    public VisageExpression getCondition() {
         return cond;
     }
 
-    public JFXExpression getTrueExpression() {
+    public VisageExpression getTrueExpression() {
         return truepart;
     }
 
-    public JFXExpression getFalseExpression() {
+    public VisageExpression getFalseExpression() {
         return falsepart;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitConditionalExpression(this, d);
     }
 

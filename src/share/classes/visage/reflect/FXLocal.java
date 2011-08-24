@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.visage.functions.*;
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 import org.visage.runtime.TypeInfo;
 import org.visage.runtime.sequence.Sequence;
 import org.visage.runtime.sequence.Sequences;
@@ -43,10 +43,10 @@ import org.visage.runtime.sequence.Sequences;
  * @author Per Bothner
  * @profile desktop
  */
-public class FXLocal {
+public class VisageLocal {
     public static Context getContext() { return Context.instance; }
 
-    /** Implementation of {@link FXContext} using Java reflection.
+    /** Implementation of {@link VisageContext} using Java reflection.
      * Can only access objects and types in the current JVM.
      * Normally, this is a singleton, though in the future there might
      * be variants with different class search paths (similar to
@@ -55,7 +55,7 @@ public class FXLocal {
      * @profile desktop
      */
 
-    public static class Context extends FXContext {
+    public static class Context extends VisageContext {
         static Context instance = new Context();
 
         private Context () {
@@ -69,19 +69,19 @@ public class FXLocal {
             return new ObjectValue(obj, this);
         }
 
-        public Value mirrorOf(final Object val, final FXType type) {
+        public Value mirrorOf(final Object val, final VisageType type) {
             // FIXME Perhaps if val==null we should use MiscValue?
             if (type instanceof ClassType)
-                return new FXLocal.ObjectValue(val, (ClassType) type);
-            else if (type instanceof FXPrimitiveType) {
-                return ((FXPrimitiveType) type).mirrorOf(val);
+                return new VisageLocal.ObjectValue(val, (ClassType) type);
+            else if (type instanceof VisagePrimitiveType) {
+                return ((VisagePrimitiveType) type).mirrorOf(val);
             }
-            else if (type instanceof FXSequenceType && val instanceof Sequence) {
+            else if (type instanceof VisageSequenceType && val instanceof Sequence) {
                 Sequence seq = (Sequence) val;
-                return new SequenceValue(seq, (FXSequenceType) type, this);
+                return new SequenceValue(seq, (VisageSequenceType) type, this);
             }
-            else if (type instanceof FXFunctionType && val instanceof Function) {
-                final FXFunctionType ftype = (FXFunctionType) type;
+            else if (type instanceof VisageFunctionType && val instanceof Function) {
+                final VisageFunctionType ftype = (VisageFunctionType) type;
                 return new FunctionValue((Function) val, ftype, this);
             } else {
                 return new MiscValue(val, type);
@@ -92,7 +92,7 @@ public class FXLocal {
           return new ObjectValue(val, this);
         }
 
-        /** Get the {@code FXClassType} for the class with the given name. */
+        /** Get the {@code VisageClassType} for the class with the given name. */
         public ClassType findClass(String cname) {
             ClassLoader loader;
             try {
@@ -104,7 +104,7 @@ public class FXLocal {
             return findClass(cname, loader);
         }
 
-        /** Get the {@code FXClassType} for the class with the given name. */
+        /** Get the {@code VisageClassType} for the class with the given name. */
         public ClassType findClass(String cname, ClassLoader loader) {
             String n = cname;
             Exception ex0 = null;
@@ -130,15 +130,15 @@ public class FXLocal {
         static final String VARIABLE_STRING = "Variable";
         static final int VARIABLE_STRING_LENGTH = VARIABLE_STRING.length();
 
-        public FXType makeTypeRef(Type typ) {
+        public VisageType makeTypeRef(Type typ) {
             Object t = PlatformUtils.resolveGeneric(this, typ);
-            if (t instanceof FXType)
-                return (FXType) t;
+            if (t instanceof VisageType)
+                return (VisageType) t;
         
             Class clas = (Class) t;
             if (clas.isArray()) {
-                FXType elType = makeTypeRef(clas.getComponentType());
-                return new FXJavaArrayType(elType);
+                VisageType elType = makeTypeRef(clas.getComponentType());
+                return new VisageJavaArrayType(elType);
             }
             String rawName = clas.getName();
             int rawLength = rawName.length();
@@ -151,33 +151,33 @@ public class FXLocal {
                 if (rawName.endsWith("Sequence")) { 
                     int newLength = rawName.length() - "Sequence".length(); 
                     if (newLength != 0) rawName = rawName.substring(0, newLength - 1); 
-                    FXType ptype = getPrimitiveType(rawName); 
+                    VisageType ptype = getPrimitiveType(rawName); 
                     if (ptype != null) 
-                        return new FXSequenceType(ptype); 
+                        return new VisageSequenceType(ptype); 
                 } 
 
-                FXType ptype = getPrimitiveType(rawName);
+                VisageType ptype = getPrimitiveType(rawName);
                 if (ptype != null)
                     return ptype;
             }
             if (typ == Byte.TYPE)
-                return FXPrimitiveType.byteType;
+                return VisagePrimitiveType.byteType;
             if (typ == Short.TYPE)
-                return FXPrimitiveType.shortType;
+                return VisagePrimitiveType.shortType;
             if (typ == Integer.TYPE)
-                return FXPrimitiveType.integerType;
+                return VisagePrimitiveType.integerType;
             if (typ == Long.TYPE)
-                return FXPrimitiveType.longType;
+                return VisagePrimitiveType.longType;
             if (typ == Float.TYPE)
-                return FXPrimitiveType.floatType;
+                return VisagePrimitiveType.floatType;
             if (typ == Double.TYPE)
-                return FXPrimitiveType.doubleType;
+                return VisagePrimitiveType.doubleType;
             if (typ == Character.TYPE)
-                return FXPrimitiveType.charType;
+                return VisagePrimitiveType.charType;
             if (typ == Boolean.TYPE)
-                return FXPrimitiveType.booleanType;
+                return VisagePrimitiveType.booleanType;
             if (typ == Void.TYPE)
-                return FXPrimitiveType.voidType;
+                return VisagePrimitiveType.voidType;
 
             return makeClassRef(clas);
         }
@@ -191,14 +191,14 @@ public class FXLocal {
                 for (int i = 0;  i < interfaces.length;  i++ ) {
                     String iname = interfaces[i].getName();
                     if (iname.equals(VISAGEOBJECT_NAME)) {
-                        modifiers |= FXClassType.VISAGE_CLASS;
+                        modifiers |= VisageClassType.VISAGE_CLASS;
                     } else if (iname.equals(VISAGEMIXIN_NAME)) {
-                        modifiers |= FXClassType.VISAGE_MIXIN;
+                        modifiers |= VisageClassType.VISAGE_MIXIN;
                     } 
                 }
                 
                 Class clsInterface = null;
-                if ((modifiers & FXClassType.VISAGE_MIXIN) != 0) {
+                if ((modifiers & VisageClassType.VISAGE_MIXIN) != 0) {
                     String cname = cls.getName();
                     
                     if (cname.endsWith(MIXIN_SUFFIX)) {
@@ -224,12 +224,12 @@ public class FXLocal {
             }
         }
     
-        public static Class asClass (FXType type) {
-            if (type instanceof FXPrimitiveType)
-                return ((FXPrimitiveType) type).clas;
+        public static Class asClass (VisageType type) {
+            if (type instanceof VisagePrimitiveType)
+                return ((VisagePrimitiveType) type).clas;
             else if (type instanceof JavaArrayType)
                 return ((JavaArrayType) type).getJavaClass();
-            else if (type instanceof FXSequenceType)
+            else if (type instanceof VisageSequenceType)
                 return Sequence.class;
             else { // FIXME - handle other cases
                 ClassType ctyp = (ClassType) type;
@@ -238,14 +238,14 @@ public class FXLocal {
         }
 
         @Override
-        public Value makeSequenceValue(FXValue[] values, int nvalues, FXType elementType) {
+        public Value makeSequenceValue(VisageValue[] values, int nvalues, VisageType elementType) {
             return new SequenceValue(values, nvalues, elementType, this);
         }
     }
 
-    static class JavaArrayType extends FXJavaArrayType {
+    static class JavaArrayType extends VisageJavaArrayType {
         Class cls;
-        JavaArrayType(FXType componentType, Class cls) {
+        JavaArrayType(VisageType componentType, Class cls) {
             super(componentType);
             this.cls = cls;
         }
@@ -256,7 +256,7 @@ public class FXLocal {
     /** A mirror of a {@code Class} in the current JVM.
      * @profile desktop
      */
-    public static class ClassType extends FXClassType {
+    public static class ClassType extends VisageClassType {
         Class refClass;
         Class refInterface;
 	protected static int VOFF_INITIALIZED = 1 << 16; // high to avoid collisions with masks added in parent class.
@@ -315,7 +315,7 @@ public class FXLocal {
             }
         }
 
-        public List<FXClassType> getSuperClasses(boolean all) {
+        public List<VisageClassType> getSuperClasses(boolean all) {
             SortedClassArray result = new SortedClassArray();
             if (all)
                 result.insert(this);
@@ -323,7 +323,7 @@ public class FXLocal {
             return result;
         }
     
-        public FXFunctionMember getFunction(String name, FXType... argType) {
+        public VisageFunctionMember getFunction(String name, VisageType... argType) {
             int nargs = argType.length;
             Class[] ctypes = new Class[nargs];
             for (int i = 0;  i < nargs;  i++) {
@@ -425,7 +425,7 @@ public class FXLocal {
             "$impl"
         };
 
-        protected void getFunctions(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result) {
+        protected void getFunctions(VisageMemberFilter filter, SortedMemberArray<? super VisageFunctionMember> result) {
             Class cls = refClass;
             Context context = getReflectionContext();
             Method[] methods;
@@ -463,25 +463,25 @@ public class FXLocal {
                         // Just ignore ???
                     }
                 }
-                FXFunctionMember mref = asFunctionMember(m, context);
+                VisageFunctionMember mref = asFunctionMember(m, context);
                 if (filter != null && filter.accept(mref))
                     result.insert(mref);
            }
         }
     
-        FXFunctionMember asFunctionMember(Method m, Context context) {
+        VisageFunctionMember asFunctionMember(Method m, Context context) {
             java.lang.reflect.Type[] ptypes = PlatformUtils.getGenericParameterTypes(m);
             /*
             if (m.isVarArgs()) {
                 // ????
             }
             */
-            FXType[] prtypes = new FXType[ptypes.length];
+            VisageType[] prtypes = new VisageType[ptypes.length];
             for (int j = 0; j < ptypes.length;  j++)
                 prtypes[j] = context.makeTypeRef(ptypes[j]);
             java.lang.reflect.Type gret = PlatformUtils.getGenericReturnType(m);
-            FXFunctionType type = new FXFunctionType(prtypes, context.makeTypeRef(gret));
-            return new FXLocal.FunctionMember(m, this, type);
+            VisageFunctionType type = new VisageFunctionType(prtypes, context.makeTypeRef(gret));
+            return new VisageLocal.FunctionMember(m, this, type);
         }
     
         private Field[] filter(Field[] fields, Class declaringClass) {
@@ -539,7 +539,7 @@ public class FXLocal {
 	}
 
 
-        protected void getVariables(FXMemberFilter filter, SortedMemberArray<? super FXVarMember> result) {
+        protected void getVariables(VisageMemberFilter filter, SortedMemberArray<? super VisageVarMember> result) {
             VarMember[] varTable = this.variables;
             if (varTable != null) {
                 String requiredName = filter.getRequiredName();
@@ -588,7 +588,7 @@ public class FXLocal {
                     }
                 }
                
-                FXType tr = ctxt.makeTypeRef(fld.getGenericType());
+                VisageType tr = ctxt.makeTypeRef(fld.getGenericType());
 		
 		ensureVOffInitialized();
                 int offset;
@@ -670,7 +670,7 @@ public class FXLocal {
             }
         }
 
-        public FXClassType getDeclaringClass() {
+        public VisageClassType getDeclaringClass() {
             return null;
         }
 
@@ -704,10 +704,10 @@ public class FXLocal {
         }
     }
     
-    static class SortedClassArray extends AbstractList<FXClassType> {
+    static class SortedClassArray extends AbstractList<VisageClassType> {
         ClassType[] buffer = new ClassType[4];
         int sz;
-        public FXClassType get(int index) {
+        public VisageClassType get(int index) {
             if (index >= sz)
                 throw new IndexOutOfBoundsException();
             return buffer[index];
@@ -746,11 +746,11 @@ public class FXLocal {
         }
     }
 
-    static class VarMember extends FXVarMember {
+    static class VarMember extends VisageVarMember {
         Field fld;
         Method getter;
         Method setter;
-        FXType type;
+        VisageType type;
         String name;
         ClassType owner;
         int offset;
@@ -763,7 +763,7 @@ public class FXLocal {
         static final int IS_PUBLIC_READ = IS_PUBLIC << 4;
         int flags;
     
-        public VarMember(String name, ClassType owner, FXType type, int offset) {
+        public VarMember(String name, ClassType owner, VisageType type, int offset) {
             this.name = name;
             this.type = type;
             this.owner = owner;
@@ -771,7 +771,7 @@ public class FXLocal {
         }
 
         @Override
-        public FXType getType() {
+        public VisageType getType() {
             return type;
         }
 
@@ -810,7 +810,7 @@ public class FXLocal {
         }
 
         @Override
-        public FXValue getValue(FXObjectValue obj) {
+        public VisageValue getValue(VisageObjectValue obj) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
                 checkGetterSetter();
@@ -840,27 +840,27 @@ public class FXLocal {
             throw new UnsupportedOperationException("Not supported yet - "+type+"["+type.getClass().getName()+"]");
         }
         
-        public FXLocation getLocation(FXObjectValue obj) {
+        public VisageLocation getLocation(VisageObjectValue obj) {
             return new VarMemberLocation(obj, this);
         }
         
         static final Object[] noObjects = {};
 
-        protected void initVar(FXObjectValue instance, FXValue value) {
+        protected void initVar(VisageObjectValue instance, VisageValue value) {
             instance.initVar(this, value);
         }
 
         @Override
-        public void initValue(FXObjectValue instance, FXValue value) {
+        public void initValue(VisageObjectValue instance, VisageValue value) {
             instance.initVar(this, value);
         }
 
         @Override
-        public void setValue(FXObjectValue obj, FXValue value) {
+        public void setValue(VisageObjectValue obj, VisageValue value) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
-                if (type instanceof FXSequenceType && robj instanceof FXObject) {
-                    Sequences.set((FXObject)robj, offset,(Sequence)((Value) value).asObject());
+                if (type instanceof VisageSequenceType && robj instanceof VisageObject) {
+                    Sequences.set((VisageObject)robj, offset,(Sequence)((Value) value).asObject());
                     return;
                 }
                 checkGetterSetter();
@@ -891,7 +891,7 @@ public class FXLocal {
             return name;
         }
 
-        public FXClassType getDeclaringClass() {
+        public VisageClassType getDeclaringClass() {
             return owner;
         }
 
@@ -953,15 +953,15 @@ public class FXLocal {
             return fld != null && (fld.getModifiers() & Modifier.FINAL) != 0;
         }
 
-        static class ListenerAdapter extends org.visage.runtime.FXBase implements FXChangeListenerID {
-            final FXChangeListener listener;
+        static class ListenerAdapter extends org.visage.runtime.VisageBase implements VisageChangeListenerID {
+            final VisageChangeListener listener;
             
-            ListenerAdapter(FXChangeListener listener) {
+            ListenerAdapter(VisageChangeListener listener) {
                 this.listener = listener;
             }
             
             @Override
-            public boolean update$(FXObject src, final int depNum, int startPos, int endPos, int newLength, int phase) {
+            public boolean update$(VisageObject src, final int depNum, int startPos, int endPos, int newLength, int phase) {
                 // varNum does not matter, there is one change listener per <src, varNum> tuple.
                 if ((phase & PHASE_TRANS$PHASE) == PHASE$TRIGGER) {
                     this.listener.onChange();
@@ -970,32 +970,32 @@ public class FXLocal {
             }
         }
 
-        public FXChangeListenerID addChangeListener(FXObjectValue instance, FXChangeListener listener) {
+        public VisageChangeListenerID addChangeListener(VisageObjectValue instance, VisageChangeListener listener) {
 	    if (!this.owner.isAssignableFrom(instance.getType()))
 		throw new IllegalArgumentException("not an instance of " + this.owner);
 	    // check if instance acually has a variable represented by this
-	    FXObject src = (FXObject)((Value)instance).asObject();
+	    VisageObject src = (VisageObject)((Value)instance).asObject();
 	    ListenerAdapter adapter = new ListenerAdapter(listener);
 	    src.addDependent$(this.offset, adapter, 0);
             return adapter;
         }
         
-        public void removeChangeListener(FXObjectValue instance, FXChangeListenerID id) {
+        public void removeChangeListener(VisageObjectValue instance, VisageChangeListenerID id) {
 	    if (!this.owner.isAssignableFrom(instance.getType()))
 		throw new IllegalArgumentException("not an instance of " + this.owner);
-	    FXObject src = (FXObject)((Value)instance).asObject();
+	    VisageObject src = (VisageObject)((Value)instance).asObject();
 	    src.removeDependent$(this.offset, (ListenerAdapter)id);
         }
 
     }
 
-    static class FunctionMember extends FXFunctionMember {
+    static class FunctionMember extends VisageFunctionMember {
         Method method;
-        FXClassType owner;
+        VisageClassType owner;
         String name;
-        FXFunctionType type;
+        VisageFunctionType type;
     
-        FunctionMember(Method method, ClassType owner, FXFunctionType type) {
+        FunctionMember(Method method, ClassType owner, VisageFunctionType type) {
             this.method = method;
             this.owner = owner;
             this.name = method.getName();
@@ -1004,24 +1004,24 @@ public class FXLocal {
 
         public String getName() { return name; }
 
-        public FXClassType getDeclaringClass() { return owner; }
+        public VisageClassType getDeclaringClass() { return owner; }
     
         public boolean isStatic() {
             return (method.getModifiers() &  Modifier.STATIC) != 0;
         }
 
-        public FXFunctionType getType() {
+        public VisageFunctionType getType() {
             return type;
         }
 
-        Object unwrap(FXValue value) {
+        Object unwrap(VisageValue value) {
             if (value == null)
                 return null;
             return ((Value) value).asObject();
         }
 
         /** Invoke this method on the given receiver and arguments. */
-        public FXValue invoke(FXObjectValue obj, FXValue... arg) {
+        public VisageValue invoke(VisageObjectValue obj, VisageValue... arg) {
             int alen = arg.length;
             Object[] rargs = new Object[alen];
             for (int i = 0;  i < alen;  i++) {
@@ -1031,7 +1031,7 @@ public class FXLocal {
                 Object result = method.invoke(unwrap(obj), rargs);
                 Context context =
                         (Context) owner.getReflectionContext();
-                if (result == null && getType().getReturnType() == FXPrimitiveType.voidType)
+                if (result == null && getType().getReturnType() == VisagePrimitiveType.voidType)
                     return null;
                 return context.mirrorOf(result, getType().getReturnType());
             }
@@ -1073,23 +1073,23 @@ public class FXLocal {
      *
      * @profile desktop
      */
-    public static interface Value extends FXValue {
+    public static interface Value extends VisageValue {
         public abstract Object asObject();
     }
 
-    static class MiscValue implements FXLocal.Value {
+    static class MiscValue implements VisageLocal.Value {
         Object val;
-        FXType type;
-        public MiscValue(Object value, FXType type) {
+        VisageType type;
+        public MiscValue(Object value, VisageType type) {
             this.val = value;
             this.type = type;
         }
 
         public String getValueString() { return val == null ? "(null)" : val.toString(); }
-        public FXType getType() { return type; }
+        public VisageType getType() { return type; }
         public boolean isNull() { return val == null; }
         public Object asObject() { return val; }
-        public FXValue getItem(int index) { return this; }
+        public VisageValue getItem(int index) { return this; }
         public int getItemCount() { return isNull() ? 0 : 1; }
     };
 
@@ -1097,37 +1097,37 @@ public class FXLocal {
      *
      * @profile desktop
      */
-    public static class ObjectValue extends FXObjectValue implements FXLocal.Value {
+    public static class ObjectValue extends VisageObjectValue implements VisageLocal.Value {
         // FIXME It might be cleaner to require obj!=null,
         // and instead use MiscValue for null.
         Object obj;
         ClassType type;
         ClassType classType;
         int count;
-        FXVarMember[] initMembers;
-        FXValue[] initValues;
+        VisageVarMember[] initMembers;
+        VisageValue[] initValues;
         
 
         public ObjectValue(Object obj, Context context) {
             type = obj == null ? (ClassType) context.anyType
                     : context.makeClassRef(obj.getClass());
             this.obj = obj;
-            if (obj instanceof FXObject) 
-                count = ((FXObject) obj).count$();
+            if (obj instanceof VisageObject) 
+                count = ((VisageObject) obj).count$();
         }
 
         public ObjectValue(Object obj, ClassType type) {
             this.type = type;
             this.obj = obj;
-            if (obj instanceof FXObject) 
-                count = ((FXObject) obj).count$();
+            if (obj instanceof VisageObject) 
+                count = ((VisageObject) obj).count$();
         }
 
-        public FXClassType getType() {
+        public VisageClassType getType() {
             return type;
         }
         
-        public FXClassType getClassType() {
+        public VisageClassType getClassType() {
             if (classType == null) {
                 if (obj == null)
                     classType = type;
@@ -1152,8 +1152,8 @@ public class FXLocal {
         }
 
         public ObjectValue initialize() {
-            if (obj instanceof FXObject) {
-                FXObject instance = (FXObject)obj;
+            if (obj instanceof VisageObject) {
+                VisageObject instance = (VisageObject)obj;
             
                 if (initMembers == null) {
                     instance.initialize$(true);
@@ -1163,7 +1163,7 @@ public class FXLocal {
                     instance.initVars$();
                     
                     for (int offset = 0; offset < count; offset++ ) {
-                        instance.varChangeBits$(offset, 0, FXObject.VFLGS$INIT$READY);
+                        instance.varChangeBits$(offset, 0, VisageObject.VFLGS$INIT$READY);
                         
                         if (initMembers[offset] != null) {
                             initMembers[offset].setValue(this, initValues[offset]);
@@ -1181,10 +1181,10 @@ public class FXLocal {
         public Object asObject() { return obj; }
         
         private int count() {
-            return obj instanceof FXObject ? ((FXObject) obj).count$() : 0;
+            return obj instanceof VisageObject ? ((VisageObject) obj).count$() : 0;
         }
         
-        public void initVar(FXVarMember attr, FXValue value) {
+        public void initVar(VisageVarMember attr, VisageValue value) {
             int offset = attr.getOffset();
 
             if (offset == -1) {
@@ -1193,41 +1193,41 @@ public class FXLocal {
                 if (initMembers == null) {
                     int count = count();
                 
-                    initMembers = new FXVarMember[count];
-                    initValues = new FXValue[count];
+                    initMembers = new VisageVarMember[count];
+                    initValues = new VisageValue[count];
                 }
                 
                 initMembers[offset] = attr;
                 initValues[offset] = value;
-                int flag = attr.getType() instanceof FXSequenceType ? FXObject.VFLGS$INIT_OBJ_LIT_SEQUENCE
-                    : FXObject.VFLGS$INIT_OBJ_LIT;
-                ((FXObject)obj).setFlags$(offset, flag);
+                int flag = attr.getType() instanceof VisageSequenceType ? VisageObject.VFLGS$INIT_OBJ_LIT_SEQUENCE
+                    : VisageObject.VFLGS$INIT_OBJ_LIT;
+                ((VisageObject)obj).setFlags$(offset, flag);
             }
         }
     }
 
-    static class SequenceValue extends FXSequenceValue implements FXLocal.Value {
+    static class SequenceValue extends VisageSequenceValue implements VisageLocal.Value {
         Sequence seq;
         Context context;
 
-        public SequenceValue(FXValue[] values, int nvalues, FXType elementType,
+        public SequenceValue(VisageValue[] values, int nvalues, VisageType elementType,
                 Context context) {
             super(values, nvalues, elementType);
             this.context = context;
         }
 
-        public SequenceValue(Sequence seq, FXSequenceType sequenceType,
+        public SequenceValue(Sequence seq, VisageSequenceType sequenceType,
                 Context context) {
             super(seq.size(), sequenceType);
             this.seq = seq;
             this.context = context;
         }
 
-        public FXValue getItem(int index) {
+        public VisageValue getItem(int index) {
             if (index < 0 || index >= nvalues )
                 return null;
             if (values == null)
-                values = new FXValue[nvalues];
+                values = new VisageValue[nvalues];
             if (values[index] == null && seq != null)
                 values[index] =
                         context.mirrorOf(seq.get(index), type.getComponentType()); 
@@ -1236,10 +1236,10 @@ public class FXLocal {
     
         public Sequence asObject() {
             if (seq == null) {
-                FXType elementType = type.getComponentType();
+                VisageType elementType = type.getComponentType();
                 Object[] objs = new Object[nvalues];
                 for (int i = 0;  i < nvalues;  i++)
-                    objs[i] = ((FXLocal.Value) values[i]).asObject();
+                    objs[i] = ((VisageLocal.Value) values[i]).asObject();
                 return Sequences.make(TypeInfo.getTypeInfo(context.asClass(elementType)), objs);
             }
             return seq;
@@ -1250,24 +1250,24 @@ public class FXLocal {
      *
      * @profile desktop
      */
-    public static class FunctionValue extends FXFunctionValue implements FXLocal.Value {
+    public static class FunctionValue extends VisageFunctionValue implements VisageLocal.Value {
         Function val;
-        FXFunctionType ftype;
+        VisageFunctionType ftype;
         Context context;
-        public FunctionValue(Function val, FXFunctionType ftype, Context context) {
+        public FunctionValue(Function val, VisageFunctionType ftype, Context context) {
             this.val = val;
             this.ftype = ftype;
             this.context = context;
         }
 
-        public FXValue apply(FXValue... arg) {
+        public VisageValue apply(VisageValue... arg) {
             Object result;
             int nargs = arg.length;
             if (nargs > 8) throw new IllegalArgumentException();
             Object[] rargs = nargs > 2 ? new Object[nargs] : null;
             Object arg1 = null, arg2 = null;
             for (int i = 0;  i < nargs;  i++) {
-                Object targ = ((FXLocal.Value) arg[i]).asObject();
+                Object targ = ((VisageLocal.Value) arg[i]).asObject();
                 if (i == 0)
                     arg1 = targ;
                 else if (i == 1)
@@ -1278,7 +1278,7 @@ public class FXLocal {
             result = ((Function) val).invoke$(arg1, arg2, rargs);
             return context.mirrorOf(result, ftype.getReturnType());
         }
-        public FXFunctionType getType() {
+        public VisageFunctionType getType() {
             return ftype;
         }
         public boolean isNull() { return false; }
@@ -1290,15 +1290,15 @@ public class FXLocal {
      *
      * @profile desktop
      */
-    public static class VarMemberLocation extends FXVarMemberLocation {
+    public static class VarMemberLocation extends VisageVarMemberLocation {
         VarMember var;
 
-        public VarMemberLocation(FXObjectValue object, VarMember var) {
+        public VarMemberLocation(VisageObjectValue object, VarMember var) {
             super(object, var);
             this.var = var;
         }
 
         // FIXME: yet to be implemented for compiled binds
-        //    public AbstractVariable getAbstractVariable(FXObjectValue obj) {...}
+        //    public AbstractVariable getAbstractVariable(VisageObjectValue obj) {...}
     }
 }

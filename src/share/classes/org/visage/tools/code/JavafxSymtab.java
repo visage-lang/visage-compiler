@@ -229,7 +229,7 @@ public class JavafxSymtab extends Symtab {
         visage_KeyFrameType = enterClass("visage.animation.KeyFrame");
         visage_KeyValueTargetType = enterClass("visage.animation.KeyValueTarget");
         visage_PointerType = enterClass("org.visage.runtime.Pointer");
-        visage_FXConstantType = enterClass("org.visage.runtime.FXConstant");
+        visage_FXConstantType = enterClass("org.visage.runtime.VisageConstant");
         visage_BoundForOverSequenceType = enterClass(JavafxDefs.cBoundForOverSequence);
         visage_BoundForOverNullableSingletonType = enterClass(JavafxDefs.cBoundForOverNullableSingleton);
         visage_BoundForOverSingletonType = enterClass(JavafxDefs.cBoundForOverSingleton);

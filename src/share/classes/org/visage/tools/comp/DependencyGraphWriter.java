@@ -23,7 +23,7 @@
 
 package org.visage.tools.comp;
 
-import org.visage.tools.tree.JFXScript;
+import org.visage.tools.tree.VisageScript;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Options;
@@ -112,7 +112,7 @@ public class DependencyGraphWriter {
         return instance;
     }
 
-    public void start(JFXScript tree) {
+    public void start(VisageScript tree) {
         this.allSyms = new HashSet<Symbol>();
         this.attrs = new AttributesImpl();
         this.fileName = tree.getSourceFile().getName();

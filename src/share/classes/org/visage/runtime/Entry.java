@@ -247,8 +247,8 @@ public class Entry {
                     }
                 }
                 visage.lang.Visage.exit(); // implicit exit after timeline is complete
-            } catch (FXExit fxe) {
-                return; // trap FXExit exception from bubbling up
+            } catch (VisageExit fxe) {
+                return; // trap VisageExit exception from bubbling up
             }
         }
 
@@ -257,7 +257,7 @@ public class Entry {
                 return entryPoint.invoke(null, Sequences.make(TypeInfo.String, args));
             } catch (InvocationTargetException ite) {
                 Throwable cause = ite.getCause();
-                if (cause instanceof FXExit) { // explicit exit
+                if (cause instanceof VisageExit) { // explicit exit
                     return null;
                 }
                 throw cause;

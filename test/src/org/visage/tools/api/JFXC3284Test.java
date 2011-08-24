@@ -23,10 +23,10 @@
 package org.visage.tools.api;
 
 import org.visage.api.JavafxcTask;
-import org.visage.api.tree.JavaFXTreePathScanner;
-import org.visage.api.tree.JavaFXTreePath;
+import org.visage.api.tree.VisageTreePathScanner;
+import org.visage.api.tree.VisageTreePath;
 import org.visage.api.tree.ReturnTree;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import org.visage.api.tree.UnitTree;
 import org.visage.api.tree.SourcePositions;
 
@@ -38,7 +38,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests JavaFXTreePathScanner.visitReturn() works correctly
+ * Tests VisageTreePathScanner.visitReturn() works correctly
  * 
  * @author Anton Chechel
  * @author A. Sundararajan 
@@ -74,7 +74,7 @@ public class JFXC3284Test {
         }
     }
 
-    class DetectorVisitor<Void, EnumSet> extends JavaFXTreePathScanner<Void, EnumSet> {
+    class DetectorVisitor<Void, EnumSet> extends VisageTreePathScanner<Void, EnumSet> {
 
         JavafxcTrees trees;
         SourcePositions sp;
@@ -91,11 +91,11 @@ public class JFXC3284Test {
         public Void visitReturn(ReturnTree tree, EnumSet p) {
             retCounter++;
             
-            JavaFXTreePath path = trees.getPath(unit, tree);
+            VisageTreePath path = trees.getPath(unit, tree);
             Assert.assertNotNull(path);
 
-            JavaFXKind kind = tree.getJavaFXKind();
-            Assert.assertEquals(kind, JavaFXKind.RETURN);
+            VisageKind kind = tree.getJavaFXKind();
+            Assert.assertEquals(kind, VisageKind.RETURN);
 
             return null;
         }

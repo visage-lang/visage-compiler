@@ -29,10 +29,10 @@ package visage.reflect;
  * @profile desktop
  */
 
-public final class FXSequenceType extends FXType {
-    FXType componentType;
-    public FXType getComponentType() { return componentType; }
-    FXSequenceType(FXType componentType) { this.componentType = componentType; }
+public final class VisageSequenceType extends VisageType {
+    VisageType componentType;
+    public VisageType getComponentType() { return componentType; }
+    VisageSequenceType(VisageType componentType) { this.componentType = componentType; }
 
     protected void toStringTerse(StringBuilder sb) {
         componentType.toStringTerse(sb);

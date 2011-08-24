@@ -24,20 +24,20 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import org.visage.tools.code.JavafxVarSymbol;
 
 /**
  * A type cast.
  */
-public class JFXTypeCast extends JFXExpression implements TypeCastTree {
+public class VisageTypeCast extends VisageExpression implements TypeCastTree {
 
-    public JFXTree clazz;
-    public JFXExpression expr;
+    public VisageTree clazz;
+    public VisageExpression expr;
 
     public JavafxVarSymbol boundArraySizeSym;
 
-    protected JFXTypeCast(JFXTree clazz, JFXExpression expr) {
+    protected VisageTypeCast(VisageTree clazz, VisageExpression expr) {
         this.clazz = clazz;
         this.expr = expr;
     }
@@ -47,20 +47,20 @@ public class JFXTypeCast extends JFXExpression implements TypeCastTree {
         v.visitTypeCast(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.TYPE_CAST;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.TYPE_CAST;
     }
 
-    public JFXTree getType() {
+    public VisageTree getType() {
         return clazz;
     }
 
-    public JFXExpression getExpression() {
+    public VisageExpression getExpression() {
         return expr;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitTypeCast(this, d);
     }
 

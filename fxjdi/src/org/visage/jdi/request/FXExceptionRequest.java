@@ -23,8 +23,8 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
@@ -34,8 +34,8 @@ import com.sun.jdi.request.ExceptionRequest;
  *
  * @author sundar
  */
-public class FXExceptionRequest extends FXEventRequest implements ExceptionRequest {
-    public FXExceptionRequest(FXVirtualMachine fxvm, ExceptionRequest underlying) {
+public class VisageExceptionRequest extends VisageEventRequest implements ExceptionRequest {
+    public VisageExceptionRequest(VisageVirtualMachine fxvm, ExceptionRequest underlying) {
         super(fxvm, underlying);
     }
 
@@ -44,7 +44,7 @@ public class FXExceptionRequest extends FXEventRequest implements ExceptionReque
     }
 
     public void addClassFilter(ReferenceType arg0) {
-        underlying().addClassFilter(FXWrapper.unwrap(arg0));
+        underlying().addClassFilter(VisageWrapper.unwrap(arg0));
     }
 
     public void addClassFilter(String arg0) {
@@ -52,15 +52,15 @@ public class FXExceptionRequest extends FXEventRequest implements ExceptionReque
     }
 
     public void addInstanceFilter(ObjectReference arg0) {
-        underlying().addInstanceFilter(FXWrapper.unwrap(arg0));
+        underlying().addInstanceFilter(VisageWrapper.unwrap(arg0));
     }
 
     public void addThreadFilter(ThreadReference arg0) {
-        underlying().addThreadFilter(FXWrapper.unwrap(arg0));
+        underlying().addThreadFilter(VisageWrapper.unwrap(arg0));
     }
 
     public ReferenceType exception() {
-        return FXWrapper.wrap(virtualMachine(), underlying().exception());
+        return VisageWrapper.wrap(virtualMachine(), underlying().exception());
     }
 
     public boolean notifyCaught() {

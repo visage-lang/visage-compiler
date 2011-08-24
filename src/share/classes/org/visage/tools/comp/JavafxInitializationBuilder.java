@@ -181,7 +181,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      *
      * Return all this as a JavafxClassModel for use in translation.
      * */
-   JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl,
+   JavafxClassModel createJFXClassModel(VisageClassDeclaration cDecl,
            List<TranslatedVarInfo> translatedAttrInfo,
            List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo,
            List<TranslatedFuncInfo> translatedFuncInfo,
@@ -283,7 +283,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
 
             if (!hasFxSuper) {
-                // Has a non-Visage super, so we can't use FXBase, therefore we need
+                // Has a non-Visage super, so we can't use VisageBase, therefore we need
                 // to clone the necessary vars and methods.
                 // This code must be after all methods have been added to cDefinitions,
 
@@ -298,7 +298,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                      }
                 }
 
-                // Clone what is needed from FXBase/FXObject.
+                // Clone what is needed from VisageBase/VisageObject.
                 javaCodeMaker.cloneFXBase(excludes);
             }
 
@@ -390,7 +390,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
 
     private List<JCExpression> makeImplementingInterfaces(DiagnosticPosition diagPos,
-            JFXClassDeclaration cDecl,
+            VisageClassDeclaration cDecl,
             List<ClassSymbol> baseInterfaces) {
         ListBuffer<JCExpression> implementing = ListBuffer.lb();
             
@@ -401,7 +401,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             implementing.append(makeIdentifier(diagPos, cFXObject));
         }
 
-        for (JFXExpression intf : cDecl.getImplementing()) {
+        for (VisageExpression intf : cDecl.getImplementing()) {
             implementing.append(makeType(diagPos, intf.type, false));
         }
 
@@ -412,7 +412,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return implementing.toList();
     }
 
-    private List<JCExpression> makeAdditionalImports(DiagnosticPosition diagPos, JFXClassDeclaration cDecl, List<ClassSymbol> baseInterfaces) {
+    private List<JCExpression> makeAdditionalImports(DiagnosticPosition diagPos, VisageClassDeclaration cDecl, List<ClassSymbol> baseInterfaces) {
         // Add import statements for all the base classes and basClass $Mixin(s).
         // There might be references to them when the methods/attributes are rolled up.
         ListBuffer<JCExpression> additionalImports = new ListBuffer<JCExpression>();
@@ -448,7 +448,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
 
     // Add the vars referenced in the object literal init.
-    private void populateAnonInitVarMap(JFXClassDeclaration cDecl, LiteralInitVarMap varMap) {
+    private void populateAnonInitVarMap(VisageClassDeclaration cDecl, LiteralInitVarMap varMap) {
         List<JavafxVarSymbol> objInitSyms = cDecl.getObjInitSyms();
         
         for (JavafxVarSymbol varSym : objInitSyms) {
@@ -633,7 +633,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         public boolean useSimpleInit(VarInfo varInfo) {
             if (!varInfo.useAccessors() && varInfo instanceof TranslatedVarInfo) {
-                JFXVar var = ((TranslatedVarInfo)varInfo).jfxVar();
+                VisageVar var = ((TranslatedVarInfo)varInfo).jfxVar();
                 return var.isLiteralInit();
             }
             
@@ -645,7 +645,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         public JCExpression getSimpleInit(VarInfo varInfo) {
             if (useSimpleInit(varInfo)) {
-                JFXVar var = ((TranslatedVarInfo)varInfo).jfxVar();
+                VisageVar var = ((TranslatedVarInfo)varInfo).jfxVar();
                 if (var.getInitializer().type.tag == TypeTags.BOT) {
                     return DefaultValue(var.type);
                 }
@@ -1912,7 +1912,7 @@ however this is what we need */
 
                 @Override
                 public void initialize() {
-                    JFXOnReplace onReplace = varInfo.onReplace();
+                    VisageOnReplace onReplace = varInfo.onReplace();
                     
                     newValueName = defs.varNewValue_ArgName;
                     firstIndexName = paramStartPosName(onReplace);
@@ -1939,12 +1939,12 @@ however this is what we need */
                     }
 
                     // Fetch the on replace statement or null.
-                    JFXOnReplace onReplace = varInfo.onReplace();
+                    VisageOnReplace onReplace = varInfo.onReplace();
 
                     if (onReplace != null) {
-                        JFXVar lastIndex = varInfo.onReplace().getLastIndex();
-                        JFXVar newElements = varInfo.onReplace().getNewElements();
-                        if (lastIndex != null && varInfo.onReplace().getEndKind() == JFXSequenceSlice.END_INCLUSIVE) {
+                        VisageVar lastIndex = varInfo.onReplace().getLastIndex();
+                        VisageVar newElements = varInfo.onReplace().getNewElements();
+                        if (lastIndex != null && varInfo.onReplace().getEndKind() == VisageSequenceSlice.END_INCLUSIVE) {
                             addStmt(Var(syms.intType, lastIndex.name,
                                     MINUS(endPosArg(), Int(1))));
                         }
@@ -2554,7 +2554,7 @@ however this is what we need */
 
                 @Override
                 public void initialize() {
-                    JFXOnReplace onReplace = varInfo.onReplace();
+                    VisageOnReplace onReplace = varInfo.onReplace();
 
                     oldValueName = paramOldValueName(onReplace);
                     newValueName = paramNewValueName(onReplace);
@@ -2589,7 +2589,7 @@ however this is what we need */
                     }
                 }
 
-                // This method generates FXBase.switchDependence$ calls for all the
+                // This method generates VisageBase.switchDependence$ calls for all the
                 // bound select expressions that use the current var as the selector.
                 private void generateSwitchDependences() {
                     for (VarInfo dependent : varInfo.boundBinders()) {
@@ -2608,7 +2608,7 @@ however this is what we need */
                                 JCExpression newOffset = If(EQnull(id(newValueName)),
                                     Int(0),
                                     Offset(id(newValueName), depPair.referencedSym));
-                                addStmt(CallStmt(defs.FXBase_switchDependence,
+                                addStmt(CallStmt(defs.VisageBase_switchDependence,
                                     rcvr,
                                     id(oldValueName), oldOffset,
                                     id(newValueName), newOffset,
@@ -2616,7 +2616,7 @@ however this is what we need */
                             } else {
                                 JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(depPair.referencedSym));
                                 addStmt(offsetVar);
-                                addStmt(CallStmt(defs.FXBase_switchDependence,
+                                addStmt(CallStmt(defs.VisageBase_switchDependence,
                                     rcvr,
                                     id(oldValueName), id(offsetVar),
                                     id(newValueName), id(offsetVar),
@@ -2997,8 +2997,8 @@ however this is what we need */
         }
         
         //
-        // Clones a field declared in FXBase as an non-static field.  It also creates
-        // FXObject accessor method.
+        // Clones a field declared in VisageBase as an non-static field.  It also creates
+        // VisageObject accessor method.
         //
         private void cloneFXBaseVar(JavafxVarSymbol var, HashSet<String> excludes) {
             // Var name as a string.
@@ -3048,8 +3048,8 @@ however this is what we need */
         }
 
         //
-        // Clones a method declared as an FXObject interface to call the static 
-        // equivalent in FXBase. 
+        // Clones a method declared as an VisageObject interface to call the static 
+        // equivalent in VisageBase. 
         //
         private void cloneFXBaseMethod(MethodSymbol method, HashSet<String> excludes) {
             // Method modifier flags.
@@ -3063,7 +3063,7 @@ however this is what we need */
 
             // List of arguments to new method.
             ListBuffer<JCVariableDecl> args = ListBuffer.lb();
-            // List of arguments to call supporting FXBase method.
+            // List of arguments to call supporting VisageBase method.
             ListBuffer<JCExpression> callArgs = ListBuffer.lb();
             // Add this to to the call.
             callArgs.append(id(names._this));
@@ -3078,7 +3078,7 @@ however this is what we need */
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             // Method return type.
             Type returnType = method.getReturnType();
-            // Basic call to supporting FXBase method.
+            // Basic call to supporting VisageBase method.
             JCExpression fxBaseCall = Call(makeType(syms.visage_FXBaseType), method.name, callArgs);
            
             // Exec or return based on return type.
@@ -3088,28 +3088,28 @@ however this is what we need */
                 stmts.append(Return(fxBaseCall));
             }
     
-            //  public type meth$(t0 arg0, ...) { return FXBase.meth$(this, arg0, ...); }
+            //  public type meth$(t0 arg0, ...) { return VisageBase.meth$(this, arg0, ...); }
             addDefinition(Method(Flags.PUBLIC, returnType, method.name, args.toList(), stmts.toList(), method));
         }
 
         //
-        // This method clones the contents of FXBase and FXObject when inheriting
+        // This method clones the contents of VisageBase and VisageObject when inheriting
         // from a java class.
         //
         public void cloneFXBase(HashSet<String> excludes) {
-            // Retrieve FXBase and FXObject.
+            // Retrieve VisageBase and VisageObject.
             ClassSymbol fxBaseSym = (ClassSymbol)syms.visage_FXBaseType.tsym;
             ClassSymbol fxObjectSym = (ClassSymbol)syms.visage_FXObjectType.tsym;
             Entry e;
 
-            // Clone the vars in FXBase.
+            // Clone the vars in VisageBase.
             for (e = fxBaseSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                 if (e.sym instanceof VarSymbol) {
                      cloneFXBaseVar((JavafxVarSymbol)e.sym, excludes);
                 }
             }
 
-            // Clone the interfaces in FXObject.
+            // Clone the interfaces in VisageObject.
             for (e = fxObjectSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                 if (e.sym instanceof MethodSymbol) {
                      cloneFXBaseMethod((MethodSymbol)e.sym, excludes);
@@ -3541,7 +3541,7 @@ however this is what we need */
             
                     if (isBoundFuncClass) {
                         /*
-                         * For each bound function param (FXObject+varNum pair), at the
+                         * For each bound function param (VisageObject+varNum pair), at the
                          * end of object creation register "this" as a dependent by
                          * calling addDependent$ method:
                          *
@@ -3551,11 +3551,11 @@ however this is what we need */
                          */
                         for (VarInfo vi : attrInfos) {
                             if (vi.isParameter()) {
-                                // call FXObject.addDependent$(int varNum, FXObject dep)
+                                // call VisageObject.addDependent$(int varNum, VisageObject dep)
                                 Symbol varSym = vi.getSymbol();
                                 addStmt(CallStmt(
                                         id(boundFunctionObjectParamName(varSym.name)),
-                                        defs.FXBase_addDependent.methodName,
+                                        defs.VisageBase_addDependent.methodName,
                                         id(boundFunctionVarNumParamName(varSym.name)),
                                         getReceiverOrThis(),
                                         DepNum(null, null, varSym)));
@@ -3576,7 +3576,7 @@ however this is what we need */
                 }
 
                 private void addFixedDependent(JavafxVarSymbol instanceVar, JavafxVarSymbol referenceVar) {
-                    addStmt(CallStmt(defs.FXBase_addDependent,
+                    addStmt(CallStmt(defs.VisageBase_addDependent,
                             Get(instanceVar),
                             Offset(Get(instanceVar), referenceVar),
                             getReceiverOrThis(),
@@ -3880,7 +3880,7 @@ however this is what we need */
                     //
                     // For bound functions, we generate a local class. If the current
                     // class is such a class, we need to invalidate the synthetic
-                    // bound function param instance fields from the input FXObject
+                    // bound function param instance fields from the input VisageObject
                     // and varNum pairs.
                     //
                     if (isBoundFuncClass) {
@@ -4295,8 +4295,8 @@ however this is what we need */
                 args.append(Select(makeType(cSym.type), attributeOffsetName(vSym)));
             }
 
-            // FXBase.makeInitMap$(X.VCNT$(), X.VOFF$a, ...)
-            return Call(defs.FXBase_makeInitMap, args);
+            // VisageBase.makeInitMap$(X.VCNT$(), X.VOFF$a, ...)
+            return Call(defs.VisageBase_makeInitMap, args);
         }
 
         //
@@ -4317,7 +4317,7 @@ however this is what we need */
             ClassSymbol cSym = getCurrentClassSymbol();
             // Fetch name of map.
             Name mapName = varMapName(cSym);
-            // Map$X = FXBase.makeInitMap$(X.VCNT$(), X.VOFF$a, ...);
+            // Map$X = VisageBase.makeInitMap$(X.VCNT$(), X.VOFF$a, ...);
             return Stmt(m().Assign(id(mapName), makeInitVarMapExpression(cSym, varMap)));
         }
 
@@ -4343,9 +4343,9 @@ however this is what we need */
                 } else {
                     // MAP$X == null
                     JCExpression condition = EQnull(id(mapName));
-                    // MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)
+                    // MAP$X = VisageBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)
                     JCExpression assignExpr = m().Assign(id(mapName), makeInitVarMapExpression(cSym, varMap));
-                    // Construct and add: return MAP$X == null ? (MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)) : MAP$X;
+                    // Construct and add: return MAP$X == null ? (MAP$X = VisageBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)) : MAP$X;
                     stmts.append(
                         Return(
                             If (condition,
@@ -4393,7 +4393,7 @@ however this is what we need */
             boolean fromMixinClass = isMixinClass();
             // If this is to a mixin class then we need to use receiver$ otherwise this.
             boolean toMixinClass = JavafxAnalyzeClass.isMixinClass(cSym);
-            // If this class doesn't have a visage super then punt to FXBase.
+            // If this class doesn't have a visage super then punt to VisageBase.
             boolean toFXBase = cSym == null;
 
             // Add in the receiver if necessary.
@@ -4449,7 +4449,7 @@ however this is what we need */
         public void makeInitMethod(Name methName, ListBuffer<JCStatement> translatedInitBlocks, List<ClassSymbol> immediateMixinClasses) {
             ClassSymbol superClassSym = analysis.getFXSuperClassSym();
            
-            // Only create method if necessary (rely on FXBase.)
+            // Only create method if necessary (rely on VisageBase.)
             if (translatedInitBlocks.nonEmpty() || immediateMixinClasses.nonEmpty() || isMixinClass()) {
                 List<JCVariableDecl> receiverVarDeclList;
                 MethodSymbol methSym;
@@ -4697,9 +4697,9 @@ however this is what we need */
         // Add interface declarations for declared methods.
         //
         public void makeFunctionInterfaceMethods() {
-            for (JFXTree def : getCurrentClassDecl().getMembers()) {
+            for (VisageTree def : getCurrentClassDecl().getMembers()) {
                 if (def.getFXTag() == JavafxTag.FUNCTION_DEF) {
-                    JFXFunctionDefinition func = (JFXFunctionDefinition) def;
+                    VisageFunctionDefinition func = (VisageFunctionDefinition) def;
                     MethodSymbol sym = func.sym;
                     
                     if ((sym.flags() & (Flags.SYNTHETIC | Flags.STATIC | Flags.PRIVATE)) == 0) {

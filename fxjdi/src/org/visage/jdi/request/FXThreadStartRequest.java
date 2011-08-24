@@ -23,8 +23,8 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.request.ThreadStartRequest;
 
@@ -32,13 +32,13 @@ import com.sun.jdi.request.ThreadStartRequest;
  *
  * @author sundar
  */
-public class FXThreadStartRequest extends FXEventRequest implements ThreadStartRequest {
-    public FXThreadStartRequest(FXVirtualMachine fxvm, ThreadStartRequest underlying) {
+public class VisageThreadStartRequest extends VisageEventRequest implements ThreadStartRequest {
+    public VisageThreadStartRequest(VisageVirtualMachine fxvm, ThreadStartRequest underlying) {
         super(fxvm, underlying);
     }
 
     public void addThreadFilter(ThreadReference arg0) {
-        underlying().addThreadFilter(FXWrapper.unwrap(arg0));
+        underlying().addThreadFilter(VisageWrapper.unwrap(arg0));
     }
 
     @Override

@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 
@@ -32,11 +32,11 @@ import com.sun.tools.mjavac.util.List;
  * 
  * @author Robert Field
  */
-public class JFXStringExpression extends JFXExpression implements StringExpressionTree {
-    public List<JFXExpression> parts;
+public class VisageStringExpression extends VisageExpression implements StringExpressionTree {
+    public List<VisageExpression> parts;
     public String translationKey;
 
-    JFXStringExpression(List<JFXExpression> parts, String translationKey) {
+    VisageStringExpression(List<VisageExpression> parts, String translationKey) {
         this.parts = parts;
         this.translationKey = translationKey;
     }
@@ -49,7 +49,7 @@ public class JFXStringExpression extends JFXExpression implements StringExpressi
      * Parts are:
      *    (StringPart FormatPartOrNull ExpressionPart)* StringPart
      */
-    public List<JFXExpression> getParts() {
+    public List<VisageExpression> getParts() {
         return parts;
     }
 
@@ -62,11 +62,11 @@ public class JFXStringExpression extends JFXExpression implements StringExpressi
         return JavafxTag.STRING_EXPRESSION;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.STRING_EXPRESSION;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.STRING_EXPRESSION;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitStringExpression(this, data);
     }
 }

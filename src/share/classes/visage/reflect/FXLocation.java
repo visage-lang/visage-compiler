@@ -29,13 +29,13 @@ package visage.reflect;
  * @profile desktop
  */
 
-public abstract class FXLocation {
-    protected FXLocation() {
+public abstract class VisageLocation {
+    protected VisageLocation() {
     }
 
     /** Get the (current) value "stored" in this location. */
-    public abstract FXValue getValue();
+    public abstract VisageValue getValue();
 
     /** Set the (current) value stored in this location. */
-    public abstract void setValue(FXValue newValue);
+    public abstract void setValue(VisageValue newValue);
 }

@@ -67,15 +67,15 @@ public class ToolProvider {
      * @return the script engine instance or {@code null} if no script engine
      *         is included as part of the application classpath
      */
-    public static JavaFXScriptEngine getJavaFXScriptEngine() {
+    public static VisageScriptEngine getJavaFXScriptEngine() {
         try {
             URL[] urls = new URL[] {
-                getPath("org.visage.tools.script.JavaFXScriptEngineImpl"),
+                getPath("org.visage.tools.script.VisageScriptEngineImpl"),
                 getPath("com.sun.tools.mjavac.util.Context")
             };
             ClassLoader cl = createPrivilegedClassLoader(urls);
-            Class<?> cls = Class.forName("org.visage.tools.script.JavaFXScriptEngineImpl", false, cl);
-            return (JavaFXScriptEngine)cls.newInstance();
+            Class<?> cls = Class.forName("org.visage.tools.script.VisageScriptEngineImpl", false, cl);
+            return (VisageScriptEngine)cls.newInstance();
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }

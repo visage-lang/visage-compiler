@@ -44,7 +44,7 @@ public class JavafxTypes extends Types {
     JavafxSymtab syms;
     ClassWriter writer;
 
-    private HashMap<ClassSymbol, JFXClassDeclaration> fxClasses;
+    private HashMap<ClassSymbol, VisageClassDeclaration> fxClasses;
 
     public static void preRegister(final Context context) {
         if (context.get(typesKey) == null)
@@ -373,15 +373,15 @@ public class JavafxTypes extends Types {
         return (t instanceof FunctionType);
     }
     
-    public void addFxClass(ClassSymbol csym, JFXClassDeclaration cdecl) {
+    public void addFxClass(ClassSymbol csym, VisageClassDeclaration cdecl) {
         if (fxClasses == null) {
-            fxClasses = new HashMap<ClassSymbol, JFXClassDeclaration>();
+            fxClasses = new HashMap<ClassSymbol, VisageClassDeclaration>();
         }
         csym.flags_field |= JavafxFlags.VISAGE_CLASS;
         fxClasses.put(csym, cdecl);
     }
     
-    public JFXClassDeclaration getFxClass (ClassSymbol csym) {
+    public VisageClassDeclaration getFxClass (ClassSymbol csym) {
        return fxClasses.get(csym);
     }
     

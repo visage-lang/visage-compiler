@@ -6,7 +6,7 @@
 
 class Cursor {}
 
-class FXCursor {
+class VisageCursor {
     protected var awtCursor:  Cursor;
     public function getCursor():  Cursor  {
     	if (awtCursor == null) then {

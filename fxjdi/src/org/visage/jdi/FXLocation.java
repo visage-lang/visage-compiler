@@ -30,9 +30,9 @@ import com.sun.jdi.Location;
  *
  * @author sundar
  */
-public class FXLocation extends FXMirror implements Location {
+public class VisageLocation extends VisageMirror implements Location {
 
-    public FXLocation(FXVirtualMachine fxvm, Location underlying) {
+    public VisageLocation(VisageVirtualMachine fxvm, Location underlying) {
         super(fxvm, underlying);
     }
 
@@ -40,8 +40,8 @@ public class FXLocation extends FXMirror implements Location {
         return underlying().codeIndex();
     }
 
-    public FXReferenceType declaringType() {
-        return FXWrapper.wrap(virtualMachine(), underlying().declaringType());
+    public VisageReferenceType declaringType() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().declaringType());
     }
 
     public int lineNumber() {
@@ -52,8 +52,8 @@ public class FXLocation extends FXMirror implements Location {
         return underlying().lineNumber(stratum);
     }
 
-    public FXMethod method() {
-        return FXWrapper.wrap(virtualMachine(), underlying().method());
+    public VisageMethod method() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().method());
     }
 
     public String sourceName() throws AbsentInformationException {
@@ -73,7 +73,7 @@ public class FXLocation extends FXMirror implements Location {
     }
 
     public int compareTo(Location o) {
-        return underlying().compareTo(FXWrapper.unwrap(o));
+        return underlying().compareTo(VisageWrapper.unwrap(o));
     }
 
     @Override

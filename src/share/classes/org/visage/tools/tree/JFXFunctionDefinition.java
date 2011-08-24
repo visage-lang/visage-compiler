@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.util.List;
@@ -34,42 +34,42 @@ import org.visage.tools.code.JavafxFlags;
 /**
  * A function definition.
  */
-public class JFXFunctionDefinition extends JFXExpression implements FunctionDefinitionTree {
+public class VisageFunctionDefinition extends VisageExpression implements FunctionDefinitionTree {
 
-    public final JFXModifiers mods;
+    public final VisageModifiers mods;
     public final Name name;
-    public final JFXFunctionValue operation;
+    public final VisageFunctionValue operation;
     public MethodSymbol sym;
 
-    public JFXFunctionDefinition(
-            JFXModifiers mods,
+    public VisageFunctionDefinition(
+            VisageModifiers mods,
             Name name,
-            JFXFunctionValue operation) {
+            VisageFunctionValue operation) {
         this.mods = mods;
         this.name = name;
         this.operation = operation;
     }
 
-    protected JFXFunctionDefinition(
-            JFXModifiers mods,
+    protected VisageFunctionDefinition(
+            VisageModifiers mods,
             Name name,
-            JFXType rettype,
-            List<JFXVar> funParams,
-            JFXBlock bodyExpression) {
+            VisageType rettype,
+            List<VisageVar> funParams,
+            VisageBlock bodyExpression) {
         this.mods = mods;
         this.name = name;
-        this.operation = new JFXFunctionValue(rettype, funParams, bodyExpression);
+        this.operation = new VisageFunctionValue(rettype, funParams, bodyExpression);
     }
 
     public boolean isStatic() {
         return sym.isStatic();
     }
 
-    public JFXBlock getBodyExpression() {
+    public VisageBlock getBodyExpression() {
         return operation.getBodyExpression();
     }
 
-    public JFXModifiers getModifiers() {
+    public VisageModifiers getModifiers() {
         return mods;
     }
 
@@ -81,15 +81,15 @@ public class JFXFunctionDefinition extends JFXExpression implements FunctionDefi
         return name;
     }
 
-    public JFXType getJFXReturnType() {
+    public VisageType getJFXReturnType() {
         return operation.rettype;
     }
 
-    public List<JFXVar> getParams() {
+    public List<VisageVar> getParams() {
         return operation.funParams;
     }
 
-    public JFXFunctionValue getFunctionValue() {
+    public VisageFunctionValue getFunctionValue() {
         return operation;
     }
 
@@ -102,11 +102,11 @@ public class JFXFunctionDefinition extends JFXExpression implements FunctionDefi
         return JavafxTag.FUNCTION_DEF;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.FUNCTION_DEFINITION;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.FUNCTION_DEFINITION;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitFunctionDefinition(this, data);
     }
 }

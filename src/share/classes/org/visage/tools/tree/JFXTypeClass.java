@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 
@@ -33,14 +33,14 @@ import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
  *
  * @author Robert Field
  */
-public class JFXTypeClass extends JFXType implements TypeClassTree {
-    private final JFXExpression className;
+public class VisageTypeClass extends VisageType implements TypeClassTree {
+    private final VisageExpression className;
     private final ClassSymbol sym;
     
     /*
      * @param cardinality one of the cardinality constants
      */
-    protected JFXTypeClass(JFXExpression className,
+    protected VisageTypeClass(VisageExpression className,
             Cardinality cardinality,
             ClassSymbol sym) {
         super(cardinality);
@@ -48,14 +48,14 @@ public class JFXTypeClass extends JFXType implements TypeClassTree {
         this.sym = sym;
     }
 
-    public JFXTree getTypeExpression() {
+    public VisageTree getTypeExpression() {
         return className;
     }
 
     @Override
     public void accept(JavafxVisitor v) { v.visitTypeClass(this); }
     
-    public JFXExpression getClassName() { return className; }
+    public VisageExpression getClassName() { return className; }
 
     @Override
     public JavafxTag getFXTag() {
@@ -63,12 +63,12 @@ public class JFXTypeClass extends JFXType implements TypeClassTree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.TYPE_CLASS;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.TYPE_CLASS;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitTypeClass(this, d);
     }
     

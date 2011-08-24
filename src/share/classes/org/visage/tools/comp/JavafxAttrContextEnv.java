@@ -23,7 +23,7 @@
 
 package org.visage.tools.comp;
 
-import org.visage.tools.tree.JFXTree;
+import org.visage.tools.tree.VisageTree;
 
 /** {@code JavafxEnv<A>} specialized as {@code JavafxEnv<JavafxAttrContext>}
  *
@@ -37,7 +37,7 @@ public class JavafxAttrContextEnv extends JavafxEnv<JavafxAttrContext> {
     /** Create an outermost environment for a given (toplevel)tree,
      *  with a given info field.
      */
-    public JavafxAttrContextEnv(JFXTree tree, JavafxAttrContext info) {
+    public JavafxAttrContextEnv(VisageTree tree, JavafxAttrContext info) {
 	super(tree, info);
     }
 }

@@ -24,7 +24,7 @@ package org.visage.runtime.sequence;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.visage.runtime.JavaFXTestCase;
+import org.visage.runtime.VisageTestCase;
 import org.visage.runtime.TypeInfo;
 import org.junit.Assert;
 
@@ -32,7 +32,7 @@ import org.junit.Assert;
  *
  * @author Michael Heinrichs
  */
-public class AbstractSequenceTest extends JavaFXTestCase {
+public class AbstractSequenceTest extends VisageTestCase {
     
     public static class MyAbstractSequence<T> extends AbstractSequence<T> {
 

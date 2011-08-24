@@ -92,7 +92,7 @@ runtimeFails1=`grep '<td.*Output written' build/test/reports/junit-noframes.html
     -e 's@\\\@/@g'`
 
 # Here is another form of failure.  This one only contains testname.visage.
-# <br>junit.framework.AssertionFailedError: expected:<[ 900 ]> but was:<[ 90 ]><br/>	at bindIfSelect$1local_klass$3.doit$$2(bindIfSelect.visage:188)<br/>	at bindIfSelect.testBoundSelectInverse(bindIfSelect.visage:189)<br/>	at framework.FXUnitTestWrapper.runTest(FXUnitTestWrapper.java:86)<br/></code></td><td>0.000</td>
+# <br>junit.framework.AssertionFailedError: expected:<[ 900 ]> but was:<[ 90 ]><br/>	at bindIfSelect$1local_klass$3.doit$$2(bindIfSelect.visage:188)<br/>	at bindIfSelect.testBoundSelectInverse(bindIfSelect.visage:189)<br/>	at framework.VisageUnitTestWrapper.runTest(VisageUnitTestWrapper.java:86)<br/></code></td><td>0.000</td>
 
 runtimeFails2=`fgrep 'junit.framework.AssertionFailedError: expected' build/test/reports/junit-noframes.html | \
     sed -e 's@\.visage.*@.visage@' -e 's@.*<br/>@@' -e 's@.*(@@'`
@@ -100,7 +100,7 @@ runtimeFails2=`fgrep 'junit.framework.AssertionFailedError: expected' build/test
 runtimeFails1="$runtimeFails1 $runtimeFails2"
 
 # yet another form of failure:
-# <br>junit.framework.ComparisonFailure: null expected:<A[E]C> but was:<A[]C><br/>	at MxOnSeq01.testA02(MxOnSeq01.visage:70)<br/>	at framework.FXUnitTestWrapper.runTest(FXUnitTestWrapper.java:86)<br/></code></td><td>0.000</td>
+# <br>junit.framework.ComparisonFailure: null expected:<A[E]C> but was:<A[]C><br/>	at MxOnSeq01.testA02(MxOnSeq01.visage:70)<br/>	at framework.VisageUnitTestWrapper.runTest(VisageUnitTestWrapper.java:86)<br/></code></td><td>0.000</td>
 
 runtimeFails2=`fgrep 'junit.framework.ComparisonFailure' build/test/reports/junit-noframes.html | \
     sed -e 's@\.visage.*@.visage@' -e 's@.*<br/>@@' -e 's@.*(@@'`
@@ -197,7 +197,7 @@ fi
          done
      fi
 
-###  This shows a number of non FXCompilerTest tests run; don't know why 
+###  This shows a number of non VisageCompilerTest tests run; don't know why 
 ###     echo "-- Result URL: file:///$thisDir/build/test/reports/junit-noframes.html"
 
      # This only works if we only ran the fail list tests.

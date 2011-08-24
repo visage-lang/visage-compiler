@@ -28,7 +28,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 
@@ -40,7 +40,7 @@ import com.sun.tools.mjavac.util.List;
  *
  * @author Stephen Chin <steveonjava@gmail.com>
  */
-public class JFXErroneousLengthLiteral extends JFXLengthLiteral  {
+public class VisageErroneousLengthLiteral extends VisageLengthLiteral  {
 
     /**
      * This class is just an Erroneous node masquerading as
@@ -48,10 +48,10 @@ public class JFXErroneousLengthLiteral extends JFXLengthLiteral  {
      * stores a local erroneous block and uses this for the
      * visitor pattern etc.
      */
-    private JFXErroneous errNode;
+    private VisageErroneous errNode;
 
-    protected JFXErroneousLengthLiteral(List<? extends JFXTree> errs) {
-        errNode = new JFXErroneous(errs);
+    protected VisageErroneousLengthLiteral(List<? extends VisageTree> errs) {
+        errNode = new VisageErroneous(errs);
     }
 
     @Override
@@ -65,17 +65,17 @@ public class JFXErroneousLengthLiteral extends JFXLengthLiteral  {
     }
 
     @Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitErroneous(errNode, d);
     }
 
-    public List<? extends JFXTree> getErrorTrees() {
+    public List<? extends VisageTree> getErrorTrees() {
         return errNode.getErrorTrees();
     }
     
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.ERRONEOUS;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.ERRONEOUS;
     }
     
 }

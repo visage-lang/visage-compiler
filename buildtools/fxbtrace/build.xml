@@ -31,13 +31,13 @@
     </target>
     
     <target name="run" depends="compile">
-        <java classname="FXBTraceRunner" fork="true" classpath="${builddir}" 
+        <java classname="VisageBTraceRunner" fork="true" classpath="${builddir}" 
               failonerror="true" dir="${builddir}" >
             <sysproperty key="build.dir"    value="${builddir}"/>
             <sysproperty key="visage.home"  value="${visage.home}"/>
             <sysproperty key="btrace.home"  value="${btrace.home}"/>
             <sysproperty key="base.dir"     value="${basedir}"/>
-            <sysproperty key="FXBTraceRunner.vmoptions" value="${FXBTraceRunner.vmoptions}"/>
+            <sysproperty key="VisageBTraceRunner.vmoptions" value="${VisageBTraceRunner.vmoptions}"/>
             <arg value="--script"/>
             <arg value="${btrace.script}"/>
             <arg value="--jar"/>

@@ -29,10 +29,10 @@ package visage.reflect;
  * @author Per Bothner
  * @profile desktop
  */
-public class FXJavaArrayType extends FXType {
-FXType componentType;
-    public FXType getComponentType() { return componentType; }
-    FXJavaArrayType(FXType componentType) { this.componentType = componentType; }
+public class VisageJavaArrayType extends VisageType {
+VisageType componentType;
+    public VisageType getComponentType() { return componentType; }
+    VisageJavaArrayType(VisageType componentType) { this.componentType = componentType; }
 
     protected void toStringTerse(StringBuilder sb) {
         sb.append("JavaArray<");

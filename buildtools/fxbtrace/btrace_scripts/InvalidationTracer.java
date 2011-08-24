@@ -37,7 +37,7 @@ import static com.sun.btrace.BTraceUtils.*;
     public static long invalidations;
 
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/invalidate\\$.+/"
     )
     public static void onInvalidateEnter(
@@ -50,7 +50,7 @@ import static com.sun.btrace.BTraceUtils.*;
     }
 
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/invalidate\\$.+/",
         location=@Location(Kind.RETURN)
     )

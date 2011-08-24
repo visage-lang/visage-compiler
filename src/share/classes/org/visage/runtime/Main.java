@@ -75,7 +75,7 @@ public class Main {
 
         // if it is a Visage class, call Entry.start() 
         // else just execute "main" method.
-        if (FXObject.class.isAssignableFrom(mainClass)) {
+        if (VisageObject.class.isAssignableFrom(mainClass)) {
             try {
                 Entry.start(mainClass, argsToMain);
             } catch (Throwable th) {

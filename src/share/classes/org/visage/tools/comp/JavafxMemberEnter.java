@@ -424,7 +424,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     /** Enter field and method definitions and process import
      *  clauses, catching any completion failure exceptions.
      */
-    void memberEnter(JFXTree tree, JavafxEnv<JavafxAttrContext> env) {
+    void memberEnter(VisageTree tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> prevEnv = this.env;
         try {
             this.env = env;
@@ -440,28 +440,28 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     /** Enter members from a list of trees.
      */
-    void memberEnter(List<? extends JFXTree> trees, JavafxEnv<JavafxAttrContext> env) {
-        for (List<? extends JFXTree> l = trees; l.nonEmpty(); l = l.tail) {
+    void memberEnter(List<? extends VisageTree> trees, JavafxEnv<JavafxAttrContext> env) {
+        for (List<? extends VisageTree> l = trees; l.nonEmpty(); l = l.tail) {
             memberEnter(l.head, env);
         }
     }
 
     @Override
-    public void visitTree(JFXTree tree) {
-        if (tree instanceof JFXBlock) {
-            visitBlockExpression((JFXBlock) tree);
+    public void visitTree(VisageTree tree) {
+        if (tree instanceof VisageBlock) {
+            visitBlockExpression((VisageBlock) tree);
         } else {
             super.visitTree(tree); //super.visitTree is a no-op because scan is overridden!!
         }
     }
 
     @Override
-    public void visitErroneous(JFXErroneous tree) {
+    public void visitErroneous(VisageErroneous tree) {
         memberEnter(tree.getErrorTrees(), env);
     }
 
     @Override
-    public void visitScript(JFXScript tree) {
+    public void visitScript(VisageScript tree) {
         if (tree.isEntered) {
             // we must have already processed this toplevel
             return;
@@ -490,8 +490,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
 
     @Override
-    public void visitImport(JFXImport tree) {
-        JFXExpression imp = tree.qualid;
+    public void visitImport(VisageImport tree) {
+        VisageExpression imp = tree.qualid;
         Name name = JavafxTreeInfo.name(imp);
 
         // Create a local environment pointing to this tree to disable
@@ -506,12 +506,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         //
         boolean allAndSundry = false;
 
-        if (imp instanceof JFXSelect) {
+        if (imp instanceof VisageSelect) {
 
             if (name == names.asterisk) {
 
                 all = true;
-                imp = ((JFXSelect) imp).getExpression();
+                imp = ((VisageSelect) imp).getExpression();
 
             } else if (name.contentEquals("**")) {
 
@@ -537,8 +537,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 importAll(tree.pos, p, env);
             }
             return;
-        } else if (imp instanceof JFXSelect) {
-            JFXSelect s = (JFXSelect) imp;
+        } else if (imp instanceof VisageSelect) {
+            VisageSelect s = (VisageSelect) imp;
             TypeSymbol p = attr.attribTree(s.selected,
                     localEnv,
                     (TYP | PCK),
@@ -559,7 +559,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
      *  @param tree     The method definition.
      *  @param env      The environment current outside of the method definition.
      */
-    public JavafxEnv<JavafxAttrContext> methodEnv(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> methodEnv(VisageFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
         Scope localScope = new Scope(tree.sym);
         localScope.next = env.info.scope;
         JavafxEnv<JavafxAttrContext> localEnv =
@@ -572,10 +572,10 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         return localEnv;
     }
 
-    public JavafxEnv<JavafxAttrContext> getMethodEnv(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> getMethodEnv(VisageFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> mEnv = methodEnv(tree, env);
         mEnv.info.lint = mEnv.info.lint.augment(tree.sym.attributes_field, tree.sym.flags());
-        for (List<JFXVar> l = tree.getParams(); l.nonEmpty(); l = l.tail) {
+        for (List<VisageVar> l = tree.getParams(); l.nonEmpty(); l = l.tail) {
             mEnv.info.scope.enterIfAbsent(l.head.sym);
         }
         return mEnv;
@@ -589,7 +589,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
      *  @param tree     The variable definition.
      *  @param env      The environment current outside of the variable definition.
      */
-    public JavafxEnv<JavafxAttrContext> initEnv(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> initEnv(VisageVar tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> localEnv = env.dupto(new JavafxAttrContextEnv(tree, env.info.dup()));
         if (tree.sym.isMember()) {
             localEnv.info.scope = new Scope.DelegatedScope(env.info.scope);
@@ -602,17 +602,17 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         return localEnv;
     }
 
-    public JavafxEnv<JavafxAttrContext> getInitEnv(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> getInitEnv(VisageVar tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> iEnv = initEnv(tree, env);
         return iEnv;
     }
 
     @Override
-    public void scan(JFXTree tree) {
+    public void scan(VisageTree tree) {
         //do nothing!
     }
 
-    private void addDefault(JFXAbstractVar tree) {
+    private void addDefault(VisageAbstractVar tree) {
         Scope enclScope = JavafxEnter.enterScope(env);
         if (enclScope.owner.kind == TYP && (tree.mods.flags & JavafxFlags.DEFAULT) != 0) {
             JavafxClassSymbol owner = (JavafxClassSymbol) enclScope.owner;
@@ -625,12 +625,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
 
     @Override
-    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+    public void visitOverrideClassVar(VisageOverrideClassVar tree) {
         addDefault(tree);
     }
 
     @Override
-    public void visitVar(JFXVar tree) {
+    public void visitVar(VisageVar tree) {
         JavafxEnv<JavafxAttrContext> localEnv = env;
         if ((tree.mods.flags & STATIC) != 0
                 || (env.info.scope.owner.flags() & INTERFACE) != 0) {
@@ -670,12 +670,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     static class SymbolCompleter implements Completer {
 
         JavafxEnv<JavafxAttrContext> env;
-        JFXTree tree;
+        VisageTree tree;
         JavafxAttr attr;
 
         public void complete(Symbol m) throws CompletionFailure {
-            if (tree instanceof JFXVar) {
-                attr.finishVar((JFXVar) tree, env);
+            if (tree instanceof VisageVar) {
+                attr.finishVar((VisageVar) tree, env);
             } else if (attr.pt != Type.noType) {
                 // finishOperationDefinition makes use of the expected type pt.
                 // This is useful when coming from visitFunctionValue - i.e.
@@ -688,13 +688,13 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 m.completer = this;
                 attr.attribExpr(tree, env);
             } else {
-                attr.finishFunctionDefinition((JFXFunctionDefinition) tree, env);
+                attr.finishFunctionDefinition((VisageFunctionDefinition) tree, env);
             }
         }
     }
 
     @Override
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(VisageFunctionDefinition tree) {
         // If the function defintion is contained within an Erroneous
         // block, the enclosing scope may not be defined. In this case
         // we do not enter the function into any scope as it belongs to
@@ -736,8 +736,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
 
 //    @Override
-//    public void visitClassDeclaration(JFXClassDeclaration that) {
-//        for (JFXExpression superClass : that.getSupertypes()) {
+//    public void visitClassDeclaration(VisageClassDeclaration that) {
+//        for (VisageExpression superClass : that.getSupertypes()) {
 //            attr.attribType(superClass, env);
 //        }
 //    }
@@ -745,7 +745,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     /* ********************************************************************
      * Type completion
      *********************************************************************/
-    Type attribImportType(JFXTree tree, JavafxEnv<JavafxAttrContext> env) {
+    Type attribImportType(VisageTree tree, JavafxEnv<JavafxAttrContext> env) {
         assert completionEnabled;
         try {
             // To prevent deep recursion, suppress completion of some
@@ -776,7 +776,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         ClassSymbol c = (ClassSymbol) sym;
         ClassType ct = (ClassType) c.type;
         JavafxEnv<JavafxAttrContext> localEnv = enter.typeEnvs.get(c);
-        JFXClassDeclaration tree = (JFXClassDeclaration) localEnv.tree;
+        VisageClassDeclaration tree = (VisageClassDeclaration) localEnv.tree;
         boolean wasFirst = isFirst;
         isFirst = false;
 
@@ -808,10 +808,10 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             Set<Type> interfaceSet = new HashSet<Type>();
             Set<Type> mixinSet = new HashSet<Type>();
             {
-                ListBuffer<JFXExpression> extending = ListBuffer.<JFXExpression>lb();
-                ListBuffer<JFXExpression> implementing = ListBuffer.<JFXExpression>lb();
-                ListBuffer<JFXExpression> mixing = ListBuffer.<JFXExpression>lb();
-                for (JFXExpression stype : tree.getSupertypes()) {
+                ListBuffer<VisageExpression> extending = ListBuffer.<VisageExpression>lb();
+                ListBuffer<VisageExpression> implementing = ListBuffer.<VisageExpression>lb();
+                ListBuffer<VisageExpression> mixing = ListBuffer.<VisageExpression>lb();
+                for (VisageExpression stype : tree.getSupertypes()) {
                     Type st = attr.attribType(stype, localEnv);
 
                     if (st.isInterface()) {
@@ -849,7 +849,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             ct.supertype_field = supertype;
 
             // Determine interfaces.
-            List<JFXExpression> interfaceTrees = tree.getImplementing();
+            List<VisageExpression> interfaceTrees = tree.getImplementing();
             if ((tree.mods.flags & Flags.ENUM) != 0 && target.compilerBootstrap(c)) {
                 // add interface Comparable<T>
                 interfaceTrees =
@@ -860,7 +860,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 interfaceTrees =
                         interfaceTrees.prepend(fxmake.Type(syms.serializableType));
             }
-            for (JFXExpression iface : interfaceTrees) {
+            for (VisageExpression iface : interfaceTrees) {
                 Type i = attr.attribBase(iface, baseEnv, false, true, true);
                 if (i.tag == CLASS) {
                     interfaces.append(i);
@@ -932,7 +932,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
     }
 
-    private JavafxEnv<JavafxAttrContext> baseEnv(JFXClassDeclaration tree, JavafxEnv<JavafxAttrContext> env) {
+    private JavafxEnv<JavafxAttrContext> baseEnv(VisageClassDeclaration tree, JavafxEnv<JavafxAttrContext> env) {
         Scope typaramScope = new Scope(tree.sym);
         JavafxEnv<JavafxAttrContext> outer = env.outer; // the base clause can't see members of this class
         JavafxEnv<JavafxAttrContext> localEnv = outer.dup(tree, outer.info.dup(typaramScope));
@@ -948,7 +948,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private void finish(JavafxEnv<JavafxAttrContext> env) {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
         try {
-            JFXClassDeclaration tree = (JFXClassDeclaration) env.tree;
+            VisageClassDeclaration tree = (VisageClassDeclaration) env.tree;
             memberEnter(tree.getMembers(), env);
         } finally {
             log.useSource(prev);

@@ -5,12 +5,12 @@ import visage.animation.KeyValueTarget.Type;
 import org.visage.runtime.sequence.*;
 
 /**
- * This class tests Pointer access of FXBase instance variables.
+ * This class tests Pointer access of VisageBase instance variables.
  *
  * @author A. Sundararajan
  */
-public class PointerTest extends JavaFXTestCase {
-    private static class Counter extends FXBase {
+public class PointerTest extends VisageTestCase {
+    private static class Counter extends VisageBase {
         public static final int VCNT$ = 1;
         public int count$() { return VCNT$; }
 
@@ -78,7 +78,7 @@ public class PointerTest extends JavaFXTestCase {
     } 
 
     // test pointer access for all types
-    private static class AllTypeVarsHolder extends FXBase {
+    private static class AllTypeVarsHolder extends VisageBase {
         public static final int VCNT$ = 10;
         public static int VCNT$() {
             return VCNT$;

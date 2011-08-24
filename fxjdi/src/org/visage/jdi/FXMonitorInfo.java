@@ -29,21 +29,21 @@ import com.sun.jdi.MonitorInfo;
  *
  * @author sundar
  */
-public class FXMonitorInfo extends FXMirror implements MonitorInfo {
-    public FXMonitorInfo(FXVirtualMachine fxvm, MonitorInfo underlying) {
+public class VisageMonitorInfo extends VisageMirror implements MonitorInfo {
+    public VisageMonitorInfo(VisageVirtualMachine fxvm, MonitorInfo underlying) {
         super(fxvm, underlying);
     }
 
-    public FXObjectReference monitor() {
-        return FXWrapper.wrap(virtualMachine(), underlying().monitor());
+    public VisageObjectReference monitor() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().monitor());
     }
 
     public int stackDepth() {
         return underlying().stackDepth();
     }
 
-    public FXThreadReference thread() {
-        return FXWrapper.wrap(virtualMachine(), underlying().thread());
+    public VisageThreadReference thread() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().thread());
     }
 
     @Override

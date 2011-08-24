@@ -63,12 +63,12 @@ class TestClass extends BaseTestClass  {
    var vbooleanAttr1;
 };
 
-function inspectMember( fxo: FXObjectValue ) {
+function inspectMember( fxo: VisageObjectValue ) {
 
 }
 
-function inspectClass( context: FXLocal.Context, clzName:String, fxov: FXObjectValue) { 
-		var clsTestClass: FXClassType;
+function inspectClass( context: VisageLocal.Context, clzName:String, fxov: VisageObjectValue) { 
+		var clsTestClass: VisageClassType;
 	   var clsObject =  fxov;
 		try {
 		clsTestClass = context.findClass(clzName);
@@ -112,7 +112,7 @@ function inspectClass( context: FXLocal.Context, clzName:String, fxov: FXObjectV
                       }
                   }
 		}
-		// public boolean isAssignableFrom(FXClassType cls) {}
+		// public boolean isAssignableFrom(VisageClassType cls) {}
 		println("MEMBERS of {clsTestClass.toString()}");
 		for (attr in clsTestClass.getMembers(true)) {
 		  println("   {attr.getName()}  isStatic={attr.isStatic()}; Declaring class: {attr.getDeclaringClass().getName()} ");
@@ -120,10 +120,10 @@ function inspectClass( context: FXLocal.Context, clzName:String, fxov: FXObjectV
 		// variable member
 		println("VARIABLES of {clsTestClass.toString()}");
 		for (vmem in clsTestClass.getVariables(true)) {
-		  var fxv:FXValue = vmem.getValue(clsObject);
+		  var fxv:VisageValue = vmem.getValue(clsObject);
 		  var fxT = vmem.getType().getName();
 		  print("  {vmem.getName()} type:{fxT}  static={vmem.isStatic()}; Decl.class: {vmem.getDeclaringClass().getName()} ");
-          if ( fxT.compareTo("visage.reflect.FXLocal.Context") ==0) { println("");} else {
+          if ( fxT.compareTo("visage.reflect.VisageLocal.Context") ==0) { println("");} else {
 		   try {println("  value=[{vmem.getValue(clsObject).getValueString()}], itemcount={fxv.getItemCount()}");
 		   }catch(iae:java.lang.IllegalArgumentException){println(iae); }
           }
@@ -164,7 +164,7 @@ function inspectClass( context: FXLocal.Context, clzName:String, fxov: FXObjectV
 	function _func9(i:Integer):Number { i * 1.0 }
 
 /////////////////////////////////////////////////////
-var _context : FXLocal.Context = FXLocal.getContext();
+var _context : VisageLocal.Context = VisageLocal.getContext();
 var _clzStrings  = ["ReflectionTest02","ReflectionTest02.TestClass"];
 function run() {
 	var rf2 : ReflectionTest02 = new ReflectionTest02();

@@ -23,22 +23,22 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXThreadReference;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageThreadReference;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.event.ThreadDeathEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXThreadDeathEvent extends FXEvent implements ThreadDeathEvent {
-    public FXThreadDeathEvent(FXVirtualMachine fxvm, ThreadDeathEvent underlying) {
+public class VisageThreadDeathEvent extends VisageEvent implements ThreadDeathEvent {
+    public VisageThreadDeathEvent(VisageVirtualMachine fxvm, ThreadDeathEvent underlying) {
         super(fxvm, underlying);
     }
 
-    public FXThreadReference thread() {
-        return FXWrapper.wrap(virtualMachine(), underlying().thread());
+    public VisageThreadReference thread() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().thread());
     }
 
     @Override

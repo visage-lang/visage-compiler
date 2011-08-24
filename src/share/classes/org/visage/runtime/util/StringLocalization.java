@@ -62,7 +62,7 @@ public class StringLocalization {
         }
 
         ResourceBundle rb = ResourceBundle.getBundle(propertiesName,
-                locale, cl, FXPropertyResourceBundle.FXPropertiesControl.INSTANCE);
+                locale, cl, VisagePropertyResourceBundle.VisagePropertiesControl.INSTANCE);
         if (explicitKey != null) {
             localization = rb.getString(explicitKey);
             if (explicitKey.equals(localization) && 
@@ -74,7 +74,7 @@ public class StringLocalization {
         }
 
         if (embeddedExpr.length != 0) {
-            localization = FXFormatter.sprintf(locale, localization, embeddedExpr);
+            localization = VisageFormatter.sprintf(locale, localization, embeddedExpr);
         }
 
         return localization;

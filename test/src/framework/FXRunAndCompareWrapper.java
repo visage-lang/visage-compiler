@@ -41,7 +41,7 @@ import org.apache.tools.ant.util.FileUtils;
  *
  * @author tball
  */
-public class FXRunAndCompareWrapper extends TestCase {
+public class VisageRunAndCompareWrapper extends TestCase {
     private static final String VISAGE_MAIN = "org.visage.runtime.Main";
 
     private final String name;
@@ -64,7 +64,7 @@ public class FXRunAndCompareWrapper extends TestCase {
     private final List<String> compileArgs;
     private final String param;
 
-    public FXRunAndCompareWrapper(File testFile,
+    public VisageRunAndCompareWrapper(File testFile,
                                   String name,
                                   List<String> compileArgs,
                                   Map<String, String> options,
@@ -80,12 +80,12 @@ public class FXRunAndCompareWrapper extends TestCase {
         this.separateFiles = new LinkedList<String>(separateFiles);
         this.className = testFile.getName();
         this.param = runParam;
-        expectCompileFailure = options.containsKey(FXCompilerTest.OPTIONS_EXPECT_COMPILE_FAIL);
-        shouldRun = options.containsKey(FXCompilerTest.OPTIONS_RUN);
-        expectRunFailure = options.containsKey(FXCompilerTest.OPTIONS_EXPECT_RUN_FAIL);
-        checkCompilerMsg = options.containsKey(FXCompilerTest.OPTIONS_CHECK_COMPILE_MSG);
-        ignoreStdError = options.containsKey(FXCompilerTest.OPTIONS_IGNORE_STD_ERROR);
-        compare = options.containsKey(FXCompilerTest.OPTIONS_COMPARE);
+        expectCompileFailure = options.containsKey(VisageCompilerTest.OPTIONS_EXPECT_COMPILE_FAIL);
+        shouldRun = options.containsKey(VisageCompilerTest.OPTIONS_RUN);
+        expectRunFailure = options.containsKey(VisageCompilerTest.OPTIONS_EXPECT_RUN_FAIL);
+        checkCompilerMsg = options.containsKey(VisageCompilerTest.OPTIONS_CHECK_COMPILE_MSG);
+        ignoreStdError = options.containsKey(VisageCompilerTest.OPTIONS_IGNORE_STD_ERROR);
+        compare = options.containsKey(VisageCompilerTest.OPTIONS_COMPARE);
         outputFileName = buildDir + File.separator + className + ".OUTPUT";
         errorFileName = buildDir + File.separator + className + ".ERROR";
 		copyExpectedFileName = buildDir + File.separator + className + ".EXPECTED";

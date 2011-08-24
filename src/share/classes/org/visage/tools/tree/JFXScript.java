@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.code.Scope;
@@ -52,10 +52,10 @@ import javax.tools.JavaFileObject;
  *                         ranges indexed by the tree nodes they belong to.
  *                         Defined only if option -Xjcov is set.
  */
-public class JFXScript extends JFXTree implements UnitTree {
+public class VisageScript extends VisageTree implements UnitTree {
 
-    public final JFXExpression pid;
-    public List<JFXTree> defs;
+    public final VisageExpression pid;
+    public List<VisageTree> defs;
     public JavaFileObject sourcefile;
     public PackageSymbol packge;
     public Scope namedImportScope;
@@ -68,11 +68,11 @@ public class JFXScript extends JFXTree implements UnitTree {
     public Position.LineMap lineMap = null;
     public Map<JCTree, String> docComments = null;
     public Map<JCTree, Integer> endPositions = null;
-    public JFXClassDeclaration scriptLevelClass = null;
+    public VisageClassDeclaration scriptLevelClass = null;
 
-    protected JFXScript(
-            JFXExpression pid,
-            List<JFXTree> defs,
+    protected VisageScript(
+            VisageExpression pid,
+            List<VisageTree> defs,
             JavaFileObject sourcefile,
             PackageSymbol packge,
             Scope namedImportScope,
@@ -90,21 +90,21 @@ public class JFXScript extends JFXTree implements UnitTree {
         v.visitScript(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.COMPILATION_UNIT;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.COMPILATION_UNIT;
     }
 
-    public List<JFXImport> getImports() {
-        ListBuffer<JFXImport> imports = new ListBuffer<JFXImport>();
+    public List<VisageImport> getImports() {
+        ListBuffer<VisageImport> imports = new ListBuffer<VisageImport>();
         if (defs != null)
         {
-            for (JFXTree tree : defs) {
+            for (VisageTree tree : defs) {
 
                 // Protect againtst invalid trees
                 //
                 if (tree == null) break;
                 if (tree.getFXTag() == JavafxTag.IMPORT) {
-                    imports.append((JFXImport) tree);
+                    imports.append((VisageImport) tree);
                 } else {
                     break;
                 }
@@ -113,7 +113,7 @@ public class JFXScript extends JFXTree implements UnitTree {
         return imports.toList();
     }
 
-    public JFXExpression getPackageName() {
+    public VisageExpression getPackageName() {
         return pid;
     }
 
@@ -125,8 +125,8 @@ public class JFXScript extends JFXTree implements UnitTree {
         return lineMap;
     }
 
-    public List<JFXTree> getTypeDecls() {
-        List<JFXTree> typeDefs = defs;
+    public List<VisageTree> getTypeDecls() {
+        List<VisageTree> typeDefs = defs;
 
         if (defs != null)
         {
@@ -140,7 +140,7 @@ public class JFXScript extends JFXTree implements UnitTree {
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitCompilationUnit(this, d);
     }
 

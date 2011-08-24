@@ -24,7 +24,7 @@
 package org.visage.tools.api;
 
 import org.visage.api.JavafxcTask;
-import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.UnitTree;
 import javax.lang.model.element.Element;
 
@@ -64,7 +64,7 @@ public class JFXC1828Test {
         }
     }
 
-class VarScanner<EnumSet> extends JavaFXTreePathScanner<Void,EnumSet> {
+class VarScanner<EnumSet> extends VisageTreePathScanner<Void,EnumSet> {
     JavafxcTrees trees;
     
     VarScanner(JavafxcTrees trees) {

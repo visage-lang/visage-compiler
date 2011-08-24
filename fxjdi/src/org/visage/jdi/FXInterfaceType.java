@@ -31,21 +31,21 @@ import java.util.List;
  *
  * @author sundar
  */
-public class FXInterfaceType extends FXReferenceType implements InterfaceType {
-    public FXInterfaceType(FXVirtualMachine fxvm, InterfaceType ifaceType) {
+public class VisageInterfaceType extends VisageReferenceType implements InterfaceType {
+    public VisageInterfaceType(VisageVirtualMachine fxvm, InterfaceType ifaceType) {
         super(fxvm, ifaceType);
     }
 
     public List<ClassType> implementors() {
-        return FXWrapper.wrapClassTypes(virtualMachine(), underlying().implementors());
+        return VisageWrapper.wrapClassTypes(virtualMachine(), underlying().implementors());
     }
 
     public List<InterfaceType> subinterfaces() {
-        return FXWrapper.wrapInterfaceTypes(virtualMachine(), underlying().subinterfaces());
+        return VisageWrapper.wrapInterfaceTypes(virtualMachine(), underlying().subinterfaces());
     }
 
     public List<InterfaceType> superinterfaces() {
-        return FXWrapper.wrapInterfaceTypes(virtualMachine(), underlying().superinterfaces());
+        return VisageWrapper.wrapInterfaceTypes(virtualMachine(), underlying().superinterfaces());
     }
 
     @Override
@@ -63,8 +63,8 @@ public class FXInterfaceType extends FXReferenceType implements InterfaceType {
     public boolean isJavaFXType() {
         if (!isIsFxTypeSet) {
             isIsFxTypeSet = true;
-            FXVirtualMachine fxvm = virtualMachine();
-            InterfaceType fxObjType = (InterfaceType) FXWrapper.unwrap(fxvm.fxObjectType());
+            VisageVirtualMachine fxvm = virtualMachine();
+            InterfaceType fxObjType = (InterfaceType) VisageWrapper.unwrap(fxvm.fxObjectType());
             if (fxObjType != null) {
                 InterfaceType thisType = underlying();
                 List<InterfaceType> allIfaces = thisType.superinterfaces();

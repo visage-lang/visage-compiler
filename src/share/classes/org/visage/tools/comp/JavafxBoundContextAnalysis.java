@@ -65,21 +65,21 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
         scan(attrEnv.tree);
     }
 
-    private void mark(JFXBoundMarkable tree) {
+    private void mark(VisageBoundMarkable tree) {
         tree.markBound(bindStatus);
     }
 
     @Override
-    public void visitScript(JFXScript tree) {
+    public void visitScript(VisageScript tree) {
         bindStatus = JavafxBindStatus.UNBOUND;
         super.visitScript(tree);
     }
 
     @Override
-    public void visitVarInit(JFXVarInit tree) {
+    public void visitVarInit(VisageVarInit tree) {
     }
 
-    private void analyzeVar(JFXAbstractVar tree) {
+    private void analyzeVar(VisageAbstractVar tree) {
         // any changes here should also go into visitOverrideClassVar
         JavafxBindStatus prevBindStatus = bindStatus;
         bindStatus = tree.isBound()?
@@ -88,8 +88,8 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
         mark(tree);
         scan(tree.getInitializer());
         bindStatus = prevBindStatus;
-        for (JFXOnReplace.Kind triggerKind : JFXOnReplace.Kind.values()) {
-            JFXOnReplace trigger = tree.getTrigger(triggerKind);
+        for (VisageOnReplace.Kind triggerKind : VisageOnReplace.Kind.values()) {
+            VisageOnReplace trigger = tree.getTrigger(triggerKind);
             if (trigger != null) {
                 if (bindStatus != JavafxBindStatus.UNBOUND) {
                     log.error(trigger.pos(), MsgSym.MESSAGE_TRIGGER_IN_BIND_NOT_ALLOWED, triggerKind);
@@ -101,17 +101,17 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitVar(JFXVar tree) {
+    public void visitVar(VisageVar tree) {
         analyzeVar(tree);
     }
 
     @Override
-    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+    public void visitOverrideClassVar(VisageOverrideClassVar tree) {
         analyzeVar(tree);
     }
 
     @Override
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
+    public void visitClassDeclaration(VisageClassDeclaration tree) {
         // these start over in a class definition
         JavafxBindStatus prevBindStatus = bindStatus;
         bindStatus = JavafxBindStatus.UNBOUND;
@@ -122,7 +122,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(VisageFunctionDefinition tree) {
         // start over in a function definition
         JavafxBindStatus prevBindStatus = bindStatus;
 
@@ -134,13 +134,13 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitForExpressionInClause(JFXForExpressionInClause tree) {
+    public void visitForExpressionInClause(VisageForExpressionInClause tree) {
         mark(tree);
         super.visitForExpressionInClause(tree);
     }
 
     @Override
-    public void visitFunctionValue(JFXFunctionValue tree) {
+    public void visitFunctionValue(VisageFunctionValue tree) {
         // these start over in a function value
         JavafxBindStatus prevBindStatus = bindStatus;
         bindStatus = JavafxBindStatus.UNBOUND;
@@ -149,7 +149,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
+    public void visitObjectLiteralPart(VisageObjectLiteralPart tree) {
         JavafxBindStatus prevBindStatus = bindStatus;
         bindStatus = tree.isExplicitlyBound()?
                             tree.getBindStatus() :
@@ -160,7 +160,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitAssignop(JFXAssignOp tree) {
+    public void visitAssignop(VisageAssignOp tree) {
         if (bindStatus != JavafxBindStatus.UNBOUND) {
             log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT, "compound assignment");
         }
@@ -168,7 +168,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitAssign(JFXAssign tree) {
+    public void visitAssign(VisageAssign tree) {
         if (bindStatus != JavafxBindStatus.UNBOUND) {
             log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT, "=");
         }
@@ -176,7 +176,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitUnary(JFXUnary tree) {
+    public void visitUnary(VisageUnary tree) {
         mark(tree);
         if (bindStatus != JavafxBindStatus.UNBOUND) {
             switch (tree.getFXTag()) {
@@ -194,7 +194,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitInterpolateValue(final JFXInterpolateValue tree) {
+    public void visitInterpolateValue(final VisageInterpolateValue tree) {
         JavafxBindStatus prevBindStatus = bindStatus;
         bindStatus = JavafxBindStatus.UNBOUND;  //TODO: ???
         super.visitInterpolateValue(tree);
@@ -202,7 +202,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+    public void visitKeyFrameLiteral(VisageKeyFrameLiteral tree) {
         if (bindStatus != JavafxBindStatus.UNBOUND) {
             log.error(tree.pos(),
                     MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT,
@@ -212,7 +212,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitTry(JFXTry tree) {
+    public void visitTry(VisageTry tree) {
         if (bindStatus != JavafxBindStatus.UNBOUND) {
             log.error(tree.pos(),
                     MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT,
@@ -222,10 +222,10 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitBlockExpression(JFXBlock tree) {
+    public void visitBlockExpression(VisageBlock tree) {
         mark(tree);
         if (bindStatus != JavafxBindStatus.UNBOUND) {
-            for (List<JFXExpression> l = tree.stats; l.nonEmpty(); l = l.tail) {
+            for (List<VisageExpression> l = tree.stats; l.nonEmpty(); l = l.tail) {
                 if (l.head.getFXTag() != JavafxTag.VAR_DEF) {
                     log.error(l.head.pos(), MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT, l.head.toString());
                 }
@@ -235,133 +235,133 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitIfExpression(JFXIfExpression tree) {
+    public void visitIfExpression(VisageIfExpression tree) {
         mark(tree);
         super.visitIfExpression(tree);
     }
 
     @Override
-    public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+    public void visitFunctionInvocation(VisageFunctionInvocation tree) {
         mark(tree);
         super.visitFunctionInvocation(tree);
     }
 
     @Override
-    public void visitParens(JFXParens tree) {
+    public void visitParens(VisageParens tree) {
         mark(tree);
         super.visitParens(tree);
     }
 
     @Override
-    public void visitBinary(JFXBinary tree) {
+    public void visitBinary(VisageBinary tree) {
         mark(tree);
         super.visitBinary(tree);
     }
 
     @Override
-    public void visitTypeCast(JFXTypeCast tree) {
+    public void visitTypeCast(VisageTypeCast tree) {
         mark(tree);
         super.visitTypeCast(tree);
     }
 
     @Override
-    public void visitInstanceOf(JFXInstanceOf tree) {
+    public void visitInstanceOf(VisageInstanceOf tree) {
         mark(tree);
         super.visitInstanceOf(tree);
     }
 
     @Override
-    public void visitSelect(JFXSelect tree) {
+    public void visitSelect(VisageSelect tree) {
         mark(tree);
         super.visitSelect(tree);
     }
 
     @Override
-    public void visitIdent(JFXIdent tree) {
+    public void visitIdent(VisageIdent tree) {
         mark(tree);
         super.visitIdent(tree);
     }
 
     @Override
-    public void visitLiteral(JFXLiteral tree) {
+    public void visitLiteral(VisageLiteral tree) {
         mark(tree);
         super.visitLiteral(tree);
     }
 
     @Override
-    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
+    public void visitSequenceEmpty(VisageSequenceEmpty tree) {
         mark(tree);
         super.visitSequenceEmpty(tree);
     }
 
     @Override
-    public void visitSequenceRange(JFXSequenceRange tree) {
+    public void visitSequenceRange(VisageSequenceRange tree) {
         mark(tree);
         super.visitSequenceRange(tree);
     }
 
     @Override
-    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+    public void visitSequenceExplicit(VisageSequenceExplicit tree) {
         mark(tree);
         super.visitSequenceExplicit(tree);
     }
 
     @Override
-    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+    public void visitSequenceIndexed(VisageSequenceIndexed tree) {
         mark(tree);
         super.visitSequenceIndexed(tree);
     }
 
     @Override
-    public void visitSequenceSlice(JFXSequenceSlice tree) {
+    public void visitSequenceSlice(VisageSequenceSlice tree) {
         mark(tree);
         super.visitSequenceSlice(tree);
     }
 
     @Override
-    public void visitStringExpression(JFXStringExpression tree) {
+    public void visitStringExpression(VisageStringExpression tree) {
         mark(tree);
         super.visitStringExpression(tree);
     }
 
     @Override
-    public void visitInstanciate(JFXInstanciate tree) {
+    public void visitInstanciate(VisageInstanciate tree) {
         mark(tree);
         super.visitInstanciate(tree);
     }
 
     @Override
-    public void visitForExpression(JFXForExpression tree) {
+    public void visitForExpression(VisageForExpression tree) {
         mark(tree);
         super.visitForExpression(tree);
     }
 
     @Override
-    public void visitIndexof(JFXIndexof tree) {
+    public void visitIndexof(VisageIndexof tree) {
         mark(tree);
         super.visitIndexof(tree);
     }
 
     @Override
-    public void visitTimeLiteral(JFXTimeLiteral tree) {
+    public void visitTimeLiteral(VisageTimeLiteral tree) {
         mark(tree);
         super.visitTimeLiteral(tree);
     }
 
     @Override
-    public void visitLengthLiteral(JFXLengthLiteral tree) {
+    public void visitLengthLiteral(VisageLengthLiteral tree) {
         mark(tree);
         super.visitLengthLiteral(tree);
     }
 
     @Override
-    public void visitAngleLiteral(JFXAngleLiteral tree) {
+    public void visitAngleLiteral(VisageAngleLiteral tree) {
         mark(tree);
         super.visitAngleLiteral(tree);
     }
 
     @Override
-    public void visitColorLiteral(JFXColorLiteral tree) {
+    public void visitColorLiteral(VisageColorLiteral tree) {
         mark(tree);
         super.visitColorLiteral(tree);
     }

@@ -29,8 +29,8 @@ import com.sun.jdi.IntegerValue;
  *
  * @author sundar
  */
-public class FXIntegerValue extends FXPrimitiveValue implements IntegerValue {
-    public FXIntegerValue(FXVirtualMachine fxvm, IntegerValue underlying) {
+public class VisageIntegerValue extends VisagePrimitiveValue implements IntegerValue {
+    public VisageIntegerValue(VisageVirtualMachine fxvm, IntegerValue underlying) {
         super(fxvm, underlying);
     }
 
@@ -39,7 +39,7 @@ public class FXIntegerValue extends FXPrimitiveValue implements IntegerValue {
     }
 
     public int compareTo(IntegerValue o) {
-        return underlying().compareTo((IntegerValue)FXWrapper.unwrap(o));
+        return underlying().compareTo((IntegerValue)VisageWrapper.unwrap(o));
     }
 
     @Override

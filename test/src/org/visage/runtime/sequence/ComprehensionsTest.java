@@ -22,7 +22,7 @@
  */
 package org.visage.runtime.sequence;
 
-import org.visage.runtime.JavaFXTestCase;
+import org.visage.runtime.VisageTestCase;
 import org.visage.runtime.TypeInfo;
 
 /**
@@ -30,7 +30,7 @@ import org.visage.runtime.TypeInfo;
  *
  * @author Brian Goetz
  */
-public class ComprehensionsTest extends JavaFXTestCase {
+public class ComprehensionsTest extends VisageTestCase {
     /** select x from foo where x > 3
      *  select x from foo where indexof x % 2 != 0
      */

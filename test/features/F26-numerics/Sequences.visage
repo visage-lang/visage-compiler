@@ -8,7 +8,7 @@
  * @run
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
 def c1 : Character = 0;
 def b1 : Byte = 100;
@@ -17,7 +17,7 @@ def s1 : Short = 1000;
 def f1 : Float = 1200.1;
 def d1 : Double = 1200.1;
 
-public class Sequences extends FXTestCase {
+public class Sequences extends VisageTestCase {
     def c2 : Character = 65535;
     def b2 : Byte = 115;
     def l2 : Long = 10300;

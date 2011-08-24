@@ -23,15 +23,15 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.request.ClassUnloadRequest;
 
 /**
  *
  * @author sundar
  */
-public class FXClassUnloadRequest extends FXEventRequest implements ClassUnloadRequest {
-    public FXClassUnloadRequest(FXVirtualMachine fxvm, ClassUnloadRequest underlying) {
+public class VisageClassUnloadRequest extends VisageEventRequest implements ClassUnloadRequest {
+    public VisageClassUnloadRequest(VisageVirtualMachine fxvm, ClassUnloadRequest underlying) {
         super(fxvm, underlying);
     }
 

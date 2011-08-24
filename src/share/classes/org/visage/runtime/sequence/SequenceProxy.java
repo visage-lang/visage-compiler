@@ -28,16 +28,16 @@ import org.visage.runtime.*;
  * @author Robert Field
  */
 public class SequenceProxy<T> extends AbstractSequence<T> {
-    FXObject instance;
+    VisageObject instance;
     int varNum;
 
-    public SequenceProxy(TypeInfo<T> ti, FXObject instance, int varNum) {
+    public SequenceProxy(TypeInfo<T> ti, VisageObject instance, int varNum) {
         super(ti);
         this.instance = instance;
         this.varNum = varNum;
     }
 
-    public FXObject instance() {
+    public VisageObject instance() {
         return instance;
     }
 

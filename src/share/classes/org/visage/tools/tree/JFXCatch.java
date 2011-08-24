@@ -24,20 +24,20 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * A catch block.
  */
-public class JFXCatch extends JFXTree implements CatchTree {
+public class VisageCatch extends VisageTree implements CatchTree {
 
-    public JFXVar param;
-    public JFXBlock body;
+    public VisageVar param;
+    public VisageBlock body;
 
-    protected JFXCatch() {
+    protected VisageCatch() {
         this(null, null);
     }
-    protected JFXCatch(JFXVar param, JFXBlock body) {
+    protected VisageCatch(VisageVar param, VisageBlock body) {
         this.param = param;
         this.body = body;
     }
@@ -47,20 +47,20 @@ public class JFXCatch extends JFXTree implements CatchTree {
         v.visitCatch(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.CATCH;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.CATCH;
     }
 
-    public JFXVar getParameter() {
+    public VisageVar getParameter() {
         return param;
     }
 
-    public JFXBlock getBlock() {
+    public VisageBlock getBlock() {
         return body;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitCatch(this, d);
     }
 

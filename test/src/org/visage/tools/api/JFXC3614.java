@@ -26,9 +26,9 @@ import org.visage.api.JavafxcTask;
 
 import org.visage.api.tree.SourcePositions;
 import org.visage.api.tree.UnitTree;
-import org.visage.tools.tree.JFXClassDeclaration;
-import org.visage.tools.tree.JFXScript;
-import org.visage.tools.tree.JFXTree;
+import org.visage.tools.tree.VisageClassDeclaration;
+import org.visage.tools.tree.VisageScript;
+import org.visage.tools.tree.VisageTree;
 import org.visage.tools.tree.JavafxTag;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JavacFileManager;
@@ -47,7 +47,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from org.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.VisageKind.values().
  *
  * @author David Strupl
  */
@@ -99,13 +99,13 @@ public class JFXC3614 {
     public void testRunPosition() throws Exception {
         // Get the script level tree and pull out the class delcaration we except
         //
-        JFXClassDeclaration cd = (JFXClassDeclaration)((JFXScript)ut).defs.get(0);
+        VisageClassDeclaration cd = (VisageClassDeclaration)((VisageScript)ut).defs.get(0);
 
         // Now get the two defs that should be in the class declaration. If the
-        // bug remains fixed then the first def will be the JFXVar and the second
+        // bug remains fixed then the first def will be the VisageVar and the second
         // will be the run() method
         //
-        List<JFXTree> cdDefs = cd.getMembers();
+        List<VisageTree> cdDefs = cd.getMembers();
 
         // Make sure that the Variable def appears before the
         // run method in the tree.

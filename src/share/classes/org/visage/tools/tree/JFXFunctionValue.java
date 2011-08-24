@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 
@@ -32,16 +32,16 @@ import com.sun.tools.mjavac.util.List;
  *
  * @author bothner
  */
-public class JFXFunctionValue extends JFXExpression implements FunctionValueTree {
+public class VisageFunctionValue extends VisageExpression implements FunctionValueTree {
 
-    public JFXType rettype;
-    public List<JFXVar> funParams;
-    public JFXBlock bodyExpression;
-    public JFXFunctionDefinition definition;
+    public VisageType rettype;
+    public List<VisageVar> funParams;
+    public VisageBlock bodyExpression;
+    public VisageFunctionDefinition definition;
 
-    public JFXFunctionValue(JFXType rettype,
-            List<JFXVar> params,
-            JFXBlock bodyExpression) {
+    public VisageFunctionValue(VisageType rettype,
+            List<VisageVar> params,
+            VisageBlock bodyExpression) {
         this.rettype = rettype;
         this.funParams = params;
         this.bodyExpression = bodyExpression;
@@ -51,15 +51,15 @@ public class JFXFunctionValue extends JFXExpression implements FunctionValueTree
         }
     }
 
-    public JFXType getJFXReturnType() {
+    public VisageType getJFXReturnType() {
         return rettype;
     }
 
-    public JFXType getType() {
+    public VisageType getType() {
         return rettype;
     }
 
-    public List<JFXVar> getParams() {
+    public List<VisageVar> getParams() {
         return funParams;
     }
 
@@ -67,7 +67,7 @@ public class JFXFunctionValue extends JFXExpression implements FunctionValueTree
         return (java.util.List) funParams;
     }
 
-    public JFXBlock getBodyExpression() {
+    public VisageBlock getBodyExpression() {
         return bodyExpression;
     }
 
@@ -80,11 +80,11 @@ public class JFXFunctionValue extends JFXExpression implements FunctionValueTree
         return JavafxTag.FUNCTIONEXPRESSION;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.FUNCTION_VALUE;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.FUNCTION_VALUE;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitFunctionValue(this, data);
     }
 }

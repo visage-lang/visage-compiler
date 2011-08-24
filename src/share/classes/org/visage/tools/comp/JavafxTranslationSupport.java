@@ -116,35 +116,35 @@ public abstract class JavafxTranslationSupport {
         throw new NotYetImplementedException("Not yet implemented: " + msg);
     }
 
-    protected Symbol expressionSymbol(JFXExpression tree) {
+    protected Symbol expressionSymbol(VisageExpression tree) {
         if (tree == null) {
             return null;
         }
         switch (tree.getFXTag()) {
             case IDENT:
-                return ((JFXIdent) tree).sym;
+                return ((VisageIdent) tree).sym;
             case SELECT:
-                return ((JFXSelect) tree).sym;
+                return ((VisageSelect) tree).sym;
             case TYPECAST:
                 //TODO: This is suspicious -- expressionSymbol should return
                 // a symbol which fully represents the expression.  This is lossy.
-                return expressionSymbol(((JFXTypeCast)tree).getExpression());
+                return expressionSymbol(((VisageTypeCast)tree).getExpression());
             default:
                 return null;
         }
     }
 
-    protected JavafxVarSymbol varSymbol(JFXExpression tree) {
+    protected JavafxVarSymbol varSymbol(VisageExpression tree) {
         if (tree == null) {
             return null;
         }
         Symbol sym;
         switch (tree.getFXTag()) {
             case IDENT:
-                sym = ((JFXIdent) tree).sym;
+                sym = ((VisageIdent) tree).sym;
                 break;
             case SELECT:
-                sym = ((JFXSelect) tree).sym;
+                sym = ((VisageSelect) tree).sym;
                 break;
             default:
                 return null;
@@ -155,7 +155,7 @@ public abstract class JavafxTranslationSupport {
             return null;
     }
 
-    protected boolean isValueFromJava(final JFXExpression expr) {
+    protected boolean isValueFromJava(final VisageExpression expr) {
         // The value could come from Java if it is a variable, or a function result.
         Symbol sym = expressionSymbol(expr);
         if (sym != null && !types.isJFXClass(sym.owner)) {
@@ -164,7 +164,7 @@ public abstract class JavafxTranslationSupport {
 
         // test for function
         if (expr.getFXTag() == JavafxTag.APPLY) {
-            JFXExpression func = ((JFXFunctionInvocation)expr).getMethodSelect();
+            VisageExpression func = ((VisageFunctionInvocation)expr).getMethodSelect();
             if (isValueFromJava(func)) {
                 return true;
             }
@@ -172,7 +172,7 @@ public abstract class JavafxTranslationSupport {
         return false;
     }
 
-    boolean hasSideEffects(JFXExpression expr) {
+    boolean hasSideEffects(VisageExpression expr) {
         class SideEffectScanner extends JavafxTreeScanner {
 
             boolean hse = false;
@@ -182,37 +182,37 @@ public abstract class JavafxTranslationSupport {
             }
 
             @Override
-            public void visitBlockExpression(JFXBlock tree) {
+            public void visitBlockExpression(VisageBlock tree) {
                 markSideEffects(); // maybe doesn't but covers all statements
             }
 
             @Override
-            public void visitUnary(JFXUnary tree) {
+            public void visitUnary(VisageUnary tree) {
                 markSideEffects();
             }
 
             @Override
-            public void visitAssign(JFXAssign tree) {
+            public void visitAssign(VisageAssign tree) {
                 markSideEffects();
             }
 
             @Override
-            public void visitAssignop(JFXAssignOp tree) {
+            public void visitAssignop(VisageAssignOp tree) {
                 markSideEffects();
             }
 
             @Override
-            public void visitInstanciate(JFXInstanciate tree) {
+            public void visitInstanciate(VisageInstanciate tree) {
                 markSideEffects();
             }
 
             @Override
-            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+            public void visitFunctionInvocation(VisageFunctionInvocation tree) {
                 markSideEffects();
             }
 
             @Override
-            public void visitSelect(JFXSelect tree) {
+            public void visitSelect(VisageSelect tree) {
                 // Doesn't really have side-effects but the duplicate null checking is awful
                 // TODO: do this in a cleaner way
                 markSideEffects();
@@ -226,7 +226,7 @@ public abstract class JavafxTranslationSupport {
     /**
      * Return the generated interface name corresponding to the class
      * */
-    protected Name interfaceName(JFXClassDeclaration cDecl) {
+    protected Name interfaceName(VisageClassDeclaration cDecl) {
         Name name = cDecl.getName();
         if (!cDecl.isMixinClass())
             return name;
@@ -611,29 +611,29 @@ public abstract class JavafxTranslationSupport {
             sym.name.startsWith(defs.boundFunctionResultName);
     }
 
-    Name paramOldValueName(JFXOnReplace onReplace) {
+    Name paramOldValueName(VisageOnReplace onReplace) {
         return onReplace == null || onReplace.getOldValue() == null ? defs.varOldValue_LocalVarName
                 : onReplace.getOldValue().getName();
     }
 
-    Name paramNewValueName(JFXOnReplace onReplace) {
+    Name paramNewValueName(VisageOnReplace onReplace) {
         return onReplace == null || onReplace.getNewElements() == null ? defs.varNewValue_ArgName
                 : onReplace.getNewElements().getName();
     }
 
-    Name paramStartPosName(JFXOnReplace onReplace) {
+    Name paramStartPosName(VisageOnReplace onReplace) {
         return onReplace == null || onReplace.getFirstIndex() == null ? defs.startPos_ArgName
                 : onReplace.getFirstIndex().getName();
     }
 
-    Name paramEndPosName(JFXOnReplace onReplace) {
+    Name paramEndPosName(VisageOnReplace onReplace) {
         return onReplace == null || onReplace.getLastIndex() == null ||
-                      onReplace.getEndKind() != JFXSequenceSlice.END_EXCLUSIVE ? defs.endPos_ArgName
+                      onReplace.getEndKind() != VisageSequenceSlice.END_EXCLUSIVE ? defs.endPos_ArgName
                 : onReplace.getLastIndex().getName();
     }
 
-    Name paramNewElementsLengthName(JFXOnReplace onReplace) {
-        JFXVar newElements = onReplace == null ? null : onReplace.getNewElements();
+    Name paramNewElementsLengthName(VisageOnReplace onReplace) {
+        VisageVar newElements = onReplace == null ? null : onReplace.getNewElements();
         if (newElements == null)
             return defs.newLength_ArgName;
         else
@@ -750,10 +750,10 @@ public abstract class JavafxTranslationSupport {
         return names.fromString(getSyntheticPrefix() + syntheticNameCounter++ + kind);
     }
 
-    public Name indexVarName(JFXForExpressionInClause clause) {
+    public Name indexVarName(VisageForExpressionInClause clause) {
         return indexVarName(clause.getVar().getName(), names);
     }
-    public Name indexVarName(JFXIdent var) {
+    public Name indexVarName(VisageIdent var) {
         return indexVarName(var.getName(), names);
     }
     public static Name indexVarName(Name name, Name.Table names) {
@@ -834,7 +834,7 @@ public abstract class JavafxTranslationSupport {
         }
     }
 
-    protected void fxPretty(JFXTree tree) {
+    protected void fxPretty(VisageTree tree) {
         OutputStreamWriter osw = new OutputStreamWriter(System.out);
         JavafxPretty pretty = new JavafxPretty(osw, false);
         try {
@@ -858,10 +858,10 @@ public abstract class JavafxTranslationSupport {
     protected class JavaTreeBuilder {
 
         protected DiagnosticPosition diagPos;
-        private final JFXClassDeclaration enclosingClassDecl;
+        private final VisageClassDeclaration enclosingClassDecl;
         private boolean isScript;
 
-        protected JavaTreeBuilder(DiagnosticPosition diagPos, JFXClassDeclaration enclosingClassDecl, boolean isScript) {
+        protected JavaTreeBuilder(DiagnosticPosition diagPos, VisageClassDeclaration enclosingClassDecl, boolean isScript) {
             this.diagPos = diagPos;
             this.enclosingClassDecl = enclosingClassDecl;
             this.isScript = isScript;
@@ -871,7 +871,7 @@ public abstract class JavafxTranslationSupport {
         //
         // Returns the current class decl.
         //
-        public JFXClassDeclaration getCurrentClassDecl() { return enclosingClassDecl; }
+        public VisageClassDeclaration getCurrentClassDecl() { return enclosingClassDecl; }
 
         //
         // Returns true if the class (or current class) is a mixin.
@@ -1497,7 +1497,7 @@ public abstract class JavafxTranslationSupport {
         * Make a receiver parameter.
         * Its type is that of the corresponding interface and it is a final parameter.
         * */
-        JCVariableDecl ReceiverParam(JFXClassDeclaration cDecl) {
+        JCVariableDecl ReceiverParam(VisageClassDeclaration cDecl) {
             return m().VarDef(
                     m().Modifiers(Flags.PARAMETER | Flags.FINAL),
                     defs.receiverName,

@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.TypeTags;
@@ -33,12 +33,12 @@ import com.sun.tools.mjavac.code.TypeTags;
  * A constant value given literally.
  * @param value value representation
  */
-public class JFXLiteral extends JFXExpression implements LiteralTree {
+public class VisageLiteral extends VisageExpression implements LiteralTree {
 
     public int typetag;
     public Object value;
 
-    protected JFXLiteral(int typetag, Object value) {
+    protected VisageLiteral(int typetag, Object value) {
         this.typetag = typetag;
         this.value = value;
     }
@@ -49,25 +49,25 @@ public class JFXLiteral extends JFXExpression implements LiteralTree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
+    public VisageKind getJavaFXKind() {
         switch (typetag) {
             case TypeTags.INT:
             case TypeTags.SHORT:
             case TypeTags.BYTE:
             case TypeTags.CHAR:
-                return JavaFXKind.INT_LITERAL;
+                return VisageKind.INT_LITERAL;
             case TypeTags.LONG:
-                return JavaFXKind.LONG_LITERAL;
+                return VisageKind.LONG_LITERAL;
             case TypeTags.FLOAT:
-                return JavaFXKind.FLOAT_LITERAL;
+                return VisageKind.FLOAT_LITERAL;
             case TypeTags.DOUBLE:
-                return JavaFXKind.DOUBLE_LITERAL;
+                return VisageKind.DOUBLE_LITERAL;
             case TypeTags.BOOLEAN:
-                return JavaFXKind.BOOLEAN_LITERAL;
+                return VisageKind.BOOLEAN_LITERAL;
             case TypeTags.CLASS:
-                return JavaFXKind.STRING_LITERAL;
+                return VisageKind.STRING_LITERAL;
             case TypeTags.BOT:
-                return JavaFXKind.NULL_LITERAL;
+                return VisageKind.NULL_LITERAL;
             default:
                 throw new AssertionError("unknown literal kind " + this);
         }
@@ -91,12 +91,12 @@ public class JFXLiteral extends JFXExpression implements LiteralTree {
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitLiteral(this, d);
     }
 
     @Override
-    public JFXLiteral setType(Type type) {
+    public VisageLiteral setType(Type type) {
         super.setType(type);
         return this;
     }

@@ -24,9 +24,9 @@
 package org.visage.runtime;
 
 /**
- * All Visage Mixins must extend FXMixin; it acts as a marker interface.
+ * All Visage Mixins must extend VisageMixin; it acts as a marker interface.
  *
  * @author Jim Laskey
  */
-public interface FXMixin {
+public interface VisageMixin {
 }

@@ -28,7 +28,7 @@ Or you can use "./bin/fxbtracec" to compile a specific BTrace script file like:
 
 For example,
 
- ./bin/fxbtrace ../../build/buildtools/fxbtrace/InvalidationTracer.class FXMain
+ ./bin/fxbtrace ../../build/buildtools/fxbtrace/InvalidationTracer.class VisageMain
 
 This produces the trace output file as
 
@@ -58,5 +58,5 @@ prints message on every invalidate/get/set/be/on-replace! (heavy
 
 * InstVarCount.java
 
-Prints Visage instance variable count (FXBase.count$()) for each Visage class.
+Prints Visage instance variable count (VisageBase.count$()) for each Visage class.
 

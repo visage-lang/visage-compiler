@@ -5,7 +5,7 @@
 
 import visage.fxunit.*;
 
-public class bindIfSelect extends FXTestCase {
+public class bindIfSelect extends VisageTestCase {
     function testBoundSelect() {
         var f = Foo {
             vb : 1, vs : 2, vi : 3, vl : 4, vf : 5.0, vd : 6.0, vc : 7, vz : false, vt : "", vo : null, vq : [ ]

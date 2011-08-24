@@ -25,12 +25,12 @@ import com.sun.btrace.annotations.*;
 import static com.sun.btrace.BTraceUtils.*;
 import java.util.Map;
 import java.lang.ref.*;
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 
 /**
  * This BTrace script tries to measure aggregate stat like total
- * FXObject count, total dependent count, total notification count etc.
- * This script measures histogram of FXObjects as well.
+ * VisageObject count, total dependent count, total notification count etc.
+ * This script measures histogram of VisageObjects as well.
  *
  * @author A. Sundararajan
  */
@@ -57,7 +57,7 @@ import org.visage.runtime.FXObject;
     private static long fxNotifyDependentsCount = 0;
 
     @OnMethod(
-	clazz="org.visage.runtime.FXBase",
+	clazz="org.visage.runtime.VisageBase",
         method="<init>"
     ) 
     public static void onNewFXObject(@Self Object obj, boolean dummy) {
@@ -76,7 +76,7 @@ import org.visage.runtime.FXObject;
         clazz="org.visage.runtime.WeakBinderRef",
         method="<init>"
     )
-    public static void onNewWeakBinderRef(@Self Object obj, FXObject referred) {
+    public static void onNewWeakBinderRef(@Self Object obj, VisageObject referred) {
         weakBinderRefClass = probeClass();
         fxWeakRefsCount++;
     }
@@ -85,7 +85,7 @@ import org.visage.runtime.FXObject;
         clazz="org.visage.runtime.Dependent",
         method="<init>"
     )
-    public static void onNewDependent(@Self Object obj, FXObject referred) {
+    public static void onNewDependent(@Self Object obj, VisageObject referred) {
         dependentClass = probeClass();
         fxWeakRefsCount++;
     }
@@ -102,26 +102,26 @@ import org.visage.runtime.FXObject;
     }
 
     @OnMethod(
-	clazz="org.visage.runtime.FXBase",
+	clazz="org.visage.runtime.VisageBase",
         method="addDependent$"
     ) 
-    public static void onAddDependent(FXObject obj, int varNum, FXObject dep) {
+    public static void onAddDependent(VisageObject obj, int varNum, VisageObject dep) {
         fxDependentCount++;
     }
 
     @OnMethod(
-	clazz="org.visage.runtime.FXBase",
+	clazz="org.visage.runtime.VisageBase",
         method="removeDependent$"
     ) 
-    public static void onRemoveDependent(FXObject obj, int varNum, FXObject dep) {
+    public static void onRemoveDependent(VisageObject obj, int varNum, VisageObject dep) {
         fxDependentCount--;
     }
 
     @OnMethod(
-	clazz="org.visage.runtime.FXBase",
+	clazz="org.visage.runtime.VisageBase",
         method="notifyDependents$"
     ) 
-    public static void onNotifyDependents(FXObject obj, int varNum) {
+    public static void onNotifyDependents(VisageObject obj, int varNum) {
         fxNotifyDependentsCount++;
     }
 
@@ -129,7 +129,7 @@ import org.visage.runtime.FXObject;
     public static void print() {
         if (size(histo) != 0) {
             println("========================");
-            printNumberMap("FXBase Histogram", histo);
+            printNumberMap("VisageBase Histogram", histo);
             println("========================");
         }
     }

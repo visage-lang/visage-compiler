@@ -54,7 +54,7 @@ import java.util.List;
  *
  * @author sundar
  */
-public class FXSequenceReference extends FXObjectReference {
+public class VisageSequenceReference extends VisageObjectReference {
     
     // keep this in sync. with org.visage.runtime.TypeInfo.Types enum.
     /**
@@ -65,7 +65,7 @@ public class FXSequenceReference extends FXObjectReference {
     // element type of this sequence
     private Types elementType;
 
-    public FXSequenceReference(FXVirtualMachine fxvm, ObjectReference underlying) {
+    public VisageSequenceReference(VisageVirtualMachine fxvm, ObjectReference underlying) {
         super(fxvm, underlying);
     }
 
@@ -211,7 +211,7 @@ public class FXSequenceReference extends FXObjectReference {
      * @throws VMCannotBeModifiedException if the VirtualMachine is read-only - see {@link com.sun.jdi.VirtualMachine#canBeModified()}.
      * @return a new sequence with the specified element replaced/added.
      */
-    public FXSequenceReference setValue(int index, Value value) {
+    public VisageSequenceReference setValue(int index, Value value) {
         Types type = getElementType();
         switch (type) {
             case INT:
@@ -249,9 +249,9 @@ public class FXSequenceReference extends FXObjectReference {
      * @return a copy of this sequence with the first {@link #length()} elements replaced by the
      * elements of <CODE><I>values</I></CODE>
      */
-    public FXSequenceReference setValues(List<? extends Value> values) {
+    public VisageSequenceReference setValues(List<? extends Value> values) {
         final int len = length();
-        FXSequenceReference result = null;
+        VisageSequenceReference result = null;
         Iterator<? extends Value> valuesItr = values.iterator();
         for (int i = 0; i < len; i++) {
             if (! valuesItr.hasNext()) {
@@ -308,47 +308,47 @@ public class FXSequenceReference extends FXObjectReference {
         return (ObjectReference) getElement(getMethod, index);
     }
 
-    private FXSequenceReference setIntValue(int index, IntegerValue value) {
+    private VisageSequenceReference setIntValue(int index, IntegerValue value) {
         Method setIntElementMethod = virtualMachine().fxSequencesType().setIntElementMethod();
         return setElement(setIntElementMethod, index, value);
     }
 
-    private FXSequenceReference setFloatValue(int index, FloatValue value) {
+    private VisageSequenceReference setFloatValue(int index, FloatValue value) {
         Method setFloatElementMethod = virtualMachine().fxSequencesType().setFloatElementMethod();
         return setElement(setFloatElementMethod, index, value);
     }
 
-    private FXSequenceReference setObjectValue(int index, ObjectReference value) {
+    private VisageSequenceReference setObjectValue(int index, ObjectReference value) {
         Method setObjectElementMethod = virtualMachine().fxSequencesType().setObjectElementMethod();
         return setElement(setObjectElementMethod, index, value);
     }
 
-    private FXSequenceReference setDoubleValue(int index, DoubleValue value) {
+    private VisageSequenceReference setDoubleValue(int index, DoubleValue value) {
         Method setDoubleElementMethod = virtualMachine().fxSequencesType().setDoubleElementMethod();
         return setElement(setDoubleElementMethod, index, value);
     }
 
-    private FXSequenceReference setBooleanValue(int index, BooleanValue value) {
+    private VisageSequenceReference setBooleanValue(int index, BooleanValue value) {
         Method setBooleanElementMethod = virtualMachine().fxSequencesType().setBooleanElementMethod();
         return setElement(setBooleanElementMethod, index, value);
     }
 
-    private FXSequenceReference setLongValue(int index, LongValue value) {
+    private VisageSequenceReference setLongValue(int index, LongValue value) {
         Method setLongElementMethod = virtualMachine().fxSequencesType().setLongElementMethod();
         return setElement(setLongElementMethod, index, value);
     }
 
-    private FXSequenceReference setShortValue(int index, ShortValue value) {
+    private VisageSequenceReference setShortValue(int index, ShortValue value) {
         Method setShortElementMethod = virtualMachine().fxSequencesType().setShortElementMethod();
         return setElement(setShortElementMethod, index, value);
     }
 
-    private FXSequenceReference setByteValue(int index, ByteValue value) {
+    private VisageSequenceReference setByteValue(int index, ByteValue value) {
         Method setByteElementMethod = virtualMachine().fxSequencesType().setByteElementMethod();
         return setElement(setByteElementMethod, index, value);
     }
 
-    private FXSequenceReference setCharValue(int index, CharValue value) {
+    private VisageSequenceReference setCharValue(int index, CharValue value) {
         Method setCharElementMethod = virtualMachine().fxSequencesType().setCharElementMethod();
         return setElement(setCharElementMethod, index, value);
     }
@@ -374,14 +374,14 @@ public class FXSequenceReference extends FXObjectReference {
         return defaultValue(getElementType());
     }
 
-    private FXSequenceReference setElement(Method method, int index, Value value) {
+    private VisageSequenceReference setElement(Method method, int index, Value value) {
         List<Value> args = new ArrayList<Value>(3);
         args.add(this);
         args.add(value);
         args.add(virtualMachine().mirrorOf(index));
         Exception theExc;
         try {
-            return (FXSequenceReference) virtualMachine().fxSequencesType().
+            return (VisageSequenceReference) virtualMachine().fxSequencesType().
                 invokeMethod(virtualMachine().uiThread(), method, args, ClassType.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
@@ -406,7 +406,7 @@ public class FXSequenceReference extends FXObjectReference {
     }
 
     private Value defaultValue(Types type) {
-        FXVirtualMachine fxvm = virtualMachine();
+        VisageVirtualMachine fxvm = virtualMachine();
         switch (type) {
             case BOOLEAN:
                 return fxvm.booleanDefaultValue();

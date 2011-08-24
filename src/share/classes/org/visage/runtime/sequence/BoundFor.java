@@ -22,20 +22,20 @@
  */
 
 package org.visage.runtime.sequence;
-import org.visage.runtime.FXBase;
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageBase;
+import org.visage.runtime.VisageObject;
 
 /**
  *
  * @param <T> Result element type
  * @param <PT> Induction type
  */
-public abstract class BoundFor<T, PT> extends FXBase {
+public abstract class BoundFor<T, PT> extends VisageBase {
 
     /** 
      * The bfElem class in the design document implements this interface.
      */
-    public static interface FXForPart<PT> extends FXObject {
+    public static interface VisageForPart<PT> extends VisageObject {
         /**
          * Get the indexof variable
          */
@@ -63,13 +63,13 @@ public abstract class BoundFor<T, PT> extends FXBase {
     protected final boolean dependsOnIndex;
     protected boolean inWholesaleUpdate = true; // ignore initial individual updates
 
-    protected final FXObject container;
+    protected final VisageObject container;
     protected final int forVarNum;
     protected final int inductionSeqVarNum;
 
     public int partResultVarNum; // This gets magically assigned when a part is created
 
-    protected FXForPart<PT>[] parts;
+    protected VisageForPart<PT>[] parts;
     protected int numParts;
     protected int lowestInvalidPart;            // lowest part index that is invalid
     protected int highestInvalidPart = -1;      // highest part index that is invalid, negative means none
@@ -78,7 +78,7 @@ public abstract class BoundFor<T, PT> extends FXBase {
 
     protected static final boolean DEBUG = false;
 
-    public BoundFor(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
+    public BoundFor(VisageObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         this.container = container;
         this.forVarNum = forVarNum;
         this.inductionSeqVarNum = inductionSeqVarNum;
@@ -87,16 +87,16 @@ public abstract class BoundFor<T, PT> extends FXBase {
 
     // Required public interface
 
-    public abstract FXForPart makeForPart$(int index);
+    public abstract VisageForPart makeForPart$(int index);
 
     /**
      * Called by invalidate when the result of a part changes.
      */
     @Override
-    public boolean update$(FXObject src, final int depNum, int startPos, int endPos, int newLength, final int phase) {
+    public boolean update$(VisageObject src, final int depNum, int startPos, int endPos, int newLength, final int phase) {
         if (state == BOUND_FOR_STATE_UNINITIALIZED || inWholesaleUpdate)
             return true;
-        int ipart = ((FXForPart) src).getIndex$();
+        int ipart = ((VisageForPart) src).getIndex$();
         if ((phase & PHASE_TRANS$PHASE) == PHASE$INVALIDATE) {
             if (DEBUG) System.err.println("inv update$ id: " + forVarNum + ", ipart: " + ipart + ", " + lowestInvalidPart + " ... " + highestInvalidPart);
             if (highestInvalidPart < 0) {
@@ -183,7 +183,7 @@ public abstract class BoundFor<T, PT> extends FXBase {
                 invStartPos,
                 invEndPos,
                 newEndPos - invStartPos,
-                FXObject.PHASE_TRANS$CASCADE_TRIGGER);
+                VisageObject.PHASE_TRANS$CASCADE_TRIGGER);
 
     }
 
@@ -213,7 +213,7 @@ public abstract class BoundFor<T, PT> extends FXBase {
                 insertedParts = highestInvalidPart - lowestInvalidPart;
             } else {
                 // Pass on this no-change trigger
-                container.invalidate$(forVarNum, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, 0, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
+                container.invalidate$(forVarNum, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, 0, VisageObject.PHASE_TRANS$CASCADE_INVALIDATE);
                 return;
             }
         }
@@ -237,7 +237,7 @@ public abstract class BoundFor<T, PT> extends FXBase {
             trailingLength = 0;
 
             // Allocate the new elements
-            FXForPart<PT>[] newParts = (FXForPart<PT>[]) new FXForPart[newNumParts];
+            VisageForPart<PT>[] newParts = (VisageForPart<PT>[]) new VisageForPart[newNumParts];
 
             // Install new parts
             parts = newParts;
@@ -267,7 +267,7 @@ public abstract class BoundFor<T, PT> extends FXBase {
                 }
 
                 // Allocate the new elements
-                FXForPart<PT>[] newParts = (FXForPart<PT>[]) new FXForPart[newNumParts];
+                VisageForPart<PT>[] newParts = (VisageForPart<PT>[]) new VisageForPart[newNumParts];
 
                 // Copy the existing parts
                 System.arraycopy(parts, 0, newParts, 0, endPartCopy);
@@ -336,27 +336,27 @@ public abstract class BoundFor<T, PT> extends FXBase {
 
             state = BOUND_FOR_STATE_PARTS_STABLE;
             sizeAtLastTrigger = 0;
-            replaceParts(0, 0, sz, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
-            replaceParts(0, 0, sz, FXObject.PHASE_TRANS$CASCADE_TRIGGER);
+            replaceParts(0, 0, sz, VisageObject.PHASE_TRANS$CASCADE_INVALIDATE);
+            replaceParts(0, 0, sz, VisageObject.PHASE_TRANS$CASCADE_TRIGGER);
         }
     }
 
-    protected FXForPart<PT> getPart(int ipart) {
+    protected VisageForPart<PT> getPart(int ipart) {
         return parts[ipart];
     }
 
     protected final void blanketInvalidationOfBoundFor() {
-        container.invalidate$(forVarNum, 0, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, FXObject.PHASE_TRANS$CASCADE_INVALIDATE);
+        container.invalidate$(forVarNum, 0, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, VisageObject.PHASE_TRANS$CASCADE_INVALIDATE);
     }
 
     protected void syncInductionVar(int ipart) {
-        FXForPart part = getPart(ipart);
+        VisageForPart part = getPart(ipart);
         part.setInductionVar$(container.elem$(inductionSeqVarNum, ipart));
     }
 
     protected void buildParts(int ipFrom, int ipTo) {
         for (int ips = ipFrom; ips < ipTo; ++ips) {
-            FXForPart part = makeForPart$(ips);
+            VisageForPart part = makeForPart$(ips);
             parts[ips] = part;
             syncInductionVar(ips);
             addDependent$(part, partResultVarNum, this, 0);

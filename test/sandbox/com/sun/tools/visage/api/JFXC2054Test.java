@@ -27,12 +27,12 @@ import org.visage.api.tree.MemberSelectTree;
 import org.visage.api.tree.VariableTree;
 import org.visage.tools.api.*;
 import org.visage.api.JavafxcTask;
-import org.visage.api.tree.JavaFXTreePath;
-import org.visage.api.tree.JavaFXTreePathScanner;
+import org.visage.api.tree.VisageTreePath;
+import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.Tree;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import org.visage.api.tree.UnitTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.code.Symbol;
@@ -40,8 +40,8 @@ import com.sun.tools.javac.code.Type;
 import org.visage.tools.comp.JavafxAttrContext;
 import org.visage.tools.comp.JavafxEnv;
 import org.visage.tools.comp.JavafxResolve;
-import org.visage.tools.tree.JFXClassDeclaration;
-import org.visage.tools.tree.JFXVar;
+import org.visage.tools.tree.VisageClassDeclaration;
+import org.visage.tools.tree.VisageVar;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +59,7 @@ import static org.junit.Assert.*;
 
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
- * from org.visage.api.tree.Tree.JavaFXKind.values().
+ * from org.visage.api.tree.Tree.VisageKind.values().
  * 
  * @author David Strupl
  */
@@ -97,8 +97,8 @@ public class JFXC2054Test {
         assertNotNull(node);
         assertNotNull(a);
         Element cls = getClassElement(t);
-        JavaFXTreePath ppp = JavaFXTreePath.getPath(t, node);
-        JavaFXTreePath p1 = JavaFXTreePath.getPath(t, a);
+        VisageTreePath ppp = VisageTreePath.getPath(t, node);
+        VisageTreePath p1 = VisageTreePath.getPath(t, a);
         JavafxcTrees trees = JavafxcTrees.instance(task);
         Element e = trees.getElement(ppp);
         isAccessible(task, p1, cls.asType(), e);
@@ -116,7 +116,7 @@ public class JFXC2054Test {
         }
     }
     
-    private class Visitor extends JavaFXTreePathScanner<Void, UnitTree> {
+    private class Visitor extends VisageTreePathScanner<Void, UnitTree> {
 
         @Override
         public Void visitVariable(VariableTree n, UnitTree t) {
@@ -133,15 +133,15 @@ public class JFXC2054Test {
 
     private static Element getClassElement(UnitTree cut) {
         for (Tree tt : cut.getTypeDecls()) {
-            JavaFXKind kk = tt.getJavaFXKind();
-            if (kk == JavaFXKind.CLASS_DECLARATION) {
-                JFXClassDeclaration cd = (JFXClassDeclaration) tt;
+            VisageKind kk = tt.getJavaFXKind();
+            if (kk == VisageKind.CLASS_DECLARATION) {
+                VisageClassDeclaration cd = (VisageClassDeclaration) tt;
                 for (Tree jct : cd.getMembers()) {
-                    JavaFXKind k = jct.getJavaFXKind();
-                    if (k == JavaFXKind.CLASS_DECLARATION) {
+                    VisageKind k = jct.getJavaFXKind();
+                    if (k == VisageKind.CLASS_DECLARATION) {
                         JavafxcTrees trees = JavafxcTrees.instance(task);
-                        JavaFXTreePath root = new JavaFXTreePath(cut);
-                        return trees.getElement(new JavaFXTreePath(root, jct));
+                        VisageTreePath root = new VisageTreePath(cut);
+                        return trees.getElement(new VisageTreePath(root, jct));
                     }
                 }
             }
@@ -149,7 +149,7 @@ public class JFXC2054Test {
         return null;
     }
 
-    private static void isAccessible(JavafxcTask task, JavaFXTreePath p, TypeMirror type, Element member) {
+    private static void isAccessible(JavafxcTask task, VisageTreePath p, TypeMirror type, Element member) {
         JavafxcTrees trees = JavafxcTrees.instance(task);
         JavafxcScope scope = trees.getScope(p);
         DeclaredType dt = (DeclaredType) type;

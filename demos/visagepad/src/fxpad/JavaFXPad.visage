@@ -58,13 +58,13 @@ import java.util.Locale;
  * @author jclarke
  */
 
-public class JavaFXPad extends Component {
+public class VisagePad extends Component {
     // this has to be created before ScriptEngineManager to catch stderr.
     var stdoutPane:StdoutPane;
     
     var manager:ScriptEngineManager = new ScriptEngineManager();
     var scrEng:ScriptEngine = manager.getEngineByExtension("visage");
-    var engine:JavaFXScriptEngine = scrEng as JavaFXScriptEngine;
+    var engine:VisageScriptEngine = scrEng as VisageScriptEngine;
     var scriptContext:ScriptContext = engine.getContext();
     
     function loadBootScript():String {
@@ -450,7 +450,7 @@ public class JavaFXPad extends Component {
 
                                     center:  editor = SourceEditor {
                                         
-                                        editorKit: new FXEditorKit()
+                                        editorKit: new VisageEditorKit()
                                         selectedTextColor: Color.WHITE
                                         foreground: Color.BLACK
                                         selectionColor: Color.rgb(184, 207, 229);

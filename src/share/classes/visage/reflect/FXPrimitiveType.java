@@ -28,56 +28,56 @@ package visage.reflect;
  * @author Per Bothner
  * @profile desktop
  */
-public class FXPrimitiveType extends FXType {
+public class VisagePrimitiveType extends VisageType {
     Class clas;
     String name;
-    FXPrimitiveType(Class clas, String name) {
+    VisagePrimitiveType(Class clas, String name) {
         this.clas = clas;
         this.name = name;
     }
     public String getName() { return name; }
 
-    static final FXPrimitiveType voidType =
-        new FXPrimitiveType(Void.TYPE, "Void");
+    static final VisagePrimitiveType voidType =
+        new VisagePrimitiveType(Void.TYPE, "Void");
 
-   static final FXPrimitiveType byteType =
-        new FXPrimitiveType(Byte.TYPE, "Byte");
+   static final VisagePrimitiveType byteType =
+        new VisagePrimitiveType(Byte.TYPE, "Byte");
 
-    static final FXPrimitiveType shortType =
-        new FXPrimitiveType(Short.TYPE, "Short");
+    static final VisagePrimitiveType shortType =
+        new VisagePrimitiveType(Short.TYPE, "Short");
 
-    static final FXPrimitiveType integerType =
-        new FXPrimitiveType(Integer.TYPE, "Integer");
+    static final VisagePrimitiveType integerType =
+        new VisagePrimitiveType(Integer.TYPE, "Integer");
 
-    static final FXPrimitiveType longType =
-        new FXPrimitiveType(Byte.TYPE, "Long");
+    static final VisagePrimitiveType longType =
+        new VisagePrimitiveType(Byte.TYPE, "Long");
 
-    static final FXPrimitiveType floatType =
-        new FXPrimitiveType(Float.TYPE, "Float");
+    static final VisagePrimitiveType floatType =
+        new VisagePrimitiveType(Float.TYPE, "Float");
     
-    static final FXPrimitiveType doubleType =
-        new FXPrimitiveType(Double.TYPE, "Double");
+    static final VisagePrimitiveType doubleType =
+        new VisagePrimitiveType(Double.TYPE, "Double");
 
-    static final FXPrimitiveType charType =
-        new FXPrimitiveType(Character.TYPE, "Character");
+    static final VisagePrimitiveType charType =
+        new VisagePrimitiveType(Character.TYPE, "Character");
 
-    static final FXPrimitiveType booleanType =
-        new FXPrimitiveType(Boolean.TYPE, "Boolean");
+    static final VisagePrimitiveType booleanType =
+        new VisagePrimitiveType(Boolean.TYPE, "Boolean");
 
-    static final FXPrimitiveType numberType = floatType;
+    static final VisagePrimitiveType numberType = floatType;
 
-    public FXPrimitiveValue mirrorOf(Object value) {
+    public VisagePrimitiveValue mirrorOf(Object value) {
         if (this == integerType || this == shortType || this == byteType ||
                 this == charType)
-            return new FXIntegerValue(((Number) value).intValue(), this);
+            return new VisageIntegerValue(((Number) value).intValue(), this);
         if (this == longType)
-            return new FXLongValue(((Number) value).longValue(), this);
+            return new VisageLongValue(((Number) value).longValue(), this);
         if (this == floatType)
-            return new FXFloatValue(((Number) value).floatValue(), this);
+            return new VisageFloatValue(((Number) value).floatValue(), this);
         if (this == doubleType)
-            return new FXDoubleValue(((Number) value).doubleValue(), this);
+            return new VisageDoubleValue(((Number) value).doubleValue(), this);
         if (this == booleanType)
-            return new FXBooleanValue(((Boolean) value).booleanValue(), this);
+            return new VisageBooleanValue(((Boolean) value).booleanValue(), this);
         return null; // Should never happen.
     }
 };

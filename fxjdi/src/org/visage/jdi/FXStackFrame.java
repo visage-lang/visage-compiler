@@ -38,8 +38,8 @@ import java.util.Map;
  *
  * @author sundar
  */
-public class FXStackFrame extends FXMirror implements StackFrame {
-    public FXStackFrame(FXVirtualMachine fxvm, StackFrame underlying) {
+public class VisageStackFrame extends VisageMirror implements StackFrame {
+    public VisageStackFrame(VisageVirtualMachine fxvm, StackFrame underlying) {
         super(fxvm, underlying);
     }
 
@@ -49,21 +49,21 @@ public class FXStackFrame extends FXMirror implements StackFrame {
     }
 
     public List<Value> getArgumentValues() {
-        return FXWrapper.wrapValues(virtualMachine(), underlying().getArgumentValues());
+        return VisageWrapper.wrapValues(virtualMachine(), underlying().getArgumentValues());
     }
 
-    public FXValue getValue(LocalVariable var) {
+    public VisageValue getValue(LocalVariable var) {
         if (isJavaFXSyntheticLocalVar(var.name())) {
             throw new IllegalArgumentException("invalid var: " + var.name());
         }
-        return FXWrapper.wrap(virtualMachine(), underlying().getValue(FXWrapper.unwrap(var)));
+        return VisageWrapper.wrap(virtualMachine(), underlying().getValue(VisageWrapper.unwrap(var)));
     }
 
     public Map<LocalVariable, Value> getValues(List<? extends LocalVariable> vars) {
         Map<LocalVariable, LocalVariable> fieldMap = new HashMap<LocalVariable, LocalVariable>();
         List<LocalVariable> unwrappedLocalVariables = new ArrayList<LocalVariable>();
         for (LocalVariable var : vars) {
-            LocalVariable unwrapped = FXWrapper.unwrap(var);
+            LocalVariable unwrapped = VisageWrapper.unwrap(var);
             if (isJavaFXSyntheticLocalVar(unwrapped.name())) {
                 throw new IllegalArgumentException("invalid var: " + var.name());
             }
@@ -78,30 +78,30 @@ public class FXStackFrame extends FXMirror implements StackFrame {
         return result;
     }
 
-    public FXLocation location() {
-        return FXWrapper.wrap(virtualMachine(), underlying().location());
+    public VisageLocation location() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().location());
     }
 
     public void setValue(LocalVariable var, Value value) throws InvalidTypeException, ClassNotLoadedException {
         if (isJavaFXSyntheticLocalVar(var.name())) {
             throw new IllegalArgumentException("invalid var: " + var.name());
         }
-        underlying().setValue(FXWrapper.unwrap(var), FXWrapper.unwrap(value));
+        underlying().setValue(VisageWrapper.unwrap(var), VisageWrapper.unwrap(value));
     }
 
-    public FXObjectReference thisObject() {
-        return FXWrapper.wrap(virtualMachine(), underlying().thisObject());
+    public VisageObjectReference thisObject() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().thisObject());
     }
 
-    public FXThreadReference thread() {
-        return FXWrapper.wrap(virtualMachine(), underlying().thread());
+    public VisageThreadReference thread() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().thread());
     }
 
-    public FXLocalVariable visibleVariableByName(String name) throws AbsentInformationException {
+    public VisageLocalVariable visibleVariableByName(String name) throws AbsentInformationException {
         if (isJavaFXSyntheticLocalVar(name)) {
             return null;
         } else {
-            return FXWrapper.wrap(virtualMachine(), underlying().visibleVariableByName(name));
+            return VisageWrapper.wrap(virtualMachine(), underlying().visibleVariableByName(name));
         }
     }
 
@@ -110,7 +110,7 @@ public class FXStackFrame extends FXMirror implements StackFrame {
         List<LocalVariable> result = new ArrayList<LocalVariable>();
         for (LocalVariable var : locals) {
             if (! isJavaFXSyntheticLocalVar(var.name())) {
-                result.add(FXWrapper.wrap(virtualMachine(), var));
+                result.add(VisageWrapper.wrap(virtualMachine(), var));
             }
         }
         return result;

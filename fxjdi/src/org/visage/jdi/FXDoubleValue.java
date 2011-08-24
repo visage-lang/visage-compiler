@@ -29,8 +29,8 @@ import com.sun.jdi.DoubleValue;
  *
  * @author sundar
  */
-public class FXDoubleValue extends FXPrimitiveValue implements DoubleValue {
-    public FXDoubleValue(FXVirtualMachine fxvm, DoubleValue underlying) {
+public class VisageDoubleValue extends VisagePrimitiveValue implements DoubleValue {
+    public VisageDoubleValue(VisageVirtualMachine fxvm, DoubleValue underlying) {
         super(fxvm, underlying);
     }
 
@@ -39,7 +39,7 @@ public class FXDoubleValue extends FXPrimitiveValue implements DoubleValue {
     }
 
     public int compareTo(DoubleValue o) {
-        return underlying().compareTo((DoubleValue)FXWrapper.unwrap(o));
+        return underlying().compareTo((DoubleValue)VisageWrapper.unwrap(o));
     }
 
     @Override

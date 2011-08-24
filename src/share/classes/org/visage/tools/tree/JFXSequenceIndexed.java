@@ -24,17 +24,17 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  *
  * @author Robert Field
  */
-public class JFXSequenceIndexed extends JFXExpression implements SequenceIndexedTree {
-    private final JFXExpression sequence;
-    private final JFXExpression index;
+public class VisageSequenceIndexed extends VisageExpression implements SequenceIndexedTree {
+    private final VisageExpression sequence;
+    private final VisageExpression index;
 
-    public JFXSequenceIndexed(JFXExpression sequence, JFXExpression index) {
+    public VisageSequenceIndexed(VisageExpression sequence, VisageExpression index) {
         this.sequence = sequence;
         this.index = index;
     }
@@ -43,11 +43,11 @@ public class JFXSequenceIndexed extends JFXExpression implements SequenceIndexed
         v.visitSequenceIndexed(this);
     }
 
-    public JFXExpression getSequence() {
+    public VisageExpression getSequence() {
         return sequence;
     }
     
-    public JFXExpression getIndex() {
+    public VisageExpression getIndex() {
         return index;
     }
     
@@ -56,11 +56,11 @@ public class JFXSequenceIndexed extends JFXExpression implements SequenceIndexed
         return JavafxTag.SEQUENCE_INDEXED;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.SEQUENCE_INDEXED;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.SEQUENCE_INDEXED;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitSequenceIndexed(this, data);
     }
 }

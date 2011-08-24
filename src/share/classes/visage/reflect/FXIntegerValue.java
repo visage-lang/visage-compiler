@@ -30,10 +30,10 @@ package visage.reflect;
  * @profile desktop
  */
 
-public class FXIntegerValue extends FXPrimitiveValue {
+public class VisageIntegerValue extends VisagePrimitiveValue {
     int value;
 
-    public FXIntegerValue(int value, FXPrimitiveType type) {
+    public VisageIntegerValue(int value, VisagePrimitiveType type) {
         this.value = value;
         this.type = type;
     }
@@ -44,9 +44,9 @@ public class FXIntegerValue extends FXPrimitiveValue {
     public String toString() { return "IntegerValue("+value+')'; }
     
     public Object asObject() {
-        if (type == FXPrimitiveType.byteType)
+        if (type == VisagePrimitiveType.byteType)
             return Byte.valueOf((byte) intValue());
-        if (type == FXPrimitiveType.shortType)
+        if (type == VisagePrimitiveType.shortType)
             return Short.valueOf((short) intValue());
         return Integer.valueOf(intValue());
     }

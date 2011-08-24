@@ -4,7 +4,7 @@
  */
 import visage.reflect.*;
 
-def cntxt = FXLocal.getContext();
+def cntxt = VisageLocal.getContext();
 
 public abstract class Node {
 };
@@ -32,8 +32,8 @@ public function run() {
      obj.initialize();
 }
 
-function buildSequence(v:FXVarMember, o:Object):FXValue {
-    def elementType = (v.getType() as FXSequenceType).getComponentType();
+function buildSequence(v:VisageVarMember, o:Object):VisageValue {
+    def elementType = (v.getType() as VisageSequenceType).getComponentType();
     def builder = cntxt.makeSequenceBuilder(elementType);
     builder.append(cntxt.mirrorOf(o));
     return builder.getSequence();

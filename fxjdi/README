@@ -43,10 +43,10 @@ Notes on Visage-JDI implementation:
 interfaces of com.sun.jdi, com.sun.jdi.event, com.sun.jdi.request respectively.
 
 * Visage-JDI implementing classes delegate to underlying platform JDI objects.
-The wrapping/unwrapping is primarily done in org.visage.jdi.FXWrapper
-and org.visage.jdi.FXVirtualMachine.
+The wrapping/unwrapping is primarily done in org.visage.jdi.VisageWrapper
+and org.visage.jdi.VisageVirtualMachine.
 
-* FXObjectType, FXSequenceType represent org.visage.runtime.FXObject
+* VisageObjectType, VisageSequenceType represent org.visage.runtime.VisageObject
 and org.visage.runtime.sequence.Sequence types respectively.
 
 * Command line debugger implementation is org.visage.tools.debug.tty.TTY.

@@ -29,13 +29,13 @@ import com.sun.jdi.ClassObjectReference;
  *
  * @author sundar
  */
-public class FXClassObjectReference extends FXObjectReference implements ClassObjectReference {
-    public FXClassObjectReference(FXVirtualMachine fxvm, ClassObjectReference underlying) {
+public class VisageClassObjectReference extends VisageObjectReference implements ClassObjectReference {
+    public VisageClassObjectReference(VisageVirtualMachine fxvm, ClassObjectReference underlying) {
         super(fxvm, underlying);
     }
 
-    public FXReferenceType reflectedType() {
-        return FXWrapper.wrap(virtualMachine(), underlying().reflectedType());
+    public VisageReferenceType reflectedType() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().reflectedType());
     }
 
     @Override

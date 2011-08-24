@@ -17,7 +17,7 @@ class A {
   function af() { "" };
 }
 
-var context : FXLocal.Context = FXLocal.getContext();
+var context : VisageLocal.Context = VisageLocal.getContext();
 var classRef = context.findClass("jfxc2966.M");
 println("{classRef.getName()}");
 println("{classRef.isMixin()}");

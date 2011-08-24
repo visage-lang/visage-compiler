@@ -32,7 +32,7 @@
  * thousand words.  Looking at an object set graphically can simplify understanding
  * of some of the problems.
  * 
- * FXDOTWriter is designed to analyze a set of Visage/Java objects and generate a
+ * VisageDOTWriter is designed to analyze a set of Visage/Java objects and generate a
  * dot format file.  The file can be passed to any number of tools for further
  * analysis.  The multi-platform tools are described at http://graphviz.org/.  The
  * most commonly used are the 'dot' command and the 'Graphviz' application.
@@ -46,14 +46,14 @@
  * There are also other tools to convert dot format files to other representations
  * such gxl (using dot2gxl.)
  * 
- * Using FXDOTWriter is straight forward.  Simply construct an FXDOTWriter instance,
+ * Using VisageDOTWriter is straight forward.  Simply construct an VisageDOTWriter instance,
  * add objects to observe, then close the instance.
  * 
  * Ex.
  * 
- *     import org.visage.runtime.FXDOTWriter;
+ *     import org.visage.runtime.VisageDOTWriter;
  *
- *     var dot = new FXDOTWriter("sample.dot");
+ *     var dot = new VisageDOTWriter("sample.dot");
  *     dot.addNodes(a, b, c);
  *     dot.close();
  *     
@@ -61,7 +61,7 @@
  * edges you need to build the class file with -XDannobindees
  * 
  * Ex.
- *     FXDOTWriter.graph("sample.dot", a, b, c);
+ *     VisageDOTWriter.graph("sample.dot", a, b, c);
  *     
  * The other calls on the public interface allows more detailed control of the
  * graph. Details below.
@@ -69,7 +69,7 @@
  * You also have the ability to control dot format properties.
  * 
  * Ex.
- *     FXDOTWriter.graph("sample.dot", "fillcolor=lightblue", a, "fillcolor=lightpink", b, c);
+ *     VisageDOTWriter.graph("sample.dot", "fillcolor=lightblue", a, "fillcolor=lightpink", b, c);
  * 
  * Will display 'a' in blue and 'b'/'c' in pink.  Properties are specified in 
  * "k=v, ..., k=v" form.
@@ -81,7 +81,7 @@
  * Graphing
  * --------
  * 
- * public FXDOTWriter(String fileName);
+ * public VisageDOTWriter(String fileName);
  * 
  * The constructor creates a file stream for the dot output.  The filename string
  * is the name of the file, and should have the .dot extension.
@@ -213,7 +213,7 @@
  * public void includeClasses(Class... clazzes);
  * 
  * Only objects that are instances of the specified classes are included in the
- * graph.  Ex. if you only want to include Visage objects, includeClasses(FXObject.class).
+ * graph.  Ex. if you only want to include Visage objects, includeClasses(VisageObject.class).
  * 
  * 
  * public void excludeClasses(Class... clazzes);
@@ -244,10 +244,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.visage.runtime.annotation.JavafxBindees;
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 import org.visage.runtime.sequence.Sequence;
 
-public class FXDOTWriter {
+public class VisageDOTWriter {
     // Property settings for fonts.
     final static String FONTDEFAULTS = "fontname=Helvetica, fontcolor=black, fontsize=10";
     
@@ -288,7 +288,7 @@ public class FXDOTWriter {
     Map<Class, Field[]> fieldCache = new HashMap<Class, Field[]>();
         
     // Cache of visage field information.
-    Map<Class, FXField[]> fxFieldCache = new HashMap<Class, FXField[]>();
+    Map<Class, VisageField[]> fxFieldCache = new HashMap<Class, VisageField[]>();
         
     // Graph properties.
     private Properties graphProperties = new Properties();
@@ -511,7 +511,7 @@ public class FXDOTWriter {
     }
     
     // This class manages Visage Object fields.
-    class FXField {
+    class VisageField {
         // Constants.
         final static String voffPrefix = "VOFF$";
         final static String vflgPrefix = "VFLG";
@@ -534,7 +534,7 @@ public class FXDOTWriter {
         // Variable bindees;
         String bindees;
         
-        FXField(String name, String varName, int voff, Field field) {
+        VisageField(String name, String varName, int voff, Field field) {
             this.name = name;
             this.varName = varName;
             this.voff = voff;
@@ -547,7 +547,7 @@ public class FXDOTWriter {
     // Public interface.
     //
     
-    public FXDOTWriter(String fileName) {
+    public VisageDOTWriter(String fileName) {
         try {
             dotStream = new PrintStream(fileName);
         } catch (Throwable ex) {
@@ -564,7 +564,7 @@ public class FXDOTWriter {
     // for all objects following.
     public static void graph(String fileName, Object... objects) {
         // Open the dot file.
-        FXDOTWriter writer = new FXDOTWriter(fileName);
+        VisageDOTWriter writer = new VisageDOTWriter(fileName);
         // Hilight starting nodes in pink.
         String propertyString = STARTNODESTYLE;
         
@@ -631,7 +631,7 @@ public class FXDOTWriter {
             } else {
                 // Display detail if under object limit and not excluded.
                 if (index < objectLimit && shouldDetail(object)) {
-                    if (!expandFXObjects && object instanceof FXObject) {
+                    if (!expandFXObjects && object instanceof VisageObject) {
                         // Display as Visage Object (implementation details hidden)
                         addFXObjectDetail(object, clazz, node);
                     } else if (!expandFXObjects && object instanceof Sequence) {
@@ -908,7 +908,7 @@ public class FXDOTWriter {
         // Use name as title.
         String className = getClassName(clazz);
         
-        if (object instanceof FXObject) {
+        if (object instanceof VisageObject) {
             // Flag Visage objects.
             className += "(Visage)";
         } else if (object instanceof Class) {
@@ -1031,15 +1031,15 @@ public class FXDOTWriter {
     }
     
     // Gather all the field information for a given Visage object.
-    private FXField[] getFXFields(Object object, Class clazz) {
+    private VisageField[] getFXFields(Object object, Class clazz) {
         // Check to see if we've already processed the Visage class.
-        FXField[] fxFields = fxFieldCache.get(clazz);
+        VisageField[] fxFields = fxFieldCache.get(clazz);
         if (fxFields != null) return fxFields;
         
         // Get the fields from the Visage class
         Field[] fields = getFields(clazz);
         Map<String, Field> fieldMap = new HashMap<String, Field>();
-        List<FXField> fxFieldList = new ArrayList<FXField>();
+        List<VisageField> fxFieldList = new ArrayList<VisageField>();
         
         // If script add static fields from enclosing class.
         if (getClassName(clazz).endsWith("$Script")) {
@@ -1061,9 +1061,9 @@ public class FXDOTWriter {
             fieldMap.put(name, field);
             
             // Look at only the VOFF$ fields.
-            if (name.startsWith(FXField.voffPrefix) && (field.getModifiers() & Modifier.STATIC) != 0) {
+            if (name.startsWith(VisageField.voffPrefix) && (field.getModifiers() & Modifier.STATIC) != 0) {
                 // Extract the var name from the VOFF$ name.
-                String varName = name.substring(FXField.voffPrefix.length() - 1);
+                String varName = name.substring(VisageField.voffPrefix.length() - 1);
                 // Determine the class prefix for the var.
                 String className = getClassName(field.getDeclaringClass()).replaceAll("\\.", "\\$");
                 String simpleClassName = field.getDeclaringClass().getSimpleName();
@@ -1074,16 +1074,16 @@ public class FXDOTWriter {
                 // Get the field offset.
                 int voff = getIntValue(field, null);
                 // Add the field to the list.
-                FXField fxField = new FXField(bareName, varName, voff, null);
+                VisageField fxField = new VisageField(bareName, varName, voff, null);
                 fxFieldList.add(fxField);
             }
         }
         
         // Prepare to collect the visage field information.
         int count = fxFieldList.size();
-        fxFields = new FXField[count];
+        fxFields = new VisageField[count];
         for (int index = 0; index < count; index++) {
-            FXField fxField = fxFieldList.get(index);
+            VisageField fxField = fxFieldList.get(index);
             
             try {
                 // Get the actual var field.
@@ -1091,7 +1091,7 @@ public class FXDOTWriter {
                 // Get the bindees information if present.
                 fxField.bindees = ((JavafxBindees)fxField.field.getAnnotation(JavafxBindees.class)).value();
                 // Get the flags information.
-                fxField.flags = fieldMap.get(FXField.vflgPrefix + fxField.varName).getInt(object);
+                fxField.flags = fieldMap.get(VisageField.vflgPrefix + fxField.varName).getInt(object);
             } catch(Throwable ex) {
             }
             
@@ -1105,8 +1105,8 @@ public class FXDOTWriter {
     }
     
     // Find a match for a given visage field.
-    private FXField findField(FXField[] fxFields, String varName) {
-        for (FXField fxField : fxFields) {
+    private VisageField findField(VisageField[] fxFields, String varName) {
+        for (VisageField fxField : fxFields) {
             if (varName.equals(fxField.varName)) {
                 return fxField;
             }
@@ -1117,10 +1117,10 @@ public class FXDOTWriter {
 
     // Add the detail information about an Visage Object.
     private void addFXObjectDetail(Object object, Class clazz, Node node) {
-        FXField[] fxFields = getFXFields(object, clazz);
+        VisageField[] fxFields = getFXFields(object, clazz);
 
         for (int index = 0; index < fxFields.length && index < fieldLimit; index++) {
-            FXField fxField = fxFields[index];
+            VisageField fxField = fxFields[index];
             Field field = fxField.field;
             
             // Add record row for field.
@@ -1144,7 +1144,7 @@ public class FXDOTWriter {
                     //Split on period.
                     String[] pair = bindee.split("\\.");
                     // First is always a var in the current object.
-                    FXField bindField = findField(fxFields, pair[0]);
+                    VisageField bindField = findField(fxFields, pair[0]);
                     
                     // If an intra dependency.
                     if (pair.length == 1) {
@@ -1159,9 +1159,9 @@ public class FXDOTWriter {
                         // Only if the selector is set.
                         if (selector != null) {
                             // Get the fields for the selector object.
-                            FXField[] selectorFxFields = getFXFields(selector, selector.getClass());
+                            VisageField[] selectorFxFields = getFXFields(selector, selector.getClass());
                             // Get the selctor field.
-                            FXField selectorField =  findField(selectorFxFields, pair[1]);
+                            VisageField selectorField =  findField(selectorFxFields, pair[1]);
                             // Add the inter dependency edge (dashed black line).
                             addEdge(getNode(selector), selectorField.voff, node, fxField.voff, INTEREDGESTYLE);
                         }

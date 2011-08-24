@@ -23,15 +23,15 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXVirtualMachine;
+import org.visage.jdi.VisageVirtualMachine;
 import com.sun.jdi.event.VMDeathEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXVMDeathEvent extends FXEvent implements VMDeathEvent {
-    public FXVMDeathEvent(FXVirtualMachine fxvm, VMDeathEvent underlying) {
+public class VisageVMDeathEvent extends VisageEvent implements VMDeathEvent {
+    public VisageVMDeathEvent(VisageVirtualMachine fxvm, VMDeathEvent underlying) {
         super(fxvm, underlying);
     }
 

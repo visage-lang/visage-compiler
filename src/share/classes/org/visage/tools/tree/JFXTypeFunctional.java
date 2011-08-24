@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 
@@ -33,15 +33,15 @@ import com.sun.tools.mjavac.util.List;
  *
  * @author Robert Field
  */
-public class JFXTypeFunctional extends JFXType implements TypeFunctionalTree {
+public class VisageTypeFunctional extends VisageType implements TypeFunctionalTree {
     public List<? extends TypeTree> params;
-    public JFXType restype;
+    public VisageType restype;
     
     /*
      * @param cardinality one of the cardinality constants
      */
-    protected JFXTypeFunctional(List<? extends TypeTree> params,
-            JFXType restype,
+    protected VisageTypeFunctional(List<? extends TypeTree> params,
+            VisageType restype,
             Cardinality cardinality) {
         super(cardinality);
         this.params = params;
@@ -59,8 +59,8 @@ public class JFXTypeFunctional extends JFXType implements TypeFunctionalTree {
         return params;
     }
 
-    public List<JFXType> getParams() {
-        return (List<JFXType>) params;
+    public List<VisageType> getParams() {
+        return (List<VisageType>) params;
     }
 
     @Override
@@ -69,12 +69,12 @@ public class JFXTypeFunctional extends JFXType implements TypeFunctionalTree {
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitTypeFunctional(this, d);
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return Tree.JavaFXKind.TYPE_FUNCTIONAL;
+    public VisageKind getJavaFXKind() {
+        return Tree.VisageKind.TYPE_FUNCTIONAL;
     }
 }

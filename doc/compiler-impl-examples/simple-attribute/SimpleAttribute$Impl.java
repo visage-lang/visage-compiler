@@ -1,4 +1,4 @@
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 import org.visage.runtime.InitHelper;
 import org.visage.runtime.location.AbstractVariable;
 import org.visage.runtime.location.ChangeListener;
@@ -61,6 +61,6 @@ public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
     }
 }
 
-interface SimpleAttribute$Intf extends FXObject {
+interface SimpleAttribute$Intf extends VisageObject {
     public IntVariable get$a();
 }

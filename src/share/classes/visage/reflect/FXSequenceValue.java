@@ -28,19 +28,19 @@ package visage.reflect;
  * @author Per Bothner
  * @profile desktop
  */
-public class FXSequenceValue implements FXValue {
-    FXValue[] values;
+public class VisageSequenceValue implements VisageValue {
+    VisageValue[] values;
     int nvalues;
-    FXValue sequence;
-    FXSequenceType type;
+    VisageValue sequence;
+    VisageSequenceType type;
 
-    public FXSequenceValue(FXValue[] values, int nvalues, FXType elementType) {
+    public VisageSequenceValue(VisageValue[] values, int nvalues, VisageType elementType) {
         this.values = values;
         this.nvalues = nvalues;
-        this.type = new FXSequenceType(elementType);
+        this.type = new VisageSequenceType(elementType);
     }
 
-    protected FXSequenceValue(int nvalues, FXSequenceType type) {
+    protected VisageSequenceValue(int nvalues, VisageSequenceType type) {
         this.nvalues = nvalues;
         this.type = type;
     }
@@ -49,11 +49,11 @@ public class FXSequenceValue implements FXValue {
 
     public boolean isNull() { return nvalues == 0; }
 
-    public FXValue getItem(int index) {
+    public VisageValue getItem(int index) {
         return index >= 0 && index < nvalues ? values[index] : null;
     }
 
-    public FXSequenceType getType() { return type; }
+    public VisageSequenceType getType() { return type; }
 
     public String getValueString() {
         if (nvalues == 0)

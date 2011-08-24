@@ -6,11 +6,11 @@
  * @run
  */
 
-import org.visage.tools.script.JavaFXScriptContext;
-import org.visage.tools.script.JavaFXScriptCompiler;
+import org.visage.tools.script.VisageScriptContext;
+import org.visage.tools.script.VisageScriptCompiler;
 
-def context = new JavaFXScriptContext(jfxc4059.class.getClassLoader());
-def compiler:JavaFXScriptCompiler = getField(context, 'compiler') as JavaFXScriptCompiler;
+def context = new VisageScriptContext(jfxc4059.class.getClassLoader());
+def compiler:VisageScriptCompiler = getField(context, 'compiler') as VisageScriptCompiler;
 def classPath = java.lang.System.getProperty("java.class.path");
 def scrpt = "class A \{ var x; \}\nvar x = A \{ var f:Integer = 1, x:f \};\n";
 compiler.compile('Script', scrpt, null, null, classPath, null);

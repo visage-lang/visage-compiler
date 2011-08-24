@@ -24,23 +24,23 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Symbol;
 
 /**
  * A binary operation.
  */
-public class JFXBinary extends JFXExpression implements BinaryTree {
+public class VisageBinary extends VisageExpression implements BinaryTree {
 
     private JavafxTag opcode;
-    public JFXExpression lhs;
-    public JFXExpression rhs;
+    public VisageExpression lhs;
+    public VisageExpression rhs;
     public Symbol operator;
 
-    protected JFXBinary(JavafxTag opcode,
-            JFXExpression lhs,
-            JFXExpression rhs,
+    protected VisageBinary(JavafxTag opcode,
+            VisageExpression lhs,
+            VisageExpression rhs,
             Symbol operator) {
         this.opcode = opcode;
         this.lhs = lhs;
@@ -53,15 +53,15 @@ public class JFXBinary extends JFXExpression implements BinaryTree {
         v.visitBinary(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
+    public VisageKind getJavaFXKind() {
         return JavafxTreeInfo.tagToKind(getFXTag());
     }
 
-    public JFXExpression getLeftOperand() {
+    public VisageExpression getLeftOperand() {
         return lhs;
     }
 
-    public JFXExpression getRightOperand() {
+    public VisageExpression getRightOperand() {
         return rhs;
     }
 
@@ -70,7 +70,7 @@ public class JFXBinary extends JFXExpression implements BinaryTree {
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitBinary(this, d);
     }
 

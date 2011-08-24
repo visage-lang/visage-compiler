@@ -24,17 +24,17 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  * A while loop
  */
-public class JFXWhileLoop extends JFXExpression implements WhileLoopTree {
+public class VisageWhileLoop extends VisageExpression implements WhileLoopTree {
 
-    public final JFXExpression cond;
-    public final JFXExpression body;
+    public final VisageExpression cond;
+    public final VisageExpression body;
 
-    protected JFXWhileLoop(JFXExpression cond, JFXExpression body) {
+    protected VisageWhileLoop(VisageExpression cond, VisageExpression body) {
         this.cond = cond;
         this.body = body;
     }
@@ -44,19 +44,19 @@ public class JFXWhileLoop extends JFXExpression implements WhileLoopTree {
         v.visitWhileLoop(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.WHILE_LOOP;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.WHILE_LOOP;
     }
 
-    public JFXExpression getCondition() {
+    public VisageExpression getCondition() {
         return cond;
     }
 
-    public JFXExpression getBody() {
+    public VisageExpression getBody() {
         return body;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitWhileLoop(this, d);
     }
 

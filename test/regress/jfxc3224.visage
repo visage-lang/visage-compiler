@@ -8,6 +8,6 @@ var bad1 = true;
 var bad2 = false;
 var bad3 : Boolean = bind bad1;
 
-var context = FXLocal.getContext(); 
+var context = VisageLocal.getContext(); 
 var clazz = context.findClass("jfxc3224"); 
 var variables_all = clazz.getVariables(true);

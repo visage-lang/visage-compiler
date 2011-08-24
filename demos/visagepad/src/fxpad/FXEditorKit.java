@@ -41,9 +41,9 @@ import java.awt.Font;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 
-public class FXEditorKit extends DefaultEditorKit {
+public class VisageEditorKit extends DefaultEditorKit {
 
-    public static class FXScanner {
+    public static class VisageScanner {
 
         private static Color KEYWORD_COLOR = 
             new Color(127, 0, 85);
@@ -262,7 +262,7 @@ public class FXEditorKit extends DefaultEditorKit {
                 String range = document.getText(offset, length);
                 tokenize(offset, length, range);
             } catch (BadLocationException ex) {
-                Logger.getLogger(FXEditorKit.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(VisageEditorKit.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
@@ -271,13 +271,13 @@ public class FXEditorKit extends DefaultEditorKit {
     }
 
 
-    FXScanner mLexer = new FXScanner();
+    VisageScanner mLexer = new VisageScanner();
 
     DocumentListener mDocumentListener = null;
 
-    class FXView extends /*Wrapped*/PlainView {
+    class VisageView extends /*Wrapped*/PlainView {
 
-	FXView(Element elem) {
+	VisageView(Element elem) {
 	    super(elem);
 	}
 
@@ -299,7 +299,7 @@ public class FXEditorKit extends DefaultEditorKit {
             int lastFontStyle = -1;
             int startPos = p0;
             int mark = p0;
-            FXScanner.TokenImpl tok;
+            VisageScanner.TokenImpl tok;
             Font saveFont = g.getFont();
             Color saveColor = g.getColor();
             int defaultFontStyle = saveFont.getStyle();
@@ -371,7 +371,7 @@ public class FXEditorKit extends DefaultEditorKit {
     public final ViewFactory getViewFactory() {
         return new ViewFactory() {
                 public View create(Element elem) {
-                    return new FXView(elem);
+                    return new VisageView(elem);
                 }
             };
     }

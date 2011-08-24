@@ -29,7 +29,7 @@ package visage.reflect;
  * @profile desktop
  */
 
-public class FXMemberFilter {
+public class VisageMemberFilter {
     String requiredName;
     static final int ACCEPTING_METHODS = 1;
     static final int ACCEPTING_ATTRIBUTES = 2;
@@ -68,16 +68,16 @@ public class FXMemberFilter {
     }
     public void setRequiredName(String name) { requiredName = name; }
 
-    public boolean accept(FXMember member) {
-        if (member instanceof FXFunctionMember) {
+    public boolean accept(VisageMember member) {
+        if (member instanceof VisageFunctionMember) {
             if (! isAcceptingMethods())
                 return false;
         }
-        else if (member instanceof FXVarMember) {
+        else if (member instanceof VisageVarMember) {
             if (! isAcceptingAttributes())
                 return false;
         }
-        else if (member instanceof FXClassType) {
+        else if (member instanceof VisageClassType) {
             if (! isAcceptingClasses())
                 return false;
         }
@@ -85,21 +85,21 @@ public class FXMemberFilter {
             return requiredName.equals(member.getName());
         return true;
     }
-    private static FXMemberFilter acceptAttributes = new FXMemberFilter();
+    private static VisageMemberFilter acceptAttributes = new VisageMemberFilter();
     static { acceptAttributes.flags = ACCEPTING_ATTRIBUTES; }
-    public static FXMemberFilter acceptAttributes() { return acceptAttributes; }
-    public static FXMemberFilter acceptAttributes(String requiredName) {
-        FXMemberFilter f = new FXMemberFilter();
+    public static VisageMemberFilter acceptAttributes() { return acceptAttributes; }
+    public static VisageMemberFilter acceptAttributes(String requiredName) {
+        VisageMemberFilter f = new VisageMemberFilter();
         f.flags = ACCEPTING_ATTRIBUTES;
         f.requiredName = requiredName;
         return f;
     }
 
-    private static FXMemberFilter acceptMethods = new FXMemberFilter();
+    private static VisageMemberFilter acceptMethods = new VisageMemberFilter();
     static { acceptMethods.flags = ACCEPTING_METHODS; }
-    public static FXMemberFilter acceptMethods() { return acceptMethods; }
-    public static FXMemberFilter acceptMethods(String requiredName) {
-        FXMemberFilter f = new FXMemberFilter();
+    public static VisageMemberFilter acceptMethods() { return acceptMethods; }
+    public static VisageMemberFilter acceptMethods(String requiredName) {
+        VisageMemberFilter f = new VisageMemberFilter();
         f.flags = ACCEPTING_METHODS;
         f.requiredName = requiredName;
         return f;

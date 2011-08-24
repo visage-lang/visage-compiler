@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class FXTextArea extends JEditorPane {
+public class VisageTextArea extends JEditorPane {
 
     
     public interface LineAnnotation {
@@ -155,7 +155,7 @@ public class FXTextArea extends JEditorPane {
      * Constructs a new TextArea.  A default model is set, the initial string
      * is null, and rows/columns are set to 0.
      */
-    public FXTextArea() {
+    public VisageTextArea() {
         this(null, null, 0, 0);
     }
 
@@ -165,7 +165,7 @@ public class FXTextArea extends JEditorPane {
      *
      * @param text the text to be displayed, or null
      */
-    public FXTextArea(String text) {
+    public VisageTextArea(String text) {
         this(null, text, 0, 0);
     }
 
@@ -179,7 +179,7 @@ public class FXTextArea extends JEditorPane {
      * @exception IllegalArgumentException if the rows or columns
      *  arguments are negative.
      */
-    public FXTextArea(int rows, int columns) {
+    public VisageTextArea(int rows, int columns) {
         this(null, null, rows, columns);
     }
 
@@ -193,22 +193,22 @@ public class FXTextArea extends JEditorPane {
      * @exception IllegalArgumentException if the rows or columns
      *  arguments are negative.
      */
-    public FXTextArea(String text, int rows, int columns) {
+    public VisageTextArea(String text, int rows, int columns) {
         this(null, text, rows, columns);
     }
 
     /**
-     * Constructs a new FXTextArea with the given document model, and defaults
+     * Constructs a new VisageTextArea with the given document model, and defaults
      * for all of the other arguments (null, 0, 0).
      *
      * @param doc  the model to use
      */
-    public FXTextArea(Document doc) {
+    public VisageTextArea(Document doc) {
         this(doc, null, 0, 0);
     }
 
     /**
-     * Constructs a new FXTextArea with the specified number of rows
+     * Constructs a new VisageTextArea with the specified number of rows
      * and columns, and the given model.  All of the constructors
      * feed through this constructor.
      *
@@ -219,7 +219,7 @@ public class FXTextArea extends JEditorPane {
      * @exception IllegalArgumentException if the rows or columns
      *  arguments are negative.
      */
-    public FXTextArea(Document doc, String text, int rows, int columns) {
+    public VisageTextArea(Document doc, String text, int rows, int columns) {
         super();
         setEditorKit(new DefaultEditorKit());
         this.rows = rows;
@@ -675,13 +675,13 @@ public class FXTextArea extends JEditorPane {
 
 
     /**
-     * Returns a string representation of this FXTextArea. This method 
+     * Returns a string representation of this VisageTextArea. This method 
      * is intended to be used only for debugging purposes, and the 
      * content and format of the returned string may vary between      
      * implementations. The returned string may be empty but may not 
      * be <code>null</code>.
      * 
-     * @return  a string representation of this FXTextArea.
+     * @return  a string representation of this VisageTextArea.
      */
     @Override
     protected String paramString() {

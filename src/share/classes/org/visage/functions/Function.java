@@ -23,11 +23,11 @@
 
 package org.visage.functions;
 
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 
 public abstract class Function<R> {
     // Class that implements the function.
-    final protected FXObject implementor;
+    final protected VisageObject implementor;
     
     // Function number.
     final protected int number;
@@ -37,7 +37,7 @@ public abstract class Function<R> {
         number = 0;
     }
     
-    public Function(final FXObject implementor, final int number) {
+    public Function(final VisageObject implementor, final int number) {
         this.implementor = implementor;
         this.number = number;
     }

@@ -39,7 +39,7 @@ class F extends E {
    function getF() { return vv; }
 }
 
-public class MxOvrVar01 extends FXTestCase {
+public class MxOvrVar01 extends VisageTestCase {
 /*
  *  initializing variable in mixin, checking the value in mixee
  */

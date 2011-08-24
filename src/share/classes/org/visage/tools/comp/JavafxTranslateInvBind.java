@@ -51,7 +51,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
     private JavafxVarSymbol targetSymbol;
 
     // The outermost bound expression
-    private JFXExpression boundExpression;
+    private VisageExpression boundExpression;
 
     public static JavafxTranslateInvBind instance(Context context) {
         JavafxTranslateInvBind instance = context.get(jfxBoundInvTranslation);
@@ -68,7 +68,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         context.put(jfxBoundInvTranslation, this);
     }
 
-    ExpressionResult translate(JFXExpression expr, Type type, Symbol symbol) {
+    ExpressionResult translate(VisageExpression expr, Type type, Symbol symbol) {
         this.targetSymbol = (JavafxVarSymbol) symbol;
         this.boundExpression = expr;
         
@@ -77,7 +77,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
     private class BiBoundSequenceSelectTranslator extends BiBoundSelectTranslator {
 
-        BiBoundSequenceSelectTranslator(JFXSelect tree) {
+        BiBoundSequenceSelectTranslator(VisageSelect tree) {
             super(tree);
         }
 
@@ -173,7 +173,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                                     null)
                             ),
                             setSequenceActive(),
-                            CallStmt(defs.FXBase_addDependent,
+                            CallStmt(defs.VisageBase_addDependent,
                                         selector(),
                                         Offset(selector(), refSym),
                                         getReceiverOrThis(selectorSym),
@@ -205,7 +205,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
         private final JavafxVarSymbol refSym;
 
-        BiBoundSequenceIdentTranslator(JFXIdent tree) {
+        BiBoundSequenceIdentTranslator(VisageIdent tree) {
             super(tree);
             this.refSym = (JavafxVarSymbol) tree.sym;
         }
@@ -318,11 +318,11 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
         final Symbol selectorSym;
 
-        BiBoundSelectTranslator(JFXSelect tree) {
+        BiBoundSelectTranslator(VisageSelect tree) {
             super(tree, targetSymbol);
-            JFXExpression selectorExpr = tree.getExpression();
-            assert selectorExpr instanceof JFXIdent : "should be another var in the same instance.";
-            JFXIdent selector = (JFXIdent) selectorExpr;
+            VisageExpression selectorExpr = tree.getExpression();
+            assert selectorExpr instanceof VisageIdent : "should be another var in the same instance.";
+            VisageIdent selector = (VisageIdent) selectorExpr;
             selectorSym = selector.sym;
         }
 
@@ -349,7 +349,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                 receiver = id(selector);
             }
 
-            //note: we have to use the set$(int, FXBase) version because
+            //note: we have to use the set$(int, VisageBase) version because
             //the set$xxx version is not always accessible from the
             //selector expression (if selector is XXX$Script class)
             addSetterPreface(
@@ -369,7 +369,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
     private class BiBoundIdentTranslator extends BoundIdentTranslator {
 
-        BiBoundIdentTranslator(JFXIdent tree) {
+        BiBoundIdentTranslator(VisageIdent tree) {
             super(tree);
         }
 
@@ -406,7 +406,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         return types.isSequence(targetSymbol.type);
     }
     
-    public void visitIdent(JFXIdent tree) {
+    public void visitIdent(VisageIdent tree) {
         if (tree == boundExpression && isTargettedToSequence()) {
             result = new BiBoundSequenceIdentTranslator(tree).doit();
         } else {
@@ -414,7 +414,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         }
     }
 
-    public void visitSelect(JFXSelect tree) {
+    public void visitSelect(VisageSelect tree) {
         if (tree == boundExpression && isTargettedToSequence()) {
             result = new BiBoundSequenceSelectTranslator(tree).doit();
         } else {
@@ -434,131 +434,131 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
     }
 
     @Override
-    public void visitBinary(JFXBinary tree) {
+    public void visitBinary(VisageBinary tree) {
         disallowedInInverseBind();
     }
 
-    public void visitBlockExpression(JFXBlock tree) {
-        disallowedInInverseBind();
-    }
-
-    @Override
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
+    public void visitBlockExpression(VisageBlock tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitForExpression(JFXForExpression tree) {
+    public void visitClassDeclaration(VisageClassDeclaration tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitForExpressionInClause(JFXForExpressionInClause tree) {
+    public void visitForExpression(VisageForExpression tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+    public void visitForExpressionInClause(VisageForExpressionInClause tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+    public void visitFunctionDefinition(VisageFunctionDefinition tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitFunctionValue(JFXFunctionValue tree) {
+    public void visitFunctionInvocation(VisageFunctionInvocation tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitIfExpression(JFXIfExpression tree) {
+    public void visitFunctionValue(VisageFunctionValue tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitIndexof(JFXIndexof tree) {
+    public void visitIfExpression(VisageIfExpression tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitInstanceOf(JFXInstanceOf tree) {
+    public void visitIndexof(VisageIndexof tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitInstanciate(JFXInstanciate tree) {
+    public void visitInstanceOf(VisageInstanceOf tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitInterpolateValue(JFXInterpolateValue tree) {
+    public void visitInstanciate(VisageInstanciate tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitLiteral(JFXLiteral tree) {
+    public void visitInterpolateValue(VisageInterpolateValue tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitParens(JFXParens tree) {
+    public void visitLiteral(VisageLiteral tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+    public void visitParens(VisageParens tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+    public void visitSequenceExplicit(VisageSequenceExplicit tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitSequenceRange(JFXSequenceRange tree) {
+    public void visitSequenceIndexed(VisageSequenceIndexed tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitSequenceSlice(JFXSequenceSlice tree) {
+    public void visitSequenceRange(VisageSequenceRange tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitStringExpression(JFXStringExpression tree) {
+    public void visitSequenceSlice(VisageSequenceSlice tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitTimeLiteral(JFXTimeLiteral tree) {
+    public void visitStringExpression(VisageStringExpression tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitLengthLiteral(JFXLengthLiteral tree) {
+    public void visitTimeLiteral(VisageTimeLiteral tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitAngleLiteral(JFXAngleLiteral tree) {
+    public void visitLengthLiteral(VisageLengthLiteral tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitColorLiteral(JFXColorLiteral tree) {
+    public void visitAngleLiteral(VisageAngleLiteral tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitTypeCast(JFXTypeCast tree) {
+    public void visitColorLiteral(VisageColorLiteral tree) {
         disallowedInInverseBind();
     }
 
     @Override
-    public void visitUnary(JFXUnary tree) {
+    public void visitTypeCast(VisageTypeCast tree) {
+        disallowedInInverseBind();
+    }
+
+    @Override
+    public void visitUnary(VisageUnary tree) {
         disallowedInInverseBind();
     }
 

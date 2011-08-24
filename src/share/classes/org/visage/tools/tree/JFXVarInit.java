@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.Name;
 import org.visage.tools.code.JavafxVarSymbol;
@@ -41,21 +41,21 @@ import java.util.List;
  *
  * @author Robert Field
  */
-public class JFXVarInit extends JFXExpression implements VariableTree {
-    private JFXVar var;
-    private ListBuffer<JFXVarInit> shreddedVarInits;
+public class VisageVarInit extends VisageExpression implements VariableTree {
+    private VisageVar var;
+    private ListBuffer<VisageVarInit> shreddedVarInits;
 
-    protected JFXVarInit(JFXVar var) {
+    protected VisageVarInit(VisageVar var) {
         this.var = var;
         if (var!=null)
             var.setVarInit(this);
     }
     
-    public JFXVar getVar() {
+    public VisageVar getVar() {
         return var;
     }
 
-    public void resetVar(JFXVar res) {
+    public void resetVar(VisageVar res) {
         var = res;
         var.setVarInit(this);
     }
@@ -69,11 +69,11 @@ public class JFXVarInit extends JFXExpression implements VariableTree {
     }
 
     // for VariableTree
-    public JFXTree getType() {
+    public VisageTree getType() {
         return var.getType();
     }
 
-    public JFXExpression getInitializer() {
+    public VisageExpression getInitializer() {
         return var.getInitializer();
     }
 
@@ -81,22 +81,22 @@ public class JFXVarInit extends JFXExpression implements VariableTree {
         v.visitVarInit(this);
     }
 
-    public void addShreddedVarInit(JFXVarInit vi) {
+    public void addShreddedVarInit(VisageVarInit vi) {
         if (shreddedVarInits == null) {
             shreddedVarInits = ListBuffer.lb();
         }
         shreddedVarInits.append(vi);
     }
 
-    public ListBuffer<JFXVarInit> getShreddedVarInits() {
+    public ListBuffer<VisageVarInit> getShreddedVarInits() {
         if (shreddedVarInits == null) {
-            return ListBuffer.<JFXVarInit>lb();
+            return ListBuffer.<VisageVarInit>lb();
         } else {
             return shreddedVarInits;
         }
     }
 
-    public JFXType getJFXType() {
+    public VisageType getJFXType() {
         return var.getJFXType();
     }
 
@@ -104,7 +104,7 @@ public class JFXVarInit extends JFXExpression implements VariableTree {
         return var.getOnReplaceTree();
     }
     
-    public JFXOnReplace getOnReplace() {
+    public VisageOnReplace getOnReplace() {
         return var.getOnReplace();
     }
 
@@ -112,7 +112,7 @@ public class JFXVarInit extends JFXExpression implements VariableTree {
         return var.getOnInvalidateTree();
     }
 
-    public JFXOnReplace getOnInvalidate() {
+    public VisageOnReplace getOnInvalidate() {
         return var.getOnInvalidate();
     }
 
@@ -121,7 +121,7 @@ public class JFXVarInit extends JFXExpression implements VariableTree {
         return JavafxTag.VAR_SCRIPT_INIT;
     }
     
-    public JFXModifiers getModifiers() {
+    public VisageModifiers getModifiers() {
         return var.getModifiers();
     }
     
@@ -129,11 +129,11 @@ public class JFXVarInit extends JFXExpression implements VariableTree {
         return false;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.VARIABLE;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.VARIABLE;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitVariable(this, data);
      }
 }

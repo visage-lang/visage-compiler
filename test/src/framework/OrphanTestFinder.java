@@ -27,7 +27,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * Test case used by FXCompilerTest to complain if test files are marked as neither test nor subtest
+ * Test case used by VisageCompilerTest to complain if test files are marked as neither test nor subtest
  *
  * @author Brian Goetz
  */

@@ -88,7 +88,7 @@ scope errorStack {
 
     // Where the error routines should append any Erroneous nodes that
     // they create. We cannot use generics here as we are not always
-    // accumulating JFXTree.
+    // accumulating VisageTree.
     //
     ListBuffer   ASTErrors;
     
@@ -186,7 +186,7 @@ import static org.visage.api.JavafxBindStatus.*;
      * @param e The recognition exception to report on
      * @param node The node we wnat to report with reference to.
      */
-    public void reportError(RecognitionException e, JFXTree node) {
+    public void reportError(RecognitionException e, VisageTree node) {
 
         // if we've already reported an error and have not matched a token
         // yet successfully, don't report any errors.
@@ -230,7 +230,7 @@ import static org.visage.api.JavafxBindStatus.*;
  */
 script
 
-    returns [JFXScript result]
+    returns [VisageScript result]
     
 // Where the error routines should accumulate erroneous nodes. There
 // should not really be any accumulated here, but perhaps the packageDecl
@@ -261,7 +261,7 @@ scope errorStack;
     
     // Initialize the error accumulator
     //
-    $errorStack::ASTErrors = new ListBuffer<JFXTree>();
+    $errorStack::ASTErrors = new ListBuffer<VisageTree>();
 }
 
     :  pd=packageDecl si=scriptItems 
@@ -274,7 +274,7 @@ scope errorStack;
             // item list, rather than appended
             //
             for (Object e : $errorStack::ASTErrors) {
-                $si.items.prepend((JFXTree)e);
+                $si.items.prepend((VisageTree)e);
             }
             
             // Construct the Visage AST
@@ -304,7 +304,7 @@ scope errorStack;
 //
 packageDecl
 
-    returns [JFXExpression value]   // Package declaration builds a JFXExpression tree
+    returns [VisageExpression value]   // Package declaration builds a VisageExpression tree
 
 @init
 {
@@ -355,7 +355,7 @@ catch [RecognitionException re] {
 scriptItems
 
     
-    returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()] // This rule builds a list of JFXTree, which is used 
+    returns [ListBuffer<VisageTree> items = new ListBuffer<VisageTree>()] // This rule builds a list of VisageTree, which is used 
                                                                     // by the caller to build the actual AST.
                                                                     //
                                                                     
@@ -393,13 +393,13 @@ catch [RecognitionException re] {
 
     // Error node for AST
     //
-    JFXErroneous value = F.at(rPos).Erroneous();
+    VisageErroneous value = F.at(rPos).Erroneous();
     endPos(value);
     $items.append(value);
     
  }
  
-scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, which is used 
+scriptItem  [ListBuffer<VisageTree> items] // This rule builds a list of VisageTree, which is used 
                                         // by the caller to build the actual AST.
                                         //
 @init
@@ -411,7 +411,7 @@ scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, w
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
 }
     :
@@ -476,7 +476,7 @@ catch [RecognitionException re] {
 
     // Now construct an Erroneous node to span the error nodes
     // 
-    JFXErroneous errors = F.at(rPos).Erroneous(errNodes.elems);
+    VisageErroneous errors = F.at(rPos).Erroneous(errNodes.elems);
     endPos(errors);
     
     // And add this in to the script item list
@@ -490,14 +490,14 @@ catch [RecognitionException re] {
 //
 importDecl
 
-    returns [JFXTree value] // The import declaration is built as a generic JFXTree
+    returns [VisageTree value] // The import declaration is built as a generic VisageTree
 
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Record the start position of this rule, in case of errors
     //
@@ -546,14 +546,14 @@ catch [RecognitionException re] {
 //
 importId
 
-    returns [JFXExpression pid] // Qualified names are built as expression trees
+    returns [VisageExpression pid] // Qualified names are built as expression trees
 
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Record the start position of this rule, in case of errors
     //
@@ -613,7 +613,7 @@ importId
                     
                         // Build up new node in case of error
                         //
-                        JFXExpression part = F.at($n2.pos).Ident($n2.value);
+                        VisageExpression part = F.at($n2.pos).Ident($n2.value);
                         errNodes.append(part);
                         endPos(part);
 
@@ -654,7 +654,7 @@ importId
                             //
                             inError = true;     // Signal that this is malformed
                             starBit = names.asterisk;
-                            JFXExpression part = F.at(starP).Ident(starBit);
+                            VisageExpression part = F.at(starP).Ident(starBit);
                             endPos(part);
                             log.error(part, MsgSym.MESSAGE_VISAGE_IMPORT_BAD_STAR);
                             
@@ -666,7 +666,7 @@ importId
                         // Build up new node in case of error
                         //
                         starP = pos($s1);
-                        JFXExpression part = F.at(starP).Ident(starBit);
+                        VisageExpression part = F.at(starP).Ident(starBit);
                         errNodes.append(part);
                         endPos(part);
                         
@@ -691,7 +691,7 @@ importId
                         // qualifier.
                         //
                         Name missing = Name.fromString(names, "<missing>");
-                        JFXExpression part = F.at(semiPos()).Ident(missing);
+                        VisageExpression part = F.at(semiPos()).Ident(missing);
                         errNodes.append(part);
                         endPos(part);
                         $pid = F.at(pos($DOT)).Select($pid, missing, false);
@@ -742,7 +742,7 @@ catch [RecognitionException re] {
 //
 modifiers
 
-    returns [JFXModifiers mods, int pos]    // Constructs and returns a specialized modifer node
+    returns [VisageModifiers mods, int pos]    // Constructs and returns a specialized modifer node
 
 @init {
 
@@ -803,7 +803,7 @@ modifierFlag
     //                    For now, error about their deprecation
     //
     | PRIVATE           { 
-                            JFXErroneous err = F.at(pos($PRIVATE)).Erroneous();
+                            VisageErroneous err = F.at(pos($PRIVATE)).Erroneous();
                             endPos(err);
                             log.error(err, MsgSym.MESSAGE_VISAGE_NOT_SUPPORTED_PRIVATE); 
                         }
@@ -831,9 +831,9 @@ catch [RecognitionException re] {
 //
 // param mods The previously built modifier flags
 //
-classDefinition [ JFXModifiers mods, int pos ]
+classDefinition [ VisageModifiers mods, int pos ]
 
-    returns [JFXTree value] // The class definition has its own JFXTree type, but we might need Erroneous here
+    returns [VisageTree value] // The class definition has its own VisageTree type, but we might need Erroneous here
     
     // Shift contexts for error accumualtion
     //
@@ -849,11 +849,11 @@ classDefinition [ JFXModifiers mods, int pos ]
 
     // List of all members
     //
-    ListBuffer<JFXTree> mems        = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> mems        = new ListBuffer<VisageTree>();
     
     // Super class ids
     //
-    ListBuffer<JFXExpression> ids   = null;
+    ListBuffer<VisageExpression> ids   = null;
     
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
@@ -953,14 +953,14 @@ catch [RecognitionException re] {
 //
 supers 
 
-    returns [ListBuffer<JFXExpression> ids = new ListBuffer<JFXExpression>()]   // The return is a list of Visage expressions representing one
+    returns [ListBuffer<VisageExpression> ids = new ListBuffer<VisageExpression>()]   // The return is a list of Visage expressions representing one
                                                                                 // or more super class type name.
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start position in case of error
     //
@@ -998,8 +998,8 @@ catch [RecognitionException re] {
     
     // Produce the ERRONEOUS node
     //
-    $ids = new ListBuffer<JFXExpression>();
-    JFXErroneous errnode = F.at(rPos).Erroneous(errNodes.elems);
+    $ids = new ListBuffer<VisageExpression>();
+    VisageErroneous errnode = F.at(rPos).Erroneous(errNodes.elems);
     endPos(errnode);
     $ids.append(errnode);
  }
@@ -1024,7 +1024,7 @@ catch [RecognitionException re] {
 // if we consumed any tokens, then we add an Erroneous node to the AST and everyone is
 // happy.
 //
-syncClass[ListBuffer<JFXTree> mems]
+syncClass[ListBuffer<VisageTree> mems]
 @init
 {
     // Start of rule for error node production
@@ -1050,7 +1050,7 @@ syncClass[ListBuffer<JFXTree> mems]
     
         // Span all the tokesn we had to consume.
         //
-        JFXErroneous errNode = F.at(rPos).Erroneous();
+        VisageErroneous errNode = F.at(rPos).Erroneous();
         endPos(errNode);
         $mems.append(errNode);
         
@@ -1070,9 +1070,9 @@ syncClass[ListBuffer<JFXTree> mems]
 // Parses all constructs that can be a member of a class and returns
 // the Visage AST that represents it.
 //
-classMember[ListBuffer<JFXTree> mems]
+classMember[ListBuffer<VisageTree> mems]
 
-    returns [JFXTree member]        // A class member has a specialized Visage tree node, which is what
+    returns [VisageTree member]        // A class member has a specialized Visage tree node, which is what
                                     // we return from this rule.
 
  @init {
@@ -1084,7 +1084,7 @@ classMember[ListBuffer<JFXTree> mems]
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 
 }
 
@@ -1122,9 +1122,9 @@ catch [RecognitionException re] {
 // As always, the semantic pass of the Visage tree must verify that the
 // supplied modifers are valid in this context.
 //
-functionDefinition [ JFXModifiers mods, int pos ]
+functionDefinition [ VisageModifiers mods, int pos ]
 
-    returns [JFXTree value]     // A function defintion has a specialized node in the Visage AST
+    returns [VisageTree value]     // A function defintion has a specialized node in the Visage AST
 
 @init { 
 
@@ -1137,11 +1137,11 @@ functionDefinition [ JFXModifiers mods, int pos ]
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Function name we accumulate one way or another (manufacture if missing)
     //
-    JFXIdent id;
+    VisageIdent id;
     
     // Start of rule for error node production/
     //
@@ -1206,7 +1206,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
             {
                 // Accumulate the parameter nodes in case of error
                 //
-                for (JFXTree t : $formalParameters.params) {
+                for (VisageTree t : $formalParameters.params) {
                     errNodes.append(t);
                 }
             }
@@ -1252,7 +1252,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
             // Ensure that the function value, manufactured within the FunctionDefinition() method
             // call, receives an endPos() map
             //
-            endPos(((JFXFunctionDefinition)($value)).operation);
+            endPos(((VisageFunctionDefinition)($value)).operation);
             
             // Documentation comment (if any)
             //
@@ -1290,14 +1290,14 @@ catch [RecognitionException re] {
 //
 initDefinition
 
-    returns [JFXTree value] // The initialisation block has a specialized Visage tree node
+    returns [VisageTree value] // The initialisation block has a specialized Visage tree node
 
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start of rule for error node production/
     //
@@ -1339,14 +1339,14 @@ catch [RecognitionException re] {
 //
 postInitDefinition
 
-    returns [JFXTree value] // Post initialization has its own specialized Visage tree node
+    returns [VisageTree value] // Post initialization has its own specialized Visage tree node
 
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start of rule for error node production/
     //
@@ -1394,9 +1394,9 @@ catch [RecognitionException re] {
 // the same (syntactically) at all levels.
 // Parser a variable declaration and return the resultant Visage expression tree.
 //
-variableDeclaration [ JFXModifiers mods, int pos ]
+variableDeclaration [ VisageModifiers mods, int pos ]
 
-    returns [JFXExpression value]
+    returns [VisageExpression value]
 
 @init { 
 
@@ -1412,7 +1412,7 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 
     // Bind value expression, if present
     //
-    JFXExpression bValue = null;
+    VisageExpression bValue = null;
 
     // does thie variable have an on-replace trigger?
     //
@@ -1424,20 +1424,20 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 
     // ONReplace clause if present
     //
-    JFXOnReplace  onReplaceValue = null;
+    VisageOnReplace  onReplaceValue = null;
 
     // ONInvalidate clause if present
     //
-    JFXOnReplace  onInvalidateValue = null;
+    VisageOnReplace  onInvalidateValue = null;
  
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
    
     // Used by error accumulation and override construction
     //
-    JFXIdent part = null;
+    VisageIdent part = null;
    
 }
     : variableLabel  
@@ -1516,7 +1516,7 @@ variableDeclaration [ JFXModifiers mods, int pos ]
             //
             $mods.flags |= $variableLabel.modifiers;
             
-            // Construct the variable JFXTree, unless it was in error
+            // Construct the variable VisageTree, unless it was in error
             //
             if  ($n.inError) {
             
@@ -1594,7 +1594,7 @@ catch [RecognitionException re] {
 //
 formalParameters
 
-    returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]      // Return type is a list of all the AST nodes that represent a 
+    returns [ListBuffer<VisageVar> params = new ListBuffer<VisageVar>()]      // Return type is a list of all the AST nodes that represent a 
                                                                         // formal parameter, this is used to generate the AST for the
                                                                         // funciton definition itself.
 @init
@@ -1602,7 +1602,7 @@ formalParameters
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
     : LPAREN 
     
@@ -1655,14 +1655,14 @@ catch [RecognitionException re] {
 //
 formalParameter
 
-    returns [JFXVar var]    // Formal parameters are contained in a Visage tree var node.
+    returns [VisageVar var]    // Formal parameters are contained in a Visage tree var node.
     
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
     : name typeReference
     
@@ -1672,7 +1672,7 @@ formalParameter
                 // Looks like the name was missing, create an erroneous var instead
                 // Build up new node in case of error
                 //
-                JFXExpression part = F.at($name.pos).Ident($name.value);
+                VisageExpression part = F.at($name.pos).Ident($name.value);
                 errNodes.append(part);
                 endPos(part);
                 errNodes.append($typeReference.rtype);
@@ -1732,7 +1732,7 @@ catch [RecognitionException re] {
 //
 block [ int inPos]
 
-    returns [JFXBlock value]    // The block expression has a specialized node inthe Visage tree
+    returns [VisageBlock value]    // The block expression has a specialized node inthe Visage tree
 
 // Where the error routines should append any errors
 //
@@ -1742,7 +1742,7 @@ scope errorStack;
 
     // A list of all the statement ASTs that make up the block expression
     //
-    ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); 
+    ListBuffer<VisageExpression> stats = new ListBuffer<VisageExpression>(); 
     
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
@@ -1759,7 +1759,7 @@ scope errorStack;
     
     // Track the result expression of the block
     //
-    JFXExpression resultType = null;
+    VisageExpression resultType = null;
 }
     : LBRACE 
     
@@ -1787,7 +1787,7 @@ scope errorStack;
             // result of the block will never be Erroneous, as the tree walkers
             // can't handle that.
             //
-            if  (resultType instanceof JFXErroneous) {
+            if  (resultType instanceof VisageErroneous) {
                 stats.append(resultType);
                 resultType = null;
             }
@@ -1818,7 +1818,7 @@ catch [RecognitionException re] {
     recover(input, re);
     
     // Create an erroneousBlock, which is basically an Erroneous node
-    // masquerading as a JFXBlock, unless we managed to gather any
+    // masquerading as a VisageBlock, unless we managed to gather any
     // useful statements, in which case constrcut the block and add the
     // erroneous node created by reportError call above. This will usually be
     // the case and helps the IDE a lot.
@@ -1829,7 +1829,7 @@ catch [RecognitionException re] {
     // result of the block will never be Erroneous, as the tree walkers
     // can't handle that.
     //
-    if  (resultType instanceof JFXErroneous) {
+    if  (resultType instanceof VisageErroneous) {
         stats.append(resultType);
         resultType = null;
     }
@@ -1857,9 +1857,9 @@ catch [RecognitionException re] {
 // if we consumed any tokens, then we add an Erroneous node to the AST and everyone is
 // happy.
 //
-syncBlock[JFXExpression returnType, ListBuffer<JFXExpression> stats]
+syncBlock[VisageExpression returnType, ListBuffer<VisageExpression> stats]
 
-    returns [JFXExpression value]
+    returns [VisageExpression value]
 @init
 {
     // Start of rule for error node production
@@ -1901,7 +1901,7 @@ syncBlock[JFXExpression returnType, ListBuffer<JFXExpression> stats]
         
         // Span all the tokens we had to consume.
         //
-        JFXErroneous errNode = F.at(rPos).Erroneous();
+        VisageErroneous errNode = F.at(rPos).Erroneous();
         endPos(errNode);
         $value = errNode;
                 
@@ -1920,9 +1920,9 @@ syncBlock[JFXExpression returnType, ListBuffer<JFXExpression> stats]
 // into it's own rule so that erroneous statements do not abort the
 // entire block.
 //
-blockElement [JFXExpression val, ListBuffer<JFXExpression> stats]
+blockElement [VisageExpression val, ListBuffer<VisageExpression> stats]
 
-returns [JFXExpression value] // All statements return an expression tree
+returns [VisageExpression value] // All statements return an expression tree
 
 @init
 {
@@ -1983,7 +1983,7 @@ catch [RecognitionException re] {
     }
     
     // Create an erroneous node, which is basically an Erroneous node
-    // masquerading as a JFXBlock.
+    // masquerading as a VisageBlock.
     //
     $value = F.at(rPos).Erroneous();
     endPos($value);
@@ -2002,7 +2002,7 @@ catch [RecognitionException re] {
 statement
 
 
-    returns [JFXExpression value] // All statements return an expression tree
+    returns [VisageExpression value] // All statements return an expression tree
 
 @init
 {   
@@ -2049,14 +2049,14 @@ catch [RecognitionException re] {
 //
 onReplaceClause
 
-    returns [JFXOnReplace value]    // onReplace has its own Visage Tree node type
+    returns [VisageOnReplace value]    // onReplace has its own Visage Tree node type
 
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start of rule for error node production/
     //
@@ -2128,14 +2128,14 @@ catch [RecognitionException re] {
 //
 onInvalidateClause
 
-    returns [JFXOnReplace value]    // onReplace has its own Visage Tree node type
+    returns [VisageOnReplace value]    // onReplace has its own Visage Tree node type
 
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 
     // Start of rule for error node production/
     //
@@ -2175,7 +2175,7 @@ catch [RecognitionException re] {
 //
 paramNameOpt
 
-    returns [JFXVar var]    // Returns a JFXVar tree node
+    returns [VisageVar var]    // Returns a VisageVar tree node
 
     : paramName
         {
@@ -2191,7 +2191,7 @@ paramNameOpt
 //
 paramName
 
-    returns [JFXVar var]    // Returns a JFXVar tree node
+    returns [VisageVar var]    // Returns a VisageVar tree node
 
     : pn=name
         {
@@ -2239,7 +2239,7 @@ variableLabel
     | DEF           { $modifiers = JavafxFlags.IS_DEF; $pos = pos($DEF); }
     | ATTRIBUTE     {   $modifiers = 0L; 
                         $pos = pos($ATTRIBUTE); 
-                        JFXErroneous err = F.at($pos).Erroneous();
+                        VisageErroneous err = F.at($pos).Erroneous();
                         endPos(err);
                         log.error(err, MsgSym.MESSAGE_VISAGE_NOT_SUPPORTED_ATTRIBUTE); 
                     } 
@@ -2267,7 +2267,7 @@ catch [RecognitionException re] {
 //
 throwStatement
 
-    returns [JFXExpression value]   // Returns the Visage Expression tree representing what we must throw
+    returns [VisageExpression value]   // Returns the Visage Expression tree representing what we must throw
     
 @init
 {
@@ -2311,14 +2311,14 @@ catch [RecognitionException re] {
 //
 whileStatement
     
-    returns [JFXExpression value]   // Returns the Visage Expression tree representing the WHILE
+    returns [VisageExpression value]   // Returns the Visage Expression tree representing the WHILE
     
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start of rule for error node production/
     //
@@ -2370,14 +2370,14 @@ catch [RecognitionException re] {
 //
 insertStatement  
     
-    returns [JFXExpression value]   // All steatemetns return a Visage expression tree
+    returns [VisageExpression value]   // All steatemetns return a Visage expression tree
     
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start of rule for error node production/
     //
@@ -2453,14 +2453,14 @@ catch [RecognitionException re] {
 //
 indexedSequenceForInsert
 
-    returns [JFXExpression seq, JFXExpression idx]
+    returns [VisageExpression seq, VisageExpression idx]
 
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start of rule for error node production/
     //
@@ -2514,14 +2514,14 @@ catch [RecognitionException re] {
 //
 deleteStatement  
 
-    returns [JFXExpression value]   // Delete returns a Visage Expression tree
+    returns [VisageExpression value]   // Delete returns a Visage Expression tree
     
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start of rule for error node production/
     //
@@ -2579,7 +2579,7 @@ catch [RecognitionException re] {
 //
 invalidateStatement
 
-    returns [JFXExpression value]   // Delete returns a Visage Expression tree
+    returns [VisageExpression value]   // Delete returns a Visage Expression tree
 
 @init
 {
@@ -2619,7 +2619,7 @@ catch [RecognitionException re] {
 //
 returnStatement
 
-    returns [JFXExpression value]   // RETURN returns a Visage Expression tree
+    returns [VisageExpression value]   // RETURN returns a Visage Expression tree
 @init
 {
     // Start of rule for error node production/
@@ -2676,18 +2676,18 @@ catch [RecognitionException re] {
 //
 tryStatement
 
-    returns [JFXExpression value]   // returns a Visage Expression tree
+    returns [VisageExpression value]   // returns a Visage Expression tree
     
 @init
 {
     // AST for any catch clauses
     //
-    ListBuffer<JFXCatch> caught = ListBuffer.lb();
+    ListBuffer<VisageCatch> caught = ListBuffer.lb();
 
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 
     // Start of rule for error node production/
     //
@@ -2843,7 +2843,7 @@ catch [RecognitionException re] {
 
 finallyClause
 
-    returns [JFXBlock value] // returns a Visage Expression tree
+    returns [VisageBlock value] // returns a Visage Expression tree
 
 @init
 {
@@ -2884,14 +2884,14 @@ catch [RecognitionException re] {
 //
 catchClause
 
-    returns [JFXCatch value]    // Catch has its own Visage tree node type
+    returns [VisageCatch value]    // Catch has its own Visage tree node type
 
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start of rule for error node production/
     //
@@ -2936,7 +2936,7 @@ catch [RecognitionException re] {
 //
 boundExpression 
 
-    returns [JavafxBindStatus status, JFXExpression value]  // We need to return a status flag to say how and if the
+    returns [JavafxBindStatus status, VisageExpression value]  // We need to return a status flag to say how and if the
                                                             // expression is bound, and the AST for the expression itself.
 
 @init 
@@ -2946,7 +2946,7 @@ boundExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start of rule for error node production/
     //
@@ -3036,7 +3036,7 @@ catch [RecognitionException re] {
 //
 expression
 
-    returns [JFXExpression value]   // Expression has its own dedicated Visage tree node type
+    returns [VisageExpression value]   // Expression has its own dedicated Visage tree node type
  
  @init
  {
@@ -3103,18 +3103,18 @@ catch [RecognitionException re] {
 //
 forExpression
 
-    returns [JFXExpression value]   // All statements are expressions
+    returns [VisageExpression value]   // All statements are expressions
 
 @init
 {
     // In clause accumulator
     //
-    ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb();
+    ListBuffer<VisageForExpressionInClause> clauses = ListBuffer.lb();
 
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 
     // Used for error reporting
     //
@@ -3178,13 +3178,13 @@ catch [RecognitionException re] {
 //
 inClause
 
-    returns [JFXForExpressionInClause value]    // Dedicated AST tree node
+    returns [VisageForExpressionInClause value]    // Dedicated AST tree node
 
 @init
 {
     // Assume no WHERE expression
     //
-    JFXExpression weVal = null;
+    VisageExpression weVal = null;
     
     // Start postion
     //
@@ -3193,7 +3193,7 @@ inClause
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
 
     : formalParameter   { errNodes.append($formalParameter.var);    }
@@ -3234,22 +3234,22 @@ catch [RecognitionException re] {
 //
 ifExpression 
 
-    returns [JFXExpression value]   // The expression tree that represents the If expression
+    returns [VisageExpression value]   // The expression tree that represents the If expression
     
 @init
 {
     // Statement or block expression
     //
-    JFXExpression sVal = null;
+    VisageExpression sVal = null;
     
     // Else expression (if present)
     //
-    JFXExpression eVal = null;
+    VisageExpression eVal = null;
     
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Used for error reporting
     //
@@ -3325,7 +3325,7 @@ catch [RecognitionException re] {
 //
 elseClause
 
-    returns [JFXExpression value]   // The expression tree that represents the Else expression
+    returns [VisageExpression value]   // The expression tree that represents the Else expression
 @init
 {
     // Used for error productiions
@@ -3366,7 +3366,7 @@ catch [RecognitionException re] {
 //
 assignmentExpression  
 
-    returns [JFXExpression value]   // The expression tree that represents the assignment expression
+    returns [VisageExpression value]   // The expression tree that represents the assignment expression
 
 @init
 {
@@ -3377,7 +3377,7 @@ assignmentExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
     : lhs=assignmentOpExpression 
             {
@@ -3424,7 +3424,7 @@ catch [RecognitionException re] {
 
 assignmentOpExpression
 
-    returns [JFXExpression value]   // The expression tree that represents the assignment expression
+    returns [VisageExpression value]   // The expression tree that represents the assignment expression
 
 @init
 {
@@ -3435,7 +3435,7 @@ assignmentOpExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 
 }
 
@@ -3512,7 +3512,7 @@ assignOp
         { 
             // Create an error node for a DiagnosticPosition
             //
-            JFXErroneous err = F.at(pos($PERCENTEQ)).Erroneous();
+            VisageErroneous err = F.at(pos($PERCENTEQ)).Erroneous();
             endPos(err);
             log.error(err, MsgSym.MESSAGE_VISAGE_BAD_PERCENT);
             
@@ -3541,7 +3541,7 @@ catch [RecognitionException re] {
 //
 orExpression
 
-    returns [JFXExpression value]   // Expression tree for OR
+    returns [VisageExpression value]   // Expression tree for OR
         
 @init
 {
@@ -3552,7 +3552,7 @@ orExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 
 }
 
@@ -3596,7 +3596,7 @@ catch [RecognitionException re] {
 //
 andExpression
 
-    returns [JFXExpression value]   // Expression tree for AND
+    returns [VisageExpression value]   // Expression tree for AND
         
 @init
 {
@@ -3607,7 +3607,7 @@ andExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
 
     : e1=typeExpression
@@ -3650,7 +3650,7 @@ catch [RecognitionException re] {
 //
 typeExpression 
 
-    returns [JFXExpression value]   // Expression tree for typed expressions
+    returns [VisageExpression value]   // Expression tree for typed expressions
         
 @init
 {
@@ -3661,7 +3661,7 @@ typeExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
 
     : relationalExpression      { errNodes.append($relationalExpression.value); }
@@ -3711,7 +3711,7 @@ catch [RecognitionException re] {
 //  
 relationalExpression  
 
-    returns [JFXExpression value]   // Expression tree for typed expressions
+    returns [VisageExpression value]   // Expression tree for typed expressions
         
 @init
 {
@@ -3722,7 +3722,7 @@ relationalExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
 
     : a1=additiveExpression { $value = $a1.value; errNodes.append($a1.value); }
@@ -3765,7 +3765,7 @@ relOps
     
     : LTGT
         { 
-            JFXErroneous err = F.at(pos($LTGT)).Erroneous();
+            VisageErroneous err = F.at(pos($LTGT)).Erroneous();
             endPos(err);
             $relOp = JavafxTag.NE;
             log.error(err, MsgSym.MESSAGE_VISAGE_NOT_NE);
@@ -3798,7 +3798,7 @@ catch [RecognitionException re] {
 //  
 additiveExpression 
 
-    returns [JFXExpression value]   // Expression tree for additive expressions
+    returns [VisageExpression value]   // Expression tree for additive expressions
         
 @init
 {
@@ -3809,7 +3809,7 @@ additiveExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 
 }
     : m1=multiplicativeExpression   
@@ -3877,7 +3877,7 @@ catch [RecognitionException re] {
 //  
 multiplicativeExpression
 
-    returns [JFXExpression value]   // Expression tree for additive expressions
+    returns [VisageExpression value]   // Expression tree for additive expressions
         
 @init
 {
@@ -3888,7 +3888,7 @@ multiplicativeExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 
 }
     : u1=unaryExpression    { $value = $u1.value; errNodes.append($u1.value); }
@@ -3935,7 +3935,7 @@ multOps
     | PERCENT   
             
         {
-            JFXErroneous err = F.at(pos($PERCENT)).Erroneous();
+            VisageErroneous err = F.at(pos($PERCENT)).Erroneous();
             endPos(err);
             $multOp = JavafxTag.MOD;
             log.error(err, MsgSym.MESSAGE_VISAGE_BAD_PERCENT);
@@ -3964,7 +3964,7 @@ catch [RecognitionException re] {
 //
 unaryExpression
 
-    returns [JFXExpression value]   // Expression tree for unary expressions
+    returns [VisageExpression value]   // Expression tree for unary expressions
 
 @init
 {
@@ -3975,7 +3975,7 @@ unaryExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
 
     : se=suffixedExpression
@@ -4061,7 +4061,7 @@ catch [RecognitionException re] {
 //
 suffixedExpression 
 
-    returns [JFXExpression value]   // Expression tree for suffix expressions
+    returns [VisageExpression value]   // Expression tree for suffix expressions
 
 @init
 {
@@ -4072,7 +4072,7 @@ suffixedExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
 
     : pe=postfixExpression  { errNodes.append($pe.value); }
@@ -4119,7 +4119,7 @@ catch [RecognitionException re] {
 //
 postfixExpression 
 
-    returns [JFXExpression value]   // Expression tree for suffix expressions
+    returns [VisageExpression value]   // Expression tree for suffix expressions
 
 @init
 {
@@ -4138,12 +4138,12 @@ postfixExpression
     
     // Last element of sequence (if present)
     //
-    JFXExpression   lastExpr = null;
+    VisageExpression   lastExpr = null;
     
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
 
     : pe=primaryExpression  { $value = $pe.value; errNodes.append($pe.value); }
@@ -4198,7 +4198,7 @@ postfixExpression
                         {
                             // Build up new node in case of error
                             //
-                            JFXExpression part = F.at($n2.pos).Ident($n2.value);
+                            VisageExpression part = F.at($n2.pos).Ident($n2.value);
                             errNodes.append(part);
                             endPos(part);
                             pPos = part.getEndPosition(endPositions);
@@ -4215,11 +4215,11 @@ postfixExpression
                         
                         // Build a list of clauses as AST builder expects this
                         //
-                        ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb();
+                        ListBuffer<VisageForExpressionInClause> clauses = ListBuffer.lb();
                         
                         // Build a var reference
                         //
-                        JFXVar var = F.at($n2.pos).Param($n2.value, F.TypeUnknown());
+                        VisageVar var = F.at($n2.pos).Param($n2.value, F.TypeUnknown());
                         endPos(var, pPos);
                         
                         // Set up the in clause
@@ -4307,7 +4307,7 @@ catch [RecognitionException re] {
 //  
 primaryExpression  
 
-    returns [JFXExpression value]   // Expression tree for primary expressions
+    returns [VisageExpression value]   // Expression tree for primary expressions
 
 @init
 {
@@ -4317,16 +4317,16 @@ primaryExpression
     
     // Use to build a list of objectLiteral parts.
     //
-    ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb();
+    ListBuffer<VisageTree> parts = ListBuffer.<VisageTree>lb();
 
     // Used to construct time literal expression
     //
-    JFXExpression sVal = null;
+    VisageExpression sVal = null;
 
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();   
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();   
 }
     : qualname
         {
@@ -4470,7 +4470,7 @@ catch [RecognitionException re] {
 //  
 keyFrameLiteralPart
 
-    returns [ListBuffer<JFXExpression> exprs = new ListBuffer<JFXExpression>(); ]   // Gathers a list of expressions representing frame values
+    returns [ListBuffer<VisageExpression> exprs = new ListBuffer<VisageExpression>(); ]   // Gathers a list of expressions representing frame values
     
     // Where to append erroneous nodes
     //
@@ -4518,14 +4518,14 @@ catch [RecognitionException re] {
 //
 functionExpression
 
-    returns [JFXExpression value]   // Expression tree for anonymous function
+    returns [VisageExpression value]   // Expression tree for anonymous function
     
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Rule pos in case of error
     //
@@ -4538,7 +4538,7 @@ functionExpression
             { 
                 // Accumulate in case of error
                 //
-                for ( JFXTree t : $formalParameters.params) {
+                for ( VisageTree t : $formalParameters.params) {
                     errNodes.append(t);
                 }
             }
@@ -4585,14 +4585,14 @@ catch [RecognitionException re] {
 //
 newExpression
 
-    returns [JFXExpression value]   // Expression tree for new expression
+    returns [VisageExpression value]   // Expression tree for new expression
 
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Rule pos in case of error
     //
@@ -4635,7 +4635,7 @@ catch [RecognitionException re] {
 //
 objectLiteral
 
-    returns [ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb()]  // Gather a list of all the object literal initializations
+    returns [ListBuffer<VisageTree> parts = ListBuffer.<VisageTree>lb()]  // Gather a list of all the object literal initializations
 
 // Where to append erroneous nodes
 //
@@ -4695,14 +4695,14 @@ catch [RecognitionException re] {
 //
 objectLiteralPart
 
-    returns [JFXTree value]     // Expression tree for object literal elements
+    returns [VisageTree value]     // Expression tree for object literal elements
 
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Rule pos in case of error
     //
@@ -4770,7 +4770,7 @@ catch [RecognitionException re] {
 //  
 objectLiteralInit
 
-    returns [JFXTree value]     // Construct the AST for a name value pair
+    returns [VisageTree value]     // Construct the AST for a name value pair
     
 @init
 {
@@ -4781,7 +4781,7 @@ objectLiteralInit
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Indicates that something went wrong with the parse
     //
@@ -4798,7 +4798,7 @@ objectLiteralInit
                             
             // Build up new node in case of error
             //
-            JFXExpression part = F.at($n1.pos).Ident($n1.value);
+            VisageExpression part = F.at($n1.pos).Ident($n1.value);
             errNodes.append(part);
             endPos(part);
         } 
@@ -4885,7 +4885,7 @@ catch [RecognitionException re] {
 //
 stringExpression 
 
-    returns [JFXExpression value]   // Expression tree for stringExpressions
+    returns [VisageExpression value]   // Expression tree for stringExpressions
 
 scope {
     // Indicates that the expression went into a parse error state
@@ -4898,7 +4898,7 @@ scope {
 {
     // Buffer in which to accumulate all string elements
     //
-    ListBuffer<JFXExpression> strexp = new ListBuffer<JFXExpression>();
+    ListBuffer<VisageExpression> strexp = new ListBuffer<VisageExpression>();
     
     // Translation key, if any, for the literal string
     //
@@ -4911,7 +4911,7 @@ scope {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start in non error state
     //
@@ -4950,7 +4950,7 @@ scope {
             
                 // Accumulate whatever pieces we discovered
                 //
-                for (JFXTree t : strexp) {
+                for (VisageTree t : strexp) {
     
                     errNodes.append(t);
                 }
@@ -5003,7 +5003,7 @@ catch [RecognitionException re] {
     
     // Accumulate whatever pieces we discovered
     //
-    for (JFXTree t : strexp) {
+    for (VisageTree t : strexp) {
     
         errNodes.append(t);
     }
@@ -5033,7 +5033,7 @@ catch [RecognitionException re] {
 //    the leadin of the next expression or the trailing of
 //    the prior expression, or it stands alone.
 //
-strCompoundElement [ ListBuffer<JFXExpression> strexp ]
+strCompoundElement [ ListBuffer<VisageExpression> strexp ]
     
     : stringLiteral [ strexp ]          
     | qlsl          [ strexp ]
@@ -5062,7 +5062,7 @@ catch [RecognitionException re] {
 // other, which we auto concatentate here at compile time
 //
 //
-stringLiteral [ ListBuffer<JFXExpression> strexp ]
+stringLiteral [ ListBuffer<VisageExpression> strexp ]
 
 
 @init
@@ -5078,7 +5078,7 @@ stringLiteral [ ListBuffer<JFXExpression> strexp ]
     
     // The string litereal we will created
     //
-    JFXExpression sVal = null;
+    VisageExpression sVal = null;
 
 }
     : s1=STRING_LITERAL 
@@ -5138,7 +5138,7 @@ stringLiteral [ ListBuffer<JFXExpression> strexp ]
                 // last expression with a concatenation of it and this newly found
                 // string.
                 //
-                JFXLiteral trailer = (JFXLiteral)(strexp.elems.get(strexp.size()-1));
+                VisageLiteral trailer = (VisageLiteral)(strexp.elems.get(strexp.size()-1));
                 
                 // Now, append the string we have to the prior trailing part
                 // 
@@ -5175,7 +5175,7 @@ catch [RecognitionException re] {
 // String lit component
 // String literals with embedded formats/expressions
 //
-qlsl [ ListBuffer<JFXExpression> strexp]
+qlsl [ ListBuffer<VisageExpression> strexp]
 
     :   ql=QUOTE_LBRACE_STRING_LITERAL  
     
@@ -5184,7 +5184,7 @@ qlsl [ ListBuffer<JFXExpression> strexp]
                 
                     // Add the leadin string
                     //
-                    JFXLiteral leader = F.at(pos($ql)).Literal
+                    VisageLiteral leader = F.at(pos($ql)).Literal
                                             (   TypeTags.CLASS,
                                                 $ql.text
                                             );
@@ -5218,7 +5218,7 @@ qlsl [ ListBuffer<JFXExpression> strexp]
                 
                             // Add the leadin string
                             //
-                            JFXLiteral leader = F.at(pos($ql)).Literal
+                            VisageLiteral leader = F.at(pos($ql)).Literal
                                                 (   TypeTags.CLASS,
                                                     $ql.text
                                                 );
@@ -5235,7 +5235,7 @@ qlsl [ ListBuffer<JFXExpression> strexp]
                             // Already had a single first literal, or a trailer for an 
                             // expression - make it belong to this leader.
                             //
-                            leader = (JFXLiteral)(strexp.elems.get(strexp.size()-1));
+                            leader = (VisageLiteral)(strexp.elems.get(strexp.size()-1));
                     
                             // Now, append the string we have to the prior trailing part
                             // and replace the original value
@@ -5265,7 +5265,7 @@ qlsl [ ListBuffer<JFXExpression> strexp]
             {
                 // Add in the discovered literal
                 //
-                JFXLiteral trailer = F.at(pos($qr)).Literal
+                VisageLiteral trailer = F.at(pos($qr)).Literal
                                             (   TypeTags.CLASS,
                                                 $qr.text
                                             );
@@ -5297,14 +5297,14 @@ catch [RecognitionException re] {
 // ----------------------
 // String element with optional format expression
 //
-stringExpressionInner [ ListBuffer<JFXExpression> strexp]
+stringExpressionInner [ ListBuffer<VisageExpression> strexp]
 
     : rlsl=RBRACE_LBRACE_STRING_LITERAL 
     
         {
             // Construct a new literal for the leading literal
             //
-            JFXExpression rb = F.at(pos($rlsl)).Literal(TypeTags.CLASS, $rlsl.text);
+            VisageExpression rb = F.at(pos($rlsl)).Literal(TypeTags.CLASS, $rlsl.text);
             
             // Record the span
             //
@@ -5350,13 +5350,13 @@ catch [RecognitionException re] {
 // Format specification
 // Optional format specifier in standard Java form
 //
-stringFormat [ ListBuffer<JFXExpression> strexp]
+stringFormat [ ListBuffer<VisageExpression> strexp]
 
 @init
 {
     // The value to add in to the mix
     //
-    JFXExpression value;
+    VisageExpression value;
     
     // Work out current position in the input stream
     //
@@ -5365,7 +5365,7 @@ stringFormat [ ListBuffer<JFXExpression> strexp]
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
     : fs=FORMAT_STRING_LITERAL
     
@@ -5406,13 +5406,13 @@ catch [RecognitionException re] {
 //
 bracketExpression
 
-    returns [JFXExpression value]   // Expression tree for stringExpressions
+    returns [VisageExpression value]   // Expression tree for stringExpressions
 
 @init
 {
     // Buffer in which to accumulate all string elements
     //
-    ListBuffer<JFXExpression> seqexp = new ListBuffer<JFXExpression>();
+    ListBuffer<VisageExpression> seqexp = new ListBuffer<VisageExpression>();
     
     // Work out current position in the input stream
     //
@@ -5420,7 +5420,7 @@ bracketExpression
     
     // Optional step expression
     //
-    JFXExpression   stepEx = null;
+    VisageExpression   stepEx = null;
     
     // Optional LT qualifier
     //
@@ -5429,7 +5429,7 @@ bracketExpression
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
 
     : LBRACKET   
@@ -5523,14 +5523,14 @@ catch [RecognitionException re] {
 //
 expressionList
 
-    returns [ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>()]  // List of expressions we pcik up
+    returns [ListBuffer<VisageExpression> args = new ListBuffer<VisageExpression>()]  // List of expressions we pcik up
     
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Work out current position in the input stream
     //
@@ -5571,9 +5571,9 @@ catch [RecognitionException re] {
     
     // Create an ERRONEOUS node
     //
-    JFXErroneous errNode = F.at(rPos).Erroneous(args.elems);
+    VisageErroneous errNode = F.at(rPos).Erroneous(args.elems);
     endPos(errNode);
-    args = new ListBuffer<JFXExpression>();
+    args = new ListBuffer<VisageExpression>();
     args.append(errNode);
     
 }
@@ -5584,7 +5584,7 @@ catch [RecognitionException re] {
 //
 expressionListOpt
     
-    returns [ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>()]  // List of expressions we pcik up
+    returns [ListBuffer<VisageExpression> args = new ListBuffer<VisageExpression>()]  // List of expressions we pcik up
 
     : (LPAREN)=>LPAREN expressionList
         {
@@ -5600,7 +5600,7 @@ expressionListOpt
 //
 type
 
-    returns [JFXType rtype]
+    returns [VisageType rtype]
     
 @init
 {
@@ -5611,7 +5611,7 @@ type
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
     : typeName  { errNodes.append($typeName.value); }
     
@@ -5619,7 +5619,7 @@ type
     
         {
         
-            if  ($typeName.value  instanceof JFXErroneous) {
+            if  ($typeName.value  instanceof VisageErroneous) {
             
                 // The type did not parse correctly, so we create it as
                 // an erroneous element
@@ -5673,7 +5673,7 @@ catch [RecognitionException re] {
 
 typeFunction
 
-    returns [JFXType rtype]
+    returns [VisageType rtype]
 
 @init
 {
@@ -5684,14 +5684,14 @@ typeFunction
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
 
     : FUNCTION 
         LPAREN 
             typeArgList 
                 { 
-                    for (JFXTree t : $typeArgList.ptypes) { 
+                    for (VisageTree t : $typeArgList.ptypes) { 
                         errNodes.append(t); 
                     } 
                 }
@@ -5725,7 +5725,7 @@ catch [RecognitionException re] {
 
 typePrefixed
 
-    returns [JFXType rtype]
+    returns [VisageType rtype]
 
 @init
 {
@@ -5736,7 +5736,7 @@ typePrefixed
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 
 }
     : NATIVEARRAY IDENTIFIER { "of".equals($IDENTIFIER.text) }?=>type
@@ -5763,7 +5763,7 @@ catch [RecognitionException re] {
 
 typeStar
 
-    returns [JFXType rtype]
+    returns [VisageType rtype]
 
 @init
 {
@@ -5774,7 +5774,7 @@ typeStar
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 
 }
     : STAR cardinality
@@ -5804,14 +5804,14 @@ catch [RecognitionException re] {
 //
 typeArgList
     
- returns [ListBuffer<JFXType> ptypes = ListBuffer.<JFXType>lb(); ]
+ returns [ListBuffer<VisageType> ptypes = ListBuffer.<VisageType>lb(); ]
  
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
     : t1=typeArg
     
@@ -5851,14 +5851,14 @@ catch [RecognitionException re] {
 //
 typeArg 
 
-    returns [JFXType rtype]
+    returns [VisageType rtype]
 
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
     : (
         (
@@ -5894,14 +5894,14 @@ catch [RecognitionException re] {
  // Used to build parameter lists for functions etc
 typeReference
 
-    returns [JFXType rtype]
+    returns [VisageType rtype]
     
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Work out current position in the input stream
     //
@@ -5956,7 +5956,7 @@ cardinality
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
 }
     : (LBRACKET)=>LBRACKET RBRACKET
     
@@ -5989,18 +5989,18 @@ catch [RecognitionException re] {
 //
 typeName
 
-    returns [JFXExpression value]
+    returns [VisageExpression value]
 
 @init
 {
     // Accumulate any generic arguments
     //
-    ListBuffer<JFXExpression> exprbuff = ListBuffer.<JFXExpression>lb();
+    ListBuffer<VisageExpression> exprbuff = ListBuffer.<VisageExpression>lb();
     
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Work out current position in the input stream
     //
@@ -6025,7 +6025,7 @@ typeName
               {
                 // AST for generic
                 //
-                JFXErroneous err = F.at(pos($LT)).Erroneous();
+                VisageErroneous err = F.at(pos($LT)).Erroneous();
                 endPos(err);
                 log.error(err, MsgSym.MESSAGE_VISAGE_GENERICS_UNSUPPORTED);
                 
@@ -6071,7 +6071,7 @@ catch [RecognitionException re] {
 //
 typeparens
 
-    returns [JFXExpression value]
+    returns [VisageExpression value]
     
     : (LPAREN)=>LPAREN t=typeparens RPAREN
     
@@ -6084,12 +6084,12 @@ typeparens
 
 genericArgument
 
-    returns [JFXExpression value]
+    returns [VisageExpression value]
 
 @init 
 {
     BoundKind       bk      = BoundKind.UNBOUND;
-    JFXExpression   texpr   = null; 
+    VisageExpression   texpr   = null; 
 }
 
     : typeName  { $value = $typeName.value; }
@@ -6129,7 +6129,7 @@ catch [RecognitionException re] {
 //
 literal
 
-    returns [JFXExpression value]
+    returns [VisageExpression value]
     
 @init
 {
@@ -6232,14 +6232,14 @@ catch [RecognitionException re] {
 //
 qualname
 
-    returns [JFXExpression value, boolean inError]
+    returns [VisageExpression value, boolean inError]
     
 @init
 {
     // Used to accumulate a list of anything that we manage to build up in the parse
     // in case of error.
     //
-    ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+    ListBuffer<VisageTree> errNodes = new ListBuffer<VisageTree>();
     
     // Start of this rule
     //
@@ -6289,7 +6289,7 @@ qualname
                             
                             // Build up new node in case of error
                             //
-                            JFXExpression part = F.at($n2.pos).Ident($n2.value);
+                            VisageExpression part = F.at($n2.pos).Ident($n2.value);
                             errNodes.append(part);
                             endPos(part);
                         }
@@ -6345,7 +6345,7 @@ catch [RecognitionException re] {
 //
 timeValue
 
-    returns [JFXTimeLiteral valNode]
+    returns [VisageTimeLiteral valNode]
 
 @init
 {
@@ -6399,7 +6399,7 @@ catch [RecognitionException re] {
 //
 lengthValue
 
-    returns [JFXLengthLiteral valNode]
+    returns [VisageLengthLiteral valNode]
 
 @init
 {
@@ -6453,7 +6453,7 @@ catch [RecognitionException re] {
 //
 angleValue
 
-    returns [JFXAngleLiteral valNode]
+    returns [VisageAngleLiteral valNode]
 
 @init
 {
@@ -6507,7 +6507,7 @@ catch [RecognitionException re] {
 //
 colorValue
 
-    returns [JFXColorLiteral valNode]
+    returns [VisageColorLiteral valNode]
 
 @init
 {
@@ -6560,7 +6560,7 @@ catch [RecognitionException re] {
 //
 identifier
 
-    returns [JFXIdent value, boolean inError]
+    returns [VisageIdent value, boolean inError]
 
 @init
 {
@@ -6602,7 +6602,7 @@ identifier
 //
 identifierAll
 
-    returns [JFXIdent value, boolean inError]
+    returns [VisageIdent value, boolean inError]
 
 @init
 {

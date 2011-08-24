@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import org.visage.tools.code.JavafxVarSymbol;
 
 import com.sun.tools.mjavac.util.List;
@@ -33,8 +33,8 @@ import com.sun.tools.mjavac.util.List;
  *
  * @author Robert Field
  */
-public class JFXSequenceExplicit extends JFXAbstractSequenceCreator implements SequenceExplicitTree {
-    private final List<JFXExpression> items;
+public class VisageSequenceExplicit extends VisageAbstractSequenceCreator implements SequenceExplicitTree {
+    private final List<VisageExpression> items;
 
     public List<JavafxVarSymbol> boundItemsSyms;
     public List<JavafxVarSymbol> boundItemLengthSyms;
@@ -47,7 +47,7 @@ public class JFXSequenceExplicit extends JFXAbstractSequenceCreator implements S
     public JavafxVarSymbol boundIgnoreInvalidationsSym;
     public JavafxVarSymbol boundSizeSym;
 
-    public JFXSequenceExplicit(List<JFXExpression> items) {
+    public VisageSequenceExplicit(List<VisageExpression> items) {
         this.items = items;
     }
 
@@ -55,7 +55,7 @@ public class JFXSequenceExplicit extends JFXAbstractSequenceCreator implements S
         v.visitSequenceExplicit(this);
     }
 
-    public List<JFXExpression> getItems() {
+    public List<VisageExpression> getItems() {
         return items;
     }
     
@@ -68,11 +68,11 @@ public class JFXSequenceExplicit extends JFXAbstractSequenceCreator implements S
         return JavafxTag.SEQUENCE_EXPLICIT;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.SEQUENCE_EXPLICIT;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.SEQUENCE_EXPLICIT;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitSequenceExplicit(this, data);
     }
 }

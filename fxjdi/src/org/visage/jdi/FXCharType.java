@@ -29,9 +29,9 @@ import com.sun.jdi.CharType;
  *
  * @author sundar
  */
-public class FXCharType extends FXPrimitiveType implements CharType {
+public class VisageCharType extends VisagePrimitiveType implements CharType {
 
-    public FXCharType(FXVirtualMachine fxvm, CharType underlying) {
+    public VisageCharType(VisageVirtualMachine fxvm, CharType underlying) {
         super(fxvm, underlying);
     }
 

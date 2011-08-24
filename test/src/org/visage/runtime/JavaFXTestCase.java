@@ -35,11 +35,11 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
- * JavaFXTestCase
+ * VisageTestCase
  *
  * @author Brian Goetz
  */
-public abstract class JavaFXTestCase extends TestCase {
+public abstract class VisageTestCase extends TestCase {
     private static final double EPSILON = 0.0001;
     private final Pattern methodWithQualifiers = Pattern.compile("(.*)\\((.*)\\)");
 

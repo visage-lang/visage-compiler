@@ -24,17 +24,17 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Flags;
 import javax.lang.model.element.Modifier;
 import java.util.Set;
 
-public class JFXModifiers extends JFXTree implements ModifiersTree {
+public class VisageModifiers extends VisageTree implements ModifiersTree {
 
     public long flags;
 
-    protected JFXModifiers(long flags) {
+    protected VisageModifiers(long flags) {
         this.flags = flags;
     }
 
@@ -44,8 +44,8 @@ public class JFXModifiers extends JFXTree implements ModifiersTree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.MODIFIERS;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.MODIFIERS;
     }
 
     public Set<Modifier> getFlags() {
@@ -53,7 +53,7 @@ public class JFXModifiers extends JFXTree implements ModifiersTree {
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitModifiers(this, d);
     }
 

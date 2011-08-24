@@ -7,7 +7,7 @@
  * @run
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
     /* The below lines cause a compiler error:
      * [java] test\features\F26-numerics\variables\VarTestScopes.visage:20: incompatible types
@@ -38,7 +38,7 @@ var fSeq1 : Float[] = [ 4.111..7.111 ];
 // don't have double range sequences), which then is converted to Double[].
 var dSeq1 : Double[] = [ 5555.125..5558.125 ];
 
-public class VarScopes extends FXTestCase {
+public class VarScopes extends VisageTestCase {
     def c2 : Character = 10000;
     def b2 : Byte = 10;
     def l2 : Long = 2000000000;

@@ -26,8 +26,8 @@ package org.visage.tools.api;
 import org.visage.api.JavafxcTask;
 import org.visage.tools.api.JavafxcTool;
 import org.visage.api.tree.UnitTree;
-import org.visage.tools.tree.JFXClassDeclaration;
-import org.visage.tools.tree.JFXTree;
+import org.visage.tools.tree.VisageClassDeclaration;
+import org.visage.tools.tree.VisageTree;
 import org.visage.tools.tree.JavafxTreeScanner;
 import java.io.File;
 import java.util.Iterator;
@@ -63,14 +63,14 @@ public class JFXC739Test {
             final int[] classes = new int[1];
             new JavafxTreeScanner() {
                 @Override
-                public void visitClassDeclaration(JFXClassDeclaration that) {
+                public void visitClassDeclaration(VisageClassDeclaration that) {
                     super.visitClassDeclaration(that);
                     classes[0]++;
                     assertTrue(that.pos().getStartPosition() >= 0);
                     assertTrue(that.pos >= 0);
                     assertTrue(that.pos().getStartPosition() == that.pos);
                 }
-            }.scan((JFXTree)treeList.next());
+            }.scan((VisageTree)treeList.next());
             assertTrue(classes[0] == 2);
         } finally {
             Thread.currentThread().setContextClassLoader(orig);

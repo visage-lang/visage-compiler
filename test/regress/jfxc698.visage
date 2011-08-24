@@ -23,8 +23,8 @@ try {
     // This prints translated string in jfxc698_ja.fxproperties
     System.out.println(localizer.localizedString);
 
-    // This prints translated string in foo/bar/FXPropTestResources_ja.fxproperties
-    StringLocalizer.associate("foo.bar.FXPropTestResources", "", "jfxc698.visage");
+    // This prints translated string in foo/bar/VisagePropTestResources_ja.fxproperties
+    StringLocalizer.associate("foo.bar.VisagePropTestResources", "", "jfxc698.visage");
     localizer = StringLocalizer { key: "source original string" };
     System.out.println(localizer.localizedString);
 

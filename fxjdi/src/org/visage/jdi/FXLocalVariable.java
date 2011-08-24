@@ -31,8 +31,8 @@ import com.sun.jdi.StackFrame;
  *
  * @author sundar
  */
-public class FXLocalVariable extends FXMirror implements LocalVariable {
-    public FXLocalVariable(FXVirtualMachine fxvm, LocalVariable underlying) {
+public class VisageLocalVariable extends VisageMirror implements LocalVariable {
+    public VisageLocalVariable(VisageVirtualMachine fxvm, LocalVariable underlying) {
         super(fxvm, underlying);
     }
 
@@ -45,7 +45,7 @@ public class FXLocalVariable extends FXMirror implements LocalVariable {
     }
 
     public boolean isVisible(StackFrame frame) {
-        return underlying().isVisible(FXWrapper.unwrap(frame));
+        return underlying().isVisible(VisageWrapper.unwrap(frame));
     }
 
     public String name() {
@@ -56,8 +56,8 @@ public class FXLocalVariable extends FXMirror implements LocalVariable {
         return underlying().signature();
     }
 
-    public FXType type() throws ClassNotLoadedException {
-        return FXWrapper.wrap(virtualMachine(), underlying().type());
+    public VisageType type() throws ClassNotLoadedException {
+        return VisageWrapper.wrap(virtualMachine(), underlying().type());
     }
 
     public String typeName() {
@@ -65,7 +65,7 @@ public class FXLocalVariable extends FXMirror implements LocalVariable {
     }
 
     public int compareTo(LocalVariable o) {
-        return underlying().compareTo(FXWrapper.unwrap(o));
+        return underlying().compareTo(VisageWrapper.unwrap(o));
     }
 
     @Override

@@ -30,8 +30,8 @@ import com.sun.jdi.Field;
  *
  * @author sundar
  */
-public class FXField extends FXTypeComponent implements Field {
-    public FXField(FXVirtualMachine fxvm, Field underlying) {
+public class VisageField extends VisageTypeComponent implements Field {
+    public VisageField(VisageVirtualMachine fxvm, Field underlying) {
         super(fxvm, underlying);
     }
 
@@ -47,8 +47,8 @@ public class FXField extends FXTypeComponent implements Field {
         return underlying().isVolatile();
     }
 
-    public FXType type() throws ClassNotLoadedException {
-        return FXWrapper.wrap(virtualMachine(), underlying().type());
+    public VisageType type() throws ClassNotLoadedException {
+        return VisageWrapper.wrap(virtualMachine(), underlying().type());
     }
 
     public String typeName() {

@@ -29,8 +29,8 @@ import com.sun.jdi.PrimitiveValue;
  *
  * @author sundar
  */
-public class FXPrimitiveValue extends FXValue implements PrimitiveValue {
-    public FXPrimitiveValue(FXVirtualMachine fxvm, PrimitiveValue underlying) {
+public class VisagePrimitiveValue extends VisageValue implements PrimitiveValue {
+    public VisagePrimitiveValue(VisageVirtualMachine fxvm, PrimitiveValue underlying) {
         super(fxvm, underlying);
     }
 

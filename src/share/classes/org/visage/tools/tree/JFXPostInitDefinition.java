@@ -24,25 +24,25 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.code.Symbol;
 
 
 /**
- * JFXPostInitDefinition
+ * VisagePostInitDefinition
  *
  * @author Brian Goetz
  */
-public class JFXPostInitDefinition extends JFXTree implements InitDefinitionTree {
-    public JFXBlock body;
+public class VisagePostInitDefinition extends VisageTree implements InitDefinitionTree {
+    public VisageBlock body;
     public Symbol.MethodSymbol sym;
 
-    protected JFXPostInitDefinition(JFXBlock body) {
+    protected VisagePostInitDefinition(VisageBlock body) {
         this.body = body;
     }
 
-    public JFXBlock getBody() {
+    public VisageBlock getBody() {
         return body;
     }
 
@@ -56,11 +56,11 @@ public class JFXPostInitDefinition extends JFXTree implements InitDefinitionTree
         return JavafxTag.POSTINIT_DEF;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.POSTINIT_DEFINITION;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.POSTINIT_DEFINITION;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitPostInitDefinition(this, data);
     }
 }

@@ -33,12 +33,12 @@ import com.sun.tools.mjavac.util.Name;
  *
  * @author Per Bothner
  */
-public class JavaFXCompiledScript {
-    JavaFXScriptCompiler compiler;
+public class VisageCompiledScript {
+    VisageScriptCompiler compiler;
     Scope scriptScope;
     String clazzName;
 
-    public Object eval(JavaFXScriptContext ctx)  throws Throwable {
+    public Object eval(VisageScriptContext ctx)  throws Throwable {
         Class clazz;
         try {
             clazz = ctx.loader.loadClass(clazzName);

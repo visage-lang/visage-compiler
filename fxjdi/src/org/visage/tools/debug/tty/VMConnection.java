@@ -25,7 +25,7 @@
 
 package org.visage.tools.debug.tty;
 
-import org.visage.jdi.FXBootstrap;
+import org.visage.jdi.VisageBootstrap;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.*;
 import com.sun.jdi.request.EventRequestManager;
@@ -63,7 +63,7 @@ class VMConnection {
 
     private Connector findConnector(String name) {
         for (Connector connector :
-                 FXBootstrap.virtualMachineManager().allConnectors()) {
+                 VisageBootstrap.virtualMachineManager().allConnectors()) {
             if (connector.name().equals(name)) {
                 return connector;
             }

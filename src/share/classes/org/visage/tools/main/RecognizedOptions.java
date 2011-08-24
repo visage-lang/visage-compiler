@@ -317,8 +317,8 @@ public class RecognizedOptions {
 		}
 	    },
 
-	new JavafxOption.FXOption(CLASSPATH,               MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH),
-	new JavafxOption.FXOption(CP,                      MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH) {
+	new JavafxOption.VisageOption(CLASSPATH,               MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH),
+	new JavafxOption.VisageOption(CP,                      MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH) {
         @Override
 	    public boolean process(Options options, String option, String arg) {
 		return super.process(options, "-classpath", arg);
@@ -415,7 +415,7 @@ public class RecognizedOptions {
 		return super.process(options, option, operand);
 	    }
 	},
-	new JavafxOption.FXOption(PLATFORM,	MsgSym.MESSAGE_VISAGE_OPT_ARG_NAME,	MsgSym.MESSAGE_VISAGE_OPT_PLATFORM) {
+	new JavafxOption.VisageOption(PLATFORM,	MsgSym.MESSAGE_VISAGE_OPT_ARG_NAME,	MsgSym.MESSAGE_VISAGE_OPT_PLATFORM) {
 	},
 	new Option(VERSION,					MsgSym.MESSAGE_OPT_VERSION) {
         @Override

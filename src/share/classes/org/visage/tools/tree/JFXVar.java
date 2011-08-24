@@ -35,21 +35,21 @@ import com.sun.tools.mjavac.util.Name;
  * @author Robert Field
  * @author Zhiqun Chen
  */
-public class JFXVar extends JFXAbstractVar implements VariableTree {
+public class VisageVar extends VisageAbstractVar implements VariableTree {
     
-    private JFXVarInit varInit;
+    private VisageVarInit varInit;
 
-    protected JFXVar() {
+    protected VisageVar() {
         this(null, null, null, null, null, null, null, null);
     }
 
-    protected JFXVar(Name name,
-            JFXType jfxtype,
-            JFXModifiers mods,
-            JFXExpression init,
+    protected VisageVar(Name name,
+            VisageType jfxtype,
+            VisageModifiers mods,
+            VisageExpression init,
             JavafxBindStatus bindStat,
-            JFXOnReplace onReplace,
-            JFXOnReplace onInvalidate,
+            VisageOnReplace onReplace,
+            VisageOnReplace onInvalidate,
             JavafxVarSymbol sym) {
         super(name, jfxtype, mods, init, bindStat, onReplace, onInvalidate, sym);
     }
@@ -57,14 +57,14 @@ public class JFXVar extends JFXAbstractVar implements VariableTree {
     /**
      * @return the varInit
      */
-    public JFXVarInit getVarInit() {
+    public VisageVarInit getVarInit() {
         return varInit;
     }
 
     /**
      * @param varInit the varInit to set
      */
-    public void setVarInit(JFXVarInit varInit) {
+    public void setVarInit(VisageVarInit varInit) {
         this.varInit = varInit;
     }
 

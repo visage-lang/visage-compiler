@@ -23,7 +23,7 @@
 
 package org.visage.jdi;
 
-import org.visage.jdi.event.FXEventQueue;
+import org.visage.jdi.event.VisageEventQueue;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
 import com.sun.jdi.IncompatibleThreadStateException;
@@ -44,13 +44,13 @@ import java.util.Map;
  *
  * @author sundar
  */
-public class FXObjectReference extends FXValue implements ObjectReference {
-    public FXObjectReference(FXVirtualMachine fxvm, ObjectReference underlying) {
+public class VisageObjectReference extends VisageValue implements ObjectReference {
+    public VisageObjectReference(VisageVirtualMachine fxvm, ObjectReference underlying) {
         super(fxvm, underlying);
     }
 
     public List<ObjectReference> referringObjects(long count) {
-        return FXWrapper.wrapObjectReferences(virtualMachine(), underlying().referringObjects(count));
+        return VisageWrapper.wrapObjectReferences(virtualMachine(), underlying().referringObjects(count));
     }
 
     public void disableCollection() {
@@ -66,12 +66,12 @@ public class FXObjectReference extends FXValue implements ObjectReference {
     }
 
     public int getFlagWord(Field field) {
-        FXReferenceType clazz = (FXReferenceType)referenceType();
+        VisageReferenceType clazz = (VisageReferenceType)referenceType();
         // could this be a java field inherited by an visage class??
         if (!clazz.isJavaFXType()) {
             return 0;
         }
-        Field jdiField = FXWrapper.unwrap(field); 
+        Field jdiField = VisageWrapper.unwrap(field); 
         String jdiFieldName = jdiField.name();
         String vflgFieldName = "VFLG" + jdiFieldName;
 
@@ -80,7 +80,7 @@ public class FXObjectReference extends FXValue implements ObjectReference {
             // not all fields have a VFLG, eg, a private field that isn't accessed
             return 0;
         }
-        Value vflgValue = underlying().getValue(FXWrapper.unwrap(vflgField));
+        Value vflgValue = underlying().getValue(VisageWrapper.unwrap(vflgField));
         return((ShortValue)vflgValue).value();
     }
 
@@ -95,7 +95,7 @@ public class FXObjectReference extends FXValue implements ObjectReference {
      * @return <code>true</code> if the specified field is read only; false otherwise.
      */
     public boolean isReadOnly(Field field) {
-        return areFlagBitsSet(field, virtualMachine().FXReadOnlyFlagMask());
+        return areFlagBitsSet(field, virtualMachine().VisageReadOnlyFlagMask());
     }
 
     /**
@@ -106,7 +106,7 @@ public class FXObjectReference extends FXValue implements ObjectReference {
      * @return <code>true</code> if the value of the specified field is invalid; false otherwise.
      */
     public boolean isInvalid(Field field) {
-        return areFlagBitsSet(field, virtualMachine().FXInvalidFlagMask());
+        return areFlagBitsSet(field, virtualMachine().VisageInvalidFlagMask());
     }
 
     /**
@@ -115,35 +115,35 @@ public class FXObjectReference extends FXValue implements ObjectReference {
      * @return <code>true</code> if the specified field was declared with a bind clause; false otherwise.
      */
     public boolean isBound(Field field) {
-        return areFlagBitsSet(field, virtualMachine().FXBoundFlagMask());
+        return areFlagBitsSet(field, virtualMachine().VisageBoundFlagMask());
     }
 
     /**
      * JDI extension:  This will call the get function for the field if one exists via invokeMethod.
-     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)} passing true
-     * and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     * The call to invokeMethod is preceded by a call to {@link VisageEventQueue#setEventControl(boolean)} passing true
+     * and is followed by a call to {@link VisageEventQueue#setEventControl(boolean)} passing false.
      *
      * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
-     * {@link FXVirtualMachine#lastFieldAccessException()}. In this case,
+     * {@link VisageVirtualMachine#lastFieldAccessException()}. In this case,
      * the default value for the type of the field is returned for a PrimitiveType,
      * while null is returned for a non PrimitiveType.
      */
     public Value getValue(Field field) {
         virtualMachine().setLastFieldAccessException(null);
-        Field jdiField = FXWrapper.unwrap(field);
-        FXReferenceType wrappedClass = (FXReferenceType)referenceType();
+        Field jdiField = VisageWrapper.unwrap(field);
+        VisageReferenceType wrappedClass = (VisageReferenceType)referenceType();
         if (!wrappedClass.isJavaFXType()) {
-            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
+            return VisageWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
         }
 
         //get$xxxx methods exist for fields except private fields which have no binders
-        ReferenceType unwrappedClass = FXWrapper.unwrap(referenceType());
+        ReferenceType unwrappedClass = VisageWrapper.unwrap(referenceType());
         List<Method> mth = unwrappedClass.methodsByName("get" + jdiField.name());
         if (mth.size() == 0) {
-            return FXWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
+            return VisageWrapper.wrap(virtualMachine(), underlying().getValue(jdiField));
         }
         Exception theExc = null;
-        FXEventQueue eq = virtualMachine().eventQueue();
+        VisageEventQueue eq = virtualMachine().eventQueue();
         try {
             eq.setEventControl(true);
             return invokeMethod(virtualMachine().uiThread(), mth.get(0), new ArrayList<Value>(0), ObjectReference.INVOKE_SINGLE_THREADED);
@@ -172,11 +172,11 @@ public class FXObjectReference extends FXValue implements ObjectReference {
 
     /**
      * JDI extension:  This will call the get function for a field if one exists via invokeMethod.
-     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)} passing true
-     * and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     * The call to invokeMethod is preceded by a call to {@link VisageEventQueue#setEventControl(boolean)} passing true
+     * and is followed by a call to {@link VisageEventQueue#setEventControl(boolean)} passing false.
      *
      * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
-     * {@link FXVirtualMachine#lastFieldAccessException()}. In this case,
+     * {@link VisageVirtualMachine#lastFieldAccessException()}. In this case,
      * the default value for the type of the field is returned for a PrimitiveType,
      * while null is returned for a non PrimitiveType.
      */
@@ -189,14 +189,14 @@ public class FXObjectReference extends FXValue implements ObjectReference {
         List<Field> noGetterUnwrappedFields = new ArrayList<Field>();    // fields that don't have getters
 
         // But first, for fields that do have getters, call invokeMethod
-        // or we will call FXGetValue for each, depending on doInvokes
+        // or we will call VisageGetValue for each, depending on doInvokes
         Map<Field, Value> result = new HashMap<Field, Value>();
-        FXReferenceType wrappedClass = (FXReferenceType)referenceType();
-        ReferenceType unwrappedClass = FXWrapper.unwrap(wrappedClass);
+        VisageReferenceType wrappedClass = (VisageReferenceType)referenceType();
+        ReferenceType unwrappedClass = VisageWrapper.unwrap(wrappedClass);
 
         // Create the above Maps and lists
         for (Field wrappedField : wrappedFields) {
-            Field unwrapped = FXWrapper.unwrap(wrappedField);
+            Field unwrapped = VisageWrapper.unwrap(wrappedField);
             if (wrappedClass.isJavaFXType()) {
                 List<Method> mth = unwrappedClass.methodsByName("get" + unwrapped.name());
                 if (mth.size() == 0) {
@@ -224,48 +224,48 @@ public class FXObjectReference extends FXValue implements ObjectReference {
         // wrapped version, and wrapped value into the result Map.
         for (Map.Entry<Field, Field> unwrappedEntry: unwrappedToWrappedMap.entrySet()) {
             Field wrappedField = unwrappedEntry.getValue();
-            Value resultValue = FXWrapper.wrap(virtualMachine(), 
+            Value resultValue = VisageWrapper.wrap(virtualMachine(), 
                                              unwrappedFieldValues.get(unwrappedEntry.getKey()));
             result.put(wrappedField, resultValue);
         }
         return result;
     }
 
-    public FXValue invokeMethod(ThreadReference thread, Method method, List<? extends Value> values, int options)
+    public VisageValue invokeMethod(ThreadReference thread, Method method, List<? extends Value> values, int options)
             throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         Value value =
                 underlying().invokeMethod(
-                    FXWrapper.unwrap(thread), FXWrapper.unwrap(method),
-                    FXWrapper.unwrapValues(values), options);
-        return FXWrapper.wrap(virtualMachine(), value);
+                    VisageWrapper.unwrap(thread), VisageWrapper.unwrap(method),
+                    VisageWrapper.unwrapValues(values), options);
+        return VisageWrapper.wrap(virtualMachine(), value);
     }
 
     public boolean isCollected() {
         return underlying().isCollected();
     }
 
-    public FXThreadReference owningThread() throws IncompatibleThreadStateException {
-        return FXWrapper.wrap(virtualMachine(), underlying().owningThread());
+    public VisageThreadReference owningThread() throws IncompatibleThreadStateException {
+        return VisageWrapper.wrap(virtualMachine(), underlying().owningThread());
     }
 
-    public FXReferenceType referenceType() {
-        return FXWrapper.wrap(virtualMachine(), underlying().referenceType());
+    public VisageReferenceType referenceType() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().referenceType());
     }
 
     /**
      * JDI extension:  This will call the set function if one exists via invokeMethod.
-     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)} passing true
-     * and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     * The call to invokeMethod is preceded by a call to {@link VisageEventQueue#setEventControl(boolean)} passing true
+     * and is followed by a call to {@link VisageEventQueue#setEventControl(boolean)} passing false.
      *
      * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
-     * {@link FXVirtualMachine#lastFieldAccessException()}.
+     * {@link VisageVirtualMachine#lastFieldAccessException()}.
      */
     public void setValue(Field field, Value value) throws
         InvalidTypeException, ClassNotLoadedException {
         virtualMachine().setLastFieldAccessException(null);
-        Field jdiField = FXWrapper.unwrap(field);
-        Value jdiValue = FXWrapper.unwrap(value);
-        FXReferenceType clazz = (FXReferenceType)referenceType();
+        Field jdiField = VisageWrapper.unwrap(field);
+        Value jdiValue = VisageWrapper.unwrap(value);
+        VisageReferenceType clazz = (VisageReferenceType)referenceType();
         if (!clazz.isJavaFXType()) {
             underlying().setValue(jdiField, jdiValue);
             return;
@@ -288,7 +288,7 @@ public class FXObjectReference extends FXValue implements ObjectReference {
         ArrayList<Value> args = new ArrayList<Value>(1);
         args.add(jdiValue);
         Exception theExc = null;
-        FXEventQueue eq = virtualMachine().eventQueue();
+        VisageEventQueue eq = virtualMachine().eventQueue();
         try {
             eq.setEventControl(true);
             invokeMethod(virtualMachine().uiThread(), mth.get(0), args, ObjectReference.INVOKE_SINGLE_THREADED);
@@ -314,7 +314,7 @@ public class FXObjectReference extends FXValue implements ObjectReference {
     }
 
     public List<ThreadReference> waitingThreads() throws IncompatibleThreadStateException {
-        return FXWrapper.wrapThreads(virtualMachine(), underlying().waitingThreads());
+        return VisageWrapper.wrapThreads(virtualMachine(), underlying().waitingThreads());
     }
 
     @Override

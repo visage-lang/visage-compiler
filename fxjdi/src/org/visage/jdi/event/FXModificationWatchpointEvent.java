@@ -23,23 +23,23 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXValue;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageValue;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.event.ModificationWatchpointEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXModificationWatchpointEvent extends FXWatchpointEvent
+public class VisageModificationWatchpointEvent extends VisageWatchpointEvent
     implements ModificationWatchpointEvent {
-    public FXModificationWatchpointEvent(FXVirtualMachine fxvm, ModificationWatchpointEvent underlying) {
+    public VisageModificationWatchpointEvent(VisageVirtualMachine fxvm, ModificationWatchpointEvent underlying) {
         super(fxvm, underlying);
     }
 
-    public FXValue valueToBe() {
-        return FXWrapper.wrap(virtualMachine(), underlying().valueToBe());
+    public VisageValue valueToBe() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().valueToBe());
     }
 
     @Override

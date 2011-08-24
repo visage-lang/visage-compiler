@@ -25,7 +25,7 @@ package org.visage.api.tree;
 
 import javax.lang.model.element.Name;
 import org.visage.api.JavafxBindStatus;
-import org.visage.tools.tree.JFXType;
+import org.visage.tools.tree.VisageType;
 
 /**
  * A tree node for a variable declaration.
@@ -46,7 +46,7 @@ public interface VariableTree extends ExpressionTree {
     Name getName();
     Tree getType();
     ExpressionTree getInitializer();
-    JFXType getJFXType();
+    VisageType getJFXType();
     OnReplaceTree getOnReplaceTree();
     OnReplaceTree getOnInvalidateTree();
     JavafxBindStatus getBindStatus();

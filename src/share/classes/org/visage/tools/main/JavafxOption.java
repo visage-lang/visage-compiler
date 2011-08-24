@@ -192,8 +192,8 @@ public interface JavafxOption {
 
     /** A visagec-specific option
      */
-    static class FXOption extends Option {
- 	FXOption(OptionName name, String argsNameKey, String descrKey) {
+    static class VisageOption extends Option {
+ 	VisageOption(OptionName name, String argsNameKey, String descrKey) {
             super(name, argsNameKey, descrKey);
         }
         

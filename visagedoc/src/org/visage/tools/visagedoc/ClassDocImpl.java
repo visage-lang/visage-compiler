@@ -87,7 +87,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
      * Constructor
      */
     public ClassDocImpl(DocEnv env, ClassSymbol sym, String documentation,
-                        JFXClassDeclaration tree, Position.LineMap lineMap) {
+                        VisageClassDeclaration tree, Position.LineMap lineMap) {
         super(env, sym, documentation, tree, lineMap);
         this.type = (ClassType)sym.type;
         this.tsym = sym;
@@ -998,9 +998,9 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
         if (compenv == null) return new ClassDocImpl[0];
 
         Name asterisk = tsym.name.table.asterisk;
-        for (JFXTree t : compenv.toplevel.defs) {
+        for (VisageTree t : compenv.toplevel.defs) {
             if (t.getFXTag() == JavafxTag.IMPORT) {
-                JFXTree imp = ((JFXImport) t).qualid;
+                VisageTree imp = ((VisageImport) t).qualid;
                 if ((JavafxTreeInfo.name(imp) != asterisk) &&
                         (imp.type.tsym.kind & Kinds.TYP) != 0) {
                     importedClasses.append(
@@ -1039,11 +1039,11 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
         JavafxEnv<JavafxAttrContext> compenv = env.enter.getEnv(tsym);
         if (compenv == null) return new PackageDocImpl[0];
 
-        for (JFXTree t : compenv.toplevel.defs) {
+        for (VisageTree t : compenv.toplevel.defs) {
             if (t.getFXTag() == JavafxTag.IMPORT) {
-                JFXTree imp = ((JFXImport) t).qualid;
+                VisageTree imp = ((VisageImport) t).qualid;
                 if (JavafxTreeInfo.name(imp) == names.asterisk) {
-                    JFXSelect sel = (JFXSelect)imp;
+                    VisageSelect sel = (VisageSelect)imp;
                     Symbol s = sel.selected.type.tsym;
                     PackageDocImpl pdoc = env.getPackageDoc(s.packge());
                     if (!importedPackages.contains(pdoc))

@@ -23,22 +23,22 @@
 
 package org.visage.jdi.event;
 
-import org.visage.jdi.FXMethod;
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageMethod;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.event.MethodEntryEvent;
 
 /**
  *
  * @author sundar
  */
-public class FXMethodEntryEvent extends FXLocatableEvent implements MethodEntryEvent {
-    public FXMethodEntryEvent(FXVirtualMachine fxvm, MethodEntryEvent underlying) {
+public class VisageMethodEntryEvent extends VisageLocatableEvent implements MethodEntryEvent {
+    public VisageMethodEntryEvent(VisageVirtualMachine fxvm, MethodEntryEvent underlying) {
         super(fxvm, underlying);
     }
 
-    public FXMethod method() {
-        return FXWrapper.wrap(virtualMachine(), underlying().method());
+    public VisageMethod method() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().method());
     }
 
     @Override

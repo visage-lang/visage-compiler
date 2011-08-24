@@ -30,13 +30,13 @@ import com.sun.jdi.TypeComponent;
  *
  * @author sundar
  */
-public class FXTypeComponent extends FXMirror implements TypeComponent {
-    public FXTypeComponent(FXVirtualMachine fxvm, TypeComponent underlying) {
+public class VisageTypeComponent extends VisageMirror implements TypeComponent {
+    public VisageTypeComponent(VisageVirtualMachine fxvm, TypeComponent underlying) {
         super(fxvm, underlying);
     }
 
-    public FXReferenceType declaringType() {
-        return FXWrapper.wrap(virtualMachine(), underlying().declaringType());
+    public VisageReferenceType declaringType() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().declaringType());
     }
 
     public String genericSignature() {

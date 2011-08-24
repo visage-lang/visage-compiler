@@ -22,7 +22,7 @@
  */
 package org.visage.runtime.sequence;
 
-import org.visage.runtime.JavaFXTestCase;
+import org.visage.runtime.VisageTestCase;
 import org.visage.runtime.TypeInfo;
 import org.junit.Assert;
 
@@ -30,7 +30,7 @@ import org.junit.Assert;
  *
  * @author Michael Heinrichs
  */
-public class SubSequenceTest extends JavaFXTestCase {
+public class SubSequenceTest extends VisageTestCase {
     
     private Sequence<Integer> SUBSEQUENCE_FROM_EMPTY_SEQUENCE;
     private Sequence<Integer> SUBSEQUENCE_FROM_SINGLETON_SEQUENCE;

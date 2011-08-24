@@ -13,7 +13,7 @@ import java.lang.System;
 import org.visage.runtime.sequence.Sequences;
 
 
-var context : FXLocal.Context = FXLocal.getContext();
+var context : VisageLocal.Context = VisageLocal.getContext();
 
 class Square extends MyRect {
    public def cc = 200;
@@ -40,7 +40,7 @@ System.out.println("clsSimple={clsSimple} visage-class:{clsSimple.isJfxType()} m
 System.out.println("Simpl.super: {clsSimple.getSuperClasses(false)}");
 System.out.println("Simpl.super (inherited also):");
 
-function listSupers(theClass: visage.reflect.FXClassType, flag: Boolean) {
+function listSupers(theClass: visage.reflect.VisageClassType, flag: Boolean) {
     def skipMe = "net.sourceforge.cobertura.coveragedata.HasBeenInstrumented";
     for (cls in theClass.getSuperClasses(flag)) {
         // this class appears when we run the tests with instrumentation, but it is not in our
@@ -91,7 +91,7 @@ for (v in attrsMyRect) {
   var vval = v.getValue(myRectRef);
   System.out.println("  {if (v.isStatic()) "static " else ""}{v.getName()} : {v.getType()} = {vval.getValueString()};") };
 
-function printAccessors(attr: FXVarMember) : Void {
+function printAccessors(attr: VisageVarMember) : Void {
   if (attr.isPublicInit())
     System.out.print("public-init ");
   if (attr.isPublicRead())
@@ -131,7 +131,7 @@ System.out.println("call times1(2.5): {times1_MyRect.invoke(myRectRef, two_five)
 
 var shapeFun1_MyRect = clsMyRect.getVariable("shapeFun1");
 System.out.println("MyRect.shapeFun1 variable: {shapeFun1_MyRect}");
-var fun1 = shapeFun1_MyRect.getValue(myRectRef) as FXLocal.FunctionValue;
+var fun1 = shapeFun1_MyRect.getValue(myRectRef) as VisageLocal.FunctionValue;
 var v2 = fun1.apply(context.mirrorOf(3), context.mirrorOf("abcdefg"));
 System.out.println(" - apply(3,\"abcdefg\") => {v2.getValueString()}");
 
@@ -154,7 +154,7 @@ var shapeInt_MyRect = clsMyRect.getVariable("shapeInt");
 System.out.println("Allocated new MyRect: shapeInt:{shapeInt_MyRect.getValue(myRectRef2)}.");
 var fun2 = context.mirrorOf(repeat, shapeFun1_MyRect.getType());
 shapeFun1_MyRect.setValue(myRectRef2, fun2);
-var fun3 = shapeFun1_MyRect.getValue(myRectRef) as FXLocal.FunctionValue;
+var fun3 = shapeFun1_MyRect.getValue(myRectRef) as VisageLocal.FunctionValue;
 var v3 = fun3.apply(context.mirrorOf(3), context.mirrorOf("abc"));
 System.out.println("After updating shapeFun1 to repeat:");
 System.out.println(" - apply(3,\"abc\") => {v3.getValueString()}");
@@ -176,9 +176,9 @@ var t = Test {};
 var objref = context.mirrorOf(t);
 var clazz = objref.getType();
 var ffref = clazz.getVariable("f");
-var val1ref = ffref.getValue(objref) as FXObjectValue;
+var val1ref = ffref.getValue(objref) as VisageObjectValue;
 var sfref = clazz.getVariable("s");
-var val2ref = (sfref.getValue(objref) as FXSequenceValue).getItem(0) as FXObjectValue;
+var val2ref = (sfref.getValue(objref) as VisageSequenceValue).getItem(0) as VisageObjectValue;
 var nfref = clazz.getVariable("n");
 var val3ref = nfref.getValue(objref);
 System.out.print("Covariance test:");

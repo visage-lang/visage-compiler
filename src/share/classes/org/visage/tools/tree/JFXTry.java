@@ -24,20 +24,20 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.List;
 
 /**
  * A "try { } catch ( ) { } finally { }" block.
  */
-public class JFXTry extends JFXExpression implements TryTree {
+public class VisageTry extends VisageExpression implements TryTree {
 
-    public JFXBlock body;
-    public List<JFXCatch> catchers;
-    public JFXBlock finalizer;
+    public VisageBlock body;
+    public List<VisageCatch> catchers;
+    public VisageBlock finalizer;
 
-    protected JFXTry(JFXBlock body, List<JFXCatch> catchers, JFXBlock finalizer) {
+    protected VisageTry(VisageBlock body, List<VisageCatch> catchers, VisageBlock finalizer) {
         this.body = body;
         this.catchers = catchers;
         this.finalizer = finalizer;
@@ -48,11 +48,11 @@ public class JFXTry extends JFXExpression implements TryTree {
         v.visitTry(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.TRY;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.TRY;
     }
 
-    public JFXBlock getBlock() {
+    public VisageBlock getBlock() {
         return body;
     }
 
@@ -60,12 +60,12 @@ public class JFXTry extends JFXExpression implements TryTree {
         return convertList(CatchTree.class, catchers);
     }
 
-    public JFXBlock getFinallyBlock() {
+    public VisageBlock getFinallyBlock() {
         return finalizer;
     }
 
     //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> v, D d) {
         return v.visitTry(this, d);
     }
 

@@ -23,7 +23,7 @@
 
 package org.visage.tools.script;
 
-import visage.util.FXEvaluator;
+import visage.util.VisageEvaluator;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -34,24 +34,24 @@ import static org.junit.Assert.*;
 public class EvalTest {
     @Test
     public void basicEval() throws Exception {
-        FXEvaluator.eval("1 + 1");
+        VisageEvaluator.eval("1 + 1");
     }
 
     @Test
     public void basicEvalReturn() throws Exception {
-        Object n = FXEvaluator.eval("1 + 1");
+        Object n = VisageEvaluator.eval("1 + 1");
         assertTrue((Integer)n == 2);
     }
     
     @Test
     public void evalSumExpression() throws Exception {
-        Object n = FXEvaluator.eval("{ var n; for (i in [1..5]) n += i; n }");
+        Object n = VisageEvaluator.eval("{ var n; for (i in [1..5]) n += i; n }");
         assertTrue((Double)n == 15.0);
     }
     
     @Test
     public void evalEval() throws Exception {
-        Object n = FXEvaluator.eval("visage.util.FXEvaluator.eval(\"1 + 1\")");
+        Object n = VisageEvaluator.eval("visage.util.VisageEvaluator.eval(\"1 + 1\")");
         assertTrue((Integer)n == 2);        
     }
 }

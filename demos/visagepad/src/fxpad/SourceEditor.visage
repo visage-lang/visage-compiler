@@ -205,8 +205,8 @@ public class SourceEditor extends ExtendedScrollableComponent {
         getJTextArea().getCaret().setSelectionVisible(true);
     }
     
-    protected function getJTextArea() : FXTextArea {
-        getJComponent() as FXTextArea;
+    protected function getJTextArea() : VisageTextArea {
+        getJComponent() as VisageTextArea;
     }
     
     postinit {
@@ -214,7 +214,7 @@ public class SourceEditor extends ExtendedScrollableComponent {
     }
     
     override function createJComponent(): JComponent {
-        var jtextarea = new FXTextArea();
+        var jtextarea = new VisageTextArea();
         jtextarea.setOpaque(false);
         jtextarea.setEditable(true);
         jtextarea.getCaret().setVisible( true );

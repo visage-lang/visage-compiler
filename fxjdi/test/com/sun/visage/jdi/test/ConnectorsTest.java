@@ -24,13 +24,13 @@
 package org.visage.jdi.test;
 
 import org.visage.jdi.*;
-import org.visage.jdi.connect.FXLaunchingConnector;
-import org.visage.jdi.connect.FXProcessAttachingConnector;
-import org.visage.jdi.connect.FXRawLaunchingConnector;
-import org.visage.jdi.connect.FXSharedMemoryAttachingConnector;
-import org.visage.jdi.connect.FXSharedMemoryListeningConnector;
-import org.visage.jdi.connect.FXSocketAttachingConnector;
-import org.visage.jdi.connect.FXSocketListeningConnector;
+import org.visage.jdi.connect.VisageLaunchingConnector;
+import org.visage.jdi.connect.VisageProcessAttachingConnector;
+import org.visage.jdi.connect.VisageRawLaunchingConnector;
+import org.visage.jdi.connect.VisageSharedMemoryAttachingConnector;
+import org.visage.jdi.connect.VisageSharedMemoryListeningConnector;
+import org.visage.jdi.connect.VisageSocketAttachingConnector;
+import org.visage.jdi.connect.VisageSocketListeningConnector;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.LaunchingConnector;
 import com.sun.jdi.connect.ListeningConnector;
@@ -38,47 +38,47 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- * Checks for Visage-JDI connector classes and FXBootstrap.
+ * Checks for Visage-JDI connector classes and VisageBootstrap.
  *
  * @author sundar
  */
 public class ConnectorsTest {
     @Test
     public void testFXConnectors() {
-        LaunchingConnector conn = FXBootstrap.virtualMachineManager().defaultConnector();
-        Assert.assertEquals("org.visage.jdi.connect.FXLaunchingConnector", conn.name());
+        LaunchingConnector conn = VisageBootstrap.virtualMachineManager().defaultConnector();
+        Assert.assertEquals("org.visage.jdi.connect.VisageLaunchingConnector", conn.name());
         
-        FXLaunchingConnector conn1 = new FXLaunchingConnector();
-        Assert.assertEquals("org.visage.jdi.connect.FXLaunchingConnector", conn1.name());
+        VisageLaunchingConnector conn1 = new VisageLaunchingConnector();
+        Assert.assertEquals("org.visage.jdi.connect.VisageLaunchingConnector", conn1.name());
         Assert.assertEquals(true, conn1 instanceof LaunchingConnector);
 
-        FXProcessAttachingConnector conn2 = new FXProcessAttachingConnector();
-        Assert.assertEquals("org.visage.jdi.connect.FXProcessAttachingConnector", conn2.name());
+        VisageProcessAttachingConnector conn2 = new VisageProcessAttachingConnector();
+        Assert.assertEquals("org.visage.jdi.connect.VisageProcessAttachingConnector", conn2.name());
         Assert.assertEquals(true, conn2 instanceof AttachingConnector);
 
-        FXRawLaunchingConnector conn3 = new FXRawLaunchingConnector();
-        Assert.assertEquals("org.visage.jdi.connect.FXRawLaunchingConnector", conn3.name());
+        VisageRawLaunchingConnector conn3 = new VisageRawLaunchingConnector();
+        Assert.assertEquals("org.visage.jdi.connect.VisageRawLaunchingConnector", conn3.name());
         Assert.assertEquals(true, conn3 instanceof LaunchingConnector);
 
-        FXSocketAttachingConnector conn4 = new FXSocketAttachingConnector();
-        Assert.assertEquals("org.visage.jdi.connect.FXSocketAttachingConnector", conn4.name());
+        VisageSocketAttachingConnector conn4 = new VisageSocketAttachingConnector();
+        Assert.assertEquals("org.visage.jdi.connect.VisageSocketAttachingConnector", conn4.name());
         Assert.assertEquals(true, conn4 instanceof AttachingConnector);
 
-        FXSocketListeningConnector conn5 = new FXSocketListeningConnector();
-        Assert.assertEquals("org.visage.jdi.connect.FXSocketListeningConnector", conn5.name());
+        VisageSocketListeningConnector conn5 = new VisageSocketListeningConnector();
+        Assert.assertEquals("org.visage.jdi.connect.VisageSocketListeningConnector", conn5.name());
         Assert.assertEquals(true, conn5 instanceof ListeningConnector);
 
         // Conditionally adding Visage shared mem connectors - because underlying platform shared
         // memory connectors are not available on all platforms
-        if (FXSharedMemoryAttachingConnector.isAvailable()) {
-            FXSharedMemoryAttachingConnector conn6 = new FXSharedMemoryAttachingConnector();
-            Assert.assertEquals("org.visage.jdi.connect.FXSharedMemoryAttachingConnector", conn6.name());
+        if (VisageSharedMemoryAttachingConnector.isAvailable()) {
+            VisageSharedMemoryAttachingConnector conn6 = new VisageSharedMemoryAttachingConnector();
+            Assert.assertEquals("org.visage.jdi.connect.VisageSharedMemoryAttachingConnector", conn6.name());
             Assert.assertEquals(true, conn6 instanceof AttachingConnector);
         }
 
-        if (FXSharedMemoryListeningConnector.isAvailable()) {
-            FXSharedMemoryListeningConnector conn7 = new FXSharedMemoryListeningConnector();
-            Assert.assertEquals("org.visage.jdi.connect.FXSharedMemoryListeningConnector", conn7.name());
+        if (VisageSharedMemoryListeningConnector.isAvailable()) {
+            VisageSharedMemoryListeningConnector conn7 = new VisageSharedMemoryListeningConnector();
+            Assert.assertEquals("org.visage.jdi.connect.VisageSharedMemoryListeningConnector", conn7.name());
             Assert.assertEquals(true, conn7 instanceof ListeningConnector);
         }
     }

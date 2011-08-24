@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.JavafxBindStatus;
-import org.visage.api.tree.JavaFXTreeVisitor;
+import org.visage.api.tree.VisageTreeVisitor;
 import org.visage.api.tree.OverrideClassVarTree;
 
 import org.visage.tools.code.JavafxVarSymbol;
@@ -35,19 +35,19 @@ import com.sun.tools.mjavac.util.Name;
  *
  * @author Robert Field
  */
-public class JFXOverrideClassVar extends JFXAbstractVar implements OverrideClassVarTree {
+public class VisageOverrideClassVar extends VisageAbstractVar implements OverrideClassVarTree {
 
-    private final JFXIdent expr;
+    private final VisageIdent expr;
     
-    protected JFXOverrideClassVar(
+    protected VisageOverrideClassVar(
             Name name,
-            JFXType type,
-            JFXModifiers mods,
-            JFXIdent expr,
-            JFXExpression init,
+            VisageType type,
+            VisageModifiers mods,
+            VisageIdent expr,
+            VisageExpression init,
             JavafxBindStatus bindStat,
-            JFXOnReplace onReplace,
-            JFXOnReplace onInvalidate,
+            VisageOnReplace onReplace,
+            VisageOnReplace onInvalidate,
             JavafxVarSymbol sym) {
         super(name, type, mods, init, bindStat, onReplace, onInvalidate, sym);
         this.expr = expr;
@@ -62,7 +62,7 @@ public class JFXOverrideClassVar extends JFXAbstractVar implements OverrideClass
         return JavafxTag.OVERRIDE_ATTRIBUTE_DEF;
     }
 
-    public JFXIdent getId() {
+    public VisageIdent getId() {
         return expr;
     }
     
@@ -72,7 +72,7 @@ public class JFXOverrideClassVar extends JFXAbstractVar implements OverrideClass
     }
     
     @Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitOverrideClassVar(this, data);
     }
 }

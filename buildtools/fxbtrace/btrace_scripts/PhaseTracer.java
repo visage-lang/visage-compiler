@@ -50,7 +50,7 @@ import java.util.Stack;
     public static final int PHASE_TRIG = 5; // <- 8
 
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/invalidate\\$.+/"
     )
     public static void onInvalidateEnter(
@@ -104,7 +104,7 @@ import java.util.Stack;
     }
 
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/invalidate\\$.+/",
         location=@Location(Kind.RETURN)
     )
@@ -121,7 +121,7 @@ import java.util.Stack;
     }
 
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/update\\$.+/"
     )
     public static void onUpdateEnter(
@@ -173,7 +173,7 @@ import java.util.Stack;
     }
 
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/update\\$.+/",
         location=@Location(Kind.RETURN)
     )
@@ -188,7 +188,7 @@ import java.util.Stack;
     }
 
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/notifyDependents\\$.+/"
     )
     public static void onNotifyDependentsEnter(
@@ -202,7 +202,7 @@ import java.util.Stack;
     }
 
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/notifyDependents\\$.+/",
         location=@Location(Kind.RETURN)
     )
@@ -218,7 +218,7 @@ import java.util.Stack;
 
     // "get$foo" are called to do (external) var set
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/get\\$.+/"
     )
     public static void onGetterEnter(
@@ -232,7 +232,7 @@ import java.util.Stack;
     }
 
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/get\\$.+/",
         location=@Location(Kind.RETURN)
     )
@@ -248,7 +248,7 @@ import java.util.Stack;
 
     // "be$foo" are called to do recomputation set (internal set)
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/be\\$.+/"
     )
     public static void onBeEnter(
@@ -267,7 +267,7 @@ import java.util.Stack;
 
     // "be$foo" are called to do recomputation set (internal set)
     @OnMethod(
-        clazz="+org.visage.runtime.FXObject",
+        clazz="+org.visage.runtime.VisageObject",
         method="/be\\$.+/",
         location=@Location(Kind.RETURN)
     )

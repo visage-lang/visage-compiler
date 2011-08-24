@@ -52,11 +52,11 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
 
     /** The tree with which this environment is associated.
      */
-    public JFXTree tree;
+    public VisageTree tree;
 
     /** The enclosing toplevel tree.
      */
-    public JFXScript toplevel;
+    public VisageScript toplevel;
 
     /** The translated toplevel tree.
      */
@@ -64,15 +64,15 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
 
     /** The next enclosing class definition.
      */
-    public JFXClassDeclaration enclClass;
+    public VisageClassDeclaration enclClass;
 
     /** The next enclosing method definition.
      */
-    public JFXFunctionDefinition enclFunction;
+    public VisageFunctionDefinition enclFunction;
 
     /** Location info for debugging
      */
-    public JFXTree where;
+    public VisageTree where;
 
     /** A generic field for further information.
      */
@@ -85,7 +85,7 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
     /** Create an outermost environment for a given (toplevel)tree,
      *  with a given info field.
      */
-    public JavafxEnv(JFXTree tree, A info) {
+    public JavafxEnv(VisageTree tree, A info) {
 	this.next = null;
 	this.outer = null;
 	this.tree = tree;
@@ -98,7 +98,7 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
     /** Duplicate this environment, updating with given tree and info,
      *  and copying all other fields.
      */
-    public JavafxEnv<A> dup(JFXTree tree, A info) {
+    public JavafxEnv<A> dup(VisageTree tree, A info) {
 	return dupto(new JavafxEnv<A>(tree, info));
     }
 
@@ -117,7 +117,7 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
     /** Duplicate this environment, updating with given tree,
      *  and copying all other fields.
      */
-    public JavafxEnv<A> dup(JFXTree tree) {
+    public JavafxEnv<A> dup(VisageTree tree) {
 	return dup(tree, this.info);
     }
 

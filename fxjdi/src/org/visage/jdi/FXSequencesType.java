@@ -31,7 +31,7 @@ import com.sun.jdi.Method;
  *
  * @author sundar
  */
-public class FXSequencesType extends FXClassType {
+public class VisageSequencesType extends VisageClassType {
     // Sequences class methods
 
     private Method setBooleanElementMethod;
@@ -51,9 +51,9 @@ public class FXSequencesType extends FXClassType {
         return SIGNATURE_PREFIX + type + SIGNATURE_SUFFIX;
     }
 
-    public FXSequencesType(FXVirtualMachine fxvm, ClassType underlying) {
+    public VisageSequencesType(VisageVirtualMachine fxvm, ClassType underlying) {
         super(fxvm, underlying);
-        if (!underlying.name().equals(FXVirtualMachine.VISAGE_SEQUENCES_TYPE_NAME)) {
+        if (!underlying.name().equals(VisageVirtualMachine.VISAGE_SEQUENCES_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }
     }

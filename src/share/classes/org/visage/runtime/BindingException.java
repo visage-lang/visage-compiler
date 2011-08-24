@@ -28,7 +28,7 @@ package org.visage.runtime;
  *
  * @author Brian Goetz
  */
-public class BindingException extends FXRuntimeException {
+public class BindingException extends VisageRuntimeException {
     public BindingException() {
     }
 

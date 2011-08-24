@@ -29,8 +29,8 @@ import com.sun.jdi.FloatValue;
  *
  * @author sundar
  */
-public class FXFloatValue extends FXPrimitiveValue implements FloatValue {
-    public FXFloatValue(FXVirtualMachine fxvm, FloatValue underlying) {
+public class VisageFloatValue extends VisagePrimitiveValue implements FloatValue {
+    public VisageFloatValue(VisageVirtualMachine fxvm, FloatValue underlying) {
         super(fxvm, underlying);
     }
 
@@ -39,7 +39,7 @@ public class FXFloatValue extends FXPrimitiveValue implements FloatValue {
     }
 
     public int compareTo(FloatValue o) {
-        return underlying().compareTo((FloatValue)FXWrapper.unwrap(o));
+        return underlying().compareTo((FloatValue)VisageWrapper.unwrap(o));
     }
 
     @Override

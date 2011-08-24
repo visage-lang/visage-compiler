@@ -5,9 +5,9 @@
  * @
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
  
-public class SeqCastTest extends FXTestCase {
+public class SeqCastTest extends VisageTestCase {
     var c1: Character = 5 as Character;
     var vCharacter : Character[] = [c1, c1+1, c1+2];
     var vByte : Byte[] = [1..7];

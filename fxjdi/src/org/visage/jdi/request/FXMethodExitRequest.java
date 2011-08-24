@@ -23,8 +23,8 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
@@ -34,8 +34,8 @@ import com.sun.jdi.request.MethodExitRequest;
  *
  * @author sundar
  */
-public class FXMethodExitRequest extends FXEventRequest implements MethodExitRequest {
-    public FXMethodExitRequest(FXVirtualMachine fxvm, MethodExitRequest underlying) {
+public class VisageMethodExitRequest extends VisageEventRequest implements MethodExitRequest {
+    public VisageMethodExitRequest(VisageVirtualMachine fxvm, MethodExitRequest underlying) {
         super(fxvm, underlying);
     }
 
@@ -44,7 +44,7 @@ public class FXMethodExitRequest extends FXEventRequest implements MethodExitReq
     }
 
     public void addClassFilter(ReferenceType arg0) {
-        underlying().addClassFilter(FXWrapper.unwrap(arg0));
+        underlying().addClassFilter(VisageWrapper.unwrap(arg0));
     }
 
     public void addClassFilter(String arg0) {
@@ -52,11 +52,11 @@ public class FXMethodExitRequest extends FXEventRequest implements MethodExitReq
     }
 
     public void addInstanceFilter(ObjectReference arg0) {
-        underlying().addInstanceFilter(FXWrapper.unwrap(arg0));
+        underlying().addInstanceFilter(VisageWrapper.unwrap(arg0));
     }
 
     public void addThreadFilter(ThreadReference arg0) {
-        underlying().addThreadFilter(FXWrapper.unwrap(arg0));
+        underlying().addThreadFilter(VisageWrapper.unwrap(arg0));
     }
 
     @Override

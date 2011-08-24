@@ -29,11 +29,11 @@ package visage.reflect;
  * @author Per Bothner
  * @profile desktop
  */
-public class FXVarMemberLocation extends FXLocation {
-    FXObjectValue object;
-    FXVarMember attr;
-    FXVarMemberLocation(FXObjectValue object, FXVarMember attr)
+public class VisageVarMemberLocation extends VisageLocation {
+    VisageObjectValue object;
+    VisageVarMember attr;
+    VisageVarMemberLocation(VisageObjectValue object, VisageVarMember attr)
     { this.object = object; this.attr = attr; }
-    public FXValue getValue() { return attr.getValue(object); }
-    public void setValue(FXValue newValue) { attr.setValue(object, newValue); }
+    public VisageValue getValue() { return attr.getValue(object); }
+    public void setValue(VisageValue newValue) { attr.setValue(object, newValue); }
 }

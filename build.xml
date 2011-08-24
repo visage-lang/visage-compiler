@@ -131,8 +131,8 @@
                ant test -Dincludes=framework/xxxTest.java
            or for example
                ant test -Dincludes=launchers/VersionTest.java
-           To run a subset, say fxunit/ of the JFXCompilerTest tests, do
-               ant test -Dtest.visage.roots=test/fxunit -Dincludes=framework/FXCompilerTest.java
+           To run a subset, say fxunit/ of the VisageCompilerTest tests, do
+               ant test -Dtest.visage.roots=test/fxunit -Dincludes=framework/VisageCompilerTest.java
 
       name="docs"       depends="binaries,source-zip,-do-docs" description="Build binaries, docs, and src.zip"
       name="all"        depends="docs,test,pack-jars"          description="Build and test all project artifacts"
@@ -288,9 +288,9 @@
     </target>
 
     <target name="single-visage-test-check" if="test.visage.includes">
-        <property name="test.class" value="framework.FXCompilerTest"/>
-        <property name="test.includes" value="**/FXCompilerTest.java"/>
-        <property name="javac.includes" value="**/FXCompilerTest.java"/>
+        <property name="test.class" value="framework.VisageCompilerTest"/>
+        <property name="test.includes" value="**/VisageCompilerTest.java"/>
+        <property name="javac.includes" value="**/VisageCompilerTest.java"/>
         <property name="test-sys-prop.test.visage.includes" value="${test.visage.includes}"/>
     </target>
 
@@ -699,10 +699,10 @@
         <copy todir="dist/doc/reference/images/callouts">
             <fileset dir="doc/callouts"/>
         </copy>
-        <!-- create an index.html redirector to JavaFXReference.html-->
+        <!-- create an index.html redirector to VisageReference.html-->
         <echo file="dist/doc/reference/index.html" append="false">
             &lt;HTML&gt;&lt;HEAD&gt;
-                &lt;META HTTP-EQUIV="REFRESH" content="0; url=JavaFXReference.html"&gt;
+                &lt;META HTTP-EQUIV="REFRESH" content="0; url=VisageReference.html"&gt;
             &lt;/HEAD&gt;&lt;/HTML&gt;
         </echo>
     </target>
@@ -1308,7 +1308,7 @@
      The default for this selector is "**/*Test.java" which means to run all
      the *Test.java files.  Do 'find test -name \*Test.java to see them.
 
-   - One of these .java files is FXCompilerTest.java.  It runs all the visage tests
+   - One of these .java files is VisageCompilerTest.java.  It runs all the visage tests
      in the subdirs of test/ - features/, regress/. etc.  Which tests it runs are 
      controlled by:
      - test.visage.list:   A list of tests to run.  
@@ -1321,7 +1321,7 @@
 
     <target name="-init-smoke-test" depends="init">
       <property name="test-sys-prop.test.visage.list" value="${test.smoke.tests}"/>
-      <property name="testFile" value="**/FXCompilerTest.java"/>
+      <property name="testFile" value="**/VisageCompilerTest.java"/>
     </target>
 
 
@@ -1367,14 +1367,14 @@
     </target>
 
     <target name="-init-dev-fail" depends="-pre-compile-test">
-      <property name="testFile" value="**/FXCompilerTest.java"/>
+      <property name="testFile" value="**/VisageCompilerTest.java"/>
       <property name="test-sys-prop.test.visage.list" value="${test.visage.dev.fail.list}"/>
       <mkdir dir="${build.test.results.dir}"/>
       <echo message="dev-fail" file="${build.test.dir}/dev-target" />
     </target>
 
     <target name="-init-dev-xxx" depends="-pre-compile-test">
-      <property name="testFile" value="**/FXCompilerTest.java"/>
+      <property name="testFile" value="**/VisageCompilerTest.java"/>
       <copy file="${xxx}" tofile="${build.test.dir}/dev-xxx"/>
       <replaceregexp file="${build.test.dir}/dev-xxx"
                          flags="gs"

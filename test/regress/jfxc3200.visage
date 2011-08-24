@@ -8,7 +8,7 @@
 
 import visage.reflect.*;
 
-var context = FXLocal.getContext();
+var context = VisageLocal.getContext();
 var classRef = context.findClass("jfxc3200A");
 println("Reflecting class {classRef.getName()}");
 
@@ -18,13 +18,13 @@ println(" Type of variable {ma.getName()} inferred as {ma.getType()}");
 var mb = classRef.getVariable("b");
 println(" Type of variable {mb.getName()} inferred as {mb.getType()}");
 
-class MyListenerA extends FXChangeListener {
+class MyListenerA extends VisageChangeListener {
   override function onChange() {
     println("A works");
   }
 }
 
-class MyListenerB extends FXChangeListener {
+class MyListenerB extends VisageChangeListener {
   override function onChange() {
     println("B works");
   }

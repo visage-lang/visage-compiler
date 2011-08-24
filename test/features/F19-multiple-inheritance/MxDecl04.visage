@@ -5,7 +5,7 @@
  * @test/fxunit
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
 mixin class Mixin1 {
     public abstract function foo() : Integer;
@@ -24,7 +24,7 @@ class Mixee2 extends Mixin2 {
     public override function bar() : String { "bar2" }
 }
 
-public class MxDecl04 extends FXTestCase {
+public class MxDecl04 extends VisageTestCase {
     function testMethodImplementations() {
         var m1 = Mixee1 {};
         var m2 = new Mixee2();

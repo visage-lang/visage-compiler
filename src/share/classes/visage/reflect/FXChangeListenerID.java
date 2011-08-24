@@ -23,10 +23,10 @@
 
 package visage.reflect;
 
-/** Identifier for a FXChangeListener.
+/** Identifier for a VisageChangeListener.
  *
  * @author Jim Laskey
  * @profile desktop
  */
-public interface FXChangeListenerID {
+public interface VisageChangeListenerID {
 }

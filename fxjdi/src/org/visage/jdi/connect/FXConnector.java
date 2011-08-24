@@ -31,10 +31,10 @@ import java.util.Map;
  *
  * @author sundar
  */
-public class FXConnector implements Connector {
+public class VisageConnector implements Connector {
     private final Connector underlying;
 
-    public FXConnector(Connector underlying) {
+    public VisageConnector(Connector underlying) {
         this.underlying = underlying;
     }
 
@@ -51,7 +51,7 @@ public class FXConnector implements Connector {
     }
 
     public Transport transport() {
-        return new FXTransport(underlying().transport());
+        return new VisageTransport(underlying().transport());
     }
 
     protected Connector underlying() {

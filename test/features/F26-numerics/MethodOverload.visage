@@ -323,7 +323,7 @@ class TesterInherited extends TesterInstance {
     }
 }
 
-public class MethodOverload extends FXTestCase {
+public class MethodOverload extends VisageTestCase {
     function testMethodOverloadGlobal() {
         var tester = TesterGlobal{};
         tester.testGlobalRetInt();

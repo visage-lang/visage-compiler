@@ -141,7 +141,7 @@ public class DepChain implements BinderLinkable {
         DepChain old = null;
         if (selector == -1) {
             WeakBinderRef wref = (WeakBinderRef) parent;
-            FXObject fxObj = wref.get();
+            VisageObject fxObj = wref.get();
             // FIXME : do we need this null check here?
             if (fxObj != null) {
                 old = fxObj.getDepChain$internal$();
@@ -164,7 +164,7 @@ public class DepChain implements BinderLinkable {
     /** Replace this.parent by replacement. */
     void replaceParent(DepChain replacement) {
         if (parent instanceof WeakBinderRef) {
-            FXObject obj = ((WeakBinderRef)parent).get();
+            VisageObject obj = ((WeakBinderRef)parent).get();
             // FIXME : do we need this null check here?
             if (obj != null) {
                 obj.setDepChain$internal$(replacement);

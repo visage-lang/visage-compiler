@@ -24,21 +24,21 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  *
  * @author Robert Field
  */
-public class JFXSequenceRange extends JFXAbstractSequenceCreator implements SequenceRangeTree {
-    private final JFXExpression lower;
-    private final JFXExpression upper;
-    private final JFXExpression stepOrNull;
+public class VisageSequenceRange extends VisageAbstractSequenceCreator implements SequenceRangeTree {
+    private final VisageExpression lower;
+    private final VisageExpression upper;
+    private final VisageExpression stepOrNull;
     private final boolean exclusive;
 
-    public JFXVar boundSizeVar;
+    public VisageVar boundSizeVar;
 
-    public JFXSequenceRange(JFXExpression lower, JFXExpression upper, JFXExpression stepOrNull, boolean exclusive) {
+    public VisageSequenceRange(VisageExpression lower, VisageExpression upper, VisageExpression stepOrNull, boolean exclusive) {
         this.lower = lower;
         this.upper = upper;
         this.stepOrNull = stepOrNull;
@@ -49,15 +49,15 @@ public class JFXSequenceRange extends JFXAbstractSequenceCreator implements Sequ
         v.visitSequenceRange(this);
     }
 
-    public JFXExpression getLower() {
+    public VisageExpression getLower() {
         return lower;
     }
     
-    public JFXExpression getUpper() {
+    public VisageExpression getUpper() {
         return upper;
     }
     
-    public JFXExpression getStepOrNull() {
+    public VisageExpression getStepOrNull() {
         return stepOrNull;
     }
     
@@ -70,11 +70,11 @@ public class JFXSequenceRange extends JFXAbstractSequenceCreator implements Sequ
         return JavafxTag.SEQUENCE_RANGE;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.SEQUENCE_RANGE;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.SEQUENCE_RANGE;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitSequenceRange(this, data);
     }
 }

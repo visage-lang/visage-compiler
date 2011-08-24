@@ -23,7 +23,7 @@
 
 package org.visage.jdi.test;
 
-import org.visage.jdi.FXStackFrame;
+import org.visage.jdi.VisageStackFrame;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
@@ -130,7 +130,7 @@ public class FramesTest extends TestScaffold {
 
         // not Visage frames
         for (StackFrame fr : mainThread.frames()) {
-            Assert.assertEquals(false, ((FXStackFrame)fr).isJavaFXFrame());
+            Assert.assertEquals(false, ((VisageStackFrame)fr).isJavaFXFrame());
         }
 
 

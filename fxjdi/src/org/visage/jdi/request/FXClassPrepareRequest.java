@@ -23,8 +23,8 @@
 
 package org.visage.jdi.request;
 
-import org.visage.jdi.FXVirtualMachine;
-import org.visage.jdi.FXWrapper;
+import org.visage.jdi.VisageVirtualMachine;
+import org.visage.jdi.VisageWrapper;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.request.ClassPrepareRequest;
 
@@ -32,8 +32,8 @@ import com.sun.jdi.request.ClassPrepareRequest;
  *
  * @author sundar
  */
-public class FXClassPrepareRequest extends FXEventRequest implements ClassPrepareRequest {
-    public FXClassPrepareRequest(FXVirtualMachine fxvm, ClassPrepareRequest underlying) {
+public class VisageClassPrepareRequest extends VisageEventRequest implements ClassPrepareRequest {
+    public VisageClassPrepareRequest(VisageVirtualMachine fxvm, ClassPrepareRequest underlying) {
         super(fxvm, underlying);
     }
 
@@ -42,7 +42,7 @@ public class FXClassPrepareRequest extends FXEventRequest implements ClassPrepar
     }
 
     public void addClassFilter(ReferenceType arg0) {
-        underlying().addClassFilter(FXWrapper.unwrap(arg0));
+        underlying().addClassFilter(VisageWrapper.unwrap(arg0));
     }
 
     public void addClassFilter(String arg0) {

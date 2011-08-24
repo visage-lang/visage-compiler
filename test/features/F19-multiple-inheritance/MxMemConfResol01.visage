@@ -4,7 +4,7 @@
  * @test/fxunit
  */
 
-import visage.fxunit.FXTestCase;
+import visage.fxunit.VisageTestCase;
 
 mixin class Mixin1 {
     public-init var bar : Integer = 140420091;
@@ -29,7 +29,7 @@ class Mixee1 extends Mixin1 {}
 // class Mixee2 extends Super, Mixin1, Mixin2 {}
 class Mixee2 extends Super {}
 
-public class MxMemConfResol01 extends FXTestCase {
+public class MxMemConfResol01 extends VisageTestCase {
 
     /*
      * Both parent mixins contain function foo() and a variable bar.

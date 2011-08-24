@@ -12,7 +12,7 @@ public mixin class B1 {
     protected var fldd:String;
 }
 
-function testfld(cls: FXClassType, name:String): Void {
+function testfld(cls: VisageClassType, name:String): Void {
   def v = cls.getVariable(name);
   print(name);
   print(" is");
@@ -26,7 +26,7 @@ function testfld(cls: FXClassType, name:String): Void {
 function run() {
   def a1 = A1{flda:"TestA"};
 
-  def obj = FXLocal.getContext().mirrorOf(a1);
+  def obj = VisageLocal.getContext().mirrorOf(a1);
   def cls = obj.getClassType();
   testfld(cls, "flda");
   testfld(cls, "fldb");

@@ -46,29 +46,29 @@ import com.sun.jdi.Mirror;
  *
  * @author sundar
  */
-public class FXMirror implements Mirror {
-    private final FXVirtualMachine fxvm;
+public class VisageMirror implements Mirror {
+    private final VisageVirtualMachine fxvm;
     private final Mirror underlying;
 
-    public FXMirror(FXVirtualMachine fxvm, Mirror underlying) {
+    public VisageMirror(VisageVirtualMachine fxvm, Mirror underlying) {
         if (underlying == null) {
             throw new NullPointerException("underlying Mirror object is null!");
         }
-        if (underlying instanceof FXMirror) {
+        if (underlying instanceof VisageMirror) {
             throw new IllegalArgumentException("repeated wrapping!!");
         }
         this.fxvm = fxvm;
         this.underlying = underlying;
     }
 
-    public FXVirtualMachine virtualMachine() {
+    public VisageVirtualMachine virtualMachine() {
         return fxvm;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof FXMirror) {
-            o = ((FXMirror)o).underlying();
+        if (o instanceof VisageMirror) {
+            o = ((VisageMirror)o).underlying();
         }
         return underlying().equals(o);
     }

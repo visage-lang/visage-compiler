@@ -13,7 +13,7 @@
     <property name="html.style" value="${import.docbook-xsl.dir}/html/chunk.xsl"/>
     <property name="xhtml.style" value="${import.docbook-xsl.dir}/xhtml/chunkfast.xsl"/>
     <property name="langref.xsl.path" value="${doc.build.dir}/tmp/langref.xsl"/>
-    <property name="doc.name" value="JavaFXReference"/>
+    <property name="doc.name" value="VisageReference"/>
 
     <!-- Choose between HTML and XHTML -->
     <property name="chunk.style" value="${html.style}"/>

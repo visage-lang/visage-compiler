@@ -29,13 +29,13 @@ import com.sun.jdi.Value;
  *
  * @author sundar
  */
-public class FXValue extends FXMirror implements Value {
-    public FXValue(FXVirtualMachine fxvm, Value underlying) {
+public class VisageValue extends VisageMirror implements Value {
+    public VisageValue(VisageVirtualMachine fxvm, Value underlying) {
         super(fxvm, underlying);
     }
 
-    public FXType type() {
-        return FXWrapper.wrap(virtualMachine(), underlying().type());
+    public VisageType type() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().type());
     }
 
     @Override

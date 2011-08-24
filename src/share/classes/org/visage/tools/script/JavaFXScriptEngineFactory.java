@@ -34,7 +34,7 @@ import java.util.*;
  * @author A. Sundararajan
  * @author Tom Ball
  */
-public class JavaFXScriptEngineFactory implements ScriptEngineFactory {
+public class VisageScriptEngineFactory implements ScriptEngineFactory {
     public String getEngineName() { 
         return "Visage Engine";
     }
@@ -130,7 +130,7 @@ public class JavaFXScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public ScriptEngine getScriptEngine() {
-        JavaFXScriptEngineImpl engine = new JavaFXScriptEngineImpl();
+        VisageScriptEngineImpl engine = new VisageScriptEngineImpl();
         engine.setFactory(this);
         return engine;
     }

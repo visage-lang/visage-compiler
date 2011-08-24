@@ -22,7 +22,7 @@
  */
 
 package org.visage.runtime.sequence;
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 
 public abstract class BoundForOverVaryingAbstract<T, PT> extends BoundFor<T, PT> {
 
@@ -30,7 +30,7 @@ public abstract class BoundForOverVaryingAbstract<T, PT> extends BoundFor<T, PT>
     private int cacheIndex;
     private int cachePart;
 
-    public BoundForOverVaryingAbstract(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
+    public BoundForOverVaryingAbstract(VisageObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         super(container, forVarNum, inductionSeqVarNum, dependsOnIndex);
     }
 

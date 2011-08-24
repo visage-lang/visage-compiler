@@ -29,9 +29,9 @@ import com.sun.jdi.Accessible;
  *
  * @author sundar
  */
-public class FXAccessible implements Accessible {
+public class VisageAccessible implements Accessible {
     private Accessible underlying;
-    public FXAccessible(Accessible underlying) {
+    public VisageAccessible(Accessible underlying) {
         this.underlying = underlying;
     }
 

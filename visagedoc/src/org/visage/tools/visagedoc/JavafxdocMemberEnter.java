@@ -59,7 +59,7 @@ public class JavafxdocMemberEnter extends JavafxMemberEnter {
     }
 
     @Override
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(VisageFunctionDefinition tree) {
         super.visitFunctionDefinition(tree);
         MethodSymbol meth = tree.sym;
         if (meth == null || meth.kind != Kinds.MTH) return;
@@ -72,7 +72,7 @@ public class JavafxdocMemberEnter extends JavafxMemberEnter {
     }
 
     @Override
-    public void visitVar(JFXVar tree) {
+    public void visitVar(VisageVar tree) {
         super.visitVar(tree);
         if (tree.sym != null &&
                 tree.sym.kind == Kinds.VAR &&

@@ -27,7 +27,7 @@ import com.sun.btrace.annotations.*;
 import static com.sun.btrace.BTraceUtils.*;
 
 /**
- * Prints histogram of FXBase.notifyDependents$ calls once every 10 sec.
+ * Prints histogram of VisageBase.notifyDependents$ calls once every 10 sec.
  *
  * @author A. Sundararajan
  */
@@ -35,7 +35,7 @@ import static com.sun.btrace.BTraceUtils.*;
     private static Map<String, AtomicInteger> histo = newHashMap();
 
     @OnMethod(
-        clazz="org.visage.runtime.FXBase",
+        clazz="org.visage.runtime.VisageBase",
         method="notifyDependents$"
     )
     public static void onNotifyDependents(@Self Object obj) {

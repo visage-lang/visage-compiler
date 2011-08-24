@@ -49,7 +49,7 @@ mixin class K extends A {}
 mixin class L extends A, K {}
       class M extends K, L, A {}
 
-public class MxOnSeq01 extends FXTestCase {
+public class MxOnSeq01 extends VisageTestCase {
 /*
  *  redefining trigger in mixee
  */

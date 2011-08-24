@@ -28,7 +28,7 @@ import com.sun.javadoc.*;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.util.Position;
-import org.visage.tools.tree.JFXFunctionDefinition;
+import org.visage.tools.tree.VisageFunctionDefinition;
 
 /**
  * Represents a constructor of a java class.
@@ -52,7 +52,7 @@ public class ConstructorDocImpl
      * constructor.
      */
     public ConstructorDocImpl(DocEnv env, MethodSymbol sym,
-                              String docComment, JFXFunctionDefinition tree, Position.LineMap lineMap) {
+                              String docComment, VisageFunctionDefinition tree, Position.LineMap lineMap) {
         super(env, sym, docComment, tree, lineMap);
     }
 

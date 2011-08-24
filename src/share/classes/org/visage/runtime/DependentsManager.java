@@ -27,19 +27,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Manages dependents of a particular FXObject.
+ * Manages dependents of a particular VisageObject.
  *
  * @author A. Sundararajan
  */
 public final class DependentsManager {
-    public static void addDependent(FXObject bindee, final int varNum, FXObject binder, final int depNum) {
+    public static void addDependent(VisageObject bindee, final int varNum, VisageObject binder, final int depNum) {
         Dep dep = Dep.newDependency(binder, depNum);
         dep.linkToBindee(bindee, varNum);
         // FIXME: revisit this - is this a good time to call cleanup?
         WeakBinderRef.checkForCleanups();
     }
 
-    public static void removeDependent(FXObject bindee, final int varNum, FXObject binder) {
+    public static void removeDependent(VisageObject bindee, final int varNum, VisageObject binder) {
         // We need to find the "intersection Dep" between the Dep chain
         // associated with binder, and that associated with (bindee,varNum).
         // (Note that this manager is associated with bindee.)
@@ -71,7 +71,7 @@ public final class DependentsManager {
         }
     }
 
-    public static void switchDependence(FXObject binder, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum, final int depNum) {
+    public static void switchDependence(VisageObject binder, VisageObject oldBindee, final int oldNum, VisageObject newBindee, final int newNum, final int depNum) {
         if (oldBindee != null) {
             oldBindee.removeDependent$(oldNum, binder);
         }
@@ -80,7 +80,7 @@ public final class DependentsManager {
         }
     }
 
-    public static void notifyDependents(FXObject bindee, final int varNum, int startPos, int endPos, int newLength, final int phase) {
+    public static void notifyDependents(VisageObject bindee, final int varNum, int startPos, int endPos, int newLength, final int phase) {
         DepChain chain = DepChain.find(varNum, bindee.getDepChain$internal$());
         if (chain == null)
             return;
@@ -91,7 +91,7 @@ public final class DependentsManager {
             // on Dep, in which case binderRef will be null.  In that case,
             // we don't need to do anything, except move on to the next Dep.
             if (binderRef != null) {
-                FXObject binder = binderRef.get();
+                VisageObject binder = binderRef.get();
                 if (binder == null) {
                     binderRef.cleanup();
                 } else {
@@ -123,7 +123,7 @@ public final class DependentsManager {
         }
     }
 
-    public static int getListenerCount(FXObject bindee) {
+    public static int getListenerCount(VisageObject bindee) {
         return getListenerCount(bindee.getDepChain$internal$());
     }
 
@@ -143,13 +143,13 @@ public final class DependentsManager {
         return count + getListenerCount(chain.child0) + getListenerCount(chain.child1);
     }
 
-    public static List<FXObject> getDependents(FXObject bindee) {
-        List<FXObject> res = new ArrayList<FXObject>();
+    public static List<VisageObject> getDependents(VisageObject bindee) {
+        List<VisageObject> res = new ArrayList<VisageObject>();
         getDependents(bindee.getDepChain$internal$(), res);
         return res;
     }
 
-    private static void getDependents(DepChain chain, List<FXObject> res) {
+    private static void getDependents(DepChain chain, List<VisageObject> res) {
         if (chain == null)
             return;
         for (Dep dep = chain.dependencies; dep != null;) {
@@ -199,7 +199,7 @@ class Dep implements BinderLinkable {
 
     int depNum;
 
-    static Dep newDependency(FXObject binder, int depNum) {
+    static Dep newDependency(VisageObject binder, int depNum) {
         Dep dep = new Dep();
         dep.depNum = depNum;
         WeakBinderRef binderRef = WeakBinderRef.instance(binder);
@@ -211,7 +211,7 @@ class Dep implements BinderLinkable {
         return dep;
     }
 
-    void linkToBindee(FXObject bindee, int bindeeVarNum) {
+    void linkToBindee(VisageObject bindee, int bindeeVarNum) {
         WeakBinderRef bref = WeakBinderRef.instance(bindee);
         DepChain chain = DepChain.findForce(bindeeVarNum, bindee.getDepChain$internal$(), bref);
         // Link into binder chain of bindee

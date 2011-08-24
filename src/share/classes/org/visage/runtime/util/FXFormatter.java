@@ -103,7 +103,7 @@ import sun.misc.FormattedFloatingDecimal;
  * <blockquote><pre>
  *   StringBuilder sb = new StringBuilder();
  *   // Send all output to the Appendable object sb
- *   FXFormatter formatter = new FXFormatter(sb, Locale.US);
+ *   VisageFormatter formatter = new VisageFormatter(sb, Locale.US);
  *
  *   // Explicit argument indices may be used to re-order output.
  *   formatter.format("%4$2s %3$2s %2$2s %1$2s", "a", "b", "c", "d")
@@ -443,7 +443,7 @@ import sun.misc.FormattedFloatingDecimal;
  *     value will be adjusted as necessary for Daylight Saving Time.  For
  *     <tt>long</tt>, {@link Long}, and {@link Date} the  time zone used is
  *     the {@plainlink TimeZone#getDefault() default time zone} for this
- *     instance of the Java virtual machine.  The FXFormatter's locale will
+ *     instance of the Java virtual machine.  The VisageFormatter's locale will
  *     supersede the locale of the argument (if any).
  *
  * <tr><td valign="top"><tt>'s'</tt>
@@ -801,7 +801,7 @@ import sun.misc.FormattedFloatingDecimal;
  * IllegalFormatConversionException} will be thrown.
  *
  * <p> All specified exceptions may be thrown by any of the <tt>format</tt>
- * methods of <tt>FXFormatter</tt> as well as by any <tt>format</tt> convenience
+ * methods of <tt>VisageFormatter</tt> as well as by any <tt>format</tt> convenience
  * methods such as {@link String#format(String,Object...) String.format} and
  * {@link java.io.PrintStream#printf(String,Object...) PrintStream.printf}.
  *
@@ -1715,7 +1715,7 @@ import sun.misc.FormattedFloatingDecimal;
  *     value will be adjusted as necessary for Daylight Saving Time.  For
  *     <tt>long</tt>, {@link Long}, and {@link Date} the time zone used is
  *     the {@plainlink TimeZone#getDefault() default time zone} for this
- *     instance of the Java virtual machine.  The FXFormatter's locale will
+ *     instance of the Java virtual machine.  The VisageFormatter's locale will
  *     supersede the locale of the argument (if any).
  *
  * <tr><td valign="top"><tt>'s'</tt>
@@ -1964,7 +1964,7 @@ import sun.misc.FormattedFloatingDecimal;
  *
  * @author  Iris Clark
  */
-public final class FXFormatter implements Closeable, Flushable {
+public final class VisageFormatter implements Closeable, Flushable {
     private Appendable a;
     private Locale l;
 
@@ -1994,7 +1994,7 @@ public final class FXFormatter implements Closeable, Flushable {
      * Locale#getDefault() default locale} for this instance of the Java
      * virtual machine.
      */
-    public FXFormatter() {
+    public VisageFormatter() {
         init(new StringBuilder(), Locale.getDefault());
     }
 
@@ -2008,7 +2008,7 @@ public final class FXFormatter implements Closeable, Flushable {
      *         Destination for the formatted output.  If <tt>a</tt> is
      *         <tt>null</tt> then a {@link StringBuilder} will be created.
      */
-    public FXFormatter(Appendable a) {
+    public VisageFormatter(Appendable a) {
         if (a == null)
             a = new StringBuilder();
         init(a, Locale.getDefault());
@@ -2027,7 +2027,7 @@ public final class FXFormatter implements Closeable, Flushable {
      *         formatting.  If <tt>l</tt> is <tt>null</tt> then no localization
      *         is applied.
      */
-    public FXFormatter(Locale l) {
+    public VisageFormatter(Locale l) {
         init(new StringBuilder(), l);
     }
 
@@ -2043,7 +2043,7 @@ public final class FXFormatter implements Closeable, Flushable {
      *         formatting.  If <tt>l</tt> is <tt>null</tt> then no localization
      *         is applied.
      */
-    public FXFormatter(Appendable a, Locale l) {
+    public VisageFormatter(Appendable a, Locale l) {
         if (a == null)
             a = new StringBuilder();
         init(a, l);
@@ -2076,7 +2076,7 @@ public final class FXFormatter implements Closeable, Flushable {
      *          created, or if some other error occurs while opening or
      *          creating the file
      */
-    public FXFormatter(String fileName) throws FileNotFoundException {
+    public VisageFormatter(String fileName) throws FileNotFoundException {
         init(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName))),
              Locale.getDefault());
     }
@@ -2111,7 +2111,7 @@ public final class FXFormatter implements Closeable, Flushable {
      * @throws  UnsupportedEncodingException
      *          If the named charset is not supported
      */
-    public FXFormatter(String fileName, String csn)
+    public VisageFormatter(String fileName, String csn)
         throws FileNotFoundException, UnsupportedEncodingException
     {
         this(fileName, csn, Locale.getDefault());
@@ -2150,7 +2150,7 @@ public final class FXFormatter implements Closeable, Flushable {
      * @throws  UnsupportedEncodingException
      *          If the named charset is not supported
      */
-    public FXFormatter(String fileName, String csn, Locale l)
+    public VisageFormatter(String fileName, String csn, Locale l)
         throws FileNotFoundException, UnsupportedEncodingException
     {
         init(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), csn)),
@@ -2184,7 +2184,7 @@ public final class FXFormatter implements Closeable, Flushable {
      *          created, or if some other error occurs while opening or
      *          creating the file
      */
-    public FXFormatter(File file) throws FileNotFoundException {
+    public VisageFormatter(File file) throws FileNotFoundException {
         init(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file))),
              Locale.getDefault());
     }
@@ -2219,7 +2219,7 @@ public final class FXFormatter implements Closeable, Flushable {
      * @throws  UnsupportedEncodingException
      *          If the named charset is not supported
      */
-    public FXFormatter(File file, String csn)
+    public VisageFormatter(File file, String csn)
         throws FileNotFoundException, UnsupportedEncodingException
     {
         this(file, csn, Locale.getDefault());
@@ -2258,7 +2258,7 @@ public final class FXFormatter implements Closeable, Flushable {
      * @throws  UnsupportedEncodingException
      *          If the named charset is not supported
      */
-    public FXFormatter(File file, String csn, Locale l)
+    public VisageFormatter(File file, String csn, Locale l)
         throws FileNotFoundException, UnsupportedEncodingException
     {
         init(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), csn)),
@@ -2278,7 +2278,7 @@ public final class FXFormatter implements Closeable, Flushable {
      * @param  ps
      *         The stream to use as the destination of this formatter.
      */
-    public FXFormatter(PrintStream ps) {
+    public VisageFormatter(PrintStream ps) {
         if (ps == null)
             throw new NullPointerException();
         init((Appendable)ps, Locale.getDefault());
@@ -2298,7 +2298,7 @@ public final class FXFormatter implements Closeable, Flushable {
      *         The output stream to use as the destination of this formatter.
      *         The output will be buffered.
      */
-    public FXFormatter(OutputStream os) {
+    public VisageFormatter(OutputStream os) {
         init(new BufferedWriter(new OutputStreamWriter(os)),
              Locale.getDefault());
     }
@@ -2321,7 +2321,7 @@ public final class FXFormatter implements Closeable, Flushable {
      * @throws  UnsupportedEncodingException
      *          If the named charset is not supported
      */
-    public FXFormatter(OutputStream os, String csn)
+    public VisageFormatter(OutputStream os, String csn)
         throws UnsupportedEncodingException
     {
         this(os, csn, Locale.getDefault());
@@ -2347,7 +2347,7 @@ public final class FXFormatter implements Closeable, Flushable {
      * @throws  UnsupportedEncodingException
      *          If the named charset is not supported
      */
-    public FXFormatter(OutputStream os, String csn, Locale l)
+    public VisageFormatter(OutputStream os, String csn, Locale l)
         throws UnsupportedEncodingException
     {
         init(new BufferedWriter(new OutputStreamWriter(os, csn)), l);
@@ -2398,7 +2398,7 @@ public final class FXFormatter implements Closeable, Flushable {
      * {@link StringBuilder} then retrieves the resultant string:
      *
      * <blockquote><pre>
-     *   FXFormatter f = new FXFormatter();
+     *   VisageFormatter f = new VisageFormatter();
      *   f.format("Last reboot at %tc", lastRebootDate);
      *   String s = f.toString();
      *   // -&gt; s == "Last reboot at Sat Jan 01 00:00:00 PST 2000"
@@ -2526,16 +2526,16 @@ public final class FXFormatter implements Closeable, Flushable {
      *
      * @return  This formatter
      */
-    public FXFormatter format(String format, Object ... args) {
+    public VisageFormatter format(String format, Object ... args) {
         return format(l, format, args);
     }
 
     public static final String sprintf(String format, Object... args) {
-        return new FXFormatter().format(format, args).toString();
+        return new VisageFormatter().format(format, args).toString();
     }
 
     public static final String sprintf(Locale l, String format, Object... args) {
-        return new FXFormatter().format(l, format, args).toString();
+        return new VisageFormatter().format(l, format, args).toString();
     }
 
     /**
@@ -2574,7 +2574,7 @@ public final class FXFormatter implements Closeable, Flushable {
      *
      * @return  This formatter
      */
-    public FXFormatter format(Locale l, String format, Object ... args) {
+    public VisageFormatter format(Locale l, String format, Object ... args) {
         ensureOpen();
 
         // index of last argument referenced
@@ -2719,7 +2719,7 @@ public final class FXFormatter implements Closeable, Flushable {
         private boolean dt = false;
         private char c, c2;
 
-        private FXFormatter formatter;
+        private VisageFormatter formatter;
 
         // cache the line separator
         private String ls;
@@ -2806,7 +2806,7 @@ public final class FXFormatter implements Closeable, Flushable {
             return c;
         }
 
-        FormatSpecifier(FXFormatter formatter, String[] sa) {
+        FormatSpecifier(VisageFormatter formatter, String[] sa) {
             this.formatter = formatter;
             int idx = 0;
 
@@ -3117,7 +3117,7 @@ public final class FXFormatter implements Closeable, Flushable {
                 Formatter fmt = new Formatter(formatter.out(), l);
                 /*
                 if (formatter.locale() != l)
-                    fmt = new FXFormatter(formatter.out(), l);
+                    fmt = new VisageFormatter(formatter.out(), l);
                 */
                 ((Formattable)arg).formatTo(fmt, f.valueOf(), width, precision);
             } else {

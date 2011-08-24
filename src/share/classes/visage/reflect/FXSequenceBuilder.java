@@ -26,32 +26,32 @@ package visage.reflect;
 /** Helper class for reflectively building sequences.
  *
  * <blockquote><pre>
- * FXContext rcontext = ...;
+ * VisageContext rcontext = ...;
  * RefType elementType = rcontext.getAnyType();  // Or whatever
- * FXSequenceBuilder builder = rcontext.makeSequenceBuilder(elementType);
+ * VisageSequenceBuilder builder = rcontext.makeSequenceBuilder(elementType);
  * builder.append(...);
  * builder.append(...);
- * FXValue seq = builder.getSequence();
+ * VisageValue seq = builder.getSequence();
  * </pre></blockquote>
  *
  * @author Per Bothner
  * @profile desktop
  */
 
-public class FXSequenceBuilder {
-    FXValue[] values;
+public class VisageSequenceBuilder {
+    VisageValue[] values;
     int nvalues;
-    FXValue sequence;
-    FXType elementType;
-    FXContext context;
+    VisageValue sequence;
+    VisageType elementType;
+    VisageContext context;
 
-    protected FXSequenceBuilder(FXContext context, FXType elementType) {
-        values = new FXValue[16];
+    protected VisageSequenceBuilder(VisageContext context, VisageType elementType) {
+        values = new VisageValue[16];
         this.elementType = elementType;
         this.context = context;
     }
 
-    public void append(FXValue value) {
+    public void append(VisageValue value) {
         if (sequence != null)
             throw new IllegalStateException("appending to SequenceBuilder after getSequence");
         int nitems = value.getItemCount();
@@ -59,12 +59,12 @@ public class FXSequenceBuilder {
             int newSize = values.length;
             while (nvalues + nitems > newSize)
                 newSize = 2 * newSize;
-            FXValue[] newValues = new FXValue[newSize];
+            VisageValue[] newValues = new VisageValue[newSize];
             System.arraycopy(values, 0, newValues, 0, nvalues);
             values = newValues;
         }
         for (int i = 0;  i < nitems;  i++) {
-            FXValue item = value.getItem(i);
+            VisageValue item = value.getItem(i);
             item = elementType.coerceOrNull(item);
             if (item == null)
                 throw new ClassCastException("cannot coerce to "+elementType);
@@ -73,7 +73,7 @@ public class FXSequenceBuilder {
     }
 
     /** Get the final sequence result. */
-    public FXValue getSequence() {
+    public VisageValue getSequence() {
         if (sequence == null) {
             sequence = context.makeSequenceValue(values, nvalues, elementType);
             values = null;

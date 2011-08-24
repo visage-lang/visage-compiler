@@ -30,7 +30,7 @@ import org.visage.tools.tree.*;
 import org.visage.tools.code.JavafxTypes;
 import org.visage.tools.code.JavafxSymtab;
 import org.visage.tools.code.JavafxVarSymbol;
-import org.visage.tools.tree.JFXExpression;
+import org.visage.tools.tree.VisageExpression;
 
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
@@ -70,10 +70,10 @@ public class JavafxLower implements JavafxVisitor {
     private JavafxDefs defs;
     private Type pt;
     private LowerMode mode;
-    private Map<JFXForExpressionInClause, JFXForExpressionInClause> forClauseMap; //TODO this should be refactord into a common translation support
+    private Map<VisageForExpressionInClause, VisageForExpressionInClause> forClauseMap; //TODO this should be refactord into a common translation support
     private JavafxEnv<JavafxAttrContext> env;
-    private JFXTree enclFunc;
-    private JFXTree result;
+    private VisageTree enclFunc;
+    private VisageTree result;
     private Name.Table names;
     private Symbol currentClass;
     private int varCount;
@@ -100,10 +100,10 @@ public class JavafxLower implements JavafxVisitor {
         rs = JavafxResolve.instance(context);
         names = Name.Table.instance(context);
         defs = JavafxDefs.instance(context);
-        forClauseMap = new HashMap<JFXForExpressionInClause, JFXForExpressionInClause>();
+        forClauseMap = new HashMap<VisageForExpressionInClause, VisageForExpressionInClause>();
     }
 
-    public JFXTree lower(JavafxEnv<JavafxAttrContext> attrEnv) {
+    public VisageTree lower(JavafxEnv<JavafxAttrContext> attrEnv) {
         this.env = attrEnv;
         attrEnv.toplevel = lowerDecl(attrEnv.toplevel);
         //System.out.println(result);
@@ -111,7 +111,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    <T extends JFXTree> T lower(T tree, Type pt, LowerMode mode) {
+    <T extends VisageTree> T lower(T tree, Type pt, LowerMode mode) {
         Type prevPt = this.pt;
         LowerMode prevMode = this.mode;
         try {
@@ -120,7 +120,7 @@ public class JavafxLower implements JavafxVisitor {
             if (tree != null) {
                 tree.accept(this);
                 return (T)(mode == LowerMode.EXPRESSION ?
-                    convertTree((JFXExpression)result, this.pt) :
+                    convertTree((VisageExpression)result, this.pt) :
                     result);
             }
             else
@@ -133,24 +133,24 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     
-    public <T extends JFXTree> T lowerExpr(T tree) {
+    public <T extends VisageTree> T lowerExpr(T tree) {
         return lower(tree, Type.noType, LowerMode.EXPRESSION);
     }
 
-    public <T extends JFXTree> T lowerExpr(T tree, Type pt) {
+    public <T extends VisageTree> T lowerExpr(T tree, Type pt) {
         return lower(tree, pt, LowerMode.EXPRESSION);
     }
 
-    public <T extends JFXTree> T lowerStmt(T tree) {
+    public <T extends VisageTree> T lowerStmt(T tree) {
         return lower(tree, Type.noType, LowerMode.STATEMENT);
     }
 
-    public <T extends JFXTree> T lowerDecl(T tree) {
+    public <T extends VisageTree> T lowerDecl(T tree) {
         return lower(tree, Type.noType, LowerMode.DECLARATION);
     }
 
 
-    <T extends JFXTree> List<T> lower(List<T> trees, LowerMode mode) {
+    <T extends VisageTree> List<T> lower(List<T> trees, LowerMode mode) {
         ListBuffer<T> buf = ListBuffer.lb();
         for (T tree : trees) {
             buf.append(lower(tree, Type.noType, mode));
@@ -158,7 +158,7 @@ public class JavafxLower implements JavafxVisitor {
         return buf.toList();
     }
 
-    public <T extends JFXExpression> List<T> lowerExprs(List<? extends T> trees, List<Type> pts) {
+    public <T extends VisageExpression> List<T> lowerExprs(List<? extends T> trees, List<Type> pts) {
         ListBuffer<T> buf = ListBuffer.lb();
         for (T tree : trees) {
             buf.append(lowerExpr(tree, pts.head));
@@ -167,26 +167,26 @@ public class JavafxLower implements JavafxVisitor {
         return buf.toList();
     }
 
-    public <T extends JFXTree> List<T> lowerExprs(List<T> trees) {
+    public <T extends VisageTree> List<T> lowerExprs(List<T> trees) {
         return lower(trees, LowerMode.EXPRESSION);
     }
     
-    public <T extends JFXTree> List<T> lowerDecls(List<T> trees) {
+    public <T extends VisageTree> List<T> lowerDecls(List<T> trees) {
         return lower(trees, LowerMode.DECLARATION);
     }
 
-    public <T extends JFXTree> List<T> lowerStats(List<T> trees) {
+    public <T extends VisageTree> List<T> lowerStats(List<T> trees) {
         return lower(trees, LowerMode.STATEMENT);
     }
 
-    JFXExpression convertTree(JFXExpression tree, Type type) {
+    VisageExpression convertTree(VisageExpression tree, Type type) {
         if (type == Type.noType) return tree;
         return tree = needSequenceConversion(tree, type) ?
             toSequence(tree, type) :
             preTrans.makeCastIfNeeded(tree, type);
     }
 
-    private boolean needSequenceConversion(JFXExpression tree, Type type) {
+    private boolean needSequenceConversion(VisageExpression tree, Type type) {
         return (types.isSequence(type) &&
             ((!types.isSequence(tree.type) &&
             tree.type != syms.unreachableType &&
@@ -194,25 +194,25 @@ public class JavafxLower implements JavafxVisitor {
             isNull(tree)));
     }
 
-    private boolean isNull(JFXTree tree) {
+    private boolean isNull(VisageTree tree) {
         return (tree.getFXTag() == JavafxTag.LITERAL &&
-                ((JFXLiteral)tree).value == null);
+                ((VisageLiteral)tree).value == null);
     }
 
-    private JFXExpression toSequence(JFXExpression tree, Type type) {
-        JFXExpression seqExpr = null;
+    private VisageExpression toSequence(VisageExpression tree, Type type) {
+        VisageExpression seqExpr = null;
         if (isNull(tree)) {
             seqExpr = m.at(tree.pos).EmptySequence().setType(type);
         }
         else if (types.isSameType(tree.type, syms.objectType) &&
                 types.isSubtypeUnchecked(syms.visage_SequenceTypeErasure, type)) { //synthetic call
             MethodSymbol msym = (MethodSymbol)rs.findIdentInType(env, syms.visage_SequencesType, defs.Sequences_convertObjectToSequence.methodName, Kinds.MTH);
-            JFXExpression sequencesType = m.at(tree.pos).Type(syms.visage_SequencesType).setType(syms.visage_SequencesType);
+            VisageExpression sequencesType = m.at(tree.pos).Type(syms.visage_SequencesType).setType(syms.visage_SequencesType);
             JavafxTreeInfo.setSymbol(sequencesType, syms.visage_SequencesType.tsym);
-            JFXIdent convertMeth = m.at(tree.pos).Ident(defs.Sequences_convertObjectToSequence.methodName);
+            VisageIdent convertMeth = m.at(tree.pos).Ident(defs.Sequences_convertObjectToSequence.methodName);
             convertMeth.sym = msym;
             convertMeth.type = msym.type;
-            seqExpr = m.at(tree.pos).Apply(List.<JFXExpression>nil(), convertMeth, List.of(tree)).setType(msym.type.getReturnType());
+            seqExpr = m.at(tree.pos).Apply(List.<VisageExpression>nil(), convertMeth, List.of(tree)).setType(msym.type.getReturnType());
 
         }
         else {
@@ -226,68 +226,68 @@ public class JavafxLower implements JavafxVisitor {
         return names.fromString("$" + label + "$" + varCount++);
     }
 
-    private JFXVar makeVar(DiagnosticPosition diagPos, String name, JFXExpression init, Type type) {
+    private VisageVar makeVar(DiagnosticPosition diagPos, String name, VisageExpression init, Type type) {
         return makeVar(diagPos, 0L, name, JavafxBindStatus.UNBOUND, init, type);
     }
     
-    private JFXVar makeVar(DiagnosticPosition diagPos, long flags, String name, JavafxBindStatus bindStatus, JFXExpression init, Type type) {
+    private VisageVar makeVar(DiagnosticPosition diagPos, long flags, String name, JavafxBindStatus bindStatus, VisageExpression init, Type type) {
         JavafxVarSymbol vsym = new JavafxVarSymbol(types, names, flags, tempName(name), types.normalize(type), preTrans.makeDummyMethodSymbol(currentClass));
         return makeVar(diagPos, vsym, bindStatus, init);
     }
 
-    private JFXVar makeVar(DiagnosticPosition diagPos, JavafxVarSymbol vSym, JavafxBindStatus bindStatus, JFXExpression init) {
-        JFXModifiers mod = m.at(diagPos).Modifiers(vSym.flags());
-        JFXType fxType = preTrans.makeTypeTree(vSym.type);
-        JFXVar v = m.at(diagPos).Var(vSym.name, fxType, mod, init, bindStatus, null, null);
+    private VisageVar makeVar(DiagnosticPosition diagPos, JavafxVarSymbol vSym, JavafxBindStatus bindStatus, VisageExpression init) {
+        VisageModifiers mod = m.at(diagPos).Modifiers(vSym.flags());
+        VisageType fxType = preTrans.makeTypeTree(vSym.type);
+        VisageVar v = m.at(diagPos).Var(vSym.name, fxType, mod, init, bindStatus, null, null);
         v.sym = vSym;
         v.type = vSym.type;
         return v;
     }
 
-    public void visitAssign(JFXAssign tree) {
+    public void visitAssign(VisageAssign tree) {
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED &&
-                types.isSequence(((JFXSequenceIndexed)tree.lhs).getSequence().type) &&
+                types.isSequence(((VisageSequenceIndexed)tree.lhs).getSequence().type) &&
                 (types.isSequence(tree.rhs.type) || types.isSameType(tree.rhs.type, syms.objectType))) {
-            result = lowerSequenceIndexedAssign(tree.pos(), (JFXSequenceIndexed)tree.lhs, tree.rhs);
+            result = lowerSequenceIndexedAssign(tree.pos(), (VisageSequenceIndexed)tree.lhs, tree.rhs);
         }
         else {
-            JFXExpression lhs = lowerExpr(tree.lhs);
-            JFXExpression rhs = lowerExpr(tree.rhs, tree.lhs.type);
+            VisageExpression lhs = lowerExpr(tree.lhs);
+            VisageExpression rhs = lowerExpr(tree.rhs, tree.lhs.type);
             result = m.at(tree.pos).Assign(lhs, rhs).setType(tree.type);
         }
     }
 
-    JFXExpression lowerSequenceIndexedAssign(DiagnosticPosition pos, JFXSequenceIndexed indexed, JFXExpression val) {
+    VisageExpression lowerSequenceIndexedAssign(DiagnosticPosition pos, VisageSequenceIndexed indexed, VisageExpression val) {
         Type resType = indexed.getSequence().type;
-        JFXVar indexVar = makeVar(pos, defs.posNamePrefix(), indexed.getIndex(), indexed.getIndex().type);
-        JFXIdent indexRef = m.at(pos).Ident(indexVar);
-        JFXExpression lhs = m.SequenceSlice(indexed.getSequence(), indexRef, indexRef, JFXSequenceSlice.END_INCLUSIVE);
+        VisageVar indexVar = makeVar(pos, defs.posNamePrefix(), indexed.getIndex(), indexed.getIndex().type);
+        VisageIdent indexRef = m.at(pos).Ident(indexVar);
+        VisageExpression lhs = m.SequenceSlice(indexed.getSequence(), indexRef, indexRef, VisageSequenceSlice.END_INCLUSIVE);
         lhs.setType(resType);
-        JFXExpression assign = m.Assign(lhs, val).setType(resType);
-        return lowerExpr(m.Block(0L, List.<JFXExpression>of(indexVar), assign).setType(resType));
+        VisageExpression assign = m.Assign(lhs, val).setType(resType);
+        return lowerExpr(m.Block(0L, List.<VisageExpression>of(indexVar), assign).setType(resType));
     }
 
-    public void visitAssignop(JFXAssignOp tree) {
+    public void visitAssignop(VisageAssignOp tree) {
         result = visitNumericAssignop(tree, types.isSameType(tree.lhs.type, syms.visage_DurationType)
                 || types.isSameType(tree.lhs.type, syms.visage_LengthType)
                 || types.isSameType(tree.lhs.type, syms.visage_AngleType)
                 || types.isSameType(tree.lhs.type, syms.visage_ColorType));
     }
     //where
-    private JFXExpression visitNumericAssignop(JFXAssignOp tree, boolean isSpecialLiteralOperation) {
+    private VisageExpression visitNumericAssignop(VisageAssignOp tree, boolean isSpecialLiteralOperation) {
 
         JavafxTag opTag = tree.getNormalOperatorFXTag();
-        ListBuffer<JFXExpression> stats = ListBuffer.lb();
+        ListBuffer<VisageExpression> stats = ListBuffer.lb();
 
         //if the assignop operand is an indexed expression of the kind a.x[i]
         //then we need to cache the index value (not to recompute it twice).
 
-        JFXExpression lhs = tree.lhs;
-        JFXIdent index = null;
+        VisageExpression lhs = tree.lhs;
+        VisageIdent index = null;
         
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
-            JFXSequenceIndexed indexed = (JFXSequenceIndexed)tree.lhs;
-            JFXVar varDef = makeVar(tree.pos(), defs.indexNamePrefix(), indexed.getIndex(), indexed.getIndex().type);
+            VisageSequenceIndexed indexed = (VisageSequenceIndexed)tree.lhs;
+            VisageVar varDef = makeVar(tree.pos(), defs.indexNamePrefix(), indexed.getIndex(), indexed.getIndex().type);
             index = m.at(tree.pos).Ident(varDef.sym);
             index.sym = varDef.sym;
             index.type = varDef.type;
@@ -301,15 +301,15 @@ public class JavafxLower implements JavafxVisitor {
         //
         // var $expr$ = a;
 
-        JFXIdent selector = null;
+        VisageIdent selector = null;
 
         if (lhs.getFXTag() == JavafxTag.SELECT) {
-            JFXExpression selected = ((JFXSelect)lhs).selected;
+            VisageExpression selected = ((VisageSelect)lhs).selected;
             // But, if this select is ClassName.foo, then we don't want
             // to create "var $expr = a;"
             Symbol sym = JavafxTreeInfo.symbolFor(selected);
             if (sym == null || sym.kind != Kinds.TYP) {
-                JFXVar varDef = makeVar(tree.pos(), defs.exprNamePrefix(), selected, selected.type);
+                VisageVar varDef = makeVar(tree.pos(), defs.exprNamePrefix(), selected, selected.type);
                 selector = m.at(tree.pos).Ident(varDef.sym);
                 selector.sym = varDef.sym;
                 selector.type = varDef.type;
@@ -317,7 +317,7 @@ public class JavafxLower implements JavafxVisitor {
             }
         }
 
-        JFXExpression varRef = lhs;
+        VisageExpression varRef = lhs;
 
         //create a reference to the cached var. The translated expression
         //depends on whether the operand is a select or not:
@@ -328,7 +328,7 @@ public class JavafxLower implements JavafxVisitor {
         if (selector != null) {
             JavafxVarSymbol vsym = (JavafxVarSymbol)JavafxTreeInfo.symbol(lhs);
             varRef = m.at(tree.pos).Select(selector, vsym, false);
-            ((JFXSelect)varRef).sym = vsym;
+            ((VisageSelect)varRef).sym = vsym;
         }
 
         if (index != null) {
@@ -336,17 +336,17 @@ public class JavafxLower implements JavafxVisitor {
         }
 
         //Generate the binary expression this assignop translates to
-        JFXExpression op = null;
+        VisageExpression op = null;
 
         if (isSpecialLiteralOperation) {
             //special literal assignop (duration, length, angle, or color)
             //
             //(SELECT) $expr$.x = $expr$.x.[add/sub/mul/div](lhs);
             //(IDENT)  x = x.[add/sub/mul/div](lhs);
-            JFXSelect meth = (JFXSelect)m.at(tree.pos).Select(varRef, tree.operator.name, false);
+            VisageSelect meth = (VisageSelect)m.at(tree.pos).Select(varRef, tree.operator.name, false);
             meth.setType(tree.operator.type);
             meth.sym = tree.operator;
-            op = m.at(tree.pos).Apply(List.<JFXExpression>nil(), meth, List.of(tree.rhs));
+            op = m.at(tree.pos).Apply(List.<VisageExpression>nil(), meth, List.of(tree.rhs));
             op.setType(tree.type);
         } else {
             //numeric assignop
@@ -354,18 +354,18 @@ public class JavafxLower implements JavafxVisitor {
             //(SELECT) $expr$.x = $expr$.x [+|-|*|/] lhs;
             //(IDENT)  x = $expr$.x [+|-|*|/] lhs;
             op = m.at(tree.pos).Binary(opTag, varRef, tree.rhs);
-            ((JFXBinary)op).operator = tree.operator;
+            ((VisageBinary)op).operator = tree.operator;
             op.setType(tree.operator.type.asMethodType().getReturnType());
         }
-        JFXExpression assignOpStat = (JFXExpression)m.at(tree.pos).Assign(varRef, op).setType(op.type);
+        VisageExpression assignOpStat = (VisageExpression)m.at(tree.pos).Assign(varRef, op).setType(op.type);
 
-        JFXExpression res = stats.nonEmpty() ?
+        VisageExpression res = stats.nonEmpty() ?
             m.at(tree.pos).Block(0L, stats.toList(), assignOpStat).setType(op.type) :
             assignOpStat;
         return lowerExpr(res, Type.noType);
     }
 
-    public void visitBinary(JFXBinary tree) {
+    public void visitBinary(VisageBinary tree) {
         boolean isSpecialLiteralBinaryExpr = tree.operator == null;
         boolean isEqualExpr = (tree.getFXTag() == JavafxTag.EQ ||
                 tree.getFXTag() == JavafxTag.NE);
@@ -383,19 +383,19 @@ public class JavafxLower implements JavafxVisitor {
                 types.sequenceType(tree.operator.type.getParameterTypes().tail.head) :
                 tree.operator.type.getParameterTypes().tail.head;
         }
-        JFXExpression lhs = isEqualExpr && isBoxedOp && !isSequenceOp ?
+        VisageExpression lhs = isEqualExpr && isBoxedOp && !isSequenceOp ?
             lowerExpr(tree.lhs) :
             lowerExpr(tree.lhs, lhsType);
-        JFXExpression rhs = isEqualExpr && isBoxedOp && !isSequenceOp ?
+        VisageExpression rhs = isEqualExpr && isBoxedOp && !isSequenceOp ?
             lowerExpr(tree.rhs) :
             lowerExpr(tree.rhs, rhsType);
-        JFXBinary res = m.at(tree.pos).Binary(tree.getFXTag(), lhs, rhs);
+        VisageBinary res = m.at(tree.pos).Binary(tree.getFXTag(), lhs, rhs);
         res.operator = tree.operator;
         result = res.setType(tree.type);
     }
 
-    public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        JFXExpression whereExpr = lowerExpr(that.getWhereExpression());
+    public void visitForExpressionInClause(VisageForExpressionInClause that) {
+        VisageExpression whereExpr = lowerExpr(that.getWhereExpression());
         Type typeToCheck = that.seqExpr.type;
         if  (that.seqExpr.type.tag == TypeTags.BOT ||
                 types.isSameType(that.seqExpr.type, syms.visage_EmptySequenceType)) {
@@ -411,20 +411,20 @@ public class JavafxLower implements JavafxVisitor {
                 types.asSuper(that.seqExpr.type, syms.iterableType.tsym) == null) {
             typeToCheck = types.sequenceType(that.seqExpr.type);
         }
-        JFXExpression seqExpr = lowerExpr(that.seqExpr, typeToCheck);
-        JFXForExpressionInClause res = m.at(that.pos).InClause(that.getVar(), seqExpr, whereExpr);
+        VisageExpression seqExpr = lowerExpr(that.seqExpr, typeToCheck);
+        VisageForExpressionInClause res = m.at(that.pos).InClause(that.getVar(), seqExpr, whereExpr);
         res.setIndexUsed(that.getIndexUsed());
         res.indexVarSym = that.indexVarSym;
         forClauseMap.put(that, res);
         result = res.setType(that.type);
     }
 
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        JFXTree prevFunc = enclFunc;
+    public void visitFunctionDefinition(VisageFunctionDefinition tree) {
+        VisageTree prevFunc = enclFunc;
         try {
             enclFunc = tree;
-            JFXBlock body  = (JFXBlock)lowerExpr(tree.getBodyExpression(), tree.type != null ? tree.type.getReturnType() : Type.noType);
-            JFXFunctionDefinition res = m.at(tree.pos).FunctionDefinition(tree.mods, tree.name, tree.getJFXReturnType(), tree.getParams(), body);
+            VisageBlock body  = (VisageBlock)lowerExpr(tree.getBodyExpression(), tree.type != null ? tree.type.getReturnType() : Type.noType);
+            VisageFunctionDefinition res = m.at(tree.pos).FunctionDefinition(tree.mods, tree.name, tree.getJFXReturnType(), tree.getParams(), body);
             res.operation.definition = res;
             res.sym = tree.sym;
             result = res.setType(tree.type);
@@ -434,23 +434,23 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    public void visitFunctionInvocation(JFXFunctionInvocation tree) {
-        JFXExpression meth = lowerFunctionName(tree.meth);
+    public void visitFunctionInvocation(VisageFunctionInvocation tree) {
+        VisageExpression meth = lowerFunctionName(tree.meth);
         List<Type> paramTypes = tree.meth.type.getParameterTypes();
         Symbol sym = JavafxTreeInfo.symbolFor(tree.meth);
         
-        List<JFXExpression> args = List.nil();
+        List<VisageExpression> args = List.nil();
         boolean pointer_Make = types.isSyntheticPointerFunction(sym);
         boolean builtins_Func = types.isSyntheticBuiltinsFunction(sym);
         if (pointer_Make || builtins_Func) {
-                JFXExpression varExpr = lowerExpr(tree.args.head);
-                ListBuffer<JFXExpression> syntheticArgs = ListBuffer.lb();
-                syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.INST).setType(syms.visage_FXObjectType));
+                VisageExpression varExpr = lowerExpr(tree.args.head);
+                ListBuffer<VisageExpression> syntheticArgs = ListBuffer.lb();
+                syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, VisageVarRef.RefKind.INST).setType(syms.visage_FXObjectType));
                 
-                if (varExpr.getFXTag() == JavafxTag.IDENT && ((JFXIdent)varExpr).getName().equals(names._this)) {
+                if (varExpr.getFXTag() == JavafxTag.IDENT && ((VisageIdent)varExpr).getName().equals(names._this)) {
                     syntheticArgs.append(m.at(tree.pos).LiteralInteger("-1", 10).setType(syms.intType));
                 } else {
-                    syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.VARNUM).setType(syms.intType));
+                    syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, VisageVarRef.RefKind.VARNUM).setType(syms.intType));
                 }
                 
                 Symbol msym = builtins_Func ?
@@ -462,7 +462,7 @@ public class JavafxLower implements JavafxVisitor {
         }
         else if (sym instanceof MethodSymbol &&
                 ((MethodSymbol)sym).isVarArgs()) {
-            List<JFXExpression> actuals = tree.args;
+            List<VisageExpression> actuals = tree.args;
             while (paramTypes.tail.nonEmpty()) {
                 args = args.append(lowerExpr(actuals.head, paramTypes.head));
                 actuals = actuals.tail;
@@ -489,22 +489,22 @@ public class JavafxLower implements JavafxVisitor {
         result.type = tree.type;
     }
     //where
-    private JFXExpression lowerFunctionName(JFXExpression meth) {
+    private VisageExpression lowerFunctionName(VisageExpression meth) {
         Symbol msym = JavafxTreeInfo.symbolFor(meth);
         if (meth.getFXTag() == JavafxTag.IDENT) {
             return m.at(meth.pos()).Ident(msym).setType(meth.type);
         } else if (meth.getFXTag() == JavafxTag.SELECT) {
-            return lowerSelect((JFXSelect)meth);
+            return lowerSelect((VisageSelect)meth);
         } else {
             return lowerExpr(meth);
         }
     }
 
-    public void visitFunctionValue(JFXFunctionValue tree) {
-        JFXTree prevFunc = enclFunc;
+    public void visitFunctionValue(VisageFunctionValue tree) {
+        VisageTree prevFunc = enclFunc;
         try {
             enclFunc = tree;
-            tree.bodyExpression = (JFXBlock)lowerExpr(tree.bodyExpression, tree.type.getReturnType());
+            tree.bodyExpression = (VisageBlock)lowerExpr(tree.bodyExpression, tree.type.getReturnType());
             result = tree;
         }
         finally {
@@ -512,7 +512,7 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    public void visitIfExpression(JFXIfExpression tree) {
+    public void visitIfExpression(VisageIfExpression tree) {
         if (tree.type.tag != TypeTags.VOID &&
                 (tree.truepart.type == syms.unreachableType ||
                 (tree.falsepart != null && tree.falsepart.type == syms.unreachableType))) {
@@ -525,119 +525,119 @@ public class JavafxLower implements JavafxVisitor {
                 thenPartSeq;
             boolean nonSeqExpected = thenPartSeq != elsePartSeq &&
                     !types.isSequence(pt);
-            JFXExpression cond = lowerExpr(tree.cond, syms.booleanType);
-            JFXExpression truePart = lowerExpr(tree.truepart,
+            VisageExpression cond = lowerExpr(tree.cond, syms.booleanType);
+            VisageExpression truePart = lowerExpr(tree.truepart,
                     !nonSeqExpected || thenPartSeq ? tree.type : types.elementTypeOrType(tree.type));
-            JFXExpression falsePart = lowerExpr(tree.falsepart,
+            VisageExpression falsePart = lowerExpr(tree.falsepart,
                     !nonSeqExpected || elsePartSeq ? tree.type : types.elementTypeOrType(tree.type));
             result = m.at(tree.pos).Conditional(cond, truePart, falsePart);
             result.setType(nonSeqExpected ? syms.objectType : tree.type);
         }
     }
 
-    public JFXTree lowerUnreachableIfExpression(JFXIfExpression tree) {
+    public VisageTree lowerUnreachableIfExpression(VisageIfExpression tree) {
         boolean inverted = tree.truepart.type == syms.unreachableType;
         Type treeType = tree.type.tag == TypeTags.BOT ?
             types.isSequence(tree.type) ?
                 types.sequenceType(syms.objectType) : syms.objectType :
             tree.type;
-        JFXExpression truePart = lowerExpr(tree.truepart, treeType);
-        JFXExpression falsePart = lowerExpr(tree.falsepart, treeType);
-        JFXVar varDef = makeVar(tree.pos(), defs.resNamePrefix(), null, treeType);
-        JFXIdent varRef = m.at(tree.pos).Ident(varDef.sym);
+        VisageExpression truePart = lowerExpr(tree.truepart, treeType);
+        VisageExpression falsePart = lowerExpr(tree.falsepart, treeType);
+        VisageVar varDef = makeVar(tree.pos(), defs.resNamePrefix(), null, treeType);
+        VisageIdent varRef = m.at(tree.pos).Ident(varDef.sym);
         varRef.sym = varDef.sym;
         varRef.type = varDef.type;
 
-        JFXExpression assign = m.at(tree.pos).Assign(varRef, inverted ? falsePart : truePart).setType(syms.voidType); //we need void here!
+        VisageExpression assign = m.at(tree.pos).Assign(varRef, inverted ? falsePart : truePart).setType(syms.voidType); //we need void here!
 
-        JFXExpression ifExpr = m.at(tree.pos).Conditional(tree.cond,
+        VisageExpression ifExpr = m.at(tree.pos).Conditional(tree.cond,
                 inverted ? truePart : assign, inverted ? assign : falsePart).setType(syms.voidType); //we need void here!
 
         return m.at(tree.pos()).Block(0L, List.of(varDef, ifExpr), varRef).setType(varRef.type);
     }
 
-    public void visitIndexof(JFXIndexof that) {
-        JFXIndexof res = m.at(that.pos).Indexof(that.fname);
+    public void visitIndexof(VisageIndexof that) {
+        VisageIndexof res = m.at(that.pos).Indexof(that.fname);
         res.clause = that.clause;
         result = res.setType(that.type);
     }
 
-    public void visitInstanceOf(JFXInstanceOf tree) {
-        JFXExpression expr = lowerExpr(tree.getExpression());
+    public void visitInstanceOf(VisageInstanceOf tree) {
+        VisageExpression expr = lowerExpr(tree.getExpression());
         result = m.at(tree.pos).TypeTest(expr, tree.clazz).setType(tree.type);
     }
 
-    public void visitInterpolateValue(JFXInterpolateValue that) {
-        JFXExpression pointerType = m.at(that.pos).Type(syms.visage_PointerType).setType(syms.visage_PointerType);
+    public void visitInterpolateValue(VisageInterpolateValue that) {
+        VisageExpression pointerType = m.at(that.pos).Type(syms.visage_PointerType).setType(syms.visage_PointerType);
         Symbol pointerMakeSym = rs.resolveQualifiedMethod(that.pos(),
                 env, syms.visage_PointerType,
                 defs.Pointer_make.methodName,
                 rs.newMethTemplate(List.of(syms.objectType),
                 List.<Type>nil()));
         pointerMakeSym.flags_field |= JavafxFlags.FUNC_POINTER_MAKE;
-        JFXSelect pointerMake = (JFXSelect)m.at(that.pos).Select(pointerType, pointerMakeSym, false);
+        VisageSelect pointerMake = (VisageSelect)m.at(that.pos).Select(pointerType, pointerMakeSym, false);
         pointerMake.sym = pointerMakeSym;
-        JFXExpression pointerCall = m.at(that.pos).Apply(List.<JFXExpression>nil(),
+        VisageExpression pointerCall = m.at(that.pos).Apply(List.<VisageExpression>nil(),
                 pointerMake,
                 List.of(that.attribute)).setType(pointerMakeSym.type.getReturnType());
-        ListBuffer<JFXTree> parts = ListBuffer.lb();
+        ListBuffer<VisageTree> parts = ListBuffer.lb();
         parts.append(makeObjectLiteralPart(that.pos(), syms.visage_KeyValueType, defs.value_InterpolateMethodName, that.funcValue));
         parts.append(makeObjectLiteralPart(that.pos(), syms.visage_KeyValueType, defs.target_InterpolateMethodName, pointerCall));
         if (that.interpolation != null) {
             parts.append(makeObjectLiteralPart(that.pos(), syms.visage_KeyValueType, defs.interpolate_InterpolateMethodName, that.interpolation));
         }
-        JFXExpression res = m.at(that.pos).ObjectLiteral(m.at(that.pos).Type(syms.visage_KeyValueType), parts.toList()).setType(syms.visage_KeyValueType);
+        VisageExpression res = m.at(that.pos).ObjectLiteral(m.at(that.pos).Type(syms.visage_KeyValueType), parts.toList()).setType(syms.visage_KeyValueType);
         result = lowerExpr(res);
     }
     //where
-    private JFXObjectLiteralPart makeObjectLiteralPart(DiagnosticPosition pos, Type site, Name varName, JFXExpression value) {
-        JFXObjectLiteralPart part = m.at(pos).ObjectLiteralPart(varName, value, JavafxBindStatus.UNBOUND);
+    private VisageObjectLiteralPart makeObjectLiteralPart(DiagnosticPosition pos, Type site, Name varName, VisageExpression value) {
+        VisageObjectLiteralPart part = m.at(pos).ObjectLiteralPart(varName, value, JavafxBindStatus.UNBOUND);
         part.setType(value.type);
         part.sym = rs.findIdentInType(env, site, varName, Kinds.VAR);
         return part;
     }
 
-    public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
-        ListBuffer<JFXTree> parts = ListBuffer.lb();
-        JFXExpression keyValues = m.at(that.pos).ExplicitSequence(that.values).setType(types.sequenceType(syms.visage_KeyValueType));
+    public void visitKeyFrameLiteral(VisageKeyFrameLiteral that) {
+        ListBuffer<VisageTree> parts = ListBuffer.lb();
+        VisageExpression keyValues = m.at(that.pos).ExplicitSequence(that.values).setType(types.sequenceType(syms.visage_KeyValueType));
         parts.append(makeObjectLiteralPart(that.pos(), syms.visage_KeyFrameType, defs.time_KeyFrameMethodName, that.start));
         parts.append(makeObjectLiteralPart(that.pos(), syms.visage_KeyFrameType, defs.values_KeyFrameMethodName, keyValues));
-        JFXExpression res = m.at(that.pos).ObjectLiteral(m.at(that.pos).Type(syms.visage_KeyValueType), parts.toList()).setType(syms.visage_KeyFrameType);
+        VisageExpression res = m.at(that.pos).ObjectLiteral(m.at(that.pos).Type(syms.visage_KeyValueType), parts.toList()).setType(syms.visage_KeyFrameType);
         result = lowerExpr(res);
     }
 
-    public void visitLiteral(JFXLiteral tree) {
+    public void visitLiteral(VisageLiteral tree) {
         result = tree;
     }
 
-    public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
-        JFXExpression expr = lowerExpr(tree.getExpression(), tree.sym.type);
-        JFXObjectLiteralPart res = m.at(tree.pos).ObjectLiteralPart(tree.name, expr, tree.getExplicitBindStatus());
+    public void visitObjectLiteralPart(VisageObjectLiteralPart tree) {
+        VisageExpression expr = lowerExpr(tree.getExpression(), tree.sym.type);
+        VisageObjectLiteralPart res = m.at(tree.pos).ObjectLiteralPart(tree.name, expr, tree.getExplicitBindStatus());
         res.markBound(tree.getBindStatus());
         res.sym = tree.sym;
         result = res.setType(tree.type);
     }
 
-    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
-        JFXExpression init = lowerExpr(tree.getInitializer(), tree.getId().sym.type);
-        JFXOnReplace onReplace = lowerDecl(tree.getOnReplace());
-        JFXOnReplace onInvalidate = lowerDecl(tree.getOnInvalidate());
-        JFXOverrideClassVar res = m.at(tree.pos).OverrideClassVar(tree.name, tree.getJFXType(), tree.mods, tree.getId(), init, tree.getBindStatus(), onReplace, onInvalidate);
+    public void visitOverrideClassVar(VisageOverrideClassVar tree) {
+        VisageExpression init = lowerExpr(tree.getInitializer(), tree.getId().sym.type);
+        VisageOnReplace onReplace = lowerDecl(tree.getOnReplace());
+        VisageOnReplace onInvalidate = lowerDecl(tree.getOnInvalidate());
+        VisageOverrideClassVar res = m.at(tree.pos).OverrideClassVar(tree.name, tree.getJFXType(), tree.mods, tree.getId(), init, tree.getBindStatus(), onReplace, onInvalidate);
         res.sym = tree.sym;
         result = res.setType(tree.type);
     }
 
-    public void visitReturn(JFXReturn tree) {
+    public void visitReturn(VisageReturn tree) {
         Type typeToCheck = enclFunc.type != null ?
             enclFunc.type.getReturnType() :
             syms.objectType; //nedded because run function has null type
-        JFXExpression retExpr = lowerExpr(tree.getExpression(), typeToCheck);
+        VisageExpression retExpr = lowerExpr(tree.getExpression(), typeToCheck);
         result = m.at(tree.pos).Return(retExpr).setType(tree.type);
     }
 
-    public void visitSequenceDelete(JFXSequenceDelete that) {
-        JFXExpression seq = lowerExpr(that.getSequence());
-        JFXExpression el = that.getElement();
+    public void visitSequenceDelete(VisageSequenceDelete that) {
+        VisageExpression seq = lowerExpr(that.getSequence());
+        VisageExpression el = that.getElement();
         if (that.getElement() != null) {
             Type typeToCheck = types.isArrayOrSequenceType(that.getElement().type) ?
                     that.getSequence().type :
@@ -647,13 +647,13 @@ public class JavafxLower implements JavafxVisitor {
         result = m.at(that.pos).SequenceDelete(seq, el).setType(that.type);
     }
 
-    public void visitSequenceEmpty(JFXSequenceEmpty that) {
+    public void visitSequenceEmpty(VisageSequenceEmpty that) {
         result = that;
     }
 
-    public void visitSequenceExplicit(JFXSequenceExplicit that) {
-        ListBuffer<JFXExpression> buf = ListBuffer.lb();
-        for (JFXExpression item : that.getItems()) {
+    public void visitSequenceExplicit(VisageSequenceExplicit that) {
+        ListBuffer<VisageExpression> buf = ListBuffer.lb();
+        for (VisageExpression item : that.getItems()) {
             Type typeToCheck = types.isSameType(item.type, syms.objectType) ||
                     types.isArrayOrSequenceType(item.type) ?
                 that.type :
@@ -665,10 +665,10 @@ public class JavafxLower implements JavafxVisitor {
             m.at(that.pos).ExplicitSequence(buf.toList()).setType(that.type);
     }
     //where
-    private void flatten(JFXExpression item, ListBuffer<JFXExpression> items) {
+    private void flatten(VisageExpression item, ListBuffer<VisageExpression> items) {
         if (item.getFXTag() == JavafxTag.SEQUENCE_EXPLICIT) {
-            JFXSequenceExplicit nestedSeq = (JFXSequenceExplicit)item;
-            for (JFXExpression nestedItem : nestedSeq.getItems()) {
+            VisageSequenceExplicit nestedSeq = (VisageSequenceExplicit)item;
+            for (VisageExpression nestedItem : nestedSeq.getItems()) {
                 flatten(nestedItem, items);
             }
         }
@@ -676,77 +676,77 @@ public class JavafxLower implements JavafxVisitor {
             items.append(item);
         }
     }
-    public void visitSequenceIndexed(JFXSequenceIndexed that) {
-        JFXExpression index = lowerExpr(that.getIndex(), syms.intType);
-        JFXExpression seq = lowerExpr(that.getSequence());
+    public void visitSequenceIndexed(VisageSequenceIndexed that) {
+        VisageExpression index = lowerExpr(that.getIndex(), syms.intType);
+        VisageExpression seq = lowerExpr(that.getSequence());
         result = m.at(that.pos).SequenceIndexed(seq, index).setType(that.type);
     }
 
-    public void visitSequenceInsert(JFXSequenceInsert that) {
-        JFXExpression seq = lowerExpr(that.getSequence());
+    public void visitSequenceInsert(VisageSequenceInsert that) {
+        VisageExpression seq = lowerExpr(that.getSequence());
         Type typeToCheck = types.isArrayOrSequenceType(that.getElement().type) ||
                 types.isSameType(syms.objectType, that.getElement().type) ?
                 that.getSequence().type :
                 types.elementType(that.getSequence().type);
-        JFXExpression el = lowerExpr(that.getElement(), typeToCheck);
-        JFXExpression pos = lowerExpr(that.getPosition(), syms.intType);
+        VisageExpression el = lowerExpr(that.getElement(), typeToCheck);
+        VisageExpression pos = lowerExpr(that.getPosition(), syms.intType);
         result = m.at(that.pos).SequenceInsert(seq, el, pos, that.shouldInsertAfter()).setType(that.type);
     }
 
-    public void visitSequenceRange(JFXSequenceRange that) {
-        JFXExpression lower = lowerExpr(that.getLower(), types.elementType(that.type));
-        JFXExpression upper = lowerExpr(that.getUpper(), types.elementType(that.type));
-        JFXExpression step = lowerExpr(that.getStepOrNull(), types.elementType(that.type));
-        JFXSequenceRange res = m.at(that.pos).RangeSequence(lower, upper, step, that.isExclusive());
+    public void visitSequenceRange(VisageSequenceRange that) {
+        VisageExpression lower = lowerExpr(that.getLower(), types.elementType(that.type));
+        VisageExpression upper = lowerExpr(that.getUpper(), types.elementType(that.type));
+        VisageExpression step = lowerExpr(that.getStepOrNull(), types.elementType(that.type));
+        VisageSequenceRange res = m.at(that.pos).RangeSequence(lower, upper, step, that.isExclusive());
         result = res.setType(that.type);
     }
 
-    public void visitSequenceSlice(JFXSequenceSlice that) {
-        JFXExpression seq = lowerExpr(that.getSequence());
-        JFXExpression start = lowerExpr(that.getFirstIndex(), syms.intType);
-        JFXExpression end = lowerExpr(that.getLastIndex(), syms.intType);
+    public void visitSequenceSlice(VisageSequenceSlice that) {
+        VisageExpression seq = lowerExpr(that.getSequence());
+        VisageExpression start = lowerExpr(that.getFirstIndex(), syms.intType);
+        VisageExpression end = lowerExpr(that.getLastIndex(), syms.intType);
         result = m.at(that.pos).SequenceSlice(seq, start, end, that.getEndKind()).setType(that.type);
     }
 
-    public void visitStringExpression(JFXStringExpression tree) {
-        List<JFXExpression> parts = lowerExprs(tree.parts);
+    public void visitStringExpression(VisageStringExpression tree) {
+        List<VisageExpression> parts = lowerExprs(tree.parts);
         result = m.at(tree.pos).StringExpression(parts, tree.translationKey).setType(tree.type);
     }
 
-    public void visitUnary(JFXUnary tree) {
+    public void visitUnary(VisageUnary tree) {
         if (tree.getFXTag().isIncDec()) {
             result = lowerNumericUnary(tree);
         } else {
-            JFXExpression arg = tree.getFXTag() == JavafxTag.REVERSE ?
+            VisageExpression arg = tree.getFXTag() == JavafxTag.REVERSE ?
                 lowerExpr(tree.getExpression(), tree.type) :
                 tree.getOperator() != null ?
                     lowerExpr(tree.getExpression(), tree.getOperator().type.getParameterTypes().head) :
                     lowerExpr(tree.getExpression());
-            JFXUnary res = m.at(tree.pos).Unary(tree.getFXTag(), arg);
+            VisageUnary res = m.at(tree.pos).Unary(tree.getFXTag(), arg);
             res.operator = tree.operator;
             res.type = tree.type;
             result = res;
         }
     }
 
-    private JFXExpression lowerNumericUnary(JFXUnary tree) {
+    private VisageExpression lowerNumericUnary(VisageUnary tree) {
         boolean postFix = isPostfix(tree.getFXTag());
         JavafxTag opTag = unaryToBinaryOpTag(tree.getFXTag());
         Type opType = types.unboxedTypeOrType(tree.getExpression().type);
         if (types.isSameType(opType, syms.charType)) {
             opType = syms.intType;
         }
-        ListBuffer<JFXExpression> stats = ListBuffer.lb();
+        ListBuffer<VisageExpression> stats = ListBuffer.lb();
 
         //if the unary operand is an indexed expression of the kind a.x[i]
         //then we need to cache the index value (not to recumpute it twice).
 
-        JFXExpression expr = tree.getExpression();
-        JFXIdent index = null;
+        VisageExpression expr = tree.getExpression();
+        VisageIdent index = null;
 
         if (tree.getExpression().getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
-            JFXSequenceIndexed indexed = (JFXSequenceIndexed)tree.getExpression();
-            JFXVar varDef = makeVar(tree.pos(), defs.indexNamePrefix(), indexed.getIndex(), indexed.getIndex().type);
+            VisageSequenceIndexed indexed = (VisageSequenceIndexed)tree.getExpression();
+            VisageVar varDef = makeVar(tree.pos(), defs.indexNamePrefix(), indexed.getIndex(), indexed.getIndex().type);
             index = m.at(tree.pos).Ident(varDef.sym);
             index.sym = varDef.sym;
             index.type = varDef.type;
@@ -759,15 +759,15 @@ public class JavafxLower implements JavafxVisitor {
         //it won't be recomputed twice.
         //
         // var $expr$ = a;
-        JFXIdent selector = null;
+        VisageIdent selector = null;
 
         if (expr.getFXTag() == JavafxTag.SELECT) {
-            JFXExpression selected = ((JFXSelect)expr).selected;
+            VisageExpression selected = ((VisageSelect)expr).selected;
             Symbol sym = JavafxTreeInfo.symbolFor(selected);
             // But, if this select is ClassName.foo, then we don't want
             // to create "var $expr = a;"
             if (sym == null || sym.kind != Kinds.TYP) {
-                JFXVar varDef = makeVar(tree.pos(), defs.exprNamePrefix(), selected, selected.type);
+                VisageVar varDef = makeVar(tree.pos(), defs.exprNamePrefix(), selected, selected.type);
                 selector = m.at(tree.pos).Ident(varDef.sym);
                 selector.sym = varDef.sym;
                 selector.type = varDef.type;
@@ -775,12 +775,12 @@ public class JavafxLower implements JavafxVisitor {
             }
         }
 
-        JFXExpression varRef = expr;
+        VisageExpression varRef = expr;
 
         if (selector != null) {
             JavafxVarSymbol vsym = (JavafxVarSymbol)JavafxTreeInfo.symbol(expr);
             varRef = m.at(tree.pos).Select(selector, vsym, false);
-            ((JFXSelect)varRef).sym = vsym;
+            ((VisageSelect)varRef).sym = vsym;
         }
 
         if (index != null) {
@@ -792,16 +792,16 @@ public class JavafxLower implements JavafxVisitor {
         //
         //(SELECT) var $oldVal$ = $expr$.x;
         //(IDENT)  var $oldVal$ = x;
-        JFXExpression oldVal = varRef;
+        VisageExpression oldVal = varRef;
         boolean needOldValue = postFix && (
                 pt != Type.noType ||
                 mode == LowerMode.EXPRESSION);
         if (needOldValue) {
-            JFXVar oldValDef = makeVar(tree.pos(), defs.oldValueNamePrefix(), varRef, varRef.type);
+            VisageVar oldValDef = makeVar(tree.pos(), defs.oldValueNamePrefix(), varRef, varRef.type);
             stats.append(oldValDef);
 
             oldVal = m.at(tree.pos).Ident(oldValDef.sym);
-            ((JFXIdent)oldVal).sym = oldValDef.sym;
+            ((VisageIdent)oldVal).sym = oldValDef.sym;
         }
 
             //Generate the binary expression this unary translates to
@@ -809,19 +809,19 @@ public class JavafxLower implements JavafxVisitor {
             //(SELECT) $expr$.x = $oldVal [+/-] 1;
             //(IDENT)  x = $oldVal [+/-] 1;
 
-        JFXBinary binary = (JFXBinary)m.at(tree.pos).Binary(opTag, oldVal, m.at(tree.pos).Literal(opType.tag, 1).setType(opType));
+        VisageBinary binary = (VisageBinary)m.at(tree.pos).Binary(opTag, oldVal, m.at(tree.pos).Literal(opType.tag, 1).setType(opType));
         binary.operator = rs.resolveBinaryOperator(tree.pos(), opTag, env, opType, opType);
         binary.setType(binary.operator.type.asMethodType().getReturnType());
-        JFXExpression incDecStat = (JFXExpression)m.at(tree.pos).Assign(varRef, binary).setType(opType);
+        VisageExpression incDecStat = (VisageExpression)m.at(tree.pos).Assign(varRef, binary).setType(opType);
 
         //If this is a postfix unary expression, the old value is returned
-        JFXExpression blockValue = incDecStat;
+        VisageExpression blockValue = incDecStat;
         if (needOldValue) {
             stats.append(incDecStat);
             blockValue = oldVal;
         }
 
-        JFXExpression res = stats.nonEmpty() ?
+        VisageExpression res = stats.nonEmpty() ?
             m.at(tree.pos).Block(0L, stats.toList(), blockValue).setType(opType) :
             blockValue;
         return lowerExpr(res, Type.noType);
@@ -847,35 +847,35 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    public void visitVar(JFXVar tree) {
-        JFXExpression init = lowerExpr(tree.getInitializer(), tree.type);
-        JFXOnReplace onReplace = lowerDecl(tree.getOnReplace());
-        JFXOnReplace onInvalidate = lowerDecl(tree.getOnInvalidate());
-        JFXVar res = m.at(tree.pos).Var(tree.name, tree.getJFXType(), tree.mods, init, tree.getBindStatus(), onReplace, onInvalidate);
+    public void visitVar(VisageVar tree) {
+        VisageExpression init = lowerExpr(tree.getInitializer(), tree.type);
+        VisageOnReplace onReplace = lowerDecl(tree.getOnReplace());
+        VisageOnReplace onInvalidate = lowerDecl(tree.getOnInvalidate());
+        VisageVar res = m.at(tree.pos).Var(tree.name, tree.getJFXType(), tree.mods, init, tree.getBindStatus(), onReplace, onInvalidate);
         res.sym = tree.sym;
         result = res.setType(tree.type);
-        JFXVarInit vsi = tree.getVarInit();
+        VisageVarInit vsi = tree.getVarInit();
         if (vsi != null) {
             // update the var in the var-init
             vsi.resetVar(res);
         }
     }
 
-    public void visitVarInit(JFXVarInit tree) {
+    public void visitVarInit(VisageVarInit tree) {
         result = tree;
     }
 
-    public void visitVarRef(JFXVarRef tree) {
+    public void visitVarRef(VisageVarRef tree) {
         result = tree;
     }
 
-    public void visitBlockExpression(JFXBlock tree) {
-        List<JFXExpression> stats = tree.stats;
-        JFXExpression value = tree.value;
+    public void visitBlockExpression(VisageBlock tree) {
+        List<VisageExpression> stats = tree.stats;
+        VisageExpression value = tree.value;
         if (value != null) {
             if (JavafxTreeInfo.skipParens(value).getFXTag() == JavafxTag.VAR_DEF) {
-                JFXVar varDef = (JFXVar)JavafxTreeInfo.skipParens(value);
-                JFXIdent varRef = m.at(tree.value.pos).Ident(varDef.sym);
+                VisageVar varDef = (VisageVar)JavafxTreeInfo.skipParens(value);
+                VisageIdent varRef = m.at(tree.value.pos).Ident(varDef.sym);
                 varRef.sym = varDef.sym;
                 varRef.type = varDef.type;
                 value = varRef;
@@ -887,15 +887,15 @@ public class JavafxLower implements JavafxVisitor {
                  value = makeDefaultValue(tree.type);
             }
         }
-        List<JFXExpression> loweredStats = lowerBlockStatements(stats);
-        JFXExpression loweredValue = value != null ?
+        List<VisageExpression> loweredStats = lowerBlockStatements(stats);
+        VisageExpression loweredValue = value != null ?
                 lowerExpr(value, pt) :
             null;
 
         if (value != null && pt == syms.voidType) {
-            List<JFXExpression> mergedLoweredValue =
+            List<VisageExpression> mergedLoweredValue =
                     mergeLoweredBlockStatements(
-                        new ListBuffer<JFXExpression>(),
+                        new ListBuffer<VisageExpression>(),
                         loweredValue,
                         value).toList();
             while (mergedLoweredValue.tail.nonEmpty()) {
@@ -905,7 +905,7 @@ public class JavafxLower implements JavafxVisitor {
             loweredValue = mergedLoweredValue.head;
         }
 
-        JFXBlock res = m.at(tree.pos).Block(tree.flags, loweredStats, loweredValue);
+        VisageBlock res = m.at(tree.pos).Block(tree.flags, loweredStats, loweredValue);
         res.endpos = tree.endpos;
         result = res;
         result.type = value != null ?
@@ -913,20 +913,20 @@ public class JavafxLower implements JavafxVisitor {
             tree.type;
     }
 
-    private List<JFXExpression> lowerBlockStatements(List<JFXExpression> stats) {
-        ListBuffer<JFXExpression> loweredStats = ListBuffer.lb();
-        for (JFXExpression stat : stats) {
+    private List<VisageExpression> lowerBlockStatements(List<VisageExpression> stats) {
+        ListBuffer<VisageExpression> loweredStats = ListBuffer.lb();
+        for (VisageExpression stat : stats) {
             mergeLoweredBlockStatements(loweredStats, lowerStmt(stat), stat);
         }
         return loweredStats.toList();
     }
 
-    private ListBuffer<JFXExpression> mergeLoweredBlockStatements(ListBuffer<JFXExpression> loweredStats, JFXExpression loweredStat, JFXExpression stat) {
+    private ListBuffer<VisageExpression> mergeLoweredBlockStatements(ListBuffer<VisageExpression> loweredStats, VisageExpression loweredStat, VisageExpression stat) {
         loweredStats.append(loweredStat);
         return loweredStats;
     }
     //where
-    private JFXExpression makeDefaultValue(Type t) {
+    private VisageExpression makeDefaultValue(Type t) {
         switch (t.tag) {
             case TypeTags.BYTE: return m.Literal(TypeTags.BYTE, 0).setType(syms.byteType);
             case TypeTags.SHORT: return m.Literal(TypeTags.SHORT, 0).setType(syms.shortType);
@@ -941,28 +941,28 @@ public class JavafxLower implements JavafxVisitor {
                     return m.Literal("").setType(syms.visage_StringType);
                 } else if (types.isSameType(t, syms.visage_DurationType)) {
                     Name zeroName = names.fromString("ZERO");
-                    JFXSelect res = (JFXSelect)m.Select(
+                    VisageSelect res = (VisageSelect)m.Select(
                             preTrans.makeTypeTree(syms.visage_DurationType),
                             zeroName, false).setType(syms.visage_DurationType);
                     res.sym = rs.findIdentInType(env, syms.visage_DurationType, zeroName, Kinds.VAR);
                     return res;
                 } else if (types.isSameType(t, syms.visage_LengthType)) {
                     Name zeroName = names.fromString("ZERO");
-                    JFXSelect res = (JFXSelect)m.Select(
+                    VisageSelect res = (VisageSelect)m.Select(
                             preTrans.makeTypeTree(syms.visage_LengthType),
                             zeroName, false).setType(syms.visage_LengthType);
                     res.sym = rs.findIdentInType(env, syms.visage_LengthType, zeroName, Kinds.VAR);
                     return res;
                 } else if (types.isSameType(t, syms.visage_AngleType)) {
                     Name zeroName = names.fromString("ZERO");
-                    JFXSelect res = (JFXSelect)m.Select(
+                    VisageSelect res = (VisageSelect)m.Select(
                             preTrans.makeTypeTree(syms.visage_AngleType),
                             zeroName, false).setType(syms.visage_AngleType);
                     res.sym = rs.findIdentInType(env, syms.visage_AngleType, zeroName, Kinds.VAR);
                     return res;
                 } else if (types.isSameType(t, syms.visage_ColorType)) {
                     Name blackName = names.fromString("BLACK");
-                    JFXSelect res = (JFXSelect)m.Select(
+                    VisageSelect res = (VisageSelect)m.Select(
                             preTrans.makeTypeTree(syms.visage_ColorType),
                             blackName, false).setType(syms.visage_ColorType);
                     res.sym = rs.findIdentInType(env, syms.visage_ColorType, blackName, Kinds.VAR);
@@ -973,20 +973,20 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    public void visitBreak(JFXBreak tree) {
+    public void visitBreak(VisageBreak tree) {
         result = tree;
     }
 
-    public void visitCatch(JFXCatch tree) {
-        JFXBlock body = lowerExpr(tree.body);
+    public void visitCatch(VisageCatch tree) {
+        VisageBlock body = lowerExpr(tree.body);
         result = m.at(tree.pos).Catch(tree.param, body).setType(tree.type);
     }
 
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
+    public void visitClassDeclaration(VisageClassDeclaration tree) {
         Symbol prevClass = currentClass;
         try {
             currentClass = tree.sym;
-            List<JFXTree> cdefs = lowerDecls(tree.getMembers());
+            List<VisageTree> cdefs = lowerDecls(tree.getMembers());
             tree.setMembers(cdefs);
             result = tree;
         }
@@ -995,30 +995,30 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    public void visitContinue(JFXContinue tree) {
+    public void visitContinue(VisageContinue tree) {
         result = tree;
     }
 
-    public void visitErroneous(JFXErroneous tree) {
+    public void visitErroneous(VisageErroneous tree) {
         result = tree;
     }
 
-    public void visitForExpression(JFXForExpression tree) {
+    public void visitForExpression(VisageForExpression tree) {
         result = lowerForExpression(tree);
         patchForLoop(result, tree.getForExpressionInClauses());
-        for (JFXForExpressionInClause clause : tree.getForExpressionInClauses()) {
+        for (VisageForExpressionInClause clause : tree.getForExpressionInClauses()) {
             forClauseMap.remove(clause);
         }
     }
 
-    public JFXExpression lowerForExpression(JFXForExpression tree) {
-        JFXForExpressionInClause clause = lowerDecl(tree.getForExpressionInClauses().head);
-        JFXExpression body = tree.getBodyExpression();
+    public VisageExpression lowerForExpression(VisageForExpression tree) {
+        VisageForExpressionInClause clause = lowerDecl(tree.getForExpressionInClauses().head);
+        VisageExpression body = tree.getBodyExpression();
         if (tree.getForExpressionInClauses().size() > 1) {
             // for (INCLAUSE(1), INCLAUSE(2), ... INCLAUSE(n)) BODY
             // (n>1) is lowered to:
             // for (INCLAUSE(1) Lower(for (INCLAUSE(2) (... for (INCLAUSE(n)) ... )) BODY
-            JFXForExpression nestedFor = (JFXForExpression)m.ForExpression(tree.getForExpressionInClauses().tail, tree.bodyExpr).setType(tree.type);
+            VisageForExpression nestedFor = (VisageForExpression)m.ForExpression(tree.getForExpressionInClauses().tail, tree.bodyExpr).setType(tree.type);
             body = lowerForExpression(nestedFor);
         }
         else {
@@ -1030,14 +1030,14 @@ public class JavafxLower implements JavafxVisitor {
             body = lowerExpr(tree.bodyExpr, typeToCheck);
         }
         // Standard form is that the body is a block-expression
-        if(!(body instanceof JFXBlock)) {
-            body = m.Block(0L, List.<JFXExpression>nil(), body).setType(body.type);
+        if(!(body instanceof VisageBlock)) {
+            body = m.Block(0L, List.<VisageExpression>nil(), body).setType(body.type);
         }
-        JFXForExpression res = m.at(tree.pos).ForExpression(List.of(clause), body);
-        return (JFXForExpression)res.setType(tree.type);
+        VisageForExpression res = m.at(tree.pos).ForExpression(List.of(clause), body);
+        return (VisageForExpression)res.setType(tree.type);
     }
 
-    private void patchForLoop(JFXTree forExpr, final List<JFXForExpressionInClause> clausesToPatch) {
+    private void patchForLoop(VisageTree forExpr, final List<VisageForExpressionInClause> clausesToPatch) {
         class ForLoopPatcher extends JavafxTreeScanner {
 
             Name targetLabel;
@@ -1049,7 +1049,7 @@ public class JavafxLower implements JavafxVisitor {
             }
 
             @Override
-            public void visitWhileLoop(JFXWhileLoop tree) {
+            public void visitWhileLoop(VisageWhileLoop tree) {
                 boolean prevInWhile = inWhile;
                 try {
                     inWhile = true;
@@ -1061,28 +1061,28 @@ public class JavafxLower implements JavafxVisitor {
             }
 
             @Override
-            public void visitBreak(JFXBreak tree) {
+            public void visitBreak(VisageBreak tree) {
                 tree.label = (tree.label == null && !inWhile) ?
                     targetLabel :
                     tree.label;
             }
 
             @Override
-            public void visitContinue(JFXContinue tree) {
+            public void visitContinue(VisageContinue tree) {
                 tree.label = (tree.label == null && !inWhile) ?
                     targetLabel :
                     tree.label;
             }
 
             @Override
-            public void visitIndexof(JFXIndexof tree) {
+            public void visitIndexof(VisageIndexof tree) {
                 tree.clause = clausesToPatch.contains(tree.clause) ?
                     forClauseMap.get(tree.clause) :
                     tree.clause;
             }
 
             @Override
-            public void visitForExpressionInClause(JFXForExpressionInClause tree) {
+            public void visitForExpressionInClause(VisageForExpressionInClause tree) {
                 tree.label = tree.label == null ?
                     newLabelName() :
                     tree.label;
@@ -1095,7 +1095,7 @@ public class JavafxLower implements JavafxVisitor {
         new ForLoopPatcher().scan(forExpr);
     }
 
-    public void visitIdent(JFXIdent tree) {
+    public void visitIdent(VisageIdent tree) {
         if (tree.sym.kind == Kinds.MTH) {
             result = toFunctionValue(tree, false);
         }
@@ -1104,10 +1104,10 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    JFXExpression toFunctionValue(JFXExpression tree, boolean isSelect) {
+    VisageExpression toFunctionValue(VisageExpression tree, boolean isSelect) {
         boolean needsReceiverVar = isSelect;
         if (isSelect) {
-             JFXSelect qualId = (JFXSelect)tree;
+             VisageSelect qualId = (VisageSelect)tree;
              Symbol selectedSym = JavafxTreeInfo.symbolFor(qualId.selected);
              if (selectedSym != null && selectedSym.kind == Kinds.TYP) {
                  needsReceiverVar = false;
@@ -1115,38 +1115,38 @@ public class JavafxLower implements JavafxVisitor {
         }
         MethodSymbol msym = (MethodSymbol)JavafxTreeInfo.symbolFor(tree);
         Type mtype = msym.type;
-        ListBuffer<JFXVar> params = ListBuffer.lb();
-        ListBuffer<JFXExpression> args = ListBuffer.lb();
+        ListBuffer<VisageVar> params = ListBuffer.lb();
+        ListBuffer<VisageExpression> args = ListBuffer.lb();
         MethodSymbol lambdaSym = new MethodSymbol(Flags.SYNTHETIC, defs.lambda_MethodName, mtype, currentClass);
         int count = 0;
         for (Type t : mtype.getParameterTypes()) {
             Name paramName = tempName("x"+count);
             JavafxVarSymbol paramSym = new JavafxVarSymbol(types, names, Flags.PARAMETER, paramName, t, lambdaSym);
-            JFXVar param = m.at(tree.pos).Param(paramName, preTrans.makeTypeTree(t));
+            VisageVar param = m.at(tree.pos).Param(paramName, preTrans.makeTypeTree(t));
             param.sym = paramSym;
             param.type = t;
             params.append(param);
-            JFXIdent arg = m.at(tree.pos).Ident(param);
+            VisageIdent arg = m.at(tree.pos).Ident(param);
             arg.type = param.type;
             arg.sym = param.sym;
             args.append(arg);
             count++;
         }
         Type returnType = mtype.getReturnType();
-        JFXVar receiverVar = null;
-        JFXExpression meth = tree.setType(mtype);
+        VisageVar receiverVar = null;
+        VisageExpression meth = tree.setType(mtype);
         if (needsReceiverVar) {
-            JFXSelect qualId= (JFXSelect)tree;
+            VisageSelect qualId= (VisageSelect)tree;
             receiverVar = makeVar(tree.pos(), "rec", qualId.selected, qualId.selected.type);
-            JFXIdent receiverVarRef = (JFXIdent)m.at(tree.pos).Ident(receiverVar.sym).setType(receiverVar.type);
+            VisageIdent receiverVarRef = (VisageIdent)m.at(tree.pos).Ident(receiverVar.sym).setType(receiverVar.type);
             meth = m.at(tree.pos).Select(receiverVarRef, msym, false).setType(mtype);
         }
-        JFXExpression call = m.at(tree.pos).Apply(List.<JFXExpression>nil(), meth, args.toList()).setType(returnType);
-        JFXBlock body = (JFXBlock)m.at(tree.pos).Block(0, List.<JFXExpression>nil(), call).setType(returnType);
-        JFXFunctionValue funcValue = m.at(tree.pos).FunctionValue(preTrans.makeTypeTree(returnType),
+        VisageExpression call = m.at(tree.pos).Apply(List.<VisageExpression>nil(), meth, args.toList()).setType(returnType);
+        VisageBlock body = (VisageBlock)m.at(tree.pos).Block(0, List.<VisageExpression>nil(), call).setType(returnType);
+        VisageFunctionValue funcValue = m.at(tree.pos).FunctionValue(preTrans.makeTypeTree(returnType),
                 params.toList(), body);
         funcValue.type = syms.makeFunctionType((Type.MethodType)mtype);
-        funcValue.definition = new JFXFunctionDefinition(
+        funcValue.definition = new VisageFunctionDefinition(
                 m.at(tree.pos).Modifiers(lambdaSym.flags_field),
                 lambdaSym.name,
                 funcValue);
@@ -1154,18 +1154,18 @@ public class JavafxLower implements JavafxVisitor {
         funcValue.definition.sym = lambdaSym;
         funcValue.definition.type = lambdaSym.type;
         if (needsReceiverVar) {
-            JFXBinary eqNull = (JFXBinary)m.at(tree.pos).Binary(
+            VisageBinary eqNull = (VisageBinary)m.at(tree.pos).Binary(
                     JavafxTag.EQ,
                     m.at(tree.pos).Ident(receiverVar.sym).setType(receiverVar.type),
                     m.at(tree.pos).Literal(TypeTags.BOT, null).setType(syms.botType));
             eqNull.operator = rs.resolveBinaryOperator(tree.pos(), JavafxTag.EQ, env, syms.objectType, syms.objectType);
             eqNull.setType(syms.booleanType);
-            JFXExpression blockValue = m.at(tree.pos()).Conditional(
+            VisageExpression blockValue = m.at(tree.pos()).Conditional(
                     eqNull,
                     m.at(tree.pos).Literal(TypeTags.BOT, null).setType(syms.botType),
                     funcValue).setType(funcValue.type);
             return m.at(tree.pos).Block(0,
-                    List.<JFXExpression>of(receiverVar),
+                    List.<VisageExpression>of(receiverVar),
                     blockValue).setType(funcValue.type);
         }
         else {
@@ -1173,13 +1173,13 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    public void visitImport(JFXImport tree) {
+    public void visitImport(VisageImport tree) {
         result = tree;
     }
 
-    public void visitInitDefinition(JFXInitDefinition tree) {
-        JFXBlock body = lowerExpr(tree.body);
-        JFXInitDefinition res = m.at(tree.pos).InitDefinition(body);
+    public void visitInitDefinition(VisageInitDefinition tree) {
+        VisageBlock body = lowerExpr(tree.body);
+        VisageInitDefinition res = m.at(tree.pos).InitDefinition(body);
         res.sym = tree.sym;
         result = res.setType(tree.type);
     }
@@ -1187,7 +1187,7 @@ public class JavafxLower implements JavafxVisitor {
     /*
      * Determine if the expression uses any names that could clash with names in the class
      */
-    private boolean hasNameConflicts(final TypeSymbol csym, final JFXExpression expr) {
+    private boolean hasNameConflicts(final TypeSymbol csym, final VisageExpression expr) {
         class NameClashScanner extends JavafxTreeScanner {
 
             boolean clashFound = false;
@@ -1201,7 +1201,7 @@ public class JavafxLower implements JavafxVisitor {
             }
 
             @Override
-            public void visitIdent(JFXIdent tree) {
+            public void visitIdent(VisageIdent tree) {
                 checkForClash(tree.getName());
             }
         }
@@ -1212,8 +1212,8 @@ public class JavafxLower implements JavafxVisitor {
         return clashFound;
     }
 
-    public void visitInstanciate(JFXInstanciate tree) {
-        ListBuffer<JFXExpression> locals = ListBuffer.lb();
+    public void visitInstanciate(VisageInstanciate tree) {
+        ListBuffer<VisageExpression> locals = ListBuffer.lb();
         if (tree.getLocalvars().nonEmpty()) {
             //ObjLit {
             //  local var 1;
@@ -1235,20 +1235,20 @@ public class JavafxLower implements JavafxVisitor {
             //    ...
             //  }
             //}
-            for (JFXVar var : tree.getLocalvars()) {
+            for (VisageVar var : tree.getLocalvars()) {
                 locals.append(lowerDecl(var));
             }
         }
 
-        ListBuffer<JFXTree> newOverrides = ListBuffer.<JFXTree>lb();
-        ListBuffer<JFXObjectLiteralPart> unboundParts = ListBuffer.<JFXObjectLiteralPart>lb();
+        ListBuffer<VisageTree> newOverrides = ListBuffer.<VisageTree>lb();
+        ListBuffer<VisageObjectLiteralPart> unboundParts = ListBuffer.<VisageObjectLiteralPart>lb();
 
         // Determine if there is a mutable non-explicitly bound initializer in a bound object literal,
         // since this could cause the instance to be re-created so binds then need to be external so
         // that they can be re-used (thus, won't, for example, create new objects)
         boolean holdBindsOutsideSubclass = false;
         if (tree.isBound()) {
-            for (JFXObjectLiteralPart part : tree.getParts()) {
+            for (VisageObjectLiteralPart part : tree.getParts()) {
                 if (!part.isExplicitlyBound() && !preTrans.isImmutable(part.getExpression())) {
                     // A bound object literal with non-explicitly bound initializer
                     // requires continuity of binds
@@ -1259,18 +1259,18 @@ public class JavafxLower implements JavafxVisitor {
         }
 
 
-        for (JFXObjectLiteralPart part : tree.getParts()) {
+        for (VisageObjectLiteralPart part : tree.getParts()) {
             if (part.isExplicitlyBound()) {
                 m.at(part.pos());  // create at part position
 
                 // id for the override
-                JFXIdent id = m.Ident(part.name);
+                VisageIdent id = m.Ident(part.name);
                 id.sym = part.sym;
                 id.type = part.sym.type;
 
-                JFXExpression partExpr = part.getExpression();
+                VisageExpression partExpr = part.getExpression();
 
-                JFXExpression initExpr;
+                VisageExpression initExpr;
 
                 // Determine if bound object literal initializer should be scoped to object literal level.
                 if (true || (holdBindsOutsideSubclass && preTrans.hasSideEffectsInBind(partExpr)) || hasNameConflicts(tree.type.tsym, partExpr)) {
@@ -1278,14 +1278,14 @@ public class JavafxLower implements JavafxVisitor {
                     // The variable should be marked as script private as it shouldn't
                     // be accessible from outside.
 
-                    JFXVar shred = makeVar(
+                    VisageVar shred = makeVar(
                             part.pos(),
                             Flags.SYNTHETIC | JavafxFlags.SCRIPT_PRIVATE,
                             part.name + "$ol",
                             part.getBindStatus(),
                             lowerExpr(partExpr, part.sym.type),
                             part.sym.type);
-                    JFXIdent sid = m.Ident(shred.name);
+                    VisageIdent sid = m.Ident(shred.name);
                     sid.sym = shred.sym;
                     sid.type = part.sym.type;
                     locals.append(shred);
@@ -1295,7 +1295,7 @@ public class JavafxLower implements JavafxVisitor {
                 }
 
                 // Turn the part into an override var
-                JFXOverrideClassVar ocv =
+                VisageOverrideClassVar ocv =
                         m.OverrideClassVar(
                         part.name,
                         preTrans.makeTypeTree(part.type),
@@ -1314,8 +1314,8 @@ public class JavafxLower implements JavafxVisitor {
         }
 
         // Lower the class.  If there are new overrides, fold them into the class first
-        JFXClassDeclaration cdecl = tree.getClassBody();
-        JFXClassDeclaration lowCdecl;
+        VisageClassDeclaration cdecl = tree.getClassBody();
+        VisageClassDeclaration lowCdecl;
         if (newOverrides.nonEmpty()) {
             cdecl.setMembers(cdecl.getMembers().appendList(newOverrides));
             lowCdecl = lowerDecl(cdecl);
@@ -1325,12 +1325,12 @@ public class JavafxLower implements JavafxVisitor {
         }
 
         // Construct the new instanciate
-        JFXInstanciate res = m.at(tree.pos).Instanciate(tree.getJavaFXKind(),
+        VisageInstanciate res = m.at(tree.pos).Instanciate(tree.getJavaFXKind(),
                 tree.getIdentifier(),
                 lowCdecl,
                 lowerExprs(tree.getArgs()),
                 unboundParts.toList(),
-                List.<JFXVar>nil());
+                List.<VisageVar>nil());
         res.sym = tree.sym;
         res.constructor = tree.constructor;
         res.varDefinedByThis = tree.varDefinedByThis;
@@ -1344,124 +1344,124 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    public void visitInvalidate(JFXInvalidate tree) {
-        JFXExpression expr = lowerExpr(tree.getVariable());
+    public void visitInvalidate(VisageInvalidate tree) {
+        VisageExpression expr = lowerExpr(tree.getVariable());
         result = m.at(tree.pos).Invalidate(expr).setType(tree.type);
     }
 
-    public void visitModifiers(JFXModifiers tree) {
+    public void visitModifiers(VisageModifiers tree) {
         result = tree;
     }
 
-    public void visitOnReplace(JFXOnReplace tree) {
-        JFXBlock body = lowerExpr(tree.getBody());
-        JFXOnReplace res = tree.getTriggerKind() == JFXOnReplace.Kind.ONREPLACE ?
+    public void visitOnReplace(VisageOnReplace tree) {
+        VisageBlock body = lowerExpr(tree.getBody());
+        VisageOnReplace res = tree.getTriggerKind() == VisageOnReplace.Kind.ONREPLACE ?
                 m.at(tree.pos).OnReplace(tree.getOldValue(), tree.getFirstIndex(), tree.getLastIndex(), tree.getNewElements(), body) :
                 m.at(tree.pos).OnInvalidate(body);
         result = res.setType(tree.type);
     }
 
-    public void visitParens(JFXParens tree) {
-        JFXExpression expr = lowerExpr(tree.expr);
+    public void visitParens(VisageParens tree) {
+        VisageExpression expr = lowerExpr(tree.expr);
         result = m.at(tree.pos).Parens(expr).setType(tree.type);
     }
 
-    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
-        JFXBlock body = lowerExpr(tree.body);
-        JFXPostInitDefinition res = m.at(tree.pos).PostInitDefinition(body);
+    public void visitPostInitDefinition(VisagePostInitDefinition tree) {
+        VisageBlock body = lowerExpr(tree.body);
+        VisagePostInitDefinition res = m.at(tree.pos).PostInitDefinition(body);
         res.sym = tree.sym;
         result = res.setType(tree.type);
     }
 
-    public void visitScript(JFXScript tree) {
+    public void visitScript(VisageScript tree) {
         varCount = 0;
         tree.defs = lowerDecls(tree.defs);
         result = tree;
     }
 
-    public void visitSelect(JFXSelect tree) {
+    public void visitSelect(VisageSelect tree) {
         result = (tree.sym.kind == Kinds.MTH) ?
             toFunctionValue(tree, true) :
             lowerSelect(tree);
     }
 
-    private JFXExpression lowerSelect(JFXSelect tree) {
-        JFXExpression res = null;
+    private VisageExpression lowerSelect(VisageSelect tree) {
+        VisageExpression res = null;
         if (tree.sym.isStatic() &&
                 JavafxTreeInfo.symbolFor(tree.selected) != null &&
                 JavafxTreeInfo.symbolFor(tree.selected).kind == Kinds.TYP) {
             res = m.at(tree.pos()).Ident(tree.sym);
         }
         else {
-            JFXExpression selected = lowerExpr(tree.selected);
-            res = (JFXSelect)m.Select(selected, tree.sym, tree.nullCheck);
+            VisageExpression selected = lowerExpr(tree.selected);
+            res = (VisageSelect)m.Select(selected, tree.sym, tree.nullCheck);
         }
         return res.setType(tree.type);
     }
 
-    public void visitSkip(JFXSkip tree) {
+    public void visitSkip(VisageSkip tree) {
         result = tree;
     }
 
-    public void visitThrow(JFXThrow tree) {
-        JFXExpression expr = lowerExpr(tree.getExpression());
+    public void visitThrow(VisageThrow tree) {
+        VisageExpression expr = lowerExpr(tree.getExpression());
         result = m.at(tree.pos).Throw(expr).setType(tree.type);
     }
 
-    public void visitTimeLiteral(JFXTimeLiteral tree) {
+    public void visitTimeLiteral(VisageTimeLiteral tree) {
         result = tree;
     }
 
-    public void visitLengthLiteral(JFXLengthLiteral tree) {
+    public void visitLengthLiteral(VisageLengthLiteral tree) {
         result = tree;
     }
 
-    public void visitAngleLiteral(JFXAngleLiteral tree) {
+    public void visitAngleLiteral(VisageAngleLiteral tree) {
         result = tree;
     }
 
-    public void visitColorLiteral(JFXColorLiteral tree) {
+    public void visitColorLiteral(VisageColorLiteral tree) {
         result = tree;
     }
 
-    public void visitTry(JFXTry tree) {
-        JFXBlock body = lowerExpr(tree.getBlock());
-        List<JFXCatch> catches = lowerDecls(tree.catchers);
-        JFXBlock finallyBlock = lowerExpr(tree.getFinallyBlock());
+    public void visitTry(VisageTry tree) {
+        VisageBlock body = lowerExpr(tree.getBlock());
+        List<VisageCatch> catches = lowerDecls(tree.catchers);
+        VisageBlock finallyBlock = lowerExpr(tree.getFinallyBlock());
         result = m.at(tree.pos).Try(body, catches, finallyBlock).setType(tree.type);
     }
 
-    public void visitTypeAny(JFXTypeAny tree) {
+    public void visitTypeAny(VisageTypeAny tree) {
         result = tree;
     }
 
-    public void visitTypeArray(JFXTypeArray tree) {
+    public void visitTypeArray(VisageTypeArray tree) {
         result = tree;
     }
 
-    public void visitTypeCast(JFXTypeCast tree) {
-        JFXExpression expr = lowerExpr(tree.getExpression(), tree.clazz.type);
+    public void visitTypeCast(VisageTypeCast tree) {
+        VisageExpression expr = lowerExpr(tree.getExpression(), tree.clazz.type);
         result = m.at(tree.pos).TypeCast(tree.clazz, expr).setType(tree.type);
     }
 
-    public void visitTypeClass(JFXTypeClass tree) {
+    public void visitTypeClass(VisageTypeClass tree) {
         result = tree;
     }
 
-    public void visitTypeFunctional(JFXTypeFunctional tree) {
+    public void visitTypeFunctional(VisageTypeFunctional tree) {
         result = tree;
     }
 
-    public void visitTypeUnknown(JFXTypeUnknown tree) {
+    public void visitTypeUnknown(VisageTypeUnknown tree) {
         result = tree;
     }
 
-    public void visitWhileLoop(JFXWhileLoop tree) {
-        JFXExpression cond = lowerExpr(tree.getCondition(), syms.booleanType);
-        JFXExpression body = lowerExpr(tree.getBody());
+    public void visitWhileLoop(VisageWhileLoop tree) {
+        VisageExpression cond = lowerExpr(tree.getCondition(), syms.booleanType);
+        VisageExpression body = lowerExpr(tree.getBody());
         // Standard form is that the body is a block-expression
-        if(!(body instanceof JFXBlock)) {
-            body = m.Block(0L, List.<JFXExpression>nil(), body);
+        if(!(body instanceof VisageBlock)) {
+            body = m.Block(0L, List.<VisageExpression>nil(), body);
         }
         body.setType(syms.voidType);
         result = m.at(tree.pos).WhileLoop(cond, body).setType(syms.voidType);

@@ -35,10 +35,10 @@ import javax.swing.event.ChangeListener;
 
 public class LineAnnotation {
     var changeListeners: ChangeListener[];
-    var an: FXTextArea.LineAnnotation;
-    function getAn(): FXTextArea.LineAnnotation {
+    var an: VisageTextArea.LineAnnotation;
+    function getAn(): VisageTextArea.LineAnnotation {
         if (an == null) {
-            an = FXTextArea.LineAnnotation {
+            an = VisageTextArea.LineAnnotation {
                 override function getLine():Integer {
                     return line;
                 }

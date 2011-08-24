@@ -43,7 +43,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 
 /**
- * FXSupportLoader
+ * VisageSupportLoader
  */
 public class FxPlugin implements ApplicationComponent {
     
@@ -83,7 +83,7 @@ public class FxPlugin implements ApplicationComponent {
 
     @NotNull
     public String getComponentName() {
-        return "FXSupportLoader";
+        return "VisageSupportLoader";
     }
 
 }

@@ -36,7 +36,7 @@ import org.apache.tools.ant.DirectoryScanner;
  *
  * @author tball
  */
-public class FXCompilerTest extends TestSuite {
+public class VisageCompilerTest extends TestSuite {
     public static final String OPTIONS_RUN = "run";
     public static final String OPTIONS_EXPECT_COMPILE_FAIL = "expect-compile-fail";
     public static final String OPTIONS_CHECK_COMPILE_MSG = "check-compile-msg";
@@ -98,10 +98,10 @@ public class FXCompilerTest extends TestSuite {
             }
         }
         // Collections.sort(tests);
-        return new FXCompilerTest(tests, orphans);
+        return new VisageCompilerTest(tests, orphans);
     }
 
-    public FXCompilerTest(List<Test> tests, Set<String> orphans) {
+    public VisageCompilerTest(List<Test> tests, Set<String> orphans) {
         super();
         if (System.getProperty(TEST_VISAGE_INCLUDES) == null)
             addTest(new OrphanTestFinder(orphans));
@@ -215,7 +215,7 @@ public class FXCompilerTest extends TestSuite {
             shouldRun = runFailure = false;
         if (isTest) {
             if (isFxUnit)
-                tests.add(FXUnitTestWrapper.makeSuite(testFile, name));
+                tests.add(VisageUnitTestWrapper.makeSuite(testFile, name));
             else {
                 Map<String, String> options = new HashMap<String, String>();
                 if (compileFailure)
@@ -230,7 +230,7 @@ public class FXCompilerTest extends TestSuite {
                     options.put(OPTIONS_COMPARE, "true");
                 if (ignoreStdError)
                     options.put(OPTIONS_IGNORE_STD_ERROR, "true");
-                tests.add(new FXRunAndCompareWrapper(testFile, name, compileArgs, options, auxFiles, separateFiles, param));
+                tests.add(new VisageRunAndCompareWrapper(testFile, name, compileArgs, options, auxFiles, separateFiles, param));
             }
         }
         else if (!isNotTest)

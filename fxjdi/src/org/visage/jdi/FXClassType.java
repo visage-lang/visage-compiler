@@ -23,7 +23,7 @@
 
 package org.visage.jdi;
 
-import org.visage.jdi.event.FXEventQueue;
+import org.visage.jdi.event.VisageEventQueue;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
@@ -42,62 +42,62 @@ import java.util.ArrayList;
  *
  * @author sundar
  */
-public class FXClassType extends FXReferenceType implements ClassType {
+public class VisageClassType extends VisageReferenceType implements ClassType {
     private boolean isIsFxTypeSet = false;
     private boolean isFXType = false;
 
-    public FXClassType(FXVirtualMachine fxvm, ClassType underlying) {
+    public VisageClassType(VisageVirtualMachine fxvm, ClassType underlying) {
         super(fxvm, underlying);
     }
 
     public List<InterfaceType> allInterfaces() {
-        return FXWrapper.wrapInterfaceTypes(virtualMachine(), underlying().allInterfaces());
+        return VisageWrapper.wrapInterfaceTypes(virtualMachine(), underlying().allInterfaces());
     }
 
-    public FXMethod concreteMethodByName(String name, String signature) {
-        return FXWrapper.wrap(virtualMachine(), underlying().concreteMethodByName(name, signature));
+    public VisageMethod concreteMethodByName(String name, String signature) {
+        return VisageWrapper.wrap(virtualMachine(), underlying().concreteMethodByName(name, signature));
     }
 
     public List<InterfaceType> interfaces() {
-        return FXWrapper.wrapInterfaceTypes(virtualMachine(), underlying().interfaces());
+        return VisageWrapper.wrapInterfaceTypes(virtualMachine(), underlying().interfaces());
     }
 
-    public FXValue invokeMethod(ThreadReference thread, Method method, List<? extends Value> values, int options)
+    public VisageValue invokeMethod(ThreadReference thread, Method method, List<? extends Value> values, int options)
             throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
         Value value =
                 underlying().invokeMethod(
-                    FXWrapper.unwrap(thread), FXWrapper.unwrap(method),
-                    FXWrapper.unwrapValues(values), options);
-        return FXWrapper.wrap(virtualMachine(), value);
+                    VisageWrapper.unwrap(thread), VisageWrapper.unwrap(method),
+                    VisageWrapper.unwrapValues(values), options);
+        return VisageWrapper.wrap(virtualMachine(), value);
     }
 
     public boolean isEnum() {
         return underlying().isEnum();
     }
 
-    public FXObjectReference newInstance(ThreadReference thread, Method method, List<? extends Value> values, int options)
+    public VisageObjectReference newInstance(ThreadReference thread, Method method, List<? extends Value> values, int options)
             throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, InvocationException {
          ObjectReference result =
                  underlying().newInstance(
-                      FXWrapper.unwrap(thread), FXWrapper.unwrap(method),
-                      FXWrapper.unwrapValues(values), options);
-         return FXWrapper.wrap(virtualMachine(), result);
+                      VisageWrapper.unwrap(thread), VisageWrapper.unwrap(method),
+                      VisageWrapper.unwrapValues(values), options);
+         return VisageWrapper.wrap(virtualMachine(), result);
     }
 
     /**
      * JDI extension:  This will call the set function if one exists via invokeMethod.
-     * The call to invokeMethod is preceded by a call to {@link FXEventQueue#setEventControl(boolean)} passing true
-     * and is followed by a call to {@link FXEventQueue#setEventControl(boolean)} passing false.
+     * The call to invokeMethod is preceded by a call to {@link VisageEventQueue#setEventControl(boolean)} passing true
+     * and is followed by a call to {@link VisageEventQueue#setEventControl(boolean)} passing false.
      *
      * If an invokeMethod Exception occurs, it is saved and can be accessed by calling 
-     * {@link FXVirtualMachine#lastFieldAccessException()}.
+     * {@link VisageVirtualMachine#lastFieldAccessException()}.
      */
     public void setValue(Field field, Value value) throws 
         InvalidTypeException, ClassNotLoadedException {
 
         virtualMachine().setLastFieldAccessException(null);
-        Field jdiField = FXWrapper.unwrap(field);
-        Value jdiValue = FXWrapper.unwrap(value);
+        Field jdiField = VisageWrapper.unwrap(field);
+        Value jdiValue = VisageWrapper.unwrap(value);
         if (!isJavaFXType()) {
             underlying().setValue(jdiField, jdiValue);
             return;
@@ -120,7 +120,7 @@ public class FXClassType extends FXReferenceType implements ClassType {
         ArrayList<Value> args = new ArrayList<Value>(1);
         args.add(jdiValue);
         Exception theExc = null;
-        FXEventQueue eq = virtualMachine().eventQueue();
+        VisageEventQueue eq = virtualMachine().eventQueue();
         try {
             eq.setEventControl(true);
             invokeMethod(virtualMachine().uiThread(), mth.get(0), args, ClassType.INVOKE_SINGLE_THREADED);
@@ -142,11 +142,11 @@ public class FXClassType extends FXReferenceType implements ClassType {
     }
 
     public List<ClassType> subclasses() {
-        return FXWrapper.wrapClassTypes(virtualMachine(), underlying().subclasses());
+        return VisageWrapper.wrapClassTypes(virtualMachine(), underlying().subclasses());
     }
 
-    public FXClassType superclass() {
-        return FXWrapper.wrap(virtualMachine(), underlying().superclass());
+    public VisageClassType superclass() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().superclass());
     }
 
     @Override
@@ -163,8 +163,8 @@ public class FXClassType extends FXReferenceType implements ClassType {
     public boolean isJavaFXType() {
         if (!isIsFxTypeSet) {
             isIsFxTypeSet = true;
-            FXVirtualMachine fxvm = virtualMachine();
-            InterfaceType fxObjType = (InterfaceType) FXWrapper.unwrap(fxvm.fxObjectType());
+            VisageVirtualMachine fxvm = virtualMachine();
+            InterfaceType fxObjType = (InterfaceType) VisageWrapper.unwrap(fxvm.fxObjectType());
             if (fxObjType != null) {
                 ClassType thisType = underlying();
                 List<InterfaceType> allIfaces = thisType.allInterfaces();

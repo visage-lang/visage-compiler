@@ -24,20 +24,20 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 /**
  *
  * @author Robert Field
  */
-public class JFXSequenceInsert extends JFXExpression implements SequenceInsertTree {
-    private final JFXExpression element;
-    private final JFXExpression sequence;
-    private final JFXExpression position;
+public class VisageSequenceInsert extends VisageExpression implements SequenceInsertTree {
+    private final VisageExpression element;
+    private final VisageExpression sequence;
+    private final VisageExpression position;
     private final boolean after;
 
-    public JFXSequenceInsert(JFXExpression sequence, JFXExpression element, 
-            JFXExpression position, boolean after) {
+    public VisageSequenceInsert(VisageExpression sequence, VisageExpression element, 
+            VisageExpression position, boolean after) {
         this.element = element;
         this.sequence = sequence;
         this.position = position;
@@ -48,15 +48,15 @@ public class JFXSequenceInsert extends JFXExpression implements SequenceInsertTr
         v.visitSequenceInsert(this);
     }
 
-    public JFXExpression getElement() {
+    public VisageExpression getElement() {
         return element;
     }
     
-    public JFXExpression getSequence() {
+    public VisageExpression getSequence() {
         return sequence;
     }
     
-    public JFXExpression getPosition() {
+    public VisageExpression getPosition() {
         return position;
     }
     
@@ -69,11 +69,11 @@ public class JFXSequenceInsert extends JFXExpression implements SequenceInsertTr
         return JavafxTag.INSERT;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.SEQUENCE_INSERT;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.SEQUENCE_INSERT;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitSequenceInsert(this, data);
     }
 }

@@ -22,11 +22,11 @@
  */
 
 package org.visage.runtime.sequence;
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 
 public abstract class BoundForOverSingleton<T, PT> extends BoundFor<T, PT> {
 
-    public BoundForOverSingleton(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
+    public BoundForOverSingleton(VisageObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         super(container, forVarNum, inductionSeqVarNum, dependsOnIndex);
     }
 
@@ -63,7 +63,7 @@ public abstract class BoundForOverSingleton<T, PT> extends BoundFor<T, PT> {
         if (index < 0 || index >= numParts) {
             return null;
         } else {
-            FXForPart part = getPart(index);
+            VisageForPart part = getPart(index);
             T res = (T) part.get$(partResultVarNum);
             return res;
         }

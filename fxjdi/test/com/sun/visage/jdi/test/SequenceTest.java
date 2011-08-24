@@ -23,7 +23,7 @@
 
 package org.visage.jdi.test;
 
-import org.visage.jdi.FXSequenceReference;
+import org.visage.jdi.VisageSequenceReference;
 import com.sun.jdi.IntegerValue;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.Value;
@@ -35,7 +35,7 @@ import junit.framework.Assert;
 
 
 /**
- * Basic checks for FXSequenceReference/FXSequenceType methods and sequence access
+ * Basic checks for VisageSequenceReference/VisageSequenceType methods and sequence access
  * from debugger.
  *
  * @author sundar
@@ -70,11 +70,11 @@ public class SequenceTest extends JavafxTestBase {
         StackFrame frame = mainThread.frame(0);
         // get first argument which is Integer[]
         Value value = frame.getArgumentValues().get(0);
-        Assert.assertEquals(true, value instanceof FXSequenceReference);
-        FXSequenceReference seq = (FXSequenceReference) value;
+        Assert.assertEquals(true, value instanceof VisageSequenceReference);
+        VisageSequenceReference seq = (VisageSequenceReference) value;
         Assert.assertEquals(2, seq.size());
         Assert.assertEquals(2, seq.length());
-        Assert.assertEquals(FXSequenceReference.Types.INT, seq.getElementType());
+        Assert.assertEquals(VisageSequenceReference.Types.INT, seq.getElementType());
         Value zerothElementAsVal = seq.getValue(0);
         Assert.assertEquals(true, zerothElementAsVal instanceof IntegerValue);
         Assert.assertEquals(1729, ((IntegerValue)zerothElementAsVal).intValue());

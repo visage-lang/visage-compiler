@@ -28,23 +28,23 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import visage.lang.AngleUnit;
 
 /**
  * Tree node for angle literals, such as "100deg" or "3rad".
  * @author Stephen Chin <steveonjava@gmail.com>
  */
-public class JFXAngleLiteral extends JFXExpression implements AngleLiteralTree {
-    public JFXLiteral value;
+public class VisageAngleLiteral extends VisageExpression implements AngleLiteralTree {
+    public VisageLiteral value;
     public AngleUnit units;
     
-   protected JFXAngleLiteral(){
+   protected VisageAngleLiteral(){
         this.value = null;
         this.units = null;
     }
 
-    protected JFXAngleLiteral(JFXLiteral value, AngleUnit units) {
+    protected VisageAngleLiteral(VisageLiteral value, AngleUnit units) {
         this.value = value;
         this.units = units;
     }
@@ -60,12 +60,12 @@ public class JFXAngleLiteral extends JFXExpression implements AngleLiteralTree {
     }
 
     @Override
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.ANGLE_LITERAL;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.ANGLE_LITERAL;
     }
 
     @Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitAngleLiteral(this, data);
     }
 
@@ -75,7 +75,7 @@ public class JFXAngleLiteral extends JFXExpression implements AngleLiteralTree {
     }
 
     @Override
-    public JFXLiteral getValue() {
+    public VisageLiteral getValue() {
         return value;
     }
 }

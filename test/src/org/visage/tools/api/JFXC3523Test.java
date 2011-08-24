@@ -24,7 +24,7 @@
 package org.visage.tools.api;
 
 import org.visage.api.JavafxcTask;
-import org.visage.api.tree.JavaFXTreeScanner;
+import org.visage.api.tree.VisageTreeScanner;
 import org.visage.api.tree.InstantiateTree;
 import org.visage.api.tree.UnitTree;
 
@@ -68,7 +68,7 @@ public class JFXC3523Test {
         }
     }
 
-    static class ObjectLiteralFinder extends JavaFXTreeScanner<Void,Object> {
+    static class ObjectLiteralFinder extends VisageTreeScanner<Void,Object> {
 
         boolean foundLiteral = false;
 

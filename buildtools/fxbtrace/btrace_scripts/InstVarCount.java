@@ -27,10 +27,10 @@ import com.sun.btrace.AnyType;
 import java.io.File;
 import java.util.Map;
 import java.util.HashMap;
-import org.visage.runtime.FXBase;
+import org.visage.runtime.VisageBase;
 
 /**
- * This script prints count$() value of all FXBase subclasses.
+ * This script prints count$() value of all VisageBase subclasses.
  * (note: count$() returns number of Visage instance variables in a class).
  *
  * @author A. Sundararajan
@@ -43,10 +43,10 @@ import org.visage.runtime.FXBase;
     private static File evt = new File(System.getProperty("user.home"), "InstVarCount");
 
     @OnMethod(
-        clazz="org.visage.runtime.FXBase",
+        clazz="org.visage.runtime.VisageBase",
         method="<init>"
     )
-    public static void onNewFXObject(@Self FXBase self, AnyType[] args) {
+    public static void onNewFXObject(@Self VisageBase self, AnyType[] args) {
         String className = self.getClass().getName();
         if (! instVarCounts.containsKey(className)) {
             instVarCounts.put(className, self.count$());

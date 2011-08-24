@@ -31,35 +31,35 @@ package visage.reflect;
  * @profile desktop
  */
 
-public abstract class FXFunctionMember implements FXMember {
-    protected FXFunctionMember() {
+public abstract class VisageFunctionMember implements VisageMember {
+    protected VisageFunctionMember() {
     }
 
     /** Associate the method with a receiver object to yield a function. */
-    public FXFunctionValue asFunction(final FXObjectValue owner) {
-        return new FXFunctionValue() {
-            public FXValue apply(FXValue... arg) {
+    public VisageFunctionValue asFunction(final VisageObjectValue owner) {
+        return new VisageFunctionValue() {
+            public VisageValue apply(VisageValue... arg) {
                 return invoke(owner, arg);
             }
-            public FXFunctionType getType() {
-                return FXFunctionMember.this.getType();
+            public VisageFunctionType getType() {
+                return VisageFunctionMember.this.getType();
             }
             public boolean isNull() { return false; }
 
-            public String getValueString() { return "("+owner.getValueString()+")."+FXFunctionMember.this; }
+            public String getValueString() { return "("+owner.getValueString()+")."+VisageFunctionMember.this; }
         };
     }
 
-    public abstract FXFunctionType getType();
+    public abstract VisageFunctionType getType();
 
     /** Invoke this method on the given receiver and arguments. */
-    public abstract FXValue invoke(FXObjectValue owner, FXValue... arg);
+    public abstract VisageValue invoke(VisageObjectValue owner, VisageValue... arg);
     
         
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("function ");
-        FXClassType owner = getDeclaringClass();
+        VisageClassType owner = getDeclaringClass();
         if (owner != null) {
             String oname = owner.getName();
             if (oname != null) {

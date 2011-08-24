@@ -1,13 +1,13 @@
 /*
  * Copied from test/src/org/visage/tools/api/AllTrees.visage so that it can be run by
- * FXCompilerTest and used in smoketest.
+ * VisageCompilerTest and used in smoketest.
  *
  * @test
  * @run
  */
 
 // COMPILATION_UNIT
-// package not allowed in an FXCompilerTest.
+// package not allowed in an VisageCompilerTest.
 //package testfx;
 
 // IMPORT

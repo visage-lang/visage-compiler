@@ -29,7 +29,7 @@ import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 
-import org.visage.tools.tree.JFXTree;
+import org.visage.tools.tree.VisageTree;
 
 import com.sun.tools.mjavac.util.Position;
 
@@ -54,20 +54,20 @@ public abstract class ProgramElementDocImpl
         extends DocImpl implements ProgramElementDoc {
 
     // For source position information.
-    JFXTree tree = null;
+    VisageTree tree = null;
     Position.LineMap lineMap = null;
 
     private final long flags;
 
     protected ProgramElementDocImpl(DocEnv env, Symbol sym,
-                                    String doc, JFXTree tree, Position.LineMap lineMap) {
+                                    String doc, VisageTree tree, Position.LineMap lineMap) {
         super(env, doc);
         this.tree = tree;
         this.lineMap = lineMap;
         this.flags = sym.flags_field;
     }
 
-    void setTree(JFXTree tree) {
+    void setTree(VisageTree tree) {
         this.tree = tree;
     }
 

@@ -29,9 +29,9 @@ import com.sun.jdi.LongType;
  *
  * @author sundar
  */
-public class FXLongType extends FXPrimitiveType implements LongType {
+public class VisageLongType extends VisagePrimitiveType implements LongType {
 
-    public FXLongType(FXVirtualMachine fxvm, LongType underlying) {
+    public VisageLongType(VisageVirtualMachine fxvm, LongType underlying) {
         super(fxvm, underlying);
     }
 

@@ -29,9 +29,9 @@ import com.sun.jdi.ShortType;
  *
  * @author sundar
  */
-public class FXShortType extends FXPrimitiveType implements ShortType {
+public class VisageShortType extends VisagePrimitiveType implements ShortType {
 
-    public FXShortType(FXVirtualMachine fxvm, ShortType underlying) {
+    public VisageShortType(VisageVirtualMachine fxvm, ShortType underlying) {
         super(fxvm, underlying);
     }
 

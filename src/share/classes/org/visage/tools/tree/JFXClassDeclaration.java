@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 
 import org.visage.tools.code.JavafxFlags;
 import org.visage.tools.code.JavafxVarSymbol;
@@ -38,18 +38,18 @@ import com.sun.tools.mjavac.tree.JCTree;
 /**
  * A class declaration
  */
-public class JFXClassDeclaration extends JFXExpression implements ClassDeclarationTree {
-    public final JFXModifiers mods;
+public class VisageClassDeclaration extends VisageExpression implements ClassDeclarationTree {
+    public final VisageModifiers mods;
     private final Name name;
-    private List<JFXExpression> extending;
-    private List<JFXExpression> implementing;
-    private List<JFXExpression> mixing;
-    private List<JFXTree> defs;
-    private List<JFXExpression> supertypes;
+    private List<VisageExpression> extending;
+    private List<VisageExpression> implementing;
+    private List<VisageExpression> mixing;
+    private List<VisageTree> defs;
+    private List<VisageExpression> supertypes;
     private List<JavafxVarSymbol> objInitSyms;
     
     public ClassSymbol sym;
-    public JFXFunctionDefinition runMethod;
+    public VisageFunctionDefinition runMethod;
     public Scope runBodyScope;
     public boolean isScriptClass;
     private boolean isScriptingModeScript;
@@ -58,7 +58,7 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     private ListBuffer<JCTree> classInvokeCases;
     private ListBuffer<JCTree> scriptInvokeCases;
 
-    protected JFXClassDeclaration() {
+    protected VisageClassDeclaration() {
         this.mods = null;
         this.name = null;
         this.extending = null;
@@ -77,10 +77,10 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         this.classInvokeCases = ListBuffer.lb();
         this.scriptInvokeCases = ListBuffer.lb();
     }
-    protected JFXClassDeclaration(JFXModifiers mods,
+    protected VisageClassDeclaration(VisageModifiers mods,
             Name name,
-            List<JFXExpression> supertypes,
-            List<JFXTree> declarations,
+            List<VisageExpression> supertypes,
+            List<VisageTree> declarations,
             ClassSymbol sym) {
         this.mods = mods;
         this.name = name;           
@@ -109,7 +109,7 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         return convertList(ExpressionTree.class, supertypes);
     }
 
-    public JFXModifiers getModifiers() {
+    public VisageModifiers getModifiers() {
         return mods;
     }
 
@@ -117,44 +117,44 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         return name;
     }
 
-    public List<JFXExpression> getSupertypes() {
+    public List<VisageExpression> getSupertypes() {
         return supertypes;
     }
 
-    public List<JFXTree> getMembers() {
+    public List<VisageTree> getMembers() {
         return defs;
     }
 
-    public void setMembers(List<JFXTree> members) {
+    public void setMembers(List<VisageTree> members) {
         defs = members;
     }
 
-    public List<JFXExpression> getImplementing() {
+    public List<VisageExpression> getImplementing() {
         return implementing;
     }
 
-    public List<JFXExpression> getExtending() {
+    public List<VisageExpression> getExtending() {
         return extending;
     }
 
-    public List<JFXExpression> getMixing() {
+    public List<VisageExpression> getMixing() {
         return mixing;
     }
 
-    public void setDifferentiatedExtendingImplementingMixing(List<JFXExpression> extending,
-                                                       List<JFXExpression> implementing,
-                                                       List<JFXExpression> mixing) {
+    public void setDifferentiatedExtendingImplementingMixing(List<VisageExpression> extending,
+                                                       List<VisageExpression> implementing,
+                                                       List<VisageExpression> mixing) {
         this.extending    = extending;
         this.implementing = implementing;
         this.mixing       = mixing;
         
         // JFXC-2820 - Reorder the supertypes during attribution.
-        ListBuffer<JFXExpression> orderedSuperTypes = new ListBuffer<JFXExpression>();
+        ListBuffer<VisageExpression> orderedSuperTypes = new ListBuffer<VisageExpression>();
         
         // Add supers according to declaration and normal, mixin and interface constraints.
-        for (JFXExpression extend    : extending)    orderedSuperTypes.append(extend);
-        for (JFXExpression mixin     : mixing)       orderedSuperTypes.append(mixin);
-        for (JFXExpression implement : implementing) orderedSuperTypes.append(implement);
+        for (VisageExpression extend    : extending)    orderedSuperTypes.append(extend);
+        for (VisageExpression mixin     : mixing)       orderedSuperTypes.append(mixin);
+        for (VisageExpression implement : implementing) orderedSuperTypes.append(implement);
         
         // Replace supertypes so that all references use the correct ordering.
         supertypes = orderedSuperTypes.toList();
@@ -177,11 +177,11 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         v.visitClassDeclaration(this);
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.CLASS_DECLARATION;
+    public VisageKind getJavaFXKind() {
+        return VisageKind.CLASS_DECLARATION;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+    public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {
         return visitor.visitClassDeclaration(this, data);
     }
 
@@ -190,7 +190,7 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     }
 
     public java.util.List<ExpressionTree> getImplements() {
-        return JFXTree.convertList(ExpressionTree.class, implementing);
+        return VisageTree.convertList(ExpressionTree.class, implementing);
     }
 
     public java.util.List<Tree> getClassMembers() {

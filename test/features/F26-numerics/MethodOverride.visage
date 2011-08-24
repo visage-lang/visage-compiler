@@ -181,7 +181,7 @@ class TesterOverride extends TesterInstance {
     }
 }
 
-public class MethodOverride extends FXTestCase {
+public class MethodOverride extends VisageTestCase {
     function testMethodOverride() {
         var tester = TesterOverride{};
         tester.testOverrideRetInt();

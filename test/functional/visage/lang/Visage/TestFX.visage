@@ -177,7 +177,7 @@ public function RemoveShutdownPActionTest()
 }
 }
 
-public class TestFX extends FXTestCase  {
+public class TestFX extends VisageTestCase  {
 
     function testRemoveFromEmptyActions() {
       var jlt = VISAGE_LANG_TEST {}

@@ -23,18 +23,18 @@
 
 package org.visage.runtime;
 
-// CODING/NAMING RESTRICTIONS - see FXBase for explanation.
+// CODING/NAMING RESTRICTIONS - see VisageBase for explanation.
 
 
 /**
- * All Visage classes must extend FXObject; it acts as a marker interface, and also includes methods required for
+ * All Visage classes must extend VisageObject; it acts as a marker interface, and also includes methods required for
  * object lifecyle.
  *
  * @author Brian Goetz
  * @author Jim Laskey
  * @author Robert Field
  */
-public interface FXObject {
+public interface VisageObject {
     /**
      * Var flag bits.
      */
@@ -132,14 +132,14 @@ public interface FXObject {
     public DepChain getDepChain$internal$();
     public void setDepChain$internal$(DepChain depChain);
     
-    public void     addDependent$        (final int varNum, FXObject dep, final int depNum);
-    public void     removeDependent$     (final int varNum, FXObject dep);
+    public void     addDependent$        (final int varNum, VisageObject dep, final int depNum);
+    public void     removeDependent$     (final int varNum, VisageObject dep);
     // Earlier 'this' object was dependent on { oldBindee, varNum }.
     // Now, change the dependence to { newBindee, varNum }
-    public void     switchDependence$    (FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum, final int depNum);
+    public void     switchDependence$    (VisageObject oldBindee, final int oldNum, VisageObject newBindee, final int newNum, final int depNum);
     public void     notifyDependents$    (final int varNum, final int phase);
     public void     notifyDependents$    (int varNum, int startPos, int endPos, int newLength, int phase);
-    public boolean  update$ (FXObject src, int depNum, int startPos, int endPos, int newLength, int phase);
+    public boolean  update$ (VisageObject src, int depNum, int startPos, int endPos, int newLength, int phase);
 // for testing - the listener count is the number of distinct {varNum, dep} pairs
     public int      getListenerCount$();
 

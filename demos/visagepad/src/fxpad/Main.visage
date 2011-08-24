@@ -51,7 +51,7 @@ function fileExists(urlStr:String):Boolean {
 // start Visage pad
 function run(__ARGS__ : String[]) {
 
-    var visagePad = JavaFXPad{ url: if(sizeof __ARGS__ > 0) __ARGS__[0] else null };
+    var visagePad = VisagePad{ url: if(sizeof __ARGS__ > 0) __ARGS__[0] else null };
 
     var fileChooser = FileChooser {
            fileFilters: FileFilter{
@@ -67,7 +67,7 @@ function run(__ARGS__ : String[]) {
     frame = SwingFrame {
         visible: true
         closeAction: function() { System.exit(0); }
-        title: "JavaFXPad"
+        title: "VisagePad"
         height: 800
         width: 1000
         menus: [

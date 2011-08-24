@@ -24,7 +24,7 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.tree.Tree.JavaFXKind;
+import org.visage.api.tree.Tree.VisageKind;
 import org.visage.api.tree.SyntheticTree.SynthType;
 
 import com.sun.tools.mjavac.code.Type;
@@ -46,7 +46,7 @@ import com.sun.source.tree.TreeVisitor;
  * well... except for things like statement which (at least for now) have to be subclassed
  * off other parts of the JCTree.
  */
-public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Cloneable, DiagnosticPosition {
+public abstract class VisageTree extends JCTree implements SyntheticTree, Tree, Cloneable, DiagnosticPosition {
 
     /**
      * The Generated type of this node - for instance, was it synthesised by the compiler?
@@ -100,7 +100,7 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
     /** Set position field and return this tree.
      */
     @Override
-    public JFXTree setPos(int pos) {
+    public VisageTree setPos(int pos) {
         this.pos = pos;
         return this;
     }
@@ -108,7 +108,7 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
     /** Set type field and return this tree.
      */
     @Override
-    public JFXTree setType(Type type) {
+    public VisageTree setType(Type type) {
         this.type = type;
         return this;
     }
@@ -122,7 +122,7 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
 
     // for default DiagnosticPosition
     @Override
-    public JFXTree getTree() {
+    public VisageTree getTree() {
         return this;
     }
 
@@ -144,7 +144,7 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
 
     /** Initialize tree with given tag.
      */
-    protected JFXTree() {
+    protected VisageTree() {
     }
     
     public abstract void accept(JavafxVisitor v);
@@ -154,7 +154,7 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
      *
      * @return the kind of this tree.
      */
-    public abstract JavaFXKind getJavaFXKind();
+    public abstract VisageKind getJavaFXKind();
     
     @SuppressWarnings("unchecked")
     public static <T> java.util.List<T> convertList(Class<T> klass, com.sun.tools.mjavac.util.List<?> list) {
@@ -191,8 +191,8 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
      * Allow all nodes to become equivalent to Erronous by being able to
      * return any Erroneous error nodes they are holding (default they don't have any).
      */
-    public List<? extends JFXTree> getErrorTrees() {
-        return List.<JFXTree>nil();
+    public List<? extends VisageTree> getErrorTrees() {
+        return List.<VisageTree>nil();
     }
 
     /****

@@ -97,8 +97,8 @@ public class JavafxPreTranslationSupport {
         return names.fromString(prefix + tmpCount++);
     }
 
-    public JFXExpression defaultValue(Type type) {
-        JFXExpression res;
+    public VisageExpression defaultValue(Type type) {
+        VisageExpression res;
         if (types.isSequence(type)) {
             res = fxmake.EmptySequence();
         } else {
@@ -198,18 +198,18 @@ public class JavafxPreTranslationSupport {
         return new MethodSymbol(Flags.BLOCK, name, null, owner.enclClass());
     }
 
-    JFXType makeTypeTree(Type type) {
+    VisageType makeTypeTree(Type type) {
         Type elemType = types.elementTypeOrType(type);
-        JFXExpression typeExpr = fxmake.Type(elemType).setType(elemType);
+        VisageExpression typeExpr = fxmake.Type(elemType).setType(elemType);
         JavafxTreeInfo.setSymbol(typeExpr, elemType.tsym);
-        return (JFXType)fxmake.TypeClass(typeExpr, types.isSequence(type) ? Cardinality.ANY : Cardinality.SINGLETON, (ClassSymbol)type.tsym).setType(type);
+        return (VisageType)fxmake.TypeClass(typeExpr, types.isSequence(type) ? Cardinality.ANY : Cardinality.SINGLETON, (ClassSymbol)type.tsym).setType(type);
     }
 
-    JFXVar BoundLocalVar(DiagnosticPosition diagPos, Type type, Name name, JFXExpression boundExpr, Symbol owner) {
+    VisageVar BoundLocalVar(DiagnosticPosition diagPos, Type type, Name name, VisageExpression boundExpr, Symbol owner) {
         return Var(diagPos, JavafxFlags.IS_DEF, type, name, JavafxBindStatus.UNIDIBIND, boundExpr, owner);
     }
 
-    JFXVar LocalVar(DiagnosticPosition diagPos, Type type, Name name, JFXExpression expr, Symbol owner) {
+    VisageVar LocalVar(DiagnosticPosition diagPos, Type type, Name name, VisageExpression expr, Symbol owner) {
         return Var(diagPos,0L, type, name, JavafxBindStatus.UNBOUND, expr, owner);
     }
 
@@ -228,7 +228,7 @@ public class JavafxPreTranslationSupport {
         return sb.toString();
     }
 
-    JFXVar SynthVar(DiagnosticPosition diagPos, JavafxVarSymbol vsymParent, String id, JFXExpression initExpr, JavafxBindStatus bindStatus, Type type, boolean inScriptLevel, Symbol owner) {
+    VisageVar SynthVar(DiagnosticPosition diagPos, JavafxVarSymbol vsymParent, String id, VisageExpression initExpr, JavafxBindStatus bindStatus, Type type, boolean inScriptLevel, Symbol owner) {
         optStat.recordSynthVar(id);
         String ns = "_$" + suffixGen();
         if (debugNames) {
@@ -237,18 +237,18 @@ public class JavafxPreTranslationSupport {
         Name name = names.fromString(ns);
 
         long flags = JavafxFlags.SCRIPT_PRIVATE | Flags.SYNTHETIC | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
-        JFXVar var = Var(diagPos, flags, types.normalize(type), name, bindStatus, initExpr, owner);
+        VisageVar var = Var(diagPos, flags, types.normalize(type), name, bindStatus, initExpr, owner);
         owner.members().enter(var.sym);
         return var;
     }
 
-    JFXVar Var(DiagnosticPosition diagPos, long flags, Type type, Name name, JavafxBindStatus bindStatus, JFXExpression expr, Symbol owner) {
+    VisageVar Var(DiagnosticPosition diagPos, long flags, Type type, Name name, JavafxBindStatus bindStatus, VisageExpression expr, Symbol owner) {
         JavafxVarSymbol vsym = new JavafxVarSymbol(
                 types,
                 names,
                 flags,
                 name, type, owner);
-        JFXVar var = fxmake.at(diagPos).Var(
+        VisageVar var = fxmake.at(diagPos).Var(
                 name,
                 makeTypeTree(vsym.type),
                 fxmake.at(diagPos).Modifiers(flags),
@@ -260,7 +260,7 @@ public class JavafxPreTranslationSupport {
         return var;
     }
     
-    JFXExpression makeCastIfNeeded(JFXExpression tree, Type type) {
+    VisageExpression makeCastIfNeeded(VisageExpression tree, Type type) {
         if (type == Type.noType ||
                 type == null ||
                 type.isErroneous() ||
@@ -286,7 +286,7 @@ public class JavafxPreTranslationSupport {
      * is a boxed Java type - this is required because we might want to go from
      * java.Lang.Long to int and vice-versa
      */
-    private boolean needNumericBoxConversion(JFXExpression tree, Type type) {
+    private boolean needNumericBoxConversion(VisageExpression tree, Type type) {
         boolean sourceIsPrimitive = tree.type.isPrimitive();
         boolean targetIsPrimitive = type.isPrimitive();
         Type unboxedSource = types.unboxedType(tree.type);
@@ -296,7 +296,7 @@ public class JavafxPreTranslationSupport {
                 (!sourceIsPrimitive && !targetIsPrimitive && unboxedTarget != Type.noType && unboxedSource!= Type.noType && !types.isSameType(type, tree.type));
     }
 
-    private JFXExpression makeNumericBoxConversionIfNeeded(JFXExpression tree, Type type) {
+    private VisageExpression makeNumericBoxConversionIfNeeded(VisageExpression tree, Type type) {
         if (needNumericBoxConversion(tree, type)) {
            //either tree.type or type is primitive!
            if (tree.type.isPrimitive() && !type.isPrimitive()) {
@@ -314,18 +314,18 @@ public class JavafxPreTranslationSupport {
         }
     }
 
-    private JFXExpression makeCast(JFXExpression tree, Type type) {
-        JFXExpression typeTree = makeTypeTree(type);
-        JFXExpression expr = fxmake.at(tree.pos).TypeCast(typeTree, tree);
+    private VisageExpression makeCast(VisageExpression tree, Type type) {
+        VisageExpression typeTree = makeTypeTree(type);
+        VisageExpression expr = fxmake.at(tree.pos).TypeCast(typeTree, tree);
         expr.type = type;
         return expr;
     }
 
-    void liftTypes(final JFXClassDeclaration cdecl, final Type newEncl, final Symbol newOwner) {
+    void liftTypes(final VisageClassDeclaration cdecl, final Type newEncl, final Symbol newOwner) {
         class NestedClassTypeLifter extends JavafxTreeScanner {
 
             @Override
-            public void visitClassDeclaration(JFXClassDeclaration that) {
+            public void visitClassDeclaration(VisageClassDeclaration that) {
                 super.visitClassDeclaration(that);
                 if (that.sym != newEncl.tsym &&
                         (that.type.getEnclosingType() == Type.noType ||
@@ -373,7 +373,7 @@ public class JavafxPreTranslationSupport {
         return name;
     }
 
-    boolean isNullable(JFXExpression expr) {
+    boolean isNullable(VisageExpression expr) {
         if (!types.isNullable(expr.type)) {
             return false;
         }
@@ -382,14 +382,14 @@ public class JavafxPreTranslationSupport {
                 case OBJECT_LITERAL:
                     return false;
                 case PARENS:
-                    expr = ((JFXParens)expr).getExpression();
+                    expr = ((VisageParens)expr).getExpression();
                     break;
                 case BLOCK_EXPRESSION:
-                    expr = ((JFXBlock)expr).getValue();
+                    expr = ((VisageBlock)expr).getValue();
                     break;
                 case CONDEXPR:
                 {
-                    JFXIfExpression ife = (JFXIfExpression)expr;
+                    VisageIfExpression ife = (VisageIfExpression)expr;
                     return isNullable(ife.getTrueExpression()) || isNullable(ife.getFalseExpression());
                 }
                 default:
@@ -399,7 +399,7 @@ public class JavafxPreTranslationSupport {
     }
 
     //TODO: unify with hasSideEffects in TranslationSupport
-    boolean hasSideEffectsInBind(JFXExpression expr) {
+    boolean hasSideEffectsInBind(VisageExpression expr) {
         class SideEffectScanner extends JavafxTreeScanner {
 
             boolean hse = false;
@@ -409,18 +409,18 @@ public class JavafxPreTranslationSupport {
             }
 
             @Override
-            public void visitAssign(JFXAssign tree) {
+            public void visitAssign(VisageAssign tree) {
                 // In case we add back assignment
                 markSideEffects();
             }
 
             @Override
-            public void visitInstanciate(JFXInstanciate tree) {
+            public void visitInstanciate(VisageInstanciate tree) {
                 markSideEffects();
             }
 
             @Override
-            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+            public void visitFunctionInvocation(VisageFunctionInvocation tree) {
                 markSideEffects();
             }
         }
@@ -429,8 +429,8 @@ public class JavafxPreTranslationSupport {
         return scanner.hse;
     }
 
-    boolean isImmutable(List<JFXExpression> trees) {
-        for (JFXExpression item : trees) {
+    boolean isImmutable(List<VisageExpression> trees) {
+        for (VisageExpression item : trees) {
             if (!isImmutable(item)) {
                 return false;
             }
@@ -438,20 +438,20 @@ public class JavafxPreTranslationSupport {
         return true;
     }
 
-    boolean isImmutable(JFXExpression tree) {
+    boolean isImmutable(VisageExpression tree) {
 //        boolean im = isImmutableReal(tree);
 //        System.err.println((im? "IMM: " : "MUT: ") + tree);
 //        return im;
 //    }
-//    boolean isImmutableReal(JFXExpression tree) {
+//    boolean isImmutableReal(VisageExpression tree) {
         //TODO: add for-loop, sequence indexed, string expression
         switch (tree.getFXTag()) {
             case IDENT: {
-                JFXIdent id = (JFXIdent) tree;
+                VisageIdent id = (VisageIdent) tree;
                 return isImmutable(id.sym, id.getName());
             }
             case SELECT: {
-                JFXSelect sel = (JFXSelect) tree;
+                VisageSelect sel = (VisageSelect) tree;
                 return (sel.sym.isStatic() || isImmutable(sel.getExpression())) && isImmutable(sel.sym, sel.getIdentifier());
             }
             case LITERAL:
@@ -459,13 +459,13 @@ public class JavafxPreTranslationSupport {
             case SEQUENCE_EMPTY:
                 return true;
             case PARENS:
-                return isImmutable(((JFXParens)tree).getExpression());
+                return isImmutable(((VisageParens)tree).getExpression());
             case BLOCK_EXPRESSION: {
-                JFXBlock be = (JFXBlock) tree;
-                for (JFXExpression stmt : be.getStmts()) {
+                VisageBlock be = (VisageBlock) tree;
+                for (VisageExpression stmt : be.getStmts()) {
                     //TODO: OPT probably many false positive cases
-                    if (stmt instanceof JFXVar) {
-                        JFXVar var = (JFXVar) stmt;
+                    if (stmt instanceof VisageVar) {
+                        VisageVar var = (VisageVar) stmt;
                         if (!isImmutable(var.getInitializer())) {
                             return false;
                         }
@@ -476,8 +476,8 @@ public class JavafxPreTranslationSupport {
                 return isImmutable(be.getValue());
             }
             case FOR_EXPRESSION: {
-                JFXForExpression fe = (JFXForExpression) tree;
-                for (JFXForExpressionInClause clause : fe.getForExpressionInClauses()) {
+                VisageForExpression fe = (VisageForExpression) tree;
+                for (VisageForExpressionInClause clause : fe.getForExpressionInClauses()) {
                     if (!isImmutable(clause.getSequenceExpression())) {
                         return false;
                     }
@@ -488,8 +488,8 @@ public class JavafxPreTranslationSupport {
                 return isImmutable(fe.getBodyExpression());
             }
             case APPLY: {
-                JFXFunctionInvocation finv = (JFXFunctionInvocation) tree;
-                JFXExpression meth = finv.meth;
+                VisageFunctionInvocation finv = (VisageFunctionInvocation) tree;
+                VisageExpression meth = finv.meth;
                 Symbol refSym = JavafxTreeInfo.symbol(meth);
                 return
                         isImmutable(meth) &&                       // method being called won't change
@@ -499,16 +499,16 @@ public class JavafxPreTranslationSupport {
                         (refSym.flags() & JavafxFlags.BOUND) == 0; // and isn't a call to a bound function
             }
             case CONDEXPR: {
-                JFXIfExpression ife = (JFXIfExpression) tree;
+                VisageIfExpression ife = (VisageIfExpression) tree;
                 return isImmutable(ife.getCondition()) && isImmutable(ife.getTrueExpression()) && isImmutable(ife.getFalseExpression());
             }
             case SEQUENCE_RANGE: {
-                JFXSequenceRange rng = (JFXSequenceRange) tree;
+                VisageSequenceRange rng = (VisageSequenceRange) tree;
                 return isImmutable(rng.getLower()) && isImmutable(rng.getUpper()) && (rng.getStepOrNull()==null || isImmutable(rng.getStepOrNull()));
             }
             case SEQUENCE_EXPLICIT: {
-                JFXSequenceExplicit se = (JFXSequenceExplicit) tree;
-                for (JFXExpression item : se.getItems()) {
+                VisageSequenceExplicit se = (VisageSequenceExplicit) tree;
+                for (VisageExpression item : se.getItems()) {
                     if (!isImmutable(item)) {
                         return false;
                     }
@@ -516,18 +516,18 @@ public class JavafxPreTranslationSupport {
                 return true;
             }
             case TYPECAST: {
-                JFXTypeCast tc = (JFXTypeCast) tree;
+                VisageTypeCast tc = (VisageTypeCast) tree;
                 return isImmutable(tc.getExpression());
             }
             default:
-                if (tree instanceof JFXUnary) {
+                if (tree instanceof VisageUnary) {
                     if (tree.getFXTag().isIncDec()) {
                         return false;
                     } else {
-                        return isImmutable(((JFXUnary) tree).getExpression());
+                        return isImmutable(((VisageUnary) tree).getExpression());
                     }
-                } else if (tree instanceof JFXBinary) {
-                    JFXBinary b = (JFXBinary) tree;
+                } else if (tree instanceof VisageBinary) {
+                    VisageBinary b = (VisageBinary) tree;
                     return isImmutable(b.lhs) && isImmutable(b.rhs);
                 } else {
                     return false;

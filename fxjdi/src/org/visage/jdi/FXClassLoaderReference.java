@@ -31,17 +31,17 @@ import java.util.List;
  *
  * @author sundar
  */
-public class FXClassLoaderReference extends FXObjectReference implements ClassLoaderReference {
-    public FXClassLoaderReference(FXVirtualMachine fxvm, ClassLoaderReference underlying) {
+public class VisageClassLoaderReference extends VisageObjectReference implements ClassLoaderReference {
+    public VisageClassLoaderReference(VisageVirtualMachine fxvm, ClassLoaderReference underlying) {
         super(fxvm, underlying);
     }
 
     public List<ReferenceType> definedClasses() {
-        return FXWrapper.wrapReferenceTypes(virtualMachine(), underlying().definedClasses());
+        return VisageWrapper.wrapReferenceTypes(virtualMachine(), underlying().definedClasses());
     }
 
     public List<ReferenceType> visibleClasses() {
-        return FXWrapper.wrapReferenceTypes(virtualMachine(), underlying().visibleClasses());
+        return VisageWrapper.wrapReferenceTypes(virtualMachine(), underlying().visibleClasses());
     }
 
     @Override

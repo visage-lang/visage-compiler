@@ -28,9 +28,9 @@ import java.util.*;
 import com.sun.java.browser.plugin2.liveconnect.v1.*;
 import visage.reflect.*;
 
-public class FXSequenceDelegate extends FXTypeDelegate {
+public class VisageSequenceDelegate extends VisageTypeDelegate {
 
-    public FXSequenceDelegate(Bridge bridge) {
+    public VisageSequenceDelegate(Bridge bridge) {
         this.bridge = bridge;
     }
 
@@ -48,7 +48,7 @@ public class FXSequenceDelegate extends FXTypeDelegate {
                             boolean isStatic,
                             boolean objectIsApplet,
                             Result[] result) throws Exception {
-        FXValue val = getField0(fieldName, (FXSequenceValue) receiver, isStatic, objectIsApplet);
+        VisageValue val = getField0(fieldName, (VisageSequenceValue) receiver, isStatic, objectIsApplet);
         if (val != null) {
             // NOTE: we always unbox values because Visage sequences
             // conceptually contain primitives and not boxing objects
@@ -57,8 +57,8 @@ public class FXSequenceDelegate extends FXTypeDelegate {
         return true;
     }
 
-    private FXValue getField0(String fieldName,
-                              FXSequenceValue receiver,
+    private VisageValue getField0(String fieldName,
+                              VisageSequenceValue receiver,
                               boolean isStatic,
                               boolean objectIsApplet) throws Exception {
         if ("length".equals(fieldName)) {
@@ -77,10 +77,10 @@ public class FXSequenceDelegate extends FXTypeDelegate {
         throw new UnsupportedOperationException("Setting sequence elements not yet supported");
 
         /*
-        // FIXME: need setItem() on FXSequenceValue
+        // FIXME: need setItem() on VisageSequenceValue
         int index = Integer.parseInt(fieldName);
-        FXSequenceValue seq = (FXSequenceValue) receiver;
-        FXValue val = (FXValue) bridge.convert(value, seq.getType().getComponentType());
+        VisageSequenceValue seq = (VisageSequenceValue) receiver;
+        VisageValue val = (VisageValue) bridge.convert(value, seq.getType().getComponentType());
         seq.setItem(index, val);
         */
     }
@@ -90,12 +90,12 @@ public class FXSequenceDelegate extends FXTypeDelegate {
                             boolean isStatic,
                             boolean objectIsApplet,
                             boolean[] result) {
-        result[0] = hasField0(fieldName, (FXSequenceValue) receiver, objectIsApplet);
+        result[0] = hasField0(fieldName, (VisageSequenceValue) receiver, objectIsApplet);
         return true;
     }
 
     private boolean hasField0(String fieldName,
-                              FXSequenceValue receiver,
+                              VisageSequenceValue receiver,
                               boolean objectIsApplet) {
         if ("length".equals(fieldName)) {
             return true;
@@ -139,6 +139,6 @@ public class FXSequenceDelegate extends FXTypeDelegate {
     //----------------------------------------------------------------------
     // Internals only below this point
     //
-    private FXLocal.Context context = FXLocal.getContext();
+    private VisageLocal.Context context = VisageLocal.getContext();
     private Bridge bridge;
 }

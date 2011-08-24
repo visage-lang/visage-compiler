@@ -34,12 +34,12 @@ package org.visage.api.tree;
  * @author Jonathan Gibbons
  * @since 1.6
  */
-public class JavaFXTreePathScanner<R, P> extends JavaFXTreeScanner<R, P> {
+public class VisageTreePathScanner<R, P> extends VisageTreeScanner<R, P> {
 
     /**
      * Scan a tree from a position identified by a TreePath.
      */
-    public R scan(JavaFXTreePath path, P p) {
+    public R scan(VisageTreePath path, P p) {
         this.path = path;
         try {
             return path.getLeaf().accept(this, p);
@@ -57,8 +57,8 @@ public class JavaFXTreePathScanner<R, P> extends JavaFXTreeScanner<R, P> {
         if (tree == null)
             return null;
 
-        JavaFXTreePath prev = path;
-        path = new JavaFXTreePath(path, tree);
+        VisageTreePath prev = path;
+        path = new VisageTreePath(path, tree);
         try {
             return tree.accept(this, p);
         } finally {
@@ -70,9 +70,9 @@ public class JavaFXTreePathScanner<R, P> extends JavaFXTreeScanner<R, P> {
      * Get the current path for the node, as built up by the currently
      * active set of scan calls.
      */
-    public JavaFXTreePath getCurrentPath() {
+    public VisageTreePath getCurrentPath() {
         return path;
     }
 
-    private JavaFXTreePath path;
+    private VisageTreePath path;
 }

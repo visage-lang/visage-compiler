@@ -40,29 +40,29 @@ import java.util.List;
  *
  * @author sundar
  */
-public class FXThreadReference extends FXObjectReference implements ThreadReference {
-    public FXThreadReference(FXVirtualMachine fxvm, ThreadReference underlying) {
+public class VisageThreadReference extends VisageObjectReference implements ThreadReference {
+    public VisageThreadReference(VisageVirtualMachine fxvm, ThreadReference underlying) {
         super(fxvm, underlying);
     }
 
     public void forceEarlyReturn(Value value) throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException {
-        underlying().forceEarlyReturn(FXWrapper.unwrap(value));
+        underlying().forceEarlyReturn(VisageWrapper.unwrap(value));
     }
 
     public List<MonitorInfo> ownedMonitorsAndFrames() throws IncompatibleThreadStateException {
-        return FXWrapper.wrapMonitorInfos(virtualMachine(), underlying().ownedMonitorsAndFrames());
+        return VisageWrapper.wrapMonitorInfos(virtualMachine(), underlying().ownedMonitorsAndFrames());
     }
 
-    public FXObjectReference currentContendedMonitor() throws IncompatibleThreadStateException {
-        return FXWrapper.wrap(virtualMachine(), underlying().currentContendedMonitor());
+    public VisageObjectReference currentContendedMonitor() throws IncompatibleThreadStateException {
+        return VisageWrapper.wrap(virtualMachine(), underlying().currentContendedMonitor());
     }
 
-    public FXStackFrame frame(int index) throws IncompatibleThreadStateException {
+    public VisageStackFrame frame(int index) throws IncompatibleThreadStateException {
         List<StackFrame> frames = getFilteredFrames();
         if (index < 0 || index >= frames.size()) {
             throw new IndexOutOfBoundsException();
         }
-        return (FXStackFrame) frames.get(index);
+        return (VisageStackFrame) frames.get(index);
     }
 
     public int frameCount() throws IncompatibleThreadStateException {
@@ -103,11 +103,11 @@ public class FXThreadReference extends FXObjectReference implements ThreadRefere
     }
 
     public List<ObjectReference> ownedMonitors() throws IncompatibleThreadStateException {
-        return FXWrapper.wrapObjectReferences(virtualMachine(), underlying().ownedMonitors());
+        return VisageWrapper.wrapObjectReferences(virtualMachine(), underlying().ownedMonitors());
     }
 
     public void popFrames(StackFrame frame) throws IncompatibleThreadStateException {
-        underlying().popFrames(FXWrapper.unwrap(frame));
+        underlying().popFrames(VisageWrapper.unwrap(frame));
     }
 
     public void resume() {
@@ -119,7 +119,7 @@ public class FXThreadReference extends FXObjectReference implements ThreadRefere
     }
 
     public void stop(ObjectReference exception) throws InvalidTypeException {
-        underlying().stop(FXWrapper.unwrap(exception));
+        underlying().stop(VisageWrapper.unwrap(exception));
     }
 
     public void suspend() {
@@ -130,8 +130,8 @@ public class FXThreadReference extends FXObjectReference implements ThreadRefere
         return underlying().suspendCount();
     }
 
-    public FXThreadGroupReference threadGroup() {
-        return FXWrapper.wrap(virtualMachine(), underlying().threadGroup());
+    public VisageThreadGroupReference threadGroup() {
+        return VisageWrapper.wrap(virtualMachine(), underlying().threadGroup());
     }
 
     @Override
@@ -140,11 +140,11 @@ public class FXThreadReference extends FXObjectReference implements ThreadRefere
     }
 
     private List<StackFrame> getFilteredFrames() throws IncompatibleThreadStateException {
-        List<StackFrame> frames = FXWrapper.wrapFrames(virtualMachine(), underlying().frames());
+        List<StackFrame> frames = VisageWrapper.wrapFrames(virtualMachine(), underlying().frames());
         List<StackFrame> filteredFrames = new ArrayList<StackFrame>(frames.size());
         try {
             for (StackFrame fr : frames) {
-                FXStackFrame fxfr = (FXStackFrame) fr;
+                VisageStackFrame fxfr = (VisageStackFrame) fr;
                 // don't add Visage synthetic frames
                 if (fxfr.location().method().isJavaFXInternalMethod()) {
                     continue;

@@ -23,7 +23,7 @@
 
 package org.visage.tools.debug.tty;
 
-import org.visage.jdi.FXBootstrap;
+import org.visage.jdi.VisageBootstrap;
 import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadGroupReference;
@@ -854,7 +854,7 @@ public class Debugger {
     }
 
     private static boolean supportsSharedMemory() {
-        for (Connector connector : FXBootstrap.virtualMachineManager().allConnectors()) {
+        for (Connector connector : VisageBootstrap.virtualMachineManager().allConnectors()) {
             if (connector.transport() == null) {
                 continue;
             }
@@ -992,11 +992,11 @@ public class Debugger {
                      * based on this decision.
                      */
                     if (supportsSharedMemory()) {
-                        connectSpec = "org.visage.jdi.connect.FXSharedMemoryAttachingConnector:name=" +
+                        connectSpec = "org.visage.jdi.connect.VisageSharedMemoryAttachingConnector:name=" +
                                 address;
                     } else {
                         String suboptions = addressToSocketArgs(address);
-                        connectSpec = "org.visage.jdi.connect.FXSocketAttachingConnector:" + suboptions;
+                        connectSpec = "org.visage.jdi.connect.VisageSocketAttachingConnector:" + suboptions;
                     }
                 } else if (token.equals("-listen") || token.equals("-listenany")) {
                     if (connectSpec != null) {
@@ -1019,12 +1019,12 @@ public class Debugger {
                      * specification string based on this decision.
                      */
                     if (supportsSharedMemory()) {
-                        connectSpec = "org.visage.jdi.connect.FXSharedMemoryListeningConnector:";
+                        connectSpec = "org.visage.jdi.connect.VisageSharedMemoryListeningConnector:";
                         if (address != null) {
                             connectSpec += ("name=" + address);
                         }
                     } else {
-                        connectSpec = "org.visage.jdi.connect.FXSocketListeningConnector:";
+                        connectSpec = "org.visage.jdi.connect.VisageSocketListeningConnector:";
                         if (address != null) {
                             connectSpec += addressToSocketArgs(address);
                         }
@@ -1065,7 +1065,7 @@ public class Debugger {
          * Unless otherwise specified, set the default connect spec.
          */
         if (connectSpec == null) {
-            connectSpec = "org.visage.jdi.connect.FXLaunchingConnector:";
+            connectSpec = "org.visage.jdi.connect.VisageLaunchingConnector:";
         } else if (!connectSpec.endsWith(",") && !connectSpec.endsWith(":")) {
             connectSpec += ","; // (Bug ID 4285874)
         }
@@ -1074,7 +1074,7 @@ public class Debugger {
         javaArgs = javaArgs.trim();
 
         if (cmdLine.length() > 0) {
-            if (!connectSpec.startsWith("org.visage.jdi.connect.FXLaunchingConnector:") &&
+            if (!connectSpec.startsWith("org.visage.jdi.connect.VisageLaunchingConnector:") &&
                     !connectSpec.startsWith("com.sun.jdi.CommandLineLaunch:")) {
                 usageError("Cannot specify command line with connector:",
                         connectSpec);
@@ -1084,7 +1084,7 @@ public class Debugger {
         }
 
         if (javaArgs.length() > 0) {
-            if (!connectSpec.startsWith("org.visage.jdi.connect.FXLaunchingConnector:") &&
+            if (!connectSpec.startsWith("org.visage.jdi.connect.VisageLaunchingConnector:") &&
                     !connectSpec.startsWith("com.sun.jdi.CommandLineLaunch:")) {
                 usageError("Cannot specify target vm arguments with connector:",
                         connectSpec);

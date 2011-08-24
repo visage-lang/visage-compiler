@@ -1,4 +1,4 @@
-import org.visage.runtime.FXObject;
+import org.visage.runtime.VisageObject;
 import org.visage.runtime.InitHelper;
 import org.visage.runtime.location.*;
 
@@ -8,7 +8,7 @@ import org.visage.runtime.location.*;
  * @author Brian Goetz
  */
 
-interface Base1$Intf extends FXObject {
+interface Base1$Intf extends VisageObject {
     public IntLocation get$n();
     public void init$n(IntLocation location);
 
@@ -21,7 +21,7 @@ interface Base1$Intf extends FXObject {
     public IntLocation bar$bound(IntLocation a);
 }
 
-interface Base2$Intf extends FXObject {
+interface Base2$Intf extends VisageObject {
     public int bork(int a);
     public IntLocation bork$bound(IntLocation a);
 }

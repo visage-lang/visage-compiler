@@ -24,11 +24,11 @@
 package org.visage.tools.api;
 
 import org.visage.api.JavafxcTask;
-import org.visage.api.tree.JavaFXTreeScanner;
+import org.visage.api.tree.VisageTreeScanner;
 import org.visage.api.tree.VariableTree;
 import org.visage.api.tree.UnitTree;
 
-import org.visage.tools.tree.JFXTypeClass;
+import org.visage.tools.tree.VisageTypeClass;
 import java.io.File;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -63,12 +63,12 @@ public class JFXC4023Test {
         }
     }
 
-    static class VarDeclTester extends JavaFXTreeScanner<Void,Object> {
+    static class VarDeclTester extends VisageTreeScanner<Void,Object> {
 
         @Override
         public Void visitVariable(VariableTree node, Object p) {
-            if (node.getJFXType() instanceof JFXTypeClass) {
-                JFXTypeClass tc = (JFXTypeClass)node.getJFXType();
+            if (node.getJFXType() instanceof VisageTypeClass) {
+                VisageTypeClass tc = (VisageTypeClass)node.getJFXType();
                 assertTrue(!tc.getClassName().toString().equals(node.getName().toString()));
             }
             return null;
