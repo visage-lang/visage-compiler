@@ -40,7 +40,7 @@ public class VisageBlock extends VisageExpression implements BlockExpressionTree
     public List<VisageExpression> stats;
     public VisageExpression value;
     // During attribution we rewrite return statement with the expression
-    // returned. See JavafxAttr.finishFunctionDefinition. In such cases, we
+    // returned. See VisageAttr.finishFunctionDefinition. In such cases, we
     // save actual return statement in this field.
     public VisageReturn returnStatement;
     /** Position of closing brace, optional. */
@@ -90,8 +90,8 @@ public class VisageBlock extends VisageExpression implements BlockExpressionTree
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.BLOCK_EXPRESSION;
+    public VisageTag getFXTag() {
+        return VisageTag.BLOCK_EXPRESSION;
     }
 
     //@Override
@@ -99,7 +99,7 @@ public class VisageBlock extends VisageExpression implements BlockExpressionTree
         return v.visitBlockExpression(this, d);
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitBlockExpression(this);
     }
 

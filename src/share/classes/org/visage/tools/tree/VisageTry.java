@@ -44,7 +44,7 @@ public class VisageTry extends VisageExpression implements TryTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitTry(this);
     }
 
@@ -70,7 +70,7 @@ public class VisageTry extends VisageExpression implements TryTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.TRY;
+    public VisageTag getFXTag() {
+        return VisageTag.TRY;
     }
 }

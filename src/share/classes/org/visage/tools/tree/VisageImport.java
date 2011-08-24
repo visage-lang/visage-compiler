@@ -39,7 +39,7 @@ public class VisageImport extends VisageTree implements ImportTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitImport(this);
     }
 
@@ -57,8 +57,8 @@ public class VisageImport extends VisageTree implements ImportTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.IMPORT;
+    public VisageTag getFXTag() {
+        return VisageTag.IMPORT;
     }
 }
 

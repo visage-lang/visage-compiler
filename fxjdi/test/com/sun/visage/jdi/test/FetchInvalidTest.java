@@ -43,7 +43,7 @@ import java.util.Map;
 import org.junit.Test;
 import junit.framework.Assert;
 
-public class FetchInvalidTest extends JavafxTestBase {
+public class FetchInvalidTest extends VisageTestBase {
     ReferenceType targetClass;
     ThreadReference mainThread;
 

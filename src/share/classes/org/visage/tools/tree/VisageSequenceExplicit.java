@@ -25,7 +25,7 @@ package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
 import org.visage.api.tree.Tree.VisageKind;
-import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.code.VisageVarSymbol;
 
 import com.sun.tools.mjavac.util.List;
 
@@ -36,22 +36,22 @@ import com.sun.tools.mjavac.util.List;
 public class VisageSequenceExplicit extends VisageAbstractSequenceCreator implements SequenceExplicitTree {
     private final List<VisageExpression> items;
 
-    public List<JavafxVarSymbol> boundItemsSyms;
-    public List<JavafxVarSymbol> boundItemLengthSyms;
-    public JavafxVarSymbol boundLowestInvalidPartSym;
-    public JavafxVarSymbol boundHighestInvalidPartSym;
-    public JavafxVarSymbol boundPendingTriggersSym;
-    public JavafxVarSymbol boundDeltaSym;
-    public JavafxVarSymbol boundChangeStartPosSym;
-    public JavafxVarSymbol boundChangeEndPosSym;
-    public JavafxVarSymbol boundIgnoreInvalidationsSym;
-    public JavafxVarSymbol boundSizeSym;
+    public List<VisageVarSymbol> boundItemsSyms;
+    public List<VisageVarSymbol> boundItemLengthSyms;
+    public VisageVarSymbol boundLowestInvalidPartSym;
+    public VisageVarSymbol boundHighestInvalidPartSym;
+    public VisageVarSymbol boundPendingTriggersSym;
+    public VisageVarSymbol boundDeltaSym;
+    public VisageVarSymbol boundChangeStartPosSym;
+    public VisageVarSymbol boundChangeEndPosSym;
+    public VisageVarSymbol boundIgnoreInvalidationsSym;
+    public VisageVarSymbol boundSizeSym;
 
     public VisageSequenceExplicit(List<VisageExpression> items) {
         this.items = items;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitSequenceExplicit(this);
     }
 
@@ -64,8 +64,8 @@ public class VisageSequenceExplicit extends VisageAbstractSequenceCreator implem
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.SEQUENCE_EXPLICIT;
+    public VisageTag getFXTag() {
+        return VisageTag.SEQUENCE_EXPLICIT;
     }
 
     public VisageKind getJavaFXKind() {

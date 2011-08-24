@@ -40,7 +40,7 @@ public class VisageWhileLoop extends VisageExpression implements WhileLoopTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitWhileLoop(this);
     }
 
@@ -61,7 +61,7 @@ public class VisageWhileLoop extends VisageExpression implements WhileLoopTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.WHILELOOP;
+    public VisageTag getFXTag() {
+        return VisageTag.WHILELOOP;
     }
 }

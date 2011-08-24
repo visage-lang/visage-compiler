@@ -39,11 +39,11 @@ public class VisageTypeAny extends VisageType implements TypeAnyTree {
     protected VisageTypeAny(Cardinality cardinality) {
         super(cardinality);
     }
-    public void accept(JavafxVisitor v) { v.visitTypeAny(this); }
+    public void accept(VisageVisitor v) { v.visitTypeAny(this); }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.TYPEANY;
+    public VisageTag getFXTag() {
+        return VisageTag.TYPEANY;
     }
 
     //@Override

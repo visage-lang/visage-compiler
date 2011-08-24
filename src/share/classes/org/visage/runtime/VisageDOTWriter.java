@@ -243,7 +243,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.visage.runtime.annotation.JavafxBindees;
+import org.visage.runtime.annotation.VisageBindees;
 import org.visage.runtime.VisageObject;
 import org.visage.runtime.sequence.Sequence;
 
@@ -1089,7 +1089,7 @@ public class VisageDOTWriter {
                 // Get the actual var field.
                 fxField.field = fieldMap.get(fxField.varName);
                 // Get the bindees information if present.
-                fxField.bindees = ((JavafxBindees)fxField.field.getAnnotation(JavafxBindees.class)).value();
+                fxField.bindees = ((VisageBindees)fxField.field.getAnnotation(VisageBindees.class)).value();
                 // Get the flags information.
                 fxField.flags = fieldMap.get(VisageField.vflgPrefix + fxField.varName).getInt(object);
             } catch(Throwable ex) {

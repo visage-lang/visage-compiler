@@ -42,7 +42,7 @@ public class VisageReturn extends VisageExpression implements ReturnTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitReturn(this);
     }
 
@@ -60,7 +60,7 @@ public class VisageReturn extends VisageExpression implements ReturnTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.RETURN;
+    public VisageTag getFXTag() {
+        return VisageTag.RETURN;
     }
 }

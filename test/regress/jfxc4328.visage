@@ -1,5 +1,5 @@
 /*
- * Regression: JFXC-4328 - NPE at JavafxDecompose.java:1110.
+ * Regression: JFXC-4328 - NPE at VisageDecompose.java:1110.
  *
  * @test
  * @run

@@ -32,7 +32,7 @@ import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Symbol.*;
 
-import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.VisageFlags;
 import org.visage.tools.tree.VisageFunctionDefinition;
 import java.text.CollationKey;
 
@@ -272,6 +272,6 @@ public abstract class ExecutableMemberDocImpl
     
     public boolean isBound() {
         sym.complete();
-        return (sym.flags() & JavafxFlags.BOUND) != 0;
+        return (sym.flags() & VisageFlags.BOUND) != 0;
     }
 }

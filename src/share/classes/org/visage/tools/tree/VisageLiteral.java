@@ -44,7 +44,7 @@ public class VisageLiteral extends VisageExpression implements LiteralTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitLiteral(this);
     }
 
@@ -102,8 +102,8 @@ public class VisageLiteral extends VisageExpression implements LiteralTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.LITERAL;
+    public VisageTag getFXTag() {
+        return VisageTag.LITERAL;
     }
 }
 

@@ -46,12 +46,12 @@ public class VisageColorLiteral extends VisageExpression implements ColorLiteral
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.COLOR_LITERAL;
+    public VisageTag getFXTag() {
+        return VisageTag.COLOR_LITERAL;
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitColorLiteral(this);
     }
 

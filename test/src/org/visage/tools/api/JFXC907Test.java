@@ -23,9 +23,9 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
-import org.visage.tools.api.JavafxcTrees;
-import org.visage.tools.api.JavafxcTool;
+import org.visage.api.VisagecTask;
+import org.visage.tools.api.VisagecTrees;
+import org.visage.tools.api.VisagecTool;
 import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.ClassDeclarationTree;
 import org.visage.api.tree.VisageTreePath;
@@ -43,7 +43,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests that JavafxcTrees.getElement can be called from visitor
+ * Tests that VisagecTrees.getElement can be called from visitor
  * 
  * @author Michael Chernyshov
  */
@@ -53,16 +53,16 @@ public class JFXC907Test {
     public void testJFXTreesGetElement() throws Exception {
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         try {            
-            Thread.currentThread().setContextClassLoader(JavafxcTool.class.getClassLoader());
-            JavafxcTool tool = JavafxcTool.create();
+            Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());
+            VisagecTool tool = VisagecTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
             File file = new File("test/src/org/visage/tools/api/Point.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
-            JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
+            VisagecTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             Iterable<? extends UnitTree> treeList = visageTask.analyze();
             
-            JavafxcTrees trees = JavafxcTrees.instance(visageTask);
+            VisagecTrees trees = VisagecTrees.instance(visageTask);
             SourcePositions sp = trees.getSourcePositions();
             UnitTree unit = treeList.iterator().next();
             
@@ -75,11 +75,11 @@ public class JFXC907Test {
     }
 
 class DetectorVisitor<Void,EnumSet> extends VisageTreePathScanner<Void,EnumSet> {
-    JavafxcTrees trees;
+    VisagecTrees trees;
     SourcePositions sp;
     UnitTree unit;
                     
-    DetectorVisitor(JavafxcTrees trees, SourcePositions sp, UnitTree unit) {
+    DetectorVisitor(VisagecTrees trees, SourcePositions sp, UnitTree unit) {
         this.trees = trees;
         this.sp = sp;
         this.unit = unit;

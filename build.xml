@@ -506,7 +506,7 @@
              files shipped with the compiler (not related to the Visage Runtime
              project). -->
 
-        <taskdef name="visagec" classname="org.visage.tools.ant.JavaFxAntTask">
+        <taskdef name="visagec" classname="org.visage.tools.ant.VisageAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
                 <pathelement location="${build.classes.dir}"/>

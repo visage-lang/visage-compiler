@@ -1,5 +1,5 @@
 /*
- * Regression test for JFXC-842. Javafxc successfully compiles code that 
+ * Regression test for JFXC-842. Visagec successfully compiles code that 
  * throws java.lang.VerifyError when run
  *
  * @test

@@ -22,7 +22,7 @@
  */
 package fxjdi;
 
-import org.visage.jdi.test.JavafxTestBase;
+import org.visage.jdi.test.VisageTestBase;
 import org.visage.tools.debug.tty.Debugger;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -406,7 +406,7 @@ public class JdbBase extends Debugger {
     }
 
     static File testBuildDirectory() {
-        return new File(JavafxTestBase.testBuildDirectory(), "fxjdi");
+        return new File(VisageTestBase.testBuildDirectory(), "fxjdi");
     }
 
     static File testWorkDirectory() {

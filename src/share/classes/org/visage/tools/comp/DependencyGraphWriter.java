@@ -231,7 +231,7 @@ public class DependencyGraphWriter {
         StringBuilder buf = new StringBuilder();
         buf.append(sym.owner.getQualifiedName());
         if (sym.isStatic()) {
-            buf.append(JavafxDefs.scriptClassSuffix);
+            buf.append(VisageDefs.scriptClassSuffix);
         }
         buf.append('.');
         buf.append(sym.name);

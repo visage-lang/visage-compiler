@@ -23,7 +23,7 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.UnitTree;
 import javax.lang.model.element.Element;
@@ -37,7 +37,7 @@ import javax.tools.StandardJavaFileManager;
 import org.junit.Test;
 
 /**
- * Tests that JavafxcTrees.getElement can be called from visitor
+ * Tests that VisagecTrees.getElement can be called from visitor
  * 
  * @author Robert Field
  */
@@ -47,16 +47,16 @@ public class JFXC1828Test {
     public void testJFXTreesGetElement() throws Exception {
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         try {            
-            Thread.currentThread().setContextClassLoader(JavafxcTool.class.getClassLoader());
-            JavafxcTool tool = JavafxcTool.create();
+            Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());
+            VisagecTool tool = VisagecTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
             File file = new File("test/src/org/visage/tools/api/JFXC1828.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
-            JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
+            VisagecTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             Iterable<? extends UnitTree> treeList = visageTask.analyze();
             
-            JavafxcTrees trees = JavafxcTrees.instance(visageTask);
+            VisagecTrees trees = VisagecTrees.instance(visageTask);
             VarScanner d = new VarScanner(trees);
             d.scan(treeList, null);
         } finally {
@@ -65,9 +65,9 @@ public class JFXC1828Test {
     }
 
 class VarScanner<EnumSet> extends VisageTreePathScanner<Void,EnumSet> {
-    JavafxcTrees trees;
+    VisagecTrees trees;
     
-    VarScanner(JavafxcTrees trees) {
+    VarScanner(VisagecTrees trees) {
         this.trees = trees;
     }
     

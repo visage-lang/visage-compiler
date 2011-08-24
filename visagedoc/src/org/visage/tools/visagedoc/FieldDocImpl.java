@@ -31,7 +31,7 @@ import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.TypeTags;
 
 import org.visage.tools.tree.*;
-import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.VisageFlags;
 
 import com.sun.tools.mjavac.util.Position;
 
@@ -238,21 +238,21 @@ public class FieldDocImpl extends MemberDocImpl implements FieldDoc {
      * Returns true if this class variable is declared public-read
      */
     public boolean isPublicRead() {
-        return (getFlags() & JavafxFlags.PUBLIC_READ) != 0;
+        return (getFlags() & VisageFlags.PUBLIC_READ) != 0;
     }
 
     /**
      * Returns true if this class variable is declared public-init
      */
     public boolean isPublicInit() {
-        return (getFlags() & JavafxFlags.PUBLIC_INIT) != 0;
+        return (getFlags() & VisageFlags.PUBLIC_INIT) != 0;
     }
 
     /**
      * Returns true if this class variable with 'def'
      */
     public boolean isDef() {
-        return (getFlags() & JavafxFlags.IS_DEF) != 0;
+        return (getFlags() & VisageFlags.IS_DEF) != 0;
     }
 
     /**

@@ -49,7 +49,7 @@ public class VisageFunctionInvocation extends VisageExpression implements Functi
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitFunctionInvocation(this);
     }
 
@@ -81,7 +81,7 @@ public class VisageFunctionInvocation extends VisageExpression implements Functi
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.APPLY;
+    public VisageTag getFXTag() {
+        return VisageTag.APPLY;
     }
 }

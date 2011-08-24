@@ -1,5 +1,5 @@
 /* 
- * JFXC-3553 : Compiled-bind: JavafxToJava crashes on postfix operator with instance variable.
+ * JFXC-3553 : Compiled-bind: VisageToJava crashes on postfix operator with instance variable.
  *
  * @test
  * @run

@@ -52,7 +52,7 @@ public class VisageSelect extends VisageExpression implements MemberSelectTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitSelect(this);
     }
 
@@ -75,8 +75,8 @@ public class VisageSelect extends VisageExpression implements MemberSelectTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.SELECT;
+    public VisageTag getFXTag() {
+        return VisageTag.SELECT;
     }
 }
 

@@ -35,13 +35,13 @@ public class VisageSequenceEmpty extends VisageAbstractSequenceCreator implement
     public VisageSequenceEmpty() {
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitSequenceEmpty(this);
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.SEQUENCE_EMPTY;
+    public VisageTag getFXTag() {
+        return VisageTag.SEQUENCE_EMPTY;
     }
 
     public VisageKind getJavaFXKind() {

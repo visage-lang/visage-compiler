@@ -1,5 +1,5 @@
 /**
- * Regression test JFXC-4235 : ClassCastException: com.sun.tools.mjavac.code.Symbol$MethodSymbol cannot be cast to org.visage.tools.code.JavafxVarSymbol
+ * Regression test JFXC-4235 : ClassCastException: com.sun.tools.mjavac.code.Symbol$MethodSymbol cannot be cast to org.visage.tools.code.VisageVarSymbol
  *
  *  @test/compile-error
  */

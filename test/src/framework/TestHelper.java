@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.visage.api.JavafxCompiler;
+import org.visage.api.VisageCompiler;
 import javax.tools.Tool;
 import javax.tools.JavaCompiler;
 import org.apache.tools.ant.Project;
@@ -42,7 +42,7 @@ import org.apache.tools.ant.types.Path;
  * @author Brian Goetz
  */
 public abstract class TestHelper {
-    private static final JavafxCompiler visagec = visagecLocator();
+    private static final VisageCompiler visagec = visagecLocator();
     private static final JavaCompiler javac = javacLocator();
 
     public static final String TEST_ROOT = "test";
@@ -90,11 +90,11 @@ public abstract class TestHelper {
         return compiler.run(null, out, err, args.toArray(new String[args.size()]));
     }
 
-    protected static JavafxCompiler visagecLocator() {
-        Object tool = compilerLocator(JavafxCompiler.class);
+    protected static VisageCompiler visagecLocator() {
+        Object tool = compilerLocator(VisageCompiler.class);
         if (tool == null)
             throw new IllegalStateException("No Visage compiler found");
-        return (JavafxCompiler) tool;
+        return (VisageCompiler) tool;
     }
 
     protected static JavaCompiler javacLocator() {

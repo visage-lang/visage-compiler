@@ -38,17 +38,17 @@ import com.sun.tools.mjavac.code.Source;
 import com.sun.tools.mjavac.code.Scope;
 import com.sun.tools.mjavac.jvm.Target;
 import com.sun.tools.mjavac.jvm.ClassReader;
-import org.visage.tools.main.JavafxOption.Option;
+import org.visage.tools.main.VisageOption.Option;
 import com.sun.tools.mjavac.util.*;
 import org.visage.tools.main.RecognizedOptions.OptionHelper;
-import org.visage.tools.util.JavafxFileManager;
+import org.visage.tools.util.VisageFileManager;
 import org.visage.tools.util.PlatformPlugin;
 import org.visage.tools.util.MsgSym;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.DiagnosticListener;
-import org.visage.tools.comp.JavafxTranslationSupport.NotYetImplementedException;
+import org.visage.tools.comp.VisageTranslationSupport.NotYetImplementedException;
 
 /** This class provides a commandline interface to the GJC compiler.
  *
@@ -100,11 +100,11 @@ public class Main {
         }
 
         public void printVersion() {
-            Log.printLines(out, getLocalizedString(MsgSym.MESSAGE_VERSION, ownName,  JavafxCompiler.version()));
+            Log.printLines(out, getLocalizedString(MsgSym.MESSAGE_VERSION, ownName,  VisageCompiler.version()));
         }
 
         public void printFullVersion() {
-            Log.printLines(out, getLocalizedString(MsgSym.MESSAGE_FULLVERSION, ownName,  JavafxCompiler.fullVersion()));
+            Log.printLines(out, getLocalizedString(MsgSym.MESSAGE_FULLVERSION, ownName,  VisageCompiler.fullVersion()));
         }
 
         public void printHelp() {
@@ -373,13 +373,13 @@ public class Main {
         filenames = null;
         JavaFileManager currentFileManager = context.get(JavaFileManager.class);
         if (currentFileManager == null)
-            JavafxFileManager.preRegister(backEndContext);
+            VisageFileManager.preRegister(backEndContext);
         else
             backEndContext.put(JavaFileManager.class, currentFileManager);
 
-        org.visage.tools.util.JavafxBackendLog.preRegister(backEndContext, context);
-        org.visage.tools.comp.JavafxFlow.preRegister(backEndContext);
-        org.visage.tools.code.JavafxLint.preRegister(backEndContext);
+        org.visage.tools.util.VisageBackendLog.preRegister(backEndContext, context);
+        org.visage.tools.comp.VisageFlow.preRegister(backEndContext);
+        org.visage.tools.code.VisageLint.preRegister(backEndContext);
         org.visage.tools.code.BlockExprSymtab.preRegister(backEndContext);
         org.visage.tools.comp.BlockExprAttr.preRegister(backEndContext);
         org.visage.tools.comp.BlockExprEnter.preRegister(backEndContext);
@@ -390,19 +390,19 @@ public class Main {
 
         // Sequencing requires that we get the name table from the fully initialized back-end
         // rather than send the completed one.
-        JavafxJavaCompiler visageJavaCompiler = JavafxJavaCompiler.instance(backEndContext);
+        VisageJavaCompiler visageJavaCompiler = VisageJavaCompiler.instance(backEndContext);
 
-        context.put(JavafxJavaCompiler.visageJavaCompilerKey, visageJavaCompiler);
+        context.put(VisageJavaCompiler.visageJavaCompilerKey, visageJavaCompiler);
 
         // Tranfer the options -- must be done before any initialization
         context.put(Options.optionsKey, (Options)null);  // remove any old value
         context.put(Options.optionsKey, backEndContext.get(Options.optionsKey));
 
         ClassReader jreader = ClassReader.instance(backEndContext);
-        org.visage.tools.comp.JavafxClassReader.preRegister(context, jreader);
+        org.visage.tools.comp.VisageClassReader.preRegister(context, jreader);
 
         if (currentFileManager == null)
-            JavafxFileManager.preRegister(context); // can't create it until Log has been set up
+            VisageFileManager.preRegister(context); // can't create it until Log has been set up
     }
 
     /** Load a plug-in corresponding to platform option. If platform option had
@@ -589,8 +589,8 @@ public class Main {
 
         filenames = new ListBuffer<File>();
         classnames = new ListBuffer<String>();
-        JavafxCompiler comp = null;
-        JavafxJavaCompiler mjcomp = null;
+        VisageCompiler comp = null;
+        VisageJavaCompiler mjcomp = null;
 
         /*
          * TODO: Logic below about what is an acceptable command line
@@ -636,14 +636,14 @@ public class Main {
 
             fileManager = context.get(JavaFileManager.class);
 
-            comp = JavafxCompiler.instance(context);
+            comp = VisageCompiler.instance(context);
             if (comp == null) return EXIT_SYSERR;
 
             loadPlatformPlugin(context, options);
 
             if (!fnames.isEmpty()) {
                 // add filenames to fileObjects
-                comp = JavafxCompiler.instance(context);
+                comp = VisageCompiler.instance(context);
                 List<JavaFileObject> otherFiles = List.nil();
                 JavacFileManager dfm = (JavacFileManager)fileManager;
                 for (JavaFileObject fo : dfm.getJavaFileObjectsFromFiles(fnames))
@@ -654,7 +654,7 @@ public class Main {
 
             boolean useMJavac = options.get("mjavac") != null;
             if (useMJavac) {
-                mjcomp = JavafxJavaCompiler.instance(context);
+                mjcomp = VisageJavaCompiler.instance(context);
                 mjcomp.compile(fileObjects);
 
                 if (mjcomp.errorCount() != 0 ||
@@ -710,7 +710,7 @@ public class Main {
      */
     void bugMessage(Throwable ex) {
         Log.printLines(out, getJavafxLocalizedString(MsgSym.MESSAGE_VISAGE_MSG_BUG,
-                                               JavafxCompiler.fullVersion()));
+                                               VisageCompiler.fullVersion()));
         ex.printStackTrace(out);
     }
 

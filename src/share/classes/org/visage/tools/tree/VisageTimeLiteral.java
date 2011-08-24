@@ -44,12 +44,12 @@ public class VisageTimeLiteral extends VisageExpression implements TimeLiteralTr
         this.duration = duration;
     }
 
-    public JavafxTag getFXTag() {
-        return JavafxTag.TIME_LITERAL;
+    public VisageTag getFXTag() {
+        return VisageTag.TIME_LITERAL;
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitTimeLiteral(this);
     }
 

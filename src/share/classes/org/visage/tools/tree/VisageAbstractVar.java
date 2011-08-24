@@ -23,11 +23,11 @@
 
 package org.visage.tools.tree;
 
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 import org.visage.api.tree.*;
 import org.visage.api.tree.OnReplaceTree;
 
-import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.code.VisageVarSymbol;
 import com.sun.tools.mjavac.util.Name;
 
 /**
@@ -41,17 +41,17 @@ public abstract class VisageAbstractVar extends VisageExpression implements Vari
     private final VisageExpression init;
     private final VisageOnReplace[] triggers;
     
-    public JavafxVarSymbol sym;
+    public VisageVarSymbol sym;
 
     protected VisageAbstractVar(
             Name name,
             VisageType jfxtype,
             VisageModifiers mods,
             VisageExpression init,
-            JavafxBindStatus bindStatus,
+            VisageBindStatus bindStatus,
             VisageOnReplace onReplace,
             VisageOnReplace onInvalidate,
-            JavafxVarSymbol sym) {
+            VisageVarSymbol sym) {
         super(bindStatus);
         this.name = name;
         this.jfxtype = jfxtype;
@@ -97,7 +97,7 @@ public abstract class VisageAbstractVar extends VisageExpression implements Vari
         return triggers[triggerKind.ordinal()];
     }
 
-    public JavafxVarSymbol getSymbol() {
+    public VisageVarSymbol getSymbol() {
         return sym;
     }
 

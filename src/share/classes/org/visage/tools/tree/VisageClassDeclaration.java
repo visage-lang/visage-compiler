@@ -26,8 +26,8 @@ package org.visage.tools.tree;
 import org.visage.api.tree.*;
 import org.visage.api.tree.Tree.VisageKind;
 
-import org.visage.tools.code.JavafxFlags;
-import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.code.VisageFlags;
+import org.visage.tools.code.VisageVarSymbol;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
@@ -46,7 +46,7 @@ public class VisageClassDeclaration extends VisageExpression implements ClassDec
     private List<VisageExpression> mixing;
     private List<VisageTree> defs;
     private List<VisageExpression> supertypes;
-    private List<JavafxVarSymbol> objInitSyms;
+    private List<VisageVarSymbol> objInitSyms;
     
     public ClassSymbol sym;
     public VisageFunctionDefinition runMethod;
@@ -161,19 +161,19 @@ public class VisageClassDeclaration extends VisageExpression implements ClassDec
     }
     
     public boolean isMixinClass() {
-        return (sym.flags_field & JavafxFlags.MIXIN) != 0;
+        return (sym.flags_field & VisageFlags.MIXIN) != 0;
     }
     
     public boolean isBoundFuncClass() {
-        return (sym.flags_field & JavafxFlags.VISAGE_BOUND_FUNCTION_CLASS) != 0L;
+        return (sym.flags_field & VisageFlags.VISAGE_BOUND_FUNCTION_CLASS) != 0L;
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.CLASS_DEF;
+    public VisageTag getFXTag() {
+        return VisageTag.CLASS_DEF;
     }
     
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitClassDeclaration(this);
     }
 
@@ -205,11 +205,11 @@ public class VisageClassDeclaration extends VisageExpression implements ClassDec
         return convertList(ExpressionTree.class, mixing);
     }
     
-    public void setObjInitSyms(List<JavafxVarSymbol> syms) {
+    public void setObjInitSyms(List<VisageVarSymbol> syms) {
         objInitSyms = syms;
     }
     
-    public List<JavafxVarSymbol> getObjInitSyms() {
+    public List<VisageVarSymbol> getObjInitSyms() {
         return objInitSyms;
     }
     

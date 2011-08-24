@@ -110,7 +110,7 @@
                 <pathelement location="${doc.build.dir}/ant"/>               
             </classpath>
         </taskdef>
-        <taskdef name="visagec" classname="org.visage.tools.ant.JavaFxAntTask">
+        <taskdef name="visagec" classname="org.visage.tools.ant.VisageAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
                 <pathelement location="dist/lib/visagec.jar"/>

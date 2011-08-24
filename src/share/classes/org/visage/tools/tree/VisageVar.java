@@ -24,9 +24,9 @@
 package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 
-import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.code.VisageVarSymbol;
 import com.sun.tools.mjavac.util.Name;
 
 /**
@@ -47,10 +47,10 @@ public class VisageVar extends VisageAbstractVar implements VariableTree {
             VisageType jfxtype,
             VisageModifiers mods,
             VisageExpression init,
-            JavafxBindStatus bindStat,
+            VisageBindStatus bindStat,
             VisageOnReplace onReplace,
             VisageOnReplace onInvalidate,
-            JavafxVarSymbol sym) {
+            VisageVarSymbol sym) {
         super(name, jfxtype, mods, init, bindStat, onReplace, onInvalidate, sym);
     }
 
@@ -69,15 +69,15 @@ public class VisageVar extends VisageAbstractVar implements VariableTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.VAR_DEF;
+    public VisageTag getFXTag() {
+        return VisageTag.VAR_DEF;
     }
     
     public boolean isOverride() {
         return false;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitVar(this);
     }
 }

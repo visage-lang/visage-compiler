@@ -39,7 +39,7 @@ public class VisageModifiers extends VisageTree implements ModifiersTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitModifiers(this);
     }
 
@@ -58,7 +58,7 @@ public class VisageModifiers extends VisageTree implements ModifiersTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.MODIFIERS;
+    public VisageTag getFXTag() {
+        return VisageTag.MODIFIERS;
     }
 }

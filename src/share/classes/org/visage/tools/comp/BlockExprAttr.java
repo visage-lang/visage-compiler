@@ -158,7 +158,7 @@ public class BlockExprAttr extends Attr  {
 //                if (l.head.getTag() == JCTree.VARDEF) sym = ((JCVariableDecl) l.head).sym;
 //                if (sym == null ||
 //                    sym.kind != VAR ||
-//                    ((JavafxVarSymbol) sym).getConstValue() == null)
+//                    ((VisageVarSymbol) sym).getConstValue() == null)
 //                    log.error(l.head.pos(), "icls.cant.have.static.decl");
 //            }
         }

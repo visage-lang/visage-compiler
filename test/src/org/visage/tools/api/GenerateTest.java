@@ -1,8 +1,8 @@
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import com.sun.tools.mjavac.util.JavacFileManager;
-import org.visage.tools.api.JavafxcTool;
+import org.visage.tools.api.VisagecTool;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
@@ -31,7 +31,7 @@ public class GenerateTest {
         String outputDir = getTmpDir().getPath();
         nerrors = 0;
 
-        JavafxcTool tool = JavafxcTool.create ();
+        VisagecTool tool = VisagecTool.create ();
         JavacFileManager manager = tool.getStandardFileManager (null, null, Charset.defaultCharset ());
 
         ArrayList<JavaFileObject> filesToCompile = new ArrayList<JavaFileObject> ();
@@ -39,7 +39,7 @@ public class GenerateTest {
             if (file.endsWith (".visage"))
                 filesToCompile.add (manager.getFileForInput (inputDir + DIR + file));
 
-        JavafxcTask task = tool.getTask (null, null, new DiagnosticListener<JavaFileObject>() {
+        VisagecTask task = tool.getTask (null, null, new DiagnosticListener<JavaFileObject>() {
             public void report (Diagnostic<? extends JavaFileObject> diagnostic) {
                 System.out.println ("diagnostic = " + diagnostic);
                 nerrors++;

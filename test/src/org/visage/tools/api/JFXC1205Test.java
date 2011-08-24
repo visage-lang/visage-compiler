@@ -23,7 +23,7 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import org.visage.api.tree.UnitTree;
 import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.OnReplaceTree;
@@ -50,14 +50,14 @@ public class JFXC1205Test {
     
     @Test
     public void analyzeOnReplace() throws Exception {
-        JavafxcTool instance = new JavafxcTool();
+        VisagecTool instance = new VisagecTool();
         MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
         List<String> options = 
                 Arrays.asList("-d", ".", "-sourcepath", testSrc, "-classpath", testClasses);
         File file = new File(testSrc + "/org/visage/tools/api", "JFXC1205.visage");
 	Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
-        JavafxcTask task = instance.getTask(null, fm, dl, null, files);
+        VisagecTask task = instance.getTask(null, fm, dl, null, files);
         assertNotNull("no task returned", task);
         Iterable<? extends UnitTree> result1 = task.parse();
         assertEquals("parse error(s)", 0, dl.errors());

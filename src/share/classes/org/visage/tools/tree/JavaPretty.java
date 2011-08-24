@@ -36,7 +36,7 @@ import com.sun.tools.mjavac.tree.Pretty;
 import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
-import org.visage.tools.comp.JavafxDefs;
+import org.visage.tools.comp.VisageDefs;
 import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
 import com.sun.tools.mjavac.tree.JCTree.JCIdent;
 import com.sun.tools.mjavac.util.Options;
@@ -63,7 +63,7 @@ public class JavaPretty extends Pretty {
         Options options = Options.instance(context);
         verbose = options.get("dumpverbosejava") != null;
 
-		JavafxDefs defs = JavafxDefs.instance(context);
+		VisageDefs defs = VisageDefs.instance(context);
 		    importedPackages.add(defs.runtime_PackageName);
 		    importedPackages.add(defs.annotation_PackageName);
 		    importedPackages.add(defs.sequence_PackageName);

@@ -92,7 +92,7 @@ public class Builtins {
      * @param offset offset of variable to be tested
      * @return true if the variable has been initialized
      */
-    @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
+    @org.visage.runtime.annotation.VisageSignature("(Ljava/lang/Object;)Z")
     public static boolean isInitialized(VisageObject instance, int offset) {
         return instance != null && (
                    offset == -1 ? instance.isInitialized$internal$() // this pointer uses -1
@@ -108,7 +108,7 @@ public class Builtins {
      * @param offset offset of variable to be tested
      * @return true if the variable is bound
      */
-    @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
+    @org.visage.runtime.annotation.VisageSignature("(Ljava/lang/Object;)Z")
     public static boolean isReadOnly(VisageObject instance, int offset) {
         return offset == -1 ? true // this pointer uses -1 (and is read only)
                : instance.varTestBits$(offset,

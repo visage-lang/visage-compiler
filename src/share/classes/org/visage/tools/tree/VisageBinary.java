@@ -33,12 +33,12 @@ import com.sun.tools.mjavac.code.Symbol;
  */
 public class VisageBinary extends VisageExpression implements BinaryTree {
 
-    private JavafxTag opcode;
+    private VisageTag opcode;
     public VisageExpression lhs;
     public VisageExpression rhs;
     public Symbol operator;
 
-    protected VisageBinary(JavafxTag opcode,
+    protected VisageBinary(VisageTag opcode,
             VisageExpression lhs,
             VisageExpression rhs,
             Symbol operator) {
@@ -49,12 +49,12 @@ public class VisageBinary extends VisageExpression implements BinaryTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitBinary(this);
     }
 
     public VisageKind getJavaFXKind() {
-        return JavafxTreeInfo.tagToKind(getFXTag());
+        return VisageTreeInfo.tagToKind(getFXTag());
     }
 
     public VisageExpression getLeftOperand() {
@@ -75,7 +75,7 @@ public class VisageBinary extends VisageExpression implements BinaryTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
+    public VisageTag getFXTag() {
         return opcode;
     }
     

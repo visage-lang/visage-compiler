@@ -31,7 +31,7 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.util.Position;
-import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.VisageFlags;
 import org.visage.tools.tree.VisageAngleLiteral;
 import org.visage.tools.tree.VisageAssign;
 import org.visage.tools.tree.VisageAssignOp;
@@ -94,7 +94,7 @@ import org.visage.tools.tree.VisageVar;
 import org.visage.tools.tree.VisageVarInit;
 import org.visage.tools.tree.VisageVarRef;
 import org.visage.tools.tree.VisageWhileLoop;
-import org.visage.tools.tree.JavafxVisitor;
+import org.visage.tools.tree.VisageVisitor;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -116,8 +116,8 @@ import static org.visage.tools.tree.xml.Constants.*;
  *
  * @author A. Sundararajan
  */
-final class TreeXMLSerializer implements JavafxVisitor {
-    // order of the methods as in JavafxVisitor
+final class TreeXMLSerializer implements VisageVisitor {
+    // order of the methods as in VisageVisitor
 
     public void visitScript(VisageScript script) {
         endPositions = script.endPositions;
@@ -540,7 +540,7 @@ final class TreeXMLSerializer implements JavafxVisitor {
             if (insideJavafxEntryMethod && (mods.flags & Flags.STATIC) != 0) {
                 return;
             }
-            if ((mods.flags & JavafxFlags.IS_DEF) != 0) {
+            if ((mods.flags & VisageFlags.IS_DEF) != 0) {
                 tagName = DEF;
             }
         }
@@ -1004,28 +1004,28 @@ final class TreeXMLSerializer implements JavafxVisitor {
         }
             
         // Now handle Visage specific flags
-        if ((flagBits & JavafxFlags.DEFAULT) != 0) {
+        if ((flagBits & VisageFlags.DEFAULT) != 0) {
             emitListItem(DEFAULT);
         }
-        if ((flagBits & JavafxFlags.PUBLIC_INIT) != 0) {
+        if ((flagBits & VisageFlags.PUBLIC_INIT) != 0) {
             emitListItem(PUBLIC_INIT);
         }
-        if ((flagBits & JavafxFlags.PUBLIC_READ) != 0) {
+        if ((flagBits & VisageFlags.PUBLIC_READ) != 0) {
             emitListItem(PUBLIC_READ);
         }
-        if ((flagBits & JavafxFlags.PACKAGE_ACCESS) != 0) {
+        if ((flagBits & VisageFlags.PACKAGE_ACCESS) != 0) {
             emitListItem(PACKAGE_ACCESS);
         }
-        if ((flagBits & JavafxFlags.SCRIPT_PRIVATE) != 0) {
+        if ((flagBits & VisageFlags.SCRIPT_PRIVATE) != 0) {
             emitListItem(SCRIPT_PRIVATE);
         }
-        if ((flagBits & JavafxFlags.OVERRIDE) != 0) {
+        if ((flagBits & VisageFlags.OVERRIDE) != 0) {
             emitListItem(OVERRIDE);
         }
-        if ((flagBits & JavafxFlags.MIXIN) != 0) {
+        if ((flagBits & VisageFlags.MIXIN) != 0) {
             emitListItem(MIXIN);
         }
-        if ((flagBits & JavafxFlags.BOUND) != 0) {
+        if ((flagBits & VisageFlags.BOUND) != 0) {
             emitListItem(BOUND);
         }
     }

@@ -65,12 +65,12 @@ public class VisageOnReplace extends VisageTree implements OnReplaceTree {
         this.saveVar = saveVar;
     }
     
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitOnReplace(this);
     }
     
-    public JavafxTag getFXTag() {
-        return JavafxTag.ON_REPLACE;
+    public VisageTag getFXTag() {
+        return VisageTag.ON_REPLACE;
     }
     
     public VisageVar getOldValue() {

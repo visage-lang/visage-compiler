@@ -44,7 +44,7 @@ public class VisageSequenceInsert extends VisageExpression implements SequenceIn
         this.after = after;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitSequenceInsert(this);
     }
 
@@ -65,8 +65,8 @@ public class VisageSequenceInsert extends VisageExpression implements SequenceIn
     }
     
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.INSERT;
+    public VisageTag getFXTag() {
+        return VisageTag.INSERT;
     }
 
     public VisageKind getJavaFXKind() {

@@ -7888,7 +7888,7 @@ changeset:   3130:7dd1e31be675
 branch:      trunk
 user:        bothner
 date:        Wed Jul 23 16:51:45 2008 -0700
-summary:     [svn r3478] Move privateAnnotationStr etc to JavafxTranslationSupport,
+summary:     [svn r3478] Move privateAnnotationStr etc to VisageTranslationSupport,
 
 changeset:   3129:36774ca4111c
 branch:      trunk
@@ -8482,7 +8482,7 @@ changeset:   3031:e339ad4d0b50
 branch:      trunk
 user:        tball
 date:        Wed Jul 16 13:11:41 2008 -0700
-summary:     [svn r3347] JFXC-1558:  cleaned up JavafxTaskEvent support.
+summary:     [svn r3347] JFXC-1558:  cleaned up VisageTaskEvent support.
 
 changeset:   3030:d68503cda710
 branch:      trunk
@@ -8566,7 +8566,7 @@ changeset:   3017:19bf109c7378
 branch:      trunk
 user:        rfield
 date:        Tue Jul 15 21:44:02 2008 -0700
-summary:     [svn r3331] Fixed JFXC-1528 : JavafxToBound.attrEnv is referenced but never set
+summary:     [svn r3331] Fixed JFXC-1528 : VisageToBound.attrEnv is referenced but never set
 
 changeset:   3016:93acd2c5dc77
 branch:      trunk
@@ -9298,7 +9298,7 @@ changeset:   2895:ded51db2e97c
 branch:      trunk
 user:        michael_heinrichs
 date:        Tue Jul 01 03:03:16 2008 -0700
-summary:     [svn r3143] Using attribute executable in JavaFxAntTask, if it is set (JFXC-1409).
+summary:     [svn r3143] Using attribute executable in VisageAntTask, if it is set (JFXC-1409).
 
 changeset:   2894:e0f574ab2889
 branch:      trunk
@@ -10228,7 +10228,7 @@ changeset:   2740:9e38e6754aa6
 branch:      trunk
 user:        tball
 date:        Sat Jun 14 15:35:41 2008 -0700
-summary:     [svn r2938] JFXC-1255: reimplemented JavafxScope to use JavafxEnv instead of Env.
+summary:     [svn r2938] JFXC-1255: reimplemented VisageScope to use VisageEnv instead of Env.
 
 changeset:   2739:b630dcb07cb6
 branch:      trunk
@@ -11980,7 +11980,7 @@ changeset:   2448:b389572c3874
 branch:      trunk
 user:        michael_heinrichs
 date:        Tue Apr 22 03:03:19 2008 -0700
-summary:     [svn r2622] Removing cross-link between Entry and JavafxDefs (JFXC-1120).
+summary:     [svn r2622] Removing cross-link between Entry and VisageDefs (JFXC-1120).
 
 changeset:   2447:9b8fa67641fb
 branch:      trunk
@@ -12112,7 +12112,7 @@ changeset:   2426:c63aa2357363
 branch:      trunk
 user:        tball
 date:        Thu Apr 17 07:12:38 2008 -0700
-summary:     [svn r2599] JFXC-1010: changed JavafxTrees.getSourcePositions() to use JavafxTreeInfo instead of TreeInfo methods.
+summary:     [svn r2599] JFXC-1010: changed VisageTrees.getSourcePositions() to use VisageTreeInfo instead of TreeInfo methods.
 
 changeset:   2425:2ad82135df0a
 branch:      trunk
@@ -12268,7 +12268,7 @@ changeset:   2400:590b9978a414
 branch:      trunk
 user:        tball
 date:        Mon Apr 14 16:53:18 2008 -0700
-summary:     [svn r2573] JFXC-1010:  added JavafxTreeInfo.getEndPos() method, updated tree classes to use it instead of TreeInfo.getEndPos().
+summary:     [svn r2573] JFXC-1010:  added VisageTreeInfo.getEndPos() method, updated tree classes to use it instead of TreeInfo.getEndPos().
 
 changeset:   2399:e3ede4a2e125
 branch:      trunk
@@ -12712,13 +12712,13 @@ changeset:   2326:d7c498377a8e
 branch:      trunk
 user:        rfield
 date:        Tue Apr 08 23:09:55 2008 -0700
-summary:     [svn r2497] Fixed JFXC-868 : Remove the binding state out of JavafxToJava
+summary:     [svn r2497] Fixed JFXC-868 : Remove the binding state out of VisageToJava
 
 changeset:   2325:ed99e6829ef9
 branch:      trunk
 user:        rfield
 date:        Tue Apr 08 20:25:04 2008 -0700
-summary:     [svn r2496] Most of JFXC-868 : Remove the binding state out of JavafxToJava
+summary:     [svn r2496] Most of JFXC-868 : Remove the binding state out of VisageToJava
 
 changeset:   2324:8358d11e9f10
 branch:      trunk
@@ -13162,7 +13162,7 @@ changeset:   2251:d4d7be8c7805
 branch:      trunk
 user:        bothner
 date:        Sat Apr 05 17:24:20 2008 -0700
-summary:     [svn r2418] Complete JavafxClassSymbol (if needed) before checking
+summary:     [svn r2418] Complete VisageClassSymbol (if needed) before checking
 
 changeset:   2250:88e9069c1e77
 branch:      trunk
@@ -13762,7 +13762,7 @@ changeset:   2151:6491b12f8286
 branch:      trunk
 user:        tball
 date:        Thu Mar 27 10:11:28 2008 -0700
-summary:     [svn r2317] Made JavafxcTaskImpl public for private plug-in access.
+summary:     [svn r2317] Made VisagecTaskImpl public for private plug-in access.
 
 changeset:   2150:da139e072056
 branch:      trunk
@@ -13864,7 +13864,7 @@ changeset:   2134:dc7b657ebc16
 branch:      trunk
 user:        alexsch
 date:        Wed Mar 26 05:02:46 2008 -0700
-summary:     [svn r2300] import org.visage.tools.api.JavafxcTool
+summary:     [svn r2300] import org.visage.tools.api.VisagecTool
 
 changeset:   2133:5b51e21ab582
 branch:      trunk
@@ -14044,13 +14044,13 @@ changeset:   2104:228369190c2c
 branch:      trunk
 user:        bothner
 date:        Mon Mar 24 08:34:43 2008 -0700
-summary:     [svn r2270] In JavafxCheck and JavafxClassReader use new array variableClassName
+summary:     [svn r2270] In VisageCheck and VisageClassReader use new array variableClassName
 
 changeset:   2103:d669b415dd02
 branch:      trunk
 user:        bothner
 date:        Mon Mar 24 01:15:40 2008 -0700
-summary:     [svn r2268] Remove dependency on JavafxToJava in JavafxModuleBuilder.
+summary:     [svn r2268] Remove dependency on VisageToJava in VisageModuleBuilder.
 
 changeset:   2102:af9b16022bdb
 branch:      trunk
@@ -14842,7 +14842,7 @@ changeset:   1971:6c5e3d4caa7b
 branch:      trunk
 user:        tball
 date:        Wed Mar 12 16:17:41 2008 -0700
-summary:     [svn r2134] JFXC-907: Visage-ized JavafxTrees.getElement(), .getPath().
+summary:     [svn r2134] JFXC-907: Visage-ized VisageTrees.getElement(), .getPath().
 
 changeset:   1970:e8fca87e1c54
 branch:      trunk
@@ -15604,7 +15604,7 @@ changeset:   1844:a84b2371d268
 branch:      trunk
 user:        alexsch
 date:        Fri Feb 29 01:05:08 2008 -0800
-summary:     [svn r2005] Initialize  JavafxcTool and MemoryFileManager one time
+summary:     [svn r2005] Initialize  VisagecTool and MemoryFileManager one time
 
 changeset:   1843:74020ab30e64
 branch:      trunk
@@ -16486,7 +16486,7 @@ changeset:   1697:04e446ca0a24
 branch:      trunk
 user:        tball
 date:        Thu Feb 21 12:11:32 2008 -0800
-summary:     [svn r1853] JFXC-739: added test for JavafxClassDeclaration positions.
+summary:     [svn r1853] JFXC-739: added test for VisageClassDeclaration positions.
 
 changeset:   1696:5a970ba147b2
 branch:      trunk
@@ -19342,7 +19342,7 @@ changeset:   1221:2ff9ceb53336
 branch:      trunk
 user:        bothner
 date:        Tue Jan 01 23:43:53 2008 -0800
-summary:     [svn r1292] JavafxTreeScanner.java: In all visitXxx methods replace calls to accept
+summary:     [svn r1292] VisageTreeScanner.java: In all visitXxx methods replace calls to accept
 
 changeset:   1220:6aa8f16638fc
 branch:      trunk
@@ -20254,7 +20254,7 @@ changeset:   1069:4b194b716eed
 branch:      trunk
 user:        bothner
 date:        Mon Dec 10 13:40:57 2007 -0800
-summary:     [svn r1134] New static toString method uses JavafxPretty, rather than javac'c Pretty.
+summary:     [svn r1134] New static toString method uses VisagePretty, rather than javac'c Pretty.
 
 changeset:   1068:311761f8a2ba
 branch:      trunk
@@ -20722,7 +20722,7 @@ changeset:   991:231a3611cf9c
 branch:      trunk
 user:        bothner
 date:        Tue Dec 04 18:51:25 2007 -0800
-summary:     [svn r1052] Move sequenceType method from visageAttr to JavafxTypes.
+summary:     [svn r1052] Move sequenceType method from visageAttr to VisageTypes.
 
 changeset:   990:01d0e7d9b35e
 branch:      trunk
@@ -20776,7 +20776,7 @@ changeset:   982:a539037c687a
 branch:      trunk
 user:        bothner
 date:        Tue Dec 04 16:54:09 2007 -0800
-summary:     [svn r1043] Create JavafxTypes and put some type-related functions there
+summary:     [svn r1043] Create VisageTypes and put some type-related functions there
 
 changeset:   981:e283e8eb517d
 branch:      trunk
@@ -21676,7 +21676,7 @@ changeset:   832:1fb9bc206baa
 branch:      trunk
 user:        bothner
 date:        Sun Nov 25 10:17:55 2007 -0800
-summary:     [svn r893] JavafxMemberEnter should stop recursing in visitDoLoop and visitWhileLoop.
+summary:     [svn r893] VisageMemberEnter should stop recursing in visitDoLoop and visitWhileLoop.
 
 changeset:   831:dd0f761cdefc
 branch:      trunk
@@ -21760,7 +21760,7 @@ changeset:   818:ff46bbc298b1
 branch:      trunk
 user:        bothner
 date:        Sat Nov 24 18:09:38 2007 -0800
-summary:     [svn r879] Remove elementType method - use one in JavafxCheck instead.
+summary:     [svn r879] Remove elementType method - use one in VisageCheck instead.
 
 changeset:   817:3e08a8a92402
 branch:      trunk
@@ -21844,7 +21844,7 @@ changeset:   804:dad651bcac79
 branch:      trunk
 user:        rfield
 date:        Fri Nov 23 16:04:44 2007 -0800
-summary:     [svn r865] Fix JFXC-295 : false error on abstract function not having bound implementation at time of JavafxAttr
+summary:     [svn r865] Fix JFXC-295 : false error on abstract function not having bound implementation at time of VisageAttr
 
 changeset:   803:173f82942a80
 branch:      trunk
@@ -22600,7 +22600,7 @@ changeset:   678:9378878493ff
 branch:      trunk
 user:        tball
 date:        Wed Nov 14 12:35:02 2007 -0800
-summary:     [svn r739] renamed JavafxLint.java
+summary:     [svn r739] renamed VisageLint.java
 
 changeset:   677:4e82047f1244
 branch:      trunk
@@ -22636,7 +22636,7 @@ changeset:   672:32daedac8f1e
 branch:      trunk
 user:        bstickney_cn
 date:        Wed Nov 14 11:21:02 2007 -0800
-summary:     [svn r733] moved JavafxLint.java to VisageLint.java
+summary:     [svn r733] moved VisageLint.java to VisageLint.java
 
 changeset:   671:b19919fbe3d6
 branch:      trunk
@@ -22888,7 +22888,7 @@ changeset:   630:bfe22326f8da
 branch:      trunk
 user:        bothner
 date:        Sat Nov 10 16:38:54 2007 -0800
-summary:     [svn r691] Revert Lubo's changes in JavafxResolve.findVar, and
+summary:     [svn r691] Revert Lubo's changes in VisageResolve.findVar, and
 
 changeset:   629:7506cc910898
 branch:      trunk
@@ -23506,13 +23506,13 @@ changeset:   527:67b7df7c8709
 branch:      trunk
 user:        tball
 date:        Fri Oct 26 22:26:15 2007 -0700
-summary:     [svn r588] Made JavafxBindStatus immutible.
+summary:     [svn r588] Made VisageBindStatus immutible.
 
 changeset:   526:8d8bbe869684
 branch:      trunk
 user:        tball
 date:        Fri Oct 26 22:23:21 2007 -0700
-summary:     [svn r587] Made JavafxBindStatus immutible.
+summary:     [svn r587] Made VisageBindStatus immutible.
 
 changeset:   525:14e17fd9641e
 branch:      trunk
@@ -23530,7 +23530,7 @@ changeset:   523:3aa7999c4101
 branch:      trunk
 user:        tball
 date:        Fri Oct 26 21:42:09 2007 -0700
-summary:     [svn r584] JFXC-152: implemented basic tree API for Visage which is similar to javac's.  Moved JavafxBindStatus to public API package.
+summary:     [svn r584] JFXC-152: implemented basic tree API for Visage which is similar to javac's.  Moved VisageBindStatus to public API package.
 
 changeset:   522:d39aba8901fb
 branch:      trunk
@@ -23668,7 +23668,7 @@ changeset:   500:36960ca38b4e
 branch:      trunk
 user:        lubomirlitchev
 date:        Wed Oct 24 15:33:45 2007 -0700
-summary:     [svn r560] No JavafxToJava translation happens before all the sources in the batch are attributed. This simplified a lot of logic and code was removed/cleaned.
+summary:     [svn r560] No VisageToJava translation happens before all the sources in the batch are attributed. This simplified a lot of logic and code was removed/cleaned.
 
 changeset:   499:4581b165ea66
 branch:      trunk
@@ -23956,7 +23956,7 @@ changeset:   452:37d658da278c
 branch:      trunk
 user:        bothner
 date:        Thu Oct 18 20:56:13 2007 -0700
-summary:     [svn r512] For VisageVar, do attribType in JavafxAttr, not JavafxMemberEnter.
+summary:     [svn r512] For VisageVar, do attribType in VisageAttr, not VisageMemberEnter.
 
 changeset:   451:a2e4b052221e
 branch:      trunk
@@ -23998,7 +23998,7 @@ changeset:   445:76ebb4f67800
 branch:      trunk
 user:        tball
 date:        Wed Oct 17 23:19:31 2007 -0700
-summary:     [svn r505] JFXC-59:  added parse test, improved JavafxFileManager support.
+summary:     [svn r505] JFXC-59:  added parse test, improved VisageFileManager support.
 
 changeset:   444:08dc807657f9
 branch:      trunk
@@ -24178,7 +24178,7 @@ changeset:   415:05c87cb9c13a
 branch:      trunk
 user:        tball
 date:        Mon Oct 15 13:12:53 2007 -0700
-summary:     [svn r474] Renamed JavafxTask to JavafxcTask.
+summary:     [svn r474] Renamed VisageTask to VisagecTask.
 
 changeset:   414:5b911dd02366
 branch:      trunk
@@ -24310,7 +24310,7 @@ changeset:   393:ee02feee3e1a
 branch:      trunk
 user:        jimclarke
 date:        Fri Oct 12 08:41:04 2007 -0700
-summary:     [svn r452] move taskdef for visagec to within -post-compile target so that clean target is not dependant on JavaFxAntTask
+summary:     [svn r452] move taskdef for visagec to within -post-compile target so that clean target is not dependant on VisageAntTask
 
 changeset:   392:9d8c3499f970
 branch:      trunk
@@ -24328,7 +24328,7 @@ changeset:   390:e5c7b6013819
 branch:      trunk
 user:        lubomirlitchev
 date:        Fri Oct 12 00:43:48 2007 -0700
-summary:     [svn r449] Fixed JFXC-15. Fixed order of translation and MI translation in JavafxToJava visitor.
+summary:     [svn r449] Fixed JFXC-15. Fixed order of translation and MI translation in VisageToJava visitor.
 
 changeset:   389:dacceeb1c4f7
 branch:      trunk
@@ -24418,7 +24418,7 @@ changeset:   375:08a7aa09e06e
 branch:      trunk
 user:        rfield
 date:        Wed Oct 10 10:51:35 2007 -0700
-summary:     [svn r434] Clean-up JavafxVarSymbol.
+summary:     [svn r434] Clean-up VisageVarSymbol.
 
 changeset:   374:eac3b597e07d
 branch:      trunk
@@ -24784,7 +24784,7 @@ changeset:   314:a0148105795e
 branch:      trunk
 user:        rfield
 date:        Wed Oct 03 06:54:46 2007 -0700
-summary:     [svn r373] Fix for NPE seen by Jim (select on 'package visage.ui' in JavafxToJava).
+summary:     [svn r373] Fix for NPE seen by Jim (select on 'package visage.ui' in VisageToJava).
 
 changeset:   313:688778f69ee8
 branch:      trunk
@@ -25432,7 +25432,7 @@ changeset:   206:72d2a5c8a2a5
 branch:      trunk
 user:        lubomirlitchev
 date:        Wed Sep 12 23:34:23 2007 -0700
-summary:     [svn r263] Fixed a bug in JavafxModuleBuilder and re-enabled F9 test.
+summary:     [svn r263] Fixed a bug in VisageModuleBuilder and re-enabled F9 test.
 
 changeset:   205:125e4567b5f6
 branch:      trunk
@@ -26068,7 +26068,7 @@ changeset:   100:3378601ce49f
 branch:      trunk
 user:        lubomirlitchev
 date:        Thu Aug 16 11:21:59 2007 -0700
-summary:     [svn r117] Disabled initialization code. It exposes error in JavafxTypeMorpher and breaks the bind.visage test. The code:
+summary:     [svn r117] Disabled initialization code. It exposes error in VisageTypeMorpher and breaks the bind.visage test. The code:
 
 changeset:   99:be69b31baf37
 branch:      trunk
@@ -26464,7 +26464,7 @@ changeset:   34:79afe8250fe1
 branch:      trunk
 user:        lubomirlitchev
 date:        Fri Jul 27 21:49:43 2007 -0700
-summary:     [svn r47] Fixed an NPE in JavafxMembrerEnter.
+summary:     [svn r47] Fixed an NPE in VisageMembrerEnter.
 
 changeset:   33:f6589e6f5b0d
 branch:      trunk

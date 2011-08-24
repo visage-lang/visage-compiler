@@ -23,7 +23,7 @@
 
 package org.visage.tools.tree;
 
-import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.code.VisageVarSymbol;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.util.Name;
 
@@ -32,14 +32,14 @@ import com.sun.tools.mjavac.util.Name;
  */
 public class VisageIdentSequenceProxy extends VisageIdent {
 
-    private JavafxVarSymbol boundSizeSym;
+    private VisageVarSymbol boundSizeSym;
 
-    protected VisageIdentSequenceProxy(Name name, Symbol sym, JavafxVarSymbol boundSizeSym) {
+    protected VisageIdentSequenceProxy(Name name, Symbol sym, VisageVarSymbol boundSizeSym) {
         super(name, sym);
         this.boundSizeSym = boundSizeSym;
     }
 
-    public JavafxVarSymbol boundSizeSym() {
+    public VisageVarSymbol boundSizeSym() {
         return boundSizeSym;
     }
 }

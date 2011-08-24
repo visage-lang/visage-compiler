@@ -1,6 +1,6 @@
 /*
  * Regression test
- * JFXC-3924 : Unexpected type assertion in JavafxTreeMaker.java
+ * JFXC-3924 : Unexpected type assertion in VisageTreeMaker.java
  *
  * @test
  */

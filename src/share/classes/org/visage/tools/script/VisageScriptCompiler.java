@@ -23,8 +23,8 @@
 
 package org.visage.tools.script;
 
-import org.visage.tools.api.JavafxcTool;
-import org.visage.tools.api.JavafxcTaskImpl;
+import org.visage.tools.api.VisagecTool;
+import org.visage.tools.api.VisagecTaskImpl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +52,7 @@ import com.sun.tools.mjavac.util.Name;
  * Based on https://scripting.dev.java.net's JavaCompiler by A. Sundararajan.
  */
 public class VisageScriptCompiler {
-    public JavafxcTool tool;
+    public VisagecTool tool;
     private ClassLoader parentClassLoader;
     // a map in which the key is package name and the value is list of
     // classes in that package.
@@ -65,10 +65,10 @@ public class VisageScriptCompiler {
     MemoryFileManager manager;
 
     Name.Table names;
-    JavafxDefs defs;
-    JavafxTypes types;
-    JavafxSymtab syms;
-    JavafxClassReader reader;
+    VisageDefs defs;
+    VisageTypes types;
+    VisageSymtab syms;
+    VisageClassReader reader;
     Name pseudoSourceFile;
     Name pseudoFile;
     Name pseudoDir;
@@ -76,7 +76,7 @@ public class VisageScriptCompiler {
 
     public VisageScriptCompiler(ClassLoader parent) {
 	parentClassLoader = parent;
-        tool = JavafxcTool.create();
+        tool = VisagecTool.create();
         packageMap = new HashMap<String, List<String>>();
         try {
             // fill package-class-list map from parent class loader
@@ -89,35 +89,35 @@ public class VisageScriptCompiler {
                  parentClassLoader, packageMap, clbuffers);
     }
 
-    void initCompilerContext (Context context, JavafxcTaskImpl task) {
+    void initCompilerContext (Context context, VisagecTaskImpl task) {
         if (names ==  null) {
             // This is the first time initCompilerContext is called.
             names = Name.Table.instance(context);
-            org.visage.tools.code.JavafxSymtab.preRegister(context);
-            org.visage.tools.code.JavafxTypes.preRegister(context);
-            org.visage.tools.comp.JavafxClassReader.preRegister(context);
+            org.visage.tools.code.VisageSymtab.preRegister(context);
+            org.visage.tools.code.VisageTypes.preRegister(context);
+            org.visage.tools.comp.VisageClassReader.preRegister(context);
             pseudoFile = names.fromString("__FILE__");
             pseudoSourceFile = names.fromString("__SOURCE_FILE__");
             pseudoDir = names.fromString("__DIR__");
             pseudoProfile = names.fromString("__PROFILE__");
-            defs = JavafxDefs.instance(context);
-            syms = (JavafxSymtab) JavafxSymtab.instance(context);
-            types = JavafxTypes.instance(context);
+            defs = VisageDefs.instance(context);
+            syms = (VisageSymtab) VisageSymtab.instance(context);
+            types = VisageTypes.instance(context);
         }
         else {
             // Re-use names etc from previous calls to initCompilerContext.
             context.put(Name.Table.namesKey, names);
-            context.put(JavafxDefs.jfxDefsKey, defs);
-            JavafxSymtab.preRegister(context, syms);
-            JavafxTypes.preRegister(context, types);
+            context.put(VisageDefs.jfxDefsKey, defs);
+            VisageSymtab.preRegister(context, syms);
+            VisageTypes.preRegister(context, types);
         }
-        reader = JavafxClassReader.instance(context);
-        JavafxScriptClassBuilder classBuilder = JavafxScriptClassBuilder.instance(context);
+        reader = VisageClassReader.instance(context);
+        VisageScriptClassBuilder classBuilder = VisageScriptClassBuilder.instance(context);
         classBuilder.scriptingMode = true;
         task.compilerMain.registerServices(context, new String[] {});
         if (namedImportScope == null) {
             namedImportScope = new Scope.ImportScope(syms.unnamedPackage);
-            JavafxMemberEnter.importPredefs(syms, namedImportScope);
+            VisageMemberEnter.importPredefs(syms, namedImportScope);
         }
     }
 
@@ -162,7 +162,7 @@ public class VisageScriptCompiler {
         options.add("-XDdumpfx=" + System.getProperty("java.io.tmpdir"));
         
         // create a compilation task
-        JavafxcTaskImpl task = tool.getTask(context, err, manager, null, options, compUnits);
+        VisagecTaskImpl task = tool.getTask(context, err, manager, null, options, compUnits);
         initCompilerContext(context, task);
         
         task.setPreserveSymbols(namedImportScope, null, true);
@@ -170,7 +170,7 @@ public class VisageScriptCompiler {
         if (! task.call())
             return null;
 
-        JavafxEnter env = JavafxEnter.instance(context);
+        VisageEnter env = VisageEnter.instance(context);
         Scope scriptScope = env.scriptScopes.first();
 
         for (Scope.Entry e = scriptScope.elems; e != null; e = e.sibling) {
@@ -189,7 +189,7 @@ public class VisageScriptCompiler {
         VisageCompiledScript result = new VisageCompiledScript();
         result.compiler = this;
         result.scriptScope = scriptScope;
-        result.clazzName = ((JavafxClassSymbol) scriptScope.owner).flatname.toString();
+        result.clazzName = ((VisageClassSymbol) scriptScope.owner).flatname.toString();
         return result;
     }
 

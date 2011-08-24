@@ -25,7 +25,7 @@ package org.visage.tools.tree;
 
 import org.visage.api.tree.*;
 import org.visage.api.tree.Tree.VisageKind;
-import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.code.VisageVarSymbol;
 
 /**
  * A type cast.
@@ -35,7 +35,7 @@ public class VisageTypeCast extends VisageExpression implements TypeCastTree {
     public VisageTree clazz;
     public VisageExpression expr;
 
-    public JavafxVarSymbol boundArraySizeSym;
+    public VisageVarSymbol boundArraySizeSym;
 
     protected VisageTypeCast(VisageTree clazz, VisageExpression expr) {
         this.clazz = clazz;
@@ -43,7 +43,7 @@ public class VisageTypeCast extends VisageExpression implements TypeCastTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitTypeCast(this);
     }
 
@@ -65,7 +65,7 @@ public class VisageTypeCast extends VisageExpression implements TypeCastTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.TYPECAST;
+    public VisageTag getFXTag() {
+        return VisageTag.TYPECAST;
     }
 }

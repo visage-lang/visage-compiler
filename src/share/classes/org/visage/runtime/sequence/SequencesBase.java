@@ -38,7 +38,7 @@ import org.visage.runtime.NumericTypeInfo;
  */
 public class SequencesBase {
 
-    // Must match JavafxDefs.UNDEFINED_MARKER_INT
+    // Must match VisageDefs.UNDEFINED_MARKER_INT
     public static final int UNDEFINED_MARKER_INT = -1000;
    
     /*******************************************/

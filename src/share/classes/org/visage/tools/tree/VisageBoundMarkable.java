@@ -23,7 +23,7 @@
 
 package org.visage.tools.tree;
 
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 
 /**
  * Marker interface -- can mark as bound
@@ -31,7 +31,7 @@ import org.visage.api.JavafxBindStatus;
  * @author Robert Field
  */
 public interface VisageBoundMarkable {
-    void markBound(JavafxBindStatus bindStatus);
+    void markBound(VisageBindStatus bindStatus);
     boolean isBound();
     boolean isUnidiBind();
     boolean isBidiBind();

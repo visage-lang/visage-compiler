@@ -41,7 +41,7 @@ import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
 import static com.sun.tools.mjavac.code.Flags.*;
-import static org.visage.tools.code.JavafxFlags.*;
+import static org.visage.tools.code.VisageFlags.*;
 
 /**
  * Main program of Javadoc.
@@ -369,7 +369,7 @@ class Start {
             exit();
         }
 
-        JavafxdocTool comp = JavafxdocTool.make0(context);
+        VisagedocTool comp = VisagedocTool.make0(context);
         if (comp == null) return false;
 
         if (showAccess == null) {

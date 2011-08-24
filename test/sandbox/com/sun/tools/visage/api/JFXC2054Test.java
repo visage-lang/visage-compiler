@@ -26,7 +26,7 @@ package org.visage.tools.api;
 import org.visage.api.tree.MemberSelectTree;
 import org.visage.api.tree.VariableTree;
 import org.visage.tools.api.*;
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import org.visage.api.tree.VisageTreePath;
 import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.Tree;
@@ -37,9 +37,9 @@ import org.visage.api.tree.UnitTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
-import org.visage.tools.comp.JavafxAttrContext;
-import org.visage.tools.comp.JavafxEnv;
-import org.visage.tools.comp.JavafxResolve;
+import org.visage.tools.comp.VisageAttrContext;
+import org.visage.tools.comp.VisageEnv;
+import org.visage.tools.comp.VisageResolve;
 import org.visage.tools.tree.VisageClassDeclaration;
 import org.visage.tools.tree.VisageVar;
 import java.io.File;
@@ -66,7 +66,7 @@ import static org.junit.Assert.*;
 public class JFXC2054Test {
     private static final String testSrc = System.getProperty("test.src.dir", "test/sandbox");
     private static final String testClasses = System.getProperty("build.test.classes.dir");
-    private static JavafxcTask task;
+    private static VisagecTask task;
     private VariableTree node;
     private VariableTree a;
 
@@ -77,7 +77,7 @@ public class JFXC2054Test {
      */
     @Test
     public void isAccessibleTest() throws Exception {
-        JavafxcTool instance = new JavafxcTool();
+        VisagecTool instance = new VisagecTool();
         MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
         List<String> options = 
@@ -99,7 +99,7 @@ public class JFXC2054Test {
         Element cls = getClassElement(t);
         VisageTreePath ppp = VisageTreePath.getPath(t, node);
         VisageTreePath p1 = VisageTreePath.getPath(t, a);
-        JavafxcTrees trees = JavafxcTrees.instance(task);
+        VisagecTrees trees = VisagecTrees.instance(task);
         Element e = trees.getElement(ppp);
         isAccessible(task, p1, cls.asType(), e);
     }
@@ -139,7 +139,7 @@ public class JFXC2054Test {
                 for (Tree jct : cd.getMembers()) {
                     VisageKind k = jct.getJavaFXKind();
                     if (k == VisageKind.CLASS_DECLARATION) {
-                        JavafxcTrees trees = JavafxcTrees.instance(task);
+                        VisagecTrees trees = VisagecTrees.instance(task);
                         VisageTreePath root = new VisageTreePath(cut);
                         return trees.getElement(new VisageTreePath(root, jct));
                     }
@@ -149,13 +149,13 @@ public class JFXC2054Test {
         return null;
     }
 
-    private static void isAccessible(JavafxcTask task, VisageTreePath p, TypeMirror type, Element member) {
-        JavafxcTrees trees = JavafxcTrees.instance(task);
-        JavafxcScope scope = trees.getScope(p);
+    private static void isAccessible(VisagecTask task, VisageTreePath p, TypeMirror type, Element member) {
+        VisagecTrees trees = VisagecTrees.instance(task);
+        VisagecScope scope = trees.getScope(p);
         DeclaredType dt = (DeclaredType) type;
-        JavafxResolve resolve = JavafxResolve.instance(((JavafxcTaskImpl)task).getContext());
-        Object env = ((JavafxcScope) scope).getEnv();
-        JavafxEnv<JavafxAttrContext> fxEnv = (JavafxEnv<JavafxAttrContext>) env;
+        VisageResolve resolve = VisageResolve.instance(((VisagecTaskImpl)task).getContext());
+        Object env = ((VisagecScope) scope).getEnv();
+        VisageEnv<VisageAttrContext> fxEnv = (VisageEnv<VisageAttrContext>) env;
         System.out.println(" env == " + scope);
         System.out.println(" dt == " + dt);
         System.out.println(" member == " + member);

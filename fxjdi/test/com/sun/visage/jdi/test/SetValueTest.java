@@ -44,7 +44,7 @@ import java.util.Map;
 import org.junit.Test;
 import junit.framework.Assert;
 
-public class SetValueTest extends JavafxTestBase {
+public class SetValueTest extends VisageTestBase {
     ReferenceType targetClass;
     ThreadReference mainThread;
 

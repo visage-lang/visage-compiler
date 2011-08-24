@@ -23,23 +23,23 @@
 
 package org.visage.tools.tree;
 
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 import org.visage.api.tree.*;
 
 import com.sun.tools.mjavac.code.Type;
 
 public abstract class VisageExpression extends VisageTree implements ExpressionTree, VisageBoundMarkable {
     
-    private JavafxBindStatus bindStatus;
+    private VisageBindStatus bindStatus;
 
     /** Initialize tree.
      */
     protected VisageExpression() {
-        this.bindStatus = JavafxBindStatus.UNBOUND;
+        this.bindStatus = VisageBindStatus.UNBOUND;
     }
 
-    protected VisageExpression(JavafxBindStatus bindStatus) {
-        this.bindStatus = bindStatus == null ? JavafxBindStatus.UNBOUND : bindStatus;
+    protected VisageExpression(VisageBindStatus bindStatus) {
+        this.bindStatus = bindStatus == null ? VisageBindStatus.UNBOUND : bindStatus;
     }
 
 
@@ -55,11 +55,11 @@ public abstract class VisageExpression extends VisageTree implements ExpressionT
         return this;
     }
 
-    public void markBound(JavafxBindStatus bindStatus) {
+    public void markBound(VisageBindStatus bindStatus) {
         this.bindStatus = bindStatus;
     }
 
-    public JavafxBindStatus getBindStatus() {
+    public VisageBindStatus getBindStatus() {
         return bindStatus;
     }
 

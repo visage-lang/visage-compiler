@@ -1,10 +1,10 @@
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import com.sun.tools.mjavac.util.JavacFileManager;
-import org.visage.tools.api.JavafxcTool;
+import org.visage.tools.api.VisagecTool;
 
-import org.visage.tools.util.JavafxFileManager;
+import org.visage.tools.util.VisageFileManager;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
@@ -29,9 +29,9 @@ public class JFXC1308Test {
     public void testZipSourceAccess() throws Exception {
         nerrors = 0;
 
-        JavafxcTool tool = JavafxcTool.create();
+        VisagecTool tool = VisagecTool.create();
         JavacFileManager manager = 
-                (JavafxFileManager) tool.getStandardFileManager (null, null, null);
+                (VisageFileManager) tool.getStandardFileManager (null, null, null);
         File zip = new File("test/src/org/visage/tools/api/jfxc1308.zip");
         assertTrue(zip.exists());
         manager.setLocation(StandardLocation.SOURCE_PATH, Arrays.asList(zip));
@@ -40,7 +40,7 @@ public class JFXC1308Test {
         JavaFileObject jfo = manager.getJavaFileForInput(StandardLocation.SOURCE_PATH, "Test", JavaFileObject.Kind.SOURCE);
         sources.add(jfo);
 
-        JavafxcTask task = tool.getTask (null, null, new DiagnosticListener<JavaFileObject>() {
+        VisagecTask task = tool.getTask (null, null, new DiagnosticListener<JavaFileObject>() {
             public void report (Diagnostic<? extends JavaFileObject> diagnostic) {
                 System.out.println ("diagnostic = " + diagnostic);
                 nerrors++;

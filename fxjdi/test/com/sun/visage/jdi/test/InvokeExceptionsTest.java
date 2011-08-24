@@ -38,7 +38,7 @@ import com.sun.jdi.event.BreakpointEvent;
 import org.junit.Test;
 import junit.framework.Assert;
 
-public class InvokeExceptionsTest extends JavafxTestBase {
+public class InvokeExceptionsTest extends VisageTestBase {
     ReferenceType targetClass;
     ThreadReference mainThread;
 

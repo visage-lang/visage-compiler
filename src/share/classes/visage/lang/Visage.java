@@ -78,7 +78,7 @@ public class Visage {
      * @param offset offset of variable to be tested
      * @return true if the variable has been initialized
      */
-    @org.visage.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
+    @org.visage.runtime.annotation.VisageSignature("(Ljava/lang/Object;)Z")
     public static boolean isInitialized(VisageObject instance, int varOffset) {
         return Builtins.isInitialized(instance, varOffset);
     }

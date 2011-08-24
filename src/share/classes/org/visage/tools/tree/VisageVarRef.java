@@ -42,9 +42,9 @@ public class VisageVarRef extends VisageExpression {
 
     protected VisageVarRef(VisageExpression expr, RefKind kind) {
         this.kind = kind;
-        this.sym = JavafxTreeInfo.symbolFor(expr);
+        this.sym = VisageTreeInfo.symbolFor(expr);
         this.expr = expr;
-        if (!sym.isStatic() && expr.getFXTag() == JavafxTag.SELECT) {
+        if (!sym.isStatic() && expr.getFXTag() == VisageTag.SELECT) {
             receiver = ((VisageSelect)expr).selected;
         }
     }
@@ -74,12 +74,12 @@ public class VisageVarRef extends VisageExpression {
         INST;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitVarRef(this);
     }
 
-    public JavafxTag getFXTag() {
-        return JavafxTag.VAR_REF;
+    public VisageTag getFXTag() {
+        return VisageTag.VAR_REF;
     }
 
     public VisageKind getJavaFXKind() {

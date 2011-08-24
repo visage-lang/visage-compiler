@@ -29,7 +29,7 @@
 // Version 4 of the grammar reverts to a spearate lexer and parser grammar without a separate
 // ANTLR based AST walker. This is because this is the easiest way (at the time of writing)
 // to confine error recovery to the smallest possible set of side effects on the resulting
-// JavafxTree. This is important for down stream tools such as code completion, which require
+// VisageTree. This is important for down stream tools such as code completion, which require
 // as much of the AST as is possible to produce if they are to be effective.
 //
 // Derived from prior versions by:
@@ -47,7 +47,7 @@ options {
 	// super class. The super class is where we embody any code that does
 	// not require direct access to the methods generated 
 	// to implement the parser. Hence for instance this is where the 
-	// JavafxTreeMaker lives.
+	// VisageTreeMaker lives.
 	//
 	superClass 	= AbstractGeneratedParserV4; 
 
@@ -83,11 +83,11 @@ import com.sun.tools.javac.util.*;
 import org.visage.tools.util.MsgSym;
 
 import com.sun.tools.javac.code.*;
-import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.VisageFlags;
 import static com.sun.tools.javac.util.ListBuffer.lb;
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 
-import static org.visage.api.JavafxBindStatus.*;
+import static org.visage.api.VisageBindStatus.*;
 
 }
 
@@ -253,13 +253,13 @@ modifierFlag
 	returns [long flag]
 	
 	: ABSTRACT			{ $flag = Flags.ABSTRACT;				}
-	| BOUND				{ $flag = JavafxFlags.BOUND;			}
-	| OVERRIDE			{ $flag = JavafxFlags.OVERRIDE;			}
-	| PACKAGE			{ $flag = JavafxFlags.PACKAGE_ACCESS;	}
+	| BOUND				{ $flag = VisageFlags.BOUND;			}
+	| OVERRIDE			{ $flag = VisageFlags.OVERRIDE;			}
+	| PACKAGE			{ $flag = VisageFlags.PACKAGE_ACCESS;	}
 	| PROTECTED			{ $flag = Flags.PROTECTED;				}
 	| PUBLIC			{ $flag = Flags.PUBLIC;					}
-	| PUBLIC_READ   	{ $flag = JavafxFlags.PUBLIC_READ;		}
-	| PUBLIC_INIT		{ $flag = JavafxFlags.PUBLIC_INIT;		}
+	| PUBLIC_READ   	{ $flag = VisageFlags.PUBLIC_READ;		}
+	| PUBLIC_INIT		{ $flag = VisageFlags.PUBLIC_INIT;		}
 	;
 
 // -----------------	
@@ -511,7 +511,7 @@ variableLabel
 	returns [long modifiers, int pos] // returns the appropriate modifier flags and the position of the token
 	
 	: VAR			{ $modifiers = 0L; $pos = pos($VAR); }
-	| DEF			{ $modifiers = JavafxFlags.IS_DEF; $pos = pos($DEF); }
+	| DEF			{ $modifiers = VisageFlags.IS_DEF; $pos = pos($DEF); }
 	| ATTRIBUTE		{ $modifiers = 0L; $pos = pos($ATTRIBUTE); log.warning(pos($ATTRIBUTE), "visage.not.supported.attribute"); }
 	;
 
@@ -743,15 +743,15 @@ assignmentOpExpression
 //	
 assignOp
 
-	returns	[JavafxTag op]	// Returns the operation token that we find
+	returns	[VisageTag op]	// Returns the operation token that we find
 	
-	: PLUSEQ		{ $op = JavafxTag.PLUS_ASG; 			}
-	| SUBEQ			{ $op = JavafxTag.MINUS_ASG;			}
-	| STAREQ		{ $op = JavafxTag.MUL_ASG;              }
-	| SLASHEQ		{ $op = JavafxTag.DIV_ASG;				}
+	: PLUSEQ		{ $op = VisageTag.PLUS_ASG; 			}
+	| SUBEQ			{ $op = VisageTag.MINUS_ASG;			}
+	| STAREQ		{ $op = VisageTag.MUL_ASG;              }
+	| SLASHEQ		{ $op = VisageTag.DIV_ASG;				}
 	| PERCENTEQ
 		{ 
-			$op = JavafxTag.MOD_ASG;
+			$op = VisageTag.MOD_ASG;
 			log.warning(pos($PERCENTEQ), MsgSym.MESSAGE_VISAGE_GENERALWARNING, "The operator \%= will not be supported in the Visage 1.0 release" );
 		}
 	;
@@ -851,12 +851,12 @@ relationalExpression
 //
 relOps
 
-	: NOTEQ  { $relOp = JavafxTag.NE;	}
-	| EQEQ   { $relOp = JavafxTag.EQ;	}
-	| LTEQ   { $relOp = JavafxTag.LE;	}
-	| GTEQ   { $relOp = JavafxTag.GE;	}
-	| LT     { $relOp = JavafxTag.LT;	}
-	| GT     { $relOp = JavafxTag.GT;	}
+	: NOTEQ  { $relOp = VisageTag.NE;	}
+	| EQEQ   { $relOp = VisageTag.EQ;	}
+	| LTEQ   { $relOp = VisageTag.LE;	}
+	| GTEQ   { $relOp = VisageTag.GE;	}
+	| LT     { $relOp = VisageTag.LT;	}
+	| GT     { $relOp = VisageTag.GT;	}
 	;
 
 // ---------------------
@@ -883,8 +883,8 @@ additiveExpression
 // Arithmetic operators
 //
 arithOps
-	: PLUS		{ $arithOp = JavafxTag.PLUS; 	}
-	| SUB		{ $arithOp = JavafxTag.MINUS;	}
+	: PLUS		{ $arithOp = VisageTag.PLUS; 	}
+	| SUB		{ $arithOp = VisageTag.MINUS;	}
 	;
 
 // --------------------------
@@ -911,18 +911,18 @@ multiplicativeExpression
 //
 multOps
 
-	returns [JavafxTag multOp]	// Returns the Visage operator type
+	returns [VisageTag multOp]	// Returns the Visage operator type
 	
-	: STAR    	{ $multOp = JavafxTag.MUL;	}
-	| SLASH   	{ $multOp = JavafxTag.DIV;	}
+	: STAR    	{ $multOp = VisageTag.MUL;	}
+	| SLASH   	{ $multOp = VisageTag.DIV;	}
 	| PERCENT 	
 			
 		{
-			$multOp = JavafxTag.MOD;
+			$multOp = VisageTag.MOD;
 			log.warning(pos($PERCENT), MsgSym.MESSAGE_VISAGE_GENERALWARNING, "The remainder operator \% will be replaced by mod" );
 		}	
              
-	| MOD		{ $multOp = JavafxTag.MOD;	}
+	| MOD		{ $multOp = VisageTag.MOD;	}
 	;
 	
 // -----------------	
@@ -940,12 +940,12 @@ unaryExpression
 // LL(k) precedence
 //
 unaryOps
-	: SUB			{ $unOp = JavafxTag.NEG; }
-	| NOT			{ $unOp = JavafxTag.NOT; }
-	| SIZEOF		{ $unOp = JavafxTag.SIZEOF; }
-	| PLUSPLUS		{ $unOp = JavafxTag.PREINC; }
-	| SUBSUB		{ $unOp = JavafxTag.PREDEC; }
-	| REVERSE		{ $unOp = JavafxTag.REVERSE; }
+	: SUB			{ $unOp = VisageTag.NEG; }
+	| NOT			{ $unOp = VisageTag.NOT; }
+	| SIZEOF		{ $unOp = VisageTag.SIZEOF; }
+	| PLUSPLUS		{ $unOp = VisageTag.PREINC; }
+	| SUBSUB		{ $unOp = VisageTag.PREDEC; }
+	| REVERSE		{ $unOp = VisageTag.REVERSE; }
 	;
 
 // ------------------

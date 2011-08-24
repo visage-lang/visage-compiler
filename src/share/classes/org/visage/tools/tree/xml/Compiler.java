@@ -32,7 +32,7 @@ import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Convert;
 import com.sun.tools.mjavac.util.Options;
 import com.sun.tools.mjavac.util.Position;
-import org.visage.tools.code.JavafxTypes;
+import org.visage.tools.code.VisageTypes;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,8 +101,8 @@ public final class Compiler {
         return getState().converter.idToType(id);
     }
 
-    public static JavafxTypes types() {
-        return JavafxTypes.instance(getState().context);
+    public static VisageTypes types() {
+        return VisageTypes.instance(getState().context);
     }
 
     public static JavacElements symbols() {

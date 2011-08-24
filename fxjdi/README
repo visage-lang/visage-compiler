@@ -64,7 +64,7 @@ The target/debuggee sources are in org.visage.jdi.test.target package.
 For example, FramesTarget.java is the debuggee used by FramesTest.java. There
 are also Visage examples. HelloTarget.visage, SequenceTarget.visage are target Visage
 programs. Corresponding debugger tests are HelloTest.java and SequenceTest.java.
-Visage debugger tests are derived from JavafxTestBase (which is derived from
+Visage debugger tests are derived from VisageTestBase (which is derived from
 TestScaffold). This takes care using visagert.jar in classpath of debuggee
 and also using org.visage.runtime.Main as the main class of the debuggee.
 

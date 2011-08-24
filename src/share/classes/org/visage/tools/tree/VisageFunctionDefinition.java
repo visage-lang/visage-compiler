@@ -29,7 +29,7 @@ import org.visage.api.tree.Tree.VisageKind;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Name;
-import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.VisageFlags;
 
 /**
  * A function definition.
@@ -74,7 +74,7 @@ public class VisageFunctionDefinition extends VisageExpression implements Functi
     }
 
     public boolean isBound() {
-        return (mods.flags & JavafxFlags.BOUND) != 0;
+        return (mods.flags & VisageFlags.BOUND) != 0;
     }
 
     public Name getName() {
@@ -93,13 +93,13 @@ public class VisageFunctionDefinition extends VisageExpression implements Functi
         return operation;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitFunctionDefinition(this);
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.FUNCTION_DEF;
+    public VisageTag getFXTag() {
+        return VisageTag.FUNCTION_DEF;
     }
 
     public VisageKind getJavaFXKind() {

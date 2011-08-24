@@ -44,7 +44,7 @@ public class VisageTypeArray extends VisageType implements TypeArrayTree {
         super();
         this.elementType = elementType;
     }
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitTypeArray(this);
     }
 
@@ -53,8 +53,8 @@ public class VisageTypeArray extends VisageType implements TypeArrayTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.TYPEARRAY;
+    public VisageTag getFXTag() {
+        return VisageTag.TYPEARRAY;
     }
 
     //@Override

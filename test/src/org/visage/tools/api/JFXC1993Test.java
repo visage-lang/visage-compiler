@@ -23,7 +23,7 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 
 import org.visage.api.tree.UnitTree;
 import java.io.File;
@@ -104,14 +104,14 @@ public class JFXC1993Test implements Runnable {
     }
 
     private void parseFile() throws Exception {
-        JavafxcTool instance = new JavafxcTool();
+        VisagecTool instance = new VisagecTool();
         MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
         List<String> options = 
                 Arrays.asList("-d", ".", "-sourcepath", testSrc, "-classpath", testClasses);
         File file = new File(testSrc + "/org/visage/tools/api", "JFXC1993.visage");
     	Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
-        JavafxcTask task = instance.getTask(null, fm, dl, null, files);
+        VisagecTask task = instance.getTask(null, fm, dl, null, files);
         assertNotNull("no task returned", task);
         Iterable<? extends UnitTree> result1 = task.parse();
     }

@@ -29,7 +29,7 @@
 // Version 4 of the grammar reverts to a separate lexer and parser grammar without a separate
 // ANTLR based AST walker. This is because this is the easiest way (at the time of writing)
 // to confine error recovery to the smallest possible set of side effects on the resulting
-// JavafxTree. This is important for down stream tools such as code completion, which require
+// VisageTree. This is important for down stream tools such as code completion, which require
 // as much of the AST as is possible to produce if they are to be effective.
 // 
 // The lexer is separated from the parser because ANTLR cannot specify separate

@@ -37,13 +37,13 @@ public class VisageTypeUnknown extends VisageType implements TypeUnknownTree {
         super(Cardinality.UNKNOWN);
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitTypeUnknown(this);
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.TYPEUNKNOWN;
+    public VisageTag getFXTag() {
+        return VisageTag.TYPEUNKNOWN;
     }
 
     //@Override

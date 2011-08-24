@@ -39,7 +39,7 @@ public class VisageSequenceDelete extends VisageExpression implements SequenceDe
         this.element = element;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitSequenceDelete(this);
     }
 
@@ -52,8 +52,8 @@ public class VisageSequenceDelete extends VisageExpression implements SequenceDe
     }
     
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.DELETE;
+    public VisageTag getFXTag() {
+        return VisageTag.DELETE;
     }
 
     public VisageKind getJavaFXKind() {

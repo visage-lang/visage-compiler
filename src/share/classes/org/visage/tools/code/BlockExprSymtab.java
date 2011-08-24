@@ -38,7 +38,7 @@ public class BlockExprSymtab extends Symtab {
         });
     }
     
-    /** Creates a new instance of JavafxSymtab */
+    /** Creates a new instance of VisageSymtab */
     public BlockExprSymtab(Context context) {
         super(context);
         enterOperators();

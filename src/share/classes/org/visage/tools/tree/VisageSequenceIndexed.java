@@ -39,7 +39,7 @@ public class VisageSequenceIndexed extends VisageExpression implements SequenceI
         this.index = index;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitSequenceIndexed(this);
     }
 
@@ -52,8 +52,8 @@ public class VisageSequenceIndexed extends VisageExpression implements SequenceI
     }
     
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.SEQUENCE_INDEXED;
+    public VisageTag getFXTag() {
+        return VisageTag.SEQUENCE_INDEXED;
     }
 
     public VisageKind getJavaFXKind() {

@@ -44,7 +44,7 @@ public class VisageSequenceSlice extends VisageExpression implements SequenceSli
         this.endKind = endKind;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitSequenceSlice(this);
     }
 
@@ -65,8 +65,8 @@ public class VisageSequenceSlice extends VisageExpression implements SequenceSli
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.SEQUENCE_SLICE;
+    public VisageTag getFXTag() {
+        return VisageTag.SEQUENCE_SLICE;
     }
 
     public VisageKind getJavaFXKind() {

@@ -46,7 +46,7 @@ public class VisageForExpression extends VisageExpression implements ForExpressi
         this.bodyExpr = bodyExpr;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitForExpression(this);
     }
 
@@ -63,8 +63,8 @@ public class VisageForExpression extends VisageExpression implements ForExpressi
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.FOR_EXPRESSION;
+    public VisageTag getFXTag() {
+        return VisageTag.FOR_EXPRESSION;
     }
 
     public VisageKind getJavaFXKind() {

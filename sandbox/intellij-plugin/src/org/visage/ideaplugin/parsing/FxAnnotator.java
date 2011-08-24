@@ -8,10 +8,10 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import org.visage.api.tree.UnitTree;
 import org.visage.ideaplugin.FxCompiler;
-import org.visage.tools.api.JavafxcTool;
+import org.visage.tools.api.VisagecTool;
 
 import javax.tools.*;
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class FxAnnotator implements ExternalAnnotator {
         if (module == null)
             return;
 
-        JavafxcTool instance = new JavafxcTool();
+        VisagecTool instance = new VisagecTool();
         DiagnosticListener<FileObject> diagnosticListener = new DiagnosticListener<FileObject>() {
             public void report (Diagnostic<? extends FileObject> diagnostic) {
                 switch (diagnostic.getKind ()) {
@@ -70,7 +70,7 @@ public class FxAnnotator implements ExternalAnnotator {
         List<String> commandLine = FxCompiler.createCommandLine (ModuleRootManager.getInstance (module));
 
         try {
-            JavafxcTask task = instance.getTask(null, fileManager, diagnosticListener, commandLine, Collections.singleton (compiledFile));
+            VisagecTask task = instance.getTask(null, fileManager, diagnosticListener, commandLine, Collections.singleton (compiledFile));
             Iterable<? extends UnitTree> result1 = task.parse();
             Iterable<? extends UnitTree> result2 = task.analyze();
         } catch (IOException e) {

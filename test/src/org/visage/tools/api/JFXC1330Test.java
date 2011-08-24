@@ -5,7 +5,7 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import org.visage.api.tree.ClassDeclarationTree;
 import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.SequenceIndexedTree;
@@ -36,8 +36,8 @@ public class JFXC1330Test {
     public void sequenceExpressionPosTest() throws Exception {
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         try {            
-            Thread.currentThread().setContextClassLoader(JavafxcTool.class.getClassLoader());
-            JavafxcTool tool = JavafxcTool.create();
+            Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());
+            VisagecTool tool = VisagecTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
@@ -47,11 +47,11 @@ public class JFXC1330Test {
             
             File file = new File("test/src/org/visage/tools/api/Boids.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
-            JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
+            VisagecTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             Iterable<? extends UnitTree> treeList = visageTask.parse();
             assertTrue("no parse tree(s) returned", treeList.iterator().hasNext());
             
-            final JavafxcTrees trees = JavafxcTrees.instance(visageTask);
+            final VisagecTrees trees = VisagecTrees.instance(visageTask);
             final SourcePositions sp = trees.getSourcePositions();
             for (final UnitTree unit : treeList) {
                 VisageTreePathScanner scanner = new VisageTreePathScanner<Object,Void>() {

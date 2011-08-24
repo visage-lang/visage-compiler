@@ -24,7 +24,7 @@
 package org.visage.tools.tree.xml;
 
 import org.visage.api.tree.TypeTree.Cardinality;
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -239,14 +239,14 @@ public final class Constants {
         return (c == null)? null : enumToName(c);
     }
 
-    private static Map<JavafxBindStatus, String> bindStatus2String = new HashMap<JavafxBindStatus, String>();
+    private static Map<VisageBindStatus, String> bindStatus2String = new HashMap<VisageBindStatus, String>();
     static {
-        bindStatus2String.put(JavafxBindStatus.UNBOUND, "unbound");
-        bindStatus2String.put(JavafxBindStatus.UNIDIBIND, "bind");
-        bindStatus2String.put(JavafxBindStatus.BIDIBIND, "bind-with-inverse");
+        bindStatus2String.put(VisageBindStatus.UNBOUND, "unbound");
+        bindStatus2String.put(VisageBindStatus.UNIDIBIND, "bind");
+        bindStatus2String.put(VisageBindStatus.BIDIBIND, "bind-with-inverse");
     }
 
-    public static String bindStatusToString(JavafxBindStatus bs) {
+    public static String bindStatusToString(VisageBindStatus bs) {
         return (bs == null)? null : bindStatus2String.get(bs);
     }
 }

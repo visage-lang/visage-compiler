@@ -23,10 +23,10 @@
 
 package org.visage.tools.tree;
 
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 import org.visage.api.tree.*;
 import org.visage.api.tree.Tree.VisageKind;
-import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.code.VisageVarSymbol;
 
 import com.sun.tools.mjavac.util.Name;
 
@@ -42,12 +42,12 @@ public class VisageForExpressionInClause extends VisageTree implements ForExpres
     public Name label;
 
     private boolean indexUsed;
-    private JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;
+    private VisageBindStatus bindStatus = VisageBindStatus.UNBOUND;
 
     public VisageVar boundHelper;
-    public JavafxVarSymbol indexVarSym;
-    public JavafxVarSymbol inductionVarSym;
-    public JavafxVarSymbol boundResultVarSym;
+    public VisageVarSymbol indexVarSym;
+    public VisageVarSymbol inductionVarSym;
+    public VisageVarSymbol boundResultVarSym;
 
     protected VisageForExpressionInClause() {
         this.var        = null;
@@ -65,7 +65,7 @@ public class VisageForExpressionInClause extends VisageTree implements ForExpres
         this.hasWhere = whereExpr != null;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitForExpressionInClause(this);
     }
 
@@ -105,8 +105,8 @@ public class VisageForExpressionInClause extends VisageTree implements ForExpres
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.FOR_EXPRESSION_IN_CLAUSE;
+    public VisageTag getFXTag() {
+        return VisageTag.FOR_EXPRESSION_IN_CLAUSE;
     }
 
     public VisageKind getJavaFXKind() {
@@ -117,7 +117,7 @@ public class VisageForExpressionInClause extends VisageTree implements ForExpres
         return v.visitForExpressionInClause(this, d);
     }
 
-    public void markBound(JavafxBindStatus bindStatus) {
+    public void markBound(VisageBindStatus bindStatus) {
         this.bindStatus = bindStatus;
     }
 

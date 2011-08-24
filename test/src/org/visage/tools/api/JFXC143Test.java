@@ -5,8 +5,8 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
-import org.visage.tools.api.JavafxcTool;
+import org.visage.api.VisagecTask;
+import org.visage.tools.api.VisagecTool;
 import org.visage.api.tree.UnitTree;
 import java.io.File;
 import java.util.List;
@@ -34,13 +34,13 @@ public class JFXC143Test {
              * version of javac this compiler requires takes precedence
              * over the JDK's version.  
              */
-            Thread.currentThread().setContextClassLoader(JavafxcTool.class.getClassLoader());
-            JavafxcTool tool = JavafxcTool.create();
+            Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());
+            VisagecTool tool = VisagecTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
             File file = new File("test/src/org/visage/tools/api/Hello.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
-            JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
+            VisagecTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             List<? extends UnitTree> treeList = (List)visageTask.parse();
             assertTrue(treeList.size() == 1);
         } finally {
@@ -50,12 +50,12 @@ public class JFXC143Test {
     
     @Test
     public void parseClassSource() throws Exception {
-        JavafxcTool instance = new JavafxcTool();
+        VisagecTool instance = new VisagecTool();
         MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
         File file = new File(testSrc + "/org/visage/tools/api", "UndeclaredClass.visage");
 	Iterable<? extends JavaFileObject> fileList = fm.getJavaFileObjects(file);
-        JavafxcTask task = instance.getTask(null, fm, dl, null, fileList);
+        VisagecTask task = instance.getTask(null, fm, dl, null, fileList);
         assertNotNull("no task returned", task);
         Iterable<? extends UnitTree> result = task.parse();
         assertEquals("parse error(s)", 0, dl.errors());

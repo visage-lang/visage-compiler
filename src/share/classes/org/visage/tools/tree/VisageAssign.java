@@ -40,7 +40,7 @@ public class VisageAssign extends VisageExpression implements AssignmentTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitAssign(this);
     }
 
@@ -63,7 +63,7 @@ public class VisageAssign extends VisageExpression implements AssignmentTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.ASSIGN;
+    public VisageTag getFXTag() {
+        return VisageTag.ASSIGN;
     }
 }

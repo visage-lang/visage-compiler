@@ -23,7 +23,7 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import org.visage.api.tree.SourcePositions;
 import org.visage.api.tree.UnitTree;
 import org.visage.tools.antlr.v4Lexer;
@@ -225,11 +225,11 @@ System.out.println("Setup for file : " + tempFile.getAbsolutePath());
         protected void runTest() throws Exception {
             System.out.println("Running " + reportErrorString);
             savedException = null;
-            JavafxcTool instance = new JavafxcTool();
+            VisagecTool instance = new VisagecTool();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
             Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
-            JavafxcTask task = instance.getTask(null, fm, dl, null, files);
+            VisagecTask task = instance.getTask(null, fm, dl, null, files);
             assertNotNull("no task returned", task);
 
             Iterable<? extends UnitTree> result1 = task.parse();
@@ -243,7 +243,7 @@ System.out.println("Setup for file : " + tempFile.getAbsolutePath());
             }
             assertTrue("no compilation units returned", result2.iterator().hasNext());
             UnitTree t = result2.iterator().next();
-            SourcePositions sourcePositions = JavafxcTrees.instance(task).getSourcePositions();
+            SourcePositions sourcePositions = VisagecTrees.instance(task).getSourcePositions();
             int start = (int) sourcePositions.getStartPosition(t, t);
             int end = (int) sourcePositions.getEndPosition(t, t);
             assertTrue(getName() + " : " + reportErrorString, start != -1 && end != -1 && end != 0);

@@ -60,12 +60,12 @@ public class VisageKeyFrameLiteral extends VisageExpression implements KeyFrameL
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitKeyFrameLiteral(this);
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.KEYFRAME_LITERAL;
+    public VisageTag getFXTag() {
+        return VisageTag.KEYFRAME_LITERAL;
     }
 }

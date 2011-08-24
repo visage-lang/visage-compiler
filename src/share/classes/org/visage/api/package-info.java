@@ -29,7 +29,7 @@
  * a compiler is provided, it can be located using the
  * {@linkplain org.visage.api.ToolProvider}, for example:
  *
- * <p>{@code JavafxCompiler compiler = ToolProvider.getJavafxCompiler();}
+ * <p>{@code VisageCompiler compiler = ToolProvider.getJavafxCompiler();}
  */
 
 package org.visage.api;

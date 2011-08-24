@@ -48,7 +48,7 @@ public class VisageIdent extends VisageExpression implements IdentifierTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitIdent(this);
     }
 
@@ -66,8 +66,8 @@ public class VisageIdent extends VisageExpression implements IdentifierTree {
         return v.visitIdentifier(this, d);
     }
 
-    public JavafxTag getFXTag() {
-        return JavafxTag.IDENT;
+    public VisageTag getFXTag() {
+        return VisageTag.IDENT;
     }
 }
 

@@ -32,7 +32,7 @@ import junit.framework.Assert;
  *
  * @author sundar
  */
-public class HelloTest extends JavafxTestBase {
+public class HelloTest extends VisageTestBase {
     private static String targetClassName = "org.visage.jdi.test.target.HelloTarget";
 
     public HelloTest() {

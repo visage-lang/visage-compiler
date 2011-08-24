@@ -48,7 +48,7 @@ public class VisageErroneousOnReplace extends VisageOnReplace {
     }
     
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitErroneous(errNode);
     }
     
@@ -57,8 +57,8 @@ public class VisageErroneousOnReplace extends VisageOnReplace {
     }
         
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.ERRONEOUS;
+    public VisageTag getFXTag() {
+        return VisageTag.ERRONEOUS;
     }
     
     @Override

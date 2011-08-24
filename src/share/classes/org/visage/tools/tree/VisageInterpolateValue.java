@@ -67,12 +67,12 @@ public class VisageInterpolateValue extends VisageExpression implements Interpol
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitInterpolateValue(this);
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.INTERPOLATION_VALUE;
+    public VisageTag getFXTag() {
+        return VisageTag.INTERPOLATION_VALUE;
     }
 }

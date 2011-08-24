@@ -37,10 +37,10 @@ import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.Position;
 import org.visage.tools.code.FunctionType;
-import org.visage.tools.code.JavafxTypes;
-import org.visage.tools.comp.JavafxAttr;
+import org.visage.tools.code.VisageTypes;
+import org.visage.tools.comp.VisageAttr;
 import org.visage.tools.tree.*;
-import org.visage.tools.comp.JavafxClassReader;
+import org.visage.tools.comp.VisageClassReader;
 
 
 /**
@@ -73,14 +73,14 @@ public class DocEnv {
     Symtab syms;
 
     /** Referenced directly in RootDocImpl. */
-    JavafxClassReader reader;
+    VisageClassReader reader;
 
     /** The compiler's attribution phase (needed to evaluate
      *  constant initializers). */
-    JavafxAttr attr;
+    VisageAttr attr;
 
     /** Javadoc's own version of the compiler's enter phase. */
-    JavafxdocEnter enter;
+    VisagedocEnter enter;
 
     /** The name table. */
     Name.Table names;
@@ -102,7 +102,7 @@ public class DocEnv {
     boolean quiet = false;
 
     Check chk;
-    JavafxTypes types;
+    VisageTypes types;
     
     /** scanner factory for converting raw doc-comment text */
     com.sun.tools.mjavac.parser.Scanner.Factory scannerFactory;
@@ -129,13 +129,13 @@ public class DocEnv {
 
         messager = Messager.instance0(context);
         syms = Symtab.instance(context);
-        reader = JavafxClassReader.instance(context);
-        enter = JavafxdocEnter.instance0(context);
-        attr = JavafxAttr.instance(context);
+        reader = VisageClassReader.instance(context);
+        enter = VisagedocEnter.instance0(context);
+        attr = VisageAttr.instance(context);
         names = Name.Table.instance(context);
         externalizableSym = reader.enterClass(names.fromString("java.io.Externalizable"));
         chk = Check.instance(context);
-        types = JavafxTypes.instance(context);
+        types = VisageTypes.instance(context);
         scannerFactory = DocCommentScanner.Factory.instance(context);
 
         // Default.  Should normally be reset with setLocale.

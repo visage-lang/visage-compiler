@@ -24,7 +24,7 @@
 package org.visage.api.tree;
 
 import javax.lang.model.element.Name;
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 import org.visage.tools.tree.VisageType;
 
 /**
@@ -49,5 +49,5 @@ public interface VariableTree extends ExpressionTree {
     VisageType getJFXType();
     OnReplaceTree getOnReplaceTree();
     OnReplaceTree getOnInvalidateTree();
-    JavafxBindStatus getBindStatus();
+    VisageBindStatus getBindStatus();
 }

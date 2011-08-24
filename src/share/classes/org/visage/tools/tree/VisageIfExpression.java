@@ -49,7 +49,7 @@ public class VisageIfExpression extends VisageExpression implements ConditionalE
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitIfExpression(this);
     }
 
@@ -75,8 +75,8 @@ public class VisageIfExpression extends VisageExpression implements ConditionalE
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.CONDEXPR;
+    public VisageTag getFXTag() {
+        return VisageTag.CONDEXPR;
     }
 }
 

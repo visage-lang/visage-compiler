@@ -95,7 +95,7 @@ public abstract class VisageTree extends JCTree implements SyntheticTree, Tree, 
 
     /* The tag of this node -- one of the constants declared above.
      */
-    public abstract JavafxTag getFXTag();
+    public abstract VisageTag getFXTag();
 
     /** Set position field and return this tree.
      */
@@ -128,12 +128,12 @@ public abstract class VisageTree extends JCTree implements SyntheticTree, Tree, 
 
     @Override
     public int getStartPosition() {
-        return JavafxTreeInfo.getStartPos(this);
+        return VisageTreeInfo.getStartPos(this);
     }
 
     @Override
     public int getEndPosition(Map<JCTree, Integer> endPosTable) {
-        return JavafxTreeInfo.getEndPos(this, endPosTable);
+        return VisageTreeInfo.getEndPos(this, endPosTable);
     }
 
     // for default DiagnosticPosition
@@ -147,7 +147,7 @@ public abstract class VisageTree extends JCTree implements SyntheticTree, Tree, 
     protected VisageTree() {
     }
     
-    public abstract void accept(JavafxVisitor v);
+    public abstract void accept(VisageVisitor v);
     
     /**
      * Gets the Visage kind of this tree.
@@ -170,7 +170,7 @@ public abstract class VisageTree extends JCTree implements SyntheticTree, Tree, 
     public String toString() {
         StringWriter s = new StringWriter();
         try {
-            new JavafxPretty(s, false).printExpr(this);
+            new VisagePretty(s, false).printExpr(this);
         }
         catch (IOException e) {
             // should never happen, because StringWriter is defined

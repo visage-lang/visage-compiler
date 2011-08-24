@@ -50,12 +50,12 @@ public class VisageAngleLiteral extends VisageExpression implements AngleLiteral
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.ANGLE_LITERAL;
+    public VisageTag getFXTag() {
+        return VisageTag.ANGLE_LITERAL;
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitAngleLiteral(this);
     }
 

@@ -47,7 +47,7 @@ public class VisageTypeFunctional extends VisageType implements TypeFunctionalTr
         this.params = params;
         this.restype = restype;
     }
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitTypeFunctional(this);
     }
 
@@ -64,8 +64,8 @@ public class VisageTypeFunctional extends VisageType implements TypeFunctionalTr
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.TYPEFUNC;
+    public VisageTag getFXTag() {
+        return VisageTag.TYPEFUNC;
     }
 
     //@Override

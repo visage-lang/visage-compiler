@@ -56,7 +56,7 @@ public class VisageInstanciate extends VisageExpression implements InstantiateTr
         this.sym = sym;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitInstanciate(this);
     }
 
@@ -89,7 +89,7 @@ public class VisageInstanciate extends VisageExpression implements InstantiateTr
 
     /**
      *  For API uses only - object literals locals are desugared in a block
-     *  surrounding the object literal. This is done in JavafxLower. After lowering,
+     *  surrounding the object literal. This is done in VisageLower. After lowering,
      *  the compiler doesn't have to deal with them explicitly. Note that we still
      *  need to maintain access for IDE.
      */
@@ -110,8 +110,8 @@ public class VisageInstanciate extends VisageExpression implements InstantiateTr
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.OBJECT_LITERAL;
+    public VisageTag getFXTag() {
+        return VisageTag.OBJECT_LITERAL;
     }
 
     public VisageKind getJavaFXKind() {

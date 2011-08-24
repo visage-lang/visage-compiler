@@ -22,14 +22,14 @@
  */
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 
 import org.visage.api.tree.SourcePositions;
 import org.visage.api.tree.UnitTree;
 import org.visage.tools.tree.VisageClassDeclaration;
 import org.visage.tools.tree.VisageScript;
 import org.visage.tools.tree.VisageTree;
-import org.visage.tools.tree.JavafxTag;
+import org.visage.tools.tree.VisageTag;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JavacFileManager;
 import com.sun.tools.mjavac.util.List;
@@ -58,7 +58,7 @@ public class JFXC3614 {
     private String visageLibs = "dist/lib/shared";
     private String visageDeskLibs = "dist/lib/desktop";
     private String inputDir = "test/sandbox/org/visage/tools/api";
-    private JavafxcTrees trees;
+    private VisagecTrees trees;
     private UnitTree ut;
     private SourcePositions sp;
     private Context ctx;
@@ -70,23 +70,23 @@ public class JFXC3614 {
     }
 
     private void doSetup() throws IOException {
-        JavafxcTool tool = JavafxcTool.create();
+        VisagecTool tool = VisagecTool.create();
         JavacFileManager manager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
 
         ArrayList<JavaFileObject> filesToCompile = new ArrayList<JavaFileObject>();
         filesToCompile.add(manager.getFileForInput(inputDir + DIR + "JFXC3614.visage"));
 
-        JavafxcTask task = tool.getTask(null, null, null, Arrays.asList("-XDdisableStringFolding", "-XDpreserveTrees", "-Xjcov", "-cp",
+        VisagecTask task = tool.getTask(null, null, null, Arrays.asList("-XDdisableStringFolding", "-XDpreserveTrees", "-Xjcov", "-cp",
                 visageLibs + DIR + "visagec.jar" + SEP + visageLibs + DIR + "visagert.jar" + SEP + visageDeskLibs + DIR + "visage-ui-common.jar" + SEP + inputDir), filesToCompile);
 
         task.parse();
         Iterable analyzeUnits = task.analyze();
-        trees = JavafxcTrees.instance(task);
+        trees = VisagecTrees.instance(task);
 
         ut = (UnitTree) analyzeUnits.iterator().next();
         sp = trees.getSourcePositions();
-        ctx = ((JavafxcTaskImpl) task).getContext();
-        elements = ((JavafxcTaskImpl) task).getElements();
+        ctx = ((VisagecTaskImpl) task).getContext();
+        elements = ((VisagecTaskImpl) task).getElements();
     }
 
     @After
@@ -110,7 +110,7 @@ public class JFXC3614 {
         // Make sure that the Variable def appears before the
         // run method in the tree.
         //
-        assertEquals(cdDefs.get(0).getFXTag(), JavafxTag.VAR_DEF);
-        assertEquals(cdDefs.get(1).getFXTag(),JavafxTag.FUNCTION_DEF);
+        assertEquals(cdDefs.get(0).getFXTag(), VisageTag.VAR_DEF);
+        assertEquals(cdDefs.get(1).getFXTag(),VisageTag.FUNCTION_DEF);
     }
 }

@@ -33,7 +33,7 @@ import org.visage.tools.tree.VisageTree;
 
 import com.sun.tools.mjavac.util.Position;
 
-import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.VisageFlags;
 import java.lang.reflect.Modifier;
 import java.text.CollationKey;
 
@@ -131,12 +131,12 @@ public abstract class ProgramElementDocImpl
     protected String modifiers(long aflags) {
         StringBuffer sb = new StringBuffer();
 
-	if ((aflags  & JavafxFlags.PUBLIC_INIT) != 0)	sb.append("public-init ");
-	if ((aflags  & JavafxFlags.PUBLIC_READ) != 0)	sb.append("public-read ");
+	if ((aflags  & VisageFlags.PUBLIC_INIT) != 0)	sb.append("public-init ");
+	if ((aflags  & VisageFlags.PUBLIC_READ) != 0)	sb.append("public-read ");
 	if ((aflags  & Flags.PUBLIC) != 0)	sb.append("public ");
 	if ((aflags  & Flags.PROTECTED) != 0)	sb.append("protected ");
-	if ((aflags  & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.SCRIPT_PRIVATE)) == 0)	sb.append("package ");
-	if ((aflags  & JavafxFlags.BOUND) != 0)	sb.append("bound ");
+	if ((aflags  & (Flags.PUBLIC | Flags.PROTECTED | VisageFlags.SCRIPT_PRIVATE)) == 0)	sb.append("package ");
+	if ((aflags  & VisageFlags.BOUND) != 0)	sb.append("bound ");
 	if ((aflags  & Flags.ABSTRACT) != 0)	sb.append("abstract ");
 
 	int len = sb.length();
@@ -178,7 +178,7 @@ public abstract class ProgramElementDocImpl
      * Returns true if this program element is script-private
      */
     public boolean isScriptPrivate() {
-        return (getFlags() & JavafxFlags.SCRIPT_PRIVATE) != 0;
+        return (getFlags() & VisageFlags.SCRIPT_PRIVATE) != 0;
     }
 
     /**

@@ -42,13 +42,13 @@ public class VisageIndexof extends VisageExpression implements IndexofTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitIndexof(this);
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.INDEXOF;
+    public VisageTag getFXTag() {
+        return VisageTag.INDEXOF;
     }
 
     @Override

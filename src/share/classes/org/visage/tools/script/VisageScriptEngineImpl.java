@@ -65,10 +65,10 @@ public class VisageScriptEngineImpl extends AbstractScriptEngine
     }
 
     // my implementation for CompiledScript
-    private class JavafxScriptCompiledScript extends CompiledScript {
+    private class VisageScriptCompiledScript extends CompiledScript {
         VisageCompiledScript compiled;
 
-        JavafxScriptCompiledScript(VisageCompiledScript compiled) {
+        VisageScriptCompiledScript(VisageCompiledScript compiled) {
             this.compiled = compiled;
         }
 
@@ -175,7 +175,7 @@ public class VisageScriptEngineImpl extends AbstractScriptEngine
     }
 
     public Object eval(String script, ScriptContext context, DiagnosticListener<JavaFileObject> listener) throws ScriptException {
-        JavafxScriptCompiledScript cscript = parse(script, context, listener);
+        VisageScriptCompiledScript cscript = parse(script, context, listener);
         return cscript.eval(context);
     }
 
@@ -214,7 +214,7 @@ public class VisageScriptEngineImpl extends AbstractScriptEngine
 
     int counter;
 
-    private JavafxScriptCompiledScript parse(String str, ScriptContext ctx,
+    private VisageScriptCompiledScript parse(String str, ScriptContext ctx,
             final DiagnosticListener<JavaFileObject> listener) throws ScriptException {
         String fileName = getFileName(ctx);
         if ("<STDIN>".equals(fileName))
@@ -258,7 +258,7 @@ public class VisageScriptEngineImpl extends AbstractScriptEngine
             throw new ScriptException("compilation failed");
         }
 
-        return new JavafxScriptCompiledScript(compiled);
+        return new VisageScriptCompiledScript(compiled);
     }
 
     private static String getFileName(ScriptContext ctx) {

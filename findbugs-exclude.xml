@@ -8,7 +8,7 @@
     </Match>
     <Match>
     		<!-- Offending methods are inherited from javac -->
-        <Class name="org.visage.tools.tree.JavafxTreeMaker" />
+        <Class name="org.visage.tools.tree.VisageTreeMaker" />
         <Bug  pattern="NM_METHOD_NAMING_CONVENTION" />
     </Match>
     <Match>
@@ -47,19 +47,19 @@
     </Match>
     <Match>
 	    <!-- valid test for whether assertions are enabled -->
-	    <Class name="org.visage.tools.comp.JavafxAttr"/>
+	    <Class name="org.visage.tools.comp.VisageAttr"/>
         <Method name="attribClassBody"/>
         <Local name="assertsEnabled"/>
         <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
     </Match>
     <Match>
         <!-- Error in findbugs, confuses two scan-methods in superclass -->
-        <Class name="org.visage.tools.comp.JavafxEnter"/>
+        <Class name="org.visage.tools.comp.VisageEnter"/>
         <Method name="scan"/>
         <Bug pattern="NM_WRONG_PACKAGE_INTENTIONAL"/>
     </Match>
     <Match>
-        <Class name="org.visage.tools.ant.JavaFxAntTask$JavaFxCompilerAdapter"/>
+        <Class name="org.visage.tools.ant.VisageAntTask$VisageCompilerAdapter"/>
         <Method name="execute"/>
         <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
     </Match>
@@ -71,7 +71,7 @@
     </Match>
     <Match>
         <!-- Field isSimple is not implemented yet -->
-        <Class name="~com\.sun\.tools\.visage\.comp\.JavafxToBound\$[0-9]+"/>
+        <Class name="~com\.sun\.tools\.visage\.comp\.VisageToBound\$[0-9]+"/>
         <Field name="isSimple"/>
         <Bug pattern="SS_SHOULD_BE_STATIC"/>
     </Match>

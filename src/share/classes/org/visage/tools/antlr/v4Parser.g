@@ -29,7 +29,7 @@
 // Version 4 of the grammar reverts to a separate lexer and parser grammar without a separate
 // ANTLR based AST walker. This is because this is the easiest way (at the time of writing)
 // to confine error recovery to the smallest possible set of side effects on the resulting
-// JavafxTree. This is important for down stream tools such as code completion, which require
+// VisageTree. This is important for down stream tools such as code completion, which require
 // as much of the AST as is possible to produce if they are to be effective.
 //
 // Derived from prior versions by:
@@ -48,7 +48,7 @@ options {
     // super class. The super class is where we embody any code that does
     // not require direct access to the methods generated 
     // to implement the parser. Hence for instance this is where the 
-    // JavafxTreeMaker lives.
+    // VisageTreeMaker lives.
     //
     superClass  = AbstractGeneratedParserV4; 
 
@@ -119,11 +119,11 @@ import com.sun.tools.mjavac.util.*;
 import org.visage.tools.util.MsgSym;
 
 import com.sun.tools.mjavac.code.*;
-import org.visage.tools.code.JavafxFlags;
+import org.visage.tools.code.VisageFlags;
 import static com.sun.tools.mjavac.util.ListBuffer.lb;
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 
-import static org.visage.api.JavafxBindStatus.*;
+import static org.visage.api.VisageBindStatus.*;
 
 }
  
@@ -788,15 +788,15 @@ modifierFlag
     returns [long flag]
     
     : ABSTRACT          { $flag = Flags.ABSTRACT;               }
-    | BOUND             { $flag = JavafxFlags.BOUND;            }
-    | DEFAULT           { $flag = JavafxFlags.DEFAULT;          }
-    | MIXIN             { $flag = JavafxFlags.MIXIN;            }
-    | OVERRIDE          { $flag = JavafxFlags.OVERRIDE;         }
-    | PACKAGE           { $flag = JavafxFlags.PACKAGE_ACCESS;   }
+    | BOUND             { $flag = VisageFlags.BOUND;            }
+    | DEFAULT           { $flag = VisageFlags.DEFAULT;          }
+    | MIXIN             { $flag = VisageFlags.MIXIN;            }
+    | OVERRIDE          { $flag = VisageFlags.OVERRIDE;         }
+    | PACKAGE           { $flag = VisageFlags.PACKAGE_ACCESS;   }
     | PROTECTED         { $flag = Flags.PROTECTED;              }
     | PUBLIC            { $flag = Flags.PUBLIC;                 }
-    | PUBLIC_READ       { $flag = JavafxFlags.PUBLIC_READ;      }
-    | PUBLIC_INIT       { $flag = JavafxFlags.PUBLIC_INIT;      }
+    | PUBLIC_READ       { $flag = VisageFlags.PUBLIC_READ;      }
+    | PUBLIC_INIT       { $flag = VisageFlags.PUBLIC_INIT;      }
         
     
     //TODO: deprecated -- remove these at some point
@@ -1149,7 +1149,7 @@ functionDefinition [ VisageModifiers mods, int pos ]
     
     // Is this an override?
     //
-    boolean isOverride = (JavafxFlags.OVERRIDE & $mods.flags) == JavafxFlags.OVERRIDE;
+    boolean isOverride = (VisageFlags.OVERRIDE & $mods.flags) == VisageFlags.OVERRIDE;
     
     // The Name symbol we create
     //
@@ -1408,7 +1408,7 @@ variableDeclaration [ VisageModifiers mods, int pos ]
 
     // Bind status if present
     //
-    JavafxBindStatus bStatus = null;
+    VisageBindStatus bStatus = null;
 
     // Bind value expression, if present
     //
@@ -1467,7 +1467,7 @@ variableDeclaration [ VisageModifiers mods, int pos ]
               // in that case, and positoin it where the initializer should be.
               //
               {
-                if  (($variableLabel.modifiers & JavafxFlags.IS_DEF) == JavafxFlags.IS_DEF) {
+                if  (($variableLabel.modifiers & VisageFlags.IS_DEF) == VisageFlags.IS_DEF) {
                 
                     // Create an erroneous node where we should have the intializer
                     //
@@ -1527,7 +1527,7 @@ variableDeclaration [ VisageModifiers mods, int pos ]
                 // Here, we can have either an OVERRIDE or a straight
                 // declaration, but the AST nodes are different.
                 //
-                if  (($mods.flags & JavafxFlags.OVERRIDE) == JavafxFlags.OVERRIDE) {
+                if  (($mods.flags & VisageFlags.OVERRIDE) == VisageFlags.OVERRIDE) {
                 
                     // Build the AST for OVERRIDE var
                     //
@@ -2236,7 +2236,7 @@ variableLabel
     returns [long modifiers, int pos] // returns the appropriate modifier flags and the position of the token
     
     : VAR           { $modifiers = 0L; $pos = pos($VAR); }
-    | DEF           { $modifiers = JavafxFlags.IS_DEF; $pos = pos($DEF); }
+    | DEF           { $modifiers = VisageFlags.IS_DEF; $pos = pos($DEF); }
     | ATTRIBUTE     {   $modifiers = 0L; 
                         $pos = pos($ATTRIBUTE); 
                         VisageErroneous err = F.at($pos).Erroneous();
@@ -2936,7 +2936,7 @@ catch [RecognitionException re] {
 //
 boundExpression 
 
-    returns [JavafxBindStatus status, VisageExpression value]  // We need to return a status flag to say how and if the
+    returns [VisageBindStatus status, VisageExpression value]  // We need to return a status flag to say how and if the
                                                             // expression is bound, and the AST for the expression itself.
 
 @init 
@@ -3502,12 +3502,12 @@ catch [RecognitionException re] {
 //  
 assignOp
 
-    returns [JavafxTag op]  // Returns the operation token that we find
+    returns [VisageTag op]  // Returns the operation token that we find
     
-    : PLUSEQ        { $op = JavafxTag.PLUS_ASG;             }
-    | SUBEQ         { $op = JavafxTag.MINUS_ASG;            }
-    | STAREQ        { $op = JavafxTag.MUL_ASG;              }
-    | SLASHEQ       { $op = JavafxTag.DIV_ASG;              }
+    : PLUSEQ        { $op = VisageTag.PLUS_ASG;             }
+    | SUBEQ         { $op = VisageTag.MINUS_ASG;            }
+    | STAREQ        { $op = VisageTag.MUL_ASG;              }
+    | SLASHEQ       { $op = VisageTag.DIV_ASG;              }
     | PERCENTEQ
         { 
             // Create an error node for a DiagnosticPosition
@@ -3518,7 +3518,7 @@ assignOp
             
             // Erroneous operator
             //
-            $op = JavafxTag.ERRONEOUS;
+            $op = VisageTag.ERRONEOUS;
         }
     ;
 // Catch an error. We create an erroneous node for anything that was at the start 
@@ -3566,7 +3566,7 @@ orExpression
                 OR e2=andExpression
                 
                 {
-                    $value = F.at(rPos).Binary(JavafxTag.OR, $value, $e2.value);
+                    $value = F.at(rPos).Binary(VisageTag.OR, $value, $e2.value);
                     endPos($value);
                 }
             )*
@@ -3620,7 +3620,7 @@ andExpression
             AND e2=typeExpression 
             
             {
-                $value = F.at(rPos).Binary(JavafxTag.AND, $value, $e2.value);
+                $value = F.at(rPos).Binary(VisageTag.AND, $value, $e2.value);
                 endPos($value);
             }
         )*
@@ -3761,22 +3761,22 @@ catch [RecognitionException re] {
 //
 relOps
 
-    returns [JavafxTag relOp]   // Returns the Visage operator type
+    returns [VisageTag relOp]   // Returns the Visage operator type
     
     : LTGT
         { 
             VisageErroneous err = F.at(pos($LTGT)).Erroneous();
             endPos(err);
-            $relOp = JavafxTag.NE;
+            $relOp = VisageTag.NE;
             log.error(err, MsgSym.MESSAGE_VISAGE_NOT_NE);
         }   
                     
-    | NOTEQ  { $relOp = JavafxTag.NE;   }
-    | EQEQ   { $relOp = JavafxTag.EQ;   }
-    | LTEQ   { $relOp = JavafxTag.LE;   }
-    | GTEQ   { $relOp = JavafxTag.GE;   }
-    | LT     { $relOp = JavafxTag.LT;   }
-    | GT     { $relOp = JavafxTag.GT;   }
+    | NOTEQ  { $relOp = VisageTag.NE;   }
+    | EQEQ   { $relOp = VisageTag.EQ;   }
+    | LTEQ   { $relOp = VisageTag.LE;   }
+    | GTEQ   { $relOp = VisageTag.GE;   }
+    | LT     { $relOp = VisageTag.LT;   }
+    | GT     { $relOp = VisageTag.GT;   }
     ;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
@@ -3852,10 +3852,10 @@ catch [RecognitionException re] {
 //
 arithOps
 
-    returns [JavafxTag arithOp] // Returns the Visage operator type
+    returns [VisageTag arithOp] // Returns the Visage operator type
     
-    : PLUS      { $arithOp = JavafxTag.PLUS;    }
-    | SUB       { $arithOp = JavafxTag.MINUS;   }
+    : PLUS      { $arithOp = VisageTag.PLUS;    }
+    | SUB       { $arithOp = VisageTag.MINUS;   }
     ;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
@@ -3928,20 +3928,20 @@ catch [RecognitionException re] {
 //
 multOps
 
-    returns [JavafxTag multOp]  // Returns the Visage operator type
+    returns [VisageTag multOp]  // Returns the Visage operator type
     
-    : STAR      { $multOp = JavafxTag.MUL;  }
-    | SLASH     { $multOp = JavafxTag.DIV;  }
+    : STAR      { $multOp = VisageTag.MUL;  }
+    | SLASH     { $multOp = VisageTag.DIV;  }
     | PERCENT   
             
         {
             VisageErroneous err = F.at(pos($PERCENT)).Erroneous();
             endPos(err);
-            $multOp = JavafxTag.MOD;
+            $multOp = VisageTag.MOD;
             log.error(err, MsgSym.MESSAGE_VISAGE_BAD_PERCENT);
         }   
              
-    | MOD       { $multOp = JavafxTag.MOD;  }
+    | MOD       { $multOp = VisageTag.MOD;  }
     ;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
@@ -4031,14 +4031,14 @@ catch [RecognitionException re] {
 //
 unaryOps
 
-    returns [JavafxTag unOp]    // Returns the Visage operator type
+    returns [VisageTag unOp]    // Returns the Visage operator type
     
-    : SUB           { $unOp = JavafxTag.NEG; }
-    | NOT           { $unOp = JavafxTag.NOT; }
-    | SIZEOF        { $unOp = JavafxTag.SIZEOF; }
-    | PLUSPLUS      { $unOp = JavafxTag.PREINC; }
-    | SUBSUB        { $unOp = JavafxTag.PREDEC; }
-    | REVERSE       { $unOp = JavafxTag.REVERSE; }
+    : SUB           { $unOp = VisageTag.NEG; }
+    | NOT           { $unOp = VisageTag.NOT; }
+    | SIZEOF        { $unOp = VisageTag.SIZEOF; }
+    | PLUSPLUS      { $unOp = VisageTag.PREINC; }
+    | SUBSUB        { $unOp = VisageTag.PREDEC; }
+    | REVERSE       { $unOp = VisageTag.REVERSE; }
     ;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
@@ -4080,14 +4080,14 @@ suffixedExpression
               { input.LT(-1).getType() != RBRACE }?=> PLUSPLUS
               
                 {
-                    $value = F.at(rPos).Unary(JavafxTag.POSTINC, $pe.value);
+                    $value = F.at(rPos).Unary(VisageTag.POSTINC, $pe.value);
                     endPos($value);
                 }
                 
             | { input.LT(-1).getType() != RBRACE }?=> SUBSUB
             
                 {
-                    $value = F.at(rPos).Unary(JavafxTag.POSTDEC, $pe.value);
+                    $value = F.at(rPos).Unary(VisageTag.POSTDEC, $pe.value);
                     endPos($value);
                 }
                 

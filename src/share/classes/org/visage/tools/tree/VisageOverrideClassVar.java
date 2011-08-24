@@ -23,11 +23,11 @@
 
 package org.visage.tools.tree;
 
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 import org.visage.api.tree.VisageTreeVisitor;
 import org.visage.api.tree.OverrideClassVarTree;
 
-import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.code.VisageVarSymbol;
 import com.sun.tools.mjavac.util.Name;
 
 /**
@@ -45,21 +45,21 @@ public class VisageOverrideClassVar extends VisageAbstractVar implements Overrid
             VisageModifiers mods,
             VisageIdent expr,
             VisageExpression init,
-            JavafxBindStatus bindStat,
+            VisageBindStatus bindStat,
             VisageOnReplace onReplace,
             VisageOnReplace onInvalidate,
-            JavafxVarSymbol sym) {
+            VisageVarSymbol sym) {
         super(name, type, mods, init, bindStat, onReplace, onInvalidate, sym);
         this.expr = expr;
     }
     
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitOverrideClassVar(this);
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.OVERRIDE_ATTRIBUTE_DEF;
+    public VisageTag getFXTag() {
+        return VisageTag.OVERRIDE_ATTRIBUTE_DEF;
     }
 
     public VisageIdent getId() {

@@ -45,13 +45,13 @@ public class VisageInitDefinition extends VisageTree implements InitDefinitionTr
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitInitDefinition(this);
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.INIT_DEF;
+    public VisageTag getFXTag() {
+        return VisageTag.INIT_DEF;
     }
 
     public VisageKind getJavaFXKind() {

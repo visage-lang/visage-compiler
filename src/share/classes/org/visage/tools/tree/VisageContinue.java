@@ -44,7 +44,7 @@ public class VisageContinue extends VisageExpression implements ContinueTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitContinue(this);
     }
 
@@ -62,7 +62,7 @@ public class VisageContinue extends VisageExpression implements ContinueTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.CONTINUE;
+    public VisageTag getFXTag() {
+        return VisageTag.CONTINUE;
     }
 }

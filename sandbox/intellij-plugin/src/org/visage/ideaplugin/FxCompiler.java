@@ -123,13 +123,13 @@ public class FxCompiler implements TranslatingCompiler {
             Method generateMethod;
             Method toUriMethod;
             try {
-				Class<?> visageToolClass = Class.forName("org.visage.tools.api.JavafxcTool", true, loader);
+				Class<?> visageToolClass = Class.forName("org.visage.tools.api.VisagecTool", true, loader);
 				visageTool = visageToolClass.getMethod ("create").invoke (null);
                 getStandardFileManagerMethod = visageToolClass.getMethod ("getStandardFileManager", DiagnosticListener.class, Locale.class, Charset.class);
-				Class<?> visageFileManagerClass = Class.forName("org.visage.tools.util.JavafxFileManager", true, loader);
+				Class<?> visageFileManagerClass = Class.forName("org.visage.tools.util.VisageFileManager", true, loader);
 				getFileForInputMethod = visageFileManagerClass.getMethod ("getFileForInput", String.class);
                 getTaskMethod = visageToolClass.getMethod ("getTask", Writer.class, JavaFileManager.class, DiagnosticListener.class, Iterable.class, Iterable.class);
-                visageTaskClass = Class.forName ("org.visage.api.JavafxcTask", true, loader);
+                visageTaskClass = Class.forName ("org.visage.api.VisagecTask", true, loader);
                 generateMethod = visageTaskClass.getMethod ("generate");
                 Class<?> regularFileObjectClass = Class.forName ("javax.tools.FileObject", true, loader);
                 toUriMethod = regularFileObjectClass.getMethod ("toUri");

@@ -23,7 +23,7 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import org.visage.api.tree.VisageTreeScanner;
 import org.visage.api.tree.VariableTree;
 import org.visage.api.tree.UnitTree;
@@ -48,13 +48,13 @@ public class JFXC4023Test {
     public void testPreserveParens() throws Exception {
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(JavafxcTool.class.getClassLoader());
-            JavafxcTool tool = JavafxcTool.create();
+            Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());
+            VisagecTool tool = VisagecTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
             File file = new File("test/src/org/visage/tools/api/JFXC4023.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file);
-            JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
+            VisagecTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             Iterable<? extends UnitTree> treeList = visageTask.analyze();
             VarDeclTester pf = new VarDeclTester();
             pf.scan(treeList, null);

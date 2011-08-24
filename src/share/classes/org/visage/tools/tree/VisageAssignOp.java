@@ -33,12 +33,12 @@ import com.sun.tools.mjavac.code.Symbol;
  */
 public class VisageAssignOp extends VisageExpression implements CompoundAssignmentTree {
 
-    private JavafxTag opcode;
+    private VisageTag opcode;
     public VisageExpression lhs;
     public VisageExpression rhs;
     public Symbol operator;
 
-    protected VisageAssignOp(JavafxTag opcode, VisageExpression lhs, VisageExpression rhs, Symbol operator) {
+    protected VisageAssignOp(VisageTag opcode, VisageExpression lhs, VisageExpression rhs, Symbol operator) {
         this.opcode = opcode;
         this.lhs = (VisageExpression) lhs;
         this.rhs = (VisageExpression) rhs;
@@ -46,12 +46,12 @@ public class VisageAssignOp extends VisageExpression implements CompoundAssignme
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitAssignop(this);
     }
 
     public VisageKind getJavaFXKind() {
-        return JavafxTreeInfo.tagToKind(getFXTag());
+        return VisageTreeInfo.tagToKind(getFXTag());
     }
 
     public VisageExpression getVariable() {
@@ -72,20 +72,20 @@ public class VisageAssignOp extends VisageExpression implements CompoundAssignme
     }
 
     @Override
-    public JavafxTag getFXTag() {
+    public VisageTag getFXTag() {
         return opcode;
     }
 
-    public JavafxTag getNormalOperatorFXTag() {
+    public VisageTag getNormalOperatorFXTag() {
         switch (opcode) {
             case PLUS_ASG:
-                return JavafxTag.PLUS;
+                return VisageTag.PLUS;
             case MINUS_ASG:
-                return JavafxTag.MINUS;
+                return VisageTag.MINUS;
             case MUL_ASG:
-                return JavafxTag.MUL;
+                return VisageTag.MUL;
             case DIV_ASG:
-                return JavafxTag.DIV;
+                return VisageTag.DIV;
             default:
                 throw new RuntimeException("bad assign op tag: " + opcode);
         }

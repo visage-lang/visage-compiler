@@ -28,7 +28,7 @@ import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.code.Symbol;
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 
 /**
  * In object literal  "Identifier ':' [ 'bind'] expression"
@@ -36,7 +36,7 @@ import org.visage.api.JavafxBindStatus;
 public class VisageObjectLiteralPart extends VisageExpression implements ObjectLiteralPartTree {
     public final Name name;
     private final VisageExpression expr;
-    private final JavafxBindStatus explicitBindStatus;
+    private final VisageBindStatus explicitBindStatus;
     public Symbol sym;
    /*
     * @param selector member name and class name of member
@@ -46,7 +46,7 @@ public class VisageObjectLiteralPart extends VisageExpression implements ObjectL
     protected VisageObjectLiteralPart(
             Name name,
             VisageExpression expr,
-            JavafxBindStatus bindStatus,
+            VisageBindStatus bindStatus,
             Symbol sym) {
         super(bindStatus);
         this.explicitBindStatus = bindStatus;
@@ -55,7 +55,7 @@ public class VisageObjectLiteralPart extends VisageExpression implements ObjectL
         this.sym = sym;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitObjectLiteralPart(this);
     }
 
@@ -67,7 +67,7 @@ public class VisageObjectLiteralPart extends VisageExpression implements ObjectL
         return expr;
     }
 
-    public JavafxBindStatus getExplicitBindStatus() {
+    public VisageBindStatus getExplicitBindStatus() {
         return explicitBindStatus;
     }
 
@@ -76,8 +76,8 @@ public class VisageObjectLiteralPart extends VisageExpression implements ObjectL
     }
     
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.OBJECT_LITERAL_PART;
+    public VisageTag getFXTag() {
+        return VisageTag.OBJECT_LITERAL_PART;
     }
 
     public VisageKind getJavaFXKind() {

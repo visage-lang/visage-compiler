@@ -1,6 +1,6 @@
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import org.visage.api.tree.UnitTree;
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +24,8 @@ public class JFXC1517Test {
     public void testJFXC1517() throws Exception {
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         try {            
-            Thread.currentThread().setContextClassLoader(JavafxcTool.class.getClassLoader());
-            JavafxcTool tool = JavafxcTool.create();
+            Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());
+            VisagecTool tool = VisagecTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
@@ -35,7 +35,7 @@ public class JFXC1517Test {
             
             File file = new File("test/src/org/visage/tools/api/JFXC1517.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
-            JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
+            VisagecTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             List<? extends UnitTree> treeList = (List)visageTask.parse();
             assertTrue("no (or too many) parse tree(s) returned", treeList.size() == 1);
 

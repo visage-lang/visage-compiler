@@ -30,7 +30,7 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ArrayType;
 import com.sun.tools.mjavac.util.List;
 
-import org.visage.tools.code.JavafxSymtab;
+import org.visage.tools.code.VisageSymtab;
 import static com.sun.tools.mjavac.code.TypeTags.*;
 
 
@@ -59,15 +59,15 @@ public class TypeMaker {
         case INT: return PrimitiveType.intType;
         case LONG: return PrimitiveType.longType;
         case FLOAT: 
-            if (env.syms instanceof JavafxSymtab) {
-                if (env.types.isSameType(((JavafxSymtab)env.syms).visage_NumberType, env.syms.floatType)) {
+            if (env.syms instanceof VisageSymtab) {
+                if (env.types.isSameType(((VisageSymtab)env.syms).visage_NumberType, env.syms.floatType)) {
                     return PrimitiveType.numberType;
                 }
             }
             return PrimitiveType.floatType;
         case DOUBLE: 
-            if (env.syms instanceof JavafxSymtab) {
-                if (env.types.isSameType(((JavafxSymtab)env.syms).visage_NumberType, env.syms.doubleType)) {
+            if (env.syms instanceof VisageSymtab) {
+                if (env.types.isSameType(((VisageSymtab)env.syms).visage_NumberType, env.syms.doubleType)) {
                     return PrimitiveType.numberType;
                 }
             }

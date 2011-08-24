@@ -38,7 +38,7 @@ import java.util.List;
 import org.junit.Test;
 import junit.framework.Assert;
 
-public class UserClassTest extends JavafxTestBase {
+public class UserClassTest extends VisageTestBase {
     ReferenceType targetClass;
     ThreadReference mainThread;
 

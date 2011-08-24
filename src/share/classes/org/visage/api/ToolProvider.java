@@ -47,15 +47,15 @@ public class ToolProvider {
      * @return the compiler instance or {@code null} if no compiler
      *         is included as part of the application classpath
      */
-    public static JavafxCompiler getJavafxCompiler() {
+    public static VisageCompiler getJavafxCompiler() {
         try {
             URL[] urls = new URL[] {
-                getPath("org.visage.tools.api.JavafxcTool"),
+                getPath("org.visage.tools.api.VisagecTool"),
                 getPath("com.sun.tools.mjavac.util.Context")
             };
             ClassLoader cl = createPrivilegedClassLoader(urls);
-            Class<?> cls = Class.forName("org.visage.tools.api.JavafxcTool", false, cl);
-            return (JavafxCompiler)cls.newInstance();
+            Class<?> cls = Class.forName("org.visage.tools.api.VisagecTool", false, cl);
+            return (VisageCompiler)cls.newInstance();
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
@@ -84,7 +84,7 @@ public class ToolProvider {
     private static ClassLoader createPrivilegedClassLoader(final URL[] urls) throws PrivilegedActionException {
         return (ClassLoader)AccessController.doPrivileged(new PrivilegedAction() {
             public Object run() {
-                ClassLoader parent = JavafxCompiler.class.getClassLoader();
+                ClassLoader parent = VisageCompiler.class.getClassLoader();
                 return new URLClassLoader(urls, parent);
             }
         });

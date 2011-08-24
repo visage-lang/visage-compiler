@@ -38,7 +38,7 @@ public class VisageParens extends VisageExpression implements ParenthesizedTree 
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitParens(this);
     }
 
@@ -56,7 +56,7 @@ public class VisageParens extends VisageExpression implements ParenthesizedTree 
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.PARENS;
+    public VisageTag getFXTag() {
+        return VisageTag.PARENS;
     }
 }

@@ -40,8 +40,8 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
 
 
-import org.visage.tools.comp.JavafxAttrContext;
-import org.visage.tools.comp.JavafxEnv;
+import org.visage.tools.comp.VisageAttrContext;
+import org.visage.tools.comp.VisageEnv;
 import org.visage.tools.tree.*;
 import static com.sun.tools.mjavac.code.Kinds.*;
 
@@ -572,7 +572,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
         try {
             if (isSynthetic()) return;
             // sometimes synthetic classes are not marked synthetic
-            if (!JavafxdocTool.isValidClassName(tsym.name.toString())) return;
+            if (!VisagedocTool.isValidClassName(tsym.name.toString())) return;
             if (filtered && !env.shouldDocument(tsym)) return;
             if (l.contains(this)) return;
             l.append(this);
@@ -698,7 +698,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
 
             //### This information is available only for source classes.
 
-            JavafxEnv<JavafxAttrContext> compenv = env.enter.getEnv(tsym);
+            VisageEnv<VisageAttrContext> compenv = env.enter.getEnv(tsym);
             if (compenv == null) return null;
 
             Scope s = compenv.toplevel.namedImportScope;
@@ -994,14 +994,14 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
 
         ListBuffer<ClassDocImpl> importedClasses = new ListBuffer<ClassDocImpl>();
 
-        JavafxEnv<JavafxAttrContext> compenv = env.enter.getEnv(tsym);
+        VisageEnv<VisageAttrContext> compenv = env.enter.getEnv(tsym);
         if (compenv == null) return new ClassDocImpl[0];
 
         Name asterisk = tsym.name.table.asterisk;
         for (VisageTree t : compenv.toplevel.defs) {
-            if (t.getFXTag() == JavafxTag.IMPORT) {
+            if (t.getFXTag() == VisageTag.IMPORT) {
                 VisageTree imp = ((VisageImport) t).qualid;
-                if ((JavafxTreeInfo.name(imp) != asterisk) &&
+                if ((VisageTreeInfo.name(imp) != asterisk) &&
                         (imp.type.tsym.kind & Kinds.TYP) != 0) {
                     importedClasses.append(
                             env.getClassDoc((ClassSymbol)imp.type.tsym));
@@ -1036,13 +1036,13 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
         Name.Table names = tsym.name.table;
         importedPackages.append(env.getPackageDoc(env.reader.enterPackage(names.java_lang)));
 
-        JavafxEnv<JavafxAttrContext> compenv = env.enter.getEnv(tsym);
+        VisageEnv<VisageAttrContext> compenv = env.enter.getEnv(tsym);
         if (compenv == null) return new PackageDocImpl[0];
 
         for (VisageTree t : compenv.toplevel.defs) {
-            if (t.getFXTag() == JavafxTag.IMPORT) {
+            if (t.getFXTag() == VisageTag.IMPORT) {
                 VisageTree imp = ((VisageImport) t).qualid;
-                if (JavafxTreeInfo.name(imp) == names.asterisk) {
+                if (VisageTreeInfo.name(imp) == names.asterisk) {
                     VisageSelect sel = (VisageSelect)imp;
                     Symbol s = sel.selected.type.tsym;
                     PackageDocImpl pdoc = env.getPackageDoc(s.packge());

@@ -1,6 +1,6 @@
 /*
  * Sub test for original
- * JFXC-3927 : SWAT failure : JawbreakerGame compiler crash -- JavafxClassSymbol cannot be cast to JavafxVarSymbol
+ * JFXC-3927 : SWAT failure : JawbreakerGame compiler crash -- VisageClassSymbol cannot be cast to VisageVarSymbol
  *
  * @subtest
  */

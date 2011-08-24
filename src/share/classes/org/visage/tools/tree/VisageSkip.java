@@ -35,7 +35,7 @@ public class VisageSkip extends VisageExpression implements EmptyStatementTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitSkip(this);
     }
 
@@ -50,8 +50,8 @@ public class VisageSkip extends VisageExpression implements EmptyStatementTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.SKIP;
+    public VisageTag getFXTag() {
+        return VisageTag.SKIP;
     }
 }
 

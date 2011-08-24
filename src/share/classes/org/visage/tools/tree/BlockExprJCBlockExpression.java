@@ -36,7 +36,7 @@ import com.sun.tools.mjavac.util.Position;
 import org.visage.tools.comp.BlockExprAttr;
 import org.visage.tools.comp.BlockExprEnter;
 import org.visage.tools.comp.BlockExprMemberEnter;
-import org.visage.tools.comp.JavafxPrepForBackEnd;
+import org.visage.tools.comp.VisagePrepForBackEnd;
 
 /**
  *
@@ -70,8 +70,8 @@ public class BlockExprJCBlockExpression extends JCExpression {
             ((BlockExprEnter) v).visitBlockExpression(this);
         } else if (v instanceof BlockExprMemberEnter) {
             ((BlockExprMemberEnter) v).visitBlockExpression(this);
-        } else if (v instanceof JavafxPrepForBackEnd) {
-            ((JavafxPrepForBackEnd) v).visitBlockExpression(this);
+        } else if (v instanceof VisagePrepForBackEnd) {
+            ((VisagePrepForBackEnd) v).visitBlockExpression(this);
         } else if (v instanceof TreeScanner) {
             ((TreeScanner) v).scan(stats);
             ((TreeScanner) v).scan(value);

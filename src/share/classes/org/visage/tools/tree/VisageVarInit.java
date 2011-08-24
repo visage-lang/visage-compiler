@@ -27,7 +27,7 @@ import org.visage.api.tree.*;
 import org.visage.api.tree.Tree.VisageKind;
 
 import com.sun.tools.mjavac.util.Name;
-import org.visage.tools.code.JavafxVarSymbol;
+import org.visage.tools.code.VisageVarSymbol;
 import com.sun.tools.mjavac.util.ListBuffer;
 import java.util.List;
 
@@ -60,7 +60,7 @@ public class VisageVarInit extends VisageExpression implements VariableTree {
         var.setVarInit(this);
     }
 
-    public JavafxVarSymbol getSymbol() {
+    public VisageVarSymbol getSymbol() {
         return var.getSymbol();
     }
 
@@ -77,7 +77,7 @@ public class VisageVarInit extends VisageExpression implements VariableTree {
         return var.getInitializer();
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitVarInit(this);
     }
 
@@ -117,8 +117,8 @@ public class VisageVarInit extends VisageExpression implements VariableTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.VAR_SCRIPT_INIT;
+    public VisageTag getFXTag() {
+        return VisageTag.VAR_SCRIPT_INIT;
     }
     
     public VisageModifiers getModifiers() {

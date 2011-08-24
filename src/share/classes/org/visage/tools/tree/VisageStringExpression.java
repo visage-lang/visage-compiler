@@ -41,7 +41,7 @@ public class VisageStringExpression extends VisageExpression implements StringEx
         this.translationKey = translationKey;
     }
     
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitStringExpression(this);
     }
 
@@ -58,8 +58,8 @@ public class VisageStringExpression extends VisageExpression implements StringEx
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.STRING_EXPRESSION;
+    public VisageTag getFXTag() {
+        return VisageTag.STRING_EXPRESSION;
     }
 
     public VisageKind getJavaFXKind() {

@@ -86,7 +86,7 @@ public class VisageScript extends VisageTree implements UnitTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitScript(this);
     }
 
@@ -103,7 +103,7 @@ public class VisageScript extends VisageTree implements UnitTree {
                 // Protect againtst invalid trees
                 //
                 if (tree == null) break;
-                if (tree.getFXTag() == JavafxTag.IMPORT) {
+                if (tree.getFXTag() == VisageTag.IMPORT) {
                     imports.append((VisageImport) tree);
                 } else {
                     break;
@@ -131,7 +131,7 @@ public class VisageScript extends VisageTree implements UnitTree {
         if (defs != null)
         {
             for (; !typeDefs.isEmpty(); typeDefs = typeDefs.tail) {
-                if (typeDefs.head.getFXTag() != JavafxTag.IMPORT) {
+                if (typeDefs.head.getFXTag() != VisageTag.IMPORT) {
                     break;
                 }
             }
@@ -145,7 +145,7 @@ public class VisageScript extends VisageTree implements UnitTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.TOPLEVEL;
+    public VisageTag getFXTag() {
+        return VisageTag.TOPLEVEL;
     }
 }

@@ -41,7 +41,7 @@ public class VisageThrow extends VisageExpression implements ThrowTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitThrow(this);
     }
 
@@ -59,8 +59,8 @@ public class VisageThrow extends VisageExpression implements ThrowTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.THROW;
+    public VisageTag getFXTag() {
+        return VisageTag.THROW;
     }
 }
 

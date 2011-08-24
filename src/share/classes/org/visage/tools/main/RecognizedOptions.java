@@ -26,9 +26,9 @@ package org.visage.tools.main;
 import com.sun.tools.mjavac.code.Source;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.jvm.Target;
-import org.visage.tools.main.JavafxOption.HiddenOption;
-import org.visage.tools.main.JavafxOption.Option;
-import org.visage.tools.main.JavafxOption.XOption;
+import org.visage.tools.main.VisageOption.HiddenOption;
+import org.visage.tools.main.VisageOption.Option;
+import org.visage.tools.main.VisageOption.XOption;
 import org.visage.tools.util.MsgSym;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
@@ -317,8 +317,8 @@ public class RecognizedOptions {
 		}
 	    },
 
-	new JavafxOption.VisageOption(CLASSPATH,               MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH),
-	new JavafxOption.VisageOption(CP,                      MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH) {
+	new VisageOption.VisageOption(CLASSPATH,               MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH),
+	new VisageOption.VisageOption(CP,                      MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH) {
         @Override
 	    public boolean process(Options options, String option, String arg) {
 		return super.process(options, "-classpath", arg);
@@ -415,7 +415,7 @@ public class RecognizedOptions {
 		return super.process(options, option, operand);
 	    }
 	},
-	new JavafxOption.VisageOption(PLATFORM,	MsgSym.MESSAGE_VISAGE_OPT_ARG_NAME,	MsgSym.MESSAGE_VISAGE_OPT_PLATFORM) {
+	new VisageOption.VisageOption(PLATFORM,	MsgSym.MESSAGE_VISAGE_OPT_ARG_NAME,	MsgSym.MESSAGE_VISAGE_OPT_PLATFORM) {
 	},
 	new Option(VERSION,					MsgSym.MESSAGE_OPT_VERSION) {
         @Override
@@ -580,7 +580,7 @@ public class RecognizedOptions {
 	    }
 	},
 
-        // Javafxc-specific options
+        // Visagec-specific options
         new HiddenOption(DUMPJAVA),
         new HiddenOption(DUMPVISAGE),
         

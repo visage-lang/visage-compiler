@@ -49,7 +49,7 @@
         <mkdir dir="${bm.builddir}"/>
         <mkdir dir="${bm.outdir}"/>
         <taskdef name="visagec"
-            classname="org.visage.tools.ant.JavaFxAntTask">
+            classname="org.visage.tools.ant.VisageAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
                 <pathelement location="${visagec.jar}"/>

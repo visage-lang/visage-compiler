@@ -22,7 +22,7 @@
  */
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import org.visage.api.tree.IdentifierTree;
 
 import org.visage.api.tree.VisageTreePathScanner;
@@ -30,14 +30,14 @@ import org.visage.api.tree.SourcePositions;
 import org.visage.api.tree.Tree;
 import org.visage.api.tree.UnitTree;
 import org.visage.api.tree.VariableTree;
-import org.visage.tools.comp.JavafxEnter;
-import org.visage.tools.comp.JavafxEnv;
+import org.visage.tools.comp.VisageEnter;
+import org.visage.tools.comp.VisageEnv;
 import org.visage.tools.tree.VisageClassDeclaration;
 import org.visage.tools.tree.VisageFunctionDefinition;
 import org.visage.tools.tree.VisageScript;
 import org.visage.tools.tree.VisageTree;
 import org.visage.tools.tree.VisageVar;
-import org.visage.tools.tree.JavafxTreeScanner;
+import org.visage.tools.tree.VisageTreeScanner;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JavacFileManager;
@@ -65,13 +65,13 @@ public class JFXC4258Test {
     private String visageLibs = "dist/lib/shared";
     private String visageDeskLibs = "dist/lib/desktop";
     private String inputDir = "test/src/org/visage/tools/api";
-    private JavafxcTrees trees;
+    private VisagecTrees trees;
     private UnitTree ut;
     private SourcePositions sp;
     private Context ctx;
     private Elements elements;
 
-    private static class DeclScanner extends JavafxTreeScanner {
+    private static class DeclScanner extends VisageTreeScanner {
         Symbol sym;
 
         public DeclScanner(Symbol sym) {
@@ -124,8 +124,8 @@ public class JFXC4258Test {
         DeclScanner ds = new DeclScanner((Symbol)e);
 
         Symbol sym = (Symbol) e;
-        JavafxEnter enter = JavafxEnter.instance(ctx);
-        JavafxEnv env = enter.getEnv(sym.enclClass());
+        VisageEnter enter = VisageEnter.instance(ctx);
+        VisageEnv env = enter.getEnv(sym.enclClass());
         if (env == null) {
             return null;
         }
@@ -140,23 +140,23 @@ public class JFXC4258Test {
     }
 
     private void doSetup() throws IOException {
-        JavafxcTool tool = JavafxcTool.create();
+        VisagecTool tool = VisagecTool.create();
         JavacFileManager manager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
 
         ArrayList<JavaFileObject> filesToCompile = new ArrayList<JavaFileObject>();
         filesToCompile.add(manager.getFileForInput(inputDir + DIR + "GetScope.visage"));
 
-        JavafxcTask task = tool.getTask(null, null, null, Arrays.asList("-XDdisableStringFolding", "-XDpreserveTrees", "-Xjcov", "-cp",
+        VisagecTask task = tool.getTask(null, null, null, Arrays.asList("-XDdisableStringFolding", "-XDpreserveTrees", "-Xjcov", "-cp",
                 visageLibs + DIR + "visagec.jar" + SEP + visageLibs + DIR + "visagert.jar" + SEP + visageDeskLibs + DIR + "visage-ui-common.jar" + SEP + inputDir), filesToCompile);
 
         task.parse();
         Iterable analyzeUnits = task.analyze();
-        trees = JavafxcTrees.instance(task);
+        trees = VisagecTrees.instance(task);
 
         ut = (UnitTree) analyzeUnits.iterator().next();
         sp = trees.getSourcePositions();
-        ctx = ((JavafxcTaskImpl) task).getContext();
-        elements = ((JavafxcTaskImpl) task).getElements();
+        ctx = ((VisagecTaskImpl) task).getContext();
+        elements = ((VisagecTaskImpl) task).getElements();
     }
 
     @After

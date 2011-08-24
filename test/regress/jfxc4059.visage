@@ -1,6 +1,6 @@
 /*
  * Regression test
- * JFXC-4059 : JavaFxScriptCompiler.compile returns null.
+ * JFXC-4059 : VisageScriptCompiler.compile returns null.
  *
  * @test
  * @run

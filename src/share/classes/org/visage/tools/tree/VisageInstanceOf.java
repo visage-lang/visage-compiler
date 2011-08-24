@@ -40,7 +40,7 @@ public class VisageInstanceOf extends VisageExpression implements InstanceOfTree
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitInstanceOf(this);
     }
 
@@ -62,7 +62,7 @@ public class VisageInstanceOf extends VisageExpression implements InstanceOfTree
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.TYPETEST;
+    public VisageTag getFXTag() {
+        return VisageTag.TYPETEST;
     }
 }

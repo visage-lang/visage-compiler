@@ -251,9 +251,9 @@ public class VisageWrapper {
                     (fldName.indexOf("$helper$") == 0) ||
                     (fldName.indexOf("$script$") == 0) ||
                     (fldName.indexOf("$ol$")    != -1)) {
-                    // $ol$ means it is a shredded name from a bound obj lit (see JavafxLower.java)
-                    // _$ means it is a synth var (see JavafxPreTranslationSupport.java)
-                    // $helper$ is in JavafxDefs.java
+                    // $ol$ means it is a shredded name from a bound obj lit (see VisageLower.java)
+                    // _$ means it is a synth var (see VisagePreTranslationSupport.java)
+                    // $helper$ is in VisageDefs.java
                     continue;
                 }
             }

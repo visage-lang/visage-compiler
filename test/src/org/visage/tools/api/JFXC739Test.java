@@ -23,12 +23,12 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
-import org.visage.tools.api.JavafxcTool;
+import org.visage.api.VisagecTask;
+import org.visage.tools.api.VisagecTool;
 import org.visage.api.tree.UnitTree;
 import org.visage.tools.tree.VisageClassDeclaration;
 import org.visage.tools.tree.VisageTree;
-import org.visage.tools.tree.JavafxTreeScanner;
+import org.visage.tools.tree.VisageTreeScanner;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
@@ -48,20 +48,20 @@ public class JFXC739Test {
     public void testJFXClassDeclarationPos() throws Exception {
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         try {            
-            Thread.currentThread().setContextClassLoader(JavafxcTool.class.getClassLoader());
-            JavafxcTool tool = JavafxcTool.create();
+            Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());
+            VisagecTool tool = VisagecTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
             File file = new File("test/src/org/visage/tools/api/Point.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
-            JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
+            VisagecTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             //Iterable<? extends CompilationUnitTree> treeList = visageTask.parse();
             Iterator<? extends UnitTree> treeList = visageTask.analyze().iterator();
             assertTrue(treeList.hasNext());
             
             // scan classes
             final int[] classes = new int[1];
-            new JavafxTreeScanner() {
+            new VisageTreeScanner() {
                 @Override
                 public void visitClassDeclaration(VisageClassDeclaration that) {
                     super.visitClassDeclaration(that);

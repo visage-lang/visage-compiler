@@ -36,7 +36,7 @@ import java.util.List;
 import org.junit.Test;
 import junit.framework.Assert;
 
-public class FilterMethodsTest extends JavafxTestBase {
+public class FilterMethodsTest extends VisageTestBase {
     ReferenceType targetClass;
     ThreadReference mainThread;
 

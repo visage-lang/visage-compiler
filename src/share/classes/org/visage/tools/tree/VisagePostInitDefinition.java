@@ -47,13 +47,13 @@ public class VisagePostInitDefinition extends VisageTree implements InitDefiniti
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitPostInitDefinition(this);
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.POSTINIT_DEF;
+    public VisageTag getFXTag() {
+        return VisageTag.POSTINIT_DEF;
     }
 
     public VisageKind getJavaFXKind() {

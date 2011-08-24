@@ -23,11 +23,11 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.JavafxTaskEvent;
-import org.visage.api.JavafxTaskListener;
-import org.visage.api.JavafxcTask;
-import org.visage.tools.api.JavafxcTrees;
-import org.visage.tools.api.JavafxcTool;
+import org.visage.api.VisageTaskEvent;
+import org.visage.api.VisageTaskListener;
+import org.visage.api.VisagecTask;
+import org.visage.tools.api.VisagecTrees;
+import org.visage.tools.api.VisagecTool;
 import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.ClassDeclarationTree;
 import org.visage.api.tree.VisageTreePath;
@@ -45,7 +45,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Tests that JavafxTaskEvent doesn't cause NPE after analyze phase.
+ * Tests that VisageTaskEvent doesn't cause NPE after analyze phase.
  * 
  * @author Tom Ball
  */
@@ -59,20 +59,20 @@ public class JFXC1558Test {
         finishEvents = 0;
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         try {            
-            Thread.currentThread().setContextClassLoader(JavafxcTool.class.getClassLoader());
-            JavafxcTool tool = JavafxcTool.create();
+            Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());
+            VisagecTool tool = VisagecTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
             File file = new File("test/src/org/visage/tools/api/Point.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
-            JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
+            VisagecTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             
-            visageTask.setTaskListener(new JavafxTaskListener() {
-                public void started(JavafxTaskEvent e) {
+            visageTask.setTaskListener(new VisageTaskListener() {
+                public void started(VisageTaskEvent e) {
                     startEvents++;
                 }
 
-                public void finished(JavafxTaskEvent e) {
+                public void finished(VisageTaskEvent e) {
                     finishEvents++;
                 }
             });

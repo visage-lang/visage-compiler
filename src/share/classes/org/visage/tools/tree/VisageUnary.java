@@ -35,22 +35,22 @@ import com.sun.tools.mjavac.code.Symbol;
  */
 public class VisageUnary extends VisageExpression implements UnaryTree, Tree {
 
-    private JavafxTag opcode;
+    private VisageTag opcode;
     public VisageExpression arg;
     public Symbol operator;
 
-    protected VisageUnary(JavafxTag opcode, VisageExpression arg) {
+    protected VisageUnary(VisageTag opcode, VisageExpression arg) {
         this.opcode = opcode;
         this.arg = arg;
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitUnary(this);
     }
 
     @Override
-    public JavafxTag getFXTag() {
+    public VisageTag getFXTag() {
         return opcode;
     }
     
@@ -74,7 +74,7 @@ public class VisageUnary extends VisageExpression implements UnaryTree, Tree {
             case REVERSE:
                 return VisageKind.REVERSE;
             default:
-                return JavafxTreeInfo.tagToKind(getFXTag());
+                return VisageTreeInfo.tagToKind(getFXTag());
         }
     }
 

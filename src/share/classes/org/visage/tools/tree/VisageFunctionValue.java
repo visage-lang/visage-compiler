@@ -71,13 +71,13 @@ public class VisageFunctionValue extends VisageExpression implements FunctionVal
         return bodyExpression;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitFunctionValue(this);
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.FUNCTIONEXPRESSION;
+    public VisageTag getFXTag() {
+        return VisageTag.FUNCTIONEXPRESSION;
     }
 
     public VisageKind getJavaFXKind() {

@@ -40,7 +40,7 @@ import junit.framework.Assert;
  *
  * @author sundar
  */
-public class SequenceTest extends JavafxTestBase {
+public class SequenceTest extends VisageTestBase {
     private static String targetClassName = "org.visage.jdi.test.target.SequenceTarget";
 
     public SequenceTest() {

@@ -23,7 +23,7 @@
 
 package org.visage.tools.script;
 
-import org.visage.tools.util.JavafxFileManager;
+import org.visage.tools.util.VisageFileManager;
 import java.io.*;
 import java.nio.CharBuffer;
 import java.util.*;
@@ -184,7 +184,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
             super(toURI(name), Kind.SOURCE);
             this.code = code;
 	    binaryName = name;
-            isFXSourceFile = name.endsWith(JavafxFileManager.VISAGE_SOURCE_SUFFIX);
+            isFXSourceFile = name.endsWith(VisageFileManager.VISAGE_SOURCE_SUFFIX);
         }
         
         @Override

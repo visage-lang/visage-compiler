@@ -26,7 +26,7 @@ package org.visage.tools.api;
 import org.visage.api.tree.MemberSelectTree;
 import org.visage.api.tree.VariableTree;
 import org.visage.tools.api.*;
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import org.visage.api.tree.VisageTreePath;
 import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.Tree;
@@ -37,9 +37,9 @@ import org.visage.api.tree.UnitTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
-import org.visage.tools.comp.JavafxAttrContext;
-import org.visage.tools.comp.JavafxEnv;
-import org.visage.tools.comp.JavafxResolve;
+import org.visage.tools.comp.VisageAttrContext;
+import org.visage.tools.comp.VisageEnv;
+import org.visage.tools.comp.VisageResolve;
 import org.visage.tools.tree.VisageClassDeclaration;
 import org.visage.tools.tree.VisageVar;
 import java.io.File;
@@ -66,7 +66,7 @@ import static org.junit.Assert.*;
 public class JFXC2324Test {
     private static final String testSrc = System.getProperty("test.src.dir", "test/sandbox");
     private static final String testClasses = System.getProperty("build.test.classes.dir");
-    private static JavafxcTask task;
+    private static VisagecTask task;
     private VariableTree node;
     private VariableTree a;
 
@@ -77,7 +77,7 @@ public class JFXC2324Test {
      */
     @Test
     public void analyzeTest() throws Exception {
-        JavafxcTool instance = new JavafxcTool();
+        VisagecTool instance = new VisagecTool();
         MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
         List<String> options = 

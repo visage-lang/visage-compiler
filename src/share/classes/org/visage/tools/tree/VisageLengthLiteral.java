@@ -50,12 +50,12 @@ public class VisageLengthLiteral extends VisageExpression implements LengthLiter
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.LENGTH_LITERAL;
+    public VisageTag getFXTag() {
+        return VisageTag.LENGTH_LITERAL;
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitLengthLiteral(this);
     }
 

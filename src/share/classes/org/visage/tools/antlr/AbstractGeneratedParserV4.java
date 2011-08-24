@@ -39,8 +39,8 @@ import org.visage.tools.tree.VisageTree;
 import org.visage.tools.tree.VisageBlock;
 import org.visage.tools.tree.VisageErroneous;
 import org.visage.tools.tree.VisageType;
-import org.visage.tools.tree.JavafxTreeInfo;
-import org.visage.tools.tree.JavafxTreeMaker;
+import org.visage.tools.tree.VisageTreeInfo;
+import org.visage.tools.tree.VisageTreeMaker;
 
 import org.visage.tools.util.MsgSym;
 import javax.tools.DiagnosticListener;
@@ -78,7 +78,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     
     /** The factory to be used for abstract syntax tree construction.
      */
-    protected JavafxTreeMaker  F;
+    protected VisageTreeMaker  F;
     
     /** The log to be used for error diagnostics.
      */
@@ -125,7 +125,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     /**
      * 
      */
-    private JavafxTreeInfo treeInfo;
+    private VisageTreeInfo treeInfo;
     
     /** 
      * The name table.
@@ -382,17 +382,17 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      */
     protected void initialize(Context context) {
        
-        this.F          = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
+        this.F          = (VisageTreeMaker)VisageTreeMaker.instance(context);
         this.log        = Log.instance(context);
         this.names      = Name.Table.instance(context);
         this.source     = Source.instance(context);
         Options options = Options.instance(context);
         this.genEndPos  =    options.get("-Xjcov") != null 
                           || context.get(DiagnosticListener.class) != null 
-                          || Boolean.getBoolean("JavafxModuleBuilder.debugBadPositions");
+                          || Boolean.getBoolean("VisageModuleBuilder.debugBadPositions");
 
         this.preserveTrees = options.get("preserveTrees") != null;
-        this.treeInfo = (JavafxTreeInfo) JavafxTreeInfo.instance(context);
+        this.treeInfo = (VisageTreeInfo) VisageTreeInfo.instance(context);
         
     }
     

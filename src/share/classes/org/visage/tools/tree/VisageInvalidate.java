@@ -38,7 +38,7 @@ public class VisageInvalidate extends VisageExpression implements VariableInvali
         this.var = var;
     }
 
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitInvalidate(this);
     }
 
@@ -47,8 +47,8 @@ public class VisageInvalidate extends VisageExpression implements VariableInvali
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.INVALIDATE;
+    public VisageTag getFXTag() {
+        return VisageTag.INVALIDATE;
     }
 
     public VisageKind getJavaFXKind() {

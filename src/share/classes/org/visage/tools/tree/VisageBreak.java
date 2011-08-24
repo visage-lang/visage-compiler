@@ -43,7 +43,7 @@ public class VisageBreak extends VisageExpression implements BreakTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitBreak(this);
     }
 
@@ -61,7 +61,7 @@ public class VisageBreak extends VisageExpression implements BreakTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.BREAK;
+    public VisageTag getFXTag() {
+        return VisageTag.BREAK;
     }
 }

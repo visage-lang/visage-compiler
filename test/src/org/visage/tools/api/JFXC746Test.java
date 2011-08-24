@@ -23,9 +23,9 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
-import org.visage.tools.api.JavafxcTool;
-import org.visage.tools.api.JavafxcTrees;
+import org.visage.api.VisagecTask;
+import org.visage.tools.api.VisagecTool;
+import org.visage.tools.api.VisagecTrees;
 import org.visage.api.tree.UnitTree;
 import org.visage.api.tree.ExpressionTree;
 import org.visage.api.tree.Tree;
@@ -54,17 +54,17 @@ public class JFXC746Test {
              * version of javac this compiler requires takes precedence
              * over the JDK's version.
              */
-            Thread.currentThread().setContextClassLoader(JavafxcTool.class.getClassLoader());
-            JavafxcTool tool = JavafxcTool.create();
+            Thread.currentThread().setContextClassLoader(VisagecTool.class.getClassLoader());
+            VisagecTool tool = VisagecTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
             File file = new File("test/src/org/visage/tools/api/Test.visage");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file);
-            JavafxcTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
+            VisagecTask visageTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             List<? extends UnitTree> treeList = (List)visageTask.parse();
             assertTrue("AST list size should be 1!", treeList.size() == 1);
 
-            SourcePositions sp = JavafxcTrees.instance(visageTask).getSourcePositions();
+            SourcePositions sp = VisagecTrees.instance(visageTask).getSourcePositions();
             UnitTree tree = treeList.iterator().next();
             ExpressionTree pkg = tree.getPackageName();
             long start = sp.getStartPosition(tree, pkg);

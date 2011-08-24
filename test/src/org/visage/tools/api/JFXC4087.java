@@ -22,7 +22,7 @@
  */
 package org.visage.tools.api;
 
-import org.visage.api.JavafxcTask;
+import org.visage.api.VisagecTask;
 import org.visage.api.tree.ForExpressionInClauseTree;
 import org.visage.api.tree.IdentifierTree;
 import org.visage.api.tree.VisageTreePath;
@@ -75,7 +75,7 @@ public class JFXC4087 {
     private String visageLibs = "dist/lib/shared";
     private String visageDeskLibs = "dist/lib/desktop";
     private String inputDir = "test/sandbox/org/visage/tools/api";
-    private JavafxcTrees trees;
+    private VisagecTrees trees;
     private UnitTree ut;
     private SourcePositions sp;
     private Context ctx;
@@ -87,23 +87,23 @@ public class JFXC4087 {
     }
 
     private void doSetup() throws IOException {
-        JavafxcTool tool = JavafxcTool.create();
+        VisagecTool tool = VisagecTool.create();
         JavacFileManager manager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
 
         ArrayList<JavaFileObject> filesToCompile = new ArrayList<JavaFileObject>();
         filesToCompile.add(manager.getFileForInput(inputDir + DIR + "JFXC4087.visage"));
 
-        JavafxcTask task = tool.getTask(null, null, null, Arrays.asList("-XDdisableStringFolding", "-XDpreserveTrees", "-Xjcov", "-cp",
+        VisagecTask task = tool.getTask(null, null, null, Arrays.asList("-XDdisableStringFolding", "-XDpreserveTrees", "-Xjcov", "-cp",
                 visageLibs + DIR + "visagec.jar" + SEP + visageLibs + DIR + "visagert.jar" + SEP + visageDeskLibs + DIR + "visage-ui-common.jar" + SEP + inputDir), filesToCompile);
 
         task.parse();
         Iterable analyzeUnits = task.analyze();
-        trees = JavafxcTrees.instance(task);
+        trees = VisagecTrees.instance(task);
 
         ut = (UnitTree) analyzeUnits.iterator().next();
         sp = trees.getSourcePositions();
-        ctx = ((JavafxcTaskImpl) task).getContext();
-        elements = ((JavafxcTaskImpl) task).getElements();
+        ctx = ((VisagecTaskImpl) task).getContext();
+        elements = ((VisagecTaskImpl) task).getElements();
     }
 
     @After

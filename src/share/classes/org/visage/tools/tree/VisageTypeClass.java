@@ -53,13 +53,13 @@ public class VisageTypeClass extends VisageType implements TypeClassTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) { v.visitTypeClass(this); }
+    public void accept(VisageVisitor v) { v.visitTypeClass(this); }
     
     public VisageExpression getClassName() { return className; }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.TYPECLASS;
+    public VisageTag getFXTag() {
+        return VisageTag.TYPECLASS;
     }
 
     @Override

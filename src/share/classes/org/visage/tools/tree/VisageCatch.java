@@ -43,7 +43,7 @@ public class VisageCatch extends VisageTree implements CatchTree {
     }
 
     @Override
-    public void accept(JavafxVisitor v) {
+    public void accept(VisageVisitor v) {
         v.visitCatch(this);
     }
 
@@ -65,7 +65,7 @@ public class VisageCatch extends VisageTree implements CatchTree {
     }
 
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.CATCH;
+    public VisageTag getFXTag() {
+        return VisageTag.CATCH;
     }
 }

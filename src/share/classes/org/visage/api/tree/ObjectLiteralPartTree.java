@@ -23,7 +23,7 @@
 
 package org.visage.api.tree;
 
-import org.visage.api.JavafxBindStatus;
+import org.visage.api.VisageBindStatus;
 import javax.lang.model.element.Name;
 
 /**
@@ -41,7 +41,7 @@ import javax.lang.model.element.Name;
 public interface ObjectLiteralPartTree extends ExpressionTree {
     Name getName();
     ExpressionTree getExpression();
-    JavafxBindStatus getBindStatus();
+    VisageBindStatus getBindStatus();
     boolean isBound();
     boolean isUnidiBind();
     boolean isBidiBind();
