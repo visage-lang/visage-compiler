@@ -3,15 +3,15 @@
  * The code is expected to compile and run successfully. Warnings
  * are not checked.
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 /* --------------------------------------------------------------
  *            This block could live in a common visage file
- *            if (at)compilefirst worked with (at)test/fxunit
+ *            if (at)compilefirst worked with (at)test/visageunit
  * -------------------------------------------------------------- */
 public def bb : Byte = 127;
 public def cc : Character = 65535;

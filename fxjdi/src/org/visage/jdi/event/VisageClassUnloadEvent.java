@@ -31,8 +31,8 @@ import com.sun.jdi.event.ClassUnloadEvent;
  * @author sundar
  */
 public class VisageClassUnloadEvent extends VisageEvent implements ClassUnloadEvent {
-    public VisageClassUnloadEvent(VisageVirtualMachine fxvm, ClassUnloadEvent underlying) {
-        super(fxvm, underlying);
+    public VisageClassUnloadEvent(VisageVirtualMachine visagevm, ClassUnloadEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public String className() {

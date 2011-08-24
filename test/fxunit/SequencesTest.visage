@@ -1,5 +1,5 @@
 /*
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
 
@@ -48,7 +48,7 @@ public class DummyComparator extends Comparator {
     }
 }
 
-public class SequencesTest extends visage.fxunit.VisageTestCase {
+public class SequencesTest extends visage.visageunit.VisageTestCase {
     
     // TODO: VSGC-833 Simplify singleInteger, singleElement, and assertEquals
     // TODO: VSGC-869 Simplify try-catch blocks below after resolve

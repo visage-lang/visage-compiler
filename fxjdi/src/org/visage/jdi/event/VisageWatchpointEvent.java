@@ -35,8 +35,8 @@ import com.sun.jdi.event.WatchpointEvent;
  * @author sundar
  */
 public class VisageWatchpointEvent extends VisageLocatableEvent implements WatchpointEvent {
-    public VisageWatchpointEvent(VisageVirtualMachine fxvm, WatchpointEvent underlying) {
-        super(fxvm, underlying);
+    public VisageWatchpointEvent(VisageVirtualMachine visagevm, WatchpointEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageField field() {

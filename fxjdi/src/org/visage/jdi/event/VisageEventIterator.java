@@ -31,11 +31,11 @@ import com.sun.jdi.event.EventIterator;
  * @author sundar
  */
 public class VisageEventIterator implements EventIterator {
-    private final VisageVirtualMachine fxvm;
+    private final VisageVirtualMachine visagevm;
     private final EventIterator underlying;
 
-    public VisageEventIterator(VisageVirtualMachine fxvm, EventIterator underlying) {
-        this.fxvm = fxvm;
+    public VisageEventIterator(VisageVirtualMachine visagevm, EventIterator underlying) {
+        this.visagevm = visagevm;
         this.underlying = underlying;
     }
 
@@ -74,14 +74,14 @@ public class VisageEventIterator implements EventIterator {
     }
 
     protected VisageVirtualMachine virtualMachine() {
-        return fxvm;
+        return visagevm;
     }
 
     protected EventIterator underlying() {
         return underlying;
     }
 
-    public static VisageEventIterator wrap(VisageVirtualMachine fxvm, EventIterator evtItr) {
-        return (evtItr == null)? null : new VisageEventIterator(fxvm, evtItr);
+    public static VisageEventIterator wrap(VisageVirtualMachine visagevm, EventIterator evtItr) {
+        return (evtItr == null)? null : new VisageEventIterator(visagevm, evtItr);
     }
 }

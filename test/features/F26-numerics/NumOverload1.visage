@@ -1,10 +1,10 @@
 /*
  * Test method overloading with numeric parameters
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
-import visage.fxunit.*;
+import visage.visageunit.*;
 import visage.lang.Visage;
 
 public class NumOverload1 extends VisageTestCase {

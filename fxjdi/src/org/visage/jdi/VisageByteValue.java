@@ -30,8 +30,8 @@ import com.sun.jdi.ByteValue;
  * @author sundar
  */
 public class VisageByteValue extends VisagePrimitiveValue implements ByteValue {
-    public VisageByteValue(VisageVirtualMachine fxvm, ByteValue underlying) {
-        super(fxvm, underlying);
+    public VisageByteValue(VisageVirtualMachine visagevm, ByteValue underlying) {
+        super(visagevm, underlying);
     }
 
     public byte value() {

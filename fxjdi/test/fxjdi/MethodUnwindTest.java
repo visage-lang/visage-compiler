@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -61,7 +61,7 @@ public class MethodUnwindTest extends JdbBase {
             stop("in Unwind:7");
             stop("in Unwind:2");
             stop("in Unwind:3");
-            fxrun();
+            visagerun();
             resumeToBreakpoint();
             list();
 

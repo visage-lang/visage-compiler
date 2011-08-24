@@ -1,10 +1,10 @@
 /*
  * Test for 'this' keyword in mixin function bodies.
  *
- * @test/fxunit
+ * @test/visageunit
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 /*
  * Use 'this' to access the variable declared in the same mixin

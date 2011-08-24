@@ -1,7 +1,7 @@
 /**
  * regression test:  abstract functions and abstract classes
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
 

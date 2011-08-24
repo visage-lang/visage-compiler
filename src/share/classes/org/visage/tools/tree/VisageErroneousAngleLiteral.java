@@ -55,7 +55,7 @@ public class VisageErroneousAngleLiteral extends VisageAngleLiteral  {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ERRONEOUS;
     }
 

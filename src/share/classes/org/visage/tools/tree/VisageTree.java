@@ -90,12 +90,12 @@ public abstract class VisageTree extends JCTree implements SyntheticTree, Tree, 
     /* The tag of this node -- one of the constants declared above.
      */
     public int getTag() {
-        throw new RuntimeException("bad call to getTag() - class: " + getClass() + ", Visage tag: " + getFXTag());
+        throw new RuntimeException("bad call to getTag() - class: " + getClass() + ", Visage tag: " + getVisageTag());
     }
 
     /* The tag of this node -- one of the constants declared above.
      */
-    public abstract VisageTag getFXTag();
+    public abstract VisageTag getVisageTag();
 
     /** Set position field and return this tree.
      */
@@ -200,15 +200,15 @@ public abstract class VisageTree extends JCTree implements SyntheticTree, Tree, 
      */
     
     public Kind getKind() {
-        throw new UnsupportedOperationException("Use getVisageKind() not getKind() - class: " + getClass() + ", Visage tag: " + getFXTag());
+        throw new UnsupportedOperationException("Use getVisageKind() not getKind() - class: " + getClass() + ", Visage tag: " + getVisageTag());
     }
 
     public void accept(Visitor v) {
-        throw new UnsupportedOperationException("We don't use visitors from JCTree - class: " + getClass() + ", Visage tag: " + getFXTag());
+        throw new UnsupportedOperationException("We don't use visitors from JCTree - class: " + getClass() + ", Visage tag: " + getVisageTag());
     }
 
     public <R,D> R accept(TreeVisitor<R,D> v, D d) {
-        throw new UnsupportedOperationException("We don't use visitors from JCTree - class: " + getClass() + ", Visage tag: " + getFXTag());
+        throw new UnsupportedOperationException("We don't use visitors from JCTree - class: " + getClass() + ", Visage tag: " + getVisageTag());
     }
 
 }

@@ -159,7 +159,7 @@ public class VisageScriptCompiler {
         options.add("-target");
         options.add("1.5");
         
-        options.add("-XDdumpfx=" + System.getProperty("java.io.tmpdir"));
+        options.add("-XDdumpvisage=" + System.getProperty("java.io.tmpdir"));
         
         // create a compilation task
         VisagecTaskImpl task = tool.getTask(context, err, manager, null, options, compUnits);

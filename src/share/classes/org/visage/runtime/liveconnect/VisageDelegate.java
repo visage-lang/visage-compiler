@@ -129,7 +129,7 @@ public class VisageDelegate implements InvocationDelegate {
     }
 
     public Object findClass(String name) {
-        if (notFXClasses.contains(name)) {
+        if (notVisageClasses.contains(name)) {
             return null;
         }
 
@@ -141,7 +141,7 @@ public class VisageDelegate implements InvocationDelegate {
         } catch (Throwable t) {
         }
         synchronized(this) {
-            notFXClasses.add(name);
+            notVisageClasses.add(name);
         }
         return null;
     }
@@ -161,7 +161,7 @@ public class VisageDelegate implements InvocationDelegate {
     private VisageLocal.Context context = VisageLocal.getContext();
     private Map<VisageClassType, VisageClassDelegate> classDelegates =
         new HashMap<VisageClassType, VisageClassDelegate>();
-    private Set<String> notFXClasses = new HashSet<String>();
+    private Set<String> notVisageClasses = new HashSet<String>();
     // We only need a singleton sequence delegate
     private VisageSequenceDelegate sequenceDelegate;
 
@@ -172,8 +172,8 @@ public class VisageDelegate implements InvocationDelegate {
             if (isStatic) {
                 return getClassDelegate((VisageClassType) obj);
             } else {
-                VisageObjectValue fxObj = (VisageObjectValue) obj;
-                return getClassDelegate(fxObj.getClassType());
+                VisageObjectValue visageObj = (VisageObjectValue) obj;
+                return getClassDelegate(visageObj.getClassType());
             }
         } else if (obj instanceof VisageSequenceValue) {
             if (sequenceDelegate == null) {
@@ -184,23 +184,23 @@ public class VisageDelegate implements InvocationDelegate {
             // The incoming applet object comes in as a non-VisageObjectValue
             // but needs to be identified as such; we could do this check
             // for other values as well but we prefer not to due to the cost
-            VisageObjectValue fxObj = context.mirrorOf(obj);
-            VisageClassType fxClass = fxObj.getClassType();
-            if (fxClass.isVisageType()) {
+            VisageObjectValue visageObj = context.mirrorOf(obj);
+            VisageClassType visageClass = visageObj.getClassType();
+            if (visageClass.isVisageType()) {
                 // Upgrade the receiver to an VisageObjectValue
-                box[0] = fxObj;
-                return getClassDelegate(fxClass);
+                box[0] = visageObj;
+                return getClassDelegate(visageClass);
             }
         }
 
         return null;
     }
 
-    private InvocationDelegate getClassDelegate(VisageClassType fxClass) {
-        VisageClassDelegate delegate = classDelegates.get(fxClass);
+    private InvocationDelegate getClassDelegate(VisageClassType visageClass) {
+        VisageClassDelegate delegate = classDelegates.get(visageClass);
         if (delegate == null) {
-            delegate = new VisageClassDelegate(fxClass, bridge);
-            classDelegates.put(fxClass, delegate);
+            delegate = new VisageClassDelegate(visageClass, bridge);
+            classDelegates.put(visageClass, delegate);
         }
         return delegate;
     }

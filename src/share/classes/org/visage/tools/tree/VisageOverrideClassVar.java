@@ -58,7 +58,7 @@ public class VisageOverrideClassVar extends VisageAbstractVar implements Overrid
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.OVERRIDE_ATTRIBUTE_DEF;
     }
 

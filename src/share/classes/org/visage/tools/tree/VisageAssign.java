@@ -63,7 +63,7 @@ public class VisageAssign extends VisageExpression implements AssignmentTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ASSIGN;
     }
 }

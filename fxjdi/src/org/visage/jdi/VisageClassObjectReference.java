@@ -30,8 +30,8 @@ import com.sun.jdi.ClassObjectReference;
  * @author sundar
  */
 public class VisageClassObjectReference extends VisageObjectReference implements ClassObjectReference {
-    public VisageClassObjectReference(VisageVirtualMachine fxvm, ClassObjectReference underlying) {
-        super(fxvm, underlying);
+    public VisageClassObjectReference(VisageVirtualMachine visagevm, ClassObjectReference underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageReferenceType reflectedType() {

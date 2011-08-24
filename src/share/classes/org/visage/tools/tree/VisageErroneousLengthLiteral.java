@@ -55,7 +55,7 @@ public class VisageErroneousLengthLiteral extends VisageLengthLiteral  {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ERRONEOUS;
     }
 

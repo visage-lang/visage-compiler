@@ -52,11 +52,11 @@ public class HelloTest extends VisageTestBase {
         startToMain();
 
         // go to "run" method of Visage class
-        BreakpointEvent bpe = resumeTo(targetClassName, fxRunMethodName(),
-                fxRunMethodSignature());
+        BreakpointEvent bpe = resumeTo(targetClassName, visageRunMethodName(),
+                visageRunMethodSignature());
 
         mainThread = bpe.thread();
-        if (!mainThread.frame(0).location().method().name().equals(fxRunMethodName())) {
+        if (!mainThread.frame(0).location().method().name().equals(visageRunMethodName())) {
             failure("frame failed");
         }
 

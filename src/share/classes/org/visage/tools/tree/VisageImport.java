@@ -57,7 +57,7 @@ public class VisageImport extends VisageTree implements ImportTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.IMPORT;
     }
 }

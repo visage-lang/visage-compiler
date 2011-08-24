@@ -50,7 +50,7 @@ public class VisageAngleLiteral extends VisageExpression implements AngleLiteral
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ANGLE_LITERAL;
     }
 

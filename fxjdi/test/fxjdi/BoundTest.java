@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class BoundTest extends JdbBase {
 //            stop("in Bound:14");
 //            stop("in Bound:15");
 
-            fxrun();
+            visagerun();
             //TODO: Please uncomment the following 6 lines when the bug is been fixed
 //            resumeToBreakpoint();
 //            list();

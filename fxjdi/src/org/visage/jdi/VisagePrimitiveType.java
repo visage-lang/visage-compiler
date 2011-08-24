@@ -30,8 +30,8 @@ import com.sun.jdi.PrimitiveType;
  * @author sundar
  */
 public class VisagePrimitiveType extends VisageType implements PrimitiveType {
-    public VisagePrimitiveType(VisageVirtualMachine fxvm, PrimitiveType underlying) {
-        super(fxvm, underlying);
+    public VisagePrimitiveType(VisageVirtualMachine visagevm, PrimitiveType underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

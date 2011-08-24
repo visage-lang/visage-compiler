@@ -42,7 +42,7 @@ public class VisageTypeAny extends VisageType implements TypeAnyTree {
     public void accept(VisageVisitor v) { v.visitTypeAny(this); }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.TYPEANY;
     }
 

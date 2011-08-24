@@ -1,10 +1,10 @@
 /*
  * Overriding values of mixin variables
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
-import visage.fxunit.*;
+import visage.visageunit.*;
 
 // used in testA01()
 mixin class A {

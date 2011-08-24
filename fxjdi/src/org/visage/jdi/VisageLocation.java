@@ -32,8 +32,8 @@ import com.sun.jdi.Location;
  */
 public class VisageLocation extends VisageMirror implements Location {
 
-    public VisageLocation(VisageVirtualMachine fxvm, Location underlying) {
-        super(fxvm, underlying);
+    public VisageLocation(VisageVirtualMachine visagevm, Location underlying) {
+        super(visagevm, underlying);
     }
 
     public long codeIndex() {

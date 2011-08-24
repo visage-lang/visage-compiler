@@ -32,8 +32,8 @@ import java.util.List;
  * @author sundar
  */
 public class VisageClassLoaderReference extends VisageObjectReference implements ClassLoaderReference {
-    public VisageClassLoaderReference(VisageVirtualMachine fxvm, ClassLoaderReference underlying) {
-        super(fxvm, underlying);
+    public VisageClassLoaderReference(VisageVirtualMachine visagevm, ClassLoaderReference underlying) {
+        super(visagevm, underlying);
     }
 
     public List<ReferenceType> definedClasses() {

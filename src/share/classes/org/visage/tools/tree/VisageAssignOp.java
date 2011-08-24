@@ -51,7 +51,7 @@ public class VisageAssignOp extends VisageExpression implements CompoundAssignme
     }
 
     public VisageKind getVisageKind() {
-        return VisageTreeInfo.tagToKind(getFXTag());
+        return VisageTreeInfo.tagToKind(getVisageTag());
     }
 
     public VisageExpression getVariable() {
@@ -72,11 +72,11 @@ public class VisageAssignOp extends VisageExpression implements CompoundAssignme
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return opcode;
     }
 
-    public VisageTag getNormalOperatorFXTag() {
+    public VisageTag getNormalOperatorVisageTag() {
         switch (opcode) {
             case PLUS_ASG:
                 return VisageTag.PLUS;

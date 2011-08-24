@@ -50,7 +50,7 @@ public class VisageAnnotate {
     }
 
     final VisageAttr attr;
-    final VisageTreeMaker fxmake;
+    final VisageTreeMaker visagemake;
     final Log log;
     final Symtab syms;
     final Name.Table names;
@@ -62,7 +62,7 @@ public class VisageAnnotate {
     protected VisageAnnotate(Context context) {
 	context.put(visageAnnotateKey, this);
 	attr = VisageAttr.instance(context);
-	fxmake = VisageTreeMaker.instance(context);
+	visagemake = VisageTreeMaker.instance(context);
 	log = Log.instance(context);
 	syms = Symtab.instance(context);
 	names = Name.Table.instance(context);

@@ -36,8 +36,8 @@ import com.sun.jdi.request.AccessWatchpointRequest;
  * @author sundar
  */
 public class VisageAccessWatchpointRequest extends VisageEventRequest implements AccessWatchpointRequest {
-    public VisageAccessWatchpointRequest(VisageVirtualMachine fxvm, AccessWatchpointRequest underlying) {
-        super(fxvm, underlying);
+    public VisageAccessWatchpointRequest(VisageVirtualMachine visagevm, AccessWatchpointRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addClassExclusionFilter(String arg0) {

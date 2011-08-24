@@ -33,8 +33,8 @@ import com.sun.jdi.request.ThreadStartRequest;
  * @author sundar
  */
 public class VisageThreadStartRequest extends VisageEventRequest implements ThreadStartRequest {
-    public VisageThreadStartRequest(VisageVirtualMachine fxvm, ThreadStartRequest underlying) {
-        super(fxvm, underlying);
+    public VisageThreadStartRequest(VisageVirtualMachine visagevm, ThreadStartRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addThreadFilter(ThreadReference arg0) {

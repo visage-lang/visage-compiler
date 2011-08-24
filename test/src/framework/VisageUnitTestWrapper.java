@@ -62,7 +62,7 @@ public class VisageUnitTestWrapper extends TestCase {
     @Override
     protected void setUp() throws Exception {
         if (setUp != null && testMethod != null) {
-            System.out.println("SetUp(fxunit): " + testFile + " - " + testMethod.getName());
+            System.out.println("SetUp(visageunit): " + testFile + " - " + testMethod.getName());
             setUp.invoke(object);
         }
     }
@@ -70,7 +70,7 @@ public class VisageUnitTestWrapper extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         if (tearDown != null && testMethod != null) {
-            System.out.println("TearDown(fxunit): " + testFile + " - " + testMethod.getName());
+            System.out.println("TearDown(visageunit): " + testFile + " - " + testMethod.getName());
             tearDown.invoke(object);
         }
     }
@@ -78,7 +78,7 @@ public class VisageUnitTestWrapper extends TestCase {
     @Override
     protected void runTest() throws Throwable {
         if (testMethod != null) {
-            System.out.println("Test(fxunit): " + testFile + " - " + testMethod.getName());
+            System.out.println("Test(visageunit): " + testFile + " - " + testMethod.getName());
             try {
                 boolean suppress = ErrorHandler.getSuppressBindingExceptions();
                 try {

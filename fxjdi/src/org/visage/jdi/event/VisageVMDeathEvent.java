@@ -31,8 +31,8 @@ import com.sun.jdi.event.VMDeathEvent;
  * @author sundar
  */
 public class VisageVMDeathEvent extends VisageEvent implements VMDeathEvent {
-    public VisageVMDeathEvent(VisageVirtualMachine fxvm, VMDeathEvent underlying) {
-        super(fxvm, underlying);
+    public VisageVMDeathEvent(VisageVirtualMachine visagevm, VMDeathEvent underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

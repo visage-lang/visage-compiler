@@ -179,7 +179,7 @@ public class VisageBoundContextAnalysis extends VisageTreeScanner {
     public void visitUnary(VisageUnary tree) {
         mark(tree);
         if (bindStatus != VisageBindStatus.UNBOUND) {
-            switch (tree.getFXTag()) {
+            switch (tree.getVisageTag()) {
                 case PREINC:
                 case POSTINC:
                     log.error(tree.pos(), MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT, "++");
@@ -226,7 +226,7 @@ public class VisageBoundContextAnalysis extends VisageTreeScanner {
         mark(tree);
         if (bindStatus != VisageBindStatus.UNBOUND) {
             for (List<VisageExpression> l = tree.stats; l.nonEmpty(); l = l.tail) {
-                if (l.head.getFXTag() != VisageTag.VAR_DEF) {
+                if (l.head.getVisageTag() != VisageTag.VAR_DEF) {
                     log.error(l.head.pos(), MsgSym.MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT, l.head.toString());
                 }
             }

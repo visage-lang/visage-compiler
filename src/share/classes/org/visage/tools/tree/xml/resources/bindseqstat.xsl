@@ -24,7 +24,7 @@
 <xsl:transform
      xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
      xmlns:c="http://xml.apache.org/xalan/java/org.visage.tools.tree.xml.Compiler"
-     xmlns:fxt="http://xml.apache.org/xalan/java/org.visage.tools.code.VisageTypes"
+     xmlns:visaget="http://xml.apache.org/xalan/java/org.visage.tools.code.VisageTypes"
      xmlns:visage="http://visage.org">
 
     <xsl:import href="analyze.xsl"/>    
@@ -85,7 +85,7 @@ count.of.bound.for.expressions=<xsl:value-of select="c:getGlobal('numBindFor')"/
         </xsl:for-each>
         <xsl:if test="c:evalScript('inBind.peek()')">
             <xsl:choose>
-            <xsl:when test="fxt:isSequence(c:types(), c:type(@typeref))">
+            <xsl:when test="visaget:isSequence(c:types(), c:type(@typeref))">
                 <xsl:if test="not(c:putGlobal('numSeqBinds', c:getGlobal('numSeqBinds') + 1))"/>
                 <xsl:if test="visage:on-replace">
                     <xsl:if test="not(c:putGlobal('numSeqBindsWithOnReplace', c:getGlobal('numSeqBindsWithOnReplace') + 1))"/>
@@ -136,7 +136,7 @@ count.of.bound.for.expressions=<xsl:value-of select="c:getGlobal('numBindFor')"/
         <xsl:apply-templates select="visage:expr/*"/>
         <xsl:if test="c:evalScript('inBind.peek()')">
             <xsl:choose>
-            <xsl:when test="fxt:isSequence(c:types(), c:type(@typeref))">
+            <xsl:when test="visaget:isSequence(c:types(), c:type(@typeref))">
                 <xsl:if test="not(c:putGlobal('numSeqBinds', c:getGlobal('numSeqBinds') + 1))"/>
             </xsl:when>
             <xsl:otherwise>

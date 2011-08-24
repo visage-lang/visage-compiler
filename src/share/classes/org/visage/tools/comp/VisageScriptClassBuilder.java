@@ -54,7 +54,7 @@ public class VisageScriptClassBuilder {
 
     private final VisageDefs defs;
     private Table names;
-    private VisageTreeMaker fxmake;
+    private VisageTreeMaker visagemake;
     private JCDiagnostic.Factory diags;
     private Log log;
     private VisageSymtab syms;
@@ -80,7 +80,7 @@ public class VisageScriptClassBuilder {
         context.put(visageModuleBuilderKey, this);
         defs = VisageDefs.instance(context);
         names = Table.instance(context);
-        fxmake = (VisageTreeMaker)VisageTreeMaker.instance(context);
+        visagemake = (VisageTreeMaker)VisageTreeMaker.instance(context);
         diags = JCDiagnostic.Factory.instance(context);
         log = Log.instance(context);
         syms = (VisageSymtab)VisageSymtab.instance(context);
@@ -223,7 +223,7 @@ public class VisageScriptClassBuilder {
             //
             if (tree == null ) continue;
 
-            switch (tree.getFXTag()) {
+            switch (tree.getVisageTag()) {
                 case CLASS_DEF: {
                     VisageClassDeclaration decl = (VisageClassDeclaration) tree;
                     if ((decl.getModifiers().flags & EXTERNALIZING_FLAGS) != 0) {
@@ -277,7 +277,7 @@ public class VisageScriptClassBuilder {
                 stats.append(value);
                 value = null;
             }
-            switch (tree.getFXTag()) {
+            switch (tree.getVisageTag()) {
                 case IMPORT:
                     topLevelDefs.append(tree);
                     break;
@@ -323,7 +323,7 @@ public class VisageScriptClassBuilder {
                         // The main-code will go into the run method.  The variable initializations should
                         // be in-place inline.   Place the variable initialization in 'value' so that
                         // it will wind up in the code of the run method.
-                        value = fxmake.VarInit(decl);
+                        value = visagemake.VarInit(decl);
                     }
                     break;
                 }
@@ -410,9 +410,9 @@ public class VisageScriptClassBuilder {
             // Synthesize a Main class definition and flag it as
             // such.
             //
-            VisageModifiers cMods = fxmake.Modifiers(PUBLIC);
+            VisageModifiers cMods = visagemake.Modifiers(PUBLIC);
             cMods.setGenType(SynthType.SYNTHETIC);
-            moduleClass = fxmake.ClassDeclaration(
+            moduleClass = visagemake.ClassDeclaration(
                     cMods, //public access needed for applet initialization
                     moduleClassName,
                     List.<VisageExpression>nil(), // no supertypes
@@ -510,42 +510,42 @@ public class VisageScriptClassBuilder {
         if (usesSourceFile) {
             String sourceName = module.getSourceFile().toUri().toString();
             VisageExpression sourceFileVar =
-                fxmake.at(diagPos).Var(pseudoSourceFile, getPseudoVarType(diagPos),
-                         fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|VisageFlags.IS_DEF),
-                         fxmake.Literal(sourceName), VisageBindStatus.UNBOUND, null, null);
+                visagemake.at(diagPos).Var(pseudoSourceFile, getPseudoVarType(diagPos),
+                         visagemake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|VisageFlags.IS_DEF),
+                         visagemake.Literal(sourceName), VisageBindStatus.UNBOUND, null, null);
             pseudoDefs.append(sourceFileVar);
         }
         if (usesFile || usesDir) {
             VisageExpression moduleClassFQN = module.pid != null ?
-                fxmake.at(diagPos).Select(module.pid, moduleClassName, false) : fxmake.at(diagPos).Ident(moduleClassName);
-            VisageExpression getFile = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__FILE__");
-            VisageExpression forName = fxmake.at(diagPos).Identifier("java.lang.Class.forName");
-            List<VisageExpression> args = List.<VisageExpression>of(fxmake.at(diagPos).Literal(moduleClassFQN.toString()));
-            VisageExpression loaderCall = fxmake.at(diagPos).Apply(List.<VisageExpression>nil(), forName, args);
+                visagemake.at(diagPos).Select(module.pid, moduleClassName, false) : visagemake.at(diagPos).Ident(moduleClassName);
+            VisageExpression getFile = visagemake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__FILE__");
+            VisageExpression forName = visagemake.at(diagPos).Identifier("java.lang.Class.forName");
+            List<VisageExpression> args = List.<VisageExpression>of(visagemake.at(diagPos).Literal(moduleClassFQN.toString()));
+            VisageExpression loaderCall = visagemake.at(diagPos).Apply(List.<VisageExpression>nil(), forName, args);
             args = List.<VisageExpression>of(loaderCall);
-            VisageExpression getFileURL = fxmake.at(diagPos).Apply(List.<VisageExpression>nil(), getFile, args);
+            VisageExpression getFileURL = visagemake.at(diagPos).Apply(List.<VisageExpression>nil(), getFile, args);
             VisageExpression fileVar =
-                fxmake.at(diagPos).Var(pseudoFile, getPseudoVarType(diagPos),
-                         fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|VisageFlags.IS_DEF),
+                visagemake.at(diagPos).Var(pseudoFile, getPseudoVarType(diagPos),
+                         visagemake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|VisageFlags.IS_DEF),
                          getFileURL, VisageBindStatus.UNBOUND, null, null);
             pseudoDefs.append(fileVar);
 
             if (usesDir) {
-                VisageExpression getDir = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__DIR__");
-                args = List.<VisageExpression>of(fxmake.at(diagPos).Ident(pseudoFile));
-                VisageExpression getDirURL = fxmake.at(diagPos).Apply(List.<VisageExpression>nil(), getDir, args);
+                VisageExpression getDir = visagemake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__DIR__");
+                args = List.<VisageExpression>of(visagemake.at(diagPos).Ident(pseudoFile));
+                VisageExpression getDirURL = visagemake.at(diagPos).Apply(List.<VisageExpression>nil(), getDir, args);
                 pseudoDefs.append(
-                    fxmake.at(diagPos).Var(pseudoDir, getPseudoVarType(diagPos),
-                             fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|VisageFlags.IS_DEF),
+                    visagemake.at(diagPos).Var(pseudoDir, getPseudoVarType(diagPos),
+                             visagemake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|VisageFlags.IS_DEF),
                              getDirURL, VisageBindStatus.UNBOUND, null, null));
             }
         }
 	if (usesProfile) {
-           VisageExpression getProfile = fxmake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__PROFILE__");
-           VisageExpression getProfileString = fxmake.at(diagPos).Apply(List.<VisageExpression>nil(), getProfile, List.<VisageExpression>nil());
+           VisageExpression getProfile = visagemake.at(diagPos).Identifier("org.visage.runtime.PseudoVariables.get__PROFILE__");
+           VisageExpression getProfileString = visagemake.at(diagPos).Apply(List.<VisageExpression>nil(), getProfile, List.<VisageExpression>nil());
            VisageExpression profileVar =
-                fxmake.at(diagPos).Var(pseudoProfile, getPseudoVarType(diagPos),
-                         fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|VisageFlags.IS_DEF),
+                visagemake.at(diagPos).Var(pseudoProfile, getPseudoVarType(diagPos),
+                         visagemake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|VisageFlags.IS_DEF),
                          getProfileString, VisageBindStatus.UNBOUND, null, null);
             pseudoDefs.append(profileVar);
 	}
@@ -553,21 +553,21 @@ public class VisageScriptClassBuilder {
     }
     
     private VisageType getPseudoVarType(DiagnosticPosition diagPos) {
-        VisageExpression fqn = fxmake.at(diagPos).Identifier("java.lang.String");
-        return fxmake.at(diagPos).TypeClass(fqn, TypeTree.Cardinality.SINGLETON);
+        VisageExpression fqn = visagemake.at(diagPos).Identifier("java.lang.String");
+        return visagemake.at(diagPos).TypeClass(fqn, TypeTree.Cardinality.SINGLETON);
     }
 
     private List<VisageVar> makeRunFunctionArgs(Name argName) {
-        VisageVar mainArgs = fxmake.Param(argName, fxmake.TypeClass(
-                fxmake.Ident(syms.stringTypeName),
+        VisageVar mainArgs = visagemake.Param(argName, visagemake.TypeClass(
+                visagemake.Ident(syms.stringTypeName),
                 TypeTree.Cardinality.ANY));
          return List.<VisageVar>of(mainArgs);
     }
 
     private VisageType makeRunFunctionType() {
-         VisageExpression rettree = fxmake.Type(syms.objectType);
+         VisageExpression rettree = visagemake.Type(syms.objectType);
         rettree.type = syms.objectType;
-        return fxmake.TypeClass(rettree, VisageType.Cardinality.SINGLETON);
+        return visagemake.TypeClass(rettree, VisageType.Cardinality.SINGLETON);
     }
 
     /**
@@ -588,7 +588,7 @@ public class VisageScriptClassBuilder {
     private VisageFunctionDefinition makeInternalRunFunction(VisageScript module, Name argName, VisageFunctionDefinition userRunFunction, List<VisageExpression> stats, VisageExpression value) {
 
         VisageBlock existingBody = null;
-        VisageBlock body = fxmake.at(null).Block(module.getStartPosition(), stats, value);
+        VisageBlock body = visagemake.at(null).Block(module.getStartPosition(), stats, value);
         int sPos = module.getStartPosition();
 
         // First assume that this is synthetic
@@ -616,8 +616,8 @@ public class VisageScriptClassBuilder {
 
         // Make the static run function
         //
-        VisageFunctionDefinition func = fxmake.at(sPos).FunctionDefinition(
-                fxmake.Modifiers(PUBLIC | STATIC | SCRIPT_LEVEL_SYNTH_STATIC | SYNTHETIC),
+        VisageFunctionDefinition func = visagemake.at(sPos).FunctionDefinition(
+                visagemake.Modifiers(PUBLIC | STATIC | SCRIPT_LEVEL_SYNTH_STATIC | SYNTHETIC),
                 defs.internalRunFunctionName,
                 makeRunFunctionType(),
                 makeRunFunctionArgs(argName),

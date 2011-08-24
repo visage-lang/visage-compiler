@@ -46,7 +46,7 @@ public class VisageColorLiteral extends VisageExpression implements ColorLiteral
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.COLOR_LITERAL;
     }
 

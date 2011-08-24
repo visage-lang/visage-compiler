@@ -74,7 +74,7 @@ import java.util.Stack;
 public class VisageLocalToClass {
 
     private final VisagePreTranslationSupport preTrans;
-    private final VisageTreeMaker fxmake;
+    private final VisageTreeMaker visagemake;
     private final VisageDefs defs;
     private final Name.Table names;
     private final VisageTypes types;
@@ -103,7 +103,7 @@ public class VisageLocalToClass {
         context.put(localToClass, this);
 
         preTrans = VisagePreTranslationSupport.instance(context);
-        fxmake = VisageTreeMaker.instance(context);
+        visagemake = VisageTreeMaker.instance(context);
         defs = VisageDefs.instance(context);
         names = Name.Table.instance(context);
         types = VisageTypes.instance(context);
@@ -334,7 +334,7 @@ public class VisageLocalToClass {
 
             @Override
             public void visitInterpolateValue(VisageInterpolateValue tree) {
-                VisageTag tag = VisageTreeInfo.skipParens(tree.attribute).getFXTag();
+                VisageTag tag = VisageTreeInfo.skipParens(tree.attribute).getVisageTag();
                 if (tag == VisageTag.IDENT) {
                     Symbol sym = VisageTreeInfo.symbol(tree.attribute);
                     if (sym.isLocal()) {
@@ -399,7 +399,7 @@ public class VisageLocalToClass {
                 scan(var.getOnInvalidate());
 
                 // Do the init in-line
-                VisageExpression vi = fxmake.at(var).VarInit(var);
+                VisageExpression vi = visagemake.at(var).VarInit(var);
                 vi.type = var.type;
                 return vi;
             } else {
@@ -488,20 +488,20 @@ public class VisageLocalToClass {
                 returnType = tree.getExpression() != null ?
                     topFunctionReturnType() :
                     syms.voidType;
-                if (!nonLocalExprTags.contains(tree.getFXTag())) {
+                if (!nonLocalExprTags.contains(tree.getVisageTag())) {
                     VisageVar param = makeExceptionParameter(syms.visage_NonLocalReturnExceptionType);
-                    VisageReturn catchBody = fxmake.Return(null);
+                    VisageReturn catchBody = visagemake.Return(null);
                     if (returnType.tag != TypeTags.VOID) {
-                        VisageIdent nlParam = fxmake.Ident(param);
+                        VisageIdent nlParam = visagemake.Ident(param);
                         nlParam.type = param.type;
                         nlParam.sym = param.sym;
-                        VisageSelect nlValue = fxmake.Select(nlParam,
+                        VisageSelect nlValue = visagemake.Select(nlParam,
                         defs.value_NonLocalReturnExceptionFieldName, false);
                         nlValue.type = syms.objectType;
                         nlValue.sym = rs.findIdentInType(env, syms.visage_NonLocalReturnExceptionType, nlValue.name, Kinds.VAR);
-                        catchBody.expr = fxmake.TypeCast(preTrans.makeTypeTree(returnType), nlValue).setType(returnType);
+                        catchBody.expr = visagemake.TypeCast(preTrans.makeTypeTree(returnType), nlValue).setType(returnType);
                     }
-                    nonLocalExprTags = nonLocalExprTags.append(tree.getFXTag());
+                    nonLocalExprTags = nonLocalExprTags.append(tree.getVisageTag());
                     nonLocalCatchers = nonLocalCatchers.append(makeCatchExpression(param, catchBody, returnType));
                 }
                 scan(tree.expr);
@@ -511,10 +511,10 @@ public class VisageLocalToClass {
                 // This is a break in a local context inflated to class
                 // Handle it as a non-local break
                 tree.nonLocalBreak = true;
-                if (!nonLocalExprTags.contains(tree.getFXTag())) {
+                if (!nonLocalExprTags.contains(tree.getVisageTag())) {
                     VisageVar param = makeExceptionParameter(syms.visage_NonLocalBreakExceptionType);
-                    VisageBreak catchBody = fxmake.Break(tree.label);
-                    nonLocalExprTags = nonLocalExprTags.append(tree.getFXTag());
+                    VisageBreak catchBody = visagemake.Break(tree.label);
+                    nonLocalExprTags = nonLocalExprTags.append(tree.getVisageTag());
                     nonLocalCatchers = nonLocalCatchers.append(makeCatchExpression(param, catchBody, syms.unreachableType));
                 }
             }
@@ -523,10 +523,10 @@ public class VisageLocalToClass {
                 // This is a continue in a local context inflated to class
                 // Handle it as a non-local continue
                 tree.nonLocalContinue = true;
-                if (!nonLocalExprTags.contains(tree.getFXTag())) {
+                if (!nonLocalExprTags.contains(tree.getVisageTag())) {
                     VisageVar param = makeExceptionParameter(syms.visage_NonLocalContinueExceptionType);
-                    VisageContinue catchBody = fxmake.Continue(tree.label);
-                    nonLocalExprTags = nonLocalExprTags.append(tree.getFXTag());
+                    VisageContinue catchBody = visagemake.Continue(tree.label);
+                    nonLocalExprTags = nonLocalExprTags.append(tree.getVisageTag());
                     nonLocalCatchers = nonLocalCatchers.append(makeCatchExpression(param, catchBody, syms.unreachableType));
                 }
             }
@@ -539,15 +539,15 @@ public class VisageLocalToClass {
             }
 
             private VisageVar makeExceptionParameter(Type exceptionType) {
-                VisageVar param = fxmake.Param(preTrans.syntheticName(defs.exceptionDollarNamePrefix()), preTrans.makeTypeTree(exceptionType));
+                VisageVar param = visagemake.Param(preTrans.syntheticName(defs.exceptionDollarNamePrefix()), preTrans.makeTypeTree(exceptionType));
                 param.setType(exceptionType);
                 param.sym = new VisageVarSymbol(types, names, 0L, param.name, param.type, owner);
                 return param;
             }
 
             private VisageCatch makeCatchExpression(VisageVar param, VisageExpression body, Type bodyType) {
-                return fxmake.Catch(param,
-                                (VisageBlock)fxmake.Block(0L,
+                return visagemake.Catch(param,
+                                (VisageBlock)visagemake.Block(0L,
                                     List.<VisageExpression>nil(),
                                     body).setType(bodyType));
             }
@@ -556,29 +556,29 @@ public class VisageLocalToClass {
         vc.scan(block);
 
         // set position of class etc as block-expression position
-        fxmake.at(block.pos());
+        visagemake.at(block.pos());
 
         // Create whose vars are the block's vars and having a doit function with the content
 
-        VisageType fxtype = fxmake.TypeUnknown();
-        fxtype.type = block.type;
+        VisageType visagetype = visagemake.TypeUnknown();
+        visagetype.type = block.type;
 
-        VisageBlock body = fxmake.Block(block.flags, block.getStmts(), block.getValue());
+        VisageBlock body = visagemake.Block(block.flags, block.getStmts(), block.getValue());
         body.type = block.type;
         body.pos = Position.NOPOS;
 
-        VisageFunctionDefinition doit = fxmake.FunctionDefinition(
-                fxmake.Modifiers(VisageFlags.SCRIPT_PRIVATE),
+        VisageFunctionDefinition doit = visagemake.FunctionDefinition(
+                visagemake.Modifiers(VisageFlags.SCRIPT_PRIVATE),
                 funcName,
-                fxtype,
+                visagetype,
                 List.<VisageVar>nil(),
                 body);
         doit.pos = Position.NOPOS;
         doit.sym = funcSym;
         doit.type = funcType;
 
-        final VisageClassDeclaration cdecl = fxmake.ClassDeclaration(
-                fxmake.Modifiers(Flags.FINAL | Flags.SYNTHETIC),
+        final VisageClassDeclaration cdecl = visagemake.ClassDeclaration(
+                visagemake.Modifiers(Flags.FINAL | Flags.SYNTHETIC),
                 className,
                 List.<VisageExpression>nil(),
                 vc.varsAsMembers().append(doit));
@@ -587,19 +587,19 @@ public class VisageLocalToClass {
         types.addFxClass(classSymbol, cdecl);
         cdecl.setDifferentiatedExtendingImplementingMixing(List.<VisageExpression>nil(), List.<VisageExpression>nil(), List.<VisageExpression>nil());
 
-        VisageIdent classId = fxmake.Ident(className);
+        VisageIdent classId = visagemake.Ident(className);
         classId.sym = classSymbol;
         classId.type = classSymbol.type;
 
-        VisageInstanciate inst = fxmake.InstanciateNew(classId, null);
+        VisageInstanciate inst = visagemake.InstanciateNew(classId, null);
         inst.sym = classSymbol;
         inst.type = classSymbol.type;
 
-        VisageSelect select = fxmake.Select(inst, funcName, false);
+        VisageSelect select = visagemake.Select(inst, funcName, false);
         select.sym = funcSym;
         select.type = funcSym.type;
 
-        VisageFunctionInvocation apply = fxmake.Apply(null, select, null);
+        VisageFunctionInvocation apply = visagemake.Apply(null, select, null);
         apply.type = block.type;
 
         List<VisageExpression> stats = List.<VisageExpression>of(cdecl);
@@ -607,10 +607,10 @@ public class VisageLocalToClass {
 
         if (vc.nonLocalCatchers.size() > 0) {
 
-            VisageBlock tryBody = (VisageBlock)fxmake.Block(0L, stats, value).setType(block.type);
+            VisageBlock tryBody = (VisageBlock)visagemake.Block(0L, stats, value).setType(block.type);
             
             stats = List.<VisageExpression>of(
-                fxmake.Try(
+                visagemake.Try(
                     tryBody,
                     vc.nonLocalCatchers,
                     null));
@@ -622,24 +622,24 @@ public class VisageLocalToClass {
                         preTrans.syntheticName(defs.resDollarNamePrefix()),
                         types.normalize(block.type),
                         doit.sym);
-                VisageVar resVar = fxmake.Var(resVarSym.name,
+                VisageVar resVar = visagemake.Var(resVarSym.name,
                     preTrans.makeTypeTree(resVarSym.type),
-                    fxmake.Modifiers(resVarSym.flags_field),
+                    visagemake.Modifiers(resVarSym.flags_field),
                     null,
                     VisageBindStatus.UNBOUND,
                     null, null);
                 resVar.type = resVarSym.type;
                 resVar.sym = resVarSym;
-                VisageIdent resVarRef = fxmake.Ident(resVarSym);
+                VisageIdent resVarRef = visagemake.Ident(resVarSym);
                 resVarRef.sym = resVarSym;
                 resVarRef.type = resVar.type;
-                tryBody.value = fxmake.Assign(resVarRef, apply).setType(block.type);
+                tryBody.value = visagemake.Assign(resVarRef, apply).setType(block.type);
 
                 value = (bkind == BlockKind.FUNCTION &&
                         vc.returnType != null &&
                         vc.returnType.tag != TypeTags.VOID) ?
-                        fxmake.Return(
-                            fxmake.TypeCast(
+                        visagemake.Return(
+                            visagemake.TypeCast(
                                 preTrans.makeTypeTree(vc.returnType),
                                 resVarRef
                             ).setType(vc.returnType)

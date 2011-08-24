@@ -70,7 +70,7 @@ public class VisageTry extends VisageExpression implements TryTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.TRY;
     }
 }

@@ -44,10 +44,10 @@ import java.util.ArrayList;
  */
 public class VisageClassType extends VisageReferenceType implements ClassType {
     private boolean isIsFxTypeSet = false;
-    private boolean isFXType = false;
+    private boolean isVisageType = false;
 
-    public VisageClassType(VisageVirtualMachine fxvm, ClassType underlying) {
-        super(fxvm, underlying);
+    public VisageClassType(VisageVirtualMachine visagevm, ClassType underlying) {
+        super(visagevm, underlying);
     }
 
     public List<InterfaceType> allInterfaces() {
@@ -163,19 +163,19 @@ public class VisageClassType extends VisageReferenceType implements ClassType {
     public boolean isVisageType() {
         if (!isIsFxTypeSet) {
             isIsFxTypeSet = true;
-            VisageVirtualMachine fxvm = virtualMachine();
-            InterfaceType fxObjType = (InterfaceType) VisageWrapper.unwrap(fxvm.fxObjectType());
-            if (fxObjType != null) {
+            VisageVirtualMachine visagevm = virtualMachine();
+            InterfaceType visageObjType = (InterfaceType) VisageWrapper.unwrap(visagevm.visageObjectType());
+            if (visageObjType != null) {
                 ClassType thisType = underlying();
                 List<InterfaceType> allIfaces = thisType.allInterfaces();
                 for (InterfaceType iface : allIfaces) {
-                    if (iface.equals(fxObjType)) {
-                        isFXType = true;
+                    if (iface.equals(visageObjType)) {
+                        isVisageType = true;
                         break;
                     }
                 }
             }
         }
-        return isFXType;
+        return isVisageType;
     }
 }

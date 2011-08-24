@@ -44,7 +44,7 @@ public class VisageTimeLiteral extends VisageExpression implements TimeLiteralTr
         this.duration = duration;
     }
 
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.TIME_LITERAL;
     }
 

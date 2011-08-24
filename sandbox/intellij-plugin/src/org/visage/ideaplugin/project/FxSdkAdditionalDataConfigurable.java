@@ -39,7 +39,7 @@ public final class FxSdkAdditionalDataConfigurable implements AdditionalDataConf
     private final SdkModel.Listener listener;
     private final DefaultComboBoxModel model;
     private final FxSdkAdditionalDataPanel panel;
-    private Sdk fxSdk;
+    private Sdk visageSdk;
 
     public FxSdkAdditionalDataConfigurable (SdkModel sdkModel) {
         this.sdkModel = sdkModel;
@@ -85,7 +85,7 @@ public final class FxSdkAdditionalDataConfigurable implements AdditionalDataConf
     }
 
     public void setSdk (Sdk sdk) {
-        fxSdk = sdk;
+        visageSdk = sdk;
     }
 
     public JComponent createComponent () {
@@ -97,13 +97,13 @@ public final class FxSdkAdditionalDataConfigurable implements AdditionalDataConf
     }
 
     public boolean isModified () {
-        FxSdkAdditionalData additionalData = (FxSdkAdditionalData) fxSdk.getSdkAdditionalData();
+        FxSdkAdditionalData additionalData = (FxSdkAdditionalData) visageSdk.getSdkAdditionalData();
         Sdk selectedSdk = (Sdk) model.getSelectedItem ();
         return additionalData == null  ||  ! Comparing.equal(selectedSdk != null ? selectedSdk.getName () : null, additionalData.getJavaSdkName());
     }
 
     public void apply () {
-        final SdkModificator modificator = fxSdk.getSdkModificator ();
+        final SdkModificator modificator = visageSdk.getSdkModificator ();
         Sdk selectedSdk = (Sdk) model.getSelectedItem ();
         modificator.setSdkAdditionalData (new FxSdkAdditionalData (selectedSdk != null ? selectedSdk.getName () : null, sdkModel));
         ApplicationManager.getApplication ().runWriteAction (new Runnable() {
@@ -111,11 +111,11 @@ public final class FxSdkAdditionalDataConfigurable implements AdditionalDataConf
                 modificator.commitChanges ();
             }
         });
-        fxSdk.getSdkType ().setupSdkPaths (fxSdk);
+        visageSdk.getSdkType ().setupSdkPaths (visageSdk);
     }
 
     public void reset () {
-        FxSdkAdditionalData data = (FxSdkAdditionalData) fxSdk.getSdkAdditionalData ();
+        FxSdkAdditionalData data = (FxSdkAdditionalData) visageSdk.getSdkAdditionalData ();
         if (data != null) {
             Sdk sdk = data.findSdk ();
             if (sdk != null)

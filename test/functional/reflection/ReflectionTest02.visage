@@ -63,13 +63,13 @@ class TestClass extends BaseTestClass  {
    var vbooleanAttr1;
 };
 
-function inspectMember( fxo: VisageObjectValue ) {
+function inspectMember( visageo: VisageObjectValue ) {
 
 }
 
-function inspectClass( context: VisageLocal.Context, clzName:String, fxov: VisageObjectValue) { 
+function inspectClass( context: VisageLocal.Context, clzName:String, visageov: VisageObjectValue) { 
 		var clsTestClass: VisageClassType;
-	   var clsObject =  fxov;
+	   var clsObject =  visageov;
 		try {
 		clsTestClass = context.findClass(clzName);
 		} catch( e: java.lang.Exception) {println("PASS findClass Exception: did not find {clzName}"); }
@@ -120,11 +120,11 @@ function inspectClass( context: VisageLocal.Context, clzName:String, fxov: Visag
 		// variable member
 		println("VARIABLES of {clsTestClass.toString()}");
 		for (vmem in clsTestClass.getVariables(true)) {
-		  var fxv:VisageValue = vmem.getValue(clsObject);
-		  var fxT = vmem.getType().getName();
-		  print("  {vmem.getName()} type:{fxT}  static={vmem.isStatic()}; Decl.class: {vmem.getDeclaringClass().getName()} ");
-          if ( fxT.compareTo("visage.reflect.VisageLocal.Context") ==0) { println("");} else {
-		   try {println("  value=[{vmem.getValue(clsObject).getValueString()}], itemcount={fxv.getItemCount()}");
+		  var visagev:VisageValue = vmem.getValue(clsObject);
+		  var visageT = vmem.getType().getName();
+		  print("  {vmem.getName()} type:{visageT}  static={vmem.isStatic()}; Decl.class: {vmem.getDeclaringClass().getName()} ");
+          if ( visageT.compareTo("visage.reflect.VisageLocal.Context") ==0) { println("");} else {
+		   try {println("  value=[{vmem.getValue(clsObject).getValueString()}], itemcount={visagev.getItemCount()}");
 		   }catch(iae:java.lang.IllegalArgumentException){println(iae); }
           }
 		}

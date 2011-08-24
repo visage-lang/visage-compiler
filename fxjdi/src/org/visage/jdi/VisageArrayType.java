@@ -35,8 +35,8 @@ import java.util.List;
  * @author sundar
  */
 public class VisageArrayType extends VisageReferenceType implements ArrayType {
-    public VisageArrayType(VisageVirtualMachine fxvm, ArrayType underlying) {
-        super(fxvm, underlying);
+    public VisageArrayType(VisageVirtualMachine visagevm, ArrayType underlying) {
+        super(visagevm, underlying);
     }
 
     public String componentSignature() {

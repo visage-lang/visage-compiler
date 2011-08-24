@@ -155,11 +155,11 @@ public class VSGC2054Test {
         DeclaredType dt = (DeclaredType) type;
         VisageResolve resolve = VisageResolve.instance(((VisagecTaskImpl)task).getContext());
         Object env = ((VisagecScope) scope).getEnv();
-        VisageEnv<VisageAttrContext> fxEnv = (VisageEnv<VisageAttrContext>) env;
+        VisageEnv<VisageAttrContext> visageEnv = (VisageEnv<VisageAttrContext>) env;
         System.out.println(" env == " + scope);
         System.out.println(" dt == " + dt);
         System.out.println(" member == " + member);
-        boolean res = resolve.isAccessible(fxEnv, (Type)dt, (Symbol) member);
+        boolean res = resolve.isAccessible(visageEnv, (Type)dt, (Symbol) member);
         assertTrue(res);
     }
 }

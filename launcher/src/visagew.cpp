@@ -96,7 +96,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE previnst, LPSTR cmdline, int cmdsho
     }
 
     cmd += "org.visage.runtime.Main ";
-    cmd += config.fxargs;
+    cmd += config.visageargs;
 
 
     return util.createProcess(cmd);

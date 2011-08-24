@@ -50,7 +50,7 @@ public class VisageInitDefinition extends VisageTree implements InitDefinitionTr
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.INIT_DEF;
     }
 

@@ -33,8 +33,8 @@ import com.sun.jdi.request.ClassPrepareRequest;
  * @author sundar
  */
 public class VisageClassPrepareRequest extends VisageEventRequest implements ClassPrepareRequest {
-    public VisageClassPrepareRequest(VisageVirtualMachine fxvm, ClassPrepareRequest underlying) {
-        super(fxvm, underlying);
+    public VisageClassPrepareRequest(VisageVirtualMachine visagevm, ClassPrepareRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addClassExclusionFilter(String arg0) {

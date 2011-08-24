@@ -23,7 +23,7 @@
  * have any questions.
  */ 
 
-package fxpad.gui;
+package visagepad.gui;
 
 
 public enum MessageType {

@@ -3,11 +3,11 @@
  * Float, Double} using cross-level assignments and instance/local
  * differentiations of variables with equal names.
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 public class VarBoundaryValues extends VisageTestCase {
     var cInstance = cScript;

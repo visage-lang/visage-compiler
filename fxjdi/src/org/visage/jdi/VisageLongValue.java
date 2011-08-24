@@ -30,8 +30,8 @@ import com.sun.jdi.LongValue;
  * @author sundar
  */
 public class VisageLongValue extends VisagePrimitiveValue implements LongValue {
-    public VisageLongValue(VisageVirtualMachine fxvm, LongValue underlying) {
-        super(fxvm, underlying);
+    public VisageLongValue(VisageVirtualMachine visagevm, LongValue underlying) {
+        super(visagevm, underlying);
     }
 
     public long value() {

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import org.visage.jdi.VisageSequenceReference;
 import com.sun.jdi.StringReference;
@@ -50,7 +50,7 @@ public class VSGC4440Test extends JdbBase {
         compile("VSGC4440Test.visage");
         
         stop("in VSGC4440Test.func");
-        fxrun();
+        visagerun();
         resumeToBreakpoint();
         VisageSequenceReference seq = (VisageSequenceReference) evaluate("VSGC4440Test.seq");
         // used to get NPE from this setValue call.

@@ -33,8 +33,8 @@ import com.sun.jdi.event.ThreadDeathEvent;
  * @author sundar
  */
 public class VisageThreadDeathEvent extends VisageEvent implements ThreadDeathEvent {
-    public VisageThreadDeathEvent(VisageVirtualMachine fxvm, ThreadDeathEvent underlying) {
-        super(fxvm, underlying);
+    public VisageThreadDeathEvent(VisageVirtualMachine visagevm, ThreadDeathEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageThreadReference thread() {

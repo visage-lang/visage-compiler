@@ -46,7 +46,7 @@ import org.visage.runtime.VisageBase;
         clazz="org.visage.runtime.VisageBase",
         method="<init>"
     )
-    public static void onNewFXObject(@Self VisageBase self, AnyType[] args) {
+    public static void onNewVisageObject(@Self VisageBase self, AnyType[] args) {
         String className = self.getClass().getName();
         if (! instVarCounts.containsKey(className)) {
             instVarCounts.put(className, self.count$());

@@ -44,7 +44,7 @@ import org.junit.Test;
  */
 public class ConnectorsTest {
     @Test
-    public void testFXConnectors() {
+    public void testVisageConnectors() {
         LaunchingConnector conn = VisageBootstrap.virtualMachineManager().defaultConnector();
         Assert.assertEquals("org.visage.jdi.connect.VisageLaunchingConnector", conn.name());
         

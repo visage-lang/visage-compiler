@@ -1,5 +1,5 @@
 /**
- * VSGC-3405 : CoolFX demo compiles with 1.2 but not with 1.2.1.
+ * VSGC-3405 : CoolVisage demo compiles with 1.2 but not with 1.2.1.
  *
  * @test
  * @run

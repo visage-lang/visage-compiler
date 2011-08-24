@@ -36,8 +36,8 @@ import java.util.List;
  * @author sundar
  */
 public class VisageMethod extends VisageTypeComponent implements Method {
-    public VisageMethod(VisageVirtualMachine fxvm, Method underlying) {
-        super(fxvm, underlying);
+    public VisageMethod(VisageVirtualMachine visagevm, Method underlying) {
+        super(visagevm, underlying);
     }
 
     public List<Location> allLineLocations() throws AbsentInformationException {

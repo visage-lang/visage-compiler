@@ -35,8 +35,8 @@ import java.util.Iterator;
  * @author sundar
  */
 public class VisageEventSet extends VisageMirror implements EventSet {
-    public VisageEventSet(VisageVirtualMachine fxvm, EventSet underlying) {
-        super(fxvm, underlying);
+    public VisageEventSet(VisageVirtualMachine visagevm, EventSet underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageEventIterator eventIterator() {
@@ -135,7 +135,7 @@ public class VisageEventSet extends VisageMirror implements EventSet {
         return (EventSet) super.underlying();
     }
 
-    public static VisageEventSet wrap(VisageVirtualMachine fxvm, EventSet evtSet) {
-        return (evtSet == null)? null : new VisageEventSet(fxvm, evtSet);
+    public static VisageEventSet wrap(VisageVirtualMachine visagevm, EventSet evtSet) {
+        return (evtSet == null)? null : new VisageEventSet(visagevm, evtSet);
     }
 }

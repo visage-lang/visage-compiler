@@ -1,11 +1,11 @@
 /*
  * Test sequences indexing with various numeric types 
  *
- * @test/fxunit
+ * @test/visageunit
  * @
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
  
 public class NumSeqIndTest extends VisageTestCase {
 

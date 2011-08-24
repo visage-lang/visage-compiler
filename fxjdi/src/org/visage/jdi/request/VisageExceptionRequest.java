@@ -35,8 +35,8 @@ import com.sun.jdi.request.ExceptionRequest;
  * @author sundar
  */
 public class VisageExceptionRequest extends VisageEventRequest implements ExceptionRequest {
-    public VisageExceptionRequest(VisageVirtualMachine fxvm, ExceptionRequest underlying) {
-        super(fxvm, underlying);
+    public VisageExceptionRequest(VisageVirtualMachine visagevm, ExceptionRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addClassExclusionFilter(String arg0) {

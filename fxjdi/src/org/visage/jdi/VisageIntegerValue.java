@@ -30,8 +30,8 @@ import com.sun.jdi.IntegerValue;
  * @author sundar
  */
 public class VisageIntegerValue extends VisagePrimitiveValue implements IntegerValue {
-    public VisageIntegerValue(VisageVirtualMachine fxvm, IntegerValue underlying) {
-        super(fxvm, underlying);
+    public VisageIntegerValue(VisageVirtualMachine visagevm, IntegerValue underlying) {
+        super(visagevm, underlying);
     }
 
     public int value() {

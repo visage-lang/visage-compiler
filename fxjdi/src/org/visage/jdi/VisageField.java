@@ -31,8 +31,8 @@ import com.sun.jdi.Field;
  * @author sundar
  */
 public class VisageField extends VisageTypeComponent implements Field {
-    public VisageField(VisageVirtualMachine fxvm, Field underlying) {
-        super(fxvm, underlying);
+    public VisageField(VisageVirtualMachine visagevm, Field underlying) {
+        super(visagevm, underlying);
     }
 
     public boolean isEnumConstant() {

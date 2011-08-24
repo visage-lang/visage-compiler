@@ -34,8 +34,8 @@ import com.sun.jdi.event.MonitorContendedEnteredEvent;
  */
 public class VisageMonitorContendedEnteredEvent extends VisageLocatableEvent
         implements MonitorContendedEnteredEvent {
-    public VisageMonitorContendedEnteredEvent(VisageVirtualMachine fxvm, MonitorContendedEnteredEvent underlying) {
-        super(fxvm, underlying);
+    public VisageMonitorContendedEnteredEvent(VisageVirtualMachine visagevm, MonitorContendedEnteredEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageObjectReference monitor() {

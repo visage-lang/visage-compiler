@@ -31,8 +31,8 @@ import com.sun.jdi.BooleanType;
  */
 public class VisageBooleanType extends VisagePrimitiveType implements BooleanType {
 
-    public VisageBooleanType(VisageVirtualMachine fxvm, BooleanType underlying) {
-        super(fxvm, underlying);
+    public VisageBooleanType(VisageVirtualMachine visagevm, BooleanType underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

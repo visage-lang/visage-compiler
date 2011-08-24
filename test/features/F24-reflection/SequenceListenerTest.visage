@@ -20,12 +20,12 @@ class DummyListener extends VisageChangeListener {
 }
 
 public function run() {
-    def fxContext = VisageLocal.getContext();
-    def seqListenerClass = fxContext.makeClassRef(SequenceListenerTest.class);
+    def visageContext = VisageLocal.getContext();
+    def seqListenerClass = visageContext.makeClassRef(SequenceListenerTest.class);
     def xVar = seqListenerClass.getVariable('x');
     def seqVar = seqListenerClass.getVariable('seq');
     def instance = SequenceListenerTest{};
-    def mirror = fxContext.mirrorOf(instance);
+    def mirror = visageContext.mirrorOf(instance);
     def xListener = DummyListener{id: "x"};
     def seqListener = DummyListener{id: "Sequence"};
     def xId = xVar.addChangeListener(mirror, xListener);

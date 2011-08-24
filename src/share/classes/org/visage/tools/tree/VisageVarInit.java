@@ -117,7 +117,7 @@ public class VisageVarInit extends VisageExpression implements VariableTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.VAR_SCRIPT_INIT;
     }
     

@@ -110,7 +110,7 @@ public class VSGC3614 {
         // Make sure that the Variable def appears before the
         // run method in the tree.
         //
-        assertEquals(cdDefs.get(0).getFXTag(), VisageTag.VAR_DEF);
-        assertEquals(cdDefs.get(1).getFXTag(),VisageTag.FUNCTION_DEF);
+        assertEquals(cdDefs.get(0).getVisageTag(), VisageTag.VAR_DEF);
+        assertEquals(cdDefs.get(1).getVisageTag(),VisageTag.FUNCTION_DEF);
     }
 }

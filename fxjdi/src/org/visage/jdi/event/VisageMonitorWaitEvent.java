@@ -34,8 +34,8 @@ import com.sun.jdi.event.MonitorWaitEvent;
  */
 public class VisageMonitorWaitEvent extends VisageLocatableEvent 
         implements MonitorWaitEvent {
-    public VisageMonitorWaitEvent(VisageVirtualMachine fxvm, MonitorWaitEvent underlying) {
-        super(fxvm, underlying);
+    public VisageMonitorWaitEvent(VisageVirtualMachine visagevm, MonitorWaitEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageObjectReference monitor() {

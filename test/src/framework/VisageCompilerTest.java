@@ -171,7 +171,7 @@ public class VisageCompilerTest extends TestSuite {
                     isTest = true;
                     noCompare = true;
                 }
-                else if (token.equals("@test/fxunit")) {
+                else if (token.equals("@test/visageunit")) {
                     isTest = true;
                     isFxUnit = true;
                 }

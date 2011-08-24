@@ -45,7 +45,7 @@ public class VisageErroneousCatch extends VisageCatch {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ERRONEOUS;
     }
 

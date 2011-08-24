@@ -9,11 +9,11 @@
  *
  * with numeric types: Character, Byte, Long, Short, Float, Double
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 public class VarOperations extends VisageTestCase {
 

@@ -103,7 +103,7 @@ public class VisageScript extends VisageTree implements UnitTree {
                 // Protect againtst invalid trees
                 //
                 if (tree == null) break;
-                if (tree.getFXTag() == VisageTag.IMPORT) {
+                if (tree.getVisageTag() == VisageTag.IMPORT) {
                     imports.append((VisageImport) tree);
                 } else {
                     break;
@@ -131,7 +131,7 @@ public class VisageScript extends VisageTree implements UnitTree {
         if (defs != null)
         {
             for (; !typeDefs.isEmpty(); typeDefs = typeDefs.tail) {
-                if (typeDefs.head.getFXTag() != VisageTag.IMPORT) {
+                if (typeDefs.head.getVisageTag() != VisageTag.IMPORT) {
                     break;
                 }
             }
@@ -145,7 +145,7 @@ public class VisageScript extends VisageTree implements UnitTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.TOPLEVEL;
     }
 }

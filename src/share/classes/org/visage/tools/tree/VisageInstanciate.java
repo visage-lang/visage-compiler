@@ -35,7 +35,7 @@ import com.sun.tools.mjavac.util.List;
  */
 public class VisageInstanciate extends VisageExpression implements InstantiateTree {
 
-    private final VisageKind fxKind;
+    private final VisageKind visageKind;
     private final VisageExpression clazz;
     private final VisageClassDeclaration def;
     private final List<VisageExpression> args;
@@ -45,9 +45,9 @@ public class VisageInstanciate extends VisageExpression implements InstantiateTr
     public Symbol constructor;
     public Symbol varDefinedByThis;
 
-    protected VisageInstanciate(VisageKind fxKind, VisageExpression clazz, VisageClassDeclaration def, List<VisageExpression> args,
+    protected VisageInstanciate(VisageKind visageKind, VisageExpression clazz, VisageClassDeclaration def, List<VisageExpression> args,
             List<VisageObjectLiteralPart> parts, List<VisageVar> localVars, ClassSymbol sym) {
-        this.fxKind = fxKind;
+        this.visageKind = visageKind;
         this.clazz = clazz;
         this.def = def;
         this.args = args;
@@ -73,7 +73,7 @@ public class VisageInstanciate extends VisageExpression implements InstantiateTr
     }
 
     public Symbol getIdentifierSym() {
-        switch (clazz.getFXTag()) {
+        switch (clazz.getVisageTag()) {
             case IDENT:
                 return ((VisageIdent) clazz).sym;
             case SELECT:
@@ -110,12 +110,12 @@ public class VisageInstanciate extends VisageExpression implements InstantiateTr
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.OBJECT_LITERAL;
     }
 
     public VisageKind getVisageKind() {
-        return fxKind;
+        return visageKind;
     }
 
     public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {

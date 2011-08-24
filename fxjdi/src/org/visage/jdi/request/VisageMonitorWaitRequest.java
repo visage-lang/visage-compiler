@@ -35,8 +35,8 @@ import com.sun.jdi.request.MonitorWaitRequest;
  * @author sundar
  */
 public class VisageMonitorWaitRequest extends VisageEventRequest implements MonitorWaitRequest {
-    public VisageMonitorWaitRequest(VisageVirtualMachine fxvm, MonitorWaitRequest underlying) {
-        super(fxvm, underlying);
+    public VisageMonitorWaitRequest(VisageVirtualMachine visagevm, MonitorWaitRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addClassExclusionFilter(String arg0) {

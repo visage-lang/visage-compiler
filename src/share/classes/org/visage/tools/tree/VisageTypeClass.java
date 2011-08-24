@@ -58,7 +58,7 @@ public class VisageTypeClass extends VisageType implements TypeClassTree {
     public VisageExpression getClassName() { return className; }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.TYPECLASS;
     }
 

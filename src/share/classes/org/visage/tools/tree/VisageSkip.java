@@ -50,7 +50,7 @@ public class VisageSkip extends VisageExpression implements EmptyStatementTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.SKIP;
     }
 }

@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class StopAtBkpointTest extends JdbBase {
             stop("in StopAtBkpoint:8");
             stop("in StopAtBkpoint:9");
 
-            fxrun();
+            visagerun();
 
             resumeToBreakpoint();
             System.out.println("List 1");

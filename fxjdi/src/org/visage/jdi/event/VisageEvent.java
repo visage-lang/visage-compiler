@@ -55,8 +55,8 @@ import java.util.Collection;
  * @author sundar
  */
 public class VisageEvent extends VisageMirror implements Event {
-    public VisageEvent(VisageVirtualMachine fxvm, Event underlying) {
-        super(fxvm, underlying);
+    public VisageEvent(VisageVirtualMachine visagevm, Event underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageEventRequest request() {
@@ -72,52 +72,52 @@ public class VisageEvent extends VisageMirror implements Event {
         return (evt instanceof VisageEvent)? ((VisageEvent)evt).underlying() : evt;
     }
 
-    public static VisageEvent wrap(VisageVirtualMachine fxvm, Event evt) {
+    public static VisageEvent wrap(VisageVirtualMachine visagevm, Event evt) {
         if (evt == null) {
             return null;
         }
         if (evt instanceof AccessWatchpointEvent) {
-            return new VisageAccessWatchpointEvent(fxvm, (AccessWatchpointEvent)evt);
+            return new VisageAccessWatchpointEvent(visagevm, (AccessWatchpointEvent)evt);
         } else if (evt instanceof BreakpointEvent) {
-            return new VisageBreakpointEvent(fxvm, (BreakpointEvent)evt);
+            return new VisageBreakpointEvent(visagevm, (BreakpointEvent)evt);
         } else if (evt instanceof ClassPrepareEvent) {
-            return new VisageClassPrepareEvent(fxvm, (ClassPrepareEvent)evt);
+            return new VisageClassPrepareEvent(visagevm, (ClassPrepareEvent)evt);
         } else if (evt instanceof ClassUnloadEvent) {
-            return new VisageClassUnloadEvent(fxvm, (ClassUnloadEvent)evt);
+            return new VisageClassUnloadEvent(visagevm, (ClassUnloadEvent)evt);
         } else if (evt instanceof ExceptionEvent) {
-            return new VisageExceptionEvent(fxvm, (ExceptionEvent)evt);
+            return new VisageExceptionEvent(visagevm, (ExceptionEvent)evt);
         } else if (evt instanceof MethodEntryEvent) {
-            return new VisageMethodEntryEvent(fxvm, (MethodEntryEvent)evt);
+            return new VisageMethodEntryEvent(visagevm, (MethodEntryEvent)evt);
         } else if (evt instanceof MethodExitEvent) {
-            return new VisageMethodExitEvent(fxvm, (MethodExitEvent)evt);
+            return new VisageMethodExitEvent(visagevm, (MethodExitEvent)evt);
         } else if (evt instanceof ModificationWatchpointEvent) {
-            return new VisageModificationWatchpointEvent(fxvm, (ModificationWatchpointEvent)evt);
+            return new VisageModificationWatchpointEvent(visagevm, (ModificationWatchpointEvent)evt);
         } else if (evt instanceof MonitorContendedEnterEvent) {
-            return new VisageMonitorContendedEnterEvent(fxvm, (MonitorContendedEnterEvent)evt);
+            return new VisageMonitorContendedEnterEvent(visagevm, (MonitorContendedEnterEvent)evt);
         } else if (evt instanceof MonitorContendedEnteredEvent) {
-            return new VisageMonitorContendedEnteredEvent(fxvm, (MonitorContendedEnteredEvent)evt);
+            return new VisageMonitorContendedEnteredEvent(visagevm, (MonitorContendedEnteredEvent)evt);
         } else if (evt instanceof MonitorWaitEvent) {
-            return new VisageMonitorWaitEvent(fxvm, (MonitorWaitEvent)evt);
+            return new VisageMonitorWaitEvent(visagevm, (MonitorWaitEvent)evt);
         } else if (evt instanceof MonitorWaitedEvent) {
-            return new VisageMonitorWaitedEvent(fxvm, (MonitorWaitedEvent)evt);
+            return new VisageMonitorWaitedEvent(visagevm, (MonitorWaitedEvent)evt);
         } else if (evt instanceof StepEvent) {
-            return new VisageStepEvent(fxvm, (StepEvent)evt);
+            return new VisageStepEvent(visagevm, (StepEvent)evt);
         } else if (evt instanceof ThreadDeathEvent) {
-            return new VisageThreadDeathEvent(fxvm, (ThreadDeathEvent)evt);
+            return new VisageThreadDeathEvent(visagevm, (ThreadDeathEvent)evt);
         } else if (evt instanceof ThreadStartEvent) {
-            return new VisageThreadStartEvent(fxvm, (ThreadStartEvent)evt);
+            return new VisageThreadStartEvent(visagevm, (ThreadStartEvent)evt);
         } else if (evt instanceof VMDeathEvent) {
-            return new VisageVMDeathEvent(fxvm, (VMDeathEvent)evt);
+            return new VisageVMDeathEvent(visagevm, (VMDeathEvent)evt);
         } else if (evt instanceof VMDisconnectEvent) {
-            return new VisageVMDisconnectEvent(fxvm, (VMDisconnectEvent)evt);
+            return new VisageVMDisconnectEvent(visagevm, (VMDisconnectEvent)evt);
         } else if (evt instanceof VMStartEvent) {
-            return new VisageVMStartEvent(fxvm, (VMStartEvent)evt);
+            return new VisageVMStartEvent(visagevm, (VMStartEvent)evt);
         } else if (evt instanceof WatchpointEvent) {
-            return new VisageWatchpointEvent(fxvm, (WatchpointEvent)evt);
+            return new VisageWatchpointEvent(visagevm, (WatchpointEvent)evt);
         } else if (evt instanceof LocatableEvent) {
-            return new VisageLocatableEvent(fxvm, (LocatableEvent)evt);
+            return new VisageLocatableEvent(visagevm, (LocatableEvent)evt);
         } else {
-            return new VisageEvent(fxvm, evt);
+            return new VisageEvent(visagevm, evt);
         }
     }
 

@@ -64,7 +64,7 @@ public class VisageTypeFunctional extends VisageType implements TypeFunctionalTr
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.TYPEFUNC;
     }
 

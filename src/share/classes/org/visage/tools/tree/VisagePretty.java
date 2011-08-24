@@ -294,7 +294,7 @@ public class VisagePretty implements VisageVisitor {
         }
         boolean firstImport = true;
         for (List<VisageTree> l = tree.defs; l.nonEmpty(); l = l.tail) {
-            if (l.head.getFXTag() == VisageTag.IMPORT) {
+            if (l.head.getVisageTag() == VisageTag.IMPORT) {
                 VisageImport imp = (VisageImport)l.head;
                     if (firstImport) {
                         firstImport = false;
@@ -358,7 +358,7 @@ public class VisagePretty implements VisageVisitor {
     public void visitWhileLoop(VisageWhileLoop tree) {
         try {
             print("while ");
-            if (tree.cond.getFXTag() == VisageTag.PARENS) {
+            if (tree.cond.getVisageTag() == VisageTag.PARENS) {
                 printExpr(tree.cond);
             } else {
                 print("(");
@@ -460,7 +460,7 @@ public class VisagePretty implements VisageVisitor {
     public void visitFunctionInvocation(VisageFunctionInvocation tree) {
         try {
             if (!tree.typeargs.isEmpty()) {
-                if (tree.meth.getFXTag() == VisageTag.SELECT) {
+                if (tree.meth.getVisageTag() == VisageTag.SELECT) {
                     VisageSelect left = (VisageSelect)tree.meth;
                     printExpr(left.selected);
                     print(".<");
@@ -542,7 +542,7 @@ public class VisagePretty implements VisageVisitor {
         try {
             open(prec, VisageTreeInfo.assignopPrec);
             printExpr(tree.lhs, VisageTreeInfo.assignopPrec + 1);
-            print(" " + operatorName(tree.getFXTag()));
+            print(" " + operatorName(tree.getVisageTag()));
             printExpr(tree.rhs, VisageTreeInfo.assignopPrec);
             close(prec, VisageTreeInfo.assignopPrec);
         } catch (IOException e) {
@@ -553,15 +553,15 @@ public class VisagePretty implements VisageVisitor {
     //@Override
     public void visitUnary(VisageUnary tree) {
         try {
-           if (tree.getFXTag() == VisageTag.SIZEOF) {
+           if (tree.getVisageTag() == VisageTag.SIZEOF) {
                print("(sizeof ");
                printExpr(tree.arg);
                print(")");
             } else {
-                int ownprec = VisageTreeInfo.opPrec(tree.getFXTag());
-                String opname = operatorName(tree.getFXTag());
+                int ownprec = VisageTreeInfo.opPrec(tree.getVisageTag());
+                String opname = operatorName(tree.getVisageTag());
                 open(prec, ownprec);
-                if (tree.getFXTag().ordinal() <= VisageTag.PREDEC.ordinal()) {
+                if (tree.getVisageTag().ordinal() <= VisageTag.PREDEC.ordinal()) {
                     print(opname);
                     printExpr(tree.arg, ownprec);
                 } else {
@@ -577,8 +577,8 @@ public class VisagePretty implements VisageVisitor {
 
     public void visitBinary(VisageBinary tree) {
         try {
-            int ownprec = VisageTreeInfo.opPrec(tree.getFXTag());
-            String opname = operatorName(tree.getFXTag());
+            int ownprec = VisageTreeInfo.opPrec(tree.getVisageTag());
+            String opname = operatorName(tree.getVisageTag());
             open(prec, ownprec);
             printExpr(tree.lhs, ownprec);
             print(" " + opname + " ");
@@ -796,8 +796,8 @@ public class VisagePretty implements VisageVisitor {
 
     public static void visitFunctionDefinition(VisagePretty pretty, VisageFunctionDefinition tree) {
         try {
-            VisagePretty fxpretty = (VisagePretty)pretty;
-            int oldScope = fxpretty.variableScope;
+            VisagePretty visagepretty = (VisagePretty)pretty;
+            int oldScope = visagepretty.variableScope;
             pretty.println();
             pretty.align();
             pretty.printDocComment(tree);
@@ -805,11 +805,11 @@ public class VisagePretty implements VisageVisitor {
             pretty.print("function ");
             pretty.print(tree.name);
             pretty.print("(");
-            fxpretty.variableScope = SCOPE_PARAMS;
+            visagepretty.variableScope = SCOPE_PARAMS;
             pretty.printExprs(tree.getParams());
-            fxpretty.variableScope = SCOPE_METHOD;
+            visagepretty.variableScope = SCOPE_METHOD;
             pretty.print(")");
-            if (tree.operation.rettype != null && tree.operation.rettype.getFXTag() != VisageTag.TYPEUNKNOWN) {
+            if (tree.operation.rettype != null && tree.operation.rettype.getVisageTag() != VisageTag.TYPEUNKNOWN) {
                 pretty.print(" : ");
                 pretty.printExpr(tree.operation.rettype);
             }
@@ -819,7 +819,7 @@ public class VisagePretty implements VisageVisitor {
                 pretty.printExpr(body);
             }
             pretty.println();
-            fxpretty.variableScope = oldScope;
+            visagepretty.variableScope = oldScope;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -1180,7 +1180,7 @@ public class VisagePretty implements VisageVisitor {
                 }
             }
             print(tree.getName());
-            if (tree.getVisageType() != null && tree.getVisageType().getFXTag() != VisageTag.TYPEANY) {
+            if (tree.getVisageType() != null && tree.getVisageType().getVisageTag() != VisageTag.TYPEANY) {
                 printTypeSpecifier(tree.getVisageType());
             }
             if (variableScope != SCOPE_PARAMS) {

@@ -1217,7 +1217,7 @@ public class VisageResolve {
                 staticOnly = true;
         }
 
-        if (env.tree.getFXTag() != VisageTag.IMPORT) {
+        if (env.tree.getVisageTag() != VisageTag.IMPORT) {
             sym = findGlobalType(env, env.toplevel.namedImportScope, name);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
@@ -1231,7 +1231,7 @@ public class VisageResolve {
         if (type != null)
             return type.tsym;
 
-        if (env.tree.getFXTag() != VisageTag.IMPORT) {
+        if (env.tree.getVisageTag() != VisageTag.IMPORT) {
             sym = findGlobalType(env, env.toplevel.starImportScope, name);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;

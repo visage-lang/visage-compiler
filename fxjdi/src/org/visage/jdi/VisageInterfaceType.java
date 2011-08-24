@@ -32,8 +32,8 @@ import java.util.List;
  * @author sundar
  */
 public class VisageInterfaceType extends VisageReferenceType implements InterfaceType {
-    public VisageInterfaceType(VisageVirtualMachine fxvm, InterfaceType ifaceType) {
-        super(fxvm, ifaceType);
+    public VisageInterfaceType(VisageVirtualMachine visagevm, InterfaceType ifaceType) {
+        super(visagevm, ifaceType);
     }
 
     public List<ClassType> implementors() {
@@ -54,7 +54,7 @@ public class VisageInterfaceType extends VisageReferenceType implements Interfac
     }
 
     private boolean isIsFxTypeSet = false;
-    private boolean isFXType = false; 
+    private boolean isVisageType = false; 
     /**
      * JDI addition: Determines if this is a Visage type.
      *
@@ -63,19 +63,19 @@ public class VisageInterfaceType extends VisageReferenceType implements Interfac
     public boolean isVisageType() {
         if (!isIsFxTypeSet) {
             isIsFxTypeSet = true;
-            VisageVirtualMachine fxvm = virtualMachine();
-            InterfaceType fxObjType = (InterfaceType) VisageWrapper.unwrap(fxvm.fxObjectType());
-            if (fxObjType != null) {
+            VisageVirtualMachine visagevm = virtualMachine();
+            InterfaceType visageObjType = (InterfaceType) VisageWrapper.unwrap(visagevm.visageObjectType());
+            if (visageObjType != null) {
                 InterfaceType thisType = underlying();
                 List<InterfaceType> allIfaces = thisType.superinterfaces();
                 for (InterfaceType iface : allIfaces) {
-                    if (iface.equals(fxObjType)) {
-                        isFXType = true;
+                    if (iface.equals(visageObjType)) {
+                        isVisageType = true;
                         break;
                     }
                 }
             }
         }
-        return isFXType;
+        return isVisageType;
     }
 }

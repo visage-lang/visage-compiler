@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class DumpTest extends JdbBase {
             //resetOutputs();//Uncomment this if you want to see the output on console
             compile("DumpVar.visage");
             stop("in DumpVar:10");
-            fxrun();
+            visagerun();
             resumeToBreakpoint();
             list();
             dump("DumpVar.globalV");

@@ -1,8 +1,8 @@
 /*
- * @test/fxunit
+ * @test/visageunit
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 public class NumberTest extends VisageTestCase {
     public function testAssertEqualsNumber() {

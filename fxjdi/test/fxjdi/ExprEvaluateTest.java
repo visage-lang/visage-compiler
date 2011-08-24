@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import org.visage.jdi.VisageIntegerType;
 import org.visage.jdi.VisageIntegerValue;
@@ -54,7 +54,7 @@ public class ExprEvaluateTest extends JdbBase {
             compile("Eval.visage");
             stop("in Eval.visage$run$");
             stop("in Eval:10");
-            fxrun();
+            visagerun();
             resumeToBreakpoint();
             list();
             Value val = evaluate("Eval.fact(3)");

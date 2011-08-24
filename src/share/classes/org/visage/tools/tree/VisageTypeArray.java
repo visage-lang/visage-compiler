@@ -53,7 +53,7 @@ public class VisageTypeArray extends VisageType implements TypeArrayTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.TYPEARRAY;
     }
 

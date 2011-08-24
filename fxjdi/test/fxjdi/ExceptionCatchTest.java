@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import com.sun.jdi.event.Event;
 import com.sun.jdi.event.ExceptionEvent;
@@ -65,7 +65,7 @@ public class ExceptionCatchTest extends JdbBase {
             compile("ExceptionBreak.visage");
             stop("in ExceptionBreak:2");
             stop("in ExceptionBreak:6");
-            fxrun();
+            visagerun();
             ExceptionRequest exceptionReq = catchException("java.lang.Exception");
             resumeToBreakpoint();//Change the above call to catchException("somejunk") ,this TC doesn't work.
             list();

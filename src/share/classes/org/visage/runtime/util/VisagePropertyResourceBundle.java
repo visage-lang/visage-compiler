@@ -508,7 +508,7 @@ class VisagePropertyResourceBundle extends ResourceBundle {
 
             String bundleName = toBundleName(baseName, locale);
             ResourceBundle bundle = null;
-	    final String resourceName = toResourceName(bundleName, "fxproperties");
+	    final String resourceName = toResourceName(bundleName, "visageproperties");
 	    final ClassLoader loader = classLoader;
 	    final boolean reload = reloadFlag;
 	    InputStream stream = null;

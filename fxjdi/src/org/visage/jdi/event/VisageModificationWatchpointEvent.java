@@ -34,8 +34,8 @@ import com.sun.jdi.event.ModificationWatchpointEvent;
  */
 public class VisageModificationWatchpointEvent extends VisageWatchpointEvent
     implements ModificationWatchpointEvent {
-    public VisageModificationWatchpointEvent(VisageVirtualMachine fxvm, ModificationWatchpointEvent underlying) {
-        super(fxvm, underlying);
+    public VisageModificationWatchpointEvent(VisageVirtualMachine visagevm, ModificationWatchpointEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageValue valueToBe() {

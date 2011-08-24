@@ -30,8 +30,8 @@ import com.sun.jdi.Type;
  * @author sundar
  */
 public class VisageType extends VisageMirror implements Type {
-    public VisageType(VisageVirtualMachine fxvm, Type underlying) {
-        super(fxvm, underlying);
+    public VisageType(VisageVirtualMachine visagevm, Type underlying) {
+        super(visagevm, underlying);
     }
 
     public String name() {

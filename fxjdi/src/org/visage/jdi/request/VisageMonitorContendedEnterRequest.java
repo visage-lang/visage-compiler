@@ -36,8 +36,8 @@ import com.sun.jdi.request.MonitorContendedEnterRequest;
  */
 public class VisageMonitorContendedEnterRequest extends VisageEventRequest
         implements MonitorContendedEnterRequest {
-    public VisageMonitorContendedEnterRequest(VisageVirtualMachine fxvm, MonitorContendedEnterRequest underlying) {
-        super(fxvm, underlying);
+    public VisageMonitorContendedEnterRequest(VisageVirtualMachine visagevm, MonitorContendedEnterRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addClassExclusionFilter(String arg0) {

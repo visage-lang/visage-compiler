@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class BasicBindTest extends JdbBase {
             stop("in BasicBind:8");
             stop("in BasicBind:9");
 
-            fxrun();
+            visagerun();
 
             resumeToBreakpoint();
             Assert.assertTrue(verifyNumValue("BasicBind.$bindee", 1.0));

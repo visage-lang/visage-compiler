@@ -34,8 +34,8 @@ import com.sun.jdi.event.MethodExitEvent;
  * @author sundar
  */
 public class VisageMethodExitEvent extends VisageLocatableEvent implements MethodExitEvent {
-    public VisageMethodExitEvent(VisageVirtualMachine fxvm, MethodExitEvent underlying) {
-        super(fxvm, underlying);
+    public VisageMethodExitEvent(VisageVirtualMachine visagevm, MethodExitEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageMethod method() {

@@ -105,7 +105,7 @@ public class VisageForExpressionInClause extends VisageTree implements ForExpres
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.FOR_EXPRESSION_IN_CLAUSE;
     }
 

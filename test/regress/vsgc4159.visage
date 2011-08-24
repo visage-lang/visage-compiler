@@ -24,10 +24,10 @@ public function run() {
 
      println("Before insert into group.content.");
      insert a1 into group.content; // This triggers the on replace code in class A2
-     def fxClsType = cntxt.findClass(Group.class.getName());
+     def visageClsType = cntxt.findClass(Group.class.getName());
      println("Before reflective creation of Group.");
-     var obj = fxClsType.allocate();
-     def v = fxClsType.getVariable("content");
+     var obj = visageClsType.allocate();
+     def v = visageClsType.getVariable("content");
      obj.initVar(v, buildSequence(v,a1)); // It should do the same.
      obj.initialize();
 }

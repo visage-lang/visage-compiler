@@ -114,7 +114,7 @@
         <echo message="Checking generic deployed files."/>
         <inventory-deployed-check dir="." file="java-coffee-cup-23x20.png"/>
         <inventory-deployed-check dir="." file="Decora.jnlp"/>
-        <inventory-deployed-check dir="." file="dtfx.js"/>
+        <inventory-deployed-check dir="." file="dtvisage.js"/>
         <inventory-deployed-check dir="." file="visage-loading-100x100.gif"/>
         <inventory-deployed-check dir="." file="visage-loading-25x25.gif"/>
         <inventory-deployed-check dir="." file="visage-rt.jnlp"/>
@@ -125,7 +125,7 @@
         <inventory-deployed-check dir="./shared" file="visagert.jar"/>
         <inventory-deployed-check dir="./desktop" file="applet-launcher.jar"/>
         <inventory-deployed-check dir="./desktop" file="eula.jar"/>
-        <inventory-deployed-check dir="./desktop" file="fxdloader.jar"/>
+        <inventory-deployed-check dir="./desktop" file="visagedloader.jar"/>
         <inventory-deployed-check dir="./desktop" file="decora-runtime.jar"/>
         <inventory-deployed-check dir="./desktop" file="visage-anim.jar"/>
         <inventory-deployed-check dir="./desktop" file="visage-geom.jar"/>
@@ -214,7 +214,7 @@
     <target name="-inventory-rtdeployed-generic">
         <echo message="Checking generic rt-deployed files."/>
         <inventory-rtdeployed-check file="java-coffee-cup-23x20.png"/>
-        <inventory-rtdeployed-check file="dtfx.js"/>
+        <inventory-rtdeployed-check file="dtvisage.js"/>
         <inventory-rtdeployed-check file="visage-loading-100x100.gif"/>
         <inventory-rtdeployed-check file="visage-loading-25x25.gif"/>
         <inventory-rtdeployed-check file="visage-rt.jnlp"/>
@@ -303,7 +303,7 @@
         <inventory-sdk-check dir="./docs/api/visage.data.pull"            file="package-summary.html"/>
         <inventory-sdk-check dir="./docs/api/visage.data.xml"             file="package-summary.html"/>
         <inventory-sdk-check dir="./docs/api/visage.ext.swing"            file="package-summary.html"/>
-        <inventory-sdk-check dir="./docs/api/visage.fxd"                  file="package-summary.html"/>
+        <inventory-sdk-check dir="./docs/api/visage.visaged"                  file="package-summary.html"/>
         <inventory-sdk-check dir="./docs/api/visage.geometry"             file="package-summary.html"/>
         <inventory-sdk-check dir="./docs/api/visage.io.http"              file="package-summary.html"/>
         <inventory-sdk-check dir="./docs/api/visage.lang"                 file="package-summary.html"/>
@@ -331,7 +331,7 @@
         <inventory-sdk-check dir="./docs" file="manpage.css"/>
         <inventory-sdk-check dir="./lib"  file="visage-runtime.properties"/>
         <inventory-sdk-check dir="./lib/desktop" file="eula.jar"/>
-        <inventory-sdk-check dir="./lib/desktop" file="fxdloader.jar"/>
+        <inventory-sdk-check dir="./lib/desktop" file="visagedloader.jar"/>
         <inventory-sdk-check dir="./lib/desktop" file="decora-runtime.jar"/>
         <inventory-sdk-check dir="./lib/desktop" file="visage-anim.jar"/>
         <inventory-sdk-check dir="./lib/desktop" file="visage-geom.jar"/>

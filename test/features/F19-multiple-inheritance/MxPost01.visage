@@ -1,10 +1,10 @@
 /*
  * mixin postinit block order execution
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
-import visage.fxunit.*;
+import visage.visageunit.*;
 
 var res: String = "";
 

@@ -47,7 +47,7 @@ public class VisageInvalidate extends VisageExpression implements VariableInvali
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.INVALIDATE;
     }
 

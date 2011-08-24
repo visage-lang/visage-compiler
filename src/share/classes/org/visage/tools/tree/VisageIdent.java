@@ -66,7 +66,7 @@ public class VisageIdent extends VisageExpression implements IdentifierTree {
         return v.visitIdentifier(this, d);
     }
 
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.IDENT;
     }
 }

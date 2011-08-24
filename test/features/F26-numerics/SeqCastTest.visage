@@ -1,11 +1,11 @@
 /*
  * Test sequences casting 
  *
- * @test/fxunit
+ * @test/visageunit
  * @
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
  
 public class SeqCastTest extends VisageTestCase {
     var c1: Character = 5 as Character;

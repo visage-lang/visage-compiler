@@ -1,9 +1,9 @@
 /*
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
 
-import visage.fxunit.*;
+import visage.visageunit.*;
 
 public class BoundSelectTest extends VisageTestCase {
     function testBoundSelect() {

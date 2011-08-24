@@ -31,8 +31,8 @@ import com.sun.jdi.CharType;
  */
 public class VisageCharType extends VisagePrimitiveType implements CharType {
 
-    public VisageCharType(VisageVirtualMachine fxvm, CharType underlying) {
-        super(fxvm, underlying);
+    public VisageCharType(VisageVirtualMachine visagevm, CharType underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package fxjdi;
+package visagejdi;
 
 import org.visage.jdi.test.VisageTestBase;
 import org.visage.tools.debug.tty.Debugger;
@@ -119,11 +119,11 @@ public class JdbBase extends Debugger {
         return false;
     }
 
-    public void fxrun() {
-        fxrun((String[])null);
+    public void visagerun() {
+        visagerun((String[])null);
     }
 
-    public void fxrun(String... args) {
+    public void visagerun(String... args) {
         StringBuffer sb = new StringBuffer(VISAGE_MAIN);
         sb.append(" " + mainclass);
         if (args != null && args.length > 0) {
@@ -292,21 +292,21 @@ public class JdbBase extends Debugger {
 
     private void writeToFile(File outFile, InputStream is) {
         FileOutputStream fos = null;
-        PrintStream fxps = null;
+        PrintStream visageps = null;
         InputStreamReader ir = new InputStreamReader(is);
         BufferedReader br = new BufferedReader(ir);
         try {
             fos = new FileOutputStream(outFile);
-            fxps = new PrintStream(fos);
+            visageps = new PrintStream(fos);
             String codeline = br.readLine();
             while (codeline != null) {
-                fxps.println(codeline);
+                visageps.println(codeline);
                 codeline = br.readLine();
             }
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         } finally {
-            close(fxps);
+            close(visageps);
             close(fos);
             close(ir);
             close(br);
@@ -406,7 +406,7 @@ public class JdbBase extends Debugger {
     }
 
     static File testBuildDirectory() {
-        return new File(VisageTestBase.testBuildDirectory(), "fxjdi");
+        return new File(VisageTestBase.testBuildDirectory(), "visagejdi");
     }
 
     static File testWorkDirectory() {

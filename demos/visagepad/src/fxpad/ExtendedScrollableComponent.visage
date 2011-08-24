@@ -4,9 +4,9 @@
  * Created on Apr 19, 2008, 11:22:18 AM
  */
 
-package fxpad;
+package visagepad;
 
-import fxpad.gui.*;
+import visagepad.gui.*;
 import visage.ext.swing.*;
 
 /**

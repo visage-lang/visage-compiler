@@ -150,20 +150,20 @@ public class VisageTreeCopier implements VisageVisitor {
     public void visitAssignop(VisageAssignOp tree) {
         VisageExpression lhs = copy(tree.lhs);
         VisageExpression rhs = copy(tree.rhs);
-        VisageTag tag = tree.getFXTag();
+        VisageTag tag = tree.getVisageTag();
         result = maker.at(tree.pos).Assignop(tag, lhs, rhs);
     }
 
     public void visitUnary(VisageUnary tree) {
         VisageExpression arg = copy(tree.arg);
-        VisageTag tag = tree.getFXTag();
+        VisageTag tag = tree.getVisageTag();
         result = maker.at(tree.pos).Unary(tag, arg);
     }
 
     public void visitBinary(VisageBinary tree) {
         VisageExpression lhs = copy(tree.lhs);
         VisageExpression rhs = copy(tree.rhs);
-        VisageTag tag = tree.getFXTag();
+        VisageTag tag = tree.getVisageTag();
         result = maker.at(tree.pos).Binary(tag, lhs, rhs);
     }
 

@@ -23,7 +23,7 @@
  * have any questions.
  */ 
 
-package fxpad;
+package visagepad;
 
 import visage.ext.swing.*;
 

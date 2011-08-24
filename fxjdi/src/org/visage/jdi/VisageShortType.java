@@ -31,8 +31,8 @@ import com.sun.jdi.ShortType;
  */
 public class VisageShortType extends VisagePrimitiveType implements ShortType {
 
-    public VisageShortType(VisageVirtualMachine fxvm, ShortType underlying) {
-        super(fxvm, underlying);
+    public VisageShortType(VisageVirtualMachine visagevm, ShortType underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

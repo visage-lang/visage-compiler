@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -69,7 +69,7 @@ public class BasicInheritenceTest extends JdbBase {
             stop("in BasicInheritence$Sub:11");
             stop("in BasicInheritence:18");
 
-            fxrun();
+            visagerun();
 
             resumeToBreakpoint();
             list();

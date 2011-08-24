@@ -49,7 +49,7 @@ import com.sun.tools.mjavac.util.Name;
 public class VisageBoundFiller extends VisageTreeScanner {
 
     private final VisagePreTranslationSupport preTrans;
-    private final VisageTreeMaker fxmake;
+    private final VisageTreeMaker visagemake;
     private final VisageDefs defs;
     private final VisageSymtab syms;
     protected final VisageTypes types;
@@ -70,7 +70,7 @@ public class VisageBoundFiller extends VisageTreeScanner {
         context.put(boundFuncFill, this);
 
         preTrans = VisagePreTranslationSupport.instance(context);
-        fxmake = VisageTreeMaker.instance(context);
+        visagemake = VisageTreeMaker.instance(context);
         defs = VisageDefs.instance(context);
         syms = (VisageSymtab)VisageSymtab.instance(context);
         types = VisageTypes.instance(context);
@@ -119,7 +119,7 @@ public class VisageBoundFiller extends VisageTreeScanner {
 
         // Create the index var
         // var $indexof$x = $index$
-        VisageVar indexVar = preTrans.LocalVar(clause.pos(), syms.intType, indexName, fxmake.Ident(indexParamSym), owner);
+        VisageVar indexVar = preTrans.LocalVar(clause.pos(), syms.intType, indexName, visagemake.Ident(indexParamSym), owner);
         // Stash the created variable so it can be used when we visit a
         // VisageIndexof, where we convert that to a VisageIdent referencing the indexDecl.
         clause.indexVarSym = indexVar.sym;
@@ -148,17 +148,17 @@ public class VisageBoundFiller extends VisageTreeScanner {
             // There is a where-clause, convert to an if-expression
             VisageExpression nada;
             if (types.isSequence(valtype)) {
-                nada = fxmake.EmptySequence();
+                nada = visagemake.EmptySequence();
             } else {
                 // For now, at least, if there is a where clause, we need to be
                 // able to return null, so box the type
-                nada = fxmake.Literal(TypeTags.BOT, null);
+                nada = visagemake.Literal(TypeTags.BOT, null);
                 valtype = types.boxedElementType(seqType);
                 value = preTrans.makeCastIfNeeded(value, valtype);
                 value.type = valtype;
             }
             nada.type = valtype;
-            value = fxmake.Conditional(clause.getWhereExpression(), value, nada);
+            value = visagemake.Conditional(clause.getWhereExpression(), value, nada);
             value.type = valtype;
             clause.setWhereExpr(null);
         }
@@ -201,7 +201,7 @@ public class VisageBoundFiller extends VisageTreeScanner {
         if (blk != null) {
             VisageExpression returnExpr = (blk.value instanceof VisageReturn) ? ((VisageReturn) blk.value).getExpression() : blk.value;
             if (returnExpr != null) {
-                fxmake.at(blk.value.pos);
+                visagemake.at(blk.value.pos);
                 ListBuffer<VisageExpression> stmts = ListBuffer.lb();
                 /*
                  * Generate a local variable for each parameter. We will later
@@ -209,30 +209,30 @@ public class VisageBoundFiller extends VisageTreeScanner {
                  * These locals will be converted into instance variables of the
                  * local context class.
                  */
-                for (VisageVar fxVar : tree.getParams()) {
-                    VisageVar localVar = fxmake.Var(
-                            fxVar.name,
-                            fxVar.getVisageType(),
-                            fxmake.Modifiers(fxVar.mods.flags & ~Flags.PARAMETER),
-                            preTrans.defaultValue(fxVar.type),
+                for (VisageVar visageVar : tree.getParams()) {
+                    VisageVar localVar = visagemake.Var(
+                            visageVar.name,
+                            visageVar.getVisageType(),
+                            visagemake.Modifiers(visageVar.mods.flags & ~Flags.PARAMETER),
+                            preTrans.defaultValue(visageVar.type),
                             VisageBindStatus.UNIDIBIND, null, null);
-                    localVar.type = fxVar.type;
-                    localVar.sym = fxVar.sym;
+                    localVar.type = visageVar.type;
+                    localVar.sym = visageVar.sym;
                     stmts.append(localVar);
                 }
 
                 stmts.appendList(blk.stats);
 
                 // is return expression a variable declaration?
-                boolean returnExprIsVar = (returnExpr.getFXTag() == VisageTag.VAR_DEF);
+                boolean returnExprIsVar = (returnExpr.getVisageTag() == VisageTag.VAR_DEF);
                 if (returnExprIsVar) {
                     stmts.append(returnExpr);
                 }
-                VisageVar returnVar = fxmake.Var(
+                VisageVar returnVar = visagemake.Var(
                         defs.boundFunctionResultName,
-                        fxmake.TypeUnknown(),
-                        fxmake.Modifiers(0),
-                        returnExprIsVar ? fxmake.Ident((VisageVar) returnExpr) : returnExpr,
+                        visagemake.TypeUnknown(),
+                        visagemake.Modifiers(0),
+                        returnExprIsVar ? visagemake.Ident((VisageVar) returnExpr) : returnExpr,
                         VisageBindStatus.UNIDIBIND, null, null);
                 returnVar.type = tree.sym.type.getReturnType();
                 returnVar.sym = new VisageVarSymbol(types, names,0L, defs.boundFunctionResultName, returnVar.type, tree.sym);
@@ -242,21 +242,21 @@ public class VisageBoundFiller extends VisageTreeScanner {
 
                 // find the symbol of Pointer.make(Object) method.
                 // The select expression Pointer.make
-                VisageSelect select = fxmake.Select(fxmake.Type(syms.visage_PointerType), defs.make_PointerMethodName, false);
+                VisageSelect select = visagemake.Select(visagemake.Type(syms.visage_PointerType), defs.make_PointerMethodName, false);
                 select.sym = preTrans.makeSyntheticPointerMake();
                 select.type = select.sym.type;
 
 
                 // args for Pointer.make(Object)
-                VisageIdent ident = fxmake.Ident(returnVar);
+                VisageIdent ident = visagemake.Ident(returnVar);
                 ident.type = returnVar.type;
                 ident.sym = returnVar.sym;
                 ListBuffer<VisageExpression> pointerMakeArgs = ListBuffer.lb();
-                pointerMakeArgs.append(fxmake.VarRef(ident, VisageVarRef.RefKind.INST).setType(syms.visage_ObjectType));
-                pointerMakeArgs.append(fxmake.VarRef(ident, VisageVarRef.RefKind.VARNUM).setType(syms.intType));
+                pointerMakeArgs.append(visagemake.VarRef(ident, VisageVarRef.RefKind.INST).setType(syms.visage_ObjectType));
+                pointerMakeArgs.append(visagemake.VarRef(ident, VisageVarRef.RefKind.VARNUM).setType(syms.intType));
 
                 // call Pointer.make($$bound$result$)
-                VisageFunctionInvocation apply = fxmake.Apply(null, select, pointerMakeArgs.toList());
+                VisageFunctionInvocation apply = visagemake.Apply(null, select, pointerMakeArgs.toList());
                 apply.type = syms.visage_PointerType;
 
                 blk.stats = stmts.toList();

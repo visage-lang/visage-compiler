@@ -58,7 +58,7 @@ public class VisageModifiers extends VisageTree implements ModifiersTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.MODIFIERS;
     }
 }

@@ -341,7 +341,7 @@ public class MsgSym {
     public static final String MESSAGE_VISAGE_VOID_BLOCK_VALUE_NOT_ALLOWED = "visage.void.block.val.not.allowed";
     public static final String MESSAGE_VISAGE_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED = "visage.only.one.base.java.class.allowed"; 
     public static final String MESSAGE_VISAGE_ONLY_ONE_BASE_CLASS_ALLOWED = "visage.only.one.base.class.allowed";
-    public static final String MESSAGE_NEW_VISAGE_CLASS_NO_ARGS = "new.fxclass.no.args";
+    public static final String MESSAGE_NEW_VISAGE_CLASS_NO_ARGS = "new.visageclass.no.args";
     public static final String MESSAGE_VISAGE_NOT_ALLOWED_IN_BIND_CONTEXT = "visage.not.allowed.in.bind.context";
     public static final String MESSAGE_VISAGE_EXPR_UNSUPPORTED_FOR_BIDI_BIND = "visage.expr.unsupported.for.bidi.bind";    
     public static final String MESSAGE_VISAGE_UNSUPPORTED_TYPE_IN_BIND = "visage.unsupported.type.in.bind";

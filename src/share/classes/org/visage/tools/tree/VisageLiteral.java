@@ -102,7 +102,7 @@ public class VisageLiteral extends VisageExpression implements LiteralTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.LITERAL;
     }
 }

@@ -48,14 +48,14 @@ public class VisageBackendLog extends Log {
     private String crashFileName;
     private PrintWriter crashFileWriter;
     final Context context;
-    final Context fxContext;
+    final Context visageContext;
     public Env<AttrContext> env;
     private boolean dumpOccurred;
 
-    protected VisageBackendLog(Context context, final Context fxContext) {
+    protected VisageBackendLog(Context context, final Context visageContext) {
         super(context);
         this.context = context;
-        this.fxContext = fxContext;
+        this.visageContext = visageContext;
         this.dumpOccurred = false; // Only once
         
         /* This is a writer for writing the javadump to a file instead of to the default output.
@@ -66,11 +66,11 @@ public class VisageBackendLog extends Log {
         crashFileWriter = getWriterForDiagnosticType(JCDiagnostic.DiagnosticType.ERROR);
     }
 
-    public static void preRegister(final Context context, final Context fxContext) {
+    public static void preRegister(final Context context, final Context visageContext) {
         context.put(logKey, new Context.Factory<Log>() {
 
             public Log make() {
-                return new VisageBackendLog(context, fxContext);
+                return new VisageBackendLog(context, visageContext);
             }
         });
     }
@@ -90,11 +90,11 @@ public class VisageBackendLog extends Log {
     }
 
     private void writeToCrashFile(String extra) {
-        Log fxLog = Log.instance(fxContext);
+        Log visageLog = Log.instance(visageContext);
         if (crashFileName == null) {
-            fxLog.note(MsgSym.MESSAGE_VISAGE_NOTE_INTERNAL_ERROR2);
+            visageLog.note(MsgSym.MESSAGE_VISAGE_NOTE_INTERNAL_ERROR2);
         } else {
-            fxLog.note(MsgSym.MESSAGE_VISAGE_NOTE_INTERNAL_ERROR, crashFileName);
+            visageLog.note(MsgSym.MESSAGE_VISAGE_NOTE_INTERNAL_ERROR, crashFileName);
         }
         Log.printLines(crashFileWriter, Main.getVisageLocalizedString(
                                     "compiler.note." + MsgSym.MESSAGE_VISAGE_NOTE_INTERNAL_ERROR1,
@@ -123,7 +123,7 @@ public class VisageBackendLog extends Log {
                 if (!dumpOccurred && (dumpOnFail == null || !dumpOnFail.toLowerCase().startsWith("n"))) {
                     try {
                         try {
-                            new JavaPretty(sw, false, fxContext).printExpr(tree);
+                            new JavaPretty(sw, false, visageContext).printExpr(tree);
                         } finally {
                             sw.close();
                         }
@@ -152,7 +152,7 @@ public class VisageBackendLog extends Log {
             }
 
             // Write the error to stdout using the standard javac logger
-            Log.instance(fxContext).report(diagnostic);
+            Log.instance(visageContext).report(diagnostic);
             nerrors++;
         }
     }

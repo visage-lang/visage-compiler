@@ -54,7 +54,7 @@ public class VisageBinary extends VisageExpression implements BinaryTree {
     }
 
     public VisageKind getVisageKind() {
-        return VisageTreeInfo.tagToKind(getFXTag());
+        return VisageTreeInfo.tagToKind(getVisageTag());
     }
 
     public VisageExpression getLeftOperand() {
@@ -75,7 +75,7 @@ public class VisageBinary extends VisageExpression implements BinaryTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return opcode;
     }
     

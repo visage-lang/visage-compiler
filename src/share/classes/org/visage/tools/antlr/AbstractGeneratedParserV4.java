@@ -278,10 +278,10 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * An array of the human readable names of all the tokens the 
      * lexer can provide to the parser.
      * 
-     * This field should be accessed using the getFXTokenNames method
-     * @see #getFXTokenNames
+     * This field should be accessed using the getVisageTokenNames method
+     * @see #getVisageTokenNames
      */
-    protected String[] fxTokenNames = null;
+    protected String[] visageTokenNames = null;
     
     /**
      * Provides a human readable name for each of the parser grammar rules
@@ -1004,7 +1004,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
 
         // Now we build the appropriate error message
         //
-        String msg = getErrorMessage(e, getFXTokenNames(tokenNames));
+        String msg = getErrorMessage(e, getVisageTokenNames(tokenNames));
         
         // And record the information using the Visage error sink and the
         // DiagnosticPostion interface of the errorNode, which is created
@@ -1028,7 +1028,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
 
         // Now we build the appropriate error message
         //
-        String msg = getErrorMessage(e, getFXTokenNames(tokenNames));
+        String msg = getErrorMessage(e, getVisageTokenNames(tokenNames));
 
         // And record the information using the Visage error sink and the
         // DiagnosticPostion interface of the supplied node.
@@ -1042,31 +1042,31 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * @param tokenNames The names of the tokens as ANTLR sees them
      * @return An array of human readable descriptions indexewd by the ANTLR generated token type (integer)
      */
-    protected String[] getFXTokenNames(String[] tokenNames) {
+    protected String[] getVisageTokenNames(String[] tokenNames) {
         
         // If we have already generated this array, then we jsut return the
         // reference to it.
         //
-        if (fxTokenNames != null) {
-            return fxTokenNames;
+        if (visageTokenNames != null) {
+            return visageTokenNames;
         } else {
           
             // This is the first request for the array, so we build it
             // on the fly.
             //
-            fxTokenNames = new String[tokenNames.length];
+            visageTokenNames = new String[tokenNames.length];
             int count = 0;
             for (String tokenName:tokenNames) {
-                String fxTokenName = tokenMap.get(tokenName); 
-                if (fxTokenName == null) {
-                    fxTokenNames[count] = tokenName;
+                String visageTokenName = tokenMap.get(tokenName); 
+                if (visageTokenName == null) {
+                    visageTokenNames[count] = tokenName;
                 } else {
-                    fxTokenNames[count] = fxTokenName;
+                    visageTokenNames[count] = visageTokenName;
                 }
                 count++;
             }
             
-            return fxTokenNames;
+            return visageTokenNames;
         }
     
     }

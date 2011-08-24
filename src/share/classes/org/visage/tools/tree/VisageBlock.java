@@ -90,7 +90,7 @@ public class VisageBlock extends VisageExpression implements BlockExpressionTree
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.BLOCK_EXPRESSION;
     }
 

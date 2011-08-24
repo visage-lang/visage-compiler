@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class StepInUpTest extends JdbBase {
             //resetOutputs();//Uncomment this if you want to see the output on console
             compile("Method.visage");
             stop("in Method:7");
-            fxrun();
+            visagerun();
             resumeToBreakpoint();
             list();
 

@@ -23,7 +23,7 @@
  * have any questions.
  */ 
 
-package fxpad.gui;
+package visagepad.gui;
 
 import javax.swing.JOptionPane;
 import visage.ext.swing.*;

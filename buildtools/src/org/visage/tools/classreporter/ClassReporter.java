@@ -50,7 +50,7 @@ public class ClassReporter {
      *        -reference.url="http//foobar...job/id"
      */
 
-    private static  String fxclassname  = "HelloWorld";
+    private static  String visageclassname  = "HelloWorld";
     private static  String jarfilename  = null;
     private static  String builddir    = ".";
     private static  String distdir  = "dist";
@@ -62,7 +62,7 @@ public class ClassReporter {
         parseOutput();
 
         // print grand total
-        printReport(new File(builddir, fxclassname + "-Total-classes.txt"),
+        printReport(new File(builddir, visageclassname + "-Total-classes.txt"),
                 loadedClasses.size());
         
         Hashtable<String, Integer> jarClasses = new Hashtable<String, Integer>();
@@ -79,11 +79,11 @@ public class ClassReporter {
         
         // print the total for each of the jars
         for (String jarname : jarClasses.keySet()) {
-            printReport(new File(builddir, fxclassname + "-" + jarname + "-classes.txt"),
+            printReport(new File(builddir, visageclassname + "-" + jarname + "-classes.txt"),
                     jarClasses.get(jarname).intValue());
         }
 
-        printToCSV(new File(builddir, fxclassname + ".csv"));
+        printToCSV(new File(builddir, visageclassname + ".csv"));
     }
 
     static void printToCSV(File csvFile) throws IOException {
@@ -109,11 +109,11 @@ public class ClassReporter {
     /*
      * emit our Visage code
      */
-    static void CreateSampleFx(File fxFile) {
+    static void CreateSampleFx(File visageFile) {
         FileOutputStream fos = null;
         PrintStream ps = null;
         try {
-            fos = new FileOutputStream(fxFile);
+            fos = new FileOutputStream(visageFile);
             ps = new PrintStream(fos);
             ps.println("Visage.println(\"Hello World\");");            
         } catch (IOException ioe) {
@@ -130,7 +130,7 @@ public class ClassReporter {
                 Logger.getLogger(ClassReporter.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        doExec(getExe("visagec").getAbsolutePath(), fxFile.getAbsolutePath());
+        doExec(getExe("visagec").getAbsolutePath(), visageFile.getAbsolutePath());
     }
 
     static String getJarName(String inName) {
@@ -146,10 +146,10 @@ public class ClassReporter {
     static void parseOutput() {
         List<String> output = null;
         if (jarfilename == null) {
-            File fxFile = new File(builddir, fxclassname + ".visage");
-            CreateSampleFx(fxFile);
+            File visageFile = new File(builddir, visageclassname + ".visage");
+            CreateSampleFx(visageFile);
             output = doExec(getExe("visage").getAbsolutePath(), "-cp",
-                builddir, "-verbose:class", fxclassname  );
+                builddir, "-verbose:class", visageclassname  );
         } else {
             output = doExec(getExe("visage").getAbsolutePath(),
                     "-verbose:class", "-jar", jarfilename  );
@@ -241,11 +241,11 @@ public class ClassReporter {
             if (args != null) {
                 for (int i = 0 ; i < args.length ; i++) {
                     if (args[i].startsWith("-jar")) {
-                        fxclassname = args[i].substring(args[i].indexOf("=") + 1);
-                        if (fxclassname.endsWith(".jar")) {
-                            jarfilename=fxclassname;
+                        visageclassname = args[i].substring(args[i].indexOf("=") + 1);
+                        if (visageclassname.endsWith(".jar")) {
+                            jarfilename=visageclassname;
                             String jfname = new File(jarfilename).getName();
-                            fxclassname = jfname.substring(0, jfname.indexOf(".jar"));
+                            visageclassname = jfname.substring(0, jfname.indexOf(".jar"));
                         }
                     } else if (args[i].startsWith("-build.dir")) {
                         builddir = args[i].substring(args[i].indexOf("=") + 1);

@@ -1,10 +1,10 @@
 /*
  * Method overloading and numerics
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
-import visage.fxunit.*;
+import visage.visageunit.*;
 
 /**
  * These constants will be used to match between types

@@ -47,7 +47,7 @@ public class VisageIndexof extends VisageExpression implements IndexofTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.INDEXOF;
     }
 

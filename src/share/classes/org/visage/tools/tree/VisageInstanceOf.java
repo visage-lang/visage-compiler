@@ -62,7 +62,7 @@ public class VisageInstanceOf extends VisageExpression implements InstanceOfTree
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.TYPETEST;
     }
 }

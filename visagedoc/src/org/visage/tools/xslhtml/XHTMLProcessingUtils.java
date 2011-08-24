@@ -154,7 +154,7 @@ public class XHTMLProcessingUtils {
             }
         });
 
-        //File docsdir = new File("fxdocs");
+        //File docsdir = new File("visagedocs");
         if (!docsdir.exists()) {
             docsdir.mkdir();
         }
@@ -533,7 +533,7 @@ public class XHTMLProcessingUtils {
     public static void main(String[] args) throws Exception {
         List<String> inputs = new ArrayList<String>();
         inputs.add("javadoc.xml");
-        process(inputs, null, ".", new File("fxdocs_test"), new HashMap<String, String>());
+        process(inputs, null, ".", new File("visagedocs_test"), new HashMap<String, String>());
     }
 
     private static class MainErrorListener implements ErrorListener {
@@ -664,24 +664,24 @@ public class XHTMLProcessingUtils {
         try {
             Object ret = scrEng.eval(script); 
             // FIXME: should we use visage.reflect here?
-            Class<?> fxStageClass = Class.forName("visage.stage.Stage"); 
-            Class<?> fxSceneClass = Class.forName("visage.scene.Scene"); 
-            Class<?> fxNodeClass = Class.forName("visage.scene.Node"); 
+            Class<?> visageStageClass = Class.forName("visage.stage.Stage"); 
+            Class<?> visageSceneClass = Class.forName("visage.scene.Scene"); 
+            Class<?> visageNodeClass = Class.forName("visage.scene.Node"); 
             Object scene = null;
-            if (fxSceneClass.isInstance(ret)) { 
+            if (visageSceneClass.isInstance(ret)) { 
                 scene = ret; 
-            } else if (fxStageClass.isInstance(ret)) {
+            } else if (visageStageClass.isInstance(ret)) {
                 try {
-                    scene = fxStageClass.getMethod("get$scene").invoke(ret); 
+                    scene = visageStageClass.getMethod("get$scene").invoke(ret); 
                 } catch (Exception ex) {
                     pw.println("visagedoc: Exception while processing " + imgFile);
                     ex.printStackTrace(pw);
                     pw.flush();
                     return;
                 }
-            } else if (fxNodeClass.isInstance(ret)) {
+            } else if (visageNodeClass.isInstance(ret)) {
                 try {
-                    scene = fxNodeClass.getMethod("get$scene").invoke(ret); 
+                    scene = visageNodeClass.getMethod("get$scene").invoke(ret); 
                 } catch (Exception ex) {
                     pw.println("visagedoc: Exception while processing " + imgFile);
                     ex.printStackTrace(pw);
@@ -698,13 +698,13 @@ public class XHTMLProcessingUtils {
                        "}");
                 }
             } else {
-                Object fxclass = ret.getClass();
-                pw.println("ERROR: Unrecongized Visage class: " + fxclass); 
+                Object visageclass = ret.getClass();
+                pw.println("ERROR: Unrecongized Visage class: " + visageclass); 
                 pw.flush();
                 return;
             } 
             try {
-                Method renderToImage = fxSceneClass.getMethod("renderToImage", Object.class);
+                Method renderToImage = visageSceneClass.getMethod("renderToImage", Object.class);
                 BufferedImage img = (BufferedImage) renderToImage.invoke(scene, (Object)null); 
                 ImageIO.write(img, "png", imgFile); 
             } catch (Exception ex) {

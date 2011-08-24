@@ -72,7 +72,7 @@ public class VisageInterpolateValue extends VisageExpression implements Interpol
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.INTERPOLATION_VALUE;
     }
 }

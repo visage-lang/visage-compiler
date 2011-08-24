@@ -66,7 +66,7 @@ public class VisageSequenceRange extends VisageAbstractSequenceCreator implement
     }
     
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.SEQUENCE_RANGE;
     }
 

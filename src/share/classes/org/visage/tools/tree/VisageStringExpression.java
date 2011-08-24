@@ -58,7 +58,7 @@ public class VisageStringExpression extends VisageExpression implements StringEx
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.STRING_EXPRESSION;
     }
 

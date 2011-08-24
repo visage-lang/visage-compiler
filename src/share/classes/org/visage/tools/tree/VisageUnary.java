@@ -50,7 +50,7 @@ public class VisageUnary extends VisageExpression implements UnaryTree, Tree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return opcode;
     }
     
@@ -68,13 +68,13 @@ public class VisageUnary extends VisageExpression implements UnaryTree, Tree {
 
     @Override
     public VisageKind getVisageKind() {
-        switch (getFXTag()) {
+        switch (getVisageTag()) {
             case SIZEOF:
                 return VisageKind.SIZEOF;
             case REVERSE:
                 return VisageKind.REVERSE;
             default:
-                return VisageTreeInfo.tagToKind(getFXTag());
+                return VisageTreeInfo.tagToKind(getVisageTag());
         }
     }
 

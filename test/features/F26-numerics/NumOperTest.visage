@@ -1,11 +1,11 @@
 /*
  * Test binary operators on different types operands
  *
- * @test/fxunit
+ * @test/visageunit
  * @
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
  
 public class NumOperTest extends VisageTestCase {
 

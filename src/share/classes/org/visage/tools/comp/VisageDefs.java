@@ -70,15 +70,15 @@ public class VisageDefs {
     /**
      * Prefixes and name strings of generated VisageObject fields
      *
-     * Format: *_FXObjectFieldNameString
+     * Format: *_VisageObjectFieldNameString
      */
-    public static final String count_FXObjectFieldString = "VCNT$";
-    public static final String varFlags_FXObjectFieldPrefix = "VFLGS$";
-    public static final String varMap_FXObjectFieldPrefix = "MAP$";
-    public static final String depCount_FXObjectFieldString = "DCNT$";
-    public static final String dep_FXObjectFieldString = "DEP$";
-    public static final String funcCount_FXObjectFieldString = "FCNT$";
-    public static final String scriptLevelAccess_FXObjectFieldString = "$script$";
+    public static final String count_VisageObjectFieldString = "VCNT$";
+    public static final String varFlags_VisageObjectFieldPrefix = "VFLGS$";
+    public static final String varMap_VisageObjectFieldPrefix = "MAP$";
+    public static final String depCount_VisageObjectFieldString = "DCNT$";
+    public static final String dep_VisageObjectFieldString = "DEP$";
+    public static final String funcCount_VisageObjectFieldString = "FCNT$";
+    public static final String scriptLevelAccess_VisageObjectFieldString = "$script$";
 
     /**
      * Class suffixes
@@ -112,8 +112,8 @@ public class VisageDefs {
     public static final String annotation_PackageString = "org.visage.runtime.annotation";
     public static final String functions_PackageString = "org.visage.functions";
     public static final String sequence_PackageString = "org.visage.runtime.sequence";
-    public static final String fxLang_PackageString = "visage.lang";
-    public static final String fxAnimation_PackageString = "visage.animation";
+    public static final String visageLang_PackageString = "visage.lang";
+    public static final String visageAnimation_PackageString = "visage.animation";
 
     /**
      * Class name strings
@@ -153,12 +153,12 @@ public class VisageDefs {
     private static final String cMath = javaLang_PackageString + ".Math";
     private static final String cString = javaLang_PackageString + ".String";
     // in visage.lang package
-    private static final String cDuration = fxLang_PackageString + ".Duration";
-    private static final String cLength = fxLang_PackageString + ".Length";
-    private static final String cAngle = fxLang_PackageString + ".Angle";
-    private static final String cColor = fxLang_PackageString + ".Color";
+    private static final String cDuration = visageLang_PackageString + ".Duration";
+    private static final String cLength = visageLang_PackageString + ".Length";
+    private static final String cAngle = visageLang_PackageString + ".Angle";
+    private static final String cColor = visageLang_PackageString + ".Color";
     // in visage.animation package
-    public static final String cKeyValueTargetType = fxAnimation_PackageString + ".KeyValueTarget.Type";
+    public static final String cKeyValueTargetType = visageAnimation_PackageString + ".KeyValueTarget.Type";
 
     /**
      * Misc strings
@@ -276,25 +276,25 @@ public class VisageDefs {
     /**
      * VisageObject method Names
      */
-    final Name applyDefaults_FXObjectMethodName;
-    final Name invoke_FXObjectMethodName;
-    final Name count_FXObjectMethodName;
-    final Name get_FXObjectMethodName;
-    final Name set_FXObjectMethodName;
-    final Name invalidate_FXObjectMethodName;
-    final Name getFlags_FXObjectMethodName;
-    final Name setFlags_FXObjectMethodName;
-    final Name notifyDependents_FXObjectMethodName;
-    final Name getElement_FXObjectMethodName;
-    final Name size_FXObjectMethodName;
-    final Name update_FXObjectMethodName;
-    final Name complete_FXObjectMethodName;
-    final Name initialize_FXObjectMethodName;
-    final Name userInit_FXObjectMethodName;
-    final Name postInit_FXObjectMethodName;
-    final Name initVars_FXObjectMethodName;
-    final Name restrictSet_FXObjectMethodName;
-    Name getAs_FXObjectMethodName[];
+    final Name applyDefaults_VisageObjectMethodName;
+    final Name invoke_VisageObjectMethodName;
+    final Name count_VisageObjectMethodName;
+    final Name get_VisageObjectMethodName;
+    final Name set_VisageObjectMethodName;
+    final Name invalidate_VisageObjectMethodName;
+    final Name getFlags_VisageObjectMethodName;
+    final Name setFlags_VisageObjectMethodName;
+    final Name notifyDependents_VisageObjectMethodName;
+    final Name getElement_VisageObjectMethodName;
+    final Name size_VisageObjectMethodName;
+    final Name update_VisageObjectMethodName;
+    final Name complete_VisageObjectMethodName;
+    final Name initialize_VisageObjectMethodName;
+    final Name userInit_VisageObjectMethodName;
+    final Name postInit_VisageObjectMethodName;
+    final Name initVars_VisageObjectMethodName;
+    final Name restrictSet_VisageObjectMethodName;
+    Name getAs_VisageObjectMethodName[];
 
     /**
      * Duration method Names
@@ -374,7 +374,7 @@ public class VisageDefs {
     final Name get_PointerMethodName;
     final Name make_PointerMethodName;
     final Name getVarNum_PointerMethodName;
-    final Name getFXObject_PointerMethodName;
+    final Name getVisageObject_PointerMethodName;
     final Name size_PointerMethodName;
 
     final Name values_KeyFrameMethodName;
@@ -410,11 +410,11 @@ public class VisageDefs {
      * Field Names
      */
 
-    final Name count_FXObjectFieldName;
-    final Name depCount_FXObjectFieldName;
-    final Name funcCount_FXObjectFieldName;
-    final Name outerAccessor_FXObjectFieldName;
-    final Name scriptLevelAccess_FXObjectFieldName;
+    final Name count_VisageObjectFieldName;
+    final Name depCount_VisageObjectFieldName;
+    final Name funcCount_VisageObjectFieldName;
+    final Name outerAccessor_VisageObjectFieldName;
+    final Name scriptLevelAccess_VisageObjectFieldName;
 
     final Name value_NonLocalReturnExceptionFieldName;
 
@@ -653,9 +653,9 @@ public class VisageDefs {
         internalRunFunctionName = names.fromString(internalRunFunctionString);
         main_MethodName = names.fromString("main");
         receiverName = names.fromString("receiver$");
-        initialize_FXObjectMethodName = names.fromString("initialize$");
-        notifyDependents_FXObjectMethodName = names.fromString("notifyDependents$");
-        complete_FXObjectMethodName = names.fromString("complete$");
+        initialize_VisageObjectMethodName = names.fromString("initialize$");
+        notifyDependents_VisageObjectMethodName = names.fromString("notifyDependents$");
+        complete_VisageObjectMethodName = names.fromString("complete$");
         outerAccessor_MethodName = names.fromString("accessOuter$");
         getIndex_BoundForPartMethodName = names.fromString("getIndex$");
         adjustIndex_BoundForPartMethodName = names.fromString("adjustIndex$");
@@ -668,7 +668,7 @@ public class VisageDefs {
         toArray_SequenceMethodName = names.fromString("toArray");
         make_PointerMethodName = names.fromString("make");
         getVarNum_PointerMethodName = names.fromString("getVarNum");
-        getFXObject_PointerMethodName = names.fromString("getFXObject");
+        getVisageObject_PointerMethodName = names.fromString("getVisageObject");
         size_PointerMethodName = size_SequenceMethodName;
         lambda_MethodName = names.fromString("lambda");
         length_ArrayFieldName = names.fromString("length");
@@ -678,9 +678,9 @@ public class VisageDefs {
         isReadOnly_MethodName = names.fromString("isReadOnly");
         offset_AttributeFieldPrefixName = names.fromString(offset_AttributeFieldPrefix);
         flags_AttributeFieldPrefixName = names.fromString(flags_AttributeFieldPrefix);
-        count_FXObjectFieldName = names.fromString(count_FXObjectFieldString);
-        depCount_FXObjectFieldName = names.fromString(depCount_FXObjectFieldString);
-        funcCount_FXObjectFieldName = names.fromString(funcCount_FXObjectFieldString);
+        count_VisageObjectFieldName = names.fromString(count_VisageObjectFieldString);
+        depCount_VisageObjectFieldName = names.fromString(depCount_VisageObjectFieldString);
+        funcCount_VisageObjectFieldName = names.fromString(funcCount_VisageObjectFieldString);
         typeParameterName = names.fromString("T");
         init_MethodSymbolName = names.fromString("$init$def$name");
         postinit_MethodSymbolName = names.fromString("$postinit$def$name");
@@ -691,8 +691,8 @@ public class VisageDefs {
         target_InterpolateMethodName = names.fromString("target");
         value_InterpolateMethodName = names.fromString("value");
         interpolate_InterpolateMethodName = names.fromString("interpolate");
-        userInit_FXObjectMethodName = names.fromString("userInit$");
-        postInit_FXObjectMethodName = names.fromString("postInit$");
+        userInit_VisageObjectMethodName = names.fromString("userInit$");
+        postInit_VisageObjectMethodName = names.fromString("postInit$");
         incrementSharing_SequenceMethodName = names.fromString("incrementSharing");
         oldValue_ArgName = names.fromString("oldValue$");
         newValue_ArgName = names.fromString("newValue$");
@@ -705,35 +705,35 @@ public class VisageDefs {
         internalNameMarker = names.fromString(internalString);
         boundFunctionResultName = names.fromString(boundFunctionResult);
         get_AttributeMethodPrefixName = names.fromString(get_AttributeMethodPrefix);
-        get_FXObjectMethodName = get_AttributeMethodPrefixName;
+        get_VisageObjectMethodName = get_AttributeMethodPrefixName;
         set_AttributeMethodPrefixName = names.fromString(set_AttributeMethodPrefix);
-        set_FXObjectMethodName = set_AttributeMethodPrefixName;
+        set_VisageObjectMethodName = set_AttributeMethodPrefixName;
         seq_AttributeMethodPrefixName = names.fromString(seq_AttributeMethodPrefix);
         replaceParts_BoundForMethodName = names.fromString("replaceParts");
-        invalidate_FXObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
-        getFlags_FXObjectMethodName = names.fromString(getFlags_AttributeMethodPrefix);
-        setFlags_FXObjectMethodName = names.fromString(setFlags_AttributeMethodPrefix);
+        invalidate_VisageObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
+        getFlags_VisageObjectMethodName = names.fromString(getFlags_AttributeMethodPrefix);
+        setFlags_VisageObjectMethodName = names.fromString(setFlags_AttributeMethodPrefix);
         onReplaceAttributeMethodPrefixName = names.fromString(onReplace_AttributeMethodPrefix);
         getMixin_AttributeMethodPrefixName = names.fromString(getMixin_AttributeMethodPrefix);
         getVOFF_AttributeMethodPrefixName = names.fromString(getVOFF_AttributeMethodPrefix);
         setMixin_AttributeMethodPrefixName = names.fromString(setMixin_AttributeMethodPrefix);
         initVarsAttributeMethodPrefixName = names.fromString(initVars_AttributeMethodPrefix);
-        initVars_FXObjectMethodName = initVarsAttributeMethodPrefixName;
-        applyDefaults_FXObjectMethodName = names.fromString(applyDefaults_AttributeMethodPrefix);
-        invoke_FXObjectMethodName = names.fromString("invoke$");
+        initVars_VisageObjectMethodName = initVarsAttributeMethodPrefixName;
+        applyDefaults_VisageObjectMethodName = names.fromString(applyDefaults_AttributeMethodPrefix);
+        invoke_VisageObjectMethodName = names.fromString("invoke$");
         applyDefaults_AttributeMethodPrefixName = names.fromString(applyDefaults_AttributeMethodPrefix);
-        update_FXObjectMethodName = names.fromString("update$");
-        getElement_FXObjectMethodName = names.fromString(getElement_AttributeMethodPrefix);
-        size_FXObjectMethodName = names.fromString(size_AttributeMethodPrefix);
-        count_FXObjectMethodName = names.fromString("count$");
-        restrictSet_FXObjectMethodName = names.fromString("restrictSet$");
+        update_VisageObjectMethodName = names.fromString("update$");
+        getElement_VisageObjectMethodName = names.fromString(getElement_AttributeMethodPrefix);
+        size_VisageObjectMethodName = names.fromString(size_AttributeMethodPrefix);
+        count_VisageObjectMethodName = names.fromString("count$");
+        restrictSet_VisageObjectMethodName = names.fromString("restrictSet$");
         varState_LocalVarName = names.fromString("varState$");
         varOldValue_LocalVarName = names.fromString("varOldValue$");
         varFlags_LocalVarName = names.fromString("varFlags$");
         wasInvalid_LocalVarName = names.fromString("wasInvalid$");
         varNewValue_ArgName = names.fromString("varNewValue$");
         value_NonLocalReturnExceptionFieldName = names.fromString("value");
-        outerAccessor_FXObjectFieldName = names.fromString("accessOuterField$");
+        outerAccessor_VisageObjectFieldName = names.fromString("accessOuterField$");
         updateInstance_ArgName = names.fromString("instance$");
         obj_ArgName = names.fromString("object$");
         value_ArgName = names.fromString("value$");
@@ -746,7 +746,7 @@ public class VisageDefs {
         clearBits_ArgName = names.fromString("clearBits$");
         setBits_ArgName = names.fromString("setBits$");
         scriptClassSuffixName = names.fromString(scriptClassSuffix);
-        scriptLevelAccess_FXObjectFieldName = names.fromString(scriptLevelAccess_FXObjectFieldString);
+        scriptLevelAccess_VisageObjectFieldName = names.fromString(scriptLevelAccess_VisageObjectFieldString);
 
         // KeyValueTarget.Type field names
         BYTE_KeyValueTargetTypeFieldName = names.fromString("BYTE");
@@ -858,11 +858,11 @@ public class VisageDefs {
         int typeRepCnt = VisageTypeRepresentation.values().length;
         Sequences_getAsFromNewElements = new RuntimeMethod[typeRepCnt];
         Sequences_toArray = new RuntimeMethod[typeRepCnt];
-        getAs_FXObjectMethodName = new Name[typeRepCnt];
+        getAs_VisageObjectMethodName = new Name[typeRepCnt];
         for (int kind = 0; kind < typeRepCnt; kind++) {
             Sequences_getAsFromNewElements[kind] = new RuntimeMethod(names, cSequences, "get" + accessorSuffixes[kind] + "FromNewElements");
             Sequences_toArray[kind] = new RuntimeMethod(names, cSequences, "to" + typePrefixes[kind] + "Array");
-            getAs_FXObjectMethodName[kind] = names.fromString("get" + accessorSuffixes[kind] + "$");
+            getAs_VisageObjectMethodName[kind] = names.fromString("get" + accessorSuffixes[kind] + "$");
         }
 
         Util_objectTo = new RuntimeMethod[typeRepCnt];
@@ -902,15 +902,15 @@ public class VisageDefs {
                 get_AttributeMethodPrefixName,
                 set_AttributeMethodPrefixName,
                 seq_AttributeMethodPrefixName,
-                invalidate_FXObjectMethodName,
-                getFlags_FXObjectMethodName,
-                setFlags_FXObjectMethodName,
+                invalidate_VisageObjectMethodName,
+                getFlags_VisageObjectMethodName,
+                setFlags_VisageObjectMethodName,
                 onReplaceAttributeMethodPrefixName,
-                getElement_FXObjectMethodName,
-                size_FXObjectMethodName,
-                count_FXObjectFieldName,
-                depCount_FXObjectFieldName,
-                funcCount_FXObjectFieldName
+                getElement_VisageObjectMethodName,
+                size_VisageObjectMethodName,
+                count_VisageObjectFieldName,
+                depCount_VisageObjectFieldName,
+                funcCount_VisageObjectFieldName
              };
      
         // Initialize per Kind names and types
@@ -927,7 +927,7 @@ public class VisageDefs {
     }
 
     public Name scriptLevelAccessField(Name.Table names, Symbol clazz) {
-        return names.fromString(scriptLevelAccess_FXObjectFieldString + mangleClassName(clazz, true) + "$");
+        return names.fromString(scriptLevelAccess_VisageObjectFieldString + mangleClassName(clazz, true) + "$");
     }
     
     public String mangleClassName(Symbol clazz, boolean useFull) {

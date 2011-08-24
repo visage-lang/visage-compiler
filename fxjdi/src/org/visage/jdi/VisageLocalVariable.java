@@ -32,8 +32,8 @@ import com.sun.jdi.StackFrame;
  * @author sundar
  */
 public class VisageLocalVariable extends VisageMirror implements LocalVariable {
-    public VisageLocalVariable(VisageVirtualMachine fxvm, LocalVariable underlying) {
-        super(fxvm, underlying);
+    public VisageLocalVariable(VisageVirtualMachine visagevm, LocalVariable underlying) {
+        super(visagevm, underlying);
     }
 
     public String genericSignature() {

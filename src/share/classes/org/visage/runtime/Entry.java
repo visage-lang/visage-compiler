@@ -73,7 +73,7 @@ public class Entry {
                         public Void run() {
                             CodeSource codesource = app.getProtectionDomain().getCodeSource();
                             if (codesource != null) {
-                                SystemProperties.setFXProperty(SystemProperties.codebase, codesource.getLocation().toString());
+                                SystemProperties.setVisageProperty(SystemProperties.codebase, codesource.getLocation().toString());
                             }
                             main.setAccessible(true);
                             return null;
@@ -247,7 +247,7 @@ public class Entry {
                     }
                 }
                 visage.lang.Visage.exit(); // implicit exit after timeline is complete
-            } catch (VisageExit fxe) {
+            } catch (VisageExit visagee) {
                 return; // trap VisageExit exception from bubbling up
             }
         }

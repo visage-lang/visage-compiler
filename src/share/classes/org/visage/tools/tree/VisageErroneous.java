@@ -57,7 +57,7 @@ public class VisageErroneous extends VisageExpression implements ErroneousTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ERRONEOUS;
     }
 }

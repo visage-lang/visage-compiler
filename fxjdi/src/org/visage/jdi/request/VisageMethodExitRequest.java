@@ -35,8 +35,8 @@ import com.sun.jdi.request.MethodExitRequest;
  * @author sundar
  */
 public class VisageMethodExitRequest extends VisageEventRequest implements MethodExitRequest {
-    public VisageMethodExitRequest(VisageVirtualMachine fxvm, MethodExitRequest underlying) {
-        super(fxvm, underlying);
+    public VisageMethodExitRequest(VisageVirtualMachine visagevm, MethodExitRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addClassExclusionFilter(String arg0) {

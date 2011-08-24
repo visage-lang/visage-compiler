@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import org.visage.jdi.VisageStackFrame;
 import org.visage.jdi.VisageWrapper;
@@ -61,7 +61,7 @@ public class ScriptVarTest extends JdbBase {
             compile("ScriptVar.visage");
             stop("in ScriptVar.visage$run$");
 
-            fxrun();
+            visagerun();
 
             resumeToBreakpoint();
 

@@ -1,6 +1,6 @@
 /* test for the string literal translation
  * 
- * this is to test the "@charset" tag in the .fxproperties file.
+ * this is to test the "@charset" tag in the .visageproperties file.
  *
  * @test
  * @run
@@ -16,7 +16,7 @@ try {
     // set the default locale to Japan
     Locale.setDefault(Locale.JAPAN);
 
-    System.out.println(##'\"@charset\" tag in .fxproperties test');
+    System.out.println(##'\"@charset\" tag in .visageproperties test');
 
 } finally {
     // restore the default locale

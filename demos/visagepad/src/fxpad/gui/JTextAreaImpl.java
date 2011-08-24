@@ -1,4 +1,4 @@
-package fxpad.gui;
+package visagepad.gui;
 
 import javax.swing.*;
 import javax.swing.border.*;

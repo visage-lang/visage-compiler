@@ -61,7 +61,7 @@ public class VisageWhileLoop extends VisageExpression implements WhileLoopTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.WHILELOOP;
     }
 }

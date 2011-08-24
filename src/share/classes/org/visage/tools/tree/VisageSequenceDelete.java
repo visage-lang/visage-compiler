@@ -52,7 +52,7 @@ public class VisageSequenceDelete extends VisageExpression implements SequenceDe
     }
     
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.DELETE;
     }
 

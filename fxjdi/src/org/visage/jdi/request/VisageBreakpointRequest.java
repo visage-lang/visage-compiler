@@ -35,8 +35,8 @@ import com.sun.jdi.request.BreakpointRequest;
  * @author sundar
  */
 public class VisageBreakpointRequest extends VisageEventRequest implements BreakpointRequest {
-    public VisageBreakpointRequest(VisageVirtualMachine fxvm, BreakpointRequest underlying) {
-        super(fxvm, underlying);
+    public VisageBreakpointRequest(VisageVirtualMachine visagevm, BreakpointRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addInstanceFilter(ObjectReference arg0) {

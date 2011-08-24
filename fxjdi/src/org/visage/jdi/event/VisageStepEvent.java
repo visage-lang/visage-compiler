@@ -31,8 +31,8 @@ import com.sun.jdi.event.StepEvent;
  * @author sundar
  */
 public class VisageStepEvent extends VisageLocatableEvent implements StepEvent {
-    public VisageStepEvent(VisageVirtualMachine fxvm, StepEvent underlying) {
-        super(fxvm, underlying);
+    public VisageStepEvent(VisageVirtualMachine visagevm, StepEvent underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

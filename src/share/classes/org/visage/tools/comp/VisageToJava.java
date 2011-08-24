@@ -131,7 +131,7 @@ public class VisageToJava extends VisageAbstractTranslation {
             return null;
         }
         DiagnosticPosition diagPos = tree.pos();
-        switch (tree.getFXTag()) {
+        switch (tree.getVisageTag()) {
             case IDENT: {
                 VisageIdent id = (VisageIdent) tree;
                 return make.at(diagPos).Ident(id.getName());
@@ -282,7 +282,7 @@ public class VisageToJava extends VisageAbstractTranslation {
             prependToStatements = prependToDefinitions = ListBuffer.lb();
             {
                 for (VisageTree def : tree.getMembers()) {
-                    switch (def.getFXTag()) {
+                    switch (def.getVisageTag()) {
                         case INIT_DEF: {
                             setContext(false);
                             translateAndAppendStaticBlock(((VisageInitDefinition) def).getBody(), translatedInitBlocks);
@@ -616,7 +616,7 @@ public class VisageToJava extends VisageAbstractTranslation {
                 if (yield() == ToExpression) {
                     // make into block expression
                     //TODO: this may be unneeded, or even wrong
-                    VisageExpression rawValue = (value.getFXTag() == VisageTag.RETURN)?
+                    VisageExpression rawValue = (value.getVisageTag() == VisageTag.RETURN)?
                          ((VisageReturn) value).getExpression()
                         : value;
 
@@ -634,7 +634,7 @@ public class VisageToJava extends VisageAbstractTranslation {
                 } else {
                     // make into block
                     if (value != null) {
-                        if (value.getFXTag() == VisageTag.VAR_SCRIPT_INIT && targetType != syms.voidType) {
+                        if (value.getVisageTag() == VisageTag.VAR_SCRIPT_INIT && targetType != syms.voidType) {
                             translateStmt(value, syms.voidType);
                             addPreface(Stmt(Get(((VisageVarInit) value).getSymbol()), targetType));
                         } else {
@@ -838,7 +838,7 @@ public class VisageToJava extends VisageAbstractTranslation {
             additionalImports = ListBuffer.lb();
             prependToStatements = prependToDefinitions = ListBuffer.lb();
             for (VisageTree def : tree.defs) {
-                switch (def.getFXTag()) {
+                switch (def.getVisageTag()) {
                     case IMPORT:
                         // ignore import
                         break;
@@ -909,7 +909,7 @@ public class VisageToJava extends VisageAbstractTranslation {
         }
 
         protected AbstractStatementsResult doit() {
-            if (varRef.getFXTag() == VisageTag.SELECT) {
+            if (varRef.getVisageTag() == VisageTag.SELECT) {
                 VisageSelect sel = (VisageSelect) varRef;
                 JCExpression selected = translateToExpression(sel.selected, sel.selected.type);
                 if (selected != null) {
@@ -1020,7 +1020,7 @@ public class VisageToJava extends VisageAbstractTranslation {
     @Override
     public void visitAssign(final VisageAssign tree) {
         if (types.isSequence(tree.lhs.type)) {
-            if (tree.lhs.getFXTag() == VisageTag.SEQUENCE_SLICE) {
+            if (tree.lhs.getVisageTag() == VisageTag.SEQUENCE_SLICE) {
                 result = new SequenceSliceActionTranslator((VisageSequenceSlice) tree.lhs, defs.Sequences_replaceSlice, tree.type, tree.rhs).doit();
             } else {
                 result = new SequenceActionTranslator(tree.pos(), tree.lhs, defs.Sequences_set, null, tree.type, tree.rhs) {
@@ -1152,7 +1152,7 @@ public class VisageToJava extends VisageAbstractTranslation {
         if (tree.getElement() != null) {
             trans = new SequenceActionTranslator(diagPos, seq, defs.Sequences_deleteValue, null, tree.getElement());
         } else {
-            switch (seq.getFXTag()) {
+            switch (seq.getVisageTag()) {
                 case SEQUENCE_INDEXED:
                     VisageSequenceIndexed si = (VisageSequenceIndexed) seq;
                     trans = new SequenceActionTranslator(diagPos, si.getSequence(), defs.Sequences_deleteIndexed, si.getIndex());

@@ -45,8 +45,8 @@ import java.util.Map;
  * @author sundar
  */
 public class VisageObjectReference extends VisageValue implements ObjectReference {
-    public VisageObjectReference(VisageVirtualMachine fxvm, ObjectReference underlying) {
-        super(fxvm, underlying);
+    public VisageObjectReference(VisageVirtualMachine visagevm, ObjectReference underlying) {
+        super(visagevm, underlying);
     }
 
     public List<ObjectReference> referringObjects(long count) {

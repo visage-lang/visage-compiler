@@ -30,8 +30,8 @@ import com.sun.jdi.PrimitiveValue;
  * @author sundar
  */
 public class VisagePrimitiveValue extends VisageValue implements PrimitiveValue {
-    public VisagePrimitiveValue(VisageVirtualMachine fxvm, PrimitiveValue underlying) {
-        super(fxvm, underlying);
+    public VisagePrimitiveValue(VisageVirtualMachine visagevm, PrimitiveValue underlying) {
+        super(visagevm, underlying);
     }
 
     public boolean booleanValue() {

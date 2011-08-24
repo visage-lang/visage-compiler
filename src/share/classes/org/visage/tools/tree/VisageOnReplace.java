@@ -69,7 +69,7 @@ public class VisageOnReplace extends VisageTree implements OnReplaceTree {
         v.visitOnReplace(this);
     }
     
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ON_REPLACE;
     }
     

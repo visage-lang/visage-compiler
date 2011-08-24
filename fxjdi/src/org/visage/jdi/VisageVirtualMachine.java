@@ -381,8 +381,8 @@ public class VisageVirtualMachine extends VisageMirror implements VirtualMachine
      */
     public VisageThreadReference uiThread() {
         if (cacheUiThread == null) {
-            VisageField uiThreadField = fxEntryType().fieldByName("uiThread");
-            cacheUiThread = (VisageThreadReference) ((VisageReferenceType)fxEntryType()).getValue(uiThreadField);
+            VisageField uiThreadField = visageEntryType().fieldByName("uiThread");
+            cacheUiThread = (VisageThreadReference) ((VisageReferenceType)visageEntryType()).getValue(uiThreadField);
         }
         return cacheUiThread;
     }
@@ -394,58 +394,58 @@ public class VisageVirtualMachine extends VisageMirror implements VirtualMachine
 
     // Visage types
     public static final String VISAGE_ENTRY_TYPE_NAME = "org.visage.runtime.Entry";
-    private VisageClassType fxEntryType;
-    public synchronized VisageClassType fxEntryType() {
-        if (fxEntryType == null) {
+    private VisageClassType visageEntryType;
+    public synchronized VisageClassType visageEntryType() {
+        if (visageEntryType == null) {
             List<ReferenceType> refTypes = classesByName(VISAGE_ENTRY_TYPE_NAME);
-            fxEntryType = refTypes.isEmpty() ? null : (VisageClassType) refTypes.get(0);
+            visageEntryType = refTypes.isEmpty() ? null : (VisageClassType) refTypes.get(0);
         }
-        return fxEntryType;
+        return visageEntryType;
     }
 
     public static final String VISAGE_OBJECT_TYPE_NAME = "org.visage.runtime.VisageObject";
-    private VisageObjectType fxObjectType;
-    public synchronized VisageObjectType fxObjectType() {
-        if (fxObjectType == null) {
+    private VisageObjectType visageObjectType;
+    public synchronized VisageObjectType visageObjectType() {
+        if (visageObjectType == null) {
             List<ReferenceType> refTypes = classesByName(VISAGE_OBJECT_TYPE_NAME);
-            fxObjectType = refTypes.isEmpty() ? null : (VisageObjectType) refTypes.get(0);
+            visageObjectType = refTypes.isEmpty() ? null : (VisageObjectType) refTypes.get(0);
         }
-        return fxObjectType;
+        return visageObjectType;
     }
 
     public static final String VISAGE_MIXIN_TYPE_NAME = "org.visage.runtime.VisageMixin";
-    private VisageInterfaceType fxMixinType;
-    public synchronized VisageReferenceType fxMixinType() {
-        if (fxMixinType == null) {
+    private VisageInterfaceType visageMixinType;
+    public synchronized VisageReferenceType visageMixinType() {
+        if (visageMixinType == null) {
             List<ReferenceType> refTypes = classesByName(VISAGE_MIXIN_TYPE_NAME);
-            fxMixinType = refTypes.isEmpty()? null : (VisageInterfaceType) refTypes.get(0);
+            visageMixinType = refTypes.isEmpty()? null : (VisageInterfaceType) refTypes.get(0);
         }
-        return fxMixinType;
+        return visageMixinType;
     }
 
     public static final String VISAGE_SEQUENCE_TYPE_NAME = "org.visage.runtime.sequence.Sequence";
-    private VisageSequenceType fxSequenceType;
-    public synchronized VisageSequenceType fxSequenceType() {
-        if (fxSequenceType == null) {
+    private VisageSequenceType visageSequenceType;
+    public synchronized VisageSequenceType visageSequenceType() {
+        if (visageSequenceType == null) {
             List<ReferenceType> refTypes = classesByName(VISAGE_SEQUENCE_TYPE_NAME);
-            fxSequenceType = refTypes.isEmpty() ? null : (VisageSequenceType) refTypes.get(0);
+            visageSequenceType = refTypes.isEmpty() ? null : (VisageSequenceType) refTypes.get(0);
         }
-        return fxSequenceType;
+        return visageSequenceType;
     }
 
     public static final String VISAGE_SEQUENCES_TYPE_NAME = "org.visage.runtime.sequence.Sequences";
-    private VisageSequencesType fxSequencesType;
-    public synchronized VisageSequencesType fxSequencesType() {
-        if (fxSequencesType == null) {
+    private VisageSequencesType visageSequencesType;
+    public synchronized VisageSequencesType visageSequencesType() {
+        if (visageSequencesType == null) {
             List<ReferenceType> refTypes = classesByName(VISAGE_SEQUENCES_TYPE_NAME);
             if (refTypes.isEmpty()) {
                 // ensure that the debuggee has loaded and initialized Sequences type
-                fxSequencesType = (VisageSequencesType) classType(initSequencesType());
+                visageSequencesType = (VisageSequencesType) classType(initSequencesType());
             } else {
-                fxSequencesType = (VisageSequencesType) refTypes.get(0);
+                visageSequencesType = (VisageSequencesType) refTypes.get(0);
             }
         }
-        return fxSequencesType;
+        return visageSequencesType;
     }
 
     private VisageVoidValue voidValue;
@@ -635,7 +635,7 @@ public class VisageVirtualMachine extends VisageMirror implements VirtualMachine
         ReferenceType rt = ref.referenceType();
         if (rt instanceof ClassType) {
             ClassType ct = (ClassType) rt;
-            boolean isSeq =  ct.allInterfaces().contains(VisageWrapper.unwrap(fxSequenceType()));
+            boolean isSeq =  ct.allInterfaces().contains(VisageWrapper.unwrap(visageSequenceType()));
             if (isSeq) {
                 return new VisageSequenceReference(this, ref);
             }
@@ -704,9 +704,9 @@ public class VisageVirtualMachine extends VisageMirror implements VirtualMachine
             System.out.println("Can't find the ReferenceType for org.visage.runtime.VisageObject");
             return 0;
         }
-        ReferenceType fxObjectRefType = rtx.get(0);
-        Field fieldx = fxObjectRefType.fieldByName(maskName);
-        Value flagValue = fxObjectRefType.getValue(fieldx);
+        ReferenceType visageObjectRefType = rtx.get(0);
+        Field fieldx = visageObjectRefType.fieldByName(maskName);
+        Value flagValue = visageObjectRefType.getValue(fieldx);
         return ((IntegerValue)flagValue).value();
     }
 
@@ -772,7 +772,7 @@ public class VisageVirtualMachine extends VisageMirror implements VirtualMachine
             List<Value> args = new ArrayList<Value>(3);
             args.add(vm.mirrorOf(VISAGE_SEQUENCES_TYPE_NAME));
             args.add(vm.mirrorOf(true));
-            args.add(VisageWrapper.unwrap(fxEntryType().classLoader()));
+            args.add(VisageWrapper.unwrap(visageEntryType().classLoader()));
             ClassObjectReference retVal = (ClassObjectReference)classType.invokeMethod(
                                                  VisageWrapper.unwrap(uiThread()), forName, args, 0);
             // retVal must be a ClassObjectReference for the Sequences class

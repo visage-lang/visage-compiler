@@ -30,8 +30,8 @@ import com.sun.jdi.CharValue;
  * @author sundar
  */
 public class VisageCharValue extends VisagePrimitiveValue implements CharValue {
-    public VisageCharValue(VisageVirtualMachine fxvm, CharValue underlying) {
-        super(fxvm, underlying);
+    public VisageCharValue(VisageVirtualMachine visagevm, CharValue underlying) {
+        super(visagevm, underlying);
     }
 
     public char value() {

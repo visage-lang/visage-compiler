@@ -47,7 +47,7 @@ public class VisageErroneousBlock extends VisageBlock {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ERRONEOUS;
     }
 

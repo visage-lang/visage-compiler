@@ -3,11 +3,11 @@
  * Double and corresponding sequences} declared at different levels
  * (script, instance and local).
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
     /* The below lines cause a compiler error:
      * [java] test\features\F26-numerics\variables\VarTestScopes.visage:20: incompatible types

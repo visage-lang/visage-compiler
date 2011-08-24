@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -61,7 +61,7 @@ public class ReentrantTest extends JdbBase {
             stop("in Reenter:7");
             stop("in Reenter:2");
             stop("in Reenter:3");
-            fxrun();
+            visagerun();
             resumeToBreakpoint();
 
             resumeToBreakpoint();

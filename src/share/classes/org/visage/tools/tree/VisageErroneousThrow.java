@@ -49,7 +49,7 @@ public class VisageErroneousThrow extends VisageThrow {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ERRONEOUS;
     }
 

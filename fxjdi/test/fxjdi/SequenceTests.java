@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package fxjdi;
+package visagejdi;
 
 import java.util.List;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class SequenceTests extends JdbBase {
         try {
             compile("Foo.visage");
             stop("in Foo.visage$run$");
-            fxrun();
+            visagerun();
             resumeToBreakpoint();
             next();
             list();

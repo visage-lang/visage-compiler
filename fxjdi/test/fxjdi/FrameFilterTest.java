@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 
 import org.visage.jdi.VisageStackFrame;
@@ -57,7 +57,7 @@ public class FrameFilterTest extends JdbBase {
             compile("FrameFilter.visage");
             stop("in FrameFilter.onReplace$xx");
 
-            fxrun();
+            visagerun();
 
             BreakpointEvent bkpt = waitForBreakpointEvent();
             VisageStackFrame frame = (VisageStackFrame) bkpt.thread().frame(0);

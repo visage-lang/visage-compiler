@@ -87,78 +87,78 @@ public class VisageWrapper {
         return res;
     }
 
-    public static VisageType wrap(VisageVirtualMachine fxvm, Type type) {
+    public static VisageType wrap(VisageVirtualMachine visagevm, Type type) {
         if (type == null) {
             return null;
         }
         
         if (type instanceof VoidType) {
-            return fxvm.voidType((VoidType)type);
+            return visagevm.voidType((VoidType)type);
         } else if (type instanceof PrimitiveType) {
             if (type instanceof BooleanType) {
-                return fxvm.booleanType((BooleanType)type);
+                return visagevm.booleanType((BooleanType)type);
             } else if (type instanceof CharType) {
-                return fxvm.charType((CharType)type);
+                return visagevm.charType((CharType)type);
             } else if (type instanceof ByteType) {
-                return fxvm.byteType((ByteType)type);
+                return visagevm.byteType((ByteType)type);
             } else if (type instanceof ShortType) {
-                return fxvm.shortType((ShortType)type);
+                return visagevm.shortType((ShortType)type);
             } else if (type instanceof IntegerType) {
-                return fxvm.integerType((IntegerType)type);
+                return visagevm.integerType((IntegerType)type);
             } else if (type instanceof LongType) {
-                return fxvm.longType((LongType)type);
+                return visagevm.longType((LongType)type);
             } else if (type instanceof FloatType) {
-                return fxvm.floatType((FloatType)type);
+                return visagevm.floatType((FloatType)type);
             } else if (type instanceof DoubleType) {
-                return fxvm.doubleType((DoubleType)type);
+                return visagevm.doubleType((DoubleType)type);
             } else {
                 throw new IllegalArgumentException("illegal primitive type : " + type);
             }
         } else if (type instanceof ReferenceType) {
-            return wrap(fxvm, (ReferenceType)type);
+            return wrap(visagevm, (ReferenceType)type);
         } else {
             throw new IllegalArgumentException("illegal type: " + type);
         }
     }
 
-    public static List<Type> wrapTypes(VisageVirtualMachine fxvm, List<Type> types) {
+    public static List<Type> wrapTypes(VisageVirtualMachine visagevm, List<Type> types) {
         if (types == null) {
             return null;
         }
         List<Type> result = new ArrayList<Type>(types.size());
         for (Type type : types) {
-            result.add(wrap(fxvm, type));
+            result.add(wrap(visagevm, type));
         }
         return result;
     }
 
-    public static VisageReferenceType wrap(VisageVirtualMachine fxvm, ReferenceType rt) {
+    public static VisageReferenceType wrap(VisageVirtualMachine visagevm, ReferenceType rt) {
         if (rt == null) {
             return null;
         } else if (rt instanceof ClassType) {
-            return fxvm.classType((ClassType)rt);
+            return visagevm.classType((ClassType)rt);
         } else if (rt instanceof InterfaceType) {
-            return fxvm.interfaceType((InterfaceType)rt);
+            return visagevm.interfaceType((InterfaceType)rt);
         } else if (rt instanceof ArrayType) {
-            return fxvm.arrayType((ArrayType)rt);
+            return visagevm.arrayType((ArrayType)rt);
         } else {
-            return fxvm.referenceType(rt);
+            return visagevm.referenceType(rt);
         }
     }
 
-    public static VisageClassType wrap(VisageVirtualMachine fxvm, ClassType ct) {
-        return (ct == null)? null : fxvm.classType(ct);
+    public static VisageClassType wrap(VisageVirtualMachine visagevm, ClassType ct) {
+        return (ct == null)? null : visagevm.classType(ct);
     }
 
-    public static VisageInterfaceType wrap(VisageVirtualMachine fxvm, InterfaceType it) {
-        return (it == null)? null : fxvm.interfaceType(it);
+    public static VisageInterfaceType wrap(VisageVirtualMachine visagevm, InterfaceType it) {
+        return (it == null)? null : visagevm.interfaceType(it);
     }
 
-    public static VisageArrayType wrap(VisageVirtualMachine fxvm, ArrayType at) {
-        return (at == null)? null : fxvm.arrayType(at);
+    public static VisageArrayType wrap(VisageVirtualMachine visagevm, ArrayType at) {
+        return (at == null)? null : visagevm.arrayType(at);
     }
 
-    public static List<ReferenceType> wrapReferenceTypes(VisageVirtualMachine fxvm, List<ReferenceType> refTypes) {
+    public static List<ReferenceType> wrapReferenceTypes(VisageVirtualMachine visagevm, List<ReferenceType> refTypes) {
         // Note that VirtualMachineImpl caches the list, and returns an unmodifiable wrapped list.
         // Classes that get loaded in the future are added to its list by an EventListener on ClassPrepared 
         // events.  If we cache our wrapped list, they we would have to do the same thing, or be able
@@ -179,50 +179,50 @@ public class VisageWrapper {
                     continue;
                 }
             }
-            result.add(VisageWrapper.wrap(fxvm, rt));
+            result.add(VisageWrapper.wrap(visagevm, rt));
         }
         return result;
     }
 
-    public static List<ClassType> wrapClassTypes(VisageVirtualMachine fxvm, List<ClassType> classes) {
+    public static List<ClassType> wrapClassTypes(VisageVirtualMachine visagevm, List<ClassType> classes) {
         if (classes == null) {
             return null;
         }
         List<ClassType> result = new ArrayList<ClassType>(classes.size());
         for (ClassType ct : classes) {
-            result.add(VisageWrapper.wrap(fxvm, ct));
+            result.add(VisageWrapper.wrap(visagevm, ct));
         }
         return result;
     }
 
-    public static List<InterfaceType> wrapInterfaceTypes(VisageVirtualMachine fxvm, List<InterfaceType> interfaces) {
+    public static List<InterfaceType> wrapInterfaceTypes(VisageVirtualMachine visagevm, List<InterfaceType> interfaces) {
         if (interfaces == null) {
             return null;
         }
         List<InterfaceType> result = new ArrayList<InterfaceType>(interfaces.size());
         for (InterfaceType it : interfaces) {
-            result.add(VisageWrapper.wrap(fxvm, it));
+            result.add(VisageWrapper.wrap(visagevm, it));
         }
         return result;
     }
 
-    public static VisageLocation wrap(VisageVirtualMachine fxvm, Location loc) {
-        return (loc == null)? null : fxvm.location(loc);
+    public static VisageLocation wrap(VisageVirtualMachine visagevm, Location loc) {
+        return (loc == null)? null : visagevm.location(loc);
     }
 
-    public static List<Location> wrapLocations(VisageVirtualMachine fxvm, List<Location> locations) {
+    public static List<Location> wrapLocations(VisageVirtualMachine visagevm, List<Location> locations) {
         if (locations == null) {
             return null;
         }
         List<Location> result = new ArrayList<Location>(locations.size());
         for (Location loc: locations) {
-            result.add(wrap(fxvm, loc));
+            result.add(wrap(visagevm, loc));
         }
         return result;
     }
 
-    public static VisageField wrap(VisageVirtualMachine fxvm, Field field) {
-        return (field == null)? null : fxvm.field(field);
+    public static VisageField wrap(VisageVirtualMachine visagevm, Field field) {
+        return (field == null)? null : visagevm.field(field);
     }
 
     /*
@@ -230,7 +230,7 @@ public class VisageWrapper {
      * Each field can be a user field of an Visage class, an internal field of an Visage class,
      * or a field of a Java class.
      */
-    public static List<Field> wrapFields(VisageVirtualMachine fxvm, List<Field> fields) {
+    public static List<Field> wrapFields(VisageVirtualMachine visagevm, List<Field> fields) {
         // Create VisageField wrappers for each field that is a valid Visage field.
         if (fields == null) {
             return null;
@@ -269,191 +269,191 @@ public class VisageWrapper {
               This mangling in of the classname is not yet handled.
             */
             if (firstDollar <= 0) {
-                result.add(fxvm.field(fld));
+                result.add(visagevm.field(fld));
             }
         }
         return result;
     }
 
-    public static VisageMethod wrap(VisageVirtualMachine fxvm, Method method) {
-        return (method == null)? null : fxvm.method(method);
+    public static VisageMethod wrap(VisageVirtualMachine visagevm, Method method) {
+        return (method == null)? null : visagevm.method(method);
     }
 
-    public static List<Method> wrapMethods(VisageVirtualMachine fxvm, List<Method> methods) {
+    public static List<Method> wrapMethods(VisageVirtualMachine visagevm, List<Method> methods) {
         if (methods == null) {
             return null;
         }
         List<Method> result = new ArrayList<Method>(20);
         for (Method mth : methods) {
-            VisageMethod fxm = fxvm.method(mth);
-            if (!fxm.isVisageInternalMethod()) {
-                result.add(fxm);
+            VisageMethod visagem = visagevm.method(mth);
+            if (!visagem.isVisageInternalMethod()) {
+                result.add(visagem);
             }
         }
         return result;
     }
 
-    public static VisageMonitorInfo wrap(VisageVirtualMachine fxvm, MonitorInfo monitorInfo) {
-        return (monitorInfo == null)? null : fxvm.monitorInfo(monitorInfo);
+    public static VisageMonitorInfo wrap(VisageVirtualMachine visagevm, MonitorInfo monitorInfo) {
+        return (monitorInfo == null)? null : visagevm.monitorInfo(monitorInfo);
     }
 
-    public static List<MonitorInfo> wrapMonitorInfos(VisageVirtualMachine fxvm, List<MonitorInfo> monInfos) {
+    public static List<MonitorInfo> wrapMonitorInfos(VisageVirtualMachine visagevm, List<MonitorInfo> monInfos) {
         if (monInfos == null) {
             return null;
         }
         List<MonitorInfo> result = new ArrayList<MonitorInfo>(monInfos.size());
         for (MonitorInfo mi : monInfos) {
-            result.add(wrap(fxvm, mi));
+            result.add(wrap(visagevm, mi));
         }
         return result;
     }
 
-    public static VisageStackFrame wrap(VisageVirtualMachine fxvm, StackFrame frame) {
-        return (frame == null)? null : fxvm.stackFrame(frame);
+    public static VisageStackFrame wrap(VisageVirtualMachine visagevm, StackFrame frame) {
+        return (frame == null)? null : visagevm.stackFrame(frame);
     }
 
-    public static List<StackFrame> wrapFrames(VisageVirtualMachine fxvm, List<StackFrame> frames) {
+    public static List<StackFrame> wrapFrames(VisageVirtualMachine visagevm, List<StackFrame> frames) {
         if (frames == null) {
             return null;
         }
         List<StackFrame> result = new ArrayList<StackFrame>(frames.size());
         for (StackFrame fr : frames) {
-            result.add(wrap(fxvm, fr));
+            result.add(wrap(visagevm, fr));
         }
         return result;
     }
 
-    public static VisageLocalVariable wrap(VisageVirtualMachine fxvm, LocalVariable var) {
-        return (var == null)? null : fxvm.localVariable(var);
+    public static VisageLocalVariable wrap(VisageVirtualMachine visagevm, LocalVariable var) {
+        return (var == null)? null : visagevm.localVariable(var);
     }
 
-    public static List<LocalVariable> wrapLocalVariables(VisageVirtualMachine fxvm, List<LocalVariable> locals) {
+    public static List<LocalVariable> wrapLocalVariables(VisageVirtualMachine visagevm, List<LocalVariable> locals) {
         if (locals == null) {
             return null;
         }
         List<LocalVariable> result = new ArrayList<LocalVariable>(locals.size());
         for (LocalVariable var: locals) {
-            result.add(wrap(fxvm, var));
+            result.add(wrap(visagevm, var));
         }
         return result;
     }
 
-    public static VisageValue wrap(VisageVirtualMachine fxvm, Value value) {
+    public static VisageValue wrap(VisageVirtualMachine visagevm, Value value) {
         if (value == null) {
             return null;
         }
 
         if (value instanceof PrimitiveValue) {
             if (value instanceof BooleanValue) {
-                return fxvm.booleanValue((BooleanValue)value);
+                return visagevm.booleanValue((BooleanValue)value);
             } else if (value instanceof CharValue) {
-                return fxvm.charValue((CharValue)value);
+                return visagevm.charValue((CharValue)value);
             } else if (value instanceof ByteValue) {
-                return fxvm.byteValue((ByteValue)value);
+                return visagevm.byteValue((ByteValue)value);
             } else if (value instanceof ShortValue) {
-                return fxvm.shortValue((ShortValue)value);
+                return visagevm.shortValue((ShortValue)value);
             } else if (value instanceof IntegerValue) {
-                return fxvm.integerValue((IntegerValue)value);
+                return visagevm.integerValue((IntegerValue)value);
             } else if (value instanceof LongValue) {
-                return fxvm.longValue((LongValue)value);
+                return visagevm.longValue((LongValue)value);
             } else if (value instanceof FloatValue) {
-                return fxvm.floatValue((FloatValue)value);
+                return visagevm.floatValue((FloatValue)value);
             } else if (value instanceof DoubleValue) {
-                return fxvm.doubleValue((DoubleValue)value);
+                return visagevm.doubleValue((DoubleValue)value);
             } else {
                 throw new IllegalArgumentException("illegal primitive value : " + value);
             }
         } else if (value instanceof VoidValue) {
-            return fxvm.voidValue();
+            return visagevm.voidValue();
         } else if (value instanceof ObjectReference) {
-            return  wrap(fxvm, (ObjectReference)value);
+            return  wrap(visagevm, (ObjectReference)value);
         } else {
             throw new IllegalArgumentException("illegal value: " + value);
         }
     }
 
-    public static List<ObjectReference> wrapObjectReferences(VisageVirtualMachine fxvm, List<ObjectReference> refs) {
+    public static List<ObjectReference> wrapObjectReferences(VisageVirtualMachine visagevm, List<ObjectReference> refs) {
         if (refs == null) {
             return null;
         }
         List<ObjectReference> result = new ArrayList<ObjectReference>(refs.size());
         for (ObjectReference ref : refs) {
-            result.add(wrap(fxvm, ref));
+            result.add(wrap(visagevm, ref));
         }
         return result;
     }
 
 
-    public static VisageObjectReference wrap(VisageVirtualMachine fxvm, ObjectReference ref) {
+    public static VisageObjectReference wrap(VisageVirtualMachine visagevm, ObjectReference ref) {
         if (ref == null) {
             return null;
         } else if (ref instanceof ArrayReference) {
-            return fxvm.arrayReference((ArrayReference)ref);
+            return visagevm.arrayReference((ArrayReference)ref);
         } else if (ref instanceof StringReference) {
-            return fxvm.stringReference((StringReference)ref);
+            return visagevm.stringReference((StringReference)ref);
         } else if (ref instanceof ThreadReference) {
-            return fxvm.threadReference((ThreadReference)ref);
+            return visagevm.threadReference((ThreadReference)ref);
         } else if (ref instanceof ThreadGroupReference) {
-            return fxvm.threadGroupReference((ThreadGroupReference)ref);
+            return visagevm.threadGroupReference((ThreadGroupReference)ref);
         } else if (ref instanceof ClassLoaderReference) {
-            return fxvm.classLoaderReference((ClassLoaderReference)ref);
+            return visagevm.classLoaderReference((ClassLoaderReference)ref);
         } else if (ref instanceof ClassObjectReference) {
-            return fxvm.classObjectReference((ClassObjectReference)ref);
+            return visagevm.classObjectReference((ClassObjectReference)ref);
         } else {
-            return fxvm.objectReference(ref);
+            return visagevm.objectReference(ref);
         }
     }
 
-    public static VisageArrayReference wrap(VisageVirtualMachine fxvm, ArrayReference ref) {
-        return (ref == null)? null : fxvm.arrayReference(ref);
+    public static VisageArrayReference wrap(VisageVirtualMachine visagevm, ArrayReference ref) {
+        return (ref == null)? null : visagevm.arrayReference(ref);
     }
 
-    public static VisageThreadReference wrap(VisageVirtualMachine fxvm, ThreadReference ref) {
-        return (ref == null)? null : fxvm.threadReference(ref);
+    public static VisageThreadReference wrap(VisageVirtualMachine visagevm, ThreadReference ref) {
+        return (ref == null)? null : visagevm.threadReference(ref);
     }
 
 
-    public static VisageThreadGroupReference wrap(VisageVirtualMachine fxvm, ThreadGroupReference ref) {
-        return (ref == null)? null : fxvm.threadGroupReference(ref);
+    public static VisageThreadGroupReference wrap(VisageVirtualMachine visagevm, ThreadGroupReference ref) {
+        return (ref == null)? null : visagevm.threadGroupReference(ref);
     }
 
-    public static List<ThreadReference> wrapThreads(VisageVirtualMachine fxvm, List<ThreadReference> threads) {
+    public static List<ThreadReference> wrapThreads(VisageVirtualMachine visagevm, List<ThreadReference> threads) {
         if (threads == null) {
             return null;
         }
         List<ThreadReference> result = new ArrayList<ThreadReference>(threads.size());
         for (ThreadReference tref : threads) {
-            result.add(wrap(fxvm, tref));
+            result.add(wrap(visagevm, tref));
         }
         return result;
     }
 
-    public static List<ThreadGroupReference> wrapThreadGroups(VisageVirtualMachine fxvm, List<ThreadGroupReference> threadGroups) {
+    public static List<ThreadGroupReference> wrapThreadGroups(VisageVirtualMachine visagevm, List<ThreadGroupReference> threadGroups) {
         if (threadGroups == null) {
             return null;
         }
         List<ThreadGroupReference> result = new ArrayList<ThreadGroupReference>(threadGroups.size());
         for (ThreadGroupReference tref : threadGroups) {
-            result.add(wrap(fxvm, tref));
+            result.add(wrap(visagevm, tref));
         }
         return result;
     }
 
-    public static VisageClassLoaderReference wrap(VisageVirtualMachine fxvm, ClassLoaderReference ref) {
-        return (ref == null)? null : fxvm.classLoaderReference(ref);
+    public static VisageClassLoaderReference wrap(VisageVirtualMachine visagevm, ClassLoaderReference ref) {
+        return (ref == null)? null : visagevm.classLoaderReference(ref);
     }
 
-    public static VisageClassObjectReference wrap(VisageVirtualMachine fxvm, ClassObjectReference ref) {
-        return (ref == null)? null : fxvm.classObjectReference(ref);
+    public static VisageClassObjectReference wrap(VisageVirtualMachine visagevm, ClassObjectReference ref) {
+        return (ref == null)? null : visagevm.classObjectReference(ref);
     }
 
-    public static List<Value> wrapValues(VisageVirtualMachine fxvm, List<Value> values) {
+    public static List<Value> wrapValues(VisageVirtualMachine visagevm, List<Value> values) {
         if (values == null) {
             return null;
         }
         List<Value> result = new ArrayList<Value>(values.size());
         for (Value v : values) {
-            result.add(wrap(fxvm, v));
+            result.add(wrap(visagevm, v));
         }
         return result;
     }
@@ -517,12 +517,12 @@ public class VisageWrapper {
     }
 
     // event requests
-    public static VisageEventRequestManager wrap(VisageVirtualMachine fxvm, EventRequestManager man) {
-        return (man == null)? null : new VisageEventRequestManager(fxvm, man);
+    public static VisageEventRequestManager wrap(VisageVirtualMachine visagevm, EventRequestManager man) {
+        return (man == null)? null : new VisageEventRequestManager(visagevm, man);
     }
 
     // event queue
-    public static VisageEventQueue wrap(VisageVirtualMachine fxvm, EventQueue evtQueue) {
-        return (evtQueue == null)? null : new VisageEventQueue(fxvm, evtQueue);
+    public static VisageEventQueue wrap(VisageVirtualMachine visagevm, EventQueue evtQueue) {
+        return (evtQueue == null)? null : new VisageEventQueue(visagevm, evtQueue);
     }
 }

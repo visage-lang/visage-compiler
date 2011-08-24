@@ -1,10 +1,10 @@
 /*
  * variable declarations in mixin
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 mixin class A {
   var v_  = 1;

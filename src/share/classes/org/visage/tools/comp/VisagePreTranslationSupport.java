@@ -55,7 +55,7 @@ import javax.tools.JavaFileObject;
  */
 public class VisagePreTranslationSupport {
 
-    private final VisageTreeMaker fxmake;
+    private final VisageTreeMaker visagemake;
     private final VisageDefs defs;
     private final Name.Table names;
     private final VisageCheck chk;
@@ -80,7 +80,7 @@ public class VisagePreTranslationSupport {
     private VisagePreTranslationSupport(Context context) {
         context.put(preTranslation, this);
 
-        fxmake = VisageTreeMaker.instance(context);
+        visagemake = VisageTreeMaker.instance(context);
         defs = VisageDefs.instance(context);
         names = Name.Table.instance(context);
         chk = VisageCheck.instance(context);
@@ -100,35 +100,35 @@ public class VisagePreTranslationSupport {
     public VisageExpression defaultValue(Type type) {
         VisageExpression res;
         if (types.isSequence(type)) {
-            res = fxmake.EmptySequence();
+            res = visagemake.EmptySequence();
         } else {
             switch (type.tag) {
                 case FLOAT:
-                    res = fxmake.Literal(0F);
+                    res = visagemake.Literal(0F);
                     break;
                 case DOUBLE:
-                    res = fxmake.Literal(0.0);
+                    res = visagemake.Literal(0.0);
                     break;
                 case CHAR:
-                    res = fxmake.Literal((char) 0);
+                    res = visagemake.Literal((char) 0);
                     break;
                 case BYTE:
-                    res = fxmake.Literal((byte) 0);
+                    res = visagemake.Literal((byte) 0);
                     break;
                 case SHORT:
-                    res = fxmake.Literal((short) 0);
+                    res = visagemake.Literal((short) 0);
                     break;
                 case INT:
-                    res = fxmake.Literal((int) 0);
+                    res = visagemake.Literal((int) 0);
                     break;
                 case LONG:
-                    res = fxmake.Literal(0L);
+                    res = visagemake.Literal(0L);
                     break;
                 case BOOLEAN:
-                    res = fxmake.Literal(false);
+                    res = visagemake.Literal(false);
                     break;
                 default:
-                    res = fxmake.Literal(BOT, null);
+                    res = visagemake.Literal(BOT, null);
             }
         }
         res.type = type;
@@ -200,9 +200,9 @@ public class VisagePreTranslationSupport {
 
     VisageType makeTypeTree(Type type) {
         Type elemType = types.elementTypeOrType(type);
-        VisageExpression typeExpr = fxmake.Type(elemType).setType(elemType);
+        VisageExpression typeExpr = visagemake.Type(elemType).setType(elemType);
         VisageTreeInfo.setSymbol(typeExpr, elemType.tsym);
-        return (VisageType)fxmake.TypeClass(typeExpr, types.isSequence(type) ? Cardinality.ANY : Cardinality.SINGLETON, (ClassSymbol)type.tsym).setType(type);
+        return (VisageType)visagemake.TypeClass(typeExpr, types.isSequence(type) ? Cardinality.ANY : Cardinality.SINGLETON, (ClassSymbol)type.tsym).setType(type);
     }
 
     VisageVar BoundLocalVar(DiagnosticPosition diagPos, Type type, Name name, VisageExpression boundExpr, Symbol owner) {
@@ -248,10 +248,10 @@ public class VisagePreTranslationSupport {
                 names,
                 flags,
                 name, type, owner);
-        VisageVar var = fxmake.at(diagPos).Var(
+        VisageVar var = visagemake.at(diagPos).Var(
                 name,
                 makeTypeTree(vsym.type),
-                fxmake.at(diagPos).Modifiers(flags),
+                visagemake.at(diagPos).Modifiers(flags),
                 expr,
                 bindStatus,
                 null, null);
@@ -316,7 +316,7 @@ public class VisagePreTranslationSupport {
 
     private VisageExpression makeCast(VisageExpression tree, Type type) {
         VisageExpression typeTree = makeTypeTree(type);
-        VisageExpression expr = fxmake.at(tree.pos).TypeCast(typeTree, tree);
+        VisageExpression expr = visagemake.at(tree.pos).TypeCast(typeTree, tree);
         expr.type = type;
         return expr;
     }
@@ -378,7 +378,7 @@ public class VisagePreTranslationSupport {
             return false;
         }
         while (true) {
-            switch (expr.getFXTag()) {
+            switch (expr.getVisageTag()) {
                 case OBJECT_LITERAL:
                     return false;
                 case PARENS:
@@ -445,7 +445,7 @@ public class VisagePreTranslationSupport {
 //    }
 //    boolean isImmutableReal(VisageExpression tree) {
         //TODO: add for-loop, sequence indexed, string expression
-        switch (tree.getFXTag()) {
+        switch (tree.getVisageTag()) {
             case IDENT: {
                 VisageIdent id = (VisageIdent) tree;
                 return isImmutable(id.sym, id.getName());
@@ -521,7 +521,7 @@ public class VisagePreTranslationSupport {
             }
             default:
                 if (tree instanceof VisageUnary) {
-                    if (tree.getFXTag().isIncDec()) {
+                    if (tree.getVisageTag().isIncDec()) {
                         return false;
                     } else {
                         return isImmutable(((VisageUnary) tree).getExpression());
@@ -544,7 +544,7 @@ public class VisagePreTranslationSupport {
         return
                     name == names._this ||
                     name == names._super ||
-                    (owner instanceof VisageClassSymbol && name == fxmake.ScriptAccessSymbol(owner).name) ||
+                    (owner instanceof VisageClassSymbol && name == visagemake.ScriptAccessSymbol(owner).name) ||
                     !vsym.canChange();
      }
 }

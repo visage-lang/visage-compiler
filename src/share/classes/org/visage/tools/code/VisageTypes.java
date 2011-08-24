@@ -44,7 +44,7 @@ public class VisageTypes extends Types {
     VisageSymtab syms;
     ClassWriter writer;
 
-    private HashMap<ClassSymbol, VisageClassDeclaration> fxClasses;
+    private HashMap<ClassSymbol, VisageClassDeclaration> visageClasses;
 
     public static void preRegister(final Context context) {
         if (context.get(typesKey) == null)
@@ -374,15 +374,15 @@ public class VisageTypes extends Types {
     }
     
     public void addFxClass(ClassSymbol csym, VisageClassDeclaration cdecl) {
-        if (fxClasses == null) {
-            fxClasses = new HashMap<ClassSymbol, VisageClassDeclaration>();
+        if (visageClasses == null) {
+            visageClasses = new HashMap<ClassSymbol, VisageClassDeclaration>();
         }
         csym.flags_field |= VisageFlags.VISAGE_CLASS;
-        fxClasses.put(csym, cdecl);
+        visageClasses.put(csym, cdecl);
     }
     
     public VisageClassDeclaration getFxClass (ClassSymbol csym) {
-       return fxClasses.get(csym);
+       return visageClasses.get(csym);
     }
     
     /** The implementation of this (abstract) symbol in class origin;
@@ -482,7 +482,7 @@ public class VisageTypes extends Types {
     }
 
     public void clearCaches() {
-        fxClasses = null;
+        visageClasses = null;
     }
 
     public boolean isNumeric(Type type) {

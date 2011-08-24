@@ -1,13 +1,13 @@
 This directory contains JDI implementation for Visage.
 
-How to build/test fxjdi.jar?
+How to build/test visagejdi.jar?
 
 * make sure that you set JAVA_HOME pointing to JDK6. Visage-JDI uses JDK 6
 JDI interface and so requires JDK 6 to build and run.
 
 * make sure that you build compiler repo (by running "ant" in parent dir.
 
-* run "ant jar" or "ant" (builds and tests fxjdi.jar) in this directory.
+* run "ant jar" or "ant" (builds and tests visagejdi.jar) in this directory.
 
 How to run command line Visage-JDI debugger?
 
@@ -17,21 +17,21 @@ that this one uses Visage-JDI connectors by default.
 
 To run command line debugger on Mac OS, you can use
 
-    java -jar fxjdi.jar <java-main-class>
+    java -jar visagejdi.jar <java-main-class>
 
 or to use Visage target programs:
 
-    java -jar fxjdi.jar -classpath <path-of-visagert.jar>  \
+    java -jar visagejdi.jar -classpath <path-of-visagert.jar>  \
         org.visage.runtime.Main <visage-module-class>
 
 On Windows and Linux, you can use the following commands:
 
-    java -cp <path-of-tools.jar>:fxjdi.jar org.visage.tools.debug.tty.TTY \
+    java -cp <path-of-tools.jar>:visagejdi.jar org.visage.tools.debug.tty.TTY \
         <java-main-class>
 
 or to use Visage target programs:
 
-    java -cp <path-of-tools.jar>:fxjdi.jar org.visage.tools.debug.tty.TTY \
+    java -cp <path-of-tools.jar>:visagejdi.jar org.visage.tools.debug.tty.TTY \
         -classpath <path-of-visagert.jar> org.visage.runtime.Main \
         <visage-module-class>
 

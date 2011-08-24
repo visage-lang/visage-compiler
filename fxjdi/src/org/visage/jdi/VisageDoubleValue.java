@@ -30,8 +30,8 @@ import com.sun.jdi.DoubleValue;
  * @author sundar
  */
 public class VisageDoubleValue extends VisagePrimitiveValue implements DoubleValue {
-    public VisageDoubleValue(VisageVirtualMachine fxvm, DoubleValue underlying) {
-        super(fxvm, underlying);
+    public VisageDoubleValue(VisageVirtualMachine visagevm, DoubleValue underlying) {
+        super(visagevm, underlying);
     }
 
     public double value() {

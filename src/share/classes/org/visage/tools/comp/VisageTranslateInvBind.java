@@ -355,7 +355,7 @@ public class VisageTranslateInvBind extends VisageAbstractTranslation implements
             addSetterPreface(
                     If(NEnull(receiver),
                         Block(
-                            CallStmt(receiver, defs.set_FXObjectMethodName,
+                            CallStmt(receiver, defs.set_VisageObjectMethodName,
                                 Offset(receiver, refSym),
                                 id(defs.varNewValue_ArgName)
                             )
@@ -394,7 +394,7 @@ public class VisageTranslateInvBind extends VisageAbstractTranslation implements
      */
 
     protected String getSyntheticPrefix() {
-        return "ibfx$";
+        return "ibvisage$";
     }
 
 

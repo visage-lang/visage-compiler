@@ -75,7 +75,7 @@ public class VisageSelect extends VisageExpression implements MemberSelectTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.SELECT;
     }
 }

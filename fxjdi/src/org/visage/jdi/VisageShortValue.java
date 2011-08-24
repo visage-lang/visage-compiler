@@ -30,8 +30,8 @@ import com.sun.jdi.ShortValue;
  * @author sundar
  */
 public class VisageShortValue extends VisagePrimitiveValue implements ShortValue {
-    public VisageShortValue(VisageVirtualMachine fxvm, ShortValue underlying) {
-        super(fxvm, underlying);
+    public VisageShortValue(VisageVirtualMachine visagevm, ShortValue underlying) {
+        super(visagevm, underlying);
     }
 
     public short value() {

@@ -31,8 +31,8 @@ import com.sun.jdi.DoubleType;
  */
 public class VisageDoubleType extends VisagePrimitiveType implements DoubleType {
 
-    public VisageDoubleType(VisageVirtualMachine fxvm, DoubleType underlying) {
-        super(fxvm, underlying);
+    public VisageDoubleType(VisageVirtualMachine visagevm, DoubleType underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

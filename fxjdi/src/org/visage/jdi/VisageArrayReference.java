@@ -34,8 +34,8 @@ import java.util.List;
  * @author sundar
  */
 public class VisageArrayReference extends VisageObjectReference implements ArrayReference {
-    public VisageArrayReference(VisageVirtualMachine fxvm, ArrayReference underlying) {
-        super(fxvm, underlying);
+    public VisageArrayReference(VisageVirtualMachine visagevm, ArrayReference underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageValue getValue(int index) {

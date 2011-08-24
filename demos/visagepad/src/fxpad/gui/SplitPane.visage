@@ -23,7 +23,7 @@
  * have any questions.
  */ 
 
-package fxpad.gui;
+package visagepad.gui;
 
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.MultiSplitLayout;

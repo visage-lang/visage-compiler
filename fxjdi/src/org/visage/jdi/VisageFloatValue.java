@@ -30,8 +30,8 @@ import com.sun.jdi.FloatValue;
  * @author sundar
  */
 public class VisageFloatValue extends VisagePrimitiveValue implements FloatValue {
-    public VisageFloatValue(VisageVirtualMachine fxvm, FloatValue underlying) {
-        super(fxvm, underlying);
+    public VisageFloatValue(VisageVirtualMachine visagevm, FloatValue underlying) {
+        super(visagevm, underlying);
     }
 
     public float value() {

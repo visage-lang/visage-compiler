@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  * @author A. Sundararajan (removed csv stuff for now)
  * 
  * Readme:
- * Here are the steps needed to run the fxbtrace.
+ * Here are the steps needed to run the visagebtrace.
  *
  * 1. Download the btrace binary bundle from https://btrace.dev.java.net/
  * 2. Extract it to BTRACE_HOME
@@ -53,7 +53,7 @@ import java.util.logging.Logger;
  *   a. BUILD_DIR   or build.dir     : clean location for the build files
  *   b. VISAGE_HOME or visage.home : location of visage sdk
  *   c. BTRACE_HOME or btrace.home : location of btrace distro
- *   d. BASE_DIR    or base.dir    : location of the fxbtrace directory
+ *   d. BASE_DIR    or base.dir    : location of the visagebtrace directory
  * 
  * Options:
  *   Must set --jar pointer to a jar with a main-class
@@ -64,13 +64,13 @@ import java.util.logging.Logger;
  * 
  * Notes:
  *  VM parameters to the test specimen may be passed as follows:
- *  % java -DFXBTraceRunner.vmoptions="-Xmx512m, -Xss128, -Xfoobar=XX" VisageBTraceRunner options
+ *  % java -DVisageBTraceRunner.vmoptions="-Xmx512m, -Xss128, -Xfoobar=XX" VisageBTraceRunner options
  * 
  * Files:
- *  a. visage/visage-compiler/buildtools/fxbtrace/btrace_scripts/*.java
+ *  a. visage/visage-compiler/buildtools/visagebtrace/btrace_scripts/*.java
  *     Various btrace script files that can be used to trace Visage apps.
  * 
- *  b. visage/visage-compiler/buildtools/fxbtrace/src/VisageBTraceRunner.java
+ *  b. visage/visage-compiler/buildtools/visagebtrace/src/VisageBTraceRunner.java
  *     This is simply a runner script takes care of compile the script, 
  *     running btrace on the application, killing the application.
  *  
@@ -257,7 +257,7 @@ public class VisageBTraceRunner {
         }
         
 
-        // run the fxbtrace script and application
+        // run the visagebtrace script and application
         cmdsList.clear();
         cmdsList.add(VISAGE_EXE);
         cmdsList.add("-D" + VISAGEBTRACERUNNER_NAME + ".interval=" + interval);

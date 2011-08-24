@@ -18,21 +18,21 @@ was cloned.
   ant  -Dbtrace.home=$BTRACE_HOME
 
 The above compiles all btrace scripts under btrace_scripts to the destination 
-directory ../../build/buildtools/fxbtrace/
+directory ../../build/buildtools/visagebtrace/
 
-Or you can use "./bin/fxbtracec" to compile a specific BTrace script file like:
+Or you can use "./bin/visagebtracec" to compile a specific BTrace script file like:
 
-    ./bin/fxbtracec btrace_scripts/InvalidationTracer.java
+    ./bin/visagebtracec btrace_scripts/InvalidationTracer.java
 
-5) ./bin/fxbtrace <compiled-btrace-script.class> <your-visage-main-class> <args>
+5) ./bin/visagebtrace <compiled-btrace-script.class> <your-visage-main-class> <args>
 
 For example,
 
- ./bin/fxbtrace ../../build/buildtools/fxbtrace/InvalidationTracer.class VisageMain
+ ./bin/visagebtrace ../../build/buildtools/visagebtrace/InvalidationTracer.class VisageMain
 
 This produces the trace output file as
 
- ../../build/buildtools/fxbtrace/InvalidationTracer.class.btrace
+ ../../build/buildtools/visagebtrace/InvalidationTracer.class.btrace
 
 The .btrace file is produced whereever the .class of the BTrace script is 
 located. 

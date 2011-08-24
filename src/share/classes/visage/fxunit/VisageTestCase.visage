@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package visage.fxunit;
+package visage.visageunit;
 import java.lang.Object;
 import java.lang.NullPointerException;
 import junit.framework.TestCase;
@@ -32,7 +32,7 @@ public class VisageTestCase extends TestCase {
     init {
        try {
            var codebase = getClass().getProtectionDomain().getCodeSource().getLocation().toString();
-           SystemProperties.setFXProperty(SystemProperties.codebase, codebase);
+           SystemProperties.setVisageProperty(SystemProperties.codebase, codebase);
 	} catch (ignored : NullPointerException) {
 	   // just in case the code source is null
 	}

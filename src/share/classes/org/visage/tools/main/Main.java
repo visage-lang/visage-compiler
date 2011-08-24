@@ -760,8 +760,8 @@ public class Main {
      */
     public static String getVisageLocalizedString(String key, Object... args) { // FIXME sb private
         try {
-            Messages fxmessages = new Messages(visageBundleName);
-            return fxmessages.getLocalizedString(key, args);
+            Messages visagemessages = new Messages(visageBundleName);
+            return visagemessages.getLocalizedString(key, args);
         }
         catch (MissingResourceException e) {
             throw new Error("Fatal Error: Resource for javac is missing", e);
@@ -797,7 +797,7 @@ public class Main {
         }
 
         // Log.java writeDiagnostic comes here.   Why doesn't Log.report recurse?
-        // otherContext is the fxContext. AND fxContext has NO listener so we
+        // otherContext is the visageContext. AND visageContext has NO listener so we
         // don't come back here.
         public void report(Diagnostic diag) {
             Log log = Log.instance(otherContext);

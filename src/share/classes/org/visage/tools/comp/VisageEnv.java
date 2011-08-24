@@ -125,7 +125,7 @@ public class VisageEnv<A> implements Iterable<VisageEnv<A>> {
      */
     public VisageEnv<A> enclosing(VisageTag tag) {
 	VisageEnv<A> env1 = this;
-	while (env1 != null && env1.tree.getFXTag() != tag) env1 = env1.next;
+	while (env1 != null && env1.tree.getVisageTag() != tag) env1 = env1.next;
 	return env1;
     }
     

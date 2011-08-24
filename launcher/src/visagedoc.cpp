@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
         cmd += "-classpath \"" + config.classpath + "\" ";
     }
     cmd += "org.visage.tools.visagedoc.Main ";
-    cmd += config.fxargs;
+    cmd += config.visageargs;
     
     return util.createProcess (cmd);
 }

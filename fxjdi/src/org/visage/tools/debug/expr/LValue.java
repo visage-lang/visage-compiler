@@ -96,7 +96,7 @@ abstract class LValue {
         }
         if ((val instanceof VisageSequenceReference) &&
             "length".equals(fieldName)) {
-            return new LValueFXSequenceLength((VisageSequenceReference)val, thread);
+            return new LValueVisageSequenceLength((VisageSequenceReference)val, thread);
         }
         return new LValueInstanceMember(val, fieldName, thread);
     }
@@ -161,7 +161,7 @@ abstract class LValue {
         Value arrayValue = interiorGetValue();
         try {
             return (arrayValue instanceof VisageSequenceReference)?
-                new LValueFXSequenceElement(arrayValue, index, frameGetter.get().thread()) :
+                new LValueVisageSequenceElement(arrayValue, index, frameGetter.get().thread()) :
                 new LValueArrayElement(arrayValue, index);
         } catch (IncompatibleThreadStateException itse) {
             throw new ParseException(itse.getMessage());
@@ -617,11 +617,11 @@ abstract class LValue {
         }
     }
 
-    private static class LValueFXSequenceLength extends LValue {
+    private static class LValueVisageSequenceLength extends LValue {
         final VisageSequenceReference sequenceRef;
         final ThreadReference thread;
 
-        LValueFXSequenceLength (VisageSequenceReference value, ThreadReference thread) {
+        LValueVisageSequenceLength (VisageSequenceReference value, ThreadReference thread) {
             this.sequenceRef = value;
             this.thread = thread;
         }
@@ -677,12 +677,12 @@ abstract class LValue {
         }
     }
 
-    private static class LValueFXSequenceElement extends LValue {
+    private static class LValueVisageSequenceElement extends LValue {
         final VisageSequenceReference sequence;
         final int index;
         final ThreadReference thread;
 
-        LValueFXSequenceElement(Value value, int index, ThreadReference thread) throws ParseException {
+        LValueVisageSequenceElement(Value value, int index, ThreadReference thread) throws ParseException {
             if (!(value instanceof VisageSequenceReference)) {
                 throw new ParseException(
                        "Must be sequence type: " + value);

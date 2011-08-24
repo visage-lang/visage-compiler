@@ -65,7 +65,7 @@ public class VisageKeyFrameLiteral extends VisageExpression implements KeyFrameL
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.KEYFRAME_LITERAL;
     }
 }

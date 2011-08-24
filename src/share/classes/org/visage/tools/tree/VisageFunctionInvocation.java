@@ -81,7 +81,7 @@ public class VisageFunctionInvocation extends VisageExpression implements Functi
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.APPLY;
     }
 }

@@ -52,7 +52,7 @@ public class VisageSequenceIndexed extends VisageExpression implements SequenceI
     }
     
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.SEQUENCE_INDEXED;
     }
 

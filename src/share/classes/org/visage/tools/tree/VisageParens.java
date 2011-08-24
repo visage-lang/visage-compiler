@@ -56,7 +56,7 @@ public class VisageParens extends VisageExpression implements ParenthesizedTree 
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.PARENS;
     }
 }

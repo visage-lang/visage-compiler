@@ -41,8 +41,8 @@ import java.util.List;
  * @author sundar
  */
 public class VisageThreadReference extends VisageObjectReference implements ThreadReference {
-    public VisageThreadReference(VisageVirtualMachine fxvm, ThreadReference underlying) {
-        super(fxvm, underlying);
+    public VisageThreadReference(VisageVirtualMachine visagevm, ThreadReference underlying) {
+        super(visagevm, underlying);
     }
 
     public void forceEarlyReturn(Value value) throws InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException {
@@ -144,12 +144,12 @@ public class VisageThreadReference extends VisageObjectReference implements Thre
         List<StackFrame> filteredFrames = new ArrayList<StackFrame>(frames.size());
         try {
             for (StackFrame fr : frames) {
-                VisageStackFrame fxfr = (VisageStackFrame) fr;
+                VisageStackFrame visagefr = (VisageStackFrame) fr;
                 // don't add Visage synthetic frames
-                if (fxfr.location().method().isVisageInternalMethod()) {
+                if (visagefr.location().method().isVisageInternalMethod()) {
                     continue;
                 } else {
-                    filteredFrames.add(fxfr);
+                    filteredFrames.add(visagefr);
                 }
             }
         } catch (InvalidStackFrameException exp) {

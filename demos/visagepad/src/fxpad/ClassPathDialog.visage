@@ -23,9 +23,9 @@
  * have any questions.
  */ 
 
-package fxpad;
+package visagepad;
 
-import fxpad.gui.*;
+import visagepad.gui.*;
 import visage.ext.swing.*;
 import java.io.File;
 import java.awt.Dimension;

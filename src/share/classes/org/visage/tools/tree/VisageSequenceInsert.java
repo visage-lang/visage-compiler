@@ -65,7 +65,7 @@ public class VisageSequenceInsert extends VisageExpression implements SequenceIn
     }
     
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.INSERT;
     }
 

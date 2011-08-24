@@ -1,10 +1,10 @@
 /*
  * Test for the initializer conflicts resolution.
  *
- * @test/fxunit
+ * @test/visageunit
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 mixin class Mixin1 { public var bar : String = "M1" }
 mixin class Mixin2 extends Mixin1 { override public var bar : String }

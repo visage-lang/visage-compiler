@@ -408,7 +408,7 @@ public class Utils {
      * Note: we could use the ScriptEngine, however we would like to make
      * sure the launchers (visage and visagec) works!.
      */
-    static String getVersionPropFromFX(boolean isFullVersion) throws IOException {
+    static String getVersionPropFromVisage(boolean isFullVersion) throws IOException {
         String filename = "Version";
         FileWriter fw = new FileWriter(new File(workingDir, filename + ".visage"));
         PrintWriter pw = new PrintWriter(fw);
@@ -579,8 +579,8 @@ public class Utils {
         ArrayList<String> cmdsList = new ArrayList<String>();
         cmdsList.add(visagecExe.toString());
         cmdsList.add(filename + ".visage");
-        List<String> fxcList = doExec(cmdsList);
-        if (fxcList == null) {
+        List<String> visagecList = doExec(cmdsList);
+        if (visagecList == null) {
             throw new RuntimeException("Visage compilation failed " + filename + ".java");
         }
         String jarArgs[] = {
@@ -621,8 +621,8 @@ public class Utils {
             ArrayList<String> cmdsList = new ArrayList<String>();
             cmdsList.add(visagecExe.toString());
             cmdsList.add(filename + ".visage");
-            List<String> fxcList = doExec(cmdsList);
-            if (fxcList == null) {
+            List<String> visagecList = doExec(cmdsList);
+            if (visagecList == null) {
                 throw new RuntimeException("Visage compilation failed " + filename + ".java");
             }
         } else {

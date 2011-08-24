@@ -33,8 +33,8 @@ import com.sun.jdi.event.VMStartEvent;
  * @author sundar
  */
 public class VisageVMStartEvent extends VisageEvent implements VMStartEvent {
-    public VisageVMStartEvent(VisageVirtualMachine fxvm, VMStartEvent underlying) {
-        super(fxvm, underlying);
+    public VisageVMStartEvent(VisageVirtualMachine visagevm, VMStartEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public ThreadReference thread() {

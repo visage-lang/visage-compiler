@@ -1,5 +1,5 @@
 /*
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
 
@@ -9,7 +9,7 @@ function foo(r:Integer): Foo {
     Foo { red: r } 
 } 
 
-class vsgc551 extends visage.fxunit.VisageTestCase {
+class vsgc551 extends visage.visageunit.VisageTestCase {
     function test() {
         var gray1:Foo = bind foo(1); 
         assertEquals(1, gray1.red);

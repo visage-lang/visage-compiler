@@ -42,7 +42,7 @@ public class VisageTypeUnknown extends VisageType implements TypeUnknownTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.TYPEUNKNOWN;
     }
 

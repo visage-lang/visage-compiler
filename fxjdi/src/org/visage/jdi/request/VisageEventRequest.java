@@ -51,8 +51,8 @@ import java.util.List;
  * @author sundar
  */
 public class VisageEventRequest extends VisageMirror implements EventRequest {
-    public VisageEventRequest(VisageVirtualMachine fxvm, EventRequest underlying) {
-        super(fxvm, underlying);
+    public VisageEventRequest(VisageVirtualMachine visagevm, EventRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addCountFilter(int count) {
@@ -98,317 +98,317 @@ public class VisageEventRequest extends VisageMirror implements EventRequest {
 
     // static utils for wrapping/unwrapping event request objects
 
-    public static VisageEventRequest wrap(VisageVirtualMachine fxvm, EventRequest req) {
+    public static VisageEventRequest wrap(VisageVirtualMachine visagevm, EventRequest req) {
         if (req == null) {
             return null;
         }
 
         if (req instanceof AccessWatchpointRequest) {
-            return new VisageAccessWatchpointRequest(fxvm, (AccessWatchpointRequest)req);
+            return new VisageAccessWatchpointRequest(visagevm, (AccessWatchpointRequest)req);
         } else if (req instanceof BreakpointRequest) {
-            return new VisageBreakpointRequest(fxvm, (BreakpointRequest)req);
+            return new VisageBreakpointRequest(visagevm, (BreakpointRequest)req);
         } else if (req instanceof ClassPrepareRequest) {
-            return new VisageClassPrepareRequest(fxvm, (ClassPrepareRequest)req);
+            return new VisageClassPrepareRequest(visagevm, (ClassPrepareRequest)req);
         } else if (req instanceof ClassUnloadRequest) {
-            return new VisageClassUnloadRequest(fxvm, (ClassUnloadRequest)req);
+            return new VisageClassUnloadRequest(visagevm, (ClassUnloadRequest)req);
         } else if (req instanceof ExceptionRequest) {
-            return new VisageExceptionRequest(fxvm, (ExceptionRequest)req);
+            return new VisageExceptionRequest(visagevm, (ExceptionRequest)req);
         } else if (req instanceof MethodEntryRequest) {
-            return new VisageMethodEntryRequest(fxvm, (MethodEntryRequest)req);
+            return new VisageMethodEntryRequest(visagevm, (MethodEntryRequest)req);
         } else if (req instanceof MethodExitRequest) {
-            return new VisageMethodExitRequest(fxvm, (MethodExitRequest)req);
+            return new VisageMethodExitRequest(visagevm, (MethodExitRequest)req);
         } else if (req instanceof ModificationWatchpointRequest) {
-            return new VisageModificationWatchpointRequest(fxvm, (ModificationWatchpointRequest)req);
+            return new VisageModificationWatchpointRequest(visagevm, (ModificationWatchpointRequest)req);
         } else if (req instanceof MonitorContendedEnterRequest) {
-            return new VisageMonitorContendedEnterRequest(fxvm, (MonitorContendedEnterRequest)req);
+            return new VisageMonitorContendedEnterRequest(visagevm, (MonitorContendedEnterRequest)req);
         } else if (req instanceof MonitorContendedEnteredRequest) {
-            return new VisageMonitorContendedEnteredRequest(fxvm, (MonitorContendedEnteredRequest)req);
+            return new VisageMonitorContendedEnteredRequest(visagevm, (MonitorContendedEnteredRequest)req);
         } else if (req instanceof MonitorWaitRequest) {
-            return new VisageMonitorWaitRequest(fxvm, (MonitorWaitRequest)req);
+            return new VisageMonitorWaitRequest(visagevm, (MonitorWaitRequest)req);
         } else if (req instanceof MonitorWaitedRequest) {
-            return new VisageMonitorWaitedRequest(fxvm, (MonitorWaitedRequest)req);
+            return new VisageMonitorWaitedRequest(visagevm, (MonitorWaitedRequest)req);
         } else if (req instanceof StepRequest) {
-            return new VisageStepRequest(fxvm, (StepRequest)req);
+            return new VisageStepRequest(visagevm, (StepRequest)req);
         } else if (req instanceof ThreadDeathRequest) {
-            return new VisageThreadDeathRequest(fxvm, (ThreadDeathRequest)req);
+            return new VisageThreadDeathRequest(visagevm, (ThreadDeathRequest)req);
         } else if (req instanceof ThreadStartRequest) {
-            return new VisageThreadStartRequest(fxvm, (ThreadStartRequest)req);
+            return new VisageThreadStartRequest(visagevm, (ThreadStartRequest)req);
         } else if (req instanceof VMDeathRequest) {
-            return new VisageVMDeathRequest(fxvm, (VMDeathRequest)req);
+            return new VisageVMDeathRequest(visagevm, (VMDeathRequest)req);
         } else if (req instanceof WatchpointRequest) {
-            return new VisageWatchpointRequest(fxvm, (WatchpointRequest)req);
+            return new VisageWatchpointRequest(visagevm, (WatchpointRequest)req);
         } else {
-            return new VisageEventRequest(fxvm, req);
+            return new VisageEventRequest(visagevm, req);
         }
     }
     
     public static VisageAccessWatchpointRequest wrap(
-            VisageVirtualMachine fxvm, AccessWatchpointRequest req) {
-        return (req == null)? null : new VisageAccessWatchpointRequest(fxvm, req);
+            VisageVirtualMachine visagevm, AccessWatchpointRequest req) {
+        return (req == null)? null : new VisageAccessWatchpointRequest(visagevm, req);
     }
 
     public static VisageBreakpointRequest wrap(
-            VisageVirtualMachine fxvm, BreakpointRequest req) {
-        return (req == null)? null : new VisageBreakpointRequest(fxvm, req);
+            VisageVirtualMachine visagevm, BreakpointRequest req) {
+        return (req == null)? null : new VisageBreakpointRequest(visagevm, req);
     }
 
     public static VisageClassPrepareRequest wrap(
-            VisageVirtualMachine fxvm, ClassPrepareRequest req) {
-        return (req == null)? null : new VisageClassPrepareRequest(fxvm, req);
+            VisageVirtualMachine visagevm, ClassPrepareRequest req) {
+        return (req == null)? null : new VisageClassPrepareRequest(visagevm, req);
     }
 
     public static VisageClassUnloadRequest wrap(
-            VisageVirtualMachine fxvm, ClassUnloadRequest req) {
-        return (req == null)? null : new VisageClassUnloadRequest(fxvm, req);
+            VisageVirtualMachine visagevm, ClassUnloadRequest req) {
+        return (req == null)? null : new VisageClassUnloadRequest(visagevm, req);
     }
 
     public static VisageExceptionRequest wrap(
-            VisageVirtualMachine fxvm, ExceptionRequest req) {
-        return (req == null)? null : new VisageExceptionRequest(fxvm, req);
+            VisageVirtualMachine visagevm, ExceptionRequest req) {
+        return (req == null)? null : new VisageExceptionRequest(visagevm, req);
     }
 
     public static VisageMethodEntryRequest wrap(
-            VisageVirtualMachine fxvm, MethodEntryRequest req) {
-        return (req == null)? null : new VisageMethodEntryRequest(fxvm, req);
+            VisageVirtualMachine visagevm, MethodEntryRequest req) {
+        return (req == null)? null : new VisageMethodEntryRequest(visagevm, req);
     }
 
     public static VisageMethodExitRequest wrap(
-            VisageVirtualMachine fxvm, MethodExitRequest req) {
-        return (req == null)? null : new VisageMethodExitRequest(fxvm, req);
+            VisageVirtualMachine visagevm, MethodExitRequest req) {
+        return (req == null)? null : new VisageMethodExitRequest(visagevm, req);
     }
 
     public static VisageModificationWatchpointRequest wrap(
-            VisageVirtualMachine fxvm, ModificationWatchpointRequest req) {
-        return (req == null)? null : new VisageModificationWatchpointRequest(fxvm, req);
+            VisageVirtualMachine visagevm, ModificationWatchpointRequest req) {
+        return (req == null)? null : new VisageModificationWatchpointRequest(visagevm, req);
     }
 
     public static VisageMonitorContendedEnterRequest wrap(
-            VisageVirtualMachine fxvm, MonitorContendedEnterRequest req) {
-        return (req == null)? null : new VisageMonitorContendedEnterRequest(fxvm, req);
+            VisageVirtualMachine visagevm, MonitorContendedEnterRequest req) {
+        return (req == null)? null : new VisageMonitorContendedEnterRequest(visagevm, req);
     }
 
     public static VisageMonitorContendedEnteredRequest wrap(
-            VisageVirtualMachine fxvm, MonitorContendedEnteredRequest req) {
-        return (req == null)? null : new VisageMonitorContendedEnteredRequest(fxvm, req);
+            VisageVirtualMachine visagevm, MonitorContendedEnteredRequest req) {
+        return (req == null)? null : new VisageMonitorContendedEnteredRequest(visagevm, req);
     }
 
     public static VisageMonitorWaitRequest wrap(
-            VisageVirtualMachine fxvm, MonitorWaitRequest req) {
-        return (req == null)? null : new VisageMonitorWaitRequest(fxvm, req);
+            VisageVirtualMachine visagevm, MonitorWaitRequest req) {
+        return (req == null)? null : new VisageMonitorWaitRequest(visagevm, req);
     }
 
     public static VisageMonitorWaitedRequest wrap(
-            VisageVirtualMachine fxvm, MonitorWaitedRequest req) {
-        return (req == null)? null : new VisageMonitorWaitedRequest(fxvm, req);
+            VisageVirtualMachine visagevm, MonitorWaitedRequest req) {
+        return (req == null)? null : new VisageMonitorWaitedRequest(visagevm, req);
     }
 
     public static VisageStepRequest wrap(
-            VisageVirtualMachine fxvm, StepRequest req) {
-        return (req == null)? null : new VisageStepRequest(fxvm, req);
+            VisageVirtualMachine visagevm, StepRequest req) {
+        return (req == null)? null : new VisageStepRequest(visagevm, req);
     }
 
     public static VisageThreadDeathRequest wrap(
-            VisageVirtualMachine fxvm, ThreadDeathRequest req) {
-        return (req == null)? null : new VisageThreadDeathRequest(fxvm, req);
+            VisageVirtualMachine visagevm, ThreadDeathRequest req) {
+        return (req == null)? null : new VisageThreadDeathRequest(visagevm, req);
     }
 
     public static VisageThreadStartRequest wrap(
-            VisageVirtualMachine fxvm, ThreadStartRequest req) {
-        return (req == null)? null : new VisageThreadStartRequest(fxvm, req);
+            VisageVirtualMachine visagevm, ThreadStartRequest req) {
+        return (req == null)? null : new VisageThreadStartRequest(visagevm, req);
     }
 
-    public static VisageVMDeathRequest wrap(VisageVirtualMachine fxvm, VMDeathRequest req) {
-        return (req == null)? null : new VisageVMDeathRequest(fxvm, req);
+    public static VisageVMDeathRequest wrap(VisageVirtualMachine visagevm, VMDeathRequest req) {
+        return (req == null)? null : new VisageVMDeathRequest(visagevm, req);
     }
 
     public static List<AccessWatchpointRequest> wrapAccessWatchpointRequests(
-            VisageVirtualMachine fxvm,  List<AccessWatchpointRequest> reqs) {
+            VisageVirtualMachine visagevm,  List<AccessWatchpointRequest> reqs) {
         if (reqs == null) {
             return null;
         }
          List<AccessWatchpointRequest> result = new ArrayList<AccessWatchpointRequest>();
          for (AccessWatchpointRequest req : reqs) {
-             result.add(wrap(fxvm, req));
+             result.add(wrap(visagevm, req));
          }
          return result;
     }
 
     public static List<BreakpointRequest> wrapBreakpointRequests(
-            VisageVirtualMachine fxvm,  List<BreakpointRequest> reqs) {
+            VisageVirtualMachine visagevm,  List<BreakpointRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<BreakpointRequest> result = new ArrayList<BreakpointRequest>();
         for (BreakpointRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<ClassPrepareRequest> wrapClassPrepareRequests(
-            VisageVirtualMachine fxvm,  List<ClassPrepareRequest> reqs) {
+            VisageVirtualMachine visagevm,  List<ClassPrepareRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<ClassPrepareRequest> result = new ArrayList<ClassPrepareRequest>();
         for (ClassPrepareRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<ClassUnloadRequest> wrapClassUnloadRequests(
-            VisageVirtualMachine fxvm, List<ClassUnloadRequest> reqs) {
+            VisageVirtualMachine visagevm, List<ClassUnloadRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<ClassUnloadRequest> result = new ArrayList<ClassUnloadRequest>();
         for (ClassUnloadRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<ExceptionRequest> wrapExceptionRequests(
-            VisageVirtualMachine fxvm, List<ExceptionRequest> reqs) {
+            VisageVirtualMachine visagevm, List<ExceptionRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<ExceptionRequest> result = new ArrayList<ExceptionRequest>();
         for (ExceptionRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<MethodEntryRequest> wrapMethodEntryRequests(
-            VisageVirtualMachine fxvm, List<MethodEntryRequest> reqs) {
+            VisageVirtualMachine visagevm, List<MethodEntryRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<MethodEntryRequest> result = new ArrayList<MethodEntryRequest>();
         for (MethodEntryRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<MethodExitRequest> wrapMethodExitRequests(
-            VisageVirtualMachine fxvm, List<MethodExitRequest> reqs) {
+            VisageVirtualMachine visagevm, List<MethodExitRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<MethodExitRequest> result = new ArrayList<MethodExitRequest>();
         for (MethodExitRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<ModificationWatchpointRequest> wrapModificationWatchpointRequests(
-            VisageVirtualMachine fxvm, List<ModificationWatchpointRequest> reqs) {
+            VisageVirtualMachine visagevm, List<ModificationWatchpointRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<ModificationWatchpointRequest> result = new ArrayList<ModificationWatchpointRequest>();
         for (ModificationWatchpointRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<MonitorContendedEnterRequest> wrapMonitorContendedEnterRequests(
-            VisageVirtualMachine fxvm, List<MonitorContendedEnterRequest> reqs) {
+            VisageVirtualMachine visagevm, List<MonitorContendedEnterRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<MonitorContendedEnterRequest> result = new ArrayList<MonitorContendedEnterRequest>();
         for (MonitorContendedEnterRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<MonitorContendedEnteredRequest> wrapMonitorContendedEnteredRequests(
-            VisageVirtualMachine fxvm, List<MonitorContendedEnteredRequest> reqs) {
+            VisageVirtualMachine visagevm, List<MonitorContendedEnteredRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<MonitorContendedEnteredRequest> result = new ArrayList<MonitorContendedEnteredRequest>();
         for (MonitorContendedEnteredRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<MonitorWaitRequest> wrapMonitorWaitRequests(
-            VisageVirtualMachine fxvm, List<MonitorWaitRequest> reqs) {
+            VisageVirtualMachine visagevm, List<MonitorWaitRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<MonitorWaitRequest> result = new ArrayList<MonitorWaitRequest>();
         for (MonitorWaitRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<MonitorWaitedRequest> wrapMonitorWaitedRequests(
-            VisageVirtualMachine fxvm, List<MonitorWaitedRequest> reqs) {
+            VisageVirtualMachine visagevm, List<MonitorWaitedRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<MonitorWaitedRequest> result = new ArrayList<MonitorWaitedRequest>();
         for (MonitorWaitedRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<StepRequest> wrapStepRequests(
-            VisageVirtualMachine fxvm, List<StepRequest> reqs) {
+            VisageVirtualMachine visagevm, List<StepRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<StepRequest> result = new ArrayList<StepRequest>();
         for (StepRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<ThreadDeathRequest> wrapThreadDeathRequests(
-            VisageVirtualMachine fxvm, List<ThreadDeathRequest> reqs) {
+            VisageVirtualMachine visagevm, List<ThreadDeathRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<ThreadDeathRequest> result = new ArrayList<ThreadDeathRequest>();
         for (ThreadDeathRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<ThreadStartRequest> wrapThreadStartRequests(
-            VisageVirtualMachine fxvm, List<ThreadStartRequest> reqs) {
+            VisageVirtualMachine visagevm, List<ThreadStartRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<ThreadStartRequest> result = new ArrayList<ThreadStartRequest>();
         for (ThreadStartRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }
 
     public static List<VMDeathRequest> wrapVMDeathRequests(
-            VisageVirtualMachine fxvm, List<VMDeathRequest> reqs) {
+            VisageVirtualMachine visagevm, List<VMDeathRequest> reqs) {
         if (reqs == null) {
             return null;
         }
         List<VMDeathRequest> result = new ArrayList<VMDeathRequest>();
         for (VMDeathRequest req : reqs) {
-            result.add(wrap(fxvm, req));
+            result.add(wrap(visagevm, req));
         }
         return result;
     }

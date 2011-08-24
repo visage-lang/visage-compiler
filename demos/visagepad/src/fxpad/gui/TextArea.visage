@@ -4,7 +4,7 @@
  * Created on Apr 18, 2008, 12:12:50 PM
  */
 
-package fxpad.gui;
+package visagepad.gui;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;

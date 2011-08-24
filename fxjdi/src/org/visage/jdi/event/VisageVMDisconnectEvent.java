@@ -31,8 +31,8 @@ import com.sun.jdi.event.VMDisconnectEvent;
  * @author sundar
  */
 public class VisageVMDisconnectEvent extends VisageEvent implements VMDisconnectEvent {
-    public VisageVMDisconnectEvent(VisageVirtualMachine fxvm, VMDisconnectEvent underlying) {
-        super(fxvm, underlying);
+    public VisageVMDisconnectEvent(VisageVirtualMachine visagevm, VMDisconnectEvent underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

@@ -20,10 +20,10 @@ try {
     // create localizer object literal with defaults
     var localizer = StringLocalizer { key: "source original string" };
 
-    // This prints translated string in vsgc698_ja.fxproperties
+    // This prints translated string in vsgc698_ja.visageproperties
     System.out.println(localizer.localizedString);
 
-    // This prints translated string in foo/bar/VisagePropTestResources_ja.fxproperties
+    // This prints translated string in foo/bar/VisagePropTestResources_ja.visageproperties
     StringLocalizer.associate("foo.bar.VisagePropTestResources", "", "vsgc698.visage");
     localizer = StringLocalizer { key: "source original string" };
     System.out.println(localizer.localizedString);
@@ -32,7 +32,7 @@ try {
     StringLocalizer.dissociate("", "vsgc698.visage");
     var localizer2 = StringLocalizer { key: "EXPLICIT_KEY", defaultString: "default string" };
 
-    // This prints translated string in vsgc698_ja.fxproperties
+    // This prints translated string in vsgc698_ja.visageproperties
     System.out.println(localizer2.localizedString);
 
     // This prints the 'default string'

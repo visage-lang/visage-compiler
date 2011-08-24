@@ -34,8 +34,8 @@ import com.sun.jdi.event.WatchpointEvent;
 public class VisageAccessWatchpointEvent extends VisageWatchpointEvent
         implements AccessWatchpointEvent {
 
-    public VisageAccessWatchpointEvent(VisageVirtualMachine fxvm, AccessWatchpointEvent underlying) {
-        super(fxvm, underlying);
+    public VisageAccessWatchpointEvent(VisageVirtualMachine visagevm, AccessWatchpointEvent underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

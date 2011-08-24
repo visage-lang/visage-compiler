@@ -373,7 +373,7 @@
   <component name="ProjectFileVersion" converted="true" />
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/fxplugin.iml" filepath="$PROJECT_DIR$/fxplugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/visageplugin.iml" filepath="$PROJECT_DIR$/visageplugin.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA 7361" project-jdk-type="IDEA JDK">
@@ -619,7 +619,7 @@
     </LanguageOptions>
   </component>
   <component name="libraryTable">
-    <library name="fxlibs">
+    <library name="visagelibs">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/../../dist/lib/visagec.jar!/" />
       </CLASSES>

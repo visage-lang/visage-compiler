@@ -297,7 +297,7 @@ public class VisageVarUsageAnalysis extends VisageTreeScanner {
         VisageVarSymbol sym = null;
         boolean restoreOptTrigger = false;
         boolean restoreUsedOutsideSizeof = false;
-        switch (tree.getFXTag()) {
+        switch (tree.getVisageTag()) {
             case PREINC:
             case PREDEC:
             case POSTINC:

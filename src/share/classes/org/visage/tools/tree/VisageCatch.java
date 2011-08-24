@@ -65,7 +65,7 @@ public class VisageCatch extends VisageTree implements CatchTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.CATCH;
     }
 }

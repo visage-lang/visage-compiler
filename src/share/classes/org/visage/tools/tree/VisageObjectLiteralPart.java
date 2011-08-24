@@ -76,7 +76,7 @@ public class VisageObjectLiteralPart extends VisageExpression implements ObjectL
     }
     
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.OBJECT_LITERAL_PART;
     }
 

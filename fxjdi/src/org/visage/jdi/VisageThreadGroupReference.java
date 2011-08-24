@@ -32,8 +32,8 @@ import java.util.List;
  * @author sundar
  */
 public class VisageThreadGroupReference extends VisageObjectReference implements ThreadGroupReference {
-    public VisageThreadGroupReference(VisageVirtualMachine fxvm, ThreadGroupReference underlying) {
-        super(fxvm, underlying);
+    public VisageThreadGroupReference(VisageVirtualMachine visagevm, ThreadGroupReference underlying) {
+        super(visagevm, underlying);
     }
 
     public String name() {

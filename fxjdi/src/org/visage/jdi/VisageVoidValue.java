@@ -12,8 +12,8 @@ import com.sun.jdi.VoidValue;
  * @author sundar
  */
 public class VisageVoidValue extends VisageValue implements VoidValue {
-    public VisageVoidValue(VisageVirtualMachine fxvm, VoidValue underlying) {
-        super(fxvm, underlying);
+    public VisageVoidValue(VisageVirtualMachine visagevm, VoidValue underlying) {
+        super(visagevm, underlying);
     }
     
     @Override

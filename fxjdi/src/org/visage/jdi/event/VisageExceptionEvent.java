@@ -34,8 +34,8 @@ import com.sun.jdi.event.ExceptionEvent;
  * @author sundar
  */
 public class VisageExceptionEvent extends VisageLocatableEvent implements ExceptionEvent {
-    public VisageExceptionEvent(VisageVirtualMachine fxvm, ExceptionEvent underlying) {
-        super(fxvm, underlying);
+    public VisageExceptionEvent(VisageVirtualMachine visagevm, ExceptionEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageLocation catchLocation() {

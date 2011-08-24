@@ -1,5 +1,5 @@
 /**
- * Regression test VSGC-2136 : visage.reflectFXVarMember.setValue fails for elided instance var
+ * Regression test VSGC-2136 : visage.reflectVisageVarMember.setValue fails for elided instance var
  *
  * @test
  * @run

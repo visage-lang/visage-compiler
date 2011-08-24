@@ -1,10 +1,10 @@
 /*
  * 'on replace' triggers on mixin sequence variables
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
-import visage.fxunit.*;
+import visage.visageunit.*;
 
 var res: String = "";
 

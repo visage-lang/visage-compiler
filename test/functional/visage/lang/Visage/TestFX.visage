@@ -1,12 +1,12 @@
 /**
  * Some tests so improve compatibilty coverage apart from junit tests
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
 
 import visage.lang.Visage;
-import visage.fxunit.*;
+import visage.visageunit.*;
 
 class VISAGE_LANG_TEST {
 var data:String = "";
@@ -177,7 +177,7 @@ public function RemoveShutdownPActionTest()
 }
 }
 
-public class TestFX extends VisageTestCase  {
+public class TestVisage extends VisageTestCase  {
 
     function testRemoveFromEmptyActions() {
       var jlt = VISAGE_LANG_TEST {}

@@ -50,7 +50,7 @@ public class VisageEnter extends VisageTreeScanner {
     private final Log log;
     private final VisageSymtab syms;
     private final VisageCheck chk;
-    private final VisageTreeMaker fxmake;
+    private final VisageTreeMaker visagemake;
     private final ClassReader reader;
     private final VisageAnnotate annotate;
     private final VisageMemberEnter memberEnter;
@@ -72,7 +72,7 @@ public class VisageEnter extends VisageTreeScanner {
 
         log = Log.instance(context);
         reader = ClassReader.instance(context);
-        fxmake = (VisageTreeMaker) VisageTreeMaker.instance(context);
+        visagemake = (VisageTreeMaker) VisageTreeMaker.instance(context);
         syms = (VisageSymtab) VisageSymtab.instance(context);
         chk = VisageCheck.instance(context);
         memberEnter = VisageMemberEnter.instance(context);
@@ -80,8 +80,8 @@ public class VisageEnter extends VisageTreeScanner {
         lint = Lint.instance(context);
         visageModuleBuilder = VisageScriptClassBuilder.instance(context);
 
-        predefClassDef = fxmake.ClassDeclaration(
-                fxmake.Modifiers(PUBLIC),
+        predefClassDef = visagemake.ClassDeclaration(
+                visagemake.Modifiers(PUBLIC),
                 syms.predefClass.name, List.<VisageExpression>nil(), null);
         predefClassDef.sym = syms.predefClass;
         fileManager = context.get(JavaFileManager.class);
@@ -204,7 +204,7 @@ public class VisageEnter extends VisageTreeScanner {
      *	only, and members go into the class member scope.
      */
     public static Scope enterScope(VisageEnv<VisageAttrContext> env) {
-        return (env.tree.getFXTag() == VisageTag.CLASS_DEF)
+        return (env.tree.getVisageTag() == VisageTag.CLASS_DEF)
                 ? ((VisageClassDeclaration) env.tree).sym.members_field
                 : env.info.scope;
     }

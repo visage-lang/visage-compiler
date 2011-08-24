@@ -169,7 +169,7 @@ public class VisageClassDeclaration extends VisageExpression implements ClassDec
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.CLASS_DEF;
     }
     

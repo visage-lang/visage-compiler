@@ -59,7 +59,7 @@ public class VisageThrow extends VisageExpression implements ThrowTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.THROW;
     }
 }

@@ -23,7 +23,7 @@
  * have any questions.
  */ 
 
-package fxpad;
+package visagepad;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

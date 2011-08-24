@@ -31,8 +31,8 @@ import com.sun.jdi.request.ClassUnloadRequest;
  * @author sundar
  */
 public class VisageClassUnloadRequest extends VisageEventRequest implements ClassUnloadRequest {
-    public VisageClassUnloadRequest(VisageVirtualMachine fxvm, ClassUnloadRequest underlying) {
-        super(fxvm, underlying);
+    public VisageClassUnloadRequest(VisageVirtualMachine visagevm, ClassUnloadRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addClassExclusionFilter(String arg0) {

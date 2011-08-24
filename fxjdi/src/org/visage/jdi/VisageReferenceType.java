@@ -50,8 +50,8 @@ import java.util.regex.Pattern;
  * @author sundar
  */
 public class VisageReferenceType extends VisageType implements ReferenceType {
-    public VisageReferenceType(VisageVirtualMachine fxvm, ReferenceType underlying) {
-        super(fxvm, underlying);
+    public VisageReferenceType(VisageVirtualMachine visagevm, ReferenceType underlying) {
+        super(visagevm, underlying);
     }
 
     public byte[] constantPool() {
@@ -114,22 +114,22 @@ public class VisageReferenceType extends VisageType implements ReferenceType {
     public VisageField fieldByName(String name) {
         // There could be both an Visage field $xxx and a java field xxx
         Field javaField = underlying().fieldByName(name);
-        Field fxField = underlying().fieldByName("$" + name);
+        Field visageField = underlying().fieldByName("$" + name);
         if (javaField == null) {
-            if (fxField == null ) {
+            if (visageField == null ) {
                 // an ivar that is a referenced in an outer class can be prefixed with
                 //  'classname$'
                 return null;
             }
-            // we'll return fxField
+            // we'll return visageField
         } else {
-            if (fxField != null) {
+            if (visageField != null) {
                 // we found both name and $name
                 return null;
             }
-            fxField = javaField;
+            visageField = javaField;
         }
-        return VisageWrapper.wrap(virtualMachine(), fxField);
+        return VisageWrapper.wrap(virtualMachine(), visageField);
     }
 
     public List<Field> fields() {
@@ -274,7 +274,7 @@ public class VisageReferenceType extends VisageType implements ReferenceType {
 
     // Each internal class name is the name of its containing class followed by $digit.
     // (Except for the $Script class)
-    private Pattern fxPat1 = Pattern.compile("\\$[0-9].*");
+    private Pattern visagePat1 = Pattern.compile("\\$[0-9].*");
     private boolean isUserClassSet = false;
     private VisageClassType userClass = null;
 
@@ -303,7 +303,7 @@ public class VisageReferenceType extends VisageType implements ReferenceType {
             return null;
         }
 
-        String[] hit = fxPat1.split(className, 0);
+        String[] hit = visagePat1.split(className, 0);
         if (hit.length != 1) {
             return null;
         }

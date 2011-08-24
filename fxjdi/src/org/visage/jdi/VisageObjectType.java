@@ -39,8 +39,8 @@ public class VisageObjectType extends VisageInterfaceType {
     private Method getFlags$Method;
     private Method setFlags$Method;
 
-    public VisageObjectType(VisageVirtualMachine fxvm, InterfaceType underlying) {
-        super(fxvm, underlying);
+    public VisageObjectType(VisageVirtualMachine visagevm, InterfaceType underlying) {
+        super(visagevm, underlying);
         if (! underlying.name().equals(VisageVirtualMachine.VISAGE_OBJECT_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }

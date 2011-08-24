@@ -1,10 +1,10 @@
 /*
  * Tests for function declarations
  *
- * @test/fxunit
+ * @test/visageunit
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 mixin class Mixin1 {
     function foo() : Integer { 11 }

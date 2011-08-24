@@ -39,8 +39,8 @@ import java.util.Map;
  * @author sundar
  */
 public class VisageStackFrame extends VisageMirror implements StackFrame {
-    public VisageStackFrame(VisageVirtualMachine fxvm, StackFrame underlying) {
-        super(fxvm, underlying);
+    public VisageStackFrame(VisageVirtualMachine visagevm, StackFrame underlying) {
+        super(visagevm, underlying);
     }
 
     // Is this frame executing Visage code?

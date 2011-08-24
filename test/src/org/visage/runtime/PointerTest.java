@@ -240,18 +240,18 @@ public class PointerTest extends VisageTestCase {
     }
 
     public void testPointerTypes() {
-        AllTypeVarsHolder fxObj = new AllTypeVarsHolder();
+        AllTypeVarsHolder visageObj = new AllTypeVarsHolder();
 
-        Pointer bytePtr = Pointer.make(Type.BYTE, fxObj, fxObj.VOFF$byteVar);
-        Pointer shortPtr = Pointer.make(Type.SHORT, fxObj, fxObj.VOFF$shortVar);
-        Pointer intPtr = Pointer.make(Type.INTEGER, fxObj, fxObj.VOFF$intVar);
-        Pointer longPtr = Pointer.make(Type.LONG, fxObj, fxObj.VOFF$longVar);
-        Pointer floatPtr = Pointer.make(Type.FLOAT, fxObj, fxObj.VOFF$floatVar);
-        Pointer doublePtr = Pointer.make(Type.DOUBLE, fxObj, fxObj.VOFF$doubleVar);
-        Pointer charPtr = Pointer.make(Type.INTEGER, fxObj, fxObj.VOFF$charVar);
-        Pointer booleanPtr = Pointer.make(Type.BOOLEAN, fxObj, fxObj.VOFF$booleanVar);
-        Pointer sequencePtr = Pointer.make(Type.SEQUENCE, fxObj, fxObj.VOFF$sequenceVar);
-        Pointer stringPtr = Pointer.make(Type.OBJECT, fxObj, fxObj.VOFF$stringVar);
+        Pointer bytePtr = Pointer.make(Type.BYTE, visageObj, visageObj.VOFF$byteVar);
+        Pointer shortPtr = Pointer.make(Type.SHORT, visageObj, visageObj.VOFF$shortVar);
+        Pointer intPtr = Pointer.make(Type.INTEGER, visageObj, visageObj.VOFF$intVar);
+        Pointer longPtr = Pointer.make(Type.LONG, visageObj, visageObj.VOFF$longVar);
+        Pointer floatPtr = Pointer.make(Type.FLOAT, visageObj, visageObj.VOFF$floatVar);
+        Pointer doublePtr = Pointer.make(Type.DOUBLE, visageObj, visageObj.VOFF$doubleVar);
+        Pointer charPtr = Pointer.make(Type.INTEGER, visageObj, visageObj.VOFF$charVar);
+        Pointer booleanPtr = Pointer.make(Type.BOOLEAN, visageObj, visageObj.VOFF$booleanVar);
+        Pointer sequencePtr = Pointer.make(Type.SEQUENCE, visageObj, visageObj.VOFF$sequenceVar);
+        Pointer stringPtr = Pointer.make(Type.OBJECT, visageObj, visageObj.VOFF$stringVar);
 
         bytePtr.set(Byte.valueOf((byte)1));
         shortPtr.set(Short.valueOf((short)2));
@@ -269,24 +269,24 @@ public class PointerTest extends VisageTestCase {
         stringPtr.set("Visage");
 
         assertEquals(Byte.valueOf((byte)1), bytePtr.get());	
-        assertEquals(Byte.valueOf((byte)1), fxObj.get$(fxObj.VOFF$byteVar));	
+        assertEquals(Byte.valueOf((byte)1), visageObj.get$(visageObj.VOFF$byteVar));	
         assertEquals(Short.valueOf((short)2), shortPtr.get());
-        assertEquals(Short.valueOf((short)2), fxObj.get$(fxObj.VOFF$shortVar));
+        assertEquals(Short.valueOf((short)2), visageObj.get$(visageObj.VOFF$shortVar));
         assertEquals(1729, intPtr.get());
-        assertEquals(1729, fxObj.get$(fxObj.VOFF$intVar));
+        assertEquals(1729, visageObj.get$(visageObj.VOFF$intVar));
         assertEquals(444444L, longPtr.get());
-        assertEquals(444444L, fxObj.get$(fxObj.VOFF$longVar));
+        assertEquals(444444L, visageObj.get$(visageObj.VOFF$longVar));
         assertEquals(3.14F, floatPtr.get());
-        assertEquals(3.14F, fxObj.get$(fxObj.VOFF$floatVar));
+        assertEquals(3.14F, visageObj.get$(visageObj.VOFF$floatVar));
         assertEquals(Math.E, doublePtr.get());
-        assertEquals(Math.E, fxObj.get$(fxObj.VOFF$doubleVar));
+        assertEquals(Math.E, visageObj.get$(visageObj.VOFF$doubleVar));
         assertEquals('J', charPtr.get());
-        assertEquals('J', fxObj.get$(fxObj.VOFF$charVar));
+        assertEquals('J', visageObj.get$(visageObj.VOFF$charVar));
         assertEquals(true, booleanPtr.get());
-        assertEquals(true, fxObj.get$(fxObj.VOFF$booleanVar));
+        assertEquals(true, visageObj.get$(visageObj.VOFF$booleanVar));
         assertEquals(true, Sequences.isEqual(seq, (Sequence)sequencePtr.get()));
-        assertEquals(true, Sequences.isEqual(seq, (Sequence)fxObj.get$(fxObj.VOFF$sequenceVar)));
+        assertEquals(true, Sequences.isEqual(seq, (Sequence)visageObj.get$(visageObj.VOFF$sequenceVar)));
         assertEquals("Visage", stringPtr.get());
-        assertEquals("Visage", fxObj.get$(fxObj.VOFF$stringVar));
+        assertEquals("Visage", visageObj.get$(visageObj.VOFF$stringVar));
     } 
 }

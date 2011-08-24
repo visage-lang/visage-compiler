@@ -47,7 +47,7 @@ public class VisageErroneousIdent extends VisageIdent {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ERRONEOUS;
     }
 

@@ -77,8 +77,8 @@ import java.util.HashSet;
 public abstract class VisageTranslationSupport {
     protected final VisageDefs defs;
     protected final Log log;
-    protected final VisageTreeMaker fxmake;
-    protected final TreeMaker make; // translation should yield a Java AST, use fxmake when building Visage trees
+    protected final VisageTreeMaker visagemake;
+    protected final TreeMaker make; // translation should yield a Java AST, use visagemake when building Visage trees
     protected final Name.Table names;
     protected final VisageResolve rs;
     protected final VisageSymtab syms;
@@ -93,7 +93,7 @@ public abstract class VisageTranslationSupport {
 
     protected VisageTranslationSupport(Context context) {
         make = TreeMaker.instance(context);
-        fxmake = VisageTreeMaker.instance(context);
+        visagemake = VisageTreeMaker.instance(context);
         log = Log.instance(context);
         names = Name.Table.instance(context);
         types = VisageTypes.instance(context);
@@ -120,7 +120,7 @@ public abstract class VisageTranslationSupport {
         if (tree == null) {
             return null;
         }
-        switch (tree.getFXTag()) {
+        switch (tree.getVisageTag()) {
             case IDENT:
                 return ((VisageIdent) tree).sym;
             case SELECT:
@@ -139,7 +139,7 @@ public abstract class VisageTranslationSupport {
             return null;
         }
         Symbol sym;
-        switch (tree.getFXTag()) {
+        switch (tree.getVisageTag()) {
             case IDENT:
                 sym = ((VisageIdent) tree).sym;
                 break;
@@ -163,7 +163,7 @@ public abstract class VisageTranslationSupport {
         }
 
         // test for function
-        if (expr.getFXTag() == VisageTag.APPLY) {
+        if (expr.getVisageTag() == VisageTag.APPLY) {
             VisageExpression func = ((VisageFunctionInvocation)expr).getMethodSelect();
             if (isValueFromJava(func)) {
                 return true;
@@ -506,7 +506,7 @@ public abstract class VisageTranslationSupport {
     }
 
     Name varMapName(ClassSymbol sym) {
-        return names.fromString(varMap_FXObjectFieldPrefix + defs.mangleClassName(sym, true));
+        return names.fromString(varMap_VisageObjectFieldPrefix + defs.mangleClassName(sym, true));
     }
 
     Name varGetMapName(ClassSymbol sym) {
@@ -591,15 +591,15 @@ public abstract class VisageTranslationSupport {
             selectorString = selector.toString();
         }
 
-        return names.fromString(dep_FXObjectFieldString + selectorString + "$_$" + sym.toString());
+        return names.fromString(dep_VisageObjectFieldString + selectorString + "$_$" + sym.toString());
     }
 
     Name classDCNT$Name(Symbol classSym) {
-        return names.fromString(depCount_FXObjectFieldString + classSym.toString().replace('.', '$'));
+        return names.fromString(depCount_VisageObjectFieldString + classSym.toString().replace('.', '$'));
     }
 
     Name classFCNT$Name(Symbol classSym) {
-        return names.fromString(funcCount_FXObjectFieldString + classSym.toString().replace('.', '$'));
+        return names.fromString(funcCount_VisageObjectFieldString + classSym.toString().replace('.', '$'));
     }
 
     boolean isBoundFunctionResult(Symbol sym) {
@@ -834,7 +834,7 @@ public abstract class VisageTranslationSupport {
         }
     }
 
-    protected void fxPretty(VisageTree tree) {
+    protected void visagePretty(VisageTree tree) {
         OutputStreamWriter osw = new OutputStreamWriter(System.out);
         VisagePretty pretty = new VisagePretty(osw, false);
         try {
@@ -1134,7 +1134,7 @@ public abstract class VisageTranslationSupport {
         protected JCExpression getReceiverOrThis(boolean isStatic) {
             Symbol cSym = enclosingClassDecl.sym;
             if (isStatic) {
-                return Select(makeType(cSym.type, false), fxmake.ScriptAccessSymbol(cSym).name);
+                return Select(makeType(cSym.type, false), visagemake.ScriptAccessSymbol(cSym).name);
             } else if(isMixinClass()) {
                 return id(defs.receiverName);
             }
@@ -1143,14 +1143,14 @@ public abstract class VisageTranslationSupport {
 
         protected JCExpression getReceiver(Symbol sym) {
             if (sym.isStatic()) {
-                return Select(makeType(sym.owner.type, false), fxmake.ScriptAccessSymbol(sym.owner).name);
+                return Select(makeType(sym.owner.type, false), visagemake.ScriptAccessSymbol(sym.owner).name);
             }
             return resolveThis(sym.owner, true);
         }
 
         protected JCExpression getReceiverOrThis(Symbol sym) {
             if (sym.isStatic()) {
-                return Select(makeType(sym.owner.type, false), fxmake.ScriptAccessSymbol(sym.owner).name);
+                return Select(makeType(sym.owner.type, false), visagemake.ScriptAccessSymbol(sym.owner).name);
             }
             return resolveThis(sym.owner, false);
         }
@@ -1225,7 +1225,7 @@ public abstract class VisageTranslationSupport {
         
         protected JCExpression GetFlags(VisageVarSymbol varSym) {
             if (isMixinClass()) {
-                return Call(getReceiver(varSym), defs.getFlags_FXObjectMethodName, Offset(varSym));
+                return Call(getReceiver(varSym), defs.getFlags_VisageObjectMethodName, Offset(varSym));
             } else {
                 return VarFlags(varSym);
             }
@@ -1712,7 +1712,7 @@ public abstract class VisageTranslationSupport {
                 JCExpression klass = makeType(varSym.owner.type, false);
                 
                 if (varSym.isStatic()) {
-                    klass = Select(klass, fxmake.ScriptSymbol(varSym.owner).name);
+                    klass = Select(klass, visagemake.ScriptSymbol(varSym.owner).name);
                 }
                 
                 return Select(klass, attributeOffsetName(varSym));
@@ -1747,9 +1747,9 @@ public abstract class VisageTranslationSupport {
             if (isMixinClass() && !isScript()) {
                 baseExpr = Call(classFCNT$Name(enclosingClassDecl.sym));
             } else if (isScript()) {
-                baseExpr = Select(id(fxmake.ScriptAccessSymbol(enclosingClassDecl.sym).name), defs.funcCount_FXObjectFieldName);
+                baseExpr = Select(id(visagemake.ScriptAccessSymbol(enclosingClassDecl.sym).name), defs.funcCount_VisageObjectFieldName);
             } else {
-                baseExpr = id(defs.funcCount_FXObjectFieldName);
+                baseExpr = id(defs.funcCount_VisageObjectFieldName);
             }
             
             return PLUS(baseExpr, Int(number));

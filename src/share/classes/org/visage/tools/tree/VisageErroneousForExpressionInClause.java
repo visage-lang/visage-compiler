@@ -68,7 +68,7 @@ public class VisageErroneousForExpressionInClause extends VisageForExpressionInC
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ERRONEOUS;
     }
 

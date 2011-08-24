@@ -33,7 +33,7 @@ public:
     std::string visagepath;
     std::string classpath;
     std::string vmargs;
-    std::string fxargs;
+    std::string visageargs;
     std::string librarypath;
     std::string securitypolicy;
     

@@ -31,8 +31,8 @@ import com.sun.jdi.ByteType;
  */
 public class VisageByteType extends VisagePrimitiveType implements ByteType {
 
-    public VisageByteType(VisageVirtualMachine fxvm, ByteType underlying) {
-        super(fxvm, underlying);
+    public VisageByteType(VisageVirtualMachine visagevm, ByteType underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

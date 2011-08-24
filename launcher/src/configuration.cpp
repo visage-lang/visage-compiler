@@ -104,9 +104,9 @@ void Configuration::init() {
     visagecmd  = buf;
     visagecmd.erase (0,visagecmd.rfind("\\visage") + 1);
 
-    // set fxargs if given directly in _VISAGE_ARGS
+    // set visageargs if given directly in _VISAGE_ARGS
     s = getenv("_VISAGE_ARGS");
-    fxargs = (s != NULL)? s : "";
+    visageargs = (s != NULL)? s : "";
 }
 
 int Configuration::readConfigFile() {
@@ -225,9 +225,9 @@ int Configuration::parseArgs(int argc, char** argv) {
         } else if (islauncher && 0 == strcmp("-jar", arg)) {
              if (argc-- > 0 && (arg = *argv++) != NULL) {
                 classpath = arg;
-                fxargs += " \"";
-                fxargs += arg;
-                fxargs += "\"";
+                visageargs += " \"";
+                visageargs += arg;
+                visageargs += "\"";
                 seen_main = true;
             } else {
                 fprintf (stderr, "No argument for jar found.");
@@ -256,19 +256,19 @@ int Configuration::parseArgs(int argc, char** argv) {
             vmargs += arg+2;    // skip first two characters "-J"
             vmargs += "\"";
         } else if (islauncher && !seen_main && 0 == strcmp("-version", arg)) {
-            fxargs = "org.visage.runtime.LauncherHelper -version";
+            visageargs = "org.visage.runtime.LauncherHelper -version";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-fullversion", arg)) {
-            fxargs = "org.visage.runtime.LauncherHelper -fullversion";
+            visageargs = "org.visage.runtime.LauncherHelper -fullversion";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-help", arg)) {
-            fxargs = "org.visage.runtime.LauncherHelper -help";
+            visageargs = "org.visage.runtime.LauncherHelper -help";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-?", arg)) {
-            fxargs = "org.visage.runtime.LauncherHelper -help";
+            visageargs = "org.visage.runtime.LauncherHelper -help";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strcmp("-X", arg)) {
-            fxargs = "org.visage.runtime.LauncherHelper -helpx";
+            visageargs = "org.visage.runtime.LauncherHelper -helpx";
             return (EXIT_SUCCESS);
         } else if (islauncher && 0 == strncmp(arg, "-Djava.library.path", strlen("-Djava.library.path"))) {
             librarypath = arg;
@@ -282,9 +282,9 @@ int Configuration::parseArgs(int argc, char** argv) {
             vmargs += "\"";
         } else {
             seen_main = TRUE;
-            fxargs += " \"";
-            fxargs += arg;
-            fxargs += "\"";
+            visageargs += " \"";
+            visageargs += arg;
+            visageargs += "\"";
         }
     }
     return (EXIT_SUCCESS);

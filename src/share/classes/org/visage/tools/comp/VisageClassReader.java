@@ -71,8 +71,8 @@ public class VisageClassReader extends ClassReader {
          new Context.Key<ClassReader>();
 
     private final VisageDefs defs;
-    protected final VisageTypes fxTypes;
-    protected final VisageTreeMaker fxmake;
+    protected final VisageTypes visageTypes;
+    protected final VisageTreeMaker visagemake;
 
     /** The raw class-reader, shared by the back-end. */
     public ClassReader jreader;
@@ -112,8 +112,8 @@ public class VisageClassReader extends ClassReader {
     protected VisageClassReader(Context context, boolean definitive) {
         super(context, definitive);
         defs = VisageDefs.instance(context);
-        fxTypes = VisageTypes.instance(context);
-        fxmake = VisageTreeMaker.instance(context);
+        visageTypes = VisageTypes.instance(context);
+        visagemake = VisageTreeMaker.instance(context);
         functionClassPrefixName = names.fromString(VisageSymtab.functionClassPrefix);
         ctx = context;
         messages = Messages.instance(context);
@@ -479,8 +479,8 @@ public class VisageClassReader extends ClassReader {
             if (jsymbol != null && jsymbol.classfile != null && 
                 jsymbol.classfile.getKind() == JavaFileObject.Kind.SOURCE &&
                 jsymbol.classfile.getName().endsWith(".visage")) {
-                SourceCompleter fxSourceCompleter = VisageCompiler.instance(ctx);
-                fxSourceCompleter.complete(csym);
+                SourceCompleter visageSourceCompleter = VisageCompiler.instance(ctx);
+                visageSourceCompleter.complete(csym);
                 return;
             } else { 
                 csym.jsymbol = jsymbol = jreader.loadClass(csym.flatname);
@@ -561,10 +561,10 @@ public class VisageClassReader extends ClassReader {
                     continue;
                 symlist = symlist.prepend(e.sym);
             }
-            boolean isFXClass = (csym.flags_field & VisageFlags.VISAGE_CLASS) != 0;
+            boolean isVisageClass = (csym.flags_field & VisageFlags.VISAGE_CLASS) != 0;
             boolean isMixinClass = (csym.flags_field & VisageFlags.MIXIN) != 0;
             
-            VisageVarSymbol scriptAccessSymbol = isFXClass ? fxmake.ScriptAccessSymbol(csym) : null;
+            VisageVarSymbol scriptAccessSymbol = isVisageClass ? visagemake.ScriptAccessSymbol(csym) : null;
 
             Set<Name> priorNames = new HashSet<Name>();
             handleSyms:
@@ -612,7 +612,7 @@ public class VisageClassReader extends ClassReader {
                     if (scriptAccessSymbol != null && name == scriptAccessSymbol.name) {
                         v = scriptAccessSymbol;
                     } else {
-                        v = new VisageVarSymbol(fxTypes, names, flags, name, type, csym);
+                        v = new VisageVarSymbol(visageTypes, names, flags, name, type, csym);
                         csym.addVar(v, (flags & STATIC) != 0);
                     }
                     csym.members_field.enter(v);

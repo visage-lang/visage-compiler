@@ -74,10 +74,10 @@ public class  SystemProperties {
             byte[] b = new byte[size];
             int n = is.read(b);            
             String inStr = new String(b, "utf-8");
-            SystemProperties.setFXProperty("visage.version",
+            SystemProperties.setVisageProperty("visage.version",
                     getValue(inStr, "release="));
 
-            SystemProperties.setFXProperty("visage.runtime.version",
+            SystemProperties.setVisageProperty("visage.runtime.version",
                     getValue(inStr, "full="));
 
         } catch (Exception ignore) {
@@ -209,7 +209,7 @@ public class  SystemProperties {
      * @param value Property value
      * @throws NullPointerException if key or value is null
      */
-    public static void setFXProperty (String key, final String value) {
+    public static void setVisageProperty (String key, final String value) {
         
         Hashtable props = sysprop_list;
         final String prefix = "visage."; 
@@ -242,7 +242,7 @@ public class  SystemProperties {
 	 if (value == null)
 		value = "";
  	 codebase_value = value;
-	 setFXProperty("visage.application.codebase", value);
+	 setVisageProperty("visage.application.codebase", value);
     }
 
     private static String codebase_value;

@@ -349,16 +349,16 @@ public class VisageFileManager extends JavacFileManager {
     
     private static class DelegateJavaFileObject extends BaseFileObject {
         JavaFileObject delegate;
-        boolean isFXSourceFile;
+        boolean isVisageSourceFile;
         
         DelegateJavaFileObject(JavaFileObject jfo) {
             delegate = jfo;
-            isFXSourceFile = jfo.getName().endsWith(VISAGE_SOURCE_SUFFIX);
+            isVisageSourceFile = jfo.getName().endsWith(VISAGE_SOURCE_SUFFIX);
         }
 
         @Override
         public Kind getKind() {
-            return isFXSourceFile ? JavaFileObject.Kind.SOURCE : delegate.getKind();
+            return isVisageSourceFile ? JavaFileObject.Kind.SOURCE : delegate.getKind();
         }
 
         //@Override

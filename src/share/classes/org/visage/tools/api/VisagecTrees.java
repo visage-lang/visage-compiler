@@ -66,7 +66,7 @@ public class VisagecTrees {
     private final Log log;
     private final VisageMemberEnter memberEnter;
     private final VisageAttr attr;
-    private final VisageTreeMaker fxmake;
+    private final VisageTreeMaker visagemake;
     private final VisagecTaskImpl visagecTaskImpl;
     private final Context ctx;
 
@@ -90,7 +90,7 @@ public class VisagecTrees {
         enter = VisageEnter.instance(context);
         log = Log.instance(context);
         resolve = VisageResolve.instance(context);
-        fxmake = VisageTreeMaker.instance(context);
+        visagemake = VisageTreeMaker.instance(context);
         memberEnter = VisageMemberEnter.instance(context);
         visagecTaskImpl = context.get(VisagecTaskImpl.class);
     }
@@ -224,7 +224,7 @@ public class VisagecTrees {
         }
 
         VisageScript unit = (VisageScript) path.getCompilationUnit();
-        Copier copier = new Copier(fxmake.forToplevel(unit));
+        Copier copier = new Copier(visagemake.forToplevel(unit));
 
         copier.endPositions = unit.endPositions;
 

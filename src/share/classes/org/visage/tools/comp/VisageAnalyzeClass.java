@@ -631,7 +631,7 @@ class VisageAnalyzeClass {
 
                     @Override
                     public void visitBinary(VisageBinary tree) {
-                        switch (tree.getFXTag()) {
+                        switch (tree.getVisageTag()) {
                             case DIV:
                             case MOD:
                                 markCanThrowException();
@@ -644,7 +644,7 @@ class VisageAnalyzeClass {
 
                     @Override
                     public void visitAssignop(VisageAssignOp tree) {
-                        switch (tree.getFXTag()) {
+                        switch (tree.getVisageTag()) {
                             case DIV_ASG:
                                 markCanThrowException();
                                 break;
@@ -1162,22 +1162,22 @@ class VisageAnalyzeClass {
     //
     // Returns true if specified class is the VisageBase class.
     //
-    public boolean isFXBase(Symbol sym) { return sym == syms.visage_BaseType.tsym; }
+    public boolean isVisageBase(Symbol sym) { return sym == syms.visage_BaseType.tsym; }
 
     //
     // Returns true if specified class is the VisageObject class.
     //
-    public boolean isFXObject(Symbol sym) { return sym == syms.visage_ObjectType.tsym; }
+    public boolean isVisageObject(Symbol sym) { return sym == syms.visage_ObjectType.tsym; }
 
     //
     // Returns true if specified class is either the VisageBase or the VisageObject class.
     //
-    public boolean isRootClass(Symbol sym) { return isFXBase(sym) || isFXObject(sym); }
+    public boolean isRootClass(Symbol sym) { return isVisageBase(sym) || isVisageObject(sym); }
 
     //
     // Returns true if the current class inherits directly from VisageBase.
     //
-    public boolean isFirstTier() { return superClassSym !=  null && isFXBase(superClassSym); }
+    public boolean isFirstTier() { return superClassSym !=  null && isVisageBase(superClassSym); }
 
     //
     // Returns true if the current class inherits directly from VisageBase and has no mixins.
@@ -1308,7 +1308,7 @@ class VisageAnalyzeClass {
     //
     // Returns null or the superclass symbol if it is a visage class.
     //
-    public ClassSymbol getFXSuperClassSym() { return superClassSym; }
+    public ClassSymbol getVisageSuperClassSym() { return superClassSym; }
 
     //
     // Returns resulting list of all superclasses in top down order.
@@ -1525,21 +1525,21 @@ class VisageAnalyzeClass {
         
         return name == names.init || name == names.clinit ||
                name == defs.internalRunFunctionName || 
-               name == defs.applyDefaults_FXObjectMethodName ||
-               name == defs.count_FXObjectMethodName ||
-               name == defs.get_FXObjectMethodName ||
-               name == defs.set_FXObjectMethodName ||
-               name == defs.invalidate_FXObjectMethodName ||
-               name == defs.notifyDependents_FXObjectMethodName ||
-               name == defs.getElement_FXObjectMethodName ||
-               name == defs.size_FXObjectMethodName ||
-               name == defs.update_FXObjectMethodName ||
-               name == defs.complete_FXObjectMethodName ||
-               name == defs.initialize_FXObjectMethodName ||
-               name == defs.userInit_FXObjectMethodName ||
-               name == defs.postInit_FXObjectMethodName ||
-               name == defs.initVars_FXObjectMethodName ||
-               name == defs.invoke_FXObjectMethodName;
+               name == defs.applyDefaults_VisageObjectMethodName ||
+               name == defs.count_VisageObjectMethodName ||
+               name == defs.get_VisageObjectMethodName ||
+               name == defs.set_VisageObjectMethodName ||
+               name == defs.invalidate_VisageObjectMethodName ||
+               name == defs.notifyDependents_VisageObjectMethodName ||
+               name == defs.getElement_VisageObjectMethodName ||
+               name == defs.size_VisageObjectMethodName ||
+               name == defs.update_VisageObjectMethodName ||
+               name == defs.complete_VisageObjectMethodName ||
+               name == defs.initialize_VisageObjectMethodName ||
+               name == defs.userInit_VisageObjectMethodName ||
+               name == defs.postInit_VisageObjectMethodName ||
+               name == defs.initVars_VisageObjectMethodName ||
+               name == defs.invoke_VisageObjectMethodName;
     }
 
     //
@@ -1550,11 +1550,11 @@ class VisageAnalyzeClass {
         Name name = var.name;
         String nameString = name.toString();
         
-        return nameString.startsWith(VisageDefs.varMap_FXObjectFieldPrefix) ||
-               nameString.startsWith(VisageDefs.count_FXObjectFieldString) ||
+        return nameString.startsWith(VisageDefs.varMap_VisageObjectFieldPrefix) ||
+               nameString.startsWith(VisageDefs.count_VisageObjectFieldString) ||
                nameString.startsWith(VisageDefs.offset_AttributeFieldPrefix) ||
                nameString.startsWith(VisageDefs.flags_AttributeFieldPrefix) ||
-               nameString.startsWith(VisageDefs.varFlags_FXObjectFieldPrefix);
+               nameString.startsWith(VisageDefs.varFlags_VisageObjectFieldPrefix);
     }
 
     //

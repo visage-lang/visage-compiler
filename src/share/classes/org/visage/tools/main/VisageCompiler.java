@@ -584,7 +584,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
         if (dump != null) {
             try {
                 try {
-                    String fn = cu.sourcefile.toString().replace(".visage", ".fxdump");
+                    String fn = cu.sourcefile.toString().replace(".visage", ".visagedump");
                     File outFile = new File(dump, (new File(fn)).getName());
                     FileWriter fw = new FileWriter(outFile);
                     out = new BufferedWriter(fw);

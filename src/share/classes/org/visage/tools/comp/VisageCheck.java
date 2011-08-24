@@ -665,7 +665,7 @@ public class VisageCheck {
             ((v.flags() & HASINIT) != 0
              ||
              !((base == null ||
-               (base.getFXTag() == VisageTag.IDENT && VisageTreeInfo.name(base) == names._this)) &&
+               (base.getVisageTag() == VisageTag.IDENT && VisageTreeInfo.name(base) == names._this)) &&
                isAssignableAsBlankFinal(v, env)))) {
             log.error(pos, MsgSym.MESSAGE_CANNOT_ASSIGN_VAL_TO_FINAL_VAR, v);
         } else if ((v.flags() & VisageFlags.IS_DEF) != 0L) {
@@ -769,7 +769,7 @@ public class VisageCheck {
             Symbol initSym = null;
             VisageTree base = null;
             Type site = null;
-            switch (init.getFXTag()) {
+            switch (init.getVisageTag()) {
                 case IDENT: {
                     initSym = ((VisageIdent) init).sym;
                     base = null;
@@ -2259,7 +2259,7 @@ public class VisageCheck {
     }
         // where
 	private boolean isCanonical(VisageTree tree) {
-	    while (tree.getFXTag() == VisageTag.SELECT) {
+	    while (tree.getVisageTag() == VisageTag.SELECT) {
 		VisageSelect s = (VisageSelect) tree;
 		if (s.sym.owner != VisageTreeInfo.symbol(s.selected))
 		    return false;
@@ -2646,7 +2646,7 @@ public class VisageCheck {
 	private void addVar(VisageTree tree) {
 	    if (tree != null) {
 		VisageVarSymbol sym = null;
-		switch (tree.getFXTag()) {
+		switch (tree.getVisageTag()) {
 		    case VAR_DEF: sym = ((VisageVar)tree).getSymbol(); break;
 		    case VAR_SCRIPT_INIT: sym = ((VisageVarInit)tree).getSymbol(); break;
 		}

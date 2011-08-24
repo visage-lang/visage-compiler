@@ -65,7 +65,7 @@ public class VisageSequenceSlice extends VisageExpression implements SequenceSli
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.SEQUENCE_SLICE;
     }
 

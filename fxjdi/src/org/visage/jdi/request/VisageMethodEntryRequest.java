@@ -35,8 +35,8 @@ import com.sun.jdi.request.MethodEntryRequest;
  * @author sundar
  */
 public class VisageMethodEntryRequest extends VisageEventRequest implements MethodEntryRequest {
-    public VisageMethodEntryRequest(VisageVirtualMachine fxvm, MethodEntryRequest underlying) {
-        super(fxvm, underlying);
+    public VisageMethodEntryRequest(VisageVirtualMachine visagevm, MethodEntryRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addClassExclusionFilter(String arg0) {

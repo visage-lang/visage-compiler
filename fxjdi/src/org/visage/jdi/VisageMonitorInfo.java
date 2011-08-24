@@ -30,8 +30,8 @@ import com.sun.jdi.MonitorInfo;
  * @author sundar
  */
 public class VisageMonitorInfo extends VisageMirror implements MonitorInfo {
-    public VisageMonitorInfo(VisageVirtualMachine fxvm, MonitorInfo underlying) {
-        super(fxvm, underlying);
+    public VisageMonitorInfo(VisageVirtualMachine visagevm, MonitorInfo underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageObjectReference monitor() {

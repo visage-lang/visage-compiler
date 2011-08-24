@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package fxjdi;
+package visagejdi;
 
 import org.junit.Test;
 import junit.framework.Assert;
@@ -52,7 +52,7 @@ public class HeteroObjectSequenceTest extends JdbBase {
             stop("in ObjSequence:7");
             stop("in ObjSequence:9");
             stop("in ObjSequence:10");
-            fxrun();
+            visagerun();
             resumeToBreakpoint();
             list();
             Assert.assertTrue(verifyValue("ObjSequence.objSequence[0]", "{}"));

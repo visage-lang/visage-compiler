@@ -208,7 +208,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
         int classVarCount = analysis.getClassVarCount();
         int scriptVarCount = analysis.getScriptVarCount();
         List<MethodSymbol> needDispatch = analysis.needDispatch();
-        ClassSymbol fxSuperClassSym = analysis.getFXSuperClassSym();
+        ClassSymbol visageSuperClassSym = analysis.getVisageSuperClassSym();
         List<ClassSymbol> superClasses = analysis.getSuperClasses();
         List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
         List<ClassSymbol> allMixinClasses = analysis.getAllMixins();
@@ -217,7 +217,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
         boolean isScriptClass = cDecl.isScriptClass();
         boolean isAnonClass = isAnonClass(analysis.getCurrentClassSymbol());
         boolean needsGetMap = isAnonClass && cDecl.getObjInitSyms() != null;
-        boolean hasFxSuper = fxSuperClassSym != null;
+        boolean hasFxSuper = visageSuperClassSym != null;
         
         // Have to populate the var map for anon classes.
         LiteralInitVarMap varMap = null;
@@ -248,9 +248,9 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
             }
 
             javaCodeMaker.makeFunctionProxyMethods(needDispatch);
-            javaCodeMaker.makeFXEntryConstructor(classVarInfos, outerTypeSym);
-            javaCodeMaker.makeInitMethod(defs.userInit_FXObjectMethodName, translatedInitBlocks, immediateMixinClasses);
-            javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
+            javaCodeMaker.makeVisageEntryConstructor(classVarInfos, outerTypeSym);
+            javaCodeMaker.makeInitMethod(defs.userInit_VisageObjectMethodName, translatedInitBlocks, immediateMixinClasses);
+            javaCodeMaker.makeInitMethod(defs.postInit_VisageObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
 
             if (isScriptClass) {
@@ -269,7 +269,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
                     javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount);
                     javaCodeMaker.makeAttributeFlags(scriptVarInfos);
                     javaCodeMaker.makeVarNumMethods();
-                    javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
+                    javaCodeMaker.makeVisageEntryConstructor(scriptVarInfos, null);
                     javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true);
                     javaCodeMaker.setContext(false, cDefinitions);
     
@@ -299,7 +299,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
                 }
 
                 // Clone what is needed from VisageBase/VisageObject.
-                javaCodeMaker.cloneFXBase(excludes);
+                javaCodeMaker.cloneVisageBase(excludes);
             }
 
         } else {
@@ -327,7 +327,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
                     javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount);
                     javaCodeMaker.makeAttributeFlags(scriptVarInfos);
                     javaCodeMaker.makeVarNumMethods();
-                    javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
+                    javaCodeMaker.makeVisageEntryConstructor(scriptVarInfos, null);
                     javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true);
                     javaCodeMaker.setContext(false, cDefinitions);
     
@@ -340,8 +340,8 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
                 javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, false, false, null, null);
             }
 
-            javaCodeMaker.makeInitMethod(defs.userInit_FXObjectMethodName, translatedInitBlocks, immediateMixinClasses);
-            javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
+            javaCodeMaker.makeInitMethod(defs.userInit_VisageObjectMethodName, translatedInitBlocks, immediateMixinClasses);
+            javaCodeMaker.makeInitMethod(defs.postInit_VisageObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
             
             javaCodeMaker.setContext(false, iDefinitions);
@@ -362,7 +362,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
                 cDefinitions.toList(),
                 makeAdditionalImports(diagPos, cDecl, immediateMixinClasses),
                 superType,
-                fxSuperClassSym,
+                visageSuperClassSym,
                 superClasses,
                 immediateMixinClasses,
                 allMixinClasses);
@@ -457,7 +457,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
     }
 
     protected String getSyntheticPrefix() {
-        return "ifx$";
+        return "ivisage$";
     }
 
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -482,7 +482,7 @@ public class VisageInitializationBuilder extends VisageTranslationSupport {
             super(null, analysis.getCurrentClassDecl(), false);
             this.analysis = analysis;
             this.definitions = definitions;
-            this.scriptClassSymbol = fxmake.ScriptSymbol(getCurrentClassSymbol());
+            this.scriptClassSymbol = visagemake.ScriptSymbol(getCurrentClassSymbol());
             this.scriptName = this.scriptClassSymbol.name;
             this.isBoundFuncClass = (getCurrentOwner().flags() & VisageFlags.VISAGE_BOUND_FUNCTION_CLASS) != 0L;
         }
@@ -933,7 +933,7 @@ however this is what we need */
             MethodSymbol methodSymbol = null;
             
             // Grab the super class.
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+            ClassSymbol superClassSym = analysis.getVisageSuperClassSym();
             // Grab the mixin classes.
             public List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
             
@@ -1344,7 +1344,7 @@ however this is what we need */
                     }
                 
                     // varNum - VCNT$
-                    JCExpression tagExpr = analysis.isFirstTier() ? varNumArg() : MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
+                    JCExpression tagExpr = analysis.isFirstTier() ? varNumArg() : MINUS(varNumArg(), id(defs.count_VisageObjectFieldName));
                     // Construct and add: switch(varNum - VCNT$) { ... }
                     addStmt(m().Switch(tagExpr, cases.toList()));
                 } else {
@@ -1576,7 +1576,7 @@ however this is what we need */
                          */
                         JCExpression get$call = Call(
                                 id(boundFunctionObjectParamName(varSym.name)),
-                                defs.get_FXObjectMethodName,
+                                defs.get_VisageObjectMethodName,
                                 id(boundFunctionVarNumParamName(varSym.name)));
                         JCExpression castGet = typeCast(varInfo.getRealType(), syms.objectType, get$call);
                         addStmt(SetStmt(varSym, castGet));
@@ -1649,7 +1649,7 @@ however this is what we need */
                         if (isBoundFuncClass && varInfo.isParameter()) {
                             JCExpression apply = Call(
                                     id(boundFunctionObjectParamName(varSym.name)),
-                                    defs.getElement_FXObjectMethodName,
+                                    defs.getElement_VisageObjectMethodName,
                                     id(boundFunctionVarNumParamName(varSym.name)),
                                     posArg());
                             addStmt(Return(castFromObject(apply, varInfo.getElementType())));
@@ -1659,8 +1659,8 @@ however this is what we need */
                              * we want to get element from the Pointer. We translate as:
                              *
                              *    public static int elem$foo(final int pos$) {
-                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();
-                             *        return ifx$0tmp != null ? (Integer)ifx$0tmp.get(pos$) : 0;
+                             *        final Pointer ivisage$0tmp = get$$$bound$result$foo();
+                             *        return ivisage$0tmp != null ? (Integer)ivisage$0tmp.get(pos$) : 0;
                              *    }
                              */
                             JCVariableDecl tmpPtrVar = TmpVar("tmp", syms.visage_PointerType, Getter(varInfo.boundFuncResultInitSym()));
@@ -1720,7 +1720,7 @@ however this is what we need */
                         if (isBoundFuncClass && varInfo.isParameter()) {
                             JCExpression apply = Call(
                                     id(boundFunctionObjectParamName(varSym.name)),
-                                    defs.size_FXObjectMethodName,
+                                    defs.size_VisageObjectMethodName,
                                     id(boundFunctionVarNumParamName(varSym.name)));
                             addStmt(Return(apply));
                         } else if (varInfo.isInitWithBoundFuncResult()) {
@@ -1735,7 +1735,7 @@ however this is what we need */
                              *
                              *        <make-it-valid>
                              *        if (newPtr != null) {
-                             *            return (Integer)ifx$0tmp.size();
+                             *            return (Integer)ivisage$0tmp.size();
                              *        } else {
                              *            return 0;
                              *        }
@@ -1857,7 +1857,7 @@ however this is what we need */
 
                     if (!override) {
                         // notifyDependents(VOFF$var, phase$);
-                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym),
+                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_VisageObjectMethodName, Offset(proxyVarSym),
                                 startPosArg(), endPosArg(), newLengthArg(),
                                 phaseArg()));
                     }
@@ -2059,7 +2059,7 @@ however this is what we need */
                              */
                             JCExpression get$call = Call(
                                     id(boundFunctionObjectParamName(varSym.name)),
-                                    defs.get_FXObjectMethodName,
+                                    defs.get_VisageObjectMethodName,
                                     id(boundFunctionVarNumParamName(varSym.name)));
                             JCExpression castGet = typeCast(varInfo.getRealType(), syms.objectType, get$call);
                             // T varNewValue$ = cast value
@@ -2312,12 +2312,12 @@ however this is what we need */
 
                     if (isLeaf) {
                         if (varInfo.isReadOnly()) {
-                            addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_FXObjectMethodName, GetFlags(varSym)));
+                            addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_VisageObjectMethodName, GetFlags(varSym)));
                         }
                     } else {
                         // Restrict setting.
                         beginBlock();
-                        addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_FXObjectMethodName, GetFlags(varSym)));
+                        addStmt(CallStmt(getReceiver(varSym), defs.restrictSet_VisageObjectMethodName, GetFlags(varSym)));
                         JCExpression ifReadonlyTest = FlagTest(varSym, defs.varFlagIS_READONLY, null);
                         // if (isReadonly$(VOFF$var)) { restrictSet$(VOFF$var); }
                         addStmt(OptIf(NOT(ifReadonlyTest),
@@ -2430,7 +2430,7 @@ however this is what we need */
 
                     if (notifyDependents) {
                         // notifyDependents(VOFF$var, phase$);
-                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
+                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_VisageObjectMethodName, Offset(proxyVarSym), phaseArg()));
                     }
                     
                     for (VarInfo otherVar : varInfo.boundBinders()) {
@@ -2824,7 +2824,7 @@ however this is what we need */
         // Returns true if VCNT$ is needed.
         public boolean needsVCNT$() {
             boolean hasVars = (isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount()) != 0;
-            boolean hasJavaSuperClass = analysis.getFXSuperClassSym() == null;
+            boolean hasJavaSuperClass = analysis.getVisageSuperClassSym() == null;
             boolean hasMixins = !isScript() && !isMixinClass() && !analysis.getImmediateMixins().isEmpty();
             
             return hasVars || hasJavaSuperClass || hasMixins || isMixinClass();
@@ -2838,7 +2838,7 @@ however this is what we need */
             HashMap<Name, Integer> depMap = getDepMap(varInfos, updateMap);
 
             boolean hasDeps = !getDepMap(varInfos, updateMap).isEmpty();
-            boolean hasJavaSuperClass = analysis.getFXSuperClassSym() == null;
+            boolean hasJavaSuperClass = analysis.getVisageSuperClassSym() == null;
             boolean hasMixins = !isScript() && !isMixinClass() && !analysis.getImmediateMixins().isEmpty();
             
             return hasDeps || hasJavaSuperClass || hasMixins || isMixinClass();
@@ -2849,7 +2849,7 @@ however this is what we need */
             List<JCTree> invokeCases = getCurrentClassDecl().invokeCases(isScript());
             
             boolean hasFuncs = !invokeCases.isEmpty();
-            boolean hasJavaSuperClass = analysis.getFXSuperClassSym() == null;
+            boolean hasJavaSuperClass = analysis.getVisageSuperClassSym() == null;
             boolean hasMixins = !isScript() && !isMixinClass() && !analysis.getImmediateMixins().isEmpty();
             
             return hasFuncs || hasJavaSuperClass || hasMixins || isMixinClass();
@@ -2863,7 +2863,7 @@ however this is what we need */
 
             // Construct a static count variable (VCNT$), -1 indicates count has not been initialized.
             int initCount = analysis.isFirstTier() ? varCount : -1;
-            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.count_FXObjectFieldName, initCount));
+            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.count_VisageObjectFieldName, initCount));
 
             // Construct a static count accessor method (VCNT$)
             makeVCNT$(attrInfos, varCount);
@@ -2933,7 +2933,7 @@ however this is what we need */
         // The method constructs the VCNT$ method for the current class.
         //
         public void makeVCNT$(final List<VarInfo> attrInfos, final int varCount) {
-            StaticMethodBuilder smb = new StaticMethodBuilder(defs.count_FXObjectFieldName, syms.intType) {
+            StaticMethodBuilder smb = new StaticMethodBuilder(defs.count_VisageObjectFieldName, syms.intType) {
                 @Override
                 public void statements() {
                     if (analysis.isFirstTier()) {
@@ -2944,11 +2944,11 @@ however this is what we need */
             
                         // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
                         JCExpression setVCNT$Expr = superClassSym == null ?  Int(varCount) :
-                                                                             PLUS(Call(makeType(superClassSym.type), defs.count_FXObjectFieldName),
+                                                                             PLUS(Call(makeType(superClassSym.type), defs.count_VisageObjectFieldName),
                                                                                   Int(varCount));
                         Name countName = names.fromString("$count");
                         // final int $count = VCNT$ = super.VCNT$() + n;
-                        addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.count_FXObjectFieldName), setVCNT$Expr)));
+                        addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.count_VisageObjectFieldName), setVCNT$Expr)));
             
                         for (VarInfo ai : attrInfos) {
                             // Only variables actually declared.
@@ -2963,12 +2963,12 @@ however this is what we need */
                         }
         
                         // VCNT$ == -1
-                        JCExpression condition = EQ(id(defs.count_FXObjectFieldName), Int(-1));
+                        JCExpression condition = EQ(id(defs.count_VisageObjectFieldName), Int(-1));
                         // if (VCNT$ == -1) { ...
                         addStmt(OptIf(condition,
                                 endBlock()));
                         // return VCNT$;
-                        addStmt(Return(id(defs.count_FXObjectFieldName)));
+                        addStmt(Return(id(defs.count_VisageObjectFieldName)));
                     }
                 }
             };
@@ -2980,7 +2980,7 @@ however this is what we need */
         // The method constructs the count$ method for the current class.
         //
         public void makecount$(final int varCount) {
-            MethodBuilder smb = new MethodBuilder(defs.count_FXObjectMethodName, syms.intType) {
+            MethodBuilder smb = new MethodBuilder(defs.count_VisageObjectMethodName, syms.intType) {
                 @Override
                 public void statements() {
                     if (analysis.isFirstTier()) {
@@ -2988,7 +2988,7 @@ however this is what we need */
                         addStmt(Return(Int(varCount)));
                     } else {
                         // Construct and add: return VCNT$();
-                        addStmt(Return(Call(defs.count_FXObjectFieldName)));
+                        addStmt(Return(Call(defs.count_VisageObjectFieldName)));
                     }
                 }
             };
@@ -3000,7 +3000,7 @@ however this is what we need */
         // Clones a field declared in VisageBase as an non-static field.  It also creates
         // VisageObject accessor method.
         //
-        private void cloneFXBaseVar(VisageVarSymbol var, HashSet<String> excludes) {
+        private void cloneVisageBaseVar(VisageVarSymbol var, HashSet<String> excludes) {
             // Var name as a string.
             String str = var.name.toString();
             String upperStr = str.substring(0, 1).toUpperCase() + str.substring(1);
@@ -3051,7 +3051,7 @@ however this is what we need */
         // Clones a method declared as an VisageObject interface to call the static 
         // equivalent in VisageBase. 
         //
-        private void cloneFXBaseMethod(MethodSymbol method, HashSet<String> excludes) {
+        private void cloneVisageBaseMethod(MethodSymbol method, HashSet<String> excludes) {
             // Method modifier flags.
             long flags = method.flags();
             
@@ -3079,13 +3079,13 @@ however this is what we need */
             // Method return type.
             Type returnType = method.getReturnType();
             // Basic call to supporting VisageBase method.
-            JCExpression fxBaseCall = Call(makeType(syms.visage_BaseType), method.name, callArgs);
+            JCExpression visageBaseCall = Call(makeType(syms.visage_BaseType), method.name, callArgs);
            
             // Exec or return based on return type.
             if (returnType == syms.voidType) {
-                stmts.append(Stmt(fxBaseCall));
+                stmts.append(Stmt(visageBaseCall));
             } else {
-                stmts.append(Return(fxBaseCall));
+                stmts.append(Return(visageBaseCall));
             }
     
             //  public type meth$(t0 arg0, ...) { return VisageBase.meth$(this, arg0, ...); }
@@ -3096,23 +3096,23 @@ however this is what we need */
         // This method clones the contents of VisageBase and VisageObject when inheriting
         // from a java class.
         //
-        public void cloneFXBase(HashSet<String> excludes) {
+        public void cloneVisageBase(HashSet<String> excludes) {
             // Retrieve VisageBase and VisageObject.
-            ClassSymbol fxBaseSym = (ClassSymbol)syms.visage_BaseType.tsym;
-            ClassSymbol fxObjectSym = (ClassSymbol)syms.visage_ObjectType.tsym;
+            ClassSymbol visageBaseSym = (ClassSymbol)syms.visage_BaseType.tsym;
+            ClassSymbol visageObjectSym = (ClassSymbol)syms.visage_ObjectType.tsym;
             Entry e;
 
             // Clone the vars in VisageBase.
-            for (e = fxBaseSym.members().elems; e != null && e.sym != null; e = e.sibling) {
+            for (e = visageBaseSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                 if (e.sym instanceof VarSymbol) {
-                     cloneFXBaseVar((VisageVarSymbol)e.sym, excludes);
+                     cloneVisageBaseVar((VisageVarSymbol)e.sym, excludes);
                 }
             }
 
             // Clone the interfaces in VisageObject.
-            for (e = fxObjectSym.members().elems; e != null && e.sym != null; e = e.sibling) {
+            for (e = visageObjectSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                 if (e.sym instanceof MethodSymbol) {
-                     cloneFXBaseMethod((MethodSymbol)e.sym, excludes);
+                     cloneVisageBaseMethod((MethodSymbol)e.sym, excludes);
                 }
             }
         }
@@ -3166,7 +3166,7 @@ however this is what we need */
         // This method constructs the current class's applyDefaults$ method.
         //
         public void makeApplyDefaultsMethod(final List<VarInfo> attrInfos, final int count) {
-            MethodBuilder vcmb = new VarCaseMethodBuilder(defs.applyDefaults_FXObjectMethodName, syms.voidType,
+            MethodBuilder vcmb = new VarCaseMethodBuilder(defs.applyDefaults_VisageObjectMethodName, syms.voidType,
                                                           attrInfos, count) {
                 @Override
                 public void initialize() {
@@ -3227,7 +3227,7 @@ however this is what we need */
             
             // Construct a static count variable (FCNT$), -1 indicates function count has not been initialized.
             int initCount = useConstants ? 0 : -1;
-            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.funcCount_FXObjectFieldName, initCount));
+            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.funcCount_VisageObjectFieldName, initCount));
             
             // Mixin class base numbering.
             if (mixinClasses != null) {
@@ -3245,7 +3245,7 @@ however this is what we need */
         // The method constructs the FCNT$ method for the current class.
         //
         public void makeFCNT$(final boolean useConstants, final List<JCTree> invokeCases, final List<ClassSymbol> mixinClasses) {
-            StaticMethodBuilder smb = new StaticMethodBuilder(defs.funcCount_FXObjectFieldName, syms.intType) {
+            StaticMethodBuilder smb = new StaticMethodBuilder(defs.funcCount_VisageObjectFieldName, syms.intType) {
                 @Override
                 public void initialize() {
                     needsReceiver = false;
@@ -3266,7 +3266,7 @@ however this is what we need */
                         boolean isFirstTier = analysis.isFirstTier() || superClassSym == null;
 
                         // Base for first function number.
-                        JCExpression countExpr = isFirstTier ? Int(0) : Call(makeType(superClassSym.type), defs.funcCount_FXObjectFieldName);
+                        JCExpression countExpr = isFirstTier ? Int(0) : Call(makeType(superClassSym.type), defs.funcCount_VisageObjectFieldName);
                             
                         // Create base numbers for mixins
                         if (mixinClasses != null && !mixinClasses.isEmpty()) {
@@ -3274,25 +3274,25 @@ however this is what we need */
                                 Name mixinName = classFCNT$Name(classSym);
                                 addStmt(Stmt(m().Assign(id(mixinName), countExpr)));
                                 countExpr = PLUS(id(mixinName),
-                                                 Call(makeType(classSym.type, false), defs.funcCount_FXObjectFieldName));
+                                                 Call(makeType(classSym.type, false), defs.funcCount_VisageObjectFieldName));
                             }
                             // last mixin count
                         } else {
                             // super class count
-                            countExpr = isFirstTier ? Int(0) : Call(makeType(superClassSym.type), defs.funcCount_FXObjectFieldName);
+                            countExpr = isFirstTier ? Int(0) : Call(makeType(superClassSym.type), defs.funcCount_VisageObjectFieldName);
                         }
                         
                         // Set this classes count.
                         Name countName = names.fromString("$count");
-                        addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.funcCount_FXObjectFieldName), countExpr)));
+                        addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.funcCount_VisageObjectFieldName), countExpr)));
         
                         // FCNT$ == -1
-                        JCExpression condition = EQ(id(defs.funcCount_FXObjectFieldName), Int(-1));
+                        JCExpression condition = EQ(id(defs.funcCount_VisageObjectFieldName), Int(-1));
                         // if (FCNT$ == -1) { ...
                         addStmt(OptIf(condition,
                                 endBlock()));
                         // return FCNT$ + funcCount;
-                        addStmt(Return(PLUS(id(defs.funcCount_FXObjectFieldName), Int(funcCount))));
+                        addStmt(Return(PLUS(id(defs.funcCount_VisageObjectFieldName), Int(funcCount))));
                     }
                 }
             };
@@ -3338,7 +3338,7 @@ however this is what we need */
         // This method constructs the invoke method.
         //
         public void makeInvokeMethod(final boolean useConstants, final List<JCTree> invokeCases, final List<ClassSymbol> mixinClasses) {
-            MethodBuilder vcmb = new MethodBuilder(defs.invoke_FXObjectMethodName, syms.objectType) {
+            MethodBuilder vcmb = new MethodBuilder(defs.invoke_VisageObjectMethodName, syms.objectType) {
                 @Override
                 public void initialize() {
                     addParam(numberArg());
@@ -3400,7 +3400,7 @@ however this is what we need */
                     
                         JCExpression tagExpr = isMixinClass() && !isScript() ? MINUS(numberArg(), Call(classFCNT$Name(getCurrentOwner()))) :
                                                useConstants                  ? numberArg() :
-                                                                               MINUS(numberArg(), id(defs.funcCount_FXObjectFieldName));
+                                                                               MINUS(numberArg(), id(defs.funcCount_VisageObjectFieldName));
                         // Construct and add: switch(FCNT$ + number) { ... }
                         addStmt(m().Switch(tagExpr, cases.toList()));
                         
@@ -3513,7 +3513,7 @@ however this is what we need */
         //
         private void makeInitVarsMethod(final List<VarInfo> attrInfos,
                                         final HashMap<VisageVarSymbol, HashMap<VisageVarSymbol, HashSet<VarInfo>>> updateMap) {
-            MethodBuilder mb = new MethodBuilder(defs.initVars_FXObjectMethodName, syms.voidType) {
+            MethodBuilder mb = new MethodBuilder(defs.initVars_VisageObjectMethodName, syms.voidType) {
                 @Override
                 public void statements() {
                     // Begin collecting statements.
@@ -3533,7 +3533,7 @@ however this is what we need */
                             } else if (referenceVar.isStatic()) {
                                 // Dependent on a script-level var, reference via the script-level var
                                 VisageClassSymbol classSym = (VisageClassSymbol) referenceVar.owner;
-                                VisageVarSymbol scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                                VisageVarSymbol scriptAccess = visagemake.ScriptAccessSymbol(classSym);
                                 addFixedDependent(scriptAccess, referenceVar);
                             }
                         }
@@ -3651,7 +3651,7 @@ however this is what we need */
             
             // Construct a static count variable (DCNT$), -1 indicates dep count has not been initialized.
             int initCount = useConstants ? depMap.size() : -1;
-            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.depCount_FXObjectFieldName, initCount));
+            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PRIVATE, defs.depCount_VisageObjectFieldName, initCount));
             
             // Mixin class base numbering.
             if (mixinClasses != null) {
@@ -3679,7 +3679,7 @@ however this is what we need */
         // The method constructs the DCNT$ method for the current class.
         //
         public void makeDCNT$(final boolean useConstants, final HashMap<Name, Integer> depMap, final List<ClassSymbol> mixinClasses) {
-            StaticMethodBuilder smb = new StaticMethodBuilder(defs.depCount_FXObjectFieldName, syms.intType) {
+            StaticMethodBuilder smb = new StaticMethodBuilder(defs.depCount_VisageObjectFieldName, syms.intType) {
                 @Override
                 public void initialize() {
                     needsReceiver = false;
@@ -3700,7 +3700,7 @@ however this is what we need */
                         boolean isFirstTier = analysis.isFirstTier() || superClassSym == null;
 
                         // Base for first dependency number.
-                        JCExpression countExpr = isFirstTier ? Int(0) : Call(makeType(superClassSym.type), defs.depCount_FXObjectFieldName);
+                        JCExpression countExpr = isFirstTier ? Int(0) : Call(makeType(superClassSym.type), defs.depCount_VisageObjectFieldName);
                             
                         // Create base counts for mixins
                         if (mixinClasses != null && !mixinClasses.isEmpty()) {
@@ -3708,7 +3708,7 @@ however this is what we need */
                                 Name mixinName = classDCNT$Name(classSym);
                                 addStmt(Stmt(m().Assign(id(mixinName), countExpr)));
                                 countExpr = PLUS(id(mixinName),
-                                                 Call(makeType(classSym.type, false), defs.depCount_FXObjectFieldName));
+                                                 Call(makeType(classSym.type, false), defs.depCount_VisageObjectFieldName));
                             }
                             
                             // last mixin + depCount
@@ -3716,13 +3716,13 @@ however this is what we need */
                         } else {
                             // super class + depCount
                             countExpr = isFirstTier ? Int(depCount) :
-                                                      PLUS(Call(makeType(superClassSym.type), defs.depCount_FXObjectFieldName),
+                                                      PLUS(Call(makeType(superClassSym.type), defs.depCount_VisageObjectFieldName),
                                                            Int(depCount));
                         }
                         
                         // Set this classes count.
                         Name countName = names.fromString("$count");
-                        addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.depCount_FXObjectFieldName), countExpr)));
+                        addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.depCount_VisageObjectFieldName), countExpr)));
             
                         // Accumulate dependency numbering.
                         for (Name depName : depMap.keySet()) {
@@ -3734,12 +3734,12 @@ however this is what we need */
                         }
         
                         // DCNT$ == -1
-                        JCExpression condition = EQ(id(defs.depCount_FXObjectFieldName), Int(-1));
+                        JCExpression condition = EQ(id(defs.depCount_VisageObjectFieldName), Int(-1));
                         // if (DCNT$ == -1) { ...
                         addStmt(OptIf(condition,
                                 endBlock()));
                         // return DCNT$;
-                        addStmt(Return(id(defs.depCount_FXObjectFieldName)));
+                        addStmt(Return(id(defs.depCount_VisageObjectFieldName)));
                     }
                 }
             };
@@ -3789,7 +3789,7 @@ however this is what we need */
                                      final HashMap<VisageVarSymbol, HashMap<VisageVarSymbol, HashSet<VarInfo>>> updateMap,
                                      final HashMap<Name, Integer> depMap,
                                      final List<ClassSymbol> mixinClasses) {
-            MethodBuilder mb = new MethodBuilder(defs.update_FXObjectMethodName, syms.booleanType) {
+            MethodBuilder mb = new MethodBuilder(defs.update_VisageObjectMethodName, syms.booleanType) {
                 // Number fo dependencies in this class.
                 int depCount = depMap.size();
                 // Condition expression for each dependent.
@@ -3861,12 +3861,12 @@ however this is what we need */
                             // For each "foo" field that stores result of a bound function call expression,
                             // we generate pointer dependency update check as follows:
                             //
-                            //    if (instance$ == $$$bound$result$foo.getFXObject()) {
+                            //    if (instance$ == $$$bound$result$foo.getVisageObject()) {
                             //        invalidate$foo(phase$);
                             //    }
                             //
-                            // instance$ == ptrVar.getFXObject()
-                            JCExpression objCond = EQ(updateInstanceArg(), Call(id(ptrVarName), defs.getFXObject_PointerMethodName));
+                            // instance$ == ptrVar.getVisageObject()
+                            JCExpression objCond = EQ(updateInstanceArg(), Call(id(ptrVarName), defs.getVisageObject_PointerMethodName));
                             // invalidate$foo(phase$);
                             JCStatement invalStat = invalidate(types.isSequence(varSym.type), varSym);
                             // Add statement to dependency.
@@ -3931,7 +3931,7 @@ however this is what we need */
                                 
                                 if (referenceVar.isStatic() && !instanceVar.isSpecial()) {
                                     VisageClassSymbol classSym = (VisageClassSymbol)referenceVar.owner;
-                                    scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                                    scriptAccess = visagemake.ScriptAccessSymbol(classSym);
                                 }
 
                                 // instance == selector
@@ -4000,7 +4000,7 @@ however this is what we need */
                     
                         JCExpression tagExpr = isMixinClass() && !isScript() ? MINUS(depNumArg(), Call(classDCNT$Name(getCurrentOwner()))) :
                                                useConstants                  ? depNumArg() :
-                                                                               MINUS(depNumArg(), id(defs.depCount_FXObjectFieldName));
+                                                                               MINUS(depNumArg(), id(defs.depCount_VisageObjectFieldName));
                         // Construct and add: switch(depNum - DCNT$) { ... }
                         addStmt(m().Switch(tagExpr, cases.toList()));
                         
@@ -4026,7 +4026,7 @@ however this is what we need */
         // This method constructs the current class's get$ method.
         //
         public void makeGetMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.get_FXObjectMethodName, syms.objectType,
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.get_VisageObjectMethodName, syms.objectType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void statements() {
@@ -4047,7 +4047,7 @@ however this is what we need */
         // This method constructs the current class's elem$(varnum, pos) method.
         //
         public void makeGetElementMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.getElement_FXObjectMethodName, syms.objectType,
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.getElement_VisageObjectMethodName, syms.objectType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void initialize() {
@@ -4122,7 +4122,7 @@ however this is what we need */
                         final Type elemType = seqVarInfos.get(0).getElementType();
                         
                         // Can use case method with a subset of vars.
-                        VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.getAs_FXObjectMethodName[ordinal], elemType,
+                        VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.getAs_VisageObjectMethodName[ordinal], elemType,
                                                                              seqVarInfos, varCount) {
                             @Override
                             public void initialize() {
@@ -4147,7 +4147,7 @@ however this is what we need */
         // This method constructs the current class's size$(varnum) method.
         //
         public void makeSizeMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.size_FXObjectMethodName, syms.intType,
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.size_VisageObjectMethodName, syms.intType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void statements() {
@@ -4225,7 +4225,7 @@ however this is what we need */
         // This method constructs the current class's invalidate$(varnum, ...) method.
         //
         public void makeInvalidateMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.invalidate_FXObjectMethodName, syms.voidType,
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.invalidate_VisageObjectMethodName, syms.voidType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void initialize() {
@@ -4286,7 +4286,7 @@ however this is what we need */
             // Build up the argument list for the call.
             ListBuffer<JCExpression> args = ListBuffer.lb();
             // X.VCNT$()
-            args.append(Call(makeType(cSym.type), defs.count_FXObjectFieldName));
+            args.append(Call(makeType(cSym.type), defs.count_VisageObjectFieldName));
 
             // For each var declared in order (to make the switch tags align to the vars.)
             for (VisageVarSymbol vSym : varMap.varList.toList()) {
@@ -4394,10 +4394,10 @@ however this is what we need */
             // If this is to a mixin class then we need to use receiver$ otherwise this.
             boolean toMixinClass = VisageAnalyzeClass.isMixinClass(cSym);
             // If this class doesn't have a visage super then punt to VisageBase.
-            boolean toFXBase = cSym == null;
+            boolean toVisageBase = cSym == null;
 
             // Add in the receiver if necessary.
-            if (toMixinClass || toFXBase) {
+            if (toMixinClass || toVisageBase) {
                 // Determine the receiver name.
                 Name receiver = fromMixinClass ? defs.receiverName : names._this;
                 args.prepend(id(receiver));
@@ -4407,7 +4407,7 @@ however this is what we need */
             JCExpression selector;
             if (toMixinClass) {
                 selector = makeType(cSym.type, false);
-            } else if (toFXBase) {
+            } else if (toVisageBase) {
                 selector = makeType(syms.visage_BaseType, false);
             } else {
                 selector = id(names._super);
@@ -4429,16 +4429,16 @@ however this is what we need */
                 stmts.append(initMap);
             }
 
-            Symbol scriptLevelAccessSym = fxmake.ScriptAccessSymbol(sym);
+            Symbol scriptLevelAccessSym = visagemake.ScriptAccessSymbol(sym);
             
             if (isScriptLevel) {
                 stmts.append(Stmt(m().Assign(id(scriptLevelAccessSym),
                                              m().NewClass(null, null, id(scriptName), List.<JCExpression>of(False()), null))));
-                stmts.append(CallStmt(id(scriptLevelAccessSym), defs.initialize_FXObjectMethodName, False()));
+                stmts.append(CallStmt(id(scriptLevelAccessSym), defs.initialize_VisageObjectMethodName, False()));
             }
             
             if (isLibrary) {
-                stmts.append(CallStmt(id(scriptLevelAccessSym), defs.applyDefaults_FXObjectMethodName));
+                stmts.append(CallStmt(id(scriptLevelAccessSym), defs.applyDefaults_VisageObjectMethodName));
             }
              
             addDefinition(m().Block(Flags.STATIC, stmts.toList()));
@@ -4447,7 +4447,7 @@ however this is what we need */
         //
         // This method generates the code for a userInit or postInit method.
         public void makeInitMethod(Name methName, ListBuffer<JCStatement> translatedInitBlocks, List<ClassSymbol> immediateMixinClasses) {
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+            ClassSymbol superClassSym = analysis.getVisageSuperClassSym();
            
             // Only create method if necessary (rely on VisageBase.)
             if (translatedInitBlocks.nonEmpty() || immediateMixinClasses.nonEmpty() || isMixinClass()) {
@@ -4506,7 +4506,7 @@ however this is what we need */
             makeConstructor(List.<JCVariableDecl>nil(), List.<Type>nil(),
                 Stmts(
                     CallStmt(names._this, False()),
-                    CallStmt(defs.initialize_FXObjectMethodName, isScript() || isAnonClass() ? False() : True())
+                    CallStmt(defs.initialize_VisageObjectMethodName, isScript() || isAnonClass() ? False() : True())
                 )
             );
         }
@@ -4514,7 +4514,7 @@ however this is what we need */
         //
         // Make a constructor to be called by Visage code.
         //
-        public void makeFXEntryConstructor(List<VarInfo> varInfos, ClassSymbol outerTypeSym) {
+        public void makeVisageEntryConstructor(List<VarInfo> varInfos, ClassSymbol outerTypeSym) {
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             Name dummyParamName = names.fromString("dummy");
     
@@ -4522,7 +4522,7 @@ however this is what we need */
             //    public Foo(boolean dummy) {
             //        super(dummy);
             //    }
-            if (analysis.getFXSuperClassSym() != null || isScript()) {
+            if (analysis.getVisageSuperClassSym() != null || isScript()) {
                 Symbol outerSuper = outerTypeSymbol(types.supertype(getCurrentClassDecl().type).tsym);
                 if (outerSuper == null) {
                     stmts.append(CallStmt(names._super, id(dummyParamName)));
@@ -4534,15 +4534,15 @@ however this is what we need */
             
             if (!analysis.isFirstTierNoMixins()) {
                 if (needsVCNT$()) {
-                    stmts.append(CallStmt(defs.count_FXObjectFieldName));
+                    stmts.append(CallStmt(defs.count_VisageObjectFieldName));
                 }
                 
                 if (needsDCNT$()) {
-                    stmts.append(CallStmt(defs.depCount_FXObjectFieldName));
+                    stmts.append(CallStmt(defs.depCount_VisageObjectFieldName));
                 }
                 
                 if (needsFCNT$()) {
-                    stmts.append(CallStmt(defs.funcCount_FXObjectFieldName));
+                    stmts.append(CallStmt(defs.funcCount_VisageObjectFieldName));
                 }
             }
 
@@ -4563,10 +4563,10 @@ however this is what we need */
             ListBuffer<Type> types = ListBuffer.lb();
             if (outerTypeSym != null) {
                 // add a parameter and a statement to constructor for the outer instance reference
-                params.append(Param(outerTypeSym.type, defs.outerAccessor_FXObjectFieldName) );
+                params.append(Param(outerTypeSym.type, defs.outerAccessor_VisageObjectFieldName) );
                 types.append(outerTypeSym.type);
-                JCExpression cSelect = Select(id(names._this), defs.outerAccessor_FXObjectFieldName);
-                stmts.append(Stmt(m().Assign(cSelect, id(defs.outerAccessor_FXObjectFieldName))));
+                JCExpression cSelect = Select(id(names._this), defs.outerAccessor_VisageObjectFieldName);
+                stmts.append(Stmt(m().Assign(cSelect, id(defs.outerAccessor_VisageObjectFieldName))));
             }
             params.append(Param(syms.booleanType, dummyParamName));
             types.append(syms.booleanType);
@@ -4580,7 +4580,7 @@ however this is what we need */
         //
         public void makeOuterAccessorField(ClassSymbol outerTypeSym) {
             // Create the field to store the outer instance reference
-            addDefinition(makeField(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_FXObjectFieldName, null));
+            addDefinition(makeField(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_VisageObjectFieldName, null));
         }
     
         //
@@ -4589,7 +4589,7 @@ however this is what we need */
         public void makeOuterAccessorMethod(ClassSymbol outerTypeSym) {
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            VisageVarSymbol vs = new VisageVarSymbol(types, names,Flags.PUBLIC, defs.outerAccessor_FXObjectFieldName, outerTypeSym.type, getCurrentClassSymbol());
+            VisageVarSymbol vs = new VisageVarSymbol(types, names,Flags.PUBLIC, defs.outerAccessor_VisageObjectFieldName, outerTypeSym.type, getCurrentClassSymbol());
             stmts.append(Return(id(vs)));
             MethodSymbol methSym = makeMethodSymbol(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_MethodName, List.<Type>nil());
             addDefinition(Method(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_MethodName, List.<JCVariableDecl>nil(), stmts.toList(), methSym));
@@ -4602,14 +4602,14 @@ however this is what we need */
             return name.startsWith(defs.get_AttributeMethodPrefixName) ||
                    name.startsWith(defs.set_AttributeMethodPrefixName) ||
                    name.startsWith(defs.seq_AttributeMethodPrefixName) ||
-                   name.startsWith(defs.invalidate_FXObjectMethodName) ||
+                   name.startsWith(defs.invalidate_VisageObjectMethodName) ||
                    name.startsWith(defs.onReplaceAttributeMethodPrefixName) ||
-                   name.startsWith(defs.getElement_FXObjectMethodName) ||
-                   name.startsWith(defs.size_FXObjectMethodName) ||
-                   name.startsWith(defs.applyDefaults_FXObjectMethodName) ||
-                   name.startsWith(defs.count_FXObjectMethodName) ||
-                   name.startsWith(defs.getFlags_FXObjectMethodName) ||
-                   name.startsWith(defs.setFlags_FXObjectMethodName);
+                   name.startsWith(defs.getElement_VisageObjectMethodName) ||
+                   name.startsWith(defs.size_VisageObjectMethodName) ||
+                   name.startsWith(defs.applyDefaults_VisageObjectMethodName) ||
+                   name.startsWith(defs.count_VisageObjectMethodName) ||
+                   name.startsWith(defs.getFlags_VisageObjectMethodName) ||
+                   name.startsWith(defs.setFlags_VisageObjectMethodName);
         }
         
         //
@@ -4698,7 +4698,7 @@ however this is what we need */
         //
         public void makeFunctionInterfaceMethods() {
             for (VisageTree def : getCurrentClassDecl().getMembers()) {
-                if (def.getFXTag() == VisageTag.FUNCTION_DEF) {
+                if (def.getVisageTag() == VisageTag.FUNCTION_DEF) {
                     VisageFunctionDefinition func = (VisageFunctionDefinition) def;
                     MethodSymbol sym = func.sym;
                     
@@ -4763,7 +4763,7 @@ however this is what we need */
         //
         public void makeScriptLevelAccess(ClassSymbol sym, boolean scriptLevel) {
             if (!scriptLevel) {
-                Symbol scriptLevelAccessSym = fxmake.ScriptAccessSymbol(sym);
+                Symbol scriptLevelAccessSym = visagemake.ScriptAccessSymbol(sym);
                 addDefinition(makeField(scriptLevelAccessSym.flags_field & ~Flags.FINAL, scriptLevelAccessSym.type, scriptLevelAccessSym.name, null));
             }
         }

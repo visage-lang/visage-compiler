@@ -62,7 +62,7 @@ public class XMLDoclet {
     private static List<String> xmlFiles = new ArrayList<String>();
     // paths from which we would load soure files and "doc-files" to copy
     private static String sourcePath;
-    private static File outDocsDir = new File("fxdocs");
+    private static File outDocsDir = new File("visagedocs");
     private static boolean includeAuthorTags = false;
     private static boolean includeDeprecatedTags = true;
     private static boolean includeSinceTags = true;
@@ -403,7 +403,7 @@ public class XMLDoclet {
         if (cls.simpleTypeName().equals("package-info")) {
             return;
         }
-        boolean fxClass = isVisageClass(cls);
+        boolean visageClass = isVisageClass(cls);
         String classType = 
                 cls.isAnnotationType() ? "annotation" :
                 cls.isEnum() ? "enum" :
@@ -418,12 +418,12 @@ public class XMLDoclet {
         if (containingClass != null) {
             attrs.addAttribute("", "", "outerClass", "CDATA", containingClass.qualifiedName());
         }
-        attrs.addAttribute("", "", "language", "CDATA", fxClass ? "visage" : "java");
+        attrs.addAttribute("", "", "language", "CDATA", visageClass ? "visage" : "java");
         attrs.addAttribute("", "", "classType","CDATA",classType);
         hd.startElement("", "", "class", attrs);
         generateComment(cls);
         generateModifiers(cls);
-        if (!fxClass) {
+        if (!visageClass) {
             generateAnnotations(cls.annotations());
             generateTypeParameters(cls.typeParameters());
         }
@@ -436,13 +436,13 @@ public class XMLDoclet {
             generateTypeRef(intf, "interface", null);
         hd.endElement("", "", "interfaces");
         generateFullHierarchy(cls);
-        if (!fxClass) {
+        if (!visageClass) {
         for (ConstructorDoc cons : cls.constructors())
             generateExecutableMember(cons, "constructor");
         }
         
         for (MethodDoc meth : cls.methods()) {
-            if (fxClass) {
+            if (visageClass) {
                 generateExecutableMember(meth, meth.isStatic()? 
                     "script-function" : "function");
             } else {
@@ -451,7 +451,7 @@ public class XMLDoclet {
         }
 
         for (FieldDoc field : cls.fields()) {
-            if (fxClass) {
+            if (visageClass) {
                 generateField(field, field.isStatic()? 
                     "script-var" : "var");
             } else {
@@ -459,7 +459,7 @@ public class XMLDoclet {
             }
         }
         for (FieldDoc field : cls.enumConstants())
-            generateField(field, fxClass ? "script-var" : "field");
+            generateField(field, visageClass ? "script-var" : "field");
         
         hd.endElement("", "", "class");
     }

@@ -23,7 +23,7 @@
  * have any questions.
  */ 
 
-package fxpad;
+package visagepad;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.border.Border;

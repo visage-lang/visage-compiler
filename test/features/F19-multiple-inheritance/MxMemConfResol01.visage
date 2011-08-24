@@ -1,10 +1,10 @@
 /*
  * Test for precedence and member conflict resolution.
  *
- * @test/fxunit
+ * @test/visageunit
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 mixin class Mixin1 {
     public-init var bar : Integer = 140420091;

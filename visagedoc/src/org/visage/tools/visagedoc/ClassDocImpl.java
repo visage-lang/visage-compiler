@@ -999,7 +999,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
 
         Name asterisk = tsym.name.table.asterisk;
         for (VisageTree t : compenv.toplevel.defs) {
-            if (t.getFXTag() == VisageTag.IMPORT) {
+            if (t.getVisageTag() == VisageTag.IMPORT) {
                 VisageTree imp = ((VisageImport) t).qualid;
                 if ((VisageTreeInfo.name(imp) != asterisk) &&
                         (imp.type.tsym.kind & Kinds.TYP) != 0) {
@@ -1040,7 +1040,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
         if (compenv == null) return new PackageDocImpl[0];
 
         for (VisageTree t : compenv.toplevel.defs) {
-            if (t.getFXTag() == VisageTag.IMPORT) {
+            if (t.getVisageTag() == VisageTag.IMPORT) {
                 VisageTree imp = ((VisageImport) t).qualid;
                 if (VisageTreeInfo.name(imp) == names.asterisk) {
                     VisageSelect sel = (VisageSelect)imp;

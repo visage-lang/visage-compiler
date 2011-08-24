@@ -161,7 +161,7 @@ public class VisageRunAndCompareWrapper extends TestCase {
         Path p = commandLine.createClasspath(project);
         p.createPathElement().setPath(System.getProperty("java.class.path"));
         p.createPathElement().setPath(buildDir.getPath());
-        // for possible .fxproperties files in the test source directory
+        // for possible .visageproperties files in the test source directory
         p.createPathElement().setPath(testFile.getParent());
        
         commandLine.createArgument().setValue(mainClass);

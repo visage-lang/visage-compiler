@@ -158,16 +158,16 @@
  * individual java objects.
  * 
  * 
- * public void expandFXObjects(boolean expandFXObjects);
+ * public void expandVisageObjects(boolean expandVisageObjects);
  * 
  * Controls the display of Visage objects.  By default, Visage objects are displayed
- * as simple user oriented objects. expandFXObjects == true, displays Visage Objects as
+ * as simple user oriented objects. expandVisageObjects == true, displays Visage Objects as
  * full java objects.
  * 
  * 
- * public void displayFXFlags(boolean displayFXFlags);
+ * public void displayVisageFlags(boolean displayVisageFlags);
  * 
- * Controls the display of Visage var flags.  By default displayFXFlags == true.
+ * Controls the display of Visage var flags.  By default displayVisageFlags == true.
  * 
  *
  * public void displayStatics(boolean displayStatics)
@@ -288,7 +288,7 @@ public class VisageDOTWriter {
     Map<Class, Field[]> fieldCache = new HashMap<Class, Field[]>();
         
     // Cache of visage field information.
-    Map<Class, VisageField[]> fxFieldCache = new HashMap<Class, VisageField[]>();
+    Map<Class, VisageField[]> visageFieldCache = new HashMap<Class, VisageField[]>();
         
     // Graph properties.
     private Properties graphProperties = new Properties();
@@ -327,7 +327,7 @@ public class VisageDOTWriter {
     private boolean expandCollections = false;
     
     // True if Visage Objects should be expanded.
-    private boolean expandFXObjects = false;
+    private boolean expandVisageObjects = false;
     
     // True if static fields should be displayed.
     private boolean displayStatics = false;
@@ -342,7 +342,7 @@ public class VisageDOTWriter {
     private boolean displayInterDependencies = true;
     
     // True if Visage Object flags should be shown.
-    private boolean displayFXFlags = false;
+    private boolean displayVisageFlags = false;
     
 
     // This class maintains properties.
@@ -631,10 +631,10 @@ public class VisageDOTWriter {
             } else {
                 // Display detail if under object limit and not excluded.
                 if (index < objectLimit && shouldDetail(object)) {
-                    if (!expandFXObjects && object instanceof VisageObject) {
+                    if (!expandVisageObjects && object instanceof VisageObject) {
                         // Display as Visage Object (implementation details hidden)
-                        addFXObjectDetail(object, clazz, node);
-                    } else if (!expandFXObjects && object instanceof Sequence) {
+                        addVisageObjectDetail(object, clazz, node);
+                    } else if (!expandVisageObjects && object instanceof Sequence) {
                         // Display sequence as an array of enties.
                         addSequenceDetail(object, clazz, node);
                     } else if (!expandCollections && object instanceof Collection) {
@@ -689,13 +689,13 @@ public class VisageDOTWriter {
     }
 
     // Control the switching of Visage Objects from detail to expanded.
-    public void expandFXObjects(boolean expandFXObjects) {
-        this.expandFXObjects = expandFXObjects;
+    public void expandVisageObjects(boolean expandVisageObjects) {
+        this.expandVisageObjects = expandVisageObjects;
     }
     
     // Control the display of Visage var flags.
-    public void displayFXFlags(boolean displayFXFlags) {
-        this.displayFXFlags = displayFXFlags;
+    public void displayVisageFlags(boolean displayVisageFlags) {
+        this.displayVisageFlags = displayVisageFlags;
     }
     
     // Control whether static fields should be shown.
@@ -1031,15 +1031,15 @@ public class VisageDOTWriter {
     }
     
     // Gather all the field information for a given Visage object.
-    private VisageField[] getFXFields(Object object, Class clazz) {
+    private VisageField[] getVisageFields(Object object, Class clazz) {
         // Check to see if we've already processed the Visage class.
-        VisageField[] fxFields = fxFieldCache.get(clazz);
-        if (fxFields != null) return fxFields;
+        VisageField[] visageFields = visageFieldCache.get(clazz);
+        if (visageFields != null) return visageFields;
         
         // Get the fields from the Visage class
         Field[] fields = getFields(clazz);
         Map<String, Field> fieldMap = new HashMap<String, Field>();
-        List<VisageField> fxFieldList = new ArrayList<VisageField>();
+        List<VisageField> visageFieldList = new ArrayList<VisageField>();
         
         // If script add static fields from enclosing class.
         if (getClassName(clazz).endsWith("$Script")) {
@@ -1074,41 +1074,41 @@ public class VisageDOTWriter {
                 // Get the field offset.
                 int voff = getIntValue(field, null);
                 // Add the field to the list.
-                VisageField fxField = new VisageField(bareName, varName, voff, null);
-                fxFieldList.add(fxField);
+                VisageField visageField = new VisageField(bareName, varName, voff, null);
+                visageFieldList.add(visageField);
             }
         }
         
         // Prepare to collect the visage field information.
-        int count = fxFieldList.size();
-        fxFields = new VisageField[count];
+        int count = visageFieldList.size();
+        visageFields = new VisageField[count];
         for (int index = 0; index < count; index++) {
-            VisageField fxField = fxFieldList.get(index);
+            VisageField visageField = visageFieldList.get(index);
             
             try {
                 // Get the actual var field.
-                fxField.field = fieldMap.get(fxField.varName);
+                visageField.field = fieldMap.get(visageField.varName);
                 // Get the bindees information if present.
-                fxField.bindees = ((VisageBindees)fxField.field.getAnnotation(VisageBindees.class)).value();
+                visageField.bindees = ((VisageBindees)visageField.field.getAnnotation(VisageBindees.class)).value();
                 // Get the flags information.
-                fxField.flags = fieldMap.get(VisageField.vflgPrefix + fxField.varName).getInt(object);
+                visageField.flags = fieldMap.get(VisageField.vflgPrefix + visageField.varName).getInt(object);
             } catch(Throwable ex) {
             }
             
-            fxFields[index] = fxField;
+            visageFields[index] = visageField;
         }
         
         // Cache the result.
-        fxFieldCache.put(clazz, fxFields);
+        visageFieldCache.put(clazz, visageFields);
         
-        return fxFields;
+        return visageFields;
     }
     
     // Find a match for a given visage field.
-    private VisageField findField(VisageField[] fxFields, String varName) {
-        for (VisageField fxField : fxFields) {
-            if (varName.equals(fxField.varName)) {
-                return fxField;
+    private VisageField findField(VisageField[] visageFields, String varName) {
+        for (VisageField visageField : visageFields) {
+            if (varName.equals(visageField.varName)) {
+                return visageField;
             }
         }
         
@@ -1116,41 +1116,41 @@ public class VisageDOTWriter {
     }
 
     // Add the detail information about an Visage Object.
-    private void addFXObjectDetail(Object object, Class clazz, Node node) {
-        VisageField[] fxFields = getFXFields(object, clazz);
+    private void addVisageObjectDetail(Object object, Class clazz, Node node) {
+        VisageField[] visageFields = getVisageFields(object, clazz);
 
-        for (int index = 0; index < fxFields.length && index < fieldLimit; index++) {
-            VisageField fxField = fxFields[index];
-            Field field = fxField.field;
+        for (int index = 0; index < visageFields.length && index < fieldLimit; index++) {
+            VisageField visageField = visageFields[index];
+            Field field = visageField.field;
             
             // Add record row for field.
             field.setAccessible(true);
-            String name = fxField.name;
+            String name = visageField.name;
             Object value = getValue(field, object);
-            if (displayFXFlags) name += " (0x" + Integer.toHexString(fxField.flags) + ")";
+            if (displayVisageFlags) name += " (0x" + Integer.toHexString(visageField.flags) + ")";
             Format format = new Format(value);
-            addNodeField(node, name, fxField.voff, format.string);
+            addNodeField(node, name, visageField.voff, format.string);
             
             // If linking to another object then add edge.
             if (displayLinks && !format.isSimple) {
-                addEdge(node, fxField.voff, getNode(value), -1);
+                addEdge(node, visageField.voff, getNode(value), -1);
             }
             
             // Display Visage var dependencies if present.
-            String bindees = fxField.bindees;
+            String bindees = visageField.bindees;
             if (bindees != null && (displayIntraDependencies || displayInterDependencies)) {
                 // Split on commas.
                 for (String bindee : bindees.split(",")) {
                     //Split on period.
                     String[] pair = bindee.split("\\.");
                     // First is always a var in the current object.
-                    VisageField bindField = findField(fxFields, pair[0]);
+                    VisageField bindField = findField(visageFields, pair[0]);
                     
                     // If an intra dependency.
                     if (pair.length == 1) {
                         if (displayIntraDependencies) {
                             // Add the intra dependency edge (dashed grey line).
-                            addEdge(node, bindField.voff, node, fxField.voff, INTRAEDGESTYLE);
+                            addEdge(node, bindField.voff, node, visageField.voff, INTRAEDGESTYLE);
                         }
                     } else if (displayInterDependencies) {
                         // Set the selector object.
@@ -1159,11 +1159,11 @@ public class VisageDOTWriter {
                         // Only if the selector is set.
                         if (selector != null) {
                             // Get the fields for the selector object.
-                            VisageField[] selectorFxFields = getFXFields(selector, selector.getClass());
+                            VisageField[] selectorFxFields = getVisageFields(selector, selector.getClass());
                             // Get the selctor field.
                             VisageField selectorField =  findField(selectorFxFields, pair[1]);
                             // Add the inter dependency edge (dashed black line).
-                            addEdge(getNode(selector), selectorField.voff, node, fxField.voff, INTEREDGESTYLE);
+                            addEdge(getNode(selector), selectorField.voff, node, visageField.voff, INTEREDGESTYLE);
                         }
                     }
                 }
@@ -1171,7 +1171,7 @@ public class VisageDOTWriter {
         }
         
         // Indicate if object is too big to display.
-        if (fxFields.length >= fieldLimit) {
+        if (visageFields.length >= fieldLimit) {
             addContinuation(node);
         }
     }

@@ -1,5 +1,5 @@
 /**
- * Regression test VSGC-3758 : Compiled bind: Warning: Stage accessor already set: visage.stage.Stage$Stage$Script$1FXRobotHelper$ObjLit$1@b8f8eb
+ * Regression test VSGC-3758 : Compiled bind: Warning: Stage accessor already set: visage.stage.Stage$Stage$Script$1VisageRobotHelper$ObjLit$1@b8f8eb
  *
  * @compile vsgc3758Sub.visage
  * @test

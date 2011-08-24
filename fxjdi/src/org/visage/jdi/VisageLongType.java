@@ -31,8 +31,8 @@ import com.sun.jdi.LongType;
  */
 public class VisageLongType extends VisagePrimitiveType implements LongType {
 
-    public VisageLongType(VisageVirtualMachine fxvm, LongType underlying) {
-        super(fxvm, underlying);
+    public VisageLongType(VisageVirtualMachine visagevm, LongType underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

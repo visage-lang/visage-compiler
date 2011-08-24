@@ -33,15 +33,15 @@ import com.sun.tools.mjavac.util.List;
  */
 public class VisageForExpression extends VisageExpression implements ForExpressionTree {
 
-    private final VisageKind fxKind;
+    private final VisageKind visageKind;
     public final List<VisageForExpressionInClause> inClauses;
     public final VisageExpression bodyExpr;
 
     protected VisageForExpression(
-            VisageKind fxKind,
+            VisageKind visageKind,
             List<VisageForExpressionInClause> inClauses,
             VisageExpression bodyExpr) {
-        this.fxKind = fxKind;
+        this.visageKind = visageKind;
         this.inClauses = inClauses;
         this.bodyExpr = bodyExpr;
     }
@@ -63,12 +63,12 @@ public class VisageForExpression extends VisageExpression implements ForExpressi
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.FOR_EXPRESSION;
     }
 
     public VisageKind getVisageKind() {
-        return fxKind;
+        return visageKind;
     }
 
     public <R, D> R accept(VisageTreeVisitor<R, D> visitor, D data) {

@@ -63,10 +63,10 @@ public class VersionTest extends TestCase {
         assertTrue(fullversionProp.matches("^" + VERSION_PATTERN_TAIL));
 
         // Now use the visage method to verify the build results are the same
-        String fxversion = Utils.getVersionPropFromFX(false);
-        String fxfullversion = Utils.getVersionPropFromFX(true);
-        assertEquals(versionProp, fxversion);
-        assertEquals(fullversionProp, fxfullversion);
+        String visageversion = Utils.getVersionPropFromVisage(false);
+        String visagefullversion = Utils.getVersionPropFromVisage(true);
+        assertEquals(versionProp, visageversion);
+        assertEquals(fullversionProp, visagefullversion);
     }
     
     /*

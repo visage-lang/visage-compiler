@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package fxjdi;
+package visagejdi;
 
 /**
  *
@@ -47,7 +47,7 @@ public class BasicTest extends JdbBase {
             compile("Foo.visage");
             stop("in Foo.visage$run$");
 
-            fxrun();
+            visagerun();
 
             resumeToBreakpoint();
 
@@ -88,7 +88,7 @@ public class BasicTest extends JdbBase {
             compile("Bar.visage");
             stop("in Bar.visage$run$");
 
-            fxrun("ONE", "TWO", "THREE");
+            visagerun("ONE", "TWO", "THREE");
             resumeToBreakpoint();
             where();
             Assert.assertTrue(contains("Bar.visage$run$ (Bar.visage:2)"));

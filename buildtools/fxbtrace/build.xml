@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="fxtracker" default="all" basedir=".">
-    <property name="builddir" location="${basedir}/../../build/buildtools/fxbtrace"/>
+<project name="visagetracker" default="all" basedir=".">
+    <property name="builddir" location="${basedir}/../../build/buildtools/visagebtrace"/>
     <property name="visage.home" location="${basedir}/../../../artifacts/sdk"/>
     <property name="srcdir"   location="${basedir}/src"/>
     <property name="btrace_scriptsdir"   location="${basedir}/btrace_scripts"/>

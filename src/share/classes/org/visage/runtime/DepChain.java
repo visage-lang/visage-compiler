@@ -141,11 +141,11 @@ public class DepChain implements BinderLinkable {
         DepChain old = null;
         if (selector == -1) {
             WeakBinderRef wref = (WeakBinderRef) parent;
-            VisageObject fxObj = wref.get();
+            VisageObject visageObj = wref.get();
             // FIXME : do we need this null check here?
-            if (fxObj != null) {
-                old = fxObj.getDepChain$internal$();
-                fxObj.setDepChain$internal$(dep);
+            if (visageObj != null) {
+                old = visageObj.getDepChain$internal$();
+                visageObj.setDepChain$internal$(dep);
             }
         }
         else {

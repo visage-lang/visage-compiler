@@ -76,7 +76,7 @@ public class VisageDecompose implements VisageVisitor {
     private Map<Symbol, VisageExpression> shrededSelectors;
     private Map<Symbol, VisageExpression> scriptShrededSelectors;
 
-    protected final VisageTreeMaker fxmake;
+    protected final VisageTreeMaker visagemake;
     protected final VisagePreTranslationSupport preTrans;
     protected final VisageDefs defs;
     protected final Name.Table names;
@@ -96,7 +96,7 @@ public class VisageDecompose implements VisageVisitor {
     VisageDecompose(Context context) {
         context.put(decomposeKey, this);
 
-        fxmake = VisageTreeMaker.instance(context);
+        visagemake = VisageTreeMaker.instance(context);
         preTrans = VisagePreTranslationSupport.instance(context);
         names = Name.Table.instance(context);
         types = VisageTypes.instance(context);
@@ -148,7 +148,7 @@ public class VisageDecompose implements VisageVisitor {
         if (tree==null) {
             return false;
         }
-        switch (tree.getFXTag()) {
+        switch (tree.getVisageTag()) {
             case APPLY:
             case OBJECT_LITERAL:
             case SEQUENCE_EXPLICIT:
@@ -248,7 +248,7 @@ public class VisageDecompose implements VisageVisitor {
     }
 
     private VisageIdent id(VisageVar v) {
-        VisageIdent id = fxmake.at(v.pos).Ident(v.getName());
+        VisageIdent id = visagemake.at(v.pos).Ident(v.getName());
         id.sym = v.sym;
         id.type = v.type;
         return id;
@@ -268,7 +268,7 @@ public class VisageDecompose implements VisageVisitor {
             if (false & allowDebinding && preTrans.isImmutable(tree)) {
                 bindStatus = VisageBindStatus.UNBOUND;
                 if (prevVarInitContext != null) {
-                    ourVarInit = fxmake.VarInit(null);
+                    ourVarInit = visagemake.VarInit(null);
                     varInitContext = ourVarInit;
                 }
             }
@@ -396,27 +396,27 @@ public class VisageDecompose implements VisageVisitor {
     public void visitWhileLoop(VisageWhileLoop tree) {
         VisageExpression cond = decompose(tree.cond);
         VisageExpression body = decompose(tree.body);
-        result = fxmake.at(tree.pos).WhileLoop(cond, body);
+        result = visagemake.at(tree.pos).WhileLoop(cond, body);
     }
 
     public void visitTry(VisageTry tree) {
         VisageBlock body = decompose(tree.body);
         List<VisageCatch> catchers = decompose(tree.catchers);
         VisageBlock finalizer = decompose(tree.finalizer);
-        result = fxmake.at(tree.pos).Try(body, catchers, finalizer);
+        result = visagemake.at(tree.pos).Try(body, catchers, finalizer);
     }
 
     public void visitCatch(VisageCatch tree) {
         VisageVar param = decompose(tree.param);
         VisageBlock body = decompose(tree.body);
-        result = fxmake.at(tree.pos).Catch(param, body);
+        result = visagemake.at(tree.pos).Catch(param, body);
     }
 
     public void visitIfExpression(VisageIfExpression tree) {
         VisageExpression cond = decomposeComponent(tree.cond);
         VisageExpression truepart = decomposeComponent(tree.truepart);
         VisageExpression falsepart = decomposeComponent(tree.falsepart);
-        VisageIfExpression res = fxmake.at(tree.pos).Conditional(cond, truepart, falsepart);
+        VisageIfExpression res = visagemake.at(tree.pos).Conditional(cond, truepart, falsepart);
         if (bindStatus.isBound() && types.isSequence(tree.type)) {
             res.boundCondVar = synthVar(defs.condNamePrefix(), cond, cond.type, false);
             res.boundThenVar = synthVar(defs.thenNamePrefix(), truepart, truepart.type, false);
@@ -431,13 +431,13 @@ public class VisageDecompose implements VisageVisitor {
     public void visitBreak(VisageBreak tree) {
         if (tree.nonLocalBreak) {
             // A non-local break gets turned into an exception
-            VisageIdent nonLocalExceptionClass = fxmake.Ident(names.fromString(VisageDefs.cNonLocalBreakException));
+            VisageIdent nonLocalExceptionClass = visagemake.Ident(names.fromString(VisageDefs.cNonLocalBreakException));
             nonLocalExceptionClass.sym = syms.visage_NonLocalBreakExceptionType.tsym;
             nonLocalExceptionClass.type = syms.visage_NonLocalBreakExceptionType;
-            VisageInstanciate expInst = fxmake.InstanciateNew(nonLocalExceptionClass, List.<VisageExpression>nil());
+            VisageInstanciate expInst = visagemake.InstanciateNew(nonLocalExceptionClass, List.<VisageExpression>nil());
             expInst.sym = (ClassSymbol)syms.visage_NonLocalBreakExceptionType.tsym;
             expInst.type = syms.visage_NonLocalBreakExceptionType;
-            result = fxmake.Throw(expInst).setType(syms.unreachableType);
+            result = visagemake.Throw(expInst).setType(syms.unreachableType);
         } else {
             result = tree;
         }
@@ -446,13 +446,13 @@ public class VisageDecompose implements VisageVisitor {
     public void visitContinue(VisageContinue tree) {
         if (tree.nonLocalContinue) {
             // A non-local continue gets turned into an exception
-            VisageIdent nonLocalExceptionClass = fxmake.Ident(names.fromString(VisageDefs.cNonLocalContinueException));
+            VisageIdent nonLocalExceptionClass = visagemake.Ident(names.fromString(VisageDefs.cNonLocalContinueException));
             nonLocalExceptionClass.sym = syms.visage_NonLocalContinueExceptionType.tsym;
             nonLocalExceptionClass.type = syms.visage_NonLocalContinueExceptionType;
-            VisageInstanciate expInst = fxmake.InstanciateNew(nonLocalExceptionClass, List.<VisageExpression>nil());
+            VisageInstanciate expInst = visagemake.InstanciateNew(nonLocalExceptionClass, List.<VisageExpression>nil());
             expInst.sym = (ClassSymbol)syms.visage_NonLocalContinueExceptionType.tsym;
             expInst.type = syms.visage_NonLocalContinueExceptionType;
-            result = fxmake.Throw(expInst).setType(syms.unreachableType);
+            result = visagemake.Throw(expInst).setType(syms.unreachableType);
         } else {
             result = tree;
         }
@@ -462,16 +462,16 @@ public class VisageDecompose implements VisageVisitor {
         tree.expr = decompose(tree.expr);
         if (tree.nonLocalReturn) {
             // A non-local return gets turned into an exception
-            VisageIdent nonLocalExceptionClass = fxmake.Ident(names.fromString(VisageDefs.cNonLocalReturnException));
+            VisageIdent nonLocalExceptionClass = visagemake.Ident(names.fromString(VisageDefs.cNonLocalReturnException));
             nonLocalExceptionClass.sym = syms.visage_NonLocalReturnExceptionType.tsym;
             nonLocalExceptionClass.type = syms.visage_NonLocalReturnExceptionType;
             List<VisageExpression> valueArg = tree.expr==null? List.<VisageExpression>nil() : List.of(tree.expr);
-            VisageInstanciate expInst = fxmake.InstanciateNew(
+            VisageInstanciate expInst = visagemake.InstanciateNew(
                     nonLocalExceptionClass,
                     valueArg);
             expInst.sym = (ClassSymbol)syms.visage_NonLocalReturnExceptionType.tsym;
             expInst.type = syms.visage_NonLocalReturnExceptionType;
-            result = fxmake.Throw(expInst);
+            result = visagemake.Throw(expInst);
         } else {
             result = tree;
         }
@@ -511,55 +511,55 @@ public class VisageDecompose implements VisageVisitor {
             }
             args = shred(tree.args, paramTypes);
         }
-        VisageExpression res = fxmake.at(tree.pos).Apply(tree.typeargs, fn, args);
+        VisageExpression res = visagemake.at(tree.pos).Apply(tree.typeargs, fn, args);
         res.type = tree.type;
         if (bindStatus.isBound() && types.isSequence(tree.type) && !isBoundFunctionResult(tree)) {
             VisageVar v = shredVar(defs.functionResultNamePrefix(), res, tree.type);
             VisageVar sz = makeSizeVar(v.pos(), VisageDefs.UNDEFINED_MARKER_INT);
-            res = fxmake.IdentSequenceProxy(v.name, v.sym, sz.sym);
+            res = visagemake.IdentSequenceProxy(v.name, v.sym, sz.sym);
         }
         result = res;
     }
 
     public void visitParens(VisageParens tree) {
         VisageExpression expr = decomposeComponent(tree.expr);
-        result = fxmake.at(tree.pos).Parens(expr);
+        result = visagemake.at(tree.pos).Parens(expr);
     }
 
     public void visitAssign(VisageAssign tree) {
         VisageExpression lhs = decompose(tree.lhs);
         VisageExpression rhs = decompose(tree.rhs);
-        result = fxmake.at(tree.pos).Assign(lhs, rhs);
+        result = visagemake.at(tree.pos).Assign(lhs, rhs);
     }
 
     public void visitAssignop(VisageAssignOp tree) {
         VisageExpression lhs = decompose(tree.lhs);
         VisageExpression rhs = decompose(tree.rhs);
-        VisageTag tag = tree.getFXTag();
-        VisageAssignOp res = fxmake.at(tree.pos).Assignop(tag, lhs, rhs);
+        VisageTag tag = tree.getVisageTag();
+        VisageAssignOp res = visagemake.at(tree.pos).Assignop(tag, lhs, rhs);
         res.operator = tree.operator;
         result = res;
     }
 
     public void visitUnary(VisageUnary tree) {
-        VisageTag tag = tree.getFXTag();
+        VisageTag tag = tree.getVisageTag();
         VisageExpression arg = tag == VisageTag.REVERSE ||
                             tag == VisageTag.SIZEOF ?
             shredUnlessIdent(tree.arg) :
             decomposeComponent(tree.arg);
-        VisageUnary res = fxmake.at(tree.pos).Unary(tag, arg);
+        VisageUnary res = visagemake.at(tree.pos).Unary(tag, arg);
         res.operator = tree.operator;
         result = res;
     }
 
     public void visitBinary(VisageBinary tree) {
-        VisageTag tag = tree.getFXTag();
+        VisageTag tag = tree.getVisageTag();
         boolean cutOff = tag==VisageTag.AND || tag==VisageTag.OR;
         VisageExpression lhs = decomposeComponent(tree.lhs);
         VisageExpression rhs = cutOff?
             shredUnlessIdent(tree.rhs) :  // If cut-off operation, preface code must be evaluated separately
             decomposeComponent(tree.rhs);
-        VisageBinary res = fxmake.at(tree.pos).Binary(tag, lhs, rhs);
+        VisageBinary res = visagemake.at(tree.pos).Binary(tag, lhs, rhs);
         res.operator = tree.operator;
         result = res;
     }
@@ -573,7 +573,7 @@ public class VisageDecompose implements VisageVisitor {
                 shred(tree.expr) : // can't smash invalidation logic of user var
                 shredUnlessIdent(tree.expr) :
             decomposeComponent(tree.expr);
-        VisageTypeCast res = fxmake.at(tree.pos).TypeCast(clazz, expr);
+        VisageTypeCast res = visagemake.at(tree.pos).TypeCast(clazz, expr);
         if (isBoundSequence && isCastingArray) {
             // Add a size field to hold the previous size of nativearray
             VisageVar v = makeSizeVar(tree.pos(), 0);
@@ -585,7 +585,7 @@ public class VisageDecompose implements VisageVisitor {
     public void visitInstanceOf(VisageInstanceOf tree) {
         VisageExpression expr = decomposeComponent(tree.expr);
         VisageTree clazz = decompose(tree.clazz);
-        result = fxmake.at(tree.pos).TypeTest(expr, clazz);
+        result = visagemake.at(tree.pos).TypeTest(expr, clazz);
     }
 
     public void visitSelect(VisageSelect tree) {
@@ -597,7 +597,7 @@ public class VisageDecompose implements VisageVisitor {
                 || selectSym.name == names._this)) {
             // Select is just via "this" -- make it a simple Ident
             //TODO: move this to lower
-            VisageIdent res = fxmake.at(diagPos).Ident(sym.name);
+            VisageIdent res = visagemake.at(diagPos).Ident(sym.name);
             res.sym = sym;
             result = res;
         } else {
@@ -661,7 +661,7 @@ public class VisageDecompose implements VisageVisitor {
                 }
                 bindStatus = oldBindStatus;
             }
-            VisageSelect res = fxmake.at(diagPos).Select(selected, sym.name, tree.nullCheck);
+            VisageSelect res = visagemake.at(diagPos).Select(selected, sym.name, tree.nullCheck);
             res.sym = sym;
             if (bindStatus.isBound() && types.isSequence(tree.type)) {
                 // Add a size field to hold the previous size on selector switch
@@ -673,7 +673,7 @@ public class VisageDecompose implements VisageVisitor {
     }
 
     public void visitIdent(VisageIdent tree) {
-        VisageIdent res = fxmake.at(tree.pos).Ident(tree.getName());
+        VisageIdent res = visagemake.at(tree.pos).Ident(tree.getName());
         res.sym = tree.sym;
         result = res;
     }
@@ -730,7 +730,7 @@ public class VisageDecompose implements VisageVisitor {
         VisageType restype = tree.getVisageReturnType();
         List<VisageVar> params = decompose(tree.getParams());
         VisageBlock bodyExpression = decompose(tree.getBodyExpression());
-        VisageFunctionDefinition res = fxmake.at(tree.pos).FunctionDefinition(mods, name, restype, params, bodyExpression);
+        VisageFunctionDefinition res = visagemake.at(tree.pos).FunctionDefinition(mods, name, restype, params, bodyExpression);
         res.sym = tree.sym;
         result = res;
         bindStatus = prevBindStatus;
@@ -742,7 +742,7 @@ public class VisageDecompose implements VisageVisitor {
         boolean wasInScriptLevel = inScriptLevel;
         inScriptLevel = tree.sym.isStatic();
         VisageBlock body = decompose(tree.body);
-        VisageInitDefinition res = fxmake.at(tree.pos).InitDefinition(body);
+        VisageInitDefinition res = visagemake.at(tree.pos).InitDefinition(body);
         res.sym = tree.sym;
         result = res;
         inScriptLevel = wasInScriptLevel;
@@ -752,7 +752,7 @@ public class VisageDecompose implements VisageVisitor {
         boolean wasInScriptLevel = inScriptLevel;
         inScriptLevel = tree.sym.isStatic();
         VisageBlock body = decompose(tree.body);
-        VisagePostInitDefinition res = fxmake.at(tree.pos).PostInitDefinition(body);
+        VisagePostInitDefinition res = visagemake.at(tree.pos).PostInitDefinition(body);
         res.sym = tree.sym;
         result = res;
         inScriptLevel = wasInScriptLevel;
@@ -760,7 +760,7 @@ public class VisageDecompose implements VisageVisitor {
 
     public void visitStringExpression(VisageStringExpression tree) {
         List<VisageExpression> parts = decomposeComponents(tree.parts);
-        result = fxmake.at(tree.pos).StringExpression(parts, tree.translationKey);
+        result = visagemake.at(tree.pos).StringExpression(parts, tree.translationKey);
     }
 
    public void visitInstanciate(VisageInstanciate tree) {
@@ -769,7 +769,7 @@ public class VisageDecompose implements VisageVisitor {
        VisageClassDeclaration dcdel = decompose(tree.getClassBody());
        List<VisageExpression> dargs = decomposeComponents(tree.getArgs());
 
-       VisageInstanciate res = fxmake.at(tree.pos).Instanciate(tree.getVisageKind(), klassExpr, dcdel, dargs, dparts, tree.getLocalvars());
+       VisageInstanciate res = visagemake.at(tree.pos).Instanciate(tree.getVisageKind(), klassExpr, dcdel, dargs, dparts, tree.getLocalvars());
        res.sym = tree.sym;
        res.constructor = tree.constructor;
        res.varDefinedByThis = tree.varDefinedByThis;
@@ -795,7 +795,7 @@ public class VisageDecompose implements VisageVisitor {
         if (tree.isExplicitlyBound())
             throw new AssertionError("bound parts should have been converted to overrides");
         VisageExpression expr = shred(tree.getExpression(), tree.sym.type);
-        VisageObjectLiteralPart res = fxmake.at(tree.pos).ObjectLiteralPart(tree.name, expr, tree.getExplicitBindStatus());
+        VisageObjectLiteralPart res = visagemake.at(tree.pos).ObjectLiteralPart(tree.name, expr, tree.getExplicitBindStatus());
         res.markBound(bindStatus);
         res.sym = tree.sym;
         currentVarSymbol = prevVarSymbol;
@@ -859,7 +859,7 @@ public class VisageDecompose implements VisageVisitor {
         // synthetic var here.
         VisageVar ptrVar = bindStatus.isBound()? makeTempBoundResultName(tree.name, initExpr) : null;
 
-        VisageVar res = fxmake.at(tree.pos).Var(
+        VisageVar res = visagemake.at(tree.pos).Var(
                     tree.name,
                     tree.getVisageType(),
                     tree.getModifiers(),
@@ -898,7 +898,7 @@ public class VisageDecompose implements VisageVisitor {
                 saveVar = makeSaveVar(tree.pos(), oldValue.type);
         }
         VisageBlock body = decompose(tree.getBody());
-        result = fxmake.at(tree.pos).OnReplace(oldValue, firstIndex, lastIndex, tree.getEndKind(), newElements, saveVar, body);
+        result = visagemake.at(tree.pos).OnReplace(oldValue, firstIndex, lastIndex, tree.getEndKind(), newElements, saveVar, body);
     }
 
     /**
@@ -919,7 +919,7 @@ public class VisageDecompose implements VisageVisitor {
                 }
             }
             VisageVar v = shredVar(defs.valueNamePrefix(), decompose(tree.value), tree.type);
-            VisageVarInit vi = fxmake.at(tree.value.pos()).VarInit(v);
+            VisageVarInit vi = visagemake.at(tree.value.pos()).VarInit(v);
             vi.type = tree.type;
             stats = tree.stats.append(vi);
             VisageIdent val = id(v);
@@ -930,7 +930,7 @@ public class VisageDecompose implements VisageVisitor {
             stats = decomposeContainer(tree.stats);
             value = decompose(tree.value);
         }
-        VisageBlock res = fxmake.at(tree.pos()).Block(tree.flags, stats, value);
+        VisageBlock res = visagemake.at(tree.pos()).Block(tree.flags, stats, value);
         res.endpos = tree.endpos;
         result = res;
     }
@@ -957,13 +957,13 @@ public class VisageDecompose implements VisageVisitor {
         }
         VisageExpression expr = decompose ? decompose(tree) : tree;
 
-        fxmake.at(tree.pos()); // set position
+        visagemake.at(tree.pos()); // set position
 
         if (!types.isSameType(tree.type, type)) {
             // cast to desired type
-            VisageIdent tp = (VisageIdent) fxmake.Type(type);
+            VisageIdent tp = (VisageIdent) visagemake.Type(type);
             tp.sym = type.tsym;
-            expr = fxmake.TypeCast(tp, expr);
+            expr = visagemake.TypeCast(tp, expr);
         }
 
         VisageVar v = shredVar(label, expr, type);
@@ -976,7 +976,7 @@ public class VisageDecompose implements VisageVisitor {
     }
 
     private VisageVar makeIntVar(DiagnosticPosition diagPos, String label, int initial) {
-        VisageExpression initialSize = fxmake.at(diagPos).Literal(initial);
+        VisageExpression initialSize = visagemake.at(diagPos).Literal(initial);
         initialSize.type = syms.intType;
         VisageVar v = makeVar(diagPos, label, initialSize, VisageBindStatus.UNBOUND, syms.intType);
         return v;
@@ -1012,7 +1012,7 @@ public class VisageDecompose implements VisageVisitor {
             upper = decomposeComponent(tree.getUpper());
             stepOrNull = decomposeComponent(tree.getStepOrNull());
         }
-        VisageSequenceRange res = fxmake.at(tree.pos).RangeSequence(lower, upper, stepOrNull, tree.isExclusive());
+        VisageSequenceRange res = visagemake.at(tree.pos).RangeSequence(lower, upper, stepOrNull, tree.isExclusive());
         res.type = tree.type;
         if (bindStatus.isBound()) {
             // now add a size var
@@ -1026,7 +1026,7 @@ public class VisageDecompose implements VisageVisitor {
         VisageSequenceExplicit res;
         if (bindStatus.isBound()) {
             // bound should not use items - non-null for pretty-printing
-            res = fxmake.at(diagPos).ExplicitSequence(List.<VisageExpression>nil());
+            res = visagemake.at(diagPos).ExplicitSequence(List.<VisageExpression>nil());
             boolean hasNullable = false;
             int n = 0;
             ListBuffer<VisageVarSymbol> vb = ListBuffer.lb();
@@ -1056,12 +1056,12 @@ public class VisageDecompose implements VisageVisitor {
                     res.boundChangeEndPosSym = makeIntVar(diagPos, defs.cngEndNamePrefix(), 0).sym;
                 }
             }
-            VisageExpression falseLit = fxmake.Literal(TypeTags.BOOLEAN, 0);
+            VisageExpression falseLit = visagemake.Literal(TypeTags.BOOLEAN, 0);
             falseLit.type = syms.booleanType;
             res.boundIgnoreInvalidationsSym = makeVar(diagPos, defs.ignoreNamePrefix(), falseLit, VisageBindStatus.UNBOUND, syms.booleanType).sym;
         } else {
             List<VisageExpression> items = decomposeComponents(tree.getItems());
-            res = fxmake.at(diagPos).ExplicitSequence(items);
+            res = visagemake.at(diagPos).ExplicitSequence(items);
         }
         res.type = tree.type;
         result = res;
@@ -1075,32 +1075,32 @@ public class VisageDecompose implements VisageVisitor {
             sequence = decomposeComponent(tree.getSequence());
         }
         VisageExpression index = decomposeComponent(tree.getIndex());
-        result = fxmake.at(tree.pos).SequenceIndexed(sequence, index);
+        result = visagemake.at(tree.pos).SequenceIndexed(sequence, index);
     }
 
     public void visitSequenceSlice(VisageSequenceSlice tree) {
         VisageExpression sequence = shred(tree.getSequence());
         VisageExpression firstIndex = shred(tree.getFirstIndex());
         VisageExpression lastIndex = shred(tree.getLastIndex());
-        result = fxmake.at(tree.pos).SequenceSlice(sequence, firstIndex, lastIndex, tree.getEndKind());
+        result = visagemake.at(tree.pos).SequenceSlice(sequence, firstIndex, lastIndex, tree.getEndKind());
     }
 
     public void visitSequenceInsert(VisageSequenceInsert tree) {
         VisageExpression sequence = decompose(tree.getSequence());
         VisageExpression element = decompose(tree.getElement());
         VisageExpression position = decompose(tree.getPosition());
-        result = fxmake.at(tree.pos).SequenceInsert(sequence, element, position, tree.shouldInsertAfter());
+        result = visagemake.at(tree.pos).SequenceInsert(sequence, element, position, tree.shouldInsertAfter());
     }
 
     public void visitSequenceDelete(VisageSequenceDelete tree) {
         VisageExpression sequence = decompose(tree.getSequence());
         VisageExpression element = decompose(tree.getElement());
-        result = fxmake.at(tree.pos).SequenceDelete(sequence, element);
+        result = visagemake.at(tree.pos).SequenceDelete(sequence, element);
     }
 
     public void visitInvalidate(VisageInvalidate tree) {
         VisageExpression variable = decompose(tree.getVariable());
-        result = fxmake.at(tree.pos).Invalidate(variable);
+        result = visagemake.at(tree.pos).Invalidate(variable);
     }
 
     public void visitForExpression(VisageForExpression tree) {
@@ -1120,7 +1120,7 @@ public class VisageDecompose implements VisageVisitor {
                             syms.visage_BoundForOverSingletonType,
                     types.boxedElementType(tree.type),
                     inductionType);
-            VisageExpression init = fxmake.Literal(TypeTags.BOT, null);
+            VisageExpression init = visagemake.Literal(TypeTags.BOT, null);
             init.type = helperType;
             Name helperName = preTrans.makeUniqueVarNameIn(names.fromString(defs.helperDollarNamePrefix()+currentVarSymbol.name), varOwner);
             VisageVar helper = makeVar(tree, helperName, init, VisageBindStatus.UNBOUND, helperType);
@@ -1141,26 +1141,26 @@ public class VisageDecompose implements VisageVisitor {
             Type intfc = types.applySimpleGenericType(types.erasure(syms.visage_ForPartInterfaceType), inductionType);
             cdecl.setDifferentiatedExtendingImplementingMixing(
                     List.<VisageExpression>nil(),
-                    List.<VisageExpression>of(fxmake.Type(intfc)),  // implement interface
+                    List.<VisageExpression>of(visagemake.Type(intfc)),  // implement interface
                     List.<VisageExpression>nil());
 
-            result = fxmake.at(tree.pos).ForExpression(List.of(clause), body);
+            result = visagemake.at(tree.pos).ForExpression(List.of(clause), body);
         } else {
             List<VisageForExpressionInClause> inClauses = decompose(tree.inClauses);
             VisageExpression bodyExpr = decompose(tree.bodyExpr);
-            result = fxmake.at(tree.pos).ForExpression(inClauses, bodyExpr);
+            result = visagemake.at(tree.pos).ForExpression(inClauses, bodyExpr);
         }
     }
 
     private void patchDoitFunction(VisageClassDeclaration cdecl) {
         Type ctype = cdecl.type;
         for (VisageTree mem : cdecl.getMembers()) {
-            if (mem.getFXTag() == VisageTag.FUNCTION_DEF) {
+            if (mem.getVisageTag() == VisageTag.FUNCTION_DEF) {
                 VisageFunctionDefinition func = (VisageFunctionDefinition) mem;
                 if ((func.sym.flags() & VisageFlags.FUNC_SYNTH_LOCAL_DOIT) != 0L) {
                     // Change the value to be "this"
                     VisageBlock body = func.getBodyExpression();
-                    body.value = fxmake.This(ctype);
+                    body.value = visagemake.This(ctype);
                     body.type = ctype;
 
                     // Adjust function to return class type
@@ -1184,7 +1184,7 @@ public class VisageDecompose implements VisageVisitor {
     }
 
     public void visitIndexof(VisageIndexof tree) {
-        result = tree.clause.indexVarSym == null ? tree : fxmake.Ident(tree.clause.indexVarSym);
+        result = tree.clause.indexVarSym == null ? tree : visagemake.Ident(tree.clause.indexVarSym);
     }
 
     public void visitTimeLiteral(VisageTimeLiteral tree) {
@@ -1218,7 +1218,7 @@ public class VisageDecompose implements VisageVisitor {
                             tree.getBindStatus() :
                             prevBindStatus;
         VisageExpression initializer = shredUnlessIdent(tree.getInitializer());
-        VisageOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getName(),
+        VisageOverrideClassVar res = visagemake.at(tree.pos).OverrideClassVar(tree.getName(),
                 tree.getVisageType(),
                 tree.getModifiers(),
                 tree.getId(),
@@ -1240,7 +1240,7 @@ public class VisageDecompose implements VisageVisitor {
         VisageExpression funcValue = decompose(tree.funcValue);
         VisageExpression interpolation = decompose(tree.interpolation);
         // Note: funcValue takes the place of value
-        VisageInterpolateValue res = fxmake.at(tree.pos).InterpolateValue(attr, funcValue, interpolation);
+        VisageInterpolateValue res = visagemake.at(tree.pos).InterpolateValue(attr, funcValue, interpolation);
         res.sym = tree.sym;
         result = res;
         bindStatus = prevBindStatus;
@@ -1250,6 +1250,6 @@ public class VisageDecompose implements VisageVisitor {
         VisageExpression start = decompose(tree.start);
         List<VisageExpression> values = decomposeComponents(tree.values);
         VisageExpression trigger = decompose(tree.trigger);
-        result = fxmake.at(tree.pos).KeyFrameLiteral(start, values, trigger);
+        result = visagemake.at(tree.pos).KeyFrameLiteral(start, values, trigger);
     }
 }

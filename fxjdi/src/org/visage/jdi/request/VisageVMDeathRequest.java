@@ -31,8 +31,8 @@ import com.sun.jdi.request.VMDeathRequest;
  * @author sundar
  */
 public class VisageVMDeathRequest extends VisageEventRequest implements VMDeathRequest {
-    public VisageVMDeathRequest(VisageVirtualMachine fxvm, VMDeathRequest underlying) {
-        super(fxvm, underlying);
+    public VisageVMDeathRequest(VisageVirtualMachine visagevm, VMDeathRequest underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

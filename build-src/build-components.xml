@@ -149,7 +149,7 @@
     <do-setup-and-import-component component="apps"/>
     <do-setup-and-import-component component="deploy"/>
     <do-setup-and-import-component component="docs"/>
-    <do-setup-and-import-component component="fxdloader"/>
+    <do-setup-and-import-component component="visagedloader"/>
     <do-setup-and-import-component component="jogl"/>
     <do-setup-and-import-component component="media"/>
     <do-setup-and-import-component component="mobile"/>
@@ -189,7 +189,7 @@
             <isset property="visage.apps.exists"/>
             <isset property="visage.deploy.exists"/>
             <isset property="visage.docs.exists"/>
-            <isset property="visage.fxdloader.exists"/>
+            <isset property="visage.visagedloader.exists"/>
             <isset property="visage.jogl.exists"/>
             <isset property="visage.media.exists"/>
             <isset property="visage.mobile.exists"/>
@@ -216,7 +216,7 @@
             <antcall target="visage-compiler-@{target}"/>
             <antcall target="media-@{target}"/>
             <antcall target="runtime-@{target}"/>
-            <antcall target="fxdloader-@{target}"/>
+            <antcall target="visagedloader-@{target}"/>
             <antcall target="mobile-@{target}"/>
             <antcall target="tv-@{target}"/>
             <antcall target="webservices-@{target}"/>
@@ -238,7 +238,7 @@
                      apps-clone,
                      deploy-clone,
                      docs-clone,
-                     fxdloader-clone,
+                     visagedloader-clone,
                      jogl-clone,
                      media-clone,
                      mobile-clone,
@@ -259,7 +259,7 @@
                      apps-tip,
                      deploy-tip,
                      docs-tip,
-                     fxdloader-tip,
+                     visagedloader-tip,
                      jogl-tip,
                      media-tip,
                      mobile-tip,

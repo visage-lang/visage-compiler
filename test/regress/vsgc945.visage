@@ -1,8 +1,8 @@
 /*
- * @test/fxunit
+ * @test/visageunit
  */
 
-import visage.fxunit.*;
+import visage.visageunit.*;
 
 class Foo {
   var a : Integer;

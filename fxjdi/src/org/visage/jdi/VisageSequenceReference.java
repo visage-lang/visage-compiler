@@ -65,8 +65,8 @@ public class VisageSequenceReference extends VisageObjectReference {
     // element type of this sequence
     private Types elementType;
 
-    public VisageSequenceReference(VisageVirtualMachine fxvm, ObjectReference underlying) {
-        super(fxvm, underlying);
+    public VisageSequenceReference(VisageVirtualMachine visagevm, ObjectReference underlying) {
+        super(visagevm, underlying);
     }
 
     /**
@@ -76,7 +76,7 @@ public class VisageSequenceReference extends VisageObjectReference {
      */
     public Types getElementType() {
         if (elementType == null) {
-            Method getElementTypeMethod = virtualMachine().fxSequenceType().getElementTypeMethod();
+            Method getElementTypeMethod = virtualMachine().visageSequenceType().getElementTypeMethod();
             Exception theExc = null;
             try {
                 Value typeInfo = invokeMethod(virtualMachine().uiThread(), getElementTypeMethod, Collections.EMPTY_LIST, ClassType.INVOKE_SINGLE_THREADED);
@@ -103,7 +103,7 @@ public class VisageSequenceReference extends VisageObjectReference {
      * @return the integer count of elements in this sequence.
      */
     public int size() {
-        Method sizeMethod = virtualMachine().fxSequenceType().sizeMethod();
+        Method sizeMethod = virtualMachine().visageSequenceType().sizeMethod();
         Exception theExc = null;
         try {
             Value value = invokeMethod(virtualMachine().uiThread(), sizeMethod, Collections.EMPTY_LIST, ClassType.INVOKE_SINGLE_THREADED);
@@ -264,92 +264,92 @@ public class VisageSequenceReference extends VisageObjectReference {
 
     // Internals only below this point
     private BooleanValue getValueAsBoolean(int index) {
-        Method getAsBooleanMethod = virtualMachine().fxSequenceType().getAsBooleanMethod();
+        Method getAsBooleanMethod = virtualMachine().visageSequenceType().getAsBooleanMethod();
         return (BooleanValue) getElement(getAsBooleanMethod, index);
     }
 
     private CharValue getValueAsChar(int index) {
-        Method getAsCharMethod = virtualMachine().fxSequenceType().getAsCharMethod();
+        Method getAsCharMethod = virtualMachine().visageSequenceType().getAsCharMethod();
         return (CharValue) getElement(getAsCharMethod, index);
     }
 
     private ByteValue getValueAsByte(int index) {
-        Method getAsByteMethod = virtualMachine().fxSequenceType().getAsByteMethod();
+        Method getAsByteMethod = virtualMachine().visageSequenceType().getAsByteMethod();
         return (ByteValue) getElement(getAsByteMethod, index);
     }
 
     private ShortValue getValueAsShort(int index) {
-        Method getAsShortMethod = virtualMachine().fxSequenceType().getAsShortMethod();
+        Method getAsShortMethod = virtualMachine().visageSequenceType().getAsShortMethod();
         return (ShortValue) getElement(getAsShortMethod, index);
     }
 
     private IntegerValue getValueAsInt(int index) {
-        Method getAsIntMethod = virtualMachine().fxSequenceType().getAsIntMethod();
+        Method getAsIntMethod = virtualMachine().visageSequenceType().getAsIntMethod();
         return (IntegerValue) getElement(getAsIntMethod, index);
     }
     
     private LongValue getValueAsLong(int index) {
-        Method getAsLongMethod = virtualMachine().fxSequenceType().getAsLongMethod();
+        Method getAsLongMethod = virtualMachine().visageSequenceType().getAsLongMethod();
         return (LongValue) getElement(getAsLongMethod, index);
     }
     
     private FloatValue getValueAsFloat(int index) {
-        Method getAsFloatMethod = virtualMachine().fxSequenceType().getAsFloatMethod();
+        Method getAsFloatMethod = virtualMachine().visageSequenceType().getAsFloatMethod();
         return (FloatValue) getElement(getAsFloatMethod, index);
     }
     
     private DoubleValue getValueAsDouble(int index) {
-        Method getAsDoubleMethod = virtualMachine().fxSequenceType().getAsDoubleMethod();
+        Method getAsDoubleMethod = virtualMachine().visageSequenceType().getAsDoubleMethod();
         return (DoubleValue) getElement(getAsDoubleMethod, index);
     }
     
     private ObjectReference getValueAsObject(int index) {
-        Method getMethod = virtualMachine().fxSequenceType().getMethod();
+        Method getMethod = virtualMachine().visageSequenceType().getMethod();
         return (ObjectReference) getElement(getMethod, index);
     }
 
     private VisageSequenceReference setIntValue(int index, IntegerValue value) {
-        Method setIntElementMethod = virtualMachine().fxSequencesType().setIntElementMethod();
+        Method setIntElementMethod = virtualMachine().visageSequencesType().setIntElementMethod();
         return setElement(setIntElementMethod, index, value);
     }
 
     private VisageSequenceReference setFloatValue(int index, FloatValue value) {
-        Method setFloatElementMethod = virtualMachine().fxSequencesType().setFloatElementMethod();
+        Method setFloatElementMethod = virtualMachine().visageSequencesType().setFloatElementMethod();
         return setElement(setFloatElementMethod, index, value);
     }
 
     private VisageSequenceReference setObjectValue(int index, ObjectReference value) {
-        Method setObjectElementMethod = virtualMachine().fxSequencesType().setObjectElementMethod();
+        Method setObjectElementMethod = virtualMachine().visageSequencesType().setObjectElementMethod();
         return setElement(setObjectElementMethod, index, value);
     }
 
     private VisageSequenceReference setDoubleValue(int index, DoubleValue value) {
-        Method setDoubleElementMethod = virtualMachine().fxSequencesType().setDoubleElementMethod();
+        Method setDoubleElementMethod = virtualMachine().visageSequencesType().setDoubleElementMethod();
         return setElement(setDoubleElementMethod, index, value);
     }
 
     private VisageSequenceReference setBooleanValue(int index, BooleanValue value) {
-        Method setBooleanElementMethod = virtualMachine().fxSequencesType().setBooleanElementMethod();
+        Method setBooleanElementMethod = virtualMachine().visageSequencesType().setBooleanElementMethod();
         return setElement(setBooleanElementMethod, index, value);
     }
 
     private VisageSequenceReference setLongValue(int index, LongValue value) {
-        Method setLongElementMethod = virtualMachine().fxSequencesType().setLongElementMethod();
+        Method setLongElementMethod = virtualMachine().visageSequencesType().setLongElementMethod();
         return setElement(setLongElementMethod, index, value);
     }
 
     private VisageSequenceReference setShortValue(int index, ShortValue value) {
-        Method setShortElementMethod = virtualMachine().fxSequencesType().setShortElementMethod();
+        Method setShortElementMethod = virtualMachine().visageSequencesType().setShortElementMethod();
         return setElement(setShortElementMethod, index, value);
     }
 
     private VisageSequenceReference setByteValue(int index, ByteValue value) {
-        Method setByteElementMethod = virtualMachine().fxSequencesType().setByteElementMethod();
+        Method setByteElementMethod = virtualMachine().visageSequencesType().setByteElementMethod();
         return setElement(setByteElementMethod, index, value);
     }
 
     private VisageSequenceReference setCharValue(int index, CharValue value) {
-        Method setCharElementMethod = virtualMachine().fxSequencesType().setCharElementMethod();
+        Method setCharElementMethod = virtualMachine().visageSequencesType().setCharElementMethod();
         return setElement(setCharElementMethod, index, value);
     }
 
@@ -381,7 +381,7 @@ public class VisageSequenceReference extends VisageObjectReference {
         args.add(virtualMachine().mirrorOf(index));
         Exception theExc;
         try {
-            return (VisageSequenceReference) virtualMachine().fxSequencesType().
+            return (VisageSequenceReference) virtualMachine().visageSequencesType().
                 invokeMethod(virtualMachine().uiThread(), method, args, ClassType.INVOKE_SINGLE_THREADED);
         } catch(InvalidTypeException ee) {
             theExc = ee;
@@ -406,24 +406,24 @@ public class VisageSequenceReference extends VisageObjectReference {
     }
 
     private Value defaultValue(Types type) {
-        VisageVirtualMachine fxvm = virtualMachine();
+        VisageVirtualMachine visagevm = virtualMachine();
         switch (type) {
             case BOOLEAN:
-                return fxvm.booleanDefaultValue();
+                return visagevm.booleanDefaultValue();
             case BYTE:
-                return fxvm.byteDefaultValue();
+                return visagevm.byteDefaultValue();
             case CHAR:
-                return fxvm.charDefaultValue();
+                return visagevm.charDefaultValue();
             case DOUBLE:
-                return fxvm.doubleDefaultValue();
+                return visagevm.doubleDefaultValue();
             case FLOAT:
-                return fxvm.floatDefaultValue();
+                return visagevm.floatDefaultValue();
             case INT:
-                return fxvm.integerDefaultValue();
+                return visagevm.integerDefaultValue();
             case LONG:
-                return fxvm.longDefaultValue();
+                return visagevm.longDefaultValue();
             case SHORT:
-                return fxvm.shortDefaultValue();
+                return visagevm.shortDefaultValue();
             default:
                 return null;
         }

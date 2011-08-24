@@ -282,7 +282,7 @@ println( mon );
 println( about );</programlisting>
 
         <para>Suppose this script is <code>Foo.visage</code>, and there is a Visage 
-        properties file for French <code>Foo_fr.fxproperties</code>, which contains the
+        properties file for French <code>Foo_fr.visageproperties</code>, which contains the
         following localization:</para>
 
         <programlisting>&quot;Monday&quot; = &quot;Lundi&quot;
@@ -295,13 +295,13 @@ Visage est un langage de script cool !</screen>
 
         <para>in French locale.  You can also provide layered properties files
         for finer grained control.  For example, you can provide localized texts that 
-        are France specific in <code>Foo_fr_FR.fxproperties</code>, and keep 
+        are France specific in <code>Foo_fr_FR.visageproperties</code>, and keep 
         other French localized texts that are country independent in 
-        <code>Foo_fr.fxproperties</code>.  Then the Visage searches the 
+        <code>Foo_fr.visageproperties</code>.  Then the Visage searches the 
         appropriate localized texts by attempting the following fallback
         search in French France (<code>fr_FR</code>) locale:
-        <programlisting>Foo_fr_FR.fxproperties
-Foo_fr.fxproperties
+        <programlisting>Foo_fr_FR.visageproperties
+Foo_fr.visageproperties
 (original string)</programlisting>
 
         For more information on the locale and how the Visage properties

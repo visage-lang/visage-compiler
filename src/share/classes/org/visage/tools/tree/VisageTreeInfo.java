@@ -45,11 +45,11 @@ public class VisageTreeInfo {
      */
     protected Name[] opname = new Name[VisageTag.MOD.ordinal() - VisageTag.NEG.ordinal() + 1];
 
-    protected static final Context.Key<VisageTreeInfo> fxTreeInfoKey =
+    protected static final Context.Key<VisageTreeInfo> visageTreeInfoKey =
         new Context.Key<VisageTreeInfo>();
 
     public static VisageTreeInfo instance(Context context) {
-        VisageTreeInfo instance = context.get(fxTreeInfoKey);
+        VisageTreeInfo instance = context.get(visageTreeInfoKey);
         if (instance == null)
             instance = new VisageTreeInfo(context);
         return instance;
@@ -400,7 +400,7 @@ public class VisageTreeInfo {
     
     public static void setSymbol(VisageTree tree, Symbol sym) {
 	tree = skipParens(tree);
-	switch (tree.getFXTag()) {
+	switch (tree.getVisageTag()) {
 	case IDENT:
 	    ((VisageIdent) tree).sym = sym; break;
 	case SELECT:
@@ -413,7 +413,7 @@ public class VisageTreeInfo {
      */
     public static Symbol symbol(VisageTree tree) {
 	tree = skipParens(tree);
-	switch (tree.getFXTag()) {
+	switch (tree.getVisageTag()) {
 	case IDENT:
 	    return ((VisageIdent) tree).sym;
 	case SELECT:
@@ -434,7 +434,7 @@ public class VisageTreeInfo {
     public static VisageTree skipParens(VisageTree tree) {
 
         if (tree == null) return tree;
-        if (tree.getFXTag() == VisageTag.PARENS)
+        if (tree.getVisageTag() == VisageTag.PARENS)
             return skipParens(((VisageParens)tree).expr);
         else
             return tree;
@@ -450,7 +450,7 @@ public class VisageTreeInfo {
         if  (tree == null) return null;
 
         tree = skipParens(tree);
-        switch (tree.getFXTag()) {
+        switch (tree.getVisageTag()) {
         case IDENT:
             return ((VisageIdent) tree).getName();
         case SELECT:
@@ -465,7 +465,7 @@ public class VisageTreeInfo {
      *  return its name, otherwise return null.
      */
     public static Name name(VisageTree tree) {
-        switch (tree.getFXTag()) {
+        switch (tree.getVisageTag()) {
         case IDENT:
             return ((VisageIdent) tree).getName();
         case SELECT:
@@ -482,7 +482,7 @@ public class VisageTreeInfo {
         }
         node = skipParens(node);
 
-        switch (node.getFXTag()) {
+        switch (node.getVisageTag()) {
         case VAR_DEF:
             return ((VisageVar) node).sym;
         case VAR_SCRIPT_INIT:
@@ -531,7 +531,7 @@ public class VisageTreeInfo {
             return Position.NOPOS;
         }
 
-        switch (tree.getFXTag()) {
+        switch (tree.getVisageTag()) {
 
             case APPLY:
                 return getStartPos(((VisageFunctionInvocation) tree).meth);
@@ -588,9 +588,9 @@ public class VisageTreeInfo {
      *  defined endpos.
      */
     public static int endPos(VisageTree tree) {
-        if (tree.getFXTag() == VisageTag.BLOCK_EXPRESSION && ((VisageBlock) tree).endpos != Position.NOPOS)
+        if (tree.getVisageTag() == VisageTag.BLOCK_EXPRESSION && ((VisageBlock) tree).endpos != Position.NOPOS)
             return ((VisageBlock) tree).endpos;
-        else if (tree.getFXTag() == VisageTag.TRY) {
+        else if (tree.getVisageTag() == VisageTag.TRY) {
             VisageTry t = (VisageTry) tree;
             return endPos((t.finalizer != null)
                           ? t.finalizer
@@ -615,7 +615,7 @@ public class VisageTreeInfo {
         if (mapPos != null)
             return mapPos;
 
-        switch(tree.getFXTag()) {
+        switch(tree.getVisageTag()) {
           case INIT_DEF:
             return getEndPos((VisageTree) ((VisageInitDefinition) tree).getBody(), endPositions);
           case POSTINIT_DEF:

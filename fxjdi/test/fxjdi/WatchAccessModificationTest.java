@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import com.sun.jdi.event.AccessWatchpointEvent;
 import com.sun.jdi.event.Event;
@@ -70,7 +70,7 @@ public class WatchAccessModificationTest extends JdbBase {
             compile("WatchAll.visage");
             stop("in WatchAll.visage$run$");
             WatchpointRequest watchpointReq = watch("all WatchAll.$numVar");//watch access (checks for access only, and not modifications)
-            fxrun();
+            visagerun();
             WatchpointEvent wpEvent = resumeToWatchpoint();
             checkWatchPointEvent(wpEvent);
             

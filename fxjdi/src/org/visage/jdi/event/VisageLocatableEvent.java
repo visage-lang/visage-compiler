@@ -34,8 +34,8 @@ import com.sun.jdi.event.LocatableEvent;
  * @author sundar
  */
 public class VisageLocatableEvent extends VisageEvent implements LocatableEvent {
-    public VisageLocatableEvent(VisageVirtualMachine fxvm, LocatableEvent underlying) {
-        super(fxvm, underlying);
+    public VisageLocatableEvent(VisageVirtualMachine visagevm, LocatableEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageThreadReference thread() {

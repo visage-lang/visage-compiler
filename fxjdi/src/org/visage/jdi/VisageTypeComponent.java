@@ -31,8 +31,8 @@ import com.sun.jdi.TypeComponent;
  * @author sundar
  */
 public class VisageTypeComponent extends VisageMirror implements TypeComponent {
-    public VisageTypeComponent(VisageVirtualMachine fxvm, TypeComponent underlying) {
-        super(fxvm, underlying);
+    public VisageTypeComponent(VisageVirtualMachine visagevm, TypeComponent underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageReferenceType declaringType() {

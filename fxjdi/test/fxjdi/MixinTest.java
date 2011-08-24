@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -89,7 +89,7 @@ public class MixinTest extends JdbBase {
             stop("in Mixin$C:26");
             stop("in Mixin$C:28");
 
-            fxrun();
+            visagerun();
 
             resumeToBreakpoint();
             list();

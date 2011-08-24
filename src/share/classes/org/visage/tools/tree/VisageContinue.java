@@ -62,7 +62,7 @@ public class VisageContinue extends VisageExpression implements ContinueTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.CONTINUE;
     }
 }

@@ -31,8 +31,8 @@ import com.sun.jdi.IntegerType;
  */
 public class VisageIntegerType extends VisagePrimitiveType implements IntegerType {
 
-    public VisageIntegerType(VisageVirtualMachine fxvm, IntegerType underlying) {
-        super(fxvm, underlying);
+    public VisageIntegerType(VisageVirtualMachine visagevm, IntegerType underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

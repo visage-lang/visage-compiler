@@ -774,8 +774,8 @@ public abstract class VisageAbstractTranslation
 
         abstract Result doit();
 
-        VisageTreeMaker fxm() {
-            return fxmake.at(diagPos);
+        VisageTreeMaker visagem() {
+            return visagemake.at(diagPos);
         }
 
         JCVariableDecl convertParam(VisageVar param) {
@@ -1066,9 +1066,9 @@ public abstract class VisageAbstractTranslation
 
             if (sym instanceof VarSymbol) {
                 final VisageVarSymbol vsym = (VisageVarSymbol) sym;
-                boolean isFXMemberVar = vsym.isFXMember();
+                boolean isVisageMemberVar = vsym.isVisageMember();
 
-                if (isFXMemberVar) {
+                if (isVisageMemberVar) {
                     // this is a reference to a Visage class variable, use getter
                     JCExpression instance;
                     // find referenced instance, null for current
@@ -1257,7 +1257,7 @@ public abstract class VisageAbstractTranslation
             if (expr == null) {
                 return true;
             }
-            switch (expr.getFXTag()) {
+            switch (expr.getVisageTag()) {
                case ASSIGN:
                    return possiblyNull(((VisageAssign)expr).getExpression());
                case APPLY:
@@ -1410,12 +1410,12 @@ public abstract class VisageAbstractTranslation
 
             // Function determination
             meth = tree.meth;
-            VisageSelect fieldAccess = meth.getFXTag() == VisageTag.SELECT ? (VisageSelect) meth : null;
+            VisageSelect fieldAccess = meth.getVisageTag() == VisageTag.SELECT ? (VisageSelect) meth : null;
             selector = fieldAccess != null ? fieldAccess.getExpression() : null;
             selectorNullCheck = fieldAccess != null ? fieldAccess.nullCheck : false;
             msym = (refSym instanceof MethodSymbol) ? (MethodSymbol) refSym : null;
             funcSym = expressionSymbol(tree.meth); //either MethodSymbol or VarSymbol
-            Name selectorIdName = (selector != null && selector.getFXTag() == VisageTag.IDENT) ? ((VisageIdent) selector).getName() : null;
+            Name selectorIdName = (selector != null && selector.getVisageTag() == VisageTag.IDENT) ? ((VisageIdent) selector).getName() : null;
             thisCall = selectorIdName == names._this;
             superCall = selectorIdName == names._super;
             ClassSymbol csym = currentClass().sym;
@@ -1548,7 +1548,7 @@ public abstract class VisageAbstractTranslation
         }
 
         Name methodName() {
-            return useInvoke? defs.invoke_FXObjectMethodName : functionName(msym, superToStatic, callBound);
+            return useInvoke? defs.invoke_VisageObjectMethodName : functionName(msym, superToStatic, callBound);
         }
 
         @Override
@@ -1820,15 +1820,15 @@ public abstract class VisageAbstractTranslation
                 params.prepend(ReceiverParam(currentClass()));
             }
             if (isBound) {
-                for (VisageVar fxVar : tree.getParams()) {
+                for (VisageVar visageVar : tree.getParams()) {
                     params.append(Param(syms.visage_ObjectType,
-                            boundFunctionObjectParamName(fxVar.name)));
+                            boundFunctionObjectParamName(visageVar.name)));
                     params.append(Param(syms.visage_IntegerType,
-                            boundFunctionVarNumParamName(fxVar.name)));
+                            boundFunctionVarNumParamName(visageVar.name)));
                 }
             } else {
-                for (VisageVar fxVar : tree.getParams()) {
-                    params.append(convertParam(fxVar));
+                for (VisageVar visageVar : tree.getParams()) {
+                    params.append(convertParam(visageVar));
                 }
             }
             return params.toList();
@@ -1847,10 +1847,10 @@ public abstract class VisageAbstractTranslation
                 // the "normal" case
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 if (! isBound) {
-                    for (VisageVar fxVar : tree.getParams()) {
-                        if (types.isSequence(fxVar.sym.type)) {
-                            setDiagPos(fxVar);
-                            stmts.append(CallStmt(id(fxVar.getName()), defs.incrementSharing_SequenceMethodName));
+                    for (VisageVar visageVar : tree.getParams()) {
+                        if (types.isSequence(visageVar.sym.type)) {
+                            setDiagPos(visageVar);
+                            stmts.append(CallStmt(id(visageVar.getName()), defs.incrementSharing_SequenceMethodName));
                         }
                     }
                 } // else FIXME: what should we do for bound function sequence params?
@@ -1998,11 +1998,11 @@ public abstract class VisageAbstractTranslation
                 if (vsym.isStatic()) {
                     // Script var
                     VisageClassSymbol classSym = (VisageClassSymbol) vsym.owner;
-                    VisageVarSymbol scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                    VisageVarSymbol scriptAccess = visagemake.ScriptAccessSymbol(classSym);
                     addInterClassBindee(scriptAccess, vsym);
                 } else {
                     // Outer class reference through "this"
-                    addInterClassBindee(fxmake.ThisSymbol(vsym.owner.type), vsym);
+                    addInterClassBindee(visagemake.ThisSymbol(vsym.owner.type), vsym);
                 }
             }
         }
@@ -2128,8 +2128,8 @@ public abstract class VisageAbstractTranslation
         AssignTranslator(final DiagnosticPosition diagPos, final VisageExpression lhs, final VisageExpression rhs) {
             this(
                     diagPos,
-                    lhs.getFXTag() == VisageTag.SEQUENCE_INDEXED? ((VisageSequenceIndexed)lhs).getSequence() : lhs,
-                    lhs.getFXTag() == VisageTag.SEQUENCE_INDEXED? ((VisageSequenceIndexed)lhs).getIndex() : null,
+                    lhs.getVisageTag() == VisageTag.SEQUENCE_INDEXED? ((VisageSequenceIndexed)lhs).getSequence() : lhs,
+                    lhs.getVisageTag() == VisageTag.SEQUENCE_INDEXED? ((VisageSequenceIndexed)lhs).getIndex() : null,
                     lhs.type,
                     rhs);
         }
@@ -2249,7 +2249,7 @@ public abstract class VisageAbstractTranslation
             } else {
                 if (useAccessors) {
                     return postProcessExpression(buildSetter(tToCheck, buildRHS(rhsTranslated)));
-                } else if (refSym instanceof VarSymbol && ((VisageVarSymbol)refSym).isFXMember()) {
+                } else if (refSym instanceof VarSymbol && ((VisageVarSymbol)refSym).isVisageMember()) {
                     if (((VisageVarSymbol)refSym).useGetters()) {
                         return Setter(tToCheck, refSym, rhsTranslated);
                     }
@@ -2322,7 +2322,7 @@ public abstract class VisageAbstractTranslation
         }
 
         protected AbstractStatementsResult doit() {
-            switch (tree.getFXTag()) {
+            switch (tree.getVisageTag()) {
                 case SIZEOF:
                     if (expr.type.tag == TypeTags.ARRAY) {
                         return toResult(Select(transExpr, defs.length_ArrayFieldName), syms.intType);
@@ -2489,7 +2489,7 @@ public abstract class VisageAbstractTranslation
         final Type durationNumericType = syms.visage_NumberType;
 
         JCExpression durationOp() {
-            switch (tree.getFXTag()) {
+            switch (tree.getVisageTag()) {
                 case PLUS:
                     return op(lhs(), defs.add_DurationMethodName, rhs());
                 case MINUS:
@@ -2531,7 +2531,7 @@ public abstract class VisageAbstractTranslation
         final Type lengthNumericType = syms.visage_NumberType;
 
         JCExpression lengthOp() {
-            switch (tree.getFXTag()) {
+            switch (tree.getVisageTag()) {
                 case PLUS:
                     return op(lhs(), defs.add_LengthMethodName, rhs());
                 case MINUS:
@@ -2573,7 +2573,7 @@ public abstract class VisageAbstractTranslation
         final Type angleNumericType = syms.visage_NumberType;
 
         JCExpression angleOp() {
-            switch (tree.getFXTag()) {
+            switch (tree.getVisageTag()) {
                 case PLUS:
                     return op(lhs(), defs.add_AngleMethodName, rhs());
                 case MINUS:
@@ -2615,7 +2615,7 @@ public abstract class VisageAbstractTranslation
         final Type colorNumericType = syms.visage_NumberType;
 
         JCExpression colorOp() {
-            switch (tree.getFXTag()) {
+            switch (tree.getVisageTag()) {
                 case PLUS:
                     return op(lhs(), defs.add_ColorMethodName, rhs());
                 case MINUS:
@@ -2659,9 +2659,9 @@ public abstract class VisageAbstractTranslation
 
         JCExpression doitExpr() {
             //TODO: handle <>
-            if (tree.getFXTag() == VisageTag.EQ) {
+            if (tree.getVisageTag() == VisageTag.EQ) {
                 return translateEqualsEquals();
-            } else if (tree.getFXTag() == VisageTag.NE) {
+            } else if (tree.getVisageTag() == VisageTag.NE) {
                 return NOT(translateEqualsEquals());
             } else {
                 // anything other than == or !=
@@ -2864,10 +2864,10 @@ public abstract class VisageAbstractTranslation
             
 	    VisageBlock bexpr = def.getBodyExpression();
 
-	    for (VisageVar fxVar : def.getParams()) {
-		setDiagPos(fxVar);
-		Name paramName = fxVar.getName();
-		Type paramType = fxVar.sym.type;
+	    for (VisageVar visageVar : def.getParams()) {
+		setDiagPos(visageVar);
+		Name paramName = visageVar.getName();
+		Type paramType = visageVar.sym.type;
                 JCExpression arg;
                 if (argNum < 2)
                     arg = id(argNum == 0 ? defs.arg1_ArgName : defs.arg2_ArgName);
@@ -2877,7 +2877,7 @@ public abstract class VisageAbstractTranslation
                 stmts.append(Var(Flags.FINAL, paramType, paramName, initialValue));
 
 		if (types.isSequence(paramType)) {
-		    stmts.append(CallStmt(id(fxVar.getName()), defs.incrementSharing_SequenceMethodName));
+		    stmts.append(CallStmt(id(visageVar.getName()), defs.incrementSharing_SequenceMethodName));
 		}
 
 		argNum++;
@@ -2969,7 +2969,7 @@ public abstract class VisageAbstractTranslation
          * statements/expressions just after new object is created.
          */
         protected void postInstanceCreation(Name instName) {
-            makeInitSupportCall(defs.initVars_FXObjectMethodName, instName);
+            makeInitSupportCall(defs.initVars_VisageObjectMethodName, instName);
         }
 
         /**
@@ -3021,7 +3021,7 @@ public abstract class VisageAbstractTranslation
             clearDiagPos();
             JCVariableDecl loopVar = makeTmpLoopVar(0);
             Name loopName = loopVar.name;
-            JCExpression loopLimit = Call(id(receiverName), defs.count_FXObjectMethodName);
+            JCExpression loopLimit = Call(id(receiverName), defs.count_VisageObjectMethodName);
             JCVariableDecl loopLimitVar = TmpVar("count", syms.intType, loopLimit);
             addPreface(loopLimitVar);
             JCExpression loopTest = LT(id(loopName), id(loopLimitVar.name));
@@ -3031,7 +3031,7 @@ public abstract class VisageAbstractTranslation
             JCStatement applyDefaultsExpr =
                     CallStmt(
                         id(receiverName),
-                        defs.applyDefaults_FXObjectMethodName,
+                        defs.applyDefaults_VisageObjectMethodName,
                         id(loopName));
 
             if (1 < count) {
@@ -3097,10 +3097,10 @@ public abstract class VisageAbstractTranslation
          * Return the instance building expression
          * @param declaredType
          * @param cdef
-         * @param isFX
+         * @param isVisage
          * @return
          */
-        protected ExpressionResult buildInstance(Type declaredType, VisageClassDeclaration cdef, boolean isFX) {
+        protected ExpressionResult buildInstance(Type declaredType, VisageClassDeclaration cdef, boolean isVisage) {
             Type type;
 
             if (cdef == null) {
@@ -3119,7 +3119,7 @@ public abstract class VisageAbstractTranslation
             
             boolean hasVars = hasInstanceVariableInits();
             JCExpression instExpression;
-            if (hasVars || (isFX && newClassArgs.nonEmpty()) || cdef != null) {
+            if (hasVars || (isVisage && newClassArgs.nonEmpty()) || cdef != null) {
                 // it is a instanciation of a Visage class which has instance variable initializers
                 // (or is anonymous, or has an outer class argument)
                 //
@@ -3172,12 +3172,12 @@ public abstract class VisageAbstractTranslation
                 if (varSyms.nonEmpty()) {
                     makeInitApplyDefaults(type, tmpVarName);
                 } else {
-                    makeInitSupportCall(defs.applyDefaults_FXObjectMethodName, tmpVarName);
+                    makeInitSupportCall(defs.applyDefaults_VisageObjectMethodName, tmpVarName);
                 }
 
                 // Call complete$ to do user's init and postinit blocks
                 //       visage$0objlit.complete$();
-                makeInitSupportCall(defs.complete_FXObjectMethodName, tmpVarName);
+                makeInitSupportCall(defs.complete_VisageObjectMethodName, tmpVarName);
 
                 // Return the instance from the block expressions
                 //       visage$0objlit
@@ -3480,7 +3480,7 @@ public abstract class VisageAbstractTranslation
                         && types.isSameType(vsym.getElementType(), resultType)) {
                     // Using elem$ is critical to non-boxing behavior of bound sequences
                     // Use elem$seq(pos) form
-                    switch (seq.getFXTag()) {
+                    switch (seq.getVisageTag()) {
                         case SELECT: {
                             Yield prevYield = yieldKind;
                             yieldKind = ToExpression;  // Force expression result so that the merge works
@@ -3721,8 +3721,8 @@ public abstract class VisageAbstractTranslation
             this.body = coreStmt;
             VisageExpression seq = clause.seqExpr;
             this.indexedLoop =
-                    (seq.getFXTag() == VisageTag.SEQUENCE_SLICE ||
-                     (seq.getFXTag() != VisageTag.SEQUENCE_RANGE &&
+                    (seq.getVisageTag() == VisageTag.SEQUENCE_SLICE ||
+                     (seq.getVisageTag() != VisageTag.SEQUENCE_RANGE &&
                       types.isSequence(seq.type)));
             this.inductionVar = MutableTmpVar("ind", indexedLoop ? syms.intType : inductionVarType, null);
         }
@@ -3838,7 +3838,7 @@ public abstract class VisageAbstractTranslation
                 init = Int(0);
             else {
                 init = translateToExpression(first, syms.intType);
-                if (first.getFXTag() == VisageTag.LITERAL && ! isNegative(first))
+                if (first.getVisageTag() == VisageTag.LITERAL && ! isNegative(first))
                     maxForStartNeeded = false;
                 // FIXME set maxForStartNeeded false if first is replace-trigger startPos and seq is oldValue
                 if (maxForStartNeeded)
@@ -3911,7 +3911,7 @@ public abstract class VisageAbstractTranslation
             if (step != null) {
                 // There is a user specified step expression
                 JCExpression stepVal = translateToExpression(step, inductionVarType);
-                if (step.getFXTag() == VisageTag.LITERAL) {
+                if (step.getVisageTag() == VisageTag.LITERAL) {
                     // The step expression is a literal, no need for a variable to hold it, and we can test if the range is scending at compile time
                     tstepIncrExpr = stepVal;
                     tcond = condTest(range, isNegative(step), upperVar);
@@ -3996,10 +3996,10 @@ public abstract class VisageAbstractTranslation
 
             // Translate the sequence into the loop
             setDiagPos(seq);
-            if (seq.getFXTag() == VisageTag.SEQUENCE_RANGE) {
+            if (seq.getVisageTag() == VisageTag.SEQUENCE_RANGE) {
                 // Iterating over a range sequence
                 translateRangeInClause();
-            } else if (seq.getFXTag() == VisageTag.SEQUENCE_SLICE) {
+            } else if (seq.getVisageTag() == VisageTag.SEQUENCE_SLICE) {
                 VisageSequenceSlice slice = (VisageSequenceSlice) clause.seqExpr;
                 translateSliceInClause(slice.getSequence(), slice.getFirstIndex(), slice.getLastIndex(),
                         slice.getEndKind(), seqVar);
@@ -4062,14 +4062,14 @@ public abstract class VisageAbstractTranslation
             } else if (vsym.isSynthetic()) {
                 tor =   BlockExpression(
                             If (FlagTest(vsym, defs.varFlagINIT_MASK, defs.varFlagINIT_READY),
-                                CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym))
+                                CallStmt(getReceiver(vsym), defs.applyDefaults_VisageObjectMethodName, Offset(vsym))
                             ),
                             Get(vsym)
                         );
             } else {
                 tor =   BlockExpression(
                             FlagChangeStmt(vsym, defs.varFlagINIT_WITH_AWAIT_MASK, defs.varFlagINIT_READY),
-                            CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym)),
+                            CallStmt(getReceiver(vsym), defs.applyDefaults_VisageObjectMethodName, Offset(vsym)),
                             Get(vsym)
                         );
             }
@@ -4350,10 +4350,10 @@ public abstract class VisageAbstractTranslation
     }
 
     public void visitUnary(VisageUnary tree) {
-        if (tree.getFXTag().isIncDec()) {
+        if (tree.getVisageTag().isIncDec()) {
             //we shouldn't be here - arithmetic unary expressions should
             //have been lowered to standard binary expressions
-            badVisitor("Unexpected unary operator tag: " + tree.getFXTag());
+            badVisitor("Unexpected unary operator tag: " + tree.getVisageTag());
         }
         result = new UnaryOperationTranslator(tree).doit();
     }

@@ -52,7 +52,7 @@ public class VisagePostInitDefinition extends VisageTree implements InitDefiniti
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.POSTINIT_DEF;
     }
 

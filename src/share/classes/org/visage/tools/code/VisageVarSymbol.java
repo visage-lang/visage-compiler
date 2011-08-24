@@ -100,7 +100,7 @@ public class VisageVarSymbol extends VarSymbol {
         return owner.kind == Kinds.TYP && (extraFlags & IS_DOT_CLASS) == 0;
     }
 
-    public boolean isFXMember() {
+    public boolean isVisageMember() {
         return isMember() && types.isVisageClass(owner);
     }
 
@@ -167,7 +167,7 @@ public class VisageVarSymbol extends VarSymbol {
     
     public boolean useAccessors() {
         return 
-                isFXMember() &&
+                isVisageMember() &&
                 !isSpecial() &&
                 (   !hasScriptOnlyAccess() ||
                     isInMixin() ||
@@ -197,7 +197,7 @@ public class VisageVarSymbol extends VarSymbol {
 
     public boolean useSetters() {
         return
-                isFXMember() &&
+                isVisageMember() &&
                 !isSpecial() &&
                 (   !hasScriptOnlyAccess() ||
                     isInMixin() ||

@@ -30,8 +30,8 @@ import com.sun.jdi.Value;
  * @author sundar
  */
 public class VisageValue extends VisageMirror implements Value {
-    public VisageValue(VisageVirtualMachine fxvm, Value underlying) {
-        super(fxvm, underlying);
+    public VisageValue(VisageVirtualMachine visagevm, Value underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageType type() {

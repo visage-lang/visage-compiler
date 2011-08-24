@@ -1,4 +1,4 @@
-package fxpad;
+package visagepad;
 
 import visage.scene.*;
 import visage.scene.effect.*;

@@ -52,9 +52,9 @@ public function run() {
 
     insert a1 into group.content;  // This triggers the on replace code in class A2
 
-    def fxClsType = cntxt.findClass(Group.class.getName());
-    var obj = fxClsType.allocate();
-    def v = fxClsType.getVariable("content");
+    def visageClsType = cntxt.findClass(Group.class.getName());
+    var obj = visageClsType.allocate();
+    def v = visageClsType.getVariable("content");
     obj.initVar(v, buildSequence(v,a1));  // It should do the same.
     obj.initialize();
 

@@ -48,20 +48,20 @@ import org.visage.runtime.VisageObject;
     * mbean individually.
     */
     @Property
-    private static long fxObjectCount = 0;
+    private static long visageObjectCount = 0;
     @Property
-    private static long fxWeakRefsCount = 0;
+    private static long visageWeakRefsCount = 0;
     @Property
-    private static long fxDependentCount = 0;
+    private static long visageDependentCount = 0;
     @Property
-    private static long fxNotifyDependentsCount = 0;
+    private static long visageNotifyDependentsCount = 0;
 
     @OnMethod(
 	clazz="org.visage.runtime.VisageBase",
         method="<init>"
     ) 
-    public static void onNewFXObject(@Self Object obj, boolean dummy) {
-        fxObjectCount++;
+    public static void onNewVisageObject(@Self Object obj, boolean dummy) {
+        visageObjectCount++;
         String cn = name(classOf(obj));
         Integer i = get(histo, cn);
         if (i == null) {
@@ -78,7 +78,7 @@ import org.visage.runtime.VisageObject;
     )
     public static void onNewWeakBinderRef(@Self Object obj, VisageObject referred) {
         weakBinderRefClass = probeClass();
-        fxWeakRefsCount++;
+        visageWeakRefsCount++;
     }
 
     @OnMethod(
@@ -87,7 +87,7 @@ import org.visage.runtime.VisageObject;
     )
     public static void onNewDependent(@Self Object obj, VisageObject referred) {
         dependentClass = probeClass();
-        fxWeakRefsCount++;
+        visageWeakRefsCount++;
     }
 
     @OnMethod(
@@ -97,7 +97,7 @@ import org.visage.runtime.VisageObject;
     public static void onReferenceClear(@Self Object obj) {
         if ((dependentClass != null && isInstance(dependentClass, obj)) ||
             (weakBinderRefClass != null && isInstance(weakBinderRefClass, obj))) {
-            fxWeakRefsCount--;
+            visageWeakRefsCount--;
         }
     }
 
@@ -106,7 +106,7 @@ import org.visage.runtime.VisageObject;
         method="addDependent$"
     ) 
     public static void onAddDependent(VisageObject obj, int varNum, VisageObject dep) {
-        fxDependentCount++;
+        visageDependentCount++;
     }
 
     @OnMethod(
@@ -114,7 +114,7 @@ import org.visage.runtime.VisageObject;
         method="removeDependent$"
     ) 
     public static void onRemoveDependent(VisageObject obj, int varNum, VisageObject dep) {
-        fxDependentCount--;
+        visageDependentCount--;
     }
 
     @OnMethod(
@@ -122,7 +122,7 @@ import org.visage.runtime.VisageObject;
         method="notifyDependents$"
     ) 
     public static void onNotifyDependents(VisageObject obj, int varNum) {
-        fxNotifyDependentsCount++;
+        visageNotifyDependentsCount++;
     }
 
     @OnTimer(4000) 

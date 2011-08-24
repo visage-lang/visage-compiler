@@ -44,7 +44,7 @@ public class VisageObjectTypeTest extends VisageTestBase {
     }
 
     @Test
-    public void testFXObjectType() {
+    public void testVisageObjectType() {
         try {
             startTests();
         } catch (Exception exp) {
@@ -55,7 +55,7 @@ public class VisageObjectTypeTest extends VisageTestBase {
     protected void runTests() throws Exception {
         startToMain();
         // run till visage$run$ - so that org.visage.runtime.VisageObject is loaded!
-        resumeTo(targetClassName, fxRunMethodName(), fxRunMethodSignature());
+        resumeTo(targetClassName, visageRunMethodName(), visageRunMethodSignature());
 
         // look for VisageObject type
         ReferenceType rt = vm().classesByName(VisageVirtualMachine.VISAGE_OBJECT_TYPE_NAME).get(0);
@@ -64,14 +64,14 @@ public class VisageObjectTypeTest extends VisageTestBase {
         // check few methods of VisageObjectType
         // We are checking for internal methods that are filtered out by VisageReferenceType, so
         // we have to use the underlying JDI ReferenceType
-        VisageObjectType fxObjType = (VisageObjectType)rt;
-        Method count$Method = fxObjType.count$Method();
+        VisageObjectType visageObjType = (VisageObjectType)rt;
+        Method count$Method = visageObjType.count$Method();
         Assert.assertEquals("count$", count$Method.name());
         Assert.assertEquals("()I", count$Method.signature());
-        Method get$Method = fxObjType.get$Method();
+        Method get$Method = visageObjType.get$Method();
         Assert.assertEquals("get$", get$Method.name());
         Assert.assertEquals("(I)Ljava/lang/Object;", get$Method.signature());
-        Method set$Method = fxObjType.set$Method();
+        Method set$Method = visageObjType.set$Method();
         Assert.assertEquals("set$", set$Method.name());
         Assert.assertEquals("(ILjava/lang/Object;)V", set$Method.signature());
 

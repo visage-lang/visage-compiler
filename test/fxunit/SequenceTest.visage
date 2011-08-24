@@ -1,8 +1,8 @@
 /*
- * @test/fxunit
+ * @test/visageunit
  */
  
-public class SequenceTest extends visage.fxunit.VisageTestCase {
+public class SequenceTest extends visage.visageunit.VisageTestCase {
     function testSimple() {
         assertEquals([1, 2], [1, 2]);
     }

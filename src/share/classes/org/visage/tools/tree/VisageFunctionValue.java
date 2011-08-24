@@ -76,7 +76,7 @@ public class VisageFunctionValue extends VisageExpression implements FunctionVal
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.FUNCTIONEXPRESSION;
     }
 

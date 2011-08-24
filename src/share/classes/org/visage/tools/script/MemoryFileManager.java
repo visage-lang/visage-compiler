@@ -173,7 +173,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
      */
     private static class StringInputBuffer extends SimpleJavaFileObject {
         final String code;
-        final boolean isFXSourceFile;
+        final boolean isVisageSourceFile;
 	String binaryName;
         
 	public String getBinaryName() {
@@ -184,7 +184,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
             super(toURI(name), Kind.SOURCE);
             this.code = code;
 	    binaryName = name;
-            isFXSourceFile = name.endsWith(VisageFileManager.VISAGE_SOURCE_SUFFIX);
+            isVisageSourceFile = name.endsWith(VisageFileManager.VISAGE_SOURCE_SUFFIX);
         }
         
         @Override
@@ -198,7 +198,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 
         @Override
         public Kind getKind() {
-            //return isFXSourceFile ? JavaFileObject.Kind.SOURCE : super.getKind();
+            //return isVisageSourceFile ? JavaFileObject.Kind.SOURCE : super.getKind();
 	    return JavaFileObject.Kind.SOURCE;
         }
 

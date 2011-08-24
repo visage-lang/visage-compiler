@@ -75,7 +75,7 @@ public class VisageIfExpression extends VisageExpression implements ConditionalE
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.CONDEXPR;
     }
 }

@@ -23,9 +23,9 @@
  * have any questions.
  */ 
 
-package fxpad;
+package visagepad;
 
-import fxpad.gui.*;
+import visagepad.gui.*;
 import visage.ext.swing.*;
 import javax.swing.event.ChangeListener;
 

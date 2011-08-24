@@ -50,7 +50,7 @@ public class VisageLengthLiteral extends VisageExpression implements LengthLiter
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.LENGTH_LITERAL;
     }
 

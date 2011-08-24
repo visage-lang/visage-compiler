@@ -44,7 +44,7 @@ public class VisageVarRef extends VisageExpression {
         this.kind = kind;
         this.sym = VisageTreeInfo.symbolFor(expr);
         this.expr = expr;
-        if (!sym.isStatic() && expr.getFXTag() == VisageTag.SELECT) {
+        if (!sym.isStatic() && expr.getVisageTag() == VisageTag.SELECT) {
             receiver = ((VisageSelect)expr).selected;
         }
     }
@@ -78,7 +78,7 @@ public class VisageVarRef extends VisageExpression {
         v.visitVarRef(this);
     }
 
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.VAR_REF;
     }
 

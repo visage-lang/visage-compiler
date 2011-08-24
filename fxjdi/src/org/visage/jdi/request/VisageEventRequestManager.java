@@ -55,8 +55,8 @@ import java.util.List;
  * @author sundar
  */
 public class VisageEventRequestManager extends VisageMirror implements EventRequestManager {
-    public VisageEventRequestManager(VisageVirtualMachine fxvm, EventRequestManager underlying) {
-        super(fxvm, underlying);
+    public VisageEventRequestManager(VisageVirtualMachine visagevm, EventRequestManager underlying) {
+        super(visagevm, underlying);
     }
 
     public List<AccessWatchpointRequest> accessWatchpointRequests() {

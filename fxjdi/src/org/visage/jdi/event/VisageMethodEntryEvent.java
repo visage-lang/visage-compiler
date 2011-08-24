@@ -33,8 +33,8 @@ import com.sun.jdi.event.MethodEntryEvent;
  * @author sundar
  */
 public class VisageMethodEntryEvent extends VisageLocatableEvent implements MethodEntryEvent {
-    public VisageMethodEntryEvent(VisageVirtualMachine fxvm, MethodEntryEvent underlying) {
-        super(fxvm, underlying);
+    public VisageMethodEntryEvent(VisageVirtualMachine visagevm, MethodEntryEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageMethod method() {

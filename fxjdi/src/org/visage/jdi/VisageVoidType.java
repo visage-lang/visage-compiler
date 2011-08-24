@@ -30,8 +30,8 @@ import com.sun.jdi.VoidType;
  * @author sundar
  */
 public class VisageVoidType extends VisageType implements VoidType {
-    public VisageVoidType(VisageVirtualMachine fxvm, VoidType underlying) {
-        super(fxvm, underlying);
+    public VisageVoidType(VisageVirtualMachine visagevm, VoidType underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

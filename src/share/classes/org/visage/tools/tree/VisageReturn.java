@@ -60,7 +60,7 @@ public class VisageReturn extends VisageExpression implements ReturnTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.RETURN;
     }
 }

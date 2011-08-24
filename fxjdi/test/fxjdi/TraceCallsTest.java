@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import com.sun.jdi.event.Event;
 import com.sun.jdi.event.EventQueue;
@@ -79,7 +79,7 @@ public class TraceCallsTest extends JdbBase {
             stop("in Method:7");
             stop("in Method:4");
             stop("in Method:8");
-            fxrun();
+            visagerun();
             resumeToBreakpoint();
             trace("go methods");//Trace all the method's entry and exit
 

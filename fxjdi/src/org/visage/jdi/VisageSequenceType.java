@@ -45,8 +45,8 @@ public class VisageSequenceType extends VisageInterfaceType {
     private Method getAsDoubleMethod;
     private Method getElementTypeMethod;
 
-    public VisageSequenceType(VisageVirtualMachine fxvm, InterfaceType underlying) {
-        super(fxvm, underlying);
+    public VisageSequenceType(VisageVirtualMachine visagevm, InterfaceType underlying) {
+        super(visagevm, underlying);
         if (! underlying.name().equals(VisageVirtualMachine.VISAGE_SEQUENCE_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }

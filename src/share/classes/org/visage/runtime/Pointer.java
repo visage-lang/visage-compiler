@@ -68,7 +68,7 @@ public class Pointer implements KeyValueTarget {
         return null;
     }
 
-    public VisageObject getFXObject() {
+    public VisageObject getVisageObject() {
         return obj;
     }
 
@@ -148,8 +148,8 @@ public class Pointer implements KeyValueTarget {
 
     public static void switchDependence(Pointer oldPtr, Pointer newPtr, VisageObject dep, int depNum) {
         if (oldPtr != newPtr && dep != null) {
-            VisageObject oldSrc = (oldPtr != null)? oldPtr.getFXObject() : null;
-            VisageObject newSrc = (newPtr != null)? newPtr.getFXObject() : null;
+            VisageObject oldSrc = (oldPtr != null)? oldPtr.getVisageObject() : null;
+            VisageObject newSrc = (newPtr != null)? newPtr.getVisageObject() : null;
             int oldVarNum = (oldPtr != null)? oldPtr.getVarNum() : 0;
             int newVarNum = (newPtr != null)? newPtr.getVarNum() : 0;
             dep.switchDependence$(oldSrc, oldVarNum, newSrc, newVarNum, depNum);
@@ -167,7 +167,7 @@ public class Pointer implements KeyValueTarget {
         private VisageObject listener;
 
         private BoundPointer(Pointer destPtr, Pointer srcPtr, VisageObject listener) {
-            super(destPtr.getType(), destPtr.getFXObject(), destPtr.getVarNum());
+            super(destPtr.getType(), destPtr.getVisageObject(), destPtr.getVarNum());
             this.srcPtr = srcPtr;
             this.listener = listener;
         }
@@ -196,7 +196,7 @@ public class Pointer implements KeyValueTarget {
      * @param srcPtr The source Pointer object to which the current Pointer is bound to
      */
     public BoundPointer bind(Pointer srcPtr) {
-        final VisageObject thisObj = getFXObject();
+        final VisageObject thisObj = getVisageObject();
         final int thisVarNum = getVarNum();
         final int srcVarNum = srcPtr.getVarNum();
         VisageObject listener = new VisageBase() {

@@ -1,10 +1,10 @@
 /*
  * Testing cast of mixins with "as" operator.
  *
- * @test/fxunit
+ * @test/visageunit
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 mixin class M1 { function foo1() : String { "M1" } }
 mixin class M2 extends M1 { function foo2() : String { "M2" } }

@@ -4,11 +4,11 @@
  * beginning, ending and a step of the sequence.
  * Also check reverse operation and decrescent sequences with a negative step.
  *
- * @test/fxunit
+ * @test/visageunit
  * @run
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 def c1 : Character = 0;
 def b1 : Byte = 100;

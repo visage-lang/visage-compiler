@@ -49,22 +49,22 @@ public abstract class VisageTestBase extends TestScaffold {
         return System.getProperty("visagert.jar");
     }
 
-    protected static String fxMainClassName() {
+    protected static String visageMainClassName() {
         return "org.visage.runtime.Main";
     }
 
-    protected static String fxRunMethodName() {
+    protected static String visageRunMethodName() {
         return "visage$run$";
     }
 
-    protected static String fxRunMethodSignature() {
+    protected static String visageRunMethodSignature() {
         return "(Lorg/visage/runtime/sequence/Sequence;)Ljava/lang/Object;";
     }
 
     protected static final String[] ARGS = {
         "-J-classpath",
         classPath(),
-        fxMainClassName()
+        visageMainClassName()
     };
 
     protected static String[] arguments(String targetClassName) {
@@ -156,6 +156,6 @@ public abstract class VisageTestBase extends TestScaffold {
     }
 
     protected BreakpointEvent startToMain() {
-        return startToMain(fxMainClassName());
+        return startToMain(visageMainClassName());
     }
 }

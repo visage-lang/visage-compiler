@@ -172,7 +172,7 @@ changeset:   4416:df8d86e02fe5
 branch:      trunk
 user:        lnd
 date:        Sun Jan 11 08:10:39 2009 -0800
-summary:     [svn r4899] Rewriting the test from @test/fxunit format to @run/fail.
+summary:     [svn r4899] Rewriting the test from @test/visageunit format to @run/fail.
 
 changeset:   4415:2a3eb427d658
 branch:      trunk
@@ -2548,7 +2548,7 @@ changeset:   4020:006e68f48c53
 branch:      trunk
 user:        vdanushevsky
 date:        Thu Oct 16 14:40:22 2008 -0700
-summary:     [svn r4430] RT-987: remove setProperty() method. Replaced by setFXProperty()
+summary:     [svn r4430] RT-987: remove setProperty() method. Replaced by setVisageProperty()
 
 changeset:   4019:0e7ad6bd7984
 branch:      trunk
@@ -2638,7 +2638,7 @@ changeset:   4005:964b708e3f4d
 branch:      trunk
 user:        vdanushevsky
 date:        Tue Oct 14 15:45:14 2008 -0700
-summary:     [svn r4409] RT-987: add setFXProperty() method
+summary:     [svn r4409] RT-987: add setVisageProperty() method
 
 changeset:   4004:d1739c87e394
 branch:      trunk
@@ -2704,13 +2704,13 @@ changeset:   3994:e0af47befcd0
 branch:      trunk
 user:        ssides
 date:        Mon Oct 13 17:20:36 2008 -0700
-summary:     [svn r4395] test for visage_lang_FX
+summary:     [svn r4395] test for visage_lang_Visage
 
 changeset:   3993:d5b7d34a4fcc
 branch:      trunk
 user:        ssides
 date:        Mon Oct 13 17:19:29 2008 -0700
-summary:     [svn r4394] test for visage_lang_FX
+summary:     [svn r4394] test for visage_lang_Visage
 
 changeset:   3992:499e3a3f56d7
 branch:      trunk
@@ -3112,7 +3112,7 @@ changeset:   3926:97381adbd06a
 branch:      trunk
 user:        rfield
 date:        Sat Oct 04 17:20:09 2008 -0700
-summary:     [svn r4307] Fixed VSGC-2136 : visage.reflectFXVarMember.setValue fails for elided instance var
+summary:     [svn r4307] Fixed VSGC-2136 : visage.reflectVisageVarMember.setValue fails for elided instance var
 
 changeset:   3925:31859e8d765e
 branch:      trunk
@@ -7330,13 +7330,13 @@ changeset:   3223:9c6065523f6b
 branch:      trunk
 user:        shan_man
 date:        Tue Jul 29 12:11:42 2008 -0700
-summary:     [svn r3587] Fixed fxpad
+summary:     [svn r3587] Fixed visagepad
 
 changeset:   3222:bea3200ec151
 branch:      trunk
 user:        shan_man
 date:        Tue Jul 29 12:06:14 2008 -0700
-summary:     [svn r3586] Fixed fxballs
+summary:     [svn r3586] Fixed visageballs
 
 changeset:   3221:51d85773fa5d
 branch:      trunk
@@ -8650,7 +8650,7 @@ changeset:   3003:5e53a34d3edb
 branch:      trunk
 user:        shan_man
 date:        Mon Jul 14 16:28:34 2008 -0700
-summary:     [svn r3308] Fixed fxpad
+summary:     [svn r3308] Fixed visagepad
 
 changeset:   3002:575da05c1aae
 branch:      trunk
@@ -8686,7 +8686,7 @@ changeset:   2997:57eece25de19
 branch:      trunk
 user:        shan_man
 date:        Mon Jul 14 13:17:02 2008 -0700
-summary:     [svn r3302] Fixed fxpad so that doAndIgnoreJComponentChange no longer needs to be protected
+summary:     [svn r3302] Fixed visagepad so that doAndIgnoreJComponentChange no longer needs to be protected
 
 changeset:   2996:c22709dbb86e
 branch:      trunk
@@ -9172,7 +9172,7 @@ changeset:   2916:00cbfb3eaa1a
 branch:      trunk
 user:        joshy
 date:        Wed Jul 02 22:31:42 2008 -0700
-summary:     [svn r3180] turned fxgui custom doctags back on
+summary:     [svn r3180] turned visagegui custom doctags back on
 
 changeset:   2915:13a4d5a440b4
 branch:      trunk
@@ -9206,7 +9206,7 @@ summary:     [svn r3169] Update Scenario
 
 changeset:   2910:bf8c73b5e4a8
 branch:      trunk
-user:        hareeshfx
+user:        hareeshvisage
 date:        Tue Jul 01 23:59:50 2008 -0700
 summary:     [svn r3163] functional tests for reflection
 
@@ -10766,13 +10766,13 @@ summary:     [svn r2842] Fixed debugger execution
 
 changeset:   2650:594e7cc86921
 branch:      trunk
-user:        hareeshfx
+user:        hareeshvisage
 date:        Mon Jun 02 23:38:08 2008 -0700
 summary:     [svn r2841] added @subtest
 
 changeset:   2649:206d747175ff
 branch:      trunk
-user:        hareeshfx
+user:        hareeshvisage
 date:        Mon Jun 02 21:06:39 2008 -0700
 summary:     [svn r2840] Multiple Inheritance functional testcase
 
@@ -14656,7 +14656,7 @@ changeset:   2002:5113cc9b7f3f
 branch:      trunk
 user:        jimclarke
 date:        Fri Mar 14 08:39:35 2008 -0700
-summary:     [svn r2165] add for fxpad
+summary:     [svn r2165] add for visagepad
 
 changeset:   2001:c5de7355834e
 branch:      trunk
@@ -14668,7 +14668,7 @@ changeset:   2000:99b24ecf9658
 branch:      trunk
 user:        jimclarke
 date:        Fri Mar 14 08:39:02 2008 -0700
-summary:     [svn r2163] add for fxpad
+summary:     [svn r2163] add for visagepad
 
 changeset:   1999:62c0547b606b
 branch:      trunk
@@ -18862,7 +18862,7 @@ changeset:   1301:ea863b1c1378
 branch:      trunk
 user:        briangoetz
 date:        Mon Jan 14 22:04:03 2008 -0800
-summary:     [svn r1377] Fix glitch in last checkin; make test framework run tests from test/fxunit
+summary:     [svn r1377] Fix glitch in last checkin; make test framework run tests from test/visageunit
 
 changeset:   1300:2892e30088fa
 branch:      trunk
@@ -19294,13 +19294,13 @@ changeset:   1229:7d87991dd98a
 branch:      trunk
 user:        bothner
 date:        Thu Jan 03 16:14:53 2008 -0800
-summary:     [svn r1300] Move fxClasses, isVisageClass, addFxClass, clearCaches from
+summary:     [svn r1300] Move visageClasses, isVisageClass, addFxClass, clearCaches from
 
 changeset:   1228:03e62b1b95f9
 branch:      trunk
 user:        bothner
 date:        Thu Jan 03 11:03:32 2008 -0800
-summary:     [svn r1299] Remove fxClassAttributes cache.  Instead, stash attributes in
+summary:     [svn r1299] Remove visageClassAttributes cache.  Instead, stash attributes in
 
 changeset:   1227:03fa6322d1a1
 branch:      trunk
@@ -19480,7 +19480,7 @@ changeset:   1198:2650e7e094f1
 branch:      trunk
 user:        briangoetz
 date:        Thu Dec 27 10:50:35 2007 -0800
-summary:     [svn r1269] VSGC-42: VisageUnit framework.  Allow test cases to extend TestCase; modify test runner to accept @test/fxunit and treat such files as JUnit test cases (reflectively searching for testXxx functions.)
+summary:     [svn r1269] VSGC-42: VisageUnit framework.  Allow test cases to extend TestCase; modify test runner to accept @test/visageunit and treat such files as JUnit test cases (reflectively searching for testXxx functions.)
 
 changeset:   1197:0d07fcb4b885
 branch:      trunk
@@ -21220,13 +21220,13 @@ changeset:   908:1d3fcbed7e8c
 branch:      trunk
 user:        chrisoliver
 date:        Thu Nov 29 21:52:00 2007 -0800
-summary:     [svn r969] adding hook for fxpad
+summary:     [svn r969] adding hook for visagepad
 
 changeset:   907:da082ce8c070
 branch:      trunk
 user:        chrisoliver
 date:        Thu Nov 29 21:51:24 2007 -0800
-summary:     [svn r968] update compiled fxpad to use the real runtime library
+summary:     [svn r968] update compiled visagepad to use the real runtime library
 
 changeset:   906:face594b4657
 branch:      trunk
@@ -21508,7 +21508,7 @@ changeset:   860:898f1c409b9c
 branch:      trunk
 user:        chrisoliver
 date:        Mon Nov 26 13:22:31 2007 -0800
-summary:     [svn r921] adding the interpreter version of fxpad
+summary:     [svn r921] adding the interpreter version of visagepad
 
 changeset:   859:b6a50d362dc6
 branch:      trunk
@@ -21886,7 +21886,7 @@ changeset:   797:01121febd32a
 branch:      trunk
 user:        tball
 date:        Wed Nov 21 22:53:22 2007 -0800
-summary:     [svn r858] Make -dumpjava and -dumpfx supported options.
+summary:     [svn r858] Make -dumpjava and -dumpvisage supported options.
 
 changeset:   796:8abcc2213330
 branch:      trunk
@@ -22132,7 +22132,7 @@ changeset:   756:2efbe42665f2
 branch:      trunk
 user:        chrisoliver
 date:        Mon Nov 19 09:27:21 2007 -0800
-summary:     [svn r817] adding fxpad
+summary:     [svn r817] adding visagepad
 
 changeset:   755:6835b7d1eaab
 branch:      trunk
@@ -22666,7 +22666,7 @@ changeset:   667:ee4a7d63d66f
 branch:      trunk
 user:        chrisoliver
 date:        Wed Nov 14 10:36:56 2007 -0800
-summary:     [svn r728] changes for fxpad
+summary:     [svn r728] changes for visagepad
 
 changeset:   666:5c586232181d
 branch:      trunk

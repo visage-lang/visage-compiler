@@ -31,8 +31,8 @@ import com.sun.jdi.FloatType;
  */
 public class VisageFloatType extends VisagePrimitiveType implements FloatType {
 
-    public VisageFloatType(VisageVirtualMachine fxvm, FloatType underlying) {
-        super(fxvm, underlying);
+    public VisageFloatType(VisageVirtualMachine visagevm, FloatType underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

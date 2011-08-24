@@ -266,7 +266,7 @@ public class VisageTranslateBind extends VisageAbstractTranslation implements Vi
 
             if (callBound) {
                 for (VisageExpression arg : args) {
-                    if (arg.getFXTag() == VisageTag.IDENT) {
+                    if (arg.getVisageTag() == VisageTag.IDENT) {
                         VisageIdent ident = (VisageIdent)arg;
                         targs.append(getReceiverOrThis(ident.sym));
                         targs.append(Offset(ident.sym));
@@ -2603,7 +2603,7 @@ public class VisageTranslateBind extends VisageAbstractTranslation implements Vi
                     .append(makeGetIndexMethod(csym))
                     .append(makeAdjustIndexMethod(csym));
             jcb.stats = jcb.stats
-                    .append(CallStmt(makeType(((VisageBlock)forExpr.bodyExpr).value.type), defs.count_FXObjectFieldName))
+                    .append(CallStmt(makeType(((VisageBlock)forExpr.bodyExpr).value.type), defs.count_VisageObjectFieldName))
                     .append(Stmt(m().Assign(Select(Get(helperSym), defs.partResultVarNum_BoundForHelper), Offset(clause.boundResultVarSym)))
             );
 
@@ -3136,7 +3136,7 @@ public class VisageTranslateBind extends VisageAbstractTranslation implements Vi
     public void visitUnary(VisageUnary tree) {
         if (tree == boundExpression && isTargettedToSequence()) {
             // We want to translate to a bound sequence
-            assert tree.getFXTag() == VisageTag.REVERSE : "should be reverse operator";
+            assert tree.getVisageTag() == VisageTag.REVERSE : "should be reverse operator";
             result = new BoundReverseSequenceTranslator(tree).doit();
         } else {
             super.visitUnary(tree);
@@ -3151,7 +3151,7 @@ public class VisageTranslateBind extends VisageAbstractTranslation implements Vi
      */
 
     protected String getSyntheticPrefix() {
-        return "bfx$";
+        return "bvisage$";
     }
 
 }

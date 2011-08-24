@@ -51,8 +51,8 @@ public class VisageSequencesType extends VisageClassType {
         return SIGNATURE_PREFIX + type + SIGNATURE_SUFFIX;
     }
 
-    public VisageSequencesType(VisageVirtualMachine fxvm, ClassType underlying) {
-        super(fxvm, underlying);
+    public VisageSequencesType(VisageVirtualMachine visagevm, ClassType underlying) {
+        super(visagevm, underlying);
         if (!underlying.name().equals(VisageVirtualMachine.VISAGE_SEQUENCES_TYPE_NAME)) {
             throw new IllegalArgumentException("Illegal underlying type: " + underlying);
         }

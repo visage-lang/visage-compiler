@@ -31,8 +31,8 @@ import com.sun.jdi.event.BreakpointEvent;
  * @author sundar
  */
 public class VisageBreakpointEvent extends VisageLocatableEvent implements BreakpointEvent {
-    public VisageBreakpointEvent(VisageVirtualMachine fxvm, BreakpointEvent underlying) {
-        super(fxvm, underlying);
+    public VisageBreakpointEvent(VisageVirtualMachine visagevm, BreakpointEvent underlying) {
+        super(visagevm, underlying);
     }
 
     @Override

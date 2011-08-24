@@ -55,7 +55,7 @@ public class VisageErroneousColorLiteral extends VisageColorLiteral  {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.ERRONEOUS;
     }
 

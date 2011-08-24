@@ -131,8 +131,8 @@
                ant test -Dincludes=framework/xxxTest.java
            or for example
                ant test -Dincludes=launchers/VersionTest.java
-           To run a subset, say fxunit/ of the VisageCompilerTest tests, do
-               ant test -Dtest.visage.roots=test/fxunit -Dincludes=framework/VisageCompilerTest.java
+           To run a subset, say visageunit/ of the VisageCompilerTest tests, do
+               ant test -Dtest.visage.roots=test/visageunit -Dincludes=framework/VisageCompilerTest.java
 
       name="docs"       depends="binaries,source-zip,-do-docs" description="Build binaries, docs, and src.zip"
       name="all"        depends="docs,test,pack-jars"          description="Build and test all project artifacts"
@@ -209,8 +209,8 @@
         <mkdir dir="${visage.xml.docs.dir}"/>
         <copy file="${build.dir}/docs/javacode.xml"
               tofile="${visage.xml.docs.dir}/visage-compiler_javacode.xml"/>
-        <copy file="build/docs/fxcode.xml"
-              tofile="${visage.xml.docs.dir}/visage-compiler_fxcode.xml"/>
+        <copy file="build/docs/visagecode.xml"
+              tofile="${visage.xml.docs.dir}/visage-compiler_visagecode.xml"/>
     </target>
 
     <target name="-do-visage-clean-deploy">
@@ -580,7 +580,7 @@
             <jvmarg value="-Xbootclasspath/p:${bootjars}"/>
             <jvmarg value="-Djava.awt.headless=true"/>
             <jvmarg value="-Xmx${visage.javadoc.max.memory}"/>
-            <arg value="-o"/> <arg value="build/docs/fxcode.xml"/>
+            <arg value="-o"/> <arg value="build/docs/visagecode.xml"/>
             <arg value="-nohtml"/>
             <arg value="-sourcepath"/> <arg value="${srcpathprop}"/>
             <arg value="-classpath"/> <arg value="${clsjars}"/>
@@ -825,21 +825,21 @@
         </or>
     </condition>
 
-    <target name="fxjdi" description="Build fxjdi.jar" depends="-fxjdi-build, -fxjdi-skip">
+    <target name="visagejdi" description="Build visagejdi.jar" depends="-visagejdi-build, -visagejdi-skip">
     </target>
 
-    <target name="-fxjdi-skip" description="Skip building fxjdi.jar on JDK LT 6" if="preJDK6">
-        <echo message="Skipping build of fxjdi because JDK 5 or earlier is in use"/>
+    <target name="-visagejdi-skip" description="Skip building visagejdi.jar on JDK LT 6" if="preJDK6">
+        <echo message="Skipping build of visagejdi because JDK 5 or earlier is in use"/>
     </target>
 
-    <target name="-fxjdi-build" description="Build fxjdi.jar and javadoc on JDK >= 6" unless="preJDK6">
-        <echo message="Building fxjdi"/>
-        <ant dir="fxjdi" antfile="build.xml" target="dist"  inheritAll="false">
+    <target name="-visagejdi-build" description="Build visagejdi.jar and javadoc on JDK >= 6" unless="preJDK6">
+        <echo message="Building visagejdi"/>
+        <ant dir="visagejdi" antfile="build.xml" target="dist"  inheritAll="false">
             <property name="build.defs" value="${build.defs}" />
         </ant>
-        <copy file="fxjdi/dist/fxjdi.jar" tofile="${dist.fxjdi.jar}"/>
-        <copy todir="${basedir}/dist/doc/fxjdi/api">
-              <fileset dir="fxjdi/dist/javadoc/"/>
+        <copy file="visagejdi/dist/visagejdi.jar" tofile="${dist.visagejdi.jar}"/>
+        <copy todir="${basedir}/dist/doc/visagejdi/api">
+              <fileset dir="visagejdi/dist/javadoc/"/>
         </copy>
     </target>
 
@@ -858,9 +858,9 @@
        <ant dir="${visagedoc.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
     
-    <target name="fxjdi-clean">
-       <echo message="clean in fxjdi/"/>
-       <ant dir="fxjdi" antfile="build.xml" target="clean" inheritall="false">
+    <target name="visagejdi-clean">
+       <echo message="clean in visagejdi/"/>
+       <ant dir="visagejdi" antfile="build.xml" target="clean" inheritall="false">
            <property name="build.defs" value="${build.defs}" />
        </ant>
     </target>
@@ -878,7 +878,7 @@
 
     <!-- Not part of the "clean" target processing.  Used by ?? -->
     <target name="real-clean">
-        <antcall target="fxjdi-clean" inheritall="false"/>
+        <antcall target="visagejdi-clean" inheritall="false"/>
         <antcall target="clean"/>
         <antcall target="visagedoc-clean" inheritall="true"/>
         <antcall target="langref-clean" inheritall="true"/>
@@ -1125,7 +1125,7 @@
         <echo>java -cp "${run.classpath.with.dist.jar}" ${main.class}</echo>
     </target>
 
-    <target name="jar" depends="init,compile,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries,fxjdi" description="Build JAR.">
+    <target name="jar" depends="init,compile,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries,visagejdi" description="Build JAR.">
     </target>
     <!--
                 =================
@@ -1515,7 +1515,7 @@
             -->
 
 
-    <target name="-do-clean" depends="visagedoc-clean,fxjdi-clean,langref-clean,launcher-clean">
+    <target name="-do-clean" depends="visagedoc-clean,visagejdi-clean,langref-clean,launcher-clean">
         <delete quiet="true" dir="${build.dir}"/>
         <delete quiet="true" dir="${dist.dir}"/>
         <delete quiet="true" file="cobertura.ser" />

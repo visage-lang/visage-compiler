@@ -69,7 +69,7 @@ public class VisageVar extends VisageAbstractVar implements VariableTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.VAR_DEF;
     }
     

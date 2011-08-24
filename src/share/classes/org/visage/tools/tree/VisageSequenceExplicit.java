@@ -64,7 +64,7 @@ public class VisageSequenceExplicit extends VisageAbstractSequenceCreator implem
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.SEQUENCE_EXPLICIT;
     }
 

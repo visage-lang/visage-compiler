@@ -67,7 +67,7 @@ public class VisageMemberEnter extends VisageTreeScanner implements VisageVisito
     private final VisageCheck chk;
     private final VisageAttr attr;
     private final VisageSymtab syms;
-    private final VisageTreeMaker fxmake;
+    private final VisageTreeMaker visagemake;
     private final ClassReader reader;
     private final VisageTodo todo;
     private final VisageAnnotate annotate;
@@ -91,7 +91,7 @@ public class VisageMemberEnter extends VisageTreeScanner implements VisageVisito
         chk = (VisageCheck) VisageCheck.instance(context);
         attr = VisageAttr.instance(context);
         syms = (VisageSymtab) VisageSymtab.instance(context);
-        fxmake = (VisageTreeMaker) VisageTreeMaker.instance(context);
+        visagemake = (VisageTreeMaker) VisageTreeMaker.instance(context);
         reader = VisageClassReader.instance(context);
         boundAnalysis = VisageBoundContextAnalysis.instance(context);
         todo = VisageTodo.instance(context);
@@ -853,12 +853,12 @@ public class VisageMemberEnter extends VisageTreeScanner implements VisageVisito
             if ((tree.mods.flags & Flags.ENUM) != 0 && target.compilerBootstrap(c)) {
                 // add interface Comparable<T>
                 interfaceTrees =
-                        interfaceTrees.prepend(fxmake.Type(new ClassType(syms.comparableType.getEnclosingType(),
+                        interfaceTrees.prepend(visagemake.Type(new ClassType(syms.comparableType.getEnclosingType(),
                         List.of(c.type),
                         syms.comparableType.tsym)));
                 // add interface Serializable
                 interfaceTrees =
-                        interfaceTrees.prepend(fxmake.Type(syms.serializableType));
+                        interfaceTrees.prepend(visagemake.Type(syms.serializableType));
             }
             for (VisageExpression iface : interfaceTrees) {
                 Type i = attr.attribBase(iface, baseEnv, false, true, true);
@@ -890,12 +890,12 @@ public class VisageMemberEnter extends VisageTreeScanner implements VisageVisito
             // If this is a class, enter symbols for this and super into
             // current scope.
             if ((c.flags_field & INTERFACE) == 0) {
-                VisageVarSymbol thisSym = fxmake.ThisSymbol(c.type);
+                VisageVarSymbol thisSym = visagemake.ThisSymbol(c.type);
                 thisSym.pos = Position.FIRSTPOS;
                 localEnv.info.scope.enter(thisSym);
 
                 if (ct.supertype_field.tag == CLASS && supertype != null) {
-                    VisageVarSymbol superSym = fxmake.SuperSymbol(supertype, c);
+                    VisageVarSymbol superSym = visagemake.SuperSymbol(supertype, c);
                     superSym.pos = Position.FIRSTPOS;
                     localEnv.info.scope.enter(superSym);
                 }

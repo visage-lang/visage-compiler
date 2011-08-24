@@ -23,7 +23,7 @@
  * have any questions.
  */ 
 
-package fxpad.gui;
+package visagepad.gui;
 
 import java.io.File;
 import java.lang.System;

@@ -34,8 +34,8 @@ import com.sun.jdi.event.ClassPrepareEvent;
  * @author sundar
  */
 public class VisageClassPrepareEvent extends VisageEvent implements ClassPrepareEvent {
-    public VisageClassPrepareEvent(VisageVirtualMachine fxvm, ClassPrepareEvent underlying) {
-        super(fxvm, underlying);
+    public VisageClassPrepareEvent(VisageVirtualMachine visagevm, ClassPrepareEvent underlying) {
+        super(visagevm, underlying);
     }
 
     public VisageReferenceType referenceType() {

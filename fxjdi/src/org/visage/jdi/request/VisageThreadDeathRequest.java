@@ -33,8 +33,8 @@ import com.sun.jdi.request.ThreadDeathRequest;
  * @author sundar
  */
 public class VisageThreadDeathRequest extends VisageEventRequest implements ThreadDeathRequest {
-    public VisageThreadDeathRequest(VisageVirtualMachine fxvm, ThreadDeathRequest underlying) {
-        super(fxvm, underlying);
+    public VisageThreadDeathRequest(VisageVirtualMachine visagevm, ThreadDeathRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addThreadFilter(ThreadReference arg0) {

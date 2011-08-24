@@ -195,7 +195,7 @@ public class VisageLower implements VisageVisitor {
     }
 
     private boolean isNull(VisageTree tree) {
-        return (tree.getFXTag() == VisageTag.LITERAL &&
+        return (tree.getVisageTag() == VisageTag.LITERAL &&
                 ((VisageLiteral)tree).value == null);
     }
 
@@ -237,15 +237,15 @@ public class VisageLower implements VisageVisitor {
 
     private VisageVar makeVar(DiagnosticPosition diagPos, VisageVarSymbol vSym, VisageBindStatus bindStatus, VisageExpression init) {
         VisageModifiers mod = m.at(diagPos).Modifiers(vSym.flags());
-        VisageType fxType = preTrans.makeTypeTree(vSym.type);
-        VisageVar v = m.at(diagPos).Var(vSym.name, fxType, mod, init, bindStatus, null, null);
+        VisageType visageType = preTrans.makeTypeTree(vSym.type);
+        VisageVar v = m.at(diagPos).Var(vSym.name, visageType, mod, init, bindStatus, null, null);
         v.sym = vSym;
         v.type = vSym.type;
         return v;
     }
 
     public void visitAssign(VisageAssign tree) {
-        if (tree.lhs.getFXTag() == VisageTag.SEQUENCE_INDEXED &&
+        if (tree.lhs.getVisageTag() == VisageTag.SEQUENCE_INDEXED &&
                 types.isSequence(((VisageSequenceIndexed)tree.lhs).getSequence().type) &&
                 (types.isSequence(tree.rhs.type) || types.isSameType(tree.rhs.type, syms.objectType))) {
             result = lowerSequenceIndexedAssign(tree.pos(), (VisageSequenceIndexed)tree.lhs, tree.rhs);
@@ -276,7 +276,7 @@ public class VisageLower implements VisageVisitor {
     //where
     private VisageExpression visitNumericAssignop(VisageAssignOp tree, boolean isSpecialLiteralOperation) {
 
-        VisageTag opTag = tree.getNormalOperatorFXTag();
+        VisageTag opTag = tree.getNormalOperatorVisageTag();
         ListBuffer<VisageExpression> stats = ListBuffer.lb();
 
         //if the assignop operand is an indexed expression of the kind a.x[i]
@@ -285,7 +285,7 @@ public class VisageLower implements VisageVisitor {
         VisageExpression lhs = tree.lhs;
         VisageIdent index = null;
         
-        if (tree.lhs.getFXTag() == VisageTag.SEQUENCE_INDEXED) {
+        if (tree.lhs.getVisageTag() == VisageTag.SEQUENCE_INDEXED) {
             VisageSequenceIndexed indexed = (VisageSequenceIndexed)tree.lhs;
             VisageVar varDef = makeVar(tree.pos(), defs.indexNamePrefix(), indexed.getIndex(), indexed.getIndex().type);
             index = m.at(tree.pos).Ident(varDef.sym);
@@ -303,7 +303,7 @@ public class VisageLower implements VisageVisitor {
 
         VisageIdent selector = null;
 
-        if (lhs.getFXTag() == VisageTag.SELECT) {
+        if (lhs.getVisageTag() == VisageTag.SELECT) {
             VisageExpression selected = ((VisageSelect)lhs).selected;
             // But, if this select is ClassName.foo, then we don't want
             // to create "var $expr = a;"
@@ -367,8 +367,8 @@ public class VisageLower implements VisageVisitor {
 
     public void visitBinary(VisageBinary tree) {
         boolean isSpecialLiteralBinaryExpr = tree.operator == null;
-        boolean isEqualExpr = (tree.getFXTag() == VisageTag.EQ ||
-                tree.getFXTag() == VisageTag.NE);
+        boolean isEqualExpr = (tree.getVisageTag() == VisageTag.EQ ||
+                tree.getVisageTag() == VisageTag.NE);
         boolean isSequenceOp = types.isSequence(tree.lhs.type) ||
                 types.isSequence(tree.rhs.type);
         boolean isBoxedOp = (tree.lhs.type.isPrimitive() && !tree.rhs.type.isPrimitive()) ||
@@ -389,7 +389,7 @@ public class VisageLower implements VisageVisitor {
         VisageExpression rhs = isEqualExpr && isBoxedOp && !isSequenceOp ?
             lowerExpr(tree.rhs) :
             lowerExpr(tree.rhs, rhsType);
-        VisageBinary res = m.at(tree.pos).Binary(tree.getFXTag(), lhs, rhs);
+        VisageBinary res = m.at(tree.pos).Binary(tree.getVisageTag(), lhs, rhs);
         res.operator = tree.operator;
         result = res.setType(tree.type);
     }
@@ -447,7 +447,7 @@ public class VisageLower implements VisageVisitor {
                 ListBuffer<VisageExpression> syntheticArgs = ListBuffer.lb();
                 syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, VisageVarRef.RefKind.INST).setType(syms.visage_ObjectType));
                 
-                if (varExpr.getFXTag() == VisageTag.IDENT && ((VisageIdent)varExpr).getName().equals(names._this)) {
+                if (varExpr.getVisageTag() == VisageTag.IDENT && ((VisageIdent)varExpr).getName().equals(names._this)) {
                     syntheticArgs.append(m.at(tree.pos).LiteralInteger("-1", 10).setType(syms.intType));
                 } else {
                     syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, VisageVarRef.RefKind.VARNUM).setType(syms.intType));
@@ -491,9 +491,9 @@ public class VisageLower implements VisageVisitor {
     //where
     private VisageExpression lowerFunctionName(VisageExpression meth) {
         Symbol msym = VisageTreeInfo.symbolFor(meth);
-        if (meth.getFXTag() == VisageTag.IDENT) {
+        if (meth.getVisageTag() == VisageTag.IDENT) {
             return m.at(meth.pos()).Ident(msym).setType(meth.type);
-        } else if (meth.getFXTag() == VisageTag.SELECT) {
+        } else if (meth.getVisageTag() == VisageTag.SELECT) {
             return lowerSelect((VisageSelect)meth);
         } else {
             return lowerExpr(meth);
@@ -666,7 +666,7 @@ public class VisageLower implements VisageVisitor {
     }
     //where
     private void flatten(VisageExpression item, ListBuffer<VisageExpression> items) {
-        if (item.getFXTag() == VisageTag.SEQUENCE_EXPLICIT) {
+        if (item.getVisageTag() == VisageTag.SEQUENCE_EXPLICIT) {
             VisageSequenceExplicit nestedSeq = (VisageSequenceExplicit)item;
             for (VisageExpression nestedItem : nestedSeq.getItems()) {
                 flatten(nestedItem, items);
@@ -714,15 +714,15 @@ public class VisageLower implements VisageVisitor {
     }
 
     public void visitUnary(VisageUnary tree) {
-        if (tree.getFXTag().isIncDec()) {
+        if (tree.getVisageTag().isIncDec()) {
             result = lowerNumericUnary(tree);
         } else {
-            VisageExpression arg = tree.getFXTag() == VisageTag.REVERSE ?
+            VisageExpression arg = tree.getVisageTag() == VisageTag.REVERSE ?
                 lowerExpr(tree.getExpression(), tree.type) :
                 tree.getOperator() != null ?
                     lowerExpr(tree.getExpression(), tree.getOperator().type.getParameterTypes().head) :
                     lowerExpr(tree.getExpression());
-            VisageUnary res = m.at(tree.pos).Unary(tree.getFXTag(), arg);
+            VisageUnary res = m.at(tree.pos).Unary(tree.getVisageTag(), arg);
             res.operator = tree.operator;
             res.type = tree.type;
             result = res;
@@ -730,8 +730,8 @@ public class VisageLower implements VisageVisitor {
     }
 
     private VisageExpression lowerNumericUnary(VisageUnary tree) {
-        boolean postFix = isPostfix(tree.getFXTag());
-        VisageTag opTag = unaryToBinaryOpTag(tree.getFXTag());
+        boolean postFix = isPostfix(tree.getVisageTag());
+        VisageTag opTag = unaryToBinaryOpTag(tree.getVisageTag());
         Type opType = types.unboxedTypeOrType(tree.getExpression().type);
         if (types.isSameType(opType, syms.charType)) {
             opType = syms.intType;
@@ -744,7 +744,7 @@ public class VisageLower implements VisageVisitor {
         VisageExpression expr = tree.getExpression();
         VisageIdent index = null;
 
-        if (tree.getExpression().getFXTag() == VisageTag.SEQUENCE_INDEXED) {
+        if (tree.getExpression().getVisageTag() == VisageTag.SEQUENCE_INDEXED) {
             VisageSequenceIndexed indexed = (VisageSequenceIndexed)tree.getExpression();
             VisageVar varDef = makeVar(tree.pos(), defs.indexNamePrefix(), indexed.getIndex(), indexed.getIndex().type);
             index = m.at(tree.pos).Ident(varDef.sym);
@@ -761,7 +761,7 @@ public class VisageLower implements VisageVisitor {
         // var $expr$ = a;
         VisageIdent selector = null;
 
-        if (expr.getFXTag() == VisageTag.SELECT) {
+        if (expr.getVisageTag() == VisageTag.SELECT) {
             VisageExpression selected = ((VisageSelect)expr).selected;
             Symbol sym = VisageTreeInfo.symbolFor(selected);
             // But, if this select is ClassName.foo, then we don't want
@@ -873,7 +873,7 @@ public class VisageLower implements VisageVisitor {
         List<VisageExpression> stats = tree.stats;
         VisageExpression value = tree.value;
         if (value != null) {
-            if (VisageTreeInfo.skipParens(value).getFXTag() == VisageTag.VAR_DEF) {
+            if (VisageTreeInfo.skipParens(value).getVisageTag() == VisageTag.VAR_DEF) {
                 VisageVar varDef = (VisageVar)VisageTreeInfo.skipParens(value);
                 VisageIdent varRef = m.at(tree.value.pos).Ident(varDef.sym);
                 varRef.sym = varDef.sym;

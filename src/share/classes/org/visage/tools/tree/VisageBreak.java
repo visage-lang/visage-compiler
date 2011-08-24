@@ -61,7 +61,7 @@ public class VisageBreak extends VisageExpression implements BreakTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.BREAK;
     }
 }

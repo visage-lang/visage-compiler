@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 
 import org.visage.jdi.VisageStackFrame;
@@ -51,7 +51,7 @@ public class LocalVarTest extends JdbBase {
             compile("LocalVar.visage");
             stop("in LocalVar.visage$run$");
 
-            fxrun();
+            visagerun();
 
             BreakpointEvent bkpt = resumeToBreakpoint();
             // We hide Visage synthetic variables.

@@ -65,7 +65,7 @@ public class VisageTypeCast extends VisageExpression implements TypeCastTree {
     }
 
     @Override
-    public VisageTag getFXTag() {
+    public VisageTag getVisageTag() {
         return VisageTag.TYPECAST;
     }
 }

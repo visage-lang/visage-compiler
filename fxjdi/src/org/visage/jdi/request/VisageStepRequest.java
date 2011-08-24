@@ -35,8 +35,8 @@ import com.sun.jdi.request.StepRequest;
  * @author sundar
  */
 public class VisageStepRequest extends VisageEventRequest implements StepRequest {
-    public VisageStepRequest(VisageVirtualMachine fxvm, StepRequest underlying) {
-        super(fxvm, underlying);
+    public VisageStepRequest(VisageVirtualMachine visagevm, StepRequest underlying) {
+        super(visagevm, underlying);
     }
 
     public void addClassExclusionFilter(String arg0) {

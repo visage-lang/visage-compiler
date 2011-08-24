@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package fxjdi;
+package visagejdi;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -61,7 +61,7 @@ public class JumpLocationsTest extends JdbBase {
             stop("in Jump:11");
             stop("in Jump:7");
             stop("in Jump:3");
-            fxrun();
+            visagerun();
             resumeToBreakpoint();
             list();
 

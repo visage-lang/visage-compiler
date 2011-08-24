@@ -171,7 +171,7 @@ public class VisageSymtab extends Symtab {
         String numberChoice = options.get("Number");
 
         // Make the array length var symbol a Visage var symbol
-        VisageVarSymbol fxLengthVar = new VisageVarSymbol(
+        VisageVarSymbol visageLengthVar = new VisageVarSymbol(
             types,
             names,
             Flags.PUBLIC | Flags.FINAL ,
@@ -179,7 +179,7 @@ public class VisageSymtab extends Symtab {
             intType,
             arrayClass);
         arrayClass.members().remove(lengthVar);
-        arrayClass.members().enter(fxLengthVar);
+        arrayClass.members().enter(visageLengthVar);
 
         visage_BooleanType = booleanType;
         visage_CharacterType = charType;

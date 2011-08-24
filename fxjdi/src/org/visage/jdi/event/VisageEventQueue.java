@@ -93,7 +93,7 @@ public class VisageEventQueue extends VisageMirror implements EventQueue {
     }
 
     // This can be called by the debugger to disable
-    // the setEventControl calls in fxjdi.  EG, if the debugger
+    // the setEventControl calls in visagejdi.  EG, if the debugger
     // does not want events to be 'controlled' during the execution
     // of internal invokeMethod calls, it can pass false to this.
     /**
@@ -153,8 +153,8 @@ public class VisageEventQueue extends VisageMirror implements EventQueue {
         return eventsToBePassed;
     }
 
-    public VisageEventQueue(VisageVirtualMachine fxvm, EventQueue underlying) {
-        super(fxvm, underlying);
+    public VisageEventQueue(VisageVirtualMachine visagevm, EventQueue underlying) {
+        super(visagevm, underlying);
         
         eventsToBePassed.add(VisageClassPrepareEvent.class);
         eventsToBePassed.add(VisageVMDeathEvent.class);

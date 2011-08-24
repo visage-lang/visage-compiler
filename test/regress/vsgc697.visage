@@ -24,13 +24,13 @@ try {
     aTest.print();
 
     // This should print the translated strings in 
-    // foo/bar/VisagePropTestResources_ja.fxproperties
+    // foo/bar/VisagePropTestResources_ja.visageproperties
     StringLocalizer.associate("foo.bar.VisagePropTestResources", "foo.bar", "VisagePropTest.visage");
     StringLocalizer.associate("foo.FooResources", "foo.bar");
     aTest.print();
 
     // This should print the translated strings in 
-    // foo/FooResources_ja.fxproperties
+    // foo/FooResources_ja.visageproperties
     StringLocalizer.dissociate("foo.bar", "VisagePropTest.visage");
     aTest.print();
 

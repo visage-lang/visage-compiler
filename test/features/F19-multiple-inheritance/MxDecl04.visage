@@ -2,10 +2,10 @@
  * A mixin contains the abstract function declarations. 
  * The extending mixees provide corresponding function implementations.
  *
- * @test/fxunit
+ * @test/visageunit
  */
 
-import visage.fxunit.VisageTestCase;
+import visage.visageunit.VisageTestCase;
 
 mixin class Mixin1 {
     public abstract function foo() : Integer;

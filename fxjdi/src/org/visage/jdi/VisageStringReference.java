@@ -30,8 +30,8 @@ import com.sun.jdi.StringReference;
  * @author sundar
  */
 public class VisageStringReference extends VisageObjectReference implements StringReference {
-    public VisageStringReference(VisageVirtualMachine fxvm, StringReference underlying) {
-        super(fxvm, underlying);
+    public VisageStringReference(VisageVirtualMachine visagevm, StringReference underlying) {
+        super(visagevm, underlying);
     }
 
     public String value() {

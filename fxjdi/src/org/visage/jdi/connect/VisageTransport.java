@@ -50,7 +50,7 @@ public class VisageTransport implements Transport {
     }
 
     public String name() {
-        return "fx_" + underlying().name();
+        return "visage_" + underlying().name();
     }
 
     protected Transport underlying() {

@@ -50,12 +50,12 @@ import visage.lang.LengthUnit;
 public class VisageTreeMaker implements VisageTreeFactory {
 
     /** The context key for the tree factory. */
-    protected static final Context.Key<VisageTreeMaker> fxTreeMakerKey =
+    protected static final Context.Key<VisageTreeMaker> visageTreeMakerKey =
         new Context.Key<VisageTreeMaker>();
 
     /** Get the VisageTreeMaker instance. */
     public static VisageTreeMaker instance(Context context) {
-        VisageTreeMaker instance = context.get(fxTreeMakerKey);
+        VisageTreeMaker instance = context.get(visageTreeMakerKey);
         if (instance == null)
             instance = new VisageTreeMaker(context);
         return instance;
@@ -84,7 +84,7 @@ public class VisageTreeMaker implements VisageTreeFactory {
     /** Create a tree maker with null toplevel and NOPOS as initial position.
      */
     protected VisageTreeMaker(Context context) {
-        context.put(fxTreeMakerKey, this);
+        context.put(visageTreeMakerKey, this);
         this.pos = Position.NOPOS;
         this.toplevel = null;
         this.names = Name.Table.instance(context);

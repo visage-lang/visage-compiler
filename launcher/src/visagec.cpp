@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     } else if (! config.classpath.empty()) {
         cmd += "-classpath \"" + config.classpath + "\" ";
     }
-    cmd += config.fxargs;
+    cmd += config.visageargs;
     
     return util.createProcess (cmd);
 }

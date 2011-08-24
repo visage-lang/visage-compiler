@@ -20,7 +20,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package fxjdi;
+package visagejdi;
 
 import org.junit.Test;
 import junit.framework.Assert;
@@ -51,7 +51,7 @@ public class BreakAtOnReplaceTest extends JdbBase {
             //resetOutputs();//Uncomment this if you want to see the output on console
             compile("OnReplace.visage");
             stop("in OnReplace:4");
-            fxrun();
+            visagerun();
             
             for (int i = 1;i <= 5;i++) {
                 resumeToBreakpoint();
