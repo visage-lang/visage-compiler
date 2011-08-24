@@ -2,7 +2,7 @@
  *
  * @subtest
 **/
-public class FxPriorityQueue extends FxQueue,java.io.Serializable{ //Fx Class extending another Fx Class and Java interface
+public class FxPriorityQueue extends FxQueue,java.io.Serializable{ //Visage Class extending another Visage Class and Java interface
 	var myPQueue:java.lang.Object[]=bind myQueue with inverse ;
 	public var comparatorUsed:FxComparator;
 	var qsize :Integer = bind sizeof myQueue;

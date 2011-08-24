@@ -10,7 +10,7 @@ import java.lang.System;
 class A{
         var name :String;
         bound function doIt (x:String[]):String[] {
-              ["Fx","Rocks"];
+              ["Visage","Rocks"];
         }
 
 

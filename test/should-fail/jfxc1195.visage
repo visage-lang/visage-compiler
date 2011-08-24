@@ -9,9 +9,9 @@ class A{
     }
     */
     var doIt=function ():String[]{
-            ["Fx","Rocks"];
+            ["Visage","Rocks"];
     }
 }
 var obj:A = A{};
 
-obj.doIt(["Fx","Rocks"]);
+obj.doIt(["Visage","Rocks"]);
