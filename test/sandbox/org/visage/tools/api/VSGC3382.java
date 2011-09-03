@@ -4,7 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -29,7 +29,7 @@ import org.visage.api.tree.FunctionDefinitionTree;
 import org.visage.api.tree.FunctionInvocationTree;
 import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.UnitTree;
-import com.sun.tools.javac.util.JavacFileManager;
+import com.sun.tools.mjavac.util.JavacFileManager;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
  * from org.visage.api.tree.Tree.VisageKind.values().
- * 
+ *
  * @author David Strupl
  */
 public class VSGC3382 {
@@ -130,5 +130,5 @@ public class VSGC3382 {
         f.mkdir();
         return f;
     }
-    
+
 }

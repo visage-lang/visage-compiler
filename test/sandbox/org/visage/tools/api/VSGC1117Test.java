@@ -40,7 +40,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -121,7 +120,7 @@ public class VSGC1117Test extends TestSuite {
         m.find(start);
         return m.start();
     }
-    
+
     private void addSingleCharDeletions() throws IOException {
         int start = 0;
         for (int end : tokenStartPositions()) {
@@ -147,7 +146,7 @@ public class VSGC1117Test extends TestSuite {
             start = end;
         }
     }
-    
+
     private List<Integer> tokenStartPositions() throws IOException {
         List<Integer> res = new ArrayList<Integer>();
         ANTLRReaderStream input = new ANTLRInputStream(new FileInputStream(masterFile));
@@ -161,11 +160,11 @@ public class VSGC1117Test extends TestSuite {
         }
         return res;
     }
-    
+
     private String readMasterFile() throws IOException {
         FileInputStream fis = new FileInputStream(masterFile);
         FileChannel fc = fis.getChannel();
-        ByteBuffer bb = 
+        ByteBuffer bb =
             fc.map(FileChannel.MapMode.READ_ONLY, 0, (int)fc.size());
         Charset cs = Charset.forName("8859_1");
         CharsetDecoder cd = cs.newDecoder();
@@ -173,7 +172,7 @@ public class VSGC1117Test extends TestSuite {
         fc.close();
         return cb.toString();
     }
-    
+
     public static class AnalyzeTest extends TestCase {
         private static final String FILE_TO_COMPILE = "tmp-to-compile.visage";
         private String script;
@@ -181,7 +180,7 @@ public class VSGC1117Test extends TestSuite {
         private static File file = new File(testSrc + "/org/visage/tools/api", FILE_TO_COMPILE);
         private File tempFile;
         private Exception savedException;
-        
+
         public AnalyzeTest(String name, String script, String reportErrorString) {
             super(name);
             this.script = script;
@@ -220,7 +219,7 @@ System.out.println("Setup for file : " + tempFile.getAbsolutePath());
                 ps.close();
             }
         }
-        
+
         @Override
         protected void runTest() throws Exception {
             System.out.println("Running " + reportErrorString);
@@ -252,7 +251,7 @@ System.out.println("Setup for file : " + tempFile.getAbsolutePath());
                 tempFile.delete();
             }
         }
-        
+
         static class MockDiagnosticListener<T> implements DiagnosticListener<T> {
             public void report(Diagnostic<? extends T> d) {
                 diagCodes.add(d.getCode());

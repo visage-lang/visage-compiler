@@ -4,7 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -23,25 +23,20 @@
 
 package org.visage.tools.api;
 
-import org.visage.api.tree.MemberSelectTree;
 import org.visage.api.tree.VariableTree;
-import org.visage.tools.api.*;
 import org.visage.api.VisagecTask;
 import org.visage.api.tree.VisageTreePath;
 import org.visage.api.tree.VisageTreePathScanner;
 import org.visage.api.tree.Tree;
-import org.visage.api.tree.Tree.VisageKind;
 
 import org.visage.api.tree.Tree.VisageKind;
 import org.visage.api.tree.UnitTree;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Type;
 import org.visage.tools.comp.VisageAttrContext;
 import org.visage.tools.comp.VisageEnv;
 import org.visage.tools.comp.VisageResolve;
 import org.visage.tools.tree.VisageClassDeclaration;
-import org.visage.tools.tree.VisageVar;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +55,7 @@ import static org.junit.Assert.*;
 /**
  * This test makes sure that the AllTrees.visage file contains all tree constructs
  * from org.visage.api.tree.Tree.VisageKind.values().
- * 
+ *
  * @author David Strupl
  */
 public class VSGC2054Test {
@@ -80,7 +75,7 @@ public class VSGC2054Test {
         VisagecTool instance = new VisagecTool();
         MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
-        List<String> options = 
+        List<String> options =
                 Arrays.asList("-d", ".", "-sourcepath", testSrc, "-classpath", testClasses);
         File file = new File(testSrc + "/org/visage/tools/api", "VSGC2054.visage");
         Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
@@ -103,8 +98,8 @@ public class VSGC2054Test {
         Element e = trees.getElement(ppp);
         isAccessible(task, p1, cls.asType(), e);
     }
-    
-    
+
+
     static class MockDiagnosticListener<T> implements DiagnosticListener<T> {
 	public void report(Diagnostic<? extends T> d) {
 	    diagCodes.add(d.getCode());
@@ -115,20 +110,20 @@ public class VSGC2054Test {
             return diagCodes.size();
         }
     }
-    
+
     private class Visitor extends VisageTreePathScanner<Void, UnitTree> {
 
         @Override
         public Void visitVariable(VariableTree n, UnitTree t) {
             if (n.toString().equals("public var attribute1: String;\n")) {
                 node = n;
-            } 
+            }
             if (n.toString().equals("variable initialization for static script only (default) var a = Test {};\n")) {
                 a = n;
             }
             return super.visitVariable(n, t);
         }
-        
+
     }
 
     private static Element getClassElement(UnitTree cut) {
