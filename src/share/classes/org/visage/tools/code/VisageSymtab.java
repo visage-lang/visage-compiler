@@ -160,6 +160,14 @@ public class VisageSymtab extends Symtab {
         context.put(symtabKey, syms);
     }
 
+    public static Symtab instance(Context context) {
+        Symtab instance = context.get(Symtab.symtabKey);
+        if (instance == null)
+            instance = new VisageSymtab(context);
+        return instance;
+    }
+    
+    
     /** Creates a new instance of VisageSymtab */
     VisageSymtab(Context context) {
         super(context);
