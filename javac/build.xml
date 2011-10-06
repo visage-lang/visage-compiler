@@ -19,19 +19,19 @@
         <fail unless="has-langtools-dir" message="OpenJDK langtools directory not found"/>
     </target>
     
-    <target name="all" depends="init" description="Builds the javac.jar and javadoc.jar files.">
+    <target name="all" depends="init" description="Builds the visagec.jar and visagedoc.jar files.">
         <ant antfile="${langtools.build.xml}" target="build-javadoc" inheritall="false">
             <property name="boot.java.home" value="${env.JAVA_HOME}"/>
             <property name="javac.target" value="1.5"/>
             <property name="javac.debuglevel" value="lines,vars,source"/>
         </ant>
         <ant antfile="renamer/build.xml" inheritall="false" target="run-renamer">
-            <property name="in.jar" location="${langtools.dist.lib.dir}/javac.jar"/>
-            <property name="out.jar" location="../lib/javac.jar"/>
+            <property name="in.jar" location="${langtools.dist.lib.dir}/visagec.jar"/>
+            <property name="out.jar" location="../lib/visagec.jar"/>
         </ant>
         <ant antfile="renamer/build.xml" inheritall="false" target="run-renamer">
-            <property name="in.jar" location="${langtools.dist.lib.dir}/javadoc.jar"/>
-            <property name="out.jar" location="../lib/javadoc.jar"/>
+            <property name="in.jar" location="${langtools.dist.lib.dir}/visagedoc.jar"/>
+            <property name="out.jar" location="../lib/visagedoc.jar"/>
         </ant>
     </target>
     

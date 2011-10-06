@@ -805,15 +805,6 @@
         <copy file="${zip.bundle}" todir="${export.dir}/ROOT/current-build"/>
     </target>
 
-    <target name="visagedoc" depends="jar">
-        <!-- javadoc.jar depends on doclets.jar but we don't have it. Create a temporary file here: -->
-        <jar jarfile="lib/doclets.jar"/>
-        <ant dir="${visagedoc.dir}" antfile="build.xml" target="jar" inheritall="false">
-           <property name="visage.version" value="${visage.version}"/>
-        </ant>
-        <delete file="lib/doclets.jar"/>
-    </target>
-
     <condition property="preJDK6">
         <or>
             <equals arg1="${ant.java.version}" arg2="1.0"/>
@@ -824,6 +815,28 @@
             <equals arg1="${ant.java.version}" arg2="1.5"/>
         </or>
     </condition>
+
+    <condition property="preJDK7">
+        <or>
+            <equals arg1="${ant.java.version}" arg2="1.0"/>
+            <equals arg1="${ant.java.version}" arg2="1.1"/>
+            <equals arg1="${ant.java.version}" arg2="1.2"/>
+            <equals arg1="${ant.java.version}" arg2="1.3"/>
+            <equals arg1="${ant.java.version}" arg2="1.4"/>
+            <equals arg1="${ant.java.version}" arg2="1.5"/>
+            <equals arg1="${ant.java.version}" arg2="1.6"/>
+        </or>
+    </condition>
+
+    <target name="visagedoc" depends="jar" if="preJDK7" >
+        <echoproperties/>
+        <!-- javadoc.jar depends on doclets.jar but we don't have it. Create a temporary file here: -->
+        <jar jarfile="lib/doclets.jar"/>
+        <ant dir="${visagedoc.dir}" antfile="build.xml" target="jar" inheritall="false">
+           <property name="visage.version" value="${visage.version}"/>
+        </ant>
+        <delete file="lib/doclets.jar"/>
+    </target>
 
     <target name="visagejdi" description="Build visagejdi.jar" depends="-visagejdi-build, -visagejdi-skip">
     </target>

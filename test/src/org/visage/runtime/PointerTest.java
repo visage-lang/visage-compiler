@@ -1,6 +1,5 @@
 package org.visage.runtime;
 
-import visage.animation.KeyValueTarget;
 import visage.animation.KeyValueTarget.Type;
 import org.visage.runtime.sequence.*;
 
