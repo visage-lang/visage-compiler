@@ -118,7 +118,7 @@ public function hsb(hue:Angle, saturation:Float, brightness:Float):Color {
  * @return a Color instance for the specified hsb and opacity values
  * @profile common
  */
-public function hsb(hue:Angle, saturation:Float, brightness:Float, opacity:Number):Color {
+public function hsb(hue:Angle, saturation:Float, brightness:Float, opacity:Float):Color {
     def rgb = hsvToRgb(hue.toDegrees(), saturation, brightness);
     Color {
         red: rgb[0]
@@ -154,7 +154,7 @@ public function hsl(hue:Angle, saturation:Float, lightness:Float):Color {
  * @return a Color instance for the specified hsl and opacity values
  * @profile common
  */
-public function hsl(hue:Angle, saturation:Float, lightness:Float, opacity:Number):Color {
+public function hsl(hue:Angle, saturation:Float, lightness:Float, opacity:Float):Color {
     def rgb = hslToRgb(hue.toTurns(), saturation, lightness);
     Color {
         red: rgb[0]

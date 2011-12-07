@@ -45,6 +45,7 @@ public class VisageRunAndCompareWrapper extends TestCase {
     private static final String VISAGE_MAIN = "org.visage.runtime.Main";
 
     private final String name;
+    private final String xpackage;
     private final File testFile;
     private final File buildDir;
     private final boolean shouldRun;
@@ -66,6 +67,7 @@ public class VisageRunAndCompareWrapper extends TestCase {
 
     public VisageRunAndCompareWrapper(File testFile,
                                   String name,
+                                  String xpackage,
                                   List<String> compileArgs,
                                   Map<String, String> options,
                                   Collection<String> auxFiles,
@@ -73,6 +75,7 @@ public class VisageRunAndCompareWrapper extends TestCase {
                                   String runParam) {
         super(name);
         this.name = name;
+        this.xpackage = xpackage;
         this.testFile = testFile;
         this.buildDir = TestHelper.makeBuildDir(testFile);
         this.compileArgs = compileArgs;
@@ -156,6 +159,9 @@ public class VisageRunAndCompareWrapper extends TestCase {
     private void execute(String outputFileName, String errorFileName, String expectedFileName) throws IOException {
         CommandlineJava commandLine = new CommandlineJava();
         String mainClass = className.substring(0, className.length() - ".visage".length());
+        if (xpackage.length() > 0) {
+            mainClass = xpackage + "." + mainClass;
+        }
         commandLine.setClassname(VISAGE_MAIN);
         Project project = new Project();
         Path p = commandLine.createClasspath(project);
@@ -261,6 +267,8 @@ public class VisageRunAndCompareWrapper extends TestCase {
             else if (es.equals(as))
                 continue;
             else if (compareCompilerMsg && equalsCompilerMsgs(es, as))
+                continue;
+            else if (es.startsWith("// @Skip"))
                 continue;
             else
                 fail("Program output for " + testFile + " at line "+ lineCount

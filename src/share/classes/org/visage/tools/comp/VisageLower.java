@@ -71,6 +71,7 @@ public class VisageLower implements VisageVisitor {
     private Type pt;
     private LowerMode mode;
     private Map<VisageForExpressionInClause, VisageForExpressionInClause> forClauseMap; //TODO this should be refactord into a common translation support
+    private int synthNameCount = 0;
     private VisageEnv<VisageAttrContext> env;
     private VisageTree enclFunc;
     private VisageTree result;
@@ -1042,7 +1043,6 @@ public class VisageLower implements VisageVisitor {
 
             Name targetLabel;
             boolean inWhile = false;
-            int synthNameCount = 0;
 
             private Name newLabelName() {
                 return names.fromString(VisageDefs.synthForLabelPrefix + forClauseMap.size() + "$" + synthNameCount++);

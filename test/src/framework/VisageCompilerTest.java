@@ -131,6 +131,7 @@ public class VisageCompilerTest extends TestSuite {
     private static void handleOneTest(File testFile,  List<Test> tests, Set<String> orphanFiles) throws Exception {
         String name = testFile.getParentFile().getName() + "/" + testFile.getName();
         assert name.lastIndexOf(".visage") > 0 : "not a Visage: " + name;
+        String xpackage = "";
         boolean isTest = false, isNotTest = false, isVisageUnit = false,
             shouldRun = false, compileFailure = false, runFailure = false, checkCompilerMsg = false,
             noCompare = false, ignoreStdError = false;
@@ -202,6 +203,8 @@ public class VisageCompilerTest extends TestSuite {
                 }
                 else if (token.equals("@compile"))
                     auxFiles.add(scanner.next());
+                else if (token.equals("@package"))
+                    xpackage = scanner.next();
             }
         }
         catch (Exception ignored) {
@@ -230,7 +233,7 @@ public class VisageCompilerTest extends TestSuite {
                     options.put(OPTIONS_COMPARE, "true");
                 if (ignoreStdError)
                     options.put(OPTIONS_IGNORE_STD_ERROR, "true");
-                tests.add(new VisageRunAndCompareWrapper(testFile, name, compileArgs, options, auxFiles, separateFiles, param));
+                tests.add(new VisageRunAndCompareWrapper(testFile, name, xpackage, compileArgs, options, auxFiles, separateFiles, param));
             }
         }
         else if (!isNotTest)

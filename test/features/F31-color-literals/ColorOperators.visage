@@ -37,11 +37,11 @@
 def a = Color.MAGENTA;
 def b = Color.YELLOW;
 
-// angle addition
+// color addition
 var c = a + b;
 println("Magenta + Yellow = {c}");
 
-// angle subtraction
+// color subtraction
 c = a - b;
 println("Magenta - Yellow = {c}");
 

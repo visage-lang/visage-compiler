@@ -65,7 +65,7 @@ r = 2.5rad / 2.5;
 println("2.5rad / 2.5 = {r}");
 
 // divide by another angle
-var ratio = 2.5deg/5.0deg;
+var ratio = 2.5deg / 5.0deg;
 println("2.5deg / 5.0deg = {ratio}");
 
 
