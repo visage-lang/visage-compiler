@@ -1464,7 +1464,7 @@ variableDeclaration [ VisageModifiers mods, int pos ]
                 
             | // Missing initializer. This is fine for var, but cannot be
               // the case for def, so we create an erroneous node for the intializer
-              // in that case, and positoin it where the initializer should be.
+              // in that case, and position it where the initializer should be.
               //
               {
                 if  (($variableLabel.modifiers & VisageFlags.IS_DEF) == VisageFlags.IS_DEF) {
@@ -1586,7 +1586,7 @@ catch [RecognitionException re] {
     endPos($value);
     
  }
- 
+
 // ----------------
 // Parameter lists.
 // Parse the formal parameters of a function declaration and produce the
@@ -6764,21 +6764,21 @@ keyword
 // compounds such as x.public.for.function()
 //
 reservedWord
-    : ABSTRACT      | AFTER     | AND           | AS
-    | ASSERT        | AT        | ATTRIBUTE     | BEFORE
-    | BIND          | BOUND     | BREAK         | CASCADE
-    | CATCH         | CLASS     | CONTINUE      | DEF
-    | DEFAULT       | DELETE    | ELSE          | EXCLUSIVE
-    | EXTENDS       | FALSE     | FINALLY       | FOR
-    | FROM          | FUNCTION  | IF            | IMPORT
-    | INDEXOF       | INSERT    | INSTANCEOF    | LAZY
-    | MIXIN         | MOD       | NATIVEARRAY   | NEW
-    | NOT           | NULL      | OR            | OVERRIDE
-    | PACKAGE       | PRIVATE   | PROTECTED     | PUBLIC
-    | PUBLIC_INIT   | PUBLIC_READ | RETURN      | REVERSE
-    | SIZEOF        | STATIC    | SUPER         | THEN
-    | THIS          | THROW     | TRUE          | TRY
-    | TYPEOF        | VAR       | WHILE
+    : ABSTRACT    | AFTER       | AND         | AS
+    | ASSERT      | AT          | ATTRIBUTE   | BEFORE
+    | BIND        | BOUND       | BREAK       | CASCADE
+    | CATCH       | CLASS       | CONTINUE    | DEF
+    | DEFAULT     | DELETE      | ELSE        | EXCLUSIVE
+    | EXTENDS     | FALSE       | FINALLY     | FOR
+    | FROM        | FUNCTION    | IF          | IMPORT
+    | INDEXOF     | INSERT      | INSTANCEOF  | LAZY
+    | MIXIN       | MOD         | NATIVEARRAY | NEW
+    | NOT         | NULL        | OR          | OVERRIDE
+    | PACKAGE     | PRIVATE     | PROTECTED   | PUBLIC
+    | PUBLIC_INIT | PUBLIC_READ | RETURN      | REVERSE
+    | SIZEOF      | STATIC      | SUPER       | THEN
+    | THIS        | THROW       | TRUE        | TRY
+    | TYPEOF      | VAR         | WHILE
     ;
 
 
