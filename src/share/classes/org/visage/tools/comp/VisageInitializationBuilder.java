@@ -1374,17 +1374,21 @@ however this is what we need */
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
             if (isBound) {
-                if (!varInfo.isSynthetic()) {
-                    stmts.appendList(Stmts(
-                        CallInvalidate(varSym),
-                        CallTrigger(varSym),
-                        If (NOT(FlagTest(proxyVarSym, BITOR(id(defs.varFlagIS_EAGER), id(defs.varFlagFORWARD_ACCESS)), null)),
-                            Block(
-                                Stmt(Getter(varSym))
+                if (varSym.isVisageMember()) {
+                    if (!varInfo.isSynthetic()) {
+                        stmts.appendList(Stmts(
+                            CallInvalidate(varSym),
+                            CallTrigger(varSym),
+                            If (NOT(FlagTest(proxyVarSym, BITOR(id(defs.varFlagIS_EAGER), id(defs.varFlagFORWARD_ACCESS)), null)),
+                                Block(
+                                    Stmt(Getter(varSym))
+                                )
                             )
-                        )
-                    ));
-                }  
+                        ));
+                    }
+                } else {
+                    // todo - do something useful here
+                }
             } else {
                 JCExpression init = varInfo.getDefaultInitExpression();
                 
@@ -3852,8 +3856,8 @@ however this is what we need */
                     //
                     for (VarInfo vi : varInfos) {
                         JCStatement ifReferenceStmt = null;
-                        if (vi.isInitWithBoundFuncResult()) {
-                            VisageVarSymbol varSym = vi.getSymbol();
+                        VisageVarSymbol varSym = vi.getSymbol();
+                        if (vi.isInitWithBoundFuncResult() && varSym.isVisageMember()) {
                             Symbol initSym = vi.boundFuncResultInitSym();
                             Name ptrVarName = attributeValueName(initSym);
 
@@ -3897,9 +3901,8 @@ however this is what we need */
                         //
                         for (VarSymbol mParam : params) {
                             Scope.Entry e = getCurrentClassSymbol().members().lookup(mParam.name);
-                            if (e.sym.kind == Kinds.VAR) {
-                                VisageVarSymbol param = (VisageVarSymbol) e.sym;
-                                
+                            VisageVarSymbol param = (VisageVarSymbol) e.sym;
+                            if (e.sym.kind == Kinds.VAR && param.isVisageMember()) {
                                 // instance$ == $$boundInstance$foo
                                 JCExpression objCond = EQ(updateInstanceArg(), id(boundFunctionObjectParamName(param.name)));
                                 // invalidate$local_klass2$foo(phase$);
@@ -3936,8 +3939,14 @@ however this is what we need */
 
                                 // instance == selector
                                 JCExpression objCond = EQ(updateInstanceArg(), Get(scriptAccess != null ? scriptAccess : instanceVar));
-                                // invalidate$var(phase$);
-                                JCStatement invalStat = invalidate(varInfo.generateSequenceAccessors(), varInfo.proxyVarSym());
+                                JCStatement invalStat;                                    
+                                if (varInfo.getSymbol().isVisageMember()) {
+                                    // invalidate$var(phase$);
+                                    invalStat = invalidate(varInfo.generateSequenceAccessors(), varInfo.proxyVarSym());                                    
+                                } else {
+                                    // todo - do something useful here
+                                    invalStat = Stmt(False());
+                                }
                                 // Add statement to dependency.
                                 addDepClause(instanceVar, referenceVar, objCond, invalStat);
                             }
@@ -4548,7 +4557,7 @@ however this is what we need */
 
             // Update any local flag changes.
             for (VarInfo ai : varInfos) {
-                if (ai.needsCloning() && ai.isOverride()) {
+                if (ai.needsCloning() && ai.isOverride() && ai.getSymbol().isVisageMember()) {
                     Name flagName = attributeFlagsName(ai.proxyVarSym());
                     JCExpression update = updateVarBits(ai, id(flagName));
                     
