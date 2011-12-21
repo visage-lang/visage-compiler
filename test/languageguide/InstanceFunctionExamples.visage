@@ -1,0 +1,32 @@
+/*
+ * @test
+ * @run
+ */
+
+var total: Integer = 0;
+
+function displayTotal() {
+  println("The total in all piggy banks is {total} cents now.");
+}
+
+class PiggyBank {
+  var name: String;
+  var pennies: Integer = 0;
+
+  function putInPennies(n: Integer) {
+    println("Putting {n} pennies into {name}.");
+    pennies += n;
+    total += n;
+    displayTotal();
+  }
+}
+
+var myPiggyBank = PiggyBank { name: "My Piggy Bank" };
+var yourPiggyBank = PiggyBank { name: "Your Piggy Bank" };
+
+myPiggyBank.putInPennies(15);
+yourPiggyBank.putInPennies(22);
+myPiggyBank.putInPennies(6);
+
+println("{myPiggyBank.name} has {myPiggyBank.pennies} cents.");
+println("{yourPiggyBank.name} has {yourPiggyBank.pennies} cents.");

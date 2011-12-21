@@ -1,0 +1,6 @@
+Step 0: i initialized to 1024.
+Step 1: str initialized to "Hello, World".
+Step 2: Base init block.  i = 1024.
+Step 3: Derived init block.  i = 1024, str = Hello, World.
+Step 4: Base postinit block.  i = 1024.
+Step 5: Derived postinit block.  i = 1024, str = Hello, World.

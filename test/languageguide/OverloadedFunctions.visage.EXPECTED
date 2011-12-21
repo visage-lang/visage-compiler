@@ -1,0 +1,3 @@
+Integer version of f is called with i = 1024.
+Number version of f is called with n = 3.14.
+String version of f is called with str = Hello, World.

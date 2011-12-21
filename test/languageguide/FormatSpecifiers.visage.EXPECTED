@@ -1,0 +1,4 @@
+Display b in a 15 character field   [           true].
+Display i in a 15 character field   [           1024].
+Display n in a 15 character field   [       3.140000].
+Display str in a 15 character field [   Hello, World].

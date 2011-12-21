@@ -1,0 +1,5 @@
+p = Point(3.0, 4.0)
+Distance between p and the origin = 5.0
+p = Point(5.0, 12.0)
+Distance between p and the origin = 13.0
+Distance between Point {x: 8.0, y: 15.0} and the origin = 17.0

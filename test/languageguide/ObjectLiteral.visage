@@ -1,0 +1,14 @@
+/*
+ * @test
+ * @compile visage/javafx/scene/shape/Circle.visage
+ * @run
+ */
+
+import visage.javafx.scene.shape.Circle;
+
+var circle = Circle {
+  var r = 100.0;
+  centerX: r
+  centerY: r
+  radius: r
+};

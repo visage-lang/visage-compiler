@@ -1,0 +1,23 @@
+/*
+ * @test
+ * @run
+ */
+
+class Point {
+  var x: Number;
+  var y: Number;
+}
+
+function primes(n:Integer) {
+  [2..n][k | sizeof [2..<k][d | k mod d == 0] == 0];
+}
+
+function midpoint(p1:Point, p2:Point) {
+  Point { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }
+}
+
+function printSquaresTable(n:Integer) {
+  for (x in [1..n]) {
+    println("{x} squared = {x*x}");
+  }
+}

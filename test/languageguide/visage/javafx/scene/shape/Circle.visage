@@ -1,0 +1,11 @@
+/*
+ * @subtest
+ */
+
+package visage.javafx.scene.shape;
+
+public class Circle {
+    public var centerX:Number;
+    public var centerY:Number;
+    public var radius:Number;
+}

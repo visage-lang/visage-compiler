@@ -1,0 +1,3 @@
+A.f() called: b is true.
+B.g() called: i is 1024
+C.h() called: b = true, i = 1024, n = 3.14.

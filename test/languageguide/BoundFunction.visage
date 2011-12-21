@@ -1,0 +1,25 @@
+/*
+ * @test
+ * @run
+ */
+
+var x = 3;
+
+bound function f(y:Number, z:Number):Number {
+  var u = y;
+  var v = z;
+  x + u
+}
+
+var a = 4;
+var b = 5;
+var c = bind f(a, b) on replace {
+  println("x = {x}, a = {a}, b = {b}, c = {c}.");
+};
+
+println("About to change x...");
+x = 5;
+println("About to change a...");
+a = 6;
+println("About to change b...");
+b = 7;

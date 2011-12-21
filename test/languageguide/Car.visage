@@ -1,0 +1,16 @@
+/*
+ * @subtest
+ */
+
+// Car.visage
+public class Car {
+  public var make: String;
+  public var model: String;
+  override function toString() {
+    "Car \{make: {make}, model: {model}\}"
+  }
+}
+
+public function getACar() {
+  Car { make: "BMW", model: "Z5" }
+}

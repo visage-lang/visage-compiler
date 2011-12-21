@@ -1,0 +1,4 @@
+nullA.objVar = null
+nullA.intVar = 0
+nullA.stringVar = 
+nullA.retObj() = null

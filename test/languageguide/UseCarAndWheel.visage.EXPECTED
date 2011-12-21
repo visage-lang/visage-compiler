@@ -1,0 +1,3 @@
+Car {make: Ford, model: Taurus}
+Car {make: BMW, model: Z5}
+Wheel {diameter: 16.0}

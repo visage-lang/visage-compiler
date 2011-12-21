@@ -1,0 +1,51 @@
+/*
+ * @test
+ * @run
+ */
+
+function gcd(a:Integer, b:Integer):Integer {
+  if (b == 0) {
+    return a;
+  } else {
+    return gcd(b, a mod b);
+  }
+}
+
+function ampm(hour:Integer, minute:Integer):Void {
+  if (hour == 0 and minute == 0) {
+    println("midnight");
+    return;
+  }
+  if (hour < 12) {
+    println("a.m.");
+    return;
+  }
+  if (hour == 12 and minute == 0) {
+    println("noon");
+    return;
+  }
+  println("p.m.");
+}
+
+function onClick(n:Integer) {
+  if (n == 0) {
+    return "No click";
+  }
+  if (n == 1) {
+    return "Single click";
+  }
+  if (n == 2) {
+    return "Double click";
+  }
+  return "Multiple click";
+}
+
+println("gcd(24, 18) = {gcd(24, 18)}");
+ampm(0, 0);
+ampm(6, 0);
+ampm(12, 0);
+ampm(18, 0);
+println(onClick(0));
+println(onClick(1));
+println(onClick(2));
+println(onClick(3));

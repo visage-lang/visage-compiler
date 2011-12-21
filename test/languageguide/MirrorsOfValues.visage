@@ -1,0 +1,61 @@
+/*
+ * @test
+ * @run
+ */
+
+import java.lang.Math.*;
+import visage.reflect.*;
+
+public class Point {
+  public var x: Number;
+  public var y: Number;
+
+  public function dist() {
+    sqrt(x * x + y * y);
+  }
+
+  public override function toString() {
+    "Point \{ x: {x}, y: {y} \}"
+  }
+}
+
+public function run() {
+  var i = 1024;
+  var o = Point { x: 3, y: 4 };
+  var seq = [3.14159, 2.71828];
+  var func = o.dist;
+
+  var context: VisageLocal.Context = VisageLocal.getContext();
+
+  println("Examining...");
+  var mirrorOfI = context.mirrorOf(i);
+  print("  original: "); println({i});
+  print("  mirror: "); println(mirrorOfI);
+  print("  type: "); println({mirrorOfI.getType()});
+  print("  back from mirror: "); println({mirrorOfI.asObject()});
+
+  println("Examining...");
+  var mirrorOfO = context.mirrorOf(o);
+  print("  original: "); println({o});
+  print("  mirror: "); println(mirrorOfO);
+  print("  type: "); println({mirrorOfO.getType()});
+  print("  back from mirror: "); println({mirrorOfO.asObject()});
+
+  println("Exemining...");
+  var seqType = context.getNumberType().getSequenceType();
+  var mirrorOfSeq = context.mirrorOf(seq, seqType);
+  print("  original: "); println({seq});
+  print("  mirror: "); println(mirrorOfSeq);
+  print("  type: "); println({mirrorOfSeq.getType()});
+  print("  back from mirror: "); println({mirrorOfSeq.asObject()});
+
+  println("Exemining...");
+  var classType = context.findClass("MirrorsOfValues.Point");
+  var funcMember = classType.getFunction("dist");
+  var funcType = funcMember.getType();
+  var mirrorOfFunc = context.mirrorOf(func, funcType);
+  print("  original: "); println({func});
+  print("  mirror: "); println(mirrorOfFunc);
+  print("  type: "); println({mirrorOfFunc.getType()});
+  print("  back from mirror: "); println({mirrorOfFunc.asObject()});
+}

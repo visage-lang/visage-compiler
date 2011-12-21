@@ -1,0 +1,15 @@
+/*
+ * @test
+ * @compilefirst Sum.java
+ * @compilefirst SumClient.java
+ * @compile VisageSum.visage
+ * @run
+ */
+
+// ExercisingSum.visage
+var visageSum = VisageSum {};
+var sumClient = new SumClient(visageSum);
+var sumOfInts = sumClient.addUpInts([1, 3, 5, 7, 9]);
+var sumOfDoubles = sumClient.addUpDoubles([3.14159, 2.71828]);
+println("sumOfInts={sumOfInts}.");
+println("sumOfDoubles={sumOfDoubles}.");

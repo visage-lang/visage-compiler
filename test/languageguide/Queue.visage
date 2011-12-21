@@ -1,0 +1,23 @@
+/*
+ * @subtest
+ */
+
+// Queue.visage
+public var q:Integer[];
+
+public function enqueue(i:Integer):Void {
+  insert i into q;
+  println("Enqueued {i}.  Size of q is {sizeof q} now.");
+}
+
+public function dequeue():Integer {
+  if (sizeof q == 0) {
+    println("Size of q is {sizeof q} now. Returning -1.");
+    return -1;
+  } else {
+    var i = q[0];
+    delete q[0];
+    println("Dequeued {i}.  Size of q is {sizeof q} now.");
+    return i;
+  }
+}

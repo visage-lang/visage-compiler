@@ -1,0 +1,9 @@
+/*
+ * @test
+ * @run
+ */
+
+// GreetingTrivia_zh_CN.visageproperties
+"greeting" = "%1$s你好."
+"trivia" = "你知道%1$s*%2$s=%3$,.1f吗?"
+"1024 is the 10th power of 2, and 9765625 is the 10th power of 5." = "1024是2的10次方,9765625是5的10次方."

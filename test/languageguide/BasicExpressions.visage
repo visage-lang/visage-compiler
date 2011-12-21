@@ -1,0 +1,72 @@
+/*
+ * @test
+ * @run
+ */
+
+// block expressions
+var x = {
+  var a = 3;
+  var b = 4;
+  a*a + b*b
+};
+println("The value of x is {x}");
+
+// precedence and groupings
+println("1 + 2 * 3 = {1 + 2 * 3}");
+println("(1 + 2) * 3 = {(1 + 2) * 3}");
+println("6 / 2 * 3 = {6 / 2 * 3}");
+println("6 / (2 * 3) = {6 / (2 * 3)}");
+
+// var and def
+var o;
+var i: Integer;
+var n: Number = 3.14;
+var str = "Hello, World.";
+var j = bind i;
+var greeting = str on replace { println("greeting changed") };
+
+def PI = 3.14159;
+def k = bind i;
+
+// assignment and type inference
+var v1;
+println("Before: v1 = {v1}");
+v1 = 42;
+println("After: v1 = {v1}");
+
+class Point {
+  var x: Number;
+  var y: Number;
+  override function toString() {
+    "Point \{ x: {x}, y: {y} \}"
+  }
+}
+var v2;
+println("Before: v2 = {v2}");
+v2 = Point {x: 3, y: 4};
+println("After: v2 = {v2}");
+
+// compound assignment
+x = 1024;
+println("x = {x}");
+x += 1;
+println("x = {x}");
+x -= 2;
+println("x = {x}");
+x *= 3;
+println("x = {x}");
+x /= 4;
+println("x = {x}");
+
+// relational operators
+println("true == true is {true == true}");
+println("3 == 3.0 is {3 == 3.0}");
+println('"hello" == "hello" is {"hello" == "hello"}');
+
+println("3.14159 > 2.71828 is {3.14159 > 2.71828}");
+println("1h < 100m is {1h < 100m}");
+
+var p1 = Point {x: 3, y: 4};
+var p2 = Point {x: 3, y: 4};
+println("p1 == p1 is {p1 == p1}");
+println("p1 == p2 is {p1 == p2}");

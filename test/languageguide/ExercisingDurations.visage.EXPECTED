@@ -1,0 +1,13 @@
+oneHour = 3600000ms
+oneMinute = 60000ms
+oneSecond = 1000ms
+oneMillisecond = 1ms
+oneHour + 30 * oneMinute = 5400000ms
+oneMinute - 20 * oneSecond = 40000ms
+oneSecond / 2 = 500ms
+-oneMillisecond = -1ms
+oneHour.toHours() = 1.0
+oneHour.toMinutes() = 60.0
+oneMinute.toSeconds() = 60.0
+oneSecond.toMillis() = 1000.0
+now = 1229923287040ms

@@ -1,0 +1,10 @@
+Trigger in class definition: i = 1024.
+Trigger in class definition: i = 2048.
+Trigger in class definition: i = 3072.
+Trigger in object literal override: i = 3072.
+Trigger in class definition: i = 5120.
+Trigger in object literal override: i = 5120.
+a1.i = 1024
+a2.i = 2048
+a3.i = 3072
+a4.i = 5120

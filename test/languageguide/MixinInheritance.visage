@@ -1,0 +1,30 @@
+/*
+ * @test
+ * @run
+ */
+
+mixin class A {
+  public var i:Integer;
+  function f():Void {
+    println("f() called: i = {i}.");
+    i++;
+  }
+}
+
+mixin class B {
+  public var i: Integer;
+  function f():Void {
+    println("shadowed!");
+  }
+  function g() {
+    println("g() called: i = {i}.");
+    i++;
+  }
+}
+
+class C extends A, B { }
+
+var o = C { i: 1024 }
+o.f();
+o.g();
+o.f();

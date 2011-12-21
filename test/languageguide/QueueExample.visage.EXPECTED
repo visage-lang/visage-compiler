@@ -1,0 +1,14 @@
+Enqueued 1.  Size of q is 1 now.
+Enqueued 2.  Size of q is 2 now.
+Enqueued 3.  Size of q is 3 now.
+Dequeued 1.  Size of q is 2 now.
+1
+Dequeued 2.  Size of q is 1 now.
+2
+Enqueued 4.  Size of q is 2 now.
+Dequeued 3.  Size of q is 1 now.
+3
+Dequeued 4.  Size of q is 0 now.
+4
+Size of q is 0 now. Returning -1.
+-1

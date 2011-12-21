@@ -1,0 +1,11 @@
+/*
+ * @test/fail
+ * @run
+ */
+
+class A {
+  var objVar:Object;
+}
+
+var nullA:A = null;
+nullA!.objVar;

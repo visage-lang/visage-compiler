@@ -1,0 +1,45 @@
+/*
+ * @test
+ * @run
+ */
+
+var onePixel = 1px;
+var onePoint = 1pt;
+var onePica = 1pc;
+var oneDensityIndependentPixel = 1dp;
+var oneMillimeter = 1mm;
+var oneCentimeter = 1cm;
+var oneInch = 1in;
+var oneScaleIndependentPixel = 1sp;
+var oneEm = 1em;
+var onePercent = 1%;
+
+println("onePixel = {%#s onePixel}");
+println("onePoint = {%#s onePoint}");
+println("onePica = {%#s onePica}");
+println("oneDensityIndependentPixel = {oneDensityIndependentPixel}");
+println("oneMillimeter = {%#s oneMillimeter}");
+println("oneCentimeter = {%#s oneCentimeter}");
+println("oneInch = {%#s oneInch}");
+println("oneScaleIndependentPixel = {oneScaleIndependentPixel}");
+println("oneEm = {oneEm}");
+println("onePercent = {onePercent}");
+
+println("3mm + 2mm = {%#s 3mm + 2mm}");
+println("5mm - 2mm = {%#s 5mm - 2mm}");
+println("3mm * 2 = {%#s 3mm * 2}");
+println("2 * 3mm = {%#s 2 * 3mm}");
+println("2cm * 2.5 = {%#s 2cm * 2.5}");
+println("2.5 * 2cm = {%#s 2.5 * 2cm}");
+println("3mm / 2 = {%#s 3mm / 2}");
+println("2.5cm / 2.5 = {%#s 2.5cm / 2.5}");
+println("2.5mm / 5.0mm = {2.5mm/5.0mm}");
+
+println("oneInch.toCentimeters() = {oneInch.toCentimeters()}");
+println("oneInch.toMillimeters() = {oneInch.toMillimeters()}");
+println("oneInch.toDensityIndependentPixels() = {oneInch.toDensityIndependentPixels()}");
+println("onePica.toPoints() = {onePica.toPoints()}");
+println("onePoint.toDensityIndependentPixels() = {onePoint.toDensityIndependentPixels()}");
+
+var tenInches = Length.valueOf(10, visage.lang.LengthUnit.INCH);
+println("tenInches = {%#s tenInches}");
