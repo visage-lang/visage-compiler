@@ -60,7 +60,7 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
     
     // Recorded start of string with embedded expression
     //
-    int	eStringStart = 0;
+    protected int	eStringStart = 0;
     
     /**
      * Construct a new Visage lexer with no pre-known input stream
