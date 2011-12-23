@@ -163,8 +163,8 @@ public class Utils {
     }
 
     /*
-     * get the path to where the dist directory lives, we use visagec.jar
-     * and visagejdi.jar to get the lib path, the parent of which is the
+     * get the path to where the dist directory lives, we use javac.jar
+     * and script-api.jar to get the lib path, the parent of which is the
      * basedir.
      */
     static File getDistDir() throws FileNotFoundException, IOException {
@@ -174,14 +174,14 @@ public class Utils {
         String javaClasspaths[] =
                 System.getProperty("java.class.path", "").split(File.pathSeparator);
         for (String x : javaClasspaths) {
-            if (x.endsWith("visagec.jar")) {
+            if (x.endsWith("javac.jar")) {
                 String path = x.substring(0, x.indexOf("lib" +
-                        File.separator + "visagec.jar"));
+                        File.separator + "javac.jar"));
                 distDir = new File(path, "dist").getAbsoluteFile();
                 return distDir;
-            } else if (x.endsWith("visagejdi.jar")) {
+            } else if (x.endsWith("script-api.jar")) {
                 String path = x.substring(0, x.indexOf("lib" +
-                        File.separator + "visagejdi.jar"));
+                        File.separator + "script-api.jar"));
                 distDir = new File(path, "dist").getAbsoluteFile();
                 return distDir;
             }
