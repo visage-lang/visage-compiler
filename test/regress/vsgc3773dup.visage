@@ -1,7 +1,7 @@
 /**
  * Regression test VSGC-3773 : Compiled bind: scoping of bound object literal initializers
  *
- * With the previouls model --
+ * With the previous model --
  * (1) changes to non-bound initializers create new object literals. 
  * Non-bound initializer values are moved over to the new object.
  * But since the bind is internal this can't be done for bound initializers.

@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.visage.api.VisageCompiler;
 import javax.tools.Tool;
@@ -73,9 +74,13 @@ public abstract class TestHelper {
         Tool compiler = null;
         for (String f : files) {
             Tool ftool;
-            if (f.endsWith(".visage"))
+            if (f.endsWith(".visage")) {
                 ftool = visagec;
-            else if (f.endsWith(".java"))
+                String compilerArgs = System.getProperty("visagec.compilerargs");
+                if (compilerArgs != null) {
+                    args.add(compilerArgs);
+                }
+            } else if (f.endsWith(".java"))
                 ftool = javac;
             else
                 ftool = null;

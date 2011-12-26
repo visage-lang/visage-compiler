@@ -554,6 +554,7 @@ public class VisageCompiler implements ClassReader.SourceCompleter {
             try {
                 String fn = env.toplevel.sourcefile.toString().replace(".visage", ".javadump");
                 File outFile = new File(dump, (new File(fn)).getName());
+                outFile.getParentFile().mkdirs();
                 FileWriter fw = new FileWriter(outFile);
                 BufferedWriter out = new BufferedWriter(fw);
                 try {

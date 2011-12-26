@@ -3139,7 +3139,7 @@ public abstract class VisageAbstractTranslation
             
             boolean hasVars = hasInstanceVariableInits();
             JCExpression instExpression;
-            if ((isVisage && newClassArgs.nonEmpty()) || cdef != null) {
+            if (isVisage && (hasVars || newClassArgs.nonEmpty() || cdef != null)) {
                 // it is a instanciation of a Visage class which has instance variable initializers
                 // (or is anonymous, or has an outer class argument)
                 //
@@ -3189,7 +3189,7 @@ public abstract class VisageAbstractTranslation
                 //       for (int visage$0initloop = 0; i < X.$VAR_COUNT; i++) {
                 //           ...
                 //       }
-                if (visageVarSyms.nonEmpty()) {
+                if (visageVarSyms.nonEmpty() || javaVarSyms.nonEmpty()) {
                     makeInitApplyDefaults(type, tmpVarName);
                 } else {
                     makeInitSupportCall(defs.applyDefaults_VisageObjectMethodName, tmpVarName);

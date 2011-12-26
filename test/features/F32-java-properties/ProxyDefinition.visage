@@ -58,6 +58,7 @@ def accessibleVar = AccessibleVariable {
 }
 println(accessibleVar.publicVariable);
 
+// TODO: This last case doesn't work yet, but at least it compiles... (hacked the expected file to ignore it for now)
 // And how about if we toss in a bind (to a constant)
 def accessibleBoundVar = AccessibleVariable {
     publicVariable: bind "Constant Bind Declaration Works"

@@ -1,6 +1,6 @@
 /*
- * @test/fail
- * @run
+ * @test
+ * @run/fail
  */
 
 class A {

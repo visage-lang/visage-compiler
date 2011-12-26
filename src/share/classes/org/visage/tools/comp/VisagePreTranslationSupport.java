@@ -439,11 +439,6 @@ public class VisagePreTranslationSupport {
     }
 
     boolean isImmutable(VisageExpression tree) {
-//        boolean im = isImmutableReal(tree);
-//        System.err.println((im? "IMM: " : "MUT: ") + tree);
-//        return im;
-//    }
-//    boolean isImmutableReal(VisageExpression tree) {
         //TODO: add for-loop, sequence indexed, string expression
         switch (tree.getVisageTag()) {
             case IDENT: {
@@ -541,11 +536,11 @@ public class VisagePreTranslationSupport {
         }
         VisageVarSymbol vsym = (VisageVarSymbol) sym;
         Symbol owner = sym.owner;
+        // Note: cannot depend on vsym.canChange() until after the Variable Usage Analysis faze is complete
+        // (so to be correct we don't check this right now)
         return
                     name == names._this ||
                     name == names._super ||
-                    (owner instanceof VisageClassSymbol && name == visagemake.ScriptAccessSymbol(owner).name) ||
-                    !vsym.canChange();
+                    (owner instanceof VisageClassSymbol && name == visagemake.ScriptAccessSymbol(owner).name);
      }
 }
-

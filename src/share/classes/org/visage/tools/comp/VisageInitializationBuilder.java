@@ -1387,7 +1387,7 @@ however this is what we need */
                         ));
                     }
                 } else {
-                    // todo - do something useful here
+                    // skip non-visage members for now
                 }
             } else {
                 JCExpression init = varInfo.getDefaultInitExpression();
@@ -2438,8 +2438,11 @@ however this is what we need */
                     }
                     
                     for (VarInfo otherVar : varInfo.boundBinders()) {
-                        // invalidate$var(phase$);
-                        if (!otherVar.generateSequenceAccessors()) {
+                        if (!otherVar.getSymbol().isVisageMember()) {
+                            // force a set on non-visage members for now
+                            addStmt(Stmt(Setter(otherVar.getSymbol(), Getter(proxyVarSym))));
+                        } else if (!otherVar.generateSequenceAccessors()) {
+                            // invalidate$var(phase$);
                             if (depGraphWriter != null) {
                                 depGraphWriter.writeDependency(otherVar.sym, varSym);
                             }
