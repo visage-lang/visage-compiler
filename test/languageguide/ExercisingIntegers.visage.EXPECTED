@@ -1,0 +1,17 @@
+i = 1024
+j = 2048
+k = 15625
+i + j = 3072
+i - j = -1024
+i * k = 16000000
+k / i = 15
+k mod j = 1289
+max = 2147483647
+min = -2147483648
+max + 1 will overflow to -2147483648
+min - 1 will overflow to 2147483647
+max * min will overflow to -2147483648
+i = 1024, ++i = 1025
+j = 2048, --j = 2047
+k = 15625, k++ = 15625
+k = 15626, k-- = 15626

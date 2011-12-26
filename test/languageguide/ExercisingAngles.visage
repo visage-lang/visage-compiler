@@ -1,0 +1,29 @@
+/*
+ * @test
+ * @run
+ */
+
+var oneDegree = 1deg;
+var oneRadian = 1rad;
+var oneTurn = 1turn;
+
+println("oneDegree = {oneDegree}");
+println("oneRadian = {oneRadian}");
+println("oneTurn = {oneTurn}");
+
+println("3deg + 2deg = {3deg + 2deg}");
+println("5deg - 2deg = {5deg - 2deg}");
+println("3deg * 2 = {3deg * 2}");
+println("2 * 3deg = {2 * 3deg}");
+println("2rad * 2.5 = {2rad * 2.5}");
+println("2.5 * 2rad = {2.5 * 2rad}");
+println("3deg / 2 = {3deg / 2}");
+println("2.5rad / 2.5 = {2.5rad / 2.5}");
+println("2.5deg / 5.0deg = {2.5deg / 5.0deg}");
+
+println("oneRadian.toDegrees() = {oneRadian.toDegrees()}");
+println("oneTurn.toDegrees() = {oneTurn.toDegrees()}");
+println("oneDegree.toTurns() = {oneDegree.toTurns()}");
+
+var ninetyDegrees = Angle.valueOf(10, visage.lang.AngleUnit.DEGREE);
+println("ninetyDegrees = {ninetyDegrees}");

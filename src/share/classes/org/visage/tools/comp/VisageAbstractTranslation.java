@@ -2938,11 +2938,17 @@ public abstract class VisageAbstractTranslation
 
     abstract class NewInstanceTranslator extends ExpressionTranslator {
 
-        // Statements to set symbols with initial values.
-        protected ListBuffer<JCStatement> varInits = ListBuffer.lb();
+        // Statements to set visage symbols with initial values.
+        protected ListBuffer<JCStatement> visageVarInits = ListBuffer.lb();
 
-        // Symbols corresponding to caseStats.
-        protected ListBuffer<VisageVarSymbol> varSyms = ListBuffer.lb();
+        // Symbols corresponding to visage caseStats.
+        protected ListBuffer<VisageVarSymbol> visageVarSyms = ListBuffer.lb();
+
+        // Statements to set java symbols with initial values.
+        protected ListBuffer<JCStatement> javaVarInits = ListBuffer.lb();
+
+        // Symbols corresponding to java caseStats.
+        protected ListBuffer<VisageVarSymbol> javaVarSyms = ListBuffer.lb();
         
         // Name to use as a temp.
         protected Name tmpVarName;
@@ -2999,8 +3005,13 @@ public abstract class VisageAbstractTranslation
                 def = SetStmt(tc, vsym, transInit);
             }
 
-            varInits.append(def);
-            varSyms.append(vsym);
+            if (vsym.isVisageMember()) {
+                visageVarInits.append(def);
+                visageVarSyms.append(vsym);
+            } else {
+                javaVarInits.append(def);
+                javaVarSyms.append(vsym);
+            }
         }
 
         void makeInitSupportCall(Name methName, Name receiverName) {
@@ -3016,9 +3027,16 @@ public abstract class VisageAbstractTranslation
 
         void makeInitApplyDefaults(Type classType, Name receiverName) {
             ClassSymbol classSym = (ClassSymbol)classType.tsym;
-            int count = varSyms.size();
-
+            boolean visageClass = types.isVisageClass(classSym);
+            int visageCount = visageVarSyms.size();
+            
             clearDiagPos();
+            
+            for (JCStatement varInit : javaVarInits) {
+                addPreface(varInit);
+            }
+            if (!visageClass) return;
+
             JCVariableDecl loopVar = makeTmpLoopVar(0);
             Name loopName = loopVar.name;
             JCExpression loopLimit = Call(id(receiverName), defs.count_VisageObjectMethodName);
@@ -3034,23 +3052,23 @@ public abstract class VisageAbstractTranslation
                         defs.applyDefaults_VisageObjectMethodName,
                         id(loopName));
 
-            if (1 < count) {
+            if (1 < visageCount) {
                 // final short[] visage$0map = GETMAP$X();
                 JCExpression getmapExpr = Call(null, varGetMapName(classSym)); //static method in toplevel class - no need for receiver
                 JCVariableDecl mapVar = TmpVar("map", syms.visage_ShortArray, getmapExpr);
                 addPreface(mapVar);
 
                 LiteralInitVarMap varMap = getLiteralInitClassMap().getVarMap(classSym);
-                int[] tags = new int[count];
+                int[] tags = new int[visageCount];
 
                 int index = 0;
-                for (VisageVarSymbol varSym : varSyms) {
+                for (VisageVarSymbol varSym : visageVarSyms) {
                     tags[index++] = varMap.addVar(varSym);
                 }
 
                 ListBuffer<JCCase> cases = ListBuffer.lb();
                 index = 0;
-                for (JCStatement varInit : varInits) {
+                for (JCStatement varInit : visageVarInits) {
                     cases.append(m().Case(Int(tags[index++]), List.<JCStatement>of(varInit, m().Break(null))));
                 }
 
@@ -3058,14 +3076,16 @@ public abstract class VisageAbstractTranslation
 
                 JCExpression mapExpr = m().Indexed(id(mapVar), id(loopName));
                 loopBody = m().Switch(mapExpr, cases.toList());
-            } else {
-                VisageVarSymbol varSym = varSyms.first();
+            } else if (0 < visageCount) {
+                VisageVarSymbol varSym = visageVarSyms.first();
                 JCExpression varOffsetExpr = Offset(id(receiverName), varSym);
                 JCVariableDecl offsetVar = TmpVar("off", syms.intType, varOffsetExpr);
                 addPreface(offsetVar);
                 loopBody = If(EQ(id(loopName), id(offsetVar)),
-                        varInits.first(),
-                        applyDefaultsExpr);
+                    visageVarInits.first(),
+                    applyDefaultsExpr);
+            } else {
+                loopBody = null;
             }
 
             // Ready to init value.
@@ -3076,7 +3096,7 @@ public abstract class VisageAbstractTranslation
         }
 
         void makeSetVarFlags(Name receiverName, Type contextType) {
-            for (VisageVarSymbol vsym : varSyms) {
+            for (VisageVarSymbol vsym : visageVarSyms) {
                 if (vsym.useAccessors()) {
                     Name objLitFlag = vsym.isSequence() ?
                         defs.varFlagINIT_OBJ_LIT_SEQUENCE :
@@ -3119,7 +3139,7 @@ public abstract class VisageAbstractTranslation
             
             boolean hasVars = hasInstanceVariableInits();
             JCExpression instExpression;
-            if (hasVars || (isVisage && newClassArgs.nonEmpty()) || cdef != null) {
+            if (isVisage && (hasVars || newClassArgs.nonEmpty() || cdef != null)) {
                 // it is a instanciation of a Visage class which has instance variable initializers
                 // (or is anonymous, or has an outer class argument)
                 //
@@ -3169,7 +3189,7 @@ public abstract class VisageAbstractTranslation
                 //       for (int visage$0initloop = 0; i < X.$VAR_COUNT; i++) {
                 //           ...
                 //       }
-                if (varSyms.nonEmpty()) {
+                if (visageVarSyms.nonEmpty() || javaVarSyms.nonEmpty()) {
                     makeInitApplyDefaults(type, tmpVarName);
                 } else {
                     makeInitSupportCall(defs.applyDefaults_VisageObjectMethodName, tmpVarName);
@@ -3183,8 +3203,19 @@ public abstract class VisageAbstractTranslation
                 //       visage$0objlit
                 instExpression = id(tmpVarName);
 
+            } else if (hasVars) {
+                // This is a Java class that has instance variable initializers
+                addPreface(Var(
+                    type,
+                    tmpVarName,
+                    m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
+                initInstanceVariables(tmpVarName);
+                makeInitApplyDefaults(type, tmpVarName);
+                instExpression = id(tmpVarName);
             } else {
-                // this is a Java class or has no instance variable initializers, just instanciate it
+                // This is a Java class with no instance variable initializers,
+                // or a Visage class with no instance variable initializers or constructor args,
+                // so just instanciate it
                 instExpression = m().NewClass(null, null, classTypeExpr, newClassArgs, null);
             }
 

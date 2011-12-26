@@ -1,0 +1,27 @@
+/*
+ * @test
+ * @run
+ */
+
+var oneHour = 1h;
+var oneMinute = 1m;
+var oneSecond = 1s;
+var oneMillisecond = 1ms;
+
+println("oneHour = {oneHour}");
+println("oneMinute = {oneMinute}");
+println("oneSecond = {oneSecond}");
+println("oneMillisecond = {oneMillisecond}");
+
+println("oneHour + 30 * oneMinute = {oneHour + 30 * oneMinute}");
+println("oneMinute - 20 * oneSecond = {oneMinute - 20 * oneSecond}");
+println("oneSecond / 2 = {oneSecond / 2}");
+println("-oneMillisecond = {-oneMillisecond}");
+
+println("oneHour.toHours() = {oneHour.toHours()}");
+println("oneHour.toMinutes() = {oneHour.toMinutes()}");
+println("oneMinute.toSeconds() = {oneMinute.toSeconds()}");
+println("oneSecond.toMillis() = {oneSecond.toMillis()}");
+
+var now = Duration.valueOf(1229923309734.0);
+println("now = {now}");

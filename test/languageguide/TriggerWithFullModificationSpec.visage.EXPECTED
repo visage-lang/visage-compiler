@@ -1,0 +1,16 @@
+Initializing seq...
+  Variable seq changed from [ ] to [ 1, 3, 5, 7, 9 ]
+  The change occurred at low indexe 0 and high index -1.
+  The new slice is [ 1, 3, 5, 7, 9 ]
+Executing "insert [2, 4, 6] before seq[3]"...
+  Variable seq changed from [ 1, 3, 5, 7, 9 ] to [ 1, 3, 5, 2, 4, 6, 7, 9 ]
+  The change occurred at low indexe 3 and high index 2.
+  The new slice is [ 2, 4, 6 ]
+Executing "delete seq [1..2]"...
+  Variable seq changed from [ 1, 3, 5, 2, 4, 6, 7, 9 ] to [ 1, 2, 4, 6, 7, 9 ]
+  The change occurred at low indexe 1 and high index 2.
+  The new slice is [ ]
+Executing "seq[4..5] = [8, 10]"...
+  Variable seq changed from [ 1, 2, 4, 6, 7, 9 ] to [ 1, 2, 4, 6, 8, 10 ]
+  The change occurred at low indexe 4 and high index 5.
+  The new slice is [ 8, 10 ]

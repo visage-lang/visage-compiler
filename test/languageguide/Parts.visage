@@ -1,0 +1,11 @@
+/*
+ * @subtest
+ */
+
+// Parts.visage
+public class Wheel {
+  public var diameter: Number;
+  override function toString() {
+    "Wheel \{diameter: {diameter}\}"
+  }
+}

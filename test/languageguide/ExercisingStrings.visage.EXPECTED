@@ -1,0 +1,17 @@
+greeting = Hello, World.
+greeting.length() = 13
+greeting.startsWith("H") = true
+greeting.endsWith(".") = true
+greeting.indexof(",") = 5
+greeting.substring(3, 5) = lo
+greeting.toUpperCase() = HELLO, WORLD.
+greeting.toLowerCase() = hello, world.
+To construct a multi-line string in Visage,
+you can use its string literal and string expression
+concatenation capabilities.
+str = abcabc
+str.indexOf('b') = 1
+str.lastIndexOf('b') = 4
+str.contains('cab') = true
+str.replaceFirst('a', 'x') = xbcabc
+str.replaceAll('a', 'x') = xbcxbc

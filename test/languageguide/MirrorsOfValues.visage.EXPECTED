@@ -1,0 +1,20 @@
+Examining...
+  original: 1024
+  mirror: IntegerValue(1024)
+  type: Integer
+  back from mirror: 1024
+Examining...
+  original: Point { x: 3.0, y: 4.0 }
+// @Skip  mirror: visage.reflect.VisageLocal$ObjectValue@37a786c3
+  type: class MirrorsOfValues.Point
+  back from mirror: Point { x: 3.0, y: 4.0 }
+Exemining...
+  original: [ 3.14159, 2.71828 ]
+// @Skip  mirror: visage.reflect.VisageLocal$SequenceValue@b32e13d
+  type: Float[]
+  back from mirror: [ 3.14159, 2.71828 ]
+Exemining...
+  original: MirrorsOfValues$1Local$1.function<0>
+// @Skip  mirror: visage.reflect.VisageLocal$FunctionValue@182d9c06
+  type: function():Double
+  back from mirror: MirrorsOfValues$1Local$1.function<0>

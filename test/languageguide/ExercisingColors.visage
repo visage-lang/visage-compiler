@@ -1,0 +1,27 @@
+/*
+ * @test
+ * @run
+ */
+
+var a = Color.MAGENTA;
+var b = Color.YELLOW;
+
+println("Magenta = {a}");
+println("Yellow = {b}");
+
+println("Magenta + Yellow = {a + b}");
+println("Magenta - Yellow = {a - b}");
+println("Magenta * 2 = {a * 2}");
+println("2 * Magenta = {2 * a}");
+println("Magenta * 2.5 = {a * 2.5}");
+println("2.5 * Magenta = {2.5 * a}");
+println("Magenta / 2 = {a / 2}");
+println("Magenta / 2.5 = {a / 2.5}");
+println("Magenta / Yellow = {a / b}");
+
+var navy = Color.valueOf(0x000080, false);
+println("navy = {navy}");
+var silver = Color.rgb(0xC0, 0xC0, 0xC0);
+println("silver = {silver}");
+var red = Color.color(1, 0, 0);
+println("red = {red}");

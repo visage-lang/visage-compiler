@@ -1,0 +1,12 @@
+Caught Exception with message: Zero.
+Reached finally block.
+Caught IllegalArgumentException with message: One.
+Reached finally block.
+Caught IllegalStateException with message: Two.
+Reached finally block.
+Caught RuntimeException with message: Three.
+Reached finally block.
+Caught UnsupportedOperationException with message: Four.
+Reached finally block.
+Out of exceptions for i = 5
+Reached finally block.

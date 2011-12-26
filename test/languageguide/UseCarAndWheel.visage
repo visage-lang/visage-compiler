@@ -1,0 +1,14 @@
+/*
+ * @test
+ * @compile Car.visage
+ * @compile Parts.visage
+ * @run
+ */
+
+var car = Car { make: "Ford", model: "Taurus" }
+var anotherCar = Car.getACar();
+var wheel = Parts.Wheel { diameter: 16 }
+
+println(car);
+println(anotherCar);
+println(wheel);

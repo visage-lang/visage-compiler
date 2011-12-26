@@ -1,0 +1,13 @@
+/*
+ * @subtest
+ */
+
+// a/A.visage
+package a;
+
+public class A {
+  protected var i: Integer;
+  public function getI() {
+    i
+  }
+}

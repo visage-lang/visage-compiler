@@ -1,0 +1,28 @@
+/*
+ * @test
+ * @run
+ */
+
+var greeting = "Hello, World.";
+
+println("greeting = {greeting}");
+println("greeting.length() = {greeting.length()}");
+println("greeting.startsWith(\"H\") = {greeting.startsWith("H")}");
+println("greeting.endsWith(\".\") = {greeting.endsWith(".")}");
+println("greeting.indexof(\",\") = {greeting.indexOf(",")}");
+println("greeting.substring(3, 5) = {greeting.substring(3, 5)}");
+println("greeting.toUpperCase() = {greeting.toUpperCase()}");
+println("greeting.toLowerCase() = {greeting.toLowerCase()}");
+
+var multiLine = "To construct a multi-line string in Visage,\n"
+          "you can use its string literal and string expression\n"
+          "concatenation capabilities.";
+println(multiLine);
+
+var str = "abcabc";
+println("str = {str}");
+println("str.indexOf('b') = {str.indexOf('b')}");
+println("str.lastIndexOf('b') = {str.lastIndexOf('b')}");
+println("str.contains('cab') = {str.contains('cab')}");
+println("str.replaceFirst('a', 'x') = {str.replaceFirst('a', 'x')}");
+println("str.replaceAll('a', 'x') = {str.replaceAll('a', 'x')}");

@@ -1,0 +1,4 @@
+A.f() is invoked with parameter i = 4.
+B.f() is invoked with parameter i = 7.
+a.f(4) = 7.
+b.f(7) = 35.

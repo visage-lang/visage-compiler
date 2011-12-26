@@ -1,0 +1,7 @@
+Variable i changed to 1024.
+Variable i changed to -100.
+Since -100 < 0, setting i to 0.
+Variable i changed to 0.
+Variable i changed to 20000.
+Since 20000 > 9999, setting i to 9999.
+Variable i changed to 9999.

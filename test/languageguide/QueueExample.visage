@@ -1,0 +1,33 @@
+/*
+ * @test
+ * @run
+ */
+
+var q:Integer[];
+
+function enqueue(i:Integer):Void {
+  insert i into q;
+  println("Enqueued {i}.  Size of q is {sizeof q} now.");
+}
+
+function dequeue():Integer {
+  if (sizeof q == 0) {
+    println("Size of q is {sizeof q} now. Returning -1.");
+    return -1;
+  } else {
+    var i = q[0];
+    delete q[0];
+    println("Dequeued {i}.  Size of q is {sizeof q} now.");
+    return i;
+  }
+}
+
+enqueue(1);
+enqueue(2);
+enqueue(3);
+println(dequeue());
+println(dequeue());
+enqueue(4);
+println(dequeue());
+println(dequeue());
+println(dequeue());

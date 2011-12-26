@@ -1,0 +1,106 @@
+/*
+ * @test
+ * @run
+ */
+
+var pointInstance = 1;
+class Point {
+  var instance = pointInstance++;
+  var x: Number;
+  var y: Number;
+  override public function toString() {
+    "Point({x}, {y})@{instance}"
+  }
+}
+
+// data bindings
+var a = 3.14159;
+def b = bind a;
+var c = bind a;
+var p = Point { x: bind a, y: bind a };
+println("a = {a}, b = {b}, c = {c}, p.x = {p.x}, p.y = {p.y}");
+
+a = 2.17828;
+println("a = {a}, b = {b}, c = {c}, p.x = {p.x}, p.y = {p.y}");
+
+// binding to arithmetic expressions
+var x1 = 3;
+var y1 = 4;
+var z1 = bind x1 + y1;
+println("x1 = {x1}, y1 = {y1}, z1 = {z1}");
+x1 = 5;
+println("x1 = {x1}, y1 = {y1}, z1 = {z1}");
+y1 = 12;
+println("x1 = {x1}, y1 = {y1}, z1 = {z1}");
+
+// binding to if expression
+var b2 = true;
+var x2 = 3;
+var y2 = 4;
+def z2 = bind if (b2) then x2 else y2;
+println("b2 = {b2}, x2 = {x2}, y2 = {y2}, z2 = {z2}");
+b2 = false;
+println("b2 = {b2}, x2 = {x2}, y2 = {y2}, z2 = {z2}");
+x2 = 5;
+println("b2 = {b2}, x2 = {x2}, y2 = {y2}, z2 = {z2}");
+y2 = 12;
+println("b2 = {b2}, x2 = {x2}, y2 = {y2}, z2 = {z2}");
+
+// binding to for expression
+var a3 = 1;
+var b3 = 10;
+var m3 = 4;
+def c3 = bind for (x in [a3..b3] where x < m3) { x * x };
+print("a3 = {a3}, b3 = {b3}, m3 = {m3}, c3 = "); println(c3);
+m3 = 7;
+print("a3 = {a3}, b3 = {b3}, m3 = {m3}, c3 = "); println(c3);
+a3 = 2;
+print("a3 = {a3}, b3 = {b3}, m3 = {m3}, c3 = "); println(c3);
+b3 = 5;
+print("a3 = {a3}, b3 = {b3}, m3 = {m3}, c3 = "); println(c3);
+
+// binding to block
+var a4 = 3;
+var b4 = 4;
+def c4 = bind {
+  def d4 = a4;
+  def e4 = b4;
+  d4 * d4
+};
+println("a4 = {a4}, b4 = {b4}, c4 = {c4}");
+a4 = 5;
+println("a4 = {a4}, b4 = {b4}, c4 = {c4}");
+b4 = 12;
+println("a4 = {a4}, b4 = {b4}, c4 = {c4}");
+
+// binding to function invocation expression
+function sumOfSquares(x, y) { x * x + y * y }
+var a5 = 3;
+var b5 = 4;
+def c5 = bind sumOfSquares(a5 + 5, a5 + 6);
+println("a5 = {a5}, b5 = {b5}, c5 = {c5}");
+a5 = 5;
+println("a5 = {a5}, b5 = {b5}, c5 = {c5}");
+b5 = 12;
+println("a5 = {a5}, b5 = {b5}, c5 = {c5}");
+
+// binding to object literals
+var a6 = 3;
+var b6 = 4;
+def p6 = bind Point { x: a6, y: b6 };
+def q6 = bind Point { x: bind a6, y: b6 };
+def r6 = bind Point { x: bind a6, y: bind b6 };
+println("a6 = {a6}, b6 = {b6}, p6 = {p6}, q6 = {q6}, r6 = {r6}");
+a6 = 5;
+println("a6 = {a6}, b6 = {b6}, p6 = {p6}, q6 = {q6}, r6 = {r6}");
+b6 = 12;
+println("a6 = {a6}, b6 = {b6}, p6 = {p6}, q6 = {q6}, r6 = {r6}");
+
+// bidirectional binding
+var a7 = 3;
+var b7 = bind a7 with inverse;
+println("a7 = {a7}, b7 = {b7}");
+a7 = 4;
+println("a7 = {a7}, b7 = {b7}");
+b7 = 5;
+println("a7 = {a7}, b7 = {b7}");

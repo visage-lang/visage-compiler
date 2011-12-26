@@ -1,0 +1,16 @@
+x = 3.14159
+y = 2.71828
+x + y = 5.85987
+x - y = 0.42331004
+x * y = 8.5397215
+x / y = 1.1557271
+x mod y = 0.42331004
+max = 3.4028235E38
+min = 1.4E-45
+max * 2 will overflow to Infinity
+min / 2 will underflow to 0.0
+inf = Infinity
+inf.isInfinite() = true
+inf / inf = NaN
+nan = NaN
+nan.isNaN() = true

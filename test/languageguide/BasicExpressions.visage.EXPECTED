@@ -1,0 +1,22 @@
+The value of x is 25
+1 + 2 * 3 = 7
+(1 + 2) * 3 = 9
+6 / 2 * 3 = 9
+6 / (2 * 3) = 1
+greeting changed
+Before: v1 = 0
+After: v1 = 42
+Before: v2 = null
+After: v2 = Point { x: 3.0, y: 4.0 }
+x = 1024
+x = 1025
+x = 1023
+x = 3069
+x = 767
+true == true is true
+3 == 3.0 is true
+"hello" == "hello" is true
+3.14159 > 2.71828 is true
+1h < 100m is true
+p1 == p1 is true
+p1 == p2 is false

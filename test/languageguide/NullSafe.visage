@@ -1,0 +1,22 @@
+/*
+ * @test
+ * @run
+ */
+
+class A {
+  var objVar:Object;
+  var intVar:Integer;
+  var stringVar:String;
+
+  function retObj():Object {
+    println("should not get called");
+    objVar
+  }
+}
+
+var nullA:A = null;
+
+println("nullA.objVar = {nullA.objVar}");
+println("nullA.intVar = {nullA.intVar}");
+println("nullA.stringVar = {nullA.stringVar}");
+println("nullA.retObj() = {nullA.retObj()}");
