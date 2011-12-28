@@ -165,12 +165,11 @@ public class VisageVarUsageAnalysis extends VisageTreeScanner {
         }
         bindStatus = wasBindStatus;
         if (tree.getOnReplace() != null) {
-            mark(tree.sym, VARUSE_HAS_TRIGGER);
+            mark(tree.sym, VARUSE_HAS_REPLACE_TRIGGER);
             mark(tree.sym, VARUSE_NEED_ACCESSOR);
             scan(tree.getOnReplace());
         }
         if (tree.getOnInvalidate() != null) {
-            mark(tree.sym, VARUSE_HAS_TRIGGER);
             mark(tree.sym, VARUSE_NEED_ACCESSOR);
             scan(tree.getOnInvalidate());
         }

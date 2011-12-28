@@ -1866,8 +1866,16 @@ however this is what we need */
                                 phaseArg()));
                     }
 
-                    if (!override || varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
-                        // if (trigger-phase and real-trigger) { call-on-invalidate; call-on-replace; }
+                    if (varInfo.onInvalidate() != null) {
+                        // if (invalidate-phase) { call-on-invalidate }
+                        addStmt(OptIf(AND(
+                                IsInvalidatePhase(),
+                                FlagTest(proxyVarSym, defs.varFlagINIT_INITIALIZED_DEFAULT, defs.varFlagINIT_INITIALIZED_DEFAULT)
+                            ), varInfo.onInvalidateAsInline()));
+                    }
+
+                    if (!override && varInfo.sym.useReplaceTrigger()) {
+                        // if (trigger-phase and real-trigger) { call-on-replace }
                         addStmt(
                             OptIf(
                                 AND(AND(
@@ -1875,15 +1883,10 @@ however this is what we need */
                                     GE(startPosArg(), Int(0))),
                                     FlagTest(proxyVarSym, defs.varFlagINIT_INITIALIZED_DEFAULT, defs.varFlagINIT_INITIALIZED_DEFAULT)
                                 ),
-                                Block(
-                                    (varInfo.onInvalidate() == null)? null :
-                                        varInfo.onInvalidateAsInline(),
-                                    (override || !varInfo.sym.useTrigger())? null :
-                                        CallStmt(attributeOnReplaceName(proxyVarSym),
-                                                                startPosArg(),
-                                                                endPosArg(),
-                                                                newLengthArg())
-                                )
+                                CallStmt(attributeOnReplaceName(proxyVarSym),
+                                                        startPosArg(),
+                                                        endPosArg(),
+                                                        newLengthArg())
                             )
                         );
                     }
@@ -1927,7 +1930,7 @@ however this is what we need */
                     addParam(syms.intType, lastIndexName);
                     addParam(syms.intType, newLengthName);
                     
-                    buildIf(varSym.useTrigger());
+                    buildIf(varSym.useReplaceTrigger());
                 }
                 
                 @Override
@@ -2184,12 +2187,6 @@ however this is what we need */
                     Name oldValueName = defs.varOldValue_LocalVarName;
                     ListBuffer<JCStatement> bgstmts = ListBuffer.lb();
 
-                    // Set read only bit (trapdoor.)
-                    //TODO: is this still needed?
-                    if (varInfo.isReadOnly()) {
-                        bgstmts.append(FlagChangeStmt(proxyVarSym, null, defs.varFlagIS_READONLY));
-                    }
-
                     JCStatement finish;
                     if (needsOnReplace) {
                         // varOldValue$ != varNewValue$
@@ -2220,19 +2217,6 @@ however this is what we need */
                                 FlagChangeStmt(proxyVarSym, defs.varFlagSTATE_MASK, defs.varFlagVALID_DEFAULT_APPLIED),
                                 SetStmt(proxyVarSym, id(newValueName))
                             );
-                    }
-                    if (needsInvalidate) {
-                        finish =
-                                If (FlagTest(proxyVarSym, defs.varFlagSTATE_TRIGGERED, defs.varFlagINVALID_STATE_BIT),
-                                    Block(
-                                        // Initialized (not yet triggered state), restore flags, wait for the trigger before actually changing
-                                        //Debug("BGet-Revert "+proxyVarSym, id(newValueName)),
-                                        FlagChangeStmt(proxyVarSym, id(defs.varFlagALL_FLAGS), id(defs.varFlags_LocalVarName)),
-                                        Return (id(newValueName))
-                                    ),
-                                /*else (all valid)*/
-                                    finish
-                                );
                     }
                     bgstmts.append(finish);
 
@@ -2495,15 +2479,14 @@ however this is what we need */
                         }
                     }
 
-                    if (varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
+                    if (varInfo.onInvalidate() != null) {
+                        // if (phase$ == PHASE$INVALIDATE) { inline invalidation }
+                        addStmt(OptIf(IsInvalidatePhase(), varInfo.onInvalidateAsInline()));
+                    }
+
+                    if (varInfo.onReplace() != null) {
                         // Begin the get$ block.
                         beginBlock();
-
-                        // Add on-invalidate trigger if any
-                        if (varInfo.onInvalidate() != null) {
-                            addStmt(OptIf(OR(id(wasValidVar), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, null)),
-                                varInfo.onInvalidateAsInline()));
-                        }
 
                         // Call the get$var to force evaluation.
                         if (varInfo.onReplace() != null) {
@@ -2515,7 +2498,7 @@ however this is what we need */
                                 ));
                         }
 
-                        // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
+                        // if (phase$ == PHASE$TRIGGER) { get$var(); }
                         addStmt(OptIf(IsTriggerPhase(),
                                 endBlock()));
                     }

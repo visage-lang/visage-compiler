@@ -162,7 +162,7 @@ public class VisageVarSymbol extends VarSymbol {
     }
 
     private boolean accessorsRequired() {
-        return (flags_field & (VARUSE_BIND_ACCESS | VARUSE_BOUND_INIT | VARUSE_HAS_TRIGGER | VARUSE_VARREF | VARUSE_FORWARD_REFERENCE)) != 0;
+        return (flags_field & (VARUSE_NEED_ACCESSOR | VARUSE_VARREF)) != 0;
     }
     
     public boolean useAccessors() {
@@ -209,8 +209,8 @@ public class VisageVarSymbol extends VarSymbol {
     }
 
     /** Either has a trigger or a sub-class may have a trigger. */
-    public boolean useTrigger() {
-        return ! hasScriptOnlyAccess() || (flags_field & VARUSE_HAS_TRIGGER) != 0;
+    public boolean useReplaceTrigger() {
+        return ! hasScriptOnlyAccess() || (flags_field & VARUSE_HAS_REPLACE_TRIGGER) != 0;
     }
 
     // Predicate for def (constant) var.

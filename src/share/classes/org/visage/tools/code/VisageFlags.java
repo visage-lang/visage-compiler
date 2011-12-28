@@ -60,7 +60,7 @@ public class VisageFlags {
 
     // Var/def usage info -- all usage info is within the script only 
     private static final long FIRST_VARUSE_FLAG        = LAST_VARMARK_FLAG << 1;
-    public static final long VARUSE_HAS_TRIGGER        = FIRST_VARUSE_FLAG << 0;  // has 'on replace' or 'on invalidate' either in definition or override
+    public static final long VARUSE_HAS_REPLACE_TRIGGER        = FIRST_VARUSE_FLAG << 0;  // has 'on replace' either in definition or override
     public static final long VARUSE_BOUND_INIT         = FIRST_VARUSE_FLAG << 1;  // defined as bound, initially, in obj lit, or override
     public static final long VARUSE_ASSIGNED_TO        = FIRST_VARUSE_FLAG << 2;  // assigned ("=") to
     public static final long VARUSE_OBJ_LIT_INIT       = FIRST_VARUSE_FLAG << 3;  // initialized in an obj lit, bound or not

@@ -422,7 +422,7 @@ class VisageAnalyzeClass {
             if (detail) {
                 long flags = getFlags();
                 System.err.println("    " +
-                                   (((flags & VisageFlags.VARUSE_HAS_TRIGGER) != 0)       ? ", VARUSE_HAS_TRIGGER" : "") +
+                                   (((flags & VisageFlags.VARUSE_HAS_REPLACE_TRIGGER) != 0)       ? ", VARUSE_HAS_REPLACE_TRIGGER" : "") +
                                    (((flags & VisageFlags.VARUSE_BOUND_INIT) != 0)        ? ", VARUSE_BOUND_INIT" : "") +
                                    (((flags & VisageFlags.VARUSE_ASSIGNED_TO) != 0)       ? ", VARUSE_ASSIGNED_TO" : "") +
                                    (((flags & VisageFlags.VARUSE_OBJ_LIT_INIT) != 0)      ? ", VARUSE_OBJ_LIT_INIT" : "") +
