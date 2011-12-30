@@ -733,14 +733,15 @@ public class VisageCheck {
             return false;
         }
 
-        // If the target of member select is a "def"
-        // variable and not initialized with bind, then
-        // we know the target can not change.
+        // If the target of member select is a parameter,
+        // or is a "def" variable that is not initialized
+        // with bind, then we know the target can not change.
         if (base instanceof VisageIdent) {
             long flags = sym.flags();
+            boolean isParam = (flags & Flags.PARAMETER) != 0L;
             boolean isDef = (flags & VisageFlags.IS_DEF) != 0L;
             boolean isBindInit = (flags & VisageFlags.VARUSE_BOUND_INIT) != 0L;
-            boolean targetFinal = isDef && !isBindInit;
+            boolean targetFinal = isParam || (isDef && !isBindInit);
             return !targetFinal;
         }
         return true;
