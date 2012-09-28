@@ -26,6 +26,4 @@ nbproject/private/
 ^artifacts/.*$
 \.dep\.inc$
 ^junit.*\.properties$
-*.class
-*.jar
 Thumbs.db
